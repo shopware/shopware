@@ -1,0 +1,30 @@
+@import "~scss/variables";
+
+.sw-settings-search {
+    &__search-behaviour-title {
+        display: block;
+        width: 100%;
+        margin-bottom: 32px;
+    }
+
+    .sw-card {
+        .sw-settings-search__search-behaviour-title {
+            font-size: $font-size-s;
+        }
+    }
+
+    &__search-behaviour-condition {
+        label {
+            cursor: pointer;
+        }
+
+        .sw-field__radio-option-description {
+            white-space: pre-line;
+            display: inline;
+        }
+    }
+
+    &__search-behaviour-term-length.sw-field {
+        width: 50%;
+    }
+}

@@ -1,0 +1,156 @@
+{
+  "sw-product-stream": {
+    "general": {
+      "mainMenuItemGeneral": "Dynamische Produktgruppen",
+      "placeholderSearchBar": "Durchsuche alle dynamischen Produktgruppen ...",
+      "descriptionTextModule": "Verwalte hier Deine dynamischen Produktgruppen.",
+      "errorCategory": "\"{name}\" stellt Produkt-Zuweisungen für eine Kategorie zur Verfügung und kann daher nicht gelöscht werden. | \"{name}\" stellt Produkt-Zuweisungen für {count} Kategorien zur Verfügung und kann daher nicht gelöscht werden."
+    },
+    "acl": {
+      "conditionsAlertHeading": "Keine ausreichenden Rechte",
+      "conditionsAlertDescription": "Du hast nicht genug Rechte um alle Aktionen in der \"Bedingungen\"-Sektion auszuführen."
+    },
+    "list": {
+      "textProductStreamOverview": "Dynamische Produktgruppen",
+      "columnName": "Name",
+      "columnDescription": "Beschreibung",
+      "columnDateUpdated": "Änderungsdatum",
+      "columnStatus": "Status",
+      "titleSidebarItemRefresh": "Aktualisieren",
+      "buttonAddProductStream": "Produktgruppe anlegen",
+      "status": {
+        "valid": "Gültig",
+        "invalid": "Ungültig"
+      },
+      "messageEmpty": "Noch keine Produktgruppen"
+    },
+    "filter": {
+      "placeholderFieldSelect": "Wähle eine Eigenschaft ...",
+      "placeholderOperatorSelect": "Wähle einen Operator ...",
+      "valid": "Nur gültige Produktgruppen anzeigen",
+      "type": {
+        "equals": "Gleich",
+        "equalsAny": "Eins von",
+        "equalsAll": "Alle von",
+        "contains": "Enthält",
+        "greaterThan": "Größer als",
+        "lessThan": "Kleiner als",
+        "greaterThanEquals": "Größer/gleich",
+        "lessThanEquals": "Kleiner/gleich",
+        "notEquals": "Ungleich",
+        "notEqualsAny": "Keins von",
+        "notEqualsAll": "Alle außer",
+        "notContains": "Enthält nicht",
+        "range": "Zwischen",
+        "since": "Zeit nach",
+        "until": "Zeit bis"
+      },
+      "timeUnits": {
+        "days": "Tage"
+      },
+      "values": {
+        "active": "Aktiv",
+        "availableStock": "Verfügbarer Bestand",
+        "ratingAverage": "Durchschnittliche Bewertung",
+        "category": "Kategorie",
+        "additionalText": "Zusätzlicher Text",
+        "allowNotification": "Benachrichtigung erlauben",
+        "customFields": "Zusatzfelder",
+        "categories": "Kategorien",
+        "categoriesRo": "Kategorien",
+        "cheapestPrice": "Preis",
+        "choose": "Auswahl",
+        "coverId": "Hat Cover-Bild",
+        "createdAt": "Erstelldatum",
+        "description": "Beschreibung",
+        "descriptionLong": "Langbeschreibung",
+        "ean": "GTIN/EAN",
+        "gross": "Brutto",
+        "group": "Eigenschaft",
+        "height": "Höhe",
+        "isBlog": "Ist Blog",
+        "isCloseout": "Im Abverkauf",
+        "keywords": "Schlüsselwörter",
+        "length": "Länge",
+        "linked": "Verlinkt",
+        "manufacturerId": "Hersteller",
+        "manufacturer": "Hersteller",
+        "manufacturerNumber": "Hersteller-Produktnummer",
+        "markAsTopseller": "Ist hervorgehoben",
+        "maxDeliveryTime": "Maximale Lieferzeit",
+        "maxPurchase": "Maximale Bestellmenge",
+        "minDeliveryTime": "Minimale Lieferzeit",
+        "minPurchase": "Minimale Bestellmenge",
+        "minStock": "Minimaler Lagerbestand",
+        "name": "Name",
+        "net": "Netto",
+        "option": "Option",
+        "packUnit": "Verpackungseinheit",
+        "packUnitPlural": "Verpackungseinheit Mehrzahl",
+        "price": "Preis",
+        "product": "Produkt",
+        "productNumber": "Produktnummer",
+        "purchasePrices": "Einkaufspreis",
+        "purchaseUnit": "Verkaufseinheit",
+        "referenceUnit": "Grundeinheit",
+        "releaseDate": "Erscheinungsdatum",
+        "restockTime": "Dauer der Wiederauffüllung",
+        "sales": "Verkäufe",
+        "salesChannel": "Verkaufskanal",
+        "shippingFree": "Versandkostenfrei",
+        "stock": "Lagerbestand",
+        "tags": "Tags",
+        "tax": "Steuern",
+        "taxRate": "Steuerrate",
+        "type": "Typ",
+        "unit": "Einheit",
+        "variations": "Varianten",
+        "visibilities": "Sichtbarkeit",
+        "visibility": "Sichtbar",
+        "visible": "Sichtbar",
+        "weight": "Gewicht",
+        "width": "Breite",
+        "deliveryTime": "Lieferzeit",
+        "configuratorSettings": "Konfigurator-Einstellungen",
+        "options": "Variantenausprägung",
+        "properties": "Eigenschaften",
+        "property_group": "Eigenschaft",
+        "property_group_option": "Eigenschafts-Ausprägung",
+        "product_manufacturer": "Hersteller",
+        "product_visibility": "Produkt in Verkaufskanal",
+        "percentage": "Prozentuales Verhältnis Preis/Streichpreis",
+        "states": "Produktzustand",
+        "productStates": {
+          "physical": "Physisch",
+          "digital": "Digital"
+        }
+      }
+    },
+    "detail": {
+      "titleCard": "Informationen",
+      "buttonSave": "Speichern",
+      "labelName": "Name",
+      "placeholderName": "Gib einen Namen ein ...",
+      "labelDescription": "Beschreibung",
+      "placeholderDescription": "Gib eine Beschreibung ein ...",
+      "textHeadline": "Neue Produktgruppe",
+      "titleFilter": "Bedingungen",
+      "titleResult": "Produkte",
+      "messageSaveSuccess": "Die Produktgruppe \"{name}\" wurde erfolgreich gespeichert.",
+      "messageSaveError": "Die Produktgruppe \"{name}\" konnte nicht gespeichert werden.",
+      "buttonOpenPreview": "Vorschau"
+    },
+    "previewModal": {
+      "title": "Vorschau",
+      "empty": "Es wurden keine Produkte gefunden.",
+      "close": "Schließen"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "product_stream": {
+        "label": "Dynamische Produktgruppen"
+      }
+    }
+  }
+}

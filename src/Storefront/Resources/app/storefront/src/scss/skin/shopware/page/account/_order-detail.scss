@@ -1,0 +1,117 @@
+.order-table-header,
+.order-item-header,
+.order-detail-content-header {
+    .row {
+        margin-right: 0;
+        margin-left: 0;
+
+        > .col,
+        > [class*='col-'] {
+            padding-right: $order-grid-gutter-width / 2;
+            padding-left: $order-grid-gutter-width / 2;
+
+            @include media-breakpoint-down(sm) {
+                padding-right: 0;
+                padding-left: 0;
+            }
+        }
+    }
+}
+
+.order-table-header {
+    font-weight: $font-weight-bold;
+}
+
+.order-item-header {
+    .row {
+        > .order-table-header-heading,
+        > .order-table-header-order-number {
+            padding-right: 0;
+            padding-left: 0;
+        }
+    }
+}
+
+.order-item-name {
+    color: $gray-800;
+}
+
+.order-detail-content-header {
+    margin-top: $spacer-md;
+    font-weight: $font-weight-bold;
+
+    .order-detail-content-header-cell[class*='col-'] {
+        &:first-of-type {
+            padding-left: 0;
+        }
+
+        &:last-of-type {
+            padding-right: 0;
+        }
+    }
+}
+
+.order-item-product-name {
+    color: $headings-color;
+
+    &:hover {
+        color: $primary;
+        text-decoration: none;
+    }
+
+    strong {
+        font-weight: $font-weight-bold;
+    }
+}
+
+.order-item-product-image {
+    @include media-breakpoint-up(md) {
+        .product-image-link {
+            justify-content: normal;
+        }
+
+        img {
+            max-width: 100px;
+        }
+    }
+}
+
+.order-item-number-value {
+    font-weight: $font-weight-bold;
+}
+
+.order-pseudo-price-value {
+    text-decoration: line-through;
+}
+
+.order-item-detail-list-item {
+    margin: 0;
+
+    &.is-child {
+        background-color: $gray-100;
+    }
+}
+
+.order-item-nested-icon {
+    background-color: $gray-600;
+}
+
+.order-item-detail-footer {
+    background-color: $gray-100;
+}
+
+.order-detail-table-footer {
+    @extend .bg-light;
+}
+
+.order-price-unit {
+    font-size: $font-size-sm;
+}
+
+.order-item-variants {
+    font-size: $font-size-sm;
+}
+
+.order-item-variants-properties-name {
+    font-weight: $font-weight-bold;
+}

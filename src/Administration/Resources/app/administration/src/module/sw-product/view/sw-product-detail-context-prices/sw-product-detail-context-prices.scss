@@ -1,0 +1,139 @@
+@import "~scss/variables";
+
+.sw-product-detail-context-prices {
+    width: 100%;
+    max-width: 1330px;
+    margin: 0 auto;
+
+    .mt-card.context-price {
+        width: 100%;
+    }
+
+    .context-prices__empty-state {
+        width: 100%;
+
+        .mt-card__content {
+            min-height: 250px;
+            position: relative;
+        }
+
+        .sw-loader {
+            background: none;
+        }
+    }
+
+    .mt-card .mt-card__content {
+        padding: 0;
+    }
+
+    .sw-product-detail-context-prices__toolbar {
+        padding: 25px;
+        background-color: $color-gray-100;
+        border-bottom: 1px solid $color-gray-300;
+    }
+
+    .sw-product-detail-context-prices__toolbar-selection {
+        margin-bottom: 0;
+    }
+
+    .sw-list-price-field__vertical {
+        gap: 8px;
+    }
+
+    .sw-data-grid .sw-data-grid__body .sw-data-grid__cell-content {
+        height: auto;
+        padding: 5px 20px 10px;
+    }
+
+    .sw-data-grid .sw-data-grid__body .product-detail-context-prices__price-field-wrapper {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        margin-bottom: 5px;
+
+        .sw-product-detail-context-prices__inherited-icon {
+            margin-right: 10px;
+        }
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    .sw-product-detail-context-prices__type-label {
+        display: flex;
+        flex-direction: column;
+        gap: 34px;
+    }
+
+    input[name="sw-field--item-quantityEnd"] {
+        text-align: center;
+    }
+
+    .sw-data-grid.is--compact .sw-product-detail-context-prices__type-label {
+        gap: 18px;
+    }
+
+    .sw-data-grid .sw-data-grid__body .sw-data-grid__cell-content .sw-field__addition {
+        display: none;
+    }
+
+    .sw-product-detail-context-prices__inherited-icon {
+        cursor: pointer;
+    }
+
+    .sw-product-detail-context-prices__empty-state {
+        max-width: 350px;
+        margin: 0 auto;
+        padding: 60px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+
+        &-card {
+            width: 100%;
+            max-width: none;
+        }
+
+        p {
+            text-align: center;
+            margin-block: 10px;
+        }
+
+        &-select-rule {
+            width: 100%;
+        }
+
+        .sw-product-detail-context-prices__parent-prices-link {
+            color: $color-shopware-brand-500;
+            margin-bottom: 20px;
+        }
+    }
+
+    .sw-product-detail-context-prices__inherit-toggle-wrapper {
+        display: flex;
+        align-items: center;
+        line-height: 16px;
+        font-size: $font-size-xs;
+        margin-bottom: 20px;
+        color: $color-darkgray-200;
+
+        .sw-product-detail-context-prices__inheritance-icon {
+            margin-right: 8px;
+        }
+
+        &.is--inherited {
+            color: $color-module-purple-900;
+        }
+
+        .sw-product-detail-context-prices__inherit-switch {
+            margin: 0 10px 0 0;
+
+            .sw-field--switch__input {
+                height: 16px;
+                padding: 0;
+            }
+        }
+    }
+}

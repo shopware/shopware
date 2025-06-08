@@ -1,0 +1,76 @@
+<svg width="439pt" height="368pt" viewBox="0.00 0.00 439.13 367.60" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 363.6)">
+<title>G</title>
+<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-363.6 435.1343,-363.6 435.1343,4 -4,4"></polygon>
+<!-- paymentFailed -->
+<g id="node1" class="node">
+<title>paymentFailed</title>
+<ellipse fill="none" stroke="#000000" cx="287.8746" cy="-341.6" rx="69.4593" ry="18"></ellipse>
+<text text-anchor="middle" x="287.8746" y="-337.4" font-family="Handlee" font-size="14.00" fill="#000000">Payment failed</text>
+</g>
+<!-- choosePayment -->
+<g id="node2" class="node">
+<title>choosePayment</title>
+<polygon fill="none" stroke="#000000" points="182.8746,-286.6 .1253,-268.6 182.8746,-250.6 365.6239,-268.6 182.8746,-286.6"></polygon>
+<text text-anchor="middle" x="182.8746" y="-264.4" font-family="Handlee" font-size="14.00" fill="#000000">Choose other payment method</text>
+</g>
+<!-- paymentFailed&#45;&gt;choosePayment -->
+<g id="edge1" class="edge">
+<title>paymentFailed-&gt;choosePayment</title>
+<path fill="none" stroke="#000000" d="M263.5216,-324.6688C248.8001,-314.4339 229.8865,-301.2844 214.076,-290.2924"></path>
+<polygon fill="#000000" stroke="#000000" points="215.8666,-287.2746 205.658,-284.4399 211.8708,-293.022 215.8666,-287.2746"></polygon>
+</g>
+<!-- changePayment -->
+<g id="node3" class="node">
+<title>changePayment</title>
+<polygon fill="none" stroke="#000000" points="285.0431,-197.8 80.7061,-197.8 80.7061,-161.8 285.0431,-161.8 285.0431,-197.8"></polygon>
+<text text-anchor="middle" x="182.8746" y="-175.6" font-family="Handlee" font-size="14.00" fill="#000000">Change payment method of order</text>
+</g>
+<!-- choosePayment&#45;&gt;changePayment -->
+<g id="edge2" class="edge">
+<title>choosePayment-&gt;changePayment</title>
+<path fill="none" stroke="#000000" d="M182.8746,-250.2006C182.8746,-238.0949 182.8746,-222.0076 182.8746,-208.2674"></path>
+<polygon fill="#000000" stroke="#000000" points="186.3747,-207.872 182.8746,-197.872 179.3747,-207.8721 186.3747,-207.872"></polygon>
+<text text-anchor="middle" x="193.7575" y="-220" font-family="Handlee" font-size="14.00" fill="#000000">Yes</text>
+</g>
+<!-- reRunPaymentFlow -->
+<g id="node4" class="node">
+<title>reRunPaymentFlow</title>
+<ellipse fill="none" stroke="#000000" cx="320.8746" cy="-106.8" rx="110.0199" ry="18"></ellipse>
+<text text-anchor="middle" x="320.8746" y="-102.6" font-family="Handlee" font-size="14.00" fill="#000000">Rerun payment workflow</text>
+</g>
+<!-- choosePayment&#45;&gt;reRunPaymentFlow -->
+<g id="edge3" class="edge">
+<title>choosePayment-&gt;reRunPaymentFlow</title>
+<path fill="none" stroke="#000000" d="M218.469,-254.0318C243.0016,-242.2696 274.5489,-223.4486 293.8746,-197.8 307.6808,-179.4768 314.4558,-154.1701 317.764,-134.8944"></path>
+<polygon fill="#000000" stroke="#000000" points="321.2425,-135.298 319.2678,-124.8888 314.3203,-134.2575 321.2425,-135.298"></polygon>
+<text text-anchor="middle" x="320.4279" y="-175.6" font-family="Handlee" font-size="14.00" fill="#000000">No</text>
+</g>
+<!-- changePayment&#45;&gt;reRunPaymentFlow -->
+<g id="edge4" class="edge">
+<title>changePayment-&gt;reRunPaymentFlow</title>
+<path fill="none" stroke="#000000" d="M216.987,-161.7551C235.8135,-151.7961 259.3425,-139.3496 279.2454,-128.8212"></path>
+<polygon fill="#000000" stroke="#000000" points="280.9021,-131.9045 288.1049,-124.1347 277.6289,-125.7169 280.9021,-131.9045"></polygon>
+</g>
+<!-- reRunPaymentFlow&#45;&gt;paymentFailed -->
+<g id="edge6" class="edge">
+<title>reRunPaymentFlow-&gt;paymentFailed</title>
+<path fill="none" stroke="#000000" d="M335.1664,-124.8787C359.8333,-158.4407 404.9908,-231.9314 374.8746,-286.6 366.5205,-301.7648 352.0277,-313.3291 337.2396,-321.8459"></path>
+<polygon fill="#000000" stroke="#000000" points="335.2153,-318.9592 328.046,-326.76 338.5151,-325.1327 335.2153,-318.9592"></polygon>
+<text text-anchor="middle" x="402.3711" y="-220" font-family="Handlee" font-size="14.00" fill="#000000">Failed</text>
+</g>
+<!-- end -->
+<g id="node5" class="node">
+<title>end</title>
+<ellipse fill="none" stroke="#000000" cx="320.8746" cy="-18" rx="27" ry="18"></ellipse>
+<text text-anchor="middle" x="320.8746" y="-13.8" font-family="Handlee" font-size="14.00" fill="#000000">End</text>
+</g>
+<!-- reRunPaymentFlow&#45;&gt;end -->
+<g id="edge5" class="edge">
+<title>reRunPaymentFlow-&gt;end</title>
+<path fill="none" stroke="#000000" d="M320.8746,-88.4006C320.8746,-76.2949 320.8746,-60.2076 320.8746,-46.4674"></path>
+<polygon fill="#000000" stroke="#000000" points="324.3747,-46.072 320.8746,-36.072 317.3747,-46.0721 324.3747,-46.072"></polygon>
+<text text-anchor="middle" x="343.0324" y="-58.2" font-family="Handlee" font-size="14.00" fill="#000000">Success</text>
+</g>
+</g>
+</svg>

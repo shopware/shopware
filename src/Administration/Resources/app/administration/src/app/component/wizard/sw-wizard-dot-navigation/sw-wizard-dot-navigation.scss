@@ -1,0 +1,29 @@
+@import "~scss/variables";
+
+$dot-inactive-border-color: $color-gray-300;
+$dot-inactive-background-color: $color-white;
+$dot-active-border-color: $color-shopware-brand-500;
+$dot-active-background-color: $color-shopware-brand-500;
+
+.sw-wizard-dot-navigation {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+
+    .sw-wizard-dot-navigation__item {
+        display: inline-block;
+        background: $dot-inactive-background-color;
+        width: 12px;
+        height: 12px;
+        border: 1px solid $dot-inactive-border-color;
+        border-radius: 100%;
+        margin: 0 5px;
+
+        &.is--active {
+            background: $dot-active-border-color;
+            border-color: $dot-active-background-color;
+        }
+    }
+}

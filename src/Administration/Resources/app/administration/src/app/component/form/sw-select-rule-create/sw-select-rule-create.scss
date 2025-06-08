@@ -1,0 +1,12 @@
+@import "~scss/variables";
+
+.sw-select-rule-create {
+    .sw-select-rule-create__create-rule-item:hover {
+        background-color: lighten($color-shopware-brand-500, 40%);
+        color: $color-shopware-brand-500;
+
+        & + .sw-select-result-list__item-list .sw-select-result {
+            background-color: $color-white;
+        }
+    }
+}

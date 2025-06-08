@@ -1,0 +1,48 @@
+@import "~scss/variables";
+
+$sw-customer-list-color-error: $color-crimson-500;
+$sw-customer-list-color-success: $color-emerald-500;
+
+.sw-customer-list {
+    .sw-customer-list__content {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+    }
+
+    .sw-data-grid__cell:not(.sw-data-grid__cell--header) {
+        .is--inactive {
+            color: $sw-customer-list-color-error;
+        }
+
+        .is--active {
+            color: $sw-customer-list-color-success;
+        }
+    }
+
+    .sw-customer-list__metadata-customer-guest-label {
+        margin: 0 0 0 12px;
+        text-align: center;
+    }
+
+    .sw-customer-list__created-by-admin-label {
+        margin: 0 0 0 12px;
+        text-align: center;
+    }
+
+    .sw-label.sw-customer-list__requested-group-label {
+        background: $color-module-orange-500;
+        color: $color-white;
+        font-weight: $font-weight-semi-bold;
+    }
+}
+
+.sw-customer-list__sidebar {
+    .sw-sidebar-item__scrollable-container {
+        padding: 0 25px;
+    }
+
+    .sw-filter-panel {
+        padding: 0;
+    }
+}

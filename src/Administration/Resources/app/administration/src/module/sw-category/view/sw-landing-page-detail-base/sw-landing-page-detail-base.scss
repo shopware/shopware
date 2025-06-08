@@ -1,0 +1,20 @@
+.sw-landing-page-detail-base {
+    @media screen and (min-width: 1580px) {
+        .sw-card .sw-card__title {
+            width: inherit;
+            position: inherit;
+            left: inherit;
+            top: inherit;
+            text-align: inherit;
+        }
+    }
+
+    .sw-landing-page-detail-base__tags {
+        margin-bottom: 14px;
+    }
+
+    .sw-landing-page-detail-base__active {
+        display: grid;
+        align-items: center;
+    }
+}

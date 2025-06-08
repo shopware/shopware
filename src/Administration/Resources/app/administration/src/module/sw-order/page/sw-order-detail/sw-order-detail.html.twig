@@ -1,0 +1,241 @@
+{% block sw_order_detail %}
+<sw-page
+    v-if="orderId"
+    class="sw-order-detail"
+>
+    {% block sw_order_detail_header %}
+    <template #smart-bar-header>
+
+        {% block sw_order_detail_header_title %}
+        <h2 v-if="orderIdentifier">
+            {{ $tc('sw-order.detail.textHeadline') }} {{ orderIdentifier }}
+
+            {% block sw_order_detail_header_label_manual_order %}
+            <sw-label
+                v-if="order.createdById"
+                appearance="pill"
+                size="small"
+                class="sw-order-detail__manual-order-label"
+            >
+                {{ $tc('sw-order.detail.labelManualOrder') }}
+            </sw-label>
+            {% endblock %}
+        </h2>
+        {% endblock %}
+
+        {% block sw_order_detail_header_title_new %}
+        <h2 v-else>
+            {{ $tc('sw-order.detail.textHeadlineNew') }}
+        </h2>
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+
+    {% block sw_order_detail_language_switch %}
+    <template #language-switch>
+        <sw-language-switch
+            @on-change="onChangeLanguage"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_order_detail_actions %}
+    <template #smart-bar-actions>
+
+        {% block sw_order_detail_actions_slot_smart_bar_actions %}
+        {% block sw_order_detail_actions_abort %}
+        <mt-button
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('order.editor'),
+                showOnDisabledElements: true
+            }"
+            class="sw-order-detail__smart-bar-cancel-button"
+            :disabled="loading.order || !acl.can('order.editor')"
+            variant="secondary"
+            size="default"
+            @click="onCancelEditing"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_order_detail_actions_save %}
+        <sw-button-process
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('order.editor'),
+                showOnDisabledElements: true
+            }"
+            class="sw-order-detail__smart-bar-save-button"
+            variant="primary"
+            :disabled="loading.order || loading.recalculation || !acl.can('order.editor')"
+            :is-loading="loading.order"
+            :process-success="isSaveSuccessful"
+            @update:process-success="saveEditsFinish"
+            @click.prevent="onSaveEdits"
+        >
+            {{ $tc('global.default.save') }}
+        </sw-button-process>
+        {% endblock %}
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+
+    {% block sw_order_detail_content %}
+    <template #content>
+        {% block sw_order_detail_content_leave_page_modal %}
+        <sw-order-leave-page-modal
+            v-if="isDisplayingLeavePageWarning"
+            @page-leave-cancel="onLeaveModalClose"
+            @page-leave-confirm="onLeaveModalConfirm"
+        />
+        {% endblock %}
+        {% block sw_order_detail_content_save_changes_beforehand_modal %}
+        <sw-order-save-changes-beforehand-modal
+            v-if="askForSaveBeforehand"
+            @cancel="onAskAndSaveEditsCancel"
+            @confirm="onAskAndSaveEditsConfirm"
+        >
+            {{ askForSaveBeforehand.reason }}
+        </sw-order-save-changes-beforehand-modal>
+        {% endblock %}
+        <sw-card-view>
+
+            <mt-banner
+                v-if="isOrderEditing"
+                class="sw-order-detail__alert"
+                variant="attention"
+            >
+                {{ $tc('sw-order.detail.textUnsavedOrderWarning') }}
+            </mt-banner>
+
+            <mt-banner
+                v-if="missingProductLineItems.length > 0"
+                class="sw-order-detail__alert"
+                variant="attention"
+            >
+                {{ $tc('sw-order.detailBase.textMissingProductLineItems') }}
+
+                <ul class="sw_order_detail_base__missing_products_alert-list">
+                    <li
+                        v-for="lineItem in missingProductLineItems"
+                        :key="lineItem.id"
+                    >
+                        {{ lineItem.label }}
+                    </li>
+                </ul>
+
+                {{ $tc('sw-order.detailBase.textMissingProductLineItemsDescription') }}
+            </mt-banner>
+
+            <mt-banner
+                v-if="convertedProductLineItems.length > 0"
+                class="sw-order-detail__alert"
+                variant="info"
+            >
+                {{ $tc('sw-order.detailBase.textConvertedProductLineItems') }}
+
+                <ul class="sw_order_detail_base__converted_products_alert-list">
+                    <li
+                        v-for="lineItem in convertedProductLineItems"
+                        :key="lineItem.id"
+                    >
+                        {{ lineItem.label }}
+                    </li>
+                </ul>
+
+                {{ $tc('sw-order.detailBase.textConvertedProductLineItemsDescription') }}
+            </mt-banner>
+
+            {% block sw_order_detail_content_tabs %}
+            <sw-tabs
+                v-if="showTabs"
+                class="sw-order-detail__tabs"
+                :class="{ 'has-warning': showWarningTabStyle }"
+                position-identifier="sw-order-detail"
+            >
+
+                {% block sw_order_detail_content_tabs_general %}
+                <sw-tabs-item
+                    class="sw-order-detail__tabs-tab-general"
+                    :route="{ name: 'sw.order.detail.general', params: { id: $route.params.id } }"
+                    :title="$tc('sw-order.detail.tabGeneral')"
+                >
+                    {{ $tc('sw-order.detail.tabGeneral') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_order_detail_content_tabs_details %}
+                <sw-tabs-item
+                    class="sw-order-detail__tabs-tab-details"
+                    :route="{ name: 'sw.order.detail.details', params: { id: $route.params.id } }"
+                    :title="$tc('sw-order.detail.tabDetails')"
+                >
+                    {{ $tc('sw-order.detail.tabDetails') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_order_detail_content_tabs_documents %}
+                <sw-tabs-item
+                    class="sw-order-detail__tabs-tab-documents"
+                    :class="{ 'has-warning': isOrderEditing }"
+                    :route="{ name: 'sw.order.detail.documents', params: { id: $route.params.id } }"
+                    :title="$tc('sw-order.detail.tabDocuments')"
+                >
+                    {{ $tc('sw-order.detail.tabDocuments') }}
+
+                    <mt-icon
+                        v-if="isOrderEditing"
+                        v-tooltip="{ message: $tc('sw-order.documentTab.tooltipSaveBeforeCreateDocument') }"
+                        class="sw-order-detail__tab-warning-badge"
+                        name="solid-exclamation-circle"
+                        size="12px"
+                    />
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_order_detail_content_tabs_extension %}{% endblock %}
+            </sw-tabs>
+            {% endblock %}
+
+            <sw-extension-component-section
+                position-identifier="sw-order-detail__before-content"
+            />
+
+            {% block sw_order_detail_content_view %}
+            <template v-if="loading.order">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
+
+            {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
+            {# @deprecated tag:v6.8.0 - remove `is-save-successful`, `is-editing`, `@created-by-id-change`, `@loading-change`, `@editing-change` #}
+            <router-view
+                v-if="order"
+                v-show="!loading.order"
+                ref="baseComponent"
+                :order-id="orderId"
+                :is-editing="isEditing"
+                :is-loading="loading.order"
+                :is-save-successful="isSaveSuccessful"
+                @created-by-id-change="updateCreatedById"
+                @loading-change="onUpdateLoading"
+                @editing-change="onUpdateEditing"
+                @save-and-recalculate="onSaveAndRecalculate"
+                @recalculate-and-reload="onRecalculateAndReload"
+                @reload-entity-data="reloadEntityData"
+                @save-and-reload="saveAndReload"
+                @save-edits="onSaveEdits"
+                @error="onError"
+            />
+            {% endblock %}
+
+        </sw-card-view>
+    </template>
+    {% endblock %}
+
+</sw-page>
+{% endblock %}

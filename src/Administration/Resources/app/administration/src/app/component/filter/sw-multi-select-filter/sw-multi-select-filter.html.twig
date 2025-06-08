@@ -1,0 +1,54 @@
+{% block sw_multi_select_filter %}
+<sw-base-filter
+    :title="filter.label"
+    :show-reset-button="!!values.length"
+    :active="active"
+    @filter-reset="resetFilter"
+>
+    {% block sw_multi_select_filter_content %}
+
+    {% block sw_multi_select_filter_content_entity_select %}
+    <sw-entity-multi-select
+        v-if="isEntityMultiSelect"
+        :label-property="labelProperty"
+        :placeholder="filter.placeholder"
+        :criteria="filter.criteria"
+        :entity-name="filter.schema.entity"
+        :entity-collection="values"
+        :display-variants="filter.displayVariants"
+        @update:entity-collection="changeValue"
+    >
+        {% block sw_multi_select_filter_content_slot_selection_label_property %}
+        <template #selection-label-property="{ item, index }">
+            <slot
+                name="selection-label-property"
+                v-bind="{ item, index }"
+            ></slot>
+        </template>
+        {% endblock %}
+
+        {% block sw_multi_select_filter_content_slot_result_item %}
+        <template #result-item="{ item, index }">
+            <slot
+                name="result-item"
+                v-bind="{ item, index }"
+            ></slot>
+        </template>
+        {% endblock %}
+    </sw-entity-multi-select>
+    {% endblock %}
+
+    {% block sw_multi_select_filter_content_option_select %}
+    <sw-multi-select
+        v-if="filter.options"
+        :label-property="filter.labelProperty"
+        :value-property="filter.valueProperty"
+        :placeholder="filter.placeholder"
+        :options="filter.options"
+        :value="values"
+        @update:value="changeValue"
+    />
+    {% endblock %}
+    {% endblock %}
+</sw-base-filter>
+{% endblock %}

@@ -1,0 +1,67 @@
+{%  block sw_customer_create %}
+<sw-page class="sw-customer-create">
+
+    {% block sw_customer_create_header %}
+    <template #smart-bar-header>
+        <h2>{{ salutationFilter(customer, $tc('sw-customer.general.newCustomer')) }}</h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_customer_create_language_switch %}
+    <template #language-switch>
+        <sw-language-switch
+            v-tooltip="{ message: $tc('sw-customer.general.tooltipLanguageSwitch') }"
+            disabled
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_customer_create_actions %}
+    <template #smart-bar-actions>
+        <sw-button-process
+            class="sw-customer-create__save-action"
+            :is-loading="isLoading"
+            :disabled="isLoading"
+            :process-success="isSaveSuccessful"
+            variant="primary"
+            @update:process-success="saveFinish"
+            @click.prevent="onSave"
+        >
+            {{ $tc('sw-customer.detail.buttonSave') }}
+        </sw-button-process>
+    </template>
+    {% endblock %}
+
+    {% block sw_customer_create_content %}
+    <template #content>
+        <sw-card-view>
+            {% block sw_customer_create_base_form %}
+            <mt-card
+                :title="$tc('sw-customer.detailBase.labelAccountCard')"
+                position-identifier="sw-customer-create-base-form"
+            >
+                <sw-customer-base-form
+                    v-if="customer"
+                    :is-loading="isLoading"
+                    :customer="customer"
+                    @sales-channel-change="onChangeSalesChannel"
+                />
+            </mt-card>
+            {% endblock %}
+
+            {% block sw_customer_create_adress_form %}
+            <mt-card
+                :title="$tc('sw-customer.detailBase.labelAddressesCard')"
+                position-identifier="sw-customer-create-address-form"
+            >
+                <sw-customer-address-form
+                    v-if="customer"
+                    v-bind="{ customer, address }"
+                />
+            </mt-card>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

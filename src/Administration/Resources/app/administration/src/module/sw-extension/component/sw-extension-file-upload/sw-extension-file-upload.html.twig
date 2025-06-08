@@ -1,0 +1,90 @@
+{% block sw_extension_file_upload %}
+<div class="sw-extension-file-upload">
+    {% block sw_extension_file_upload_content %}
+    <div class="sw-extension-file-upload__content">
+        {% block sw_extension_file_upload_button %}
+        <mt-button
+            class="sw-extension-file-upload__button"
+            :is-loading="isLoading"
+            variant="primary"
+            size="default"
+            @click="showConfirmModal"
+        >
+            {{ $tc('sw-extension.my-extensions.fileUpload.buttonFileUpload') }}
+        </mt-button>
+        {% endblock %}
+        {% block sw_extension_file_upload_form %}
+        <form
+            ref="fileForm"
+            class="sw-extension-file-upload__form"
+        >
+            <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+            <input
+                id="files"
+                ref="fileInput"
+                class="sw-extension-file-upload__file-input"
+                type="file"
+                @change="onFileInputChange"
+            >
+        </form>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_extension_file_upload_confirm_modal %}
+    <sw-modal
+        v-if="confirmModalVisible"
+        class="sw-extension-file-upload-confirm-modal"
+        :title="$tc('sw-extension.my-extensions.fileUpload.titleWarningModal')"
+        variant="small"
+        @modal-close="closeConfirmModal"
+    >
+        {% block sw_extension_file_upload_confirm_modal_content %}
+        <template #default>
+            {% block sw_extension_file_upload_confirm_modal_body %}
+            <p>
+                {{ $tc('sw-extension.my-extensions.fileUpload.descriptionWarningModal') }}
+            </p>
+            {% endblock %}
+        </template>
+        <template #modal-footer>
+            {% block sw_extension_file_upload_confirm_modal_footer %}
+            {% block sw_extension_file_upload_confirm_modal_footer_checkbox %}
+            <mt-checkbox
+                v-model:checked="shouldHideConfirmModal"
+                :label="$tc('sw-extension.my-extensions.fileUpload.textHideWarning')"
+            />
+            {% endblock %}
+
+            {% block sw_extension_file_upload_confirm_modal_footer_buttons %}
+            <div>
+                {% block sw_extension_file_upload_confirm_modal_footer_cancel %}
+                <mt-button
+                    size="small"
+                    :disabled="isLoading"
+                    variant="secondary"
+                    @click="closeConfirmModal"
+                >
+                    {{ $tc('global.default.cancel') }}
+                </mt-button>
+                {% endblock %}
+
+                {% block sw_extension_file_upload_confirm_modal_footer_continue %}
+                <mt-button
+                    variant="primary"
+                    size="small"
+                    :is-loading="isLoading"
+                    @click="onClickUpload"
+                >
+                    {{ $tc('global.default.confirm') }}
+                </mt-button>
+                {% endblock %}
+            </div>
+            {% endblock %}
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </sw-modal>
+    {% endblock %}
+</div>
+{% endblock %}

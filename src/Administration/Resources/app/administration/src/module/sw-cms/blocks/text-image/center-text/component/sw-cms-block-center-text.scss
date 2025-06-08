@@ -1,0 +1,25 @@
+.sw-cms-block-center-text {
+    display: flex;
+    flex-wrap: wrap;
+
+    .sw-cms-block-center-text__text {
+        flex-grow: 2;
+        flex-shrink: 0;
+        flex-basis: 300px;
+    }
+
+    .sw-cms-block-center-text__image-left,
+    .sw-cms-block-center-text__image-right {
+        flex-grow: 1;
+        flex-shrink: 0;
+        flex-basis: 240px;
+    }
+
+    .sw-cms-el-image.is--cover {
+        min-height: 340px;
+    }
+
+    .sw-cms-el-text {
+        padding: 30px;
+    }
+}

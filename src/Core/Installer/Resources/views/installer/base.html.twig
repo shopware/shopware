@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html lang="{{ app.request.locale }}">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>{{ "shopware.installer.header_title"|trans }} | Shopware 6</title>
+
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('bundles/installer/assets/images/favicon/favicon-16x16.png', 'asset') }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('bundles/installer/assets/images/favicon/favicon-32x32.png', 'asset') }}">
+        <meta name="msapplication-TileColor" content="#189eff">
+        <meta name="theme-color" content="#189eff">
+
+        <link rel="stylesheet" type="text/css" href="{{ asset('bundles/installer/assets/styles/reset.css', 'asset') }}?v={{ shopware.version }}" media="all"/>
+        <link rel="stylesheet" type="text/css" href="{{ asset('bundles/installer/assets/styles/fonts.css', 'asset') }}?v={{ shopware.version }}" media="all"/>
+        <link rel="stylesheet" type="text/css" href="{{ asset('bundles/installer/assets/styles/icons.css', 'asset') }}?v={{ shopware.version }}" media="all"/>
+        <link rel="stylesheet" type="text/css" href="{{ asset('bundles/installer/assets/styles/style.css', 'asset') }}?v={{ shopware.version }}" media="all"/>
+    </head>
+    <body>
+        <header class="header-main">
+            <div class="header-main__branding">
+                <img class="header-main__logo" src="{{ asset('bundles/installer/assets/images/sw-logo-blue.svg', 'asset') }}" width="148" alt="Shopware">
+                <div class="header-main__title">
+                    {{ "shopware.installer.header_title"|trans }}
+                </div>
+            </div>
+
+            <div class="version--notice">
+                {{ "shopware.installer.version_text"|trans }} {{ shopware.version }}
+            </div>
+        </header>
+
+        <div class="page--wrap">
+            <div class="content--wrapper">
+                <nav class="navigation--main">
+                    <ul class="navigation--list">
+                        {% for entry in menu %}
+                            <li class="navigation--entry {% if entry.active %}is--active{% endif %} {% if entry.isCompleted %}is--complete{% endif %}">
+                                <span class="navigation--link">{{ ("shopware.installer.menuitem_" ~ entry.label)|trans }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </nav>
+
+                <main class="content--main">
+                    {% block base_content %}{% endblock %}
+                </main>
+            </div>
+        </div>
+
+        <footer class="footer-main">
+            {% for language in supportedLanguages %}
+                <a href="?language={{ language|lower }}"
+                   class="language-item {% if app.request.locale == language %}is--active{% endif %}">
+                    {{ language|upper }}
+                </a>
+            {% endfor %}
+        </footer>
+    </body>
+</html>

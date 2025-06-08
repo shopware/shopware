@@ -1,0 +1,18 @@
+/*
+Delivery status
+==============================================
+Shows the delivery status for products e.g. on detail page.
+*/
+
+$indicator-size: 10px;
+
+.delivery-status-indicator {
+    border-radius: 100%;
+    background-clip: padding-box;
+    display: inline-block;
+    height: $indicator-size;
+    line-height: $indicator-size;
+    margin-right: 5px;
+    position: relative;
+    width: $indicator-size;
+}

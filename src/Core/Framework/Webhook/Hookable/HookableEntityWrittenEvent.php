@@ -1,0 +1,74 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Webhook\Hookable;
+
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
+use Shopware\Core\Framework\Webhook\Hookable;
+
+/**
+ * @internal
+ */
+#[Package('framework')]
+class HookableEntityWrittenEvent implements Hookable
+{
+    private function __construct(private readonly EntityWrittenEvent $event)
+    {
+    }
+
+    public static function fromWrittenEvent(
+        EntityWrittenEvent $event
+    ): self {
+        return new self($event);
+    }
+
+    public function getName(): string
+    {
+        return $this->event->getName();
+    }
+
+    /**
+     * @return list<array{entity: string, operation: string, primaryKey: array<string, string>|string, updatedFields?: list<string>, versionId?: string}>
+     */
+    public function getWebhookPayload(?AppEntity $app = null): array
+    {
+        return $this->getPayloadFromEvent($this->event);
+    }
+
+    public function isAllowed(string $appId, AclPrivilegeCollection $permissions): bool
+    {
+        return $permissions->isAllowed($this->event->getEntityName(), AclRoleDefinition::PRIVILEGE_READ);
+    }
+
+    /**
+     * @return list<array{entity: string, operation: string, primaryKey: array<string, string>|string, updatedFields?: list<string>, versionId?: string}>
+     */
+    public function getPayloadFromEvent(EntityWrittenEvent $event): array
+    {
+        $payload = [];
+
+        foreach ($event->getWriteResults() as $writeResult) {
+            $result = [
+                'entity' => $writeResult->getEntityName(),
+                'operation' => $writeResult->getOperation(),
+                'primaryKey' => $writeResult->getPrimaryKey(),
+            ];
+
+            if (!$event instanceof EntityDeletedEvent) {
+                $result['updatedFields'] = array_keys($writeResult->getPayload());
+            }
+
+            if (\array_key_exists('versionId', $writeResult->getPayload())) {
+                $result['versionId'] = $writeResult->getPayload()['versionId'];
+            }
+
+            $payload[] = $result;
+        }
+
+        return $payload;
+    }
+}

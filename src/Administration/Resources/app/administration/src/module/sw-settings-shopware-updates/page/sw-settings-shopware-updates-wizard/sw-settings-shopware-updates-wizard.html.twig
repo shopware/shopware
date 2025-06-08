@@ -1,0 +1,143 @@
+{% block sw_settings_shopware_updates_wizard %}
+<sw-page class="sw-settings-shopware-updates-wizard">
+    {% block sw_settings_shopware_updates_wizard_smart_bar_header %}
+    <template #smart-bar-header>
+        <h2 v-if="updateInfo.version">
+            {{ $t('sw-settings-shopware-updates.general.title', {version: updateInfo.version }) }}
+        </h2>
+        <h2 v-if="!updateInfo.version">
+            {{ $t('sw-settings-shopware-updates.general.emptyTitle') }}
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_shopware_updates_wizard_smart_bar_actions %}
+    <template #smart-bar-actions>
+        <div
+            :key="updatePossible"
+            v-tooltip="updateButtonTooltip"
+        >
+            <mt-button
+                v-if="updateInfo.version"
+                :disabled="!updatePossible"
+                :is-loading="updaterIsRunning"
+                variant="primary"
+                class="sw-settings-shopware-updates-wizard__start-update"
+                size="default"
+                @click="updateModalShown = true"
+            >
+                {{ $t('sw-settings-shopware-updates.infos.startUpdate') }}
+            </mt-button>
+        </div>
+    </template>
+    {% endblock %}
+
+    <template #content>
+        {% block sw_settings_shopware_updates_wizard_content %}
+        <sw-card-view v-if="isLoading || updateInfo.version">
+            <sw-settings-shopware-updates-info
+                v-if="updateInfo"
+                :is-loading="isLoading"
+                :changelog="updateInfo.body"
+            />
+            <sw-settings-shopware-updates-requirements
+                :is-loading="isLoading"
+                :update-info="updateInfo"
+                :requirements="requirements"
+            />
+            <sw-settings-shopware-updates-plugins
+                :plugins="plugins"
+                :is-loading="isLoading"
+            />
+        </sw-card-view>
+
+        <sw-empty-state
+            v-if="!isLoading && !updateInfo.version"
+            :title="$tc('sw-settings-shopware-updates.general.emptyState')"
+        />
+
+        <sw-modal
+            v-if="updaterIsRunning"
+            :title="$t('sw-settings-shopware-updates.cards.updating')"
+            variant="small"
+            class="sw-shopware-updates-progressbar"
+        >
+            <div class="progress-wrapper">
+                <mt-progress-bar
+                    :model-value="progressbarValue"
+                    :max-value="100"
+                />
+                <span class="progress-title">
+                    <p v-if="step === 'download'">{{ $t('sw-settings-shopware-updates.infos.progress.download') }}</p>
+                    <p v-if="step === 'unpack'">{{ $t('sw-settings-shopware-updates.infos.progress.unpack') }}</p>
+                    <p v-if="step === 'deactivate'">{{ $t('sw-settings-shopware-updates.infos.progress.deactivate') }}</p>
+                </span>
+            </div>
+        </sw-modal>
+
+        <sw-modal
+            v-if="updateModalShown"
+            class="sw-settings-shopware-updates-check__start-update"
+            :title="$t('sw-settings-shopware-updates.general.emptyTitle')"
+            variant="small"
+            @modal-close="updateModalShown = false"
+        >
+            <mt-banner
+                v-if="displayUnknownPluginsWarning"
+                variant="attention"
+            >
+                {{ $tc('sw-settings-shopware-updates.updateModal.messageNotInStore') }}
+            </mt-banner>
+
+            <mt-banner
+                v-if="displayIncompatiblePluginsWarning"
+                variant="attention"
+            >
+                {{ $tc('sw-settings-shopware-updates.updateModal.messageIncompatible') }}
+            </mt-banner>
+
+            <sw-radio-field
+                v-if="displayIncompatiblePluginsWarning"
+                v-model:value="chosenPluginBehaviour"
+                :options="[
+                    {'value': 'all', 'name': optionDeactivateAllTranslation },
+                    {'value': 'notCompatible', 'name': optionDeactivateIncompatibleTranslation },
+                    {'value': '', 'name': $tc('sw-settings-shopware-updates.plugins.actions.deactivateNone')}]"
+            />
+
+            <template v-if="displayAllPluginsOkayInfo">
+                {{ $tc('sw-settings-shopware-updates.updateModal.messageOkay') }}
+            </template>
+
+            <template #modal-footer>
+                <mt-checkbox
+                    v-model:checked="checkedBackupCheckbox"
+                    class="sw-settings-shopware-updates-check__start-update-backup-checkbox"
+                    :label="$tc('sw-settings-shopware-updates.updateModal.backupLabel')"
+                />
+
+                <div class="sw-settings-shopware-updates-check__start-update-actions">
+                    <mt-button
+                        size="small"
+                        variant="secondary"
+                        @click="updateModalShown = false"
+                    >
+                        {{ $tc('global.default.cancel') }}
+                    </mt-button>
+
+                    <mt-button
+                        :disabled="!checkedBackupCheckbox"
+                        variant="primary"
+                        size="small"
+                        class="sw-settings-shopware-updates-check__start-update-button"
+                        @click="startUpdateProcess()"
+                    >
+                        {{ $tc('sw-settings-shopware-updates.updateModal.actions.install') }}
+                    </mt-button>
+                </div>
+            </template>
+        </sw-modal>
+        {% endblock %}
+    </template>
+</sw-page>
+{% endblock %}

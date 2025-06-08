@@ -1,0 +1,13 @@
+@import "~scss/variables";
+
+.sw-product-detail-layout {
+    &__no-config.sw-card {
+        text-align: center;
+        font-size: $font-size-xs;
+    }
+
+    &__content-info {
+        color: $color-gray-500;
+        font-size: $font-size-xs;
+    }
+}

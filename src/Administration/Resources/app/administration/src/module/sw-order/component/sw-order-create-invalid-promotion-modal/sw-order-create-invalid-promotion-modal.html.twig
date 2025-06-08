@@ -1,0 +1,42 @@
+{% block sw_order_create_invalid_promotion_modal %}
+<sw-modal
+    :title="$tc('sw-order.invalidPromotionModal.modalTitle')"
+    variant="small"
+    class="sw-order-create-invalid-promotion-modal"
+    @modal-close="onClose"
+>
+
+    {% block sw_order_create_invalid_promotion_modal_description %}
+    <p class="sw-order-create-invalid-promotion-modal__description">
+        {{ $tc('sw-order.invalidPromotionModal.modalDescription') }}
+    </p>
+    {% endblock %}
+
+    {% block sw_order_create_invalid_promotion_modal_lists %}
+    <template
+        v-for="item in invalidPromotionCodes"
+        :key="item.code"
+    >
+        <li>
+            - <strong>{{ item.code }}</strong>
+        </li>
+    </template>
+    {% endblock %}
+
+    {% block sw_order_create_invalid_promotion_modal_actions %}
+    <template #modal-footer>
+
+        {% block sw_order_create_invalid_promotion_modal_actions_confirm %}
+        <mt-button
+            variant="primary"
+            size="small"
+            @click="onConfirm"
+        >
+            {{ $tc('sw-order.invalidPromotionModal.buttonConfirm') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}
+

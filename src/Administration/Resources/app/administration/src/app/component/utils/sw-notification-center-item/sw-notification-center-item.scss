@@ -1,0 +1,98 @@
+@import "~scss/variables";
+
+.sw-notification-center-item {
+    padding: 24px;
+    border-bottom: 1px solid $color-gray-300;
+
+    &:last-child {
+        border-bottom: 0 none;
+    }
+
+    .sw-notification-center-item__header {
+        display: grid;
+        grid-template-columns: 1fr min-content;
+        height: 16px;
+    }
+
+    .sw-notification-center-item__header--is-new {
+        grid-template-columns: min-content 1fr min-content;
+
+        &::before {
+            content: "";
+            display: block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: $color-shopware-brand-500;
+            margin-right: 8px;
+            transform: translateY(50%);
+        }
+    }
+
+    .sw-notification-center-item__title {
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-xxs;
+    }
+
+    .sw-notification-center-item__delete {
+        cursor: pointer;
+        display: none;
+    }
+
+    .sw-notification-center-item__timestamp {
+        font-size: $font-size-xxs;
+        color: rgb(179, 191, 204);
+        display: block;
+        white-space: nowrap;
+        user-select: none;
+    }
+
+    &:hover {
+        .sw-notification-center-item__timestamp {
+            display: none;
+        }
+
+        .sw-notification-center-item__delete {
+            display: block;
+        }
+    }
+
+    .sw-notification-center-item__content {
+        margin: 8px 0;
+        display: grid;
+        grid-template-columns: 1fr min-content;
+        grid-gap: 16px;
+    }
+
+    .sw-notification-center-item__message {
+        font-size: $font-size-xxs;
+    }
+
+    .sw-notification-center-item__loader {
+        position: initial;
+
+        .sw-loader__container {
+            top: 0;
+            transform: translateX(-50%);
+        }
+    }
+
+    .sw-notification-center-item__actions {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -10px -10px;
+    }
+
+    .sw-notification-center-item__actions-item-container {
+        flex-basis: 0;
+        flex-grow: 1;
+        max-width: 100%;
+        padding: 10px;
+
+        .mt-button {
+            flex-basis: 0;
+            flex-grow: 1;
+            max-width: 100%;
+        }
+    }
+}

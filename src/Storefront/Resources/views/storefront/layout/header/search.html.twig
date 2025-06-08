@@ -1,0 +1,59 @@
+{% set searchWidgetOptions = { searchWidgetMinChars: shopware.minSearchLength } %}
+
+{% block layout_header_search %}
+    <div class="collapse"
+         id="searchCollapse">
+        <div class="header-search my-2 m-sm-auto">
+            {% block layout_header_search_form %}
+                <form action="{{ path('frontend.search.page') }}"
+                      method="get"
+                      data-search-widget="true"
+                      data-search-widget-options="{{ searchWidgetOptions|json_encode }}"
+                      data-url="{{ path('frontend.search.suggest') }}?search="
+                      class="header-search-form js-search-form">
+                    {% block layout_header_search_input_group %}
+                        <div class="input-group">
+                            {% block layout_header_search_input %}
+                                <input
+                                    type="search"
+                                    id="header-main-search-input"
+                                    name="search"
+                                    class="form-control header-search-input"
+                                    autocomplete="off"
+                                    autocapitalize="off"
+                                    placeholder="{{ 'header.searchPlaceholder'|trans|striptags }}"
+                                    aria-label="{{ 'header.searchPlaceholder'|trans|striptags }}"
+                                    role="combobox"
+                                    aria-autocomplete="list"
+                                    aria-controls="search-suggest-listbox"
+                                    aria-expanded="false"
+                                    aria-describedby="search-suggest-result-info"
+                                    value="{{ page.searchTerm }}">
+                            {% endblock %}
+
+                            {% block layout_header_search_button %}
+                                <button type="submit"
+                                        class="btn header-search-btn"
+                                        aria-label="{{ 'header.searchButton'|trans|striptags }}">
+                                    <span class="header-search-icon">
+                                        {% sw_icon 'search' %}
+                                    </span>
+                                </button>
+                            {% endblock %}
+
+                            {% block layout_header_close_button %}
+                                <button class="btn header-close-btn js-search-close-btn d-none"
+                                        type="button"
+                                        aria-label="{{ 'header.searchCloseButton'|trans|striptags }}">
+                                    <span class="header-close-icon">
+                                        {% sw_icon 'x' %}
+                                    </span>
+                                </button>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </form>
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

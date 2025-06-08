@@ -1,0 +1,7 @@
+{% block element_html %}
+    <div class="cms-element-{{ element.type }}">
+        {% block element_html_inner %}
+            {{ element.data.content|raw }}
+        {% endblock %}
+    </div>
+{% endblock %}

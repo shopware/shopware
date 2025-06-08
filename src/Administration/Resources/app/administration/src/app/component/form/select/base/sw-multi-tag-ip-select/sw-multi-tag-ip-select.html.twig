@@ -1,0 +1,37 @@
+{% block sw_multi_tag_select_validation_valid_message %}
+{{ $tc('global.sw-multi-tag-ip-select.addIpAddress') }}
+{% endblock %}
+
+{% block sw_multi_tag_select_validation_invalid_message %}
+{{ $tc('global.sw-multi-tag-ip-select.enterValidIp') }}
+{% endblock %}
+
+{% block sw_multi_tag_select_validation_invalid %}
+{% parent %}
+
+<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+<div
+    v-for="knownIp of validUnselectedKnownIps"
+    :key="knownIp.value"
+    class="sw-multi-tag-select-valid"
+    @click="addSpecific(knownIp.value)"
+>
+    <span>
+        {{ knownIp.value }} ({{ $te(knownIp.name) ? $tc(knownIp.name) : knownIp.name }})
+    </span>
+</div>
+{% endblock %}
+
+{% block sw_multi_tag_select_base_selection_list_label_inner %}
+<template v-if="getKnownIp(item)">
+    <slot
+        name="selection-label-property"
+        v-bind="{ item, index, labelProperty, valueProperty}"
+    >
+        {{ getKey(item, labelProperty) }} ({{ $te(getKnownIp(item).name) ? $tc(getKnownIp(item).name) : getKnownIp(item).name }})
+    </slot>
+</template>
+<template v-else>
+    {% parent %}
+</template>
+{% endblock %}

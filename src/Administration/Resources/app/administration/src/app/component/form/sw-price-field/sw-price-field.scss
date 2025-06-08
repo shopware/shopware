@@ -1,0 +1,60 @@
+@import "~scss/variables";
+
+$sw-price-field-lock-color-default: $color-darkgray-200;
+$sw-price-field-lock-color-locked: $color-shopware-brand-500;
+$sw-price-field-suffix-font-size: 20px;
+$sw-price-field-suffix-font-weight: $font-weight-regular;
+
+.sw-price-field {
+    .price-field-grid {
+        display: grid;
+        grid-template-columns: 1fr 30px 1fr;
+        min-width: 120px;
+        align-items: end;
+    }
+
+    .sw-price-field__lock {
+        height: 45px;
+        background: none;
+        border: none;
+        color: $sw-price-field-lock-color-default;
+        outline: none;
+        cursor: pointer;
+
+        &.is--locked {
+            color: $sw-price-field-lock-color-locked;
+        }
+
+        &.is--disabled {
+            color: $color-gray-700;
+            cursor: default;
+        }
+
+        .mt-icon {
+            padding: 0 3px;
+        }
+    }
+
+    .sw-field {
+        .sw-field__addition {
+            font-weight: $sw-price-field-suffix-font-weight;
+            font-size: $sw-price-field-suffix-font-size;
+        }
+    }
+
+    &.sw-price-field--label .sw-price-field__lock {
+        margin-bottom: var(--scale-size-32);
+    }
+
+    &.sw-price-field--compact .sw-price-field__lock {
+        height: 32px;
+    }
+
+    &.sw-price-field--disabled {
+        pointer-events: none;
+    }
+
+    .sw-price-form__links {
+        grid-area: center;
+    }
+}

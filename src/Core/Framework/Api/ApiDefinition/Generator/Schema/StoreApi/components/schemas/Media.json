@@ -1,0 +1,52 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "Media": {
+                "type": "object",
+                "properties": {
+                    "metaData": {
+                        "type": "object",
+                        "properties": {
+                            "height": {
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            "width": {
+                                "type": "integer",
+                                "format": "int64"
+                            }
+                        }
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["media"]
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "path": {
+                        "type": "string"
+                    },
+                    "hasFile": {
+                        "type": "boolean"
+                    },
+                    "private": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "apiAlias",
+                    "fileExtension",
+                    "fileName",
+                    "hasFile",
+                    "path",
+                    "private",
+                    "url"
+                ]
+            }
+        }
+    }
+}

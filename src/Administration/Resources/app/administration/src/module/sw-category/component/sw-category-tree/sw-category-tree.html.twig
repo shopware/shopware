@@ -1,0 +1,81 @@
+{% block sw_category_tree %}
+<div class="sw-category-tree">
+    <sw-tree
+        v-if="!isLoadingInitialData"
+        ref="categoryTree"
+        class="sw-category-tree__inner"
+        after-id-property="afterCategoryId"
+        :items="categories"
+        :sortable="sortable"
+        :searchable="false"
+        :active-tree-item-id="categoryId"
+        :translation-context="translationContext"
+        :on-change-route="changeCategory"
+        :disable-context-menu="disableContextMenu"
+        :allow-delete-categories="allowDelete || undefined"
+        initially-expanded-root
+        @batch-delete="deleteCheckedItems"
+        @delete-element="onDeleteCategory"
+        @drag-end="onUpdatePositions"
+        @get-tree-items="onGetTreeItems"
+        @editing-end="syncSiblings"
+        @checked-elements-count="checkedElementsCount"
+    >
+
+        <template #headline>
+            <span></span>
+        </template>
+
+        {% block sw_category_tree_items %}
+        <template
+            #items="{
+                treeItems,
+                sortable,
+                draggedItem,
+                newElementId,
+                checkItem,
+                translationContext,
+                onChangeRoute,
+                disableContextMenu,
+                selectedItemsPathIds,
+                checkedItemIds,
+            }"
+        >
+            <sw-tree-item
+                v-for="item in treeItems"
+                :key="item.id"
+                :item="item"
+                :should-show-active-state="true"
+                :allow-duplicate="false"
+                :allow-new-categories="allowCreate || undefined"
+                :allow-delete-categories="allowDelete || undefined"
+                :active="item.active"
+                :translation-context="translationContext"
+                :on-change-route="onChangeRoute"
+                :sortable="sortable"
+                :dragged-item="draggedItem"
+                :disable-context-menu="disableContextMenu"
+                :display-checkbox="allowEdit || undefined"
+                :context-menu-tooltip-text="contextMenuTooltipText"
+                :new-element-id="newElementId"
+                :get-item-url="getCategoryUrl"
+                :get-is-highlighted="isHighlighted"
+                :active-parent-ids="selectedItemsPathIds"
+                :active-item-ids="checkedItemIds"
+                @check-item="checkItem"
+            />
+        </template>
+        {% endblock %}
+    </sw-tree>
+
+    <div v-else>
+        <sw-skeleton variant="tree-item" />
+        <sw-skeleton variant="tree-item-nested" />
+        <sw-skeleton variant="tree-item-nested" />
+        <sw-skeleton variant="tree-item-nested" />
+        <sw-skeleton variant="tree-item" />
+        <sw-skeleton variant="tree-item-nested" />
+        <sw-skeleton variant="tree-item-nested" />
+    </div>
+</div>
+{% endblock %}

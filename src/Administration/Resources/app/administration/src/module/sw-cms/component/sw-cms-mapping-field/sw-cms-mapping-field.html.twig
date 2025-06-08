@@ -1,0 +1,107 @@
+{% block sw_cms_mapping_field %}
+<div class="sw-cms-mapping-field">
+
+    {% block sw_cms_mapping_field_info %}
+    <div class="sw-cms-mapping-field__info">
+
+        {% block sw_cms_mapping_field_label %}
+        <div class="sw-cms-mapping-field__label">
+            {{ label }}
+        </div>
+        {% endblock %}
+
+        {% block sw_cms_mapping_field_mapping %}
+        <template v-if="allowedMappingTypes.length">
+            {% block sw_cms_mapping_field_mapping_selection %}
+            <sw-context-button
+                v-if="!isMapped"
+                class="sw-cms-mapping-field__selection"
+                :menu-width="360"
+            >
+                {% block sw_cms_mapping_field_mapping_selection_action %}
+                <template #button>
+                    <div class="sw-cms-mapping-field__action">
+                        <mt-icon
+                            name="regular-external-link"
+                            size="16"
+                        />
+                        <span class="sw-cms-mapping-field__action-label">
+                            {{ $tc('sw-cms.detail.label.buttonMappingAction') }}
+                        </span>
+                    </div>
+                </template>
+                {% endblock %}
+
+                {% block sw_cms_mapping_field_mapping_selection_options %}
+                <div class="sw-cms-mapping-field__options">
+                    <sw-context-menu-item
+                        v-for="(prop, index) in allowedMappingTypes"
+                        :key="index"
+                        @click="onMappingSelect(prop)"
+                    >
+                        {{ prop }}
+                    </sw-context-menu-item>
+                </div>
+                {% endblock %}
+            </sw-context-button>
+            {% endblock %}
+
+            {% block sw_cms_mapping_field_mapping_remove_action %}
+            <div
+                v-else
+                class="sw-cms-mapping-field__action-remove"
+                role="button"
+                tabindex="0"
+                @click="onMappingRemove"
+                @keydown.enter="onMappingRemove"
+            >
+                <mt-icon name="regular-times" />
+                <span class="sw-cms-mapping-field__action-label">
+                    {{ $tc('sw-cms.detail.label.buttonMappingRemoveAction') }}
+                </span>
+            </div>
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_cms_mapping_field_content %}
+    <div
+        v-if="!isMapped"
+        class="sw-cms-mapping-field__form-field"
+    >
+        <slot> </slot>
+    </div>
+    {% endblock %}
+
+    <template v-else>
+        {% block sw_cms_mapping_field_mapping_value %}
+        <div class="sw-cms-mapping-field__mapping-value">
+            {{ $tc('sw-cms.detail.label.mappingPreview') }} <b>{{ config.value }}</b>
+        </div>
+        {% endblock %}
+
+        {% block sw_cms_mapping_field_preview %}
+        <div
+            v-if="hasPreview"
+            class="sw-cms-mapping-field__preview"
+        >
+            <slot
+                v-if="demoValue !== null"
+                name="preview"
+                :demo-value="demoValue"
+            ></slot>
+
+            <mt-banner
+                v-else
+                variant="info"
+                class="sw-cms-mapping-field__empty-demo"
+            >
+                {{ $tc('sw-cms.detail.label.mappingEmptyPreview') }}
+            </mt-banner>
+        </div>
+        {% endblock %}
+    </template>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+@import "~scss/variables";
+
+.sw-shortcut-overview-item {
+    margin: 10px 40px 10px 0;
+
+    kbd span {
+        font-size: $font-size-xs;
+        color: $color-darkgray-200;
+        border: 1px solid $color-gray-300;
+        background-color: $color-white;
+        padding: 4px 6px;
+        margin-right: 8px;
+        cursor: default;
+    }
+
+    span.sw-shortcut-overview-item__title {
+        font-size: $font-size-xs;
+        color: $color-darkgray-200;
+    }
+}

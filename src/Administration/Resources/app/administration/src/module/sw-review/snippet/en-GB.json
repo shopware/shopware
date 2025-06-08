@@ -1,0 +1,57 @@
+{
+  "sw-review": {
+    "general": {
+      "mainMenuItemList": "Reviews",
+      "mainMenuItemGeneral": "Reviews",
+      "placeholderSearchBar": "Search reviews...",
+      "descriptionTextModule": "Manage reviews here."
+    },
+    "list": {
+      "textReviewOverview": "Reviews",
+      "columnProduct": "Product",
+      "columnPoints": "Stars",
+      "columnUser": "Customer",
+      "columnStatus": "Approved",
+      "columnCreatedAt": "Created at",
+      "columnComment": "Commented on",
+      "columnTitle": "Review title",
+      "placeholderSearchBar": "Search reviews...",
+      "messageEmpty": "No reviews yet",
+      "messageEmptySubline": "Manage reviews here",
+      "titleSidebarItemRefresh": "Refresh"
+    },
+    "detail": {
+      "textHeadline": "Review",
+      "cardTitleReviewInfo": "Review",
+      "cardTitleReviewProperties": "Properties",
+      "labelTitle": "Title",
+      "labelPoints": "Points",
+      "labelUser": "User",
+      "labelSalesChannel": "Sales Channel",
+      "labelCreatedAt": "Created at",
+      "labelProduct": "Product",
+      "labelEmail": "Email address",
+      "labelLanguage": "Language",
+      "labelPositive": "Positive votes",
+      "labelNegative": "Negative votes",
+      "labelStatus": "Approved",
+      "labelContent": "Content",
+      "labelComment": "Comment",
+      "labelCustomer": "Customer",
+      "titleCardComment": "Comment",
+      "placeholderComment": "Enter comment...",
+      "review1PointRatingText": "Unsatisfactory",
+      "review2PointRatingText": "Acceptable",
+      "review3PointRatingText": "Good",
+      "review4PointRatingText": "Very good",
+      "review5PointRatingText": "Excellent"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "review": {
+        "label": "Reviews"
+      }
+    }
+  }
+}

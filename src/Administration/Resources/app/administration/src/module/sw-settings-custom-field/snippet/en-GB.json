@@ -1,0 +1,126 @@
+{
+  "sw-settings-custom-field": {
+    "general": {
+      "description": "Manage custom fields here.",
+      "mainMenuItemGeneral": "Custom fields",
+      "placeholderSearchBar": "Search all custom fields...",
+      "tooltipTechnicalName": "A technical name has to be unique and cannot be changed later.",
+      "tooltipType": "The type cannot be changed later."
+    },
+    "set": {
+      "list": {
+        "textHeadline": "Custom fields",
+        "textDeleteConfirm": "Do you really want to delete the set \"{name}\" ?",
+        "buttonAdd": "Add new set",
+        "columnName": "Label",
+        "contextMenuEdit": "Edit",
+        "buttonDelete": "Delete",
+        "messageDeleteSuccess": "The set \"{name}\" has been deleted.",
+        "messageEmpty": "No custom fields yet.",
+        "helpTextGlobalSet": "This set is global and cannot be edited."
+      },
+      "detail": {
+        "labelTechnicalName": "Technical name",
+        "labelPosition": "Position",
+        "textHeadline": "Custom field set",
+        "buttonSave": "Save",
+        "titleCardInformation": "General information",
+        "labelName": "Set name",
+        "placeholderName": "Enter a name...",
+        "labelCheckboxTranslated": "Manage labels in all administration languages",
+        "messageSaveSuccess": "The set \"{name}\" has been saved.",
+        "messageCustomFieldsEmpty": "No custom fields yet.",
+        "addCustomField": "New custom field",
+        "buttonApply": "Save",
+        "labelEntities": "Assign to",
+        "placeholderEntities": "Select modules...",
+        "messageNameNotUnique": "That technical name already exists.",
+        "entityTypeRequired": "Please select an entity type.",
+        "emptyStateDescription": "Before you can add a custom field you have to save this set."
+      }
+    },
+    "customField": {
+      "detail": {
+        "titleNewCustomField": "New custom field",
+        "titleEditCustomField": "Edit custom field",
+        "buttonEditApply": "Apply changes",
+        "labelCustomFieldType": "Type",
+        "placeholderCustomFieldType": "Select...",
+        "labelTechnicalName": "Technical name",
+        "labelLabel": "Label",
+        "buttonAddOption": "Add option",
+        "labelDeleteOption": "Delete",
+        "labelOption": "Option {count}:",
+        "labelPlaceholder": "Placeholder",
+        "labelMax": "Max.",
+        "labelMin": "Min.",
+        "labelStep": "Steps",
+        "labelFloat": "Float field",
+        "labelInt": "Integer field",
+        "labelNumberType": "Number type",
+        "labelDatetime": "Date/time field",
+        "labelDate": "Date",
+        "labelTime": "Time",
+        "labelDateType": "Type",
+        "labelHelpText": "Help text",
+        "labelTimeForm": "24-hour time format",
+        "labelCustomFieldPosition": "Position",
+        "labelMultiSelect": "Multi select",
+        "helpTextMultiSelect": "The multi select option cannot be toggled once the custom field has been created.",
+        "labelEntityTypeSelect": "Entity type",
+        "helpTextEntitySelect": "The entity type cannot be changed once the custom field has been created.",
+        "tooltipCustomFieldPosition": "Controls this custom field's position on detail pages.",
+        "infoText": "If a custom field is created, the according snippet for all of your snippet sets will be created as well. The snippet will be named \"customFields.{name}\".",
+        "labelAllowCustomerWrite": "Modifiable via Store API",
+        "tooltipAllowCustomerWrite": "When active, the Store API is allowed to modify this field. This can be used to store custom data if adding new fields to the storefront. For example for new fields in the registration form.",
+        "labelAllowCartExpose": "Available in shopping carts",
+        "tooltipAllowCartExpose": "Activate, to make this custom field available in the payload of shopping cart line items. This is required in order to initially use this custom field in the Rule Builder or custom templates.",
+        "tooltipCartExposeDisabled": "This setting can currently not be changed, because the custom field is in use by one or more conditions in the Rule Builder.",
+        "labelStoreApiAware": "Visible in Store API",
+        "tooltipStoreApiAware": "When active, this field will be available in the Store API. This option can be disabled to store custom data only internally and not make it available via the Store API."
+      },
+      "list": {
+        "labelCustomFieldLabel": "Label",
+        "labelCustomFieldType": "Type",
+        "labelCustomFieldPosition": "Position",
+        "contextMenuCustomFieldResetDelete": "Restore",
+        "contextMenuCustomFieldView": "Edit",
+        "contextMenuCustomFieldDelete": "Delete",
+        "titleDeleteAction": "Delete custom field | Delete custom fields",
+        "textDeleteActionConfirmation": "Are you sure that you want to delete this custom field? | Are you sure that you want to delete these {count} custom fields?"
+      },
+      "entity": {
+        "product": "Product",
+        "category": "Category",
+        "shippingMethod": "Shipping method",
+        "paymentMethod": "Payment method",
+        "country": "Country",
+        "customer": "Customer",
+        "salesChannel": "Sales Channel",
+        "manufacturer": "Manufacturer",
+        "dynamicProductGroup": "Dynamic product group",
+        "shoppingExperienceLayout": "Shopping Experience layout"
+      }
+    },
+    "types": {
+      "select": "Select field",
+      "entity": "Entity select",
+      "text": "Text field",
+      "number": "Number field",
+      "media": "Media field",
+      "date": "Date/time field",
+      "checkbox": "Checkbox",
+      "switch": "Active switch",
+      "textEditor": "Text editor",
+      "colorpicker": "Colour picker",
+      "price": "Price field"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "custom_field": {
+        "label": "Custom fields"
+      }
+    }
+  }
+}

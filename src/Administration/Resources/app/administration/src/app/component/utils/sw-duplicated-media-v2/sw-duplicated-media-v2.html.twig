@@ -1,0 +1,136 @@
+{% block sw_duplicated_media_v2 %}
+<sw-modal
+    v-if="showModal"
+    class="sw-duplicated-media-v2"
+    :title="$tc('global.sw-duplicated-media-v2.titleModal')"
+    @modal-close="skipAll"
+>
+    {% block sw_duplicated_media_v2_body %}
+    {% block sw_duplicated_media_v2_body_description %}
+    <p class="sw-duplicated-media-v2__description">
+        {{ $tc('global.sw-duplicated-media-v2.description', { fileName: `${currentTask.fileName}.${currentTask.extension}` }, 1) }}
+    </p>
+    {% endblock %}
+
+    {% block sw_duplicated_media_v2_body_preview %}
+    <sw-container
+        class="sw-duplicated-media-v2__preview"
+        rows="20px 1fr"
+        columns="1fr 100px 1fr"
+        align="center"
+    >
+
+        {% block sw_duplicated_media_v2_body_preview_label_old_file %}
+        <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+        <label class="sw-duplicated-media-v2__preview_label">
+            {{ $tc('global.sw-duplicated-media-v2.labelNewFile') }}
+        </label>
+        {%  endblock %}
+
+        <div class="sw-duplicated-media-v2__spacer"></div>
+
+        {% block sw_duplicated_media_v2_body_preview_label_new_file %}
+        <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+        <label class="sw-duplicated-media-v2__preview_label">
+            {{ $tc('global.sw-duplicated-media-v2.labelOldFile') }}
+        </label>
+        {%  endblock %}
+
+        {% block sw_duplicated_media_v2_body_preview_new_media %}
+        <div class="sw-duplicated-media-v2__target-upload">
+            {% block sw_media_duplicated_media_target_preview %}
+            <div class="sw-duplicated-media-v2__target-preview">
+                <sw-media-preview-v2 :source="currentTask.src" />
+            </div>
+            {% endblock %}
+
+            {% block sw_media_duplicated_media_target_name %}
+            <span
+                v-if="selectedOption !== 'Rename'"
+                key="sw-duplicated-media-v2__target-label-fileName"
+                class="sw-duplicated-media-v2__target-label"
+            >
+                {{ `${currentTask.fileName}.${currentTask.extension}` }}
+            </span>
+            <span
+                v-else
+                key="sw-duplicated-media-v2__target-label-suggestedName"
+                class="sw-duplicated-media-v2__target-label"
+            >
+                {{ `${suggestedName}.${currentTask.extension}` }}
+            </span>
+            {% endblock %}
+
+            {% block sw_media_duplicated_media_target_details %}
+            <span class="sw-duplicated-media-v2__target-details">{{ currentTaskDetails }}</span>
+            {% endblock %}
+        </div>
+        {%  endblock %}
+
+        {% block sw_duplicated_media_v2_body_preview_separator %}
+        <mt-icon
+            class="sw-duplicated-media-v2__preview-separator"
+            name="regular-long-arrow-right"
+        />
+        {%  endblock %}
+
+        {% block sw_duplicated_media_v2_body_preview_old_media %}
+        <sw-media-media-item
+            v-if="existingMedia"
+            :item="existingMedia"
+            :selected="false"
+            :show-selection-indicator="false"
+            :is-list="true"
+            :editable="false"
+            :show-context-menu-button="false"
+        />
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+
+    {% block sw_duplicated_media_v2_body_options %}
+    <sw-radio-field
+        v-model:value="selectedOption"
+        class="sw-duplicated-media-v2__options"
+        :options="options"
+    />
+    {% endblock %}
+    {% endblock %}
+
+    {% block sw_duplicated_media_v2_footer %}
+    <template #modal-footer>
+        {% block sw_duplicated_media_v2_save_selection %}
+        <mt-checkbox
+            v-if="!isLoading && hasAdditionalErrors"
+            v-model:checked="shouldSaveSelection"
+            class="sw-duplicated-media-v2__additional-error-count"
+            :label="$tc('global.sw-duplicated-media-v2.labelSaveSelection', { count: additionalErrorCount })"
+        />
+        {% endblock %}
+
+        {% block sw_duplicated_media_v2_cancel_button %}
+        <mt-button
+            size="small"
+            :disabled="isLoading"
+            variant="secondary"
+            @click="skipCurrentFile"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_duplicated_media_v2_upload_button %}
+        <mt-button
+            class="sw-duplicated-media-v2__upload"
+            :disabled="isLoading"
+            size="small"
+            variant="primary"
+            @click="solveDuplicate"
+        >
+            {{ buttonLabel }}
+        </mt-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

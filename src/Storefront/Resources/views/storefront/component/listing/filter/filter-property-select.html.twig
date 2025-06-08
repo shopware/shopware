@@ -1,0 +1,70 @@
+{% sw_extends '@Storefront/storefront/component/listing/filter/filter-multi-select.html.twig' %}
+
+{% if dataPluginSelectorOptions is not defined %}
+    {% set dataPluginSelectorOptions = {
+        name: name,
+        propertyName: propertyName,
+        snippets: {
+            disabledFilterText: 'listing.disabledFilterTooltip'|trans|sw_sanitize,
+            ariaLabel: ariaLabel,
+            ariaLabelCount: 'listing.filterCountAriaLabel'|trans|sw_sanitize
+        }
+    } %}
+{% endif %}
+
+{% block component_filter_multi_select_list_item %}
+    <li class="filter-multi-select-list-item filter-property-select-list-item">
+        {% if displayType == 'color' or displayType == 'media' %}
+            {% set color = element.colorHexCode %}
+            {% set media = element.media.url %}
+            {% set name = element.translated.name %}
+            {% set id = element.id %}
+
+            {% block component_filter_property_select_preview %}
+                <span class="filter-property-select-preview"
+                      title="{{ name }}"
+                      {% if displayType == 'color' and color %}
+                      style="background: {{ color }}"
+                      {% endif %}
+                      {% if displayType == 'media' and media %}
+                      style="background-image: url('{{ media }}')"
+                      {% endif %}>
+                    {% block component_filter_property_select_checkox_input %}
+                        <input type="checkbox"
+                               class="filter-property-select-checkbox filter-multi-select-checkbox"
+                               id="{{ id }}"
+                               data-label="{{ name }}"
+                               {% if displayType == 'color' and color %}
+                               data-preview-hex="{{ color }}"
+                               {% endif %}
+                               {% if displayType == 'media' and media %}
+                               data-preview-image-url="{{ media }}"
+                               {% endif %}>
+                    {% endblock %}
+
+                    {% block component_filter_property_select_preview_checkmark %}
+                        <span class="filter-property-select-preview-checkmark">
+                            {% block component_filter_property_select_preview_checkmark_icon %}
+                                {% sw_icon 'checkmark' style {pack: 'solid', size: 'xs'} %}
+                            {% endblock %}
+                        </span>
+                    {% endblock %}
+                </span>
+            {% endblock %}
+
+            {% if not hideTitle %}
+                {% block component_filter_property_select_preview_list_item_label_element %}
+                    <label class="filter-multi-select-item-label" for="{{ id }}">
+                        {% block component_filter_property_select_preview_list_item_label %}
+                            {{ name }}
+                        {% endblock %}
+                    </label>
+                {% endblock %}
+            {% endif %}
+        {% else %}
+            {% block component_filter_property_select_preview_list_item %}
+                {% sw_include '@Storefront/storefront/component/listing/filter/filter-multi-select-list-item.html.twig' %}
+            {% endblock %}
+        {% endif %}
+    </li>
+{% endblock %}

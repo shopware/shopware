@@ -1,0 +1,12 @@
+@import "~scss/variables";
+
+.sw-generic-custom-entity-detail {
+    &__tab {
+        padding-top: 20px;
+    }
+
+    .sw-tabs__content {
+        max-width: $content-width;
+        margin: 0 auto;
+    }
+}

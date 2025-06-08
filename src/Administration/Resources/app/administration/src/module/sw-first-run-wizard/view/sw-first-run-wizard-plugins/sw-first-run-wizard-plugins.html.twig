@@ -1,0 +1,110 @@
+{% block sw_first_run_wizard_plugins %}
+<div class="sw-first-run-wizard-plugins">
+    <h3 class="recommended-plugins__headline">
+        {{ $tc('sw-first-run-wizard.recommendedPlugins.headline') }}
+    </h3>
+    <p
+        class="recommended-plugins__description"
+        v-html="$tc('sw-first-run-wizard.recommendedPlugins.message')"
+    ></p>
+
+    <div class="select-region">
+        <p>{{ $tc('sw-first-run-wizard.recommendedPlugins.availableInRegion') }}</p>
+        <div class="regions">
+            <sw-label
+                v-for="region in regions"
+                :key="region.name"
+                :variant="regionVariant(region)"
+                size="medium"
+                :ghost="false"
+                :caps="false"
+                appearance="pill"
+                class="sw-label-region"
+                @selected="onSelectRegion(region)"
+            >
+                {{ region.label }}
+            </sw-label>
+        </div>
+    </div>
+
+    <div
+        v-if="categories.length"
+        class="select-category"
+    >
+        <p>{{ $tc('sw-first-run-wizard.recommendedPlugins.category') }}</p>
+        <div class="categories">
+            <sw-label
+                v-for="category in categories"
+                :key="category.name"
+                :variant="categoryVariant(category)"
+                size="medium"
+                :ghost="false"
+                :caps="false"
+                appearance="pill"
+                class="sw-label-category"
+                @selected="onSelectCategory(category)"
+            >
+                {{ category.label }}
+            </sw-label>
+        </div>
+    </div>
+
+    <sw-loader
+        v-show="isLoading"
+        size="48px"
+    />
+
+    <h3
+        v-show="showCategoryLead"
+        class="recommended-plugins__headline"
+    >
+        {{ $tc('sw-first-run-wizard.recommendedPlugins.topRecommendations') }}
+    </h3>
+
+    <div
+        v-show="showCategoryLead"
+        class="plugins-category-lead"
+    >
+        <sw-plugin-card
+            v-for="plugin in categoryLead"
+            :key="plugin.name"
+            :plugin="plugin"
+            @on-plugin-installed="reloadRecommendations"
+            @extension-activated="$emit('extension-activated', $event)"
+        />
+    </div>
+
+    <hr
+        v-if="showSpacer"
+        class="spacer"
+    >
+
+    <h3
+        v-show="showNotCategoryLead"
+        class="recommended-plugins__headline"
+    >
+        {{ $tc('sw-first-run-wizard.recommendedPlugins.otherRecommendations') }}
+    </h3>
+
+    <div
+        v-show="showNotCategoryLead"
+        class="plugins-not-category-lead"
+    >
+        <sw-container
+            v-if="plugins"
+            columns="1fr 1fr"
+            gap="24px 0"
+        >
+            <sw-plugin-card
+                v-for="plugin in notCategoryLead"
+                :key="plugin.name"
+                :plugin="plugin"
+                :show-description="false"
+                @on-plugin-installed="reloadRecommendations"
+                @extension-activated="$emit('extension-activated', $event)"
+            />
+        </sw-container>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% block sw_extension_card_base_activation_switch %}
+    {% parent %}
+
+<sw-extension-deactivation-modal
+    v-if="showDeactivationModal"
+    :extension-name="label"
+    :is-licensed="license !== null"
+    :is-loading="isLoading"
+    @modal-close="closeDeactivationModal"
+    @extension-deactivate="closeModalAndDeactivateExtension"
+/>
+{% endblock %}
+
+{% block sw_extension_card_base_info_content %}
+    {% parent %}
+
+<section v-if="priceInfo && extension.storeLicense.variant === 'rent'">
+    <span class="sw-extension-card-bought__info-price">
+        {{ priceInfo }}
+    </span>
+</section>
+
+<section v-if="subscriptionExpiredText">
+    <span
+        class="sw-extension-card-bought__info-subscription-expiry"
+        :class="subscriptionExpiredTextClasses"
+    >
+        <mt-icon
+            v-if="isExpiredTestPhase || isExpiredRent"
+            name="solid-exclamation-circle"
+            size="14"
+        />
+        {{ subscriptionExpiredText }}
+    </span>
+</section>
+{% endblock %}
+
+{% block sw_extension_card_base_context_menu_actions %}
+<sw-context-menu-item
+    v-if="detailLink"
+    class="sw-extension-card-bought__detail-link"
+    :router-link="detailLink"
+>
+    {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.seeDetailsLabel') }}
+</sw-context-menu-item>
+
+<sw-context-menu-item
+    v-if="isInstalled && extension.storeLicense"
+    class="sw-extension-card-bought__rate-link"
+    @click="openRatingModal"
+>
+    {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.rateLabel') }}
+</sw-context-menu-item>
+
+    {% parent %}
+{% endblock %}
+
+{% block sw_extension_card_base_modals %}
+    {% parent %}
+
+<sw-extension-rating-modal
+    v-if="showRatingModal"
+    :extension="extension"
+    @modal-close="closeRatingModal"
+/>
+
+<sw-modal
+    v-if="showExtensionInstallationFailedModal"
+    :title="extension.label"
+    variant="small"
+    class="sw-extension-card-bought__installation-failed-modal"
+    @modal-close="closeInstallationFailedNotification"
+>
+    <sw-extension-adding-failed
+        :extension-name="extension.name"
+        :title="installationFailedError && installationFailedError.title"
+        :detail="installationFailedError && installationFailedError.message"
+        :documentation-link="installationFailedError && installationFailedError.parameters && installationFailedError.parameters.documentationLink"
+        @close="closeInstallationFailedNotification"
+    />
+</sw-modal>
+{% endblock %}

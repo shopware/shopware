@@ -1,0 +1,19 @@
+{% block sw_existence_filter %}
+<div class="sw-existence-filter">
+    <sw-base-filter
+        :title="filter.label"
+        :show-reset-button="!!value"
+        :active="active"
+        @filter-reset="resetFilter"
+    >
+        {% block sw_existence_filter_content %}
+        <mt-select
+            :model-value="value"
+            :placeholder="filter.placeholder"
+            :options="filterOptions"
+            @update:model-value="changeValue"
+        />
+        {% endblock %}
+    </sw-base-filter>
+</div>
+{% endblock %}

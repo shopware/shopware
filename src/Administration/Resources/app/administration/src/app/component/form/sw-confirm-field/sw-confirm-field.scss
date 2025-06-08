@@ -1,0 +1,40 @@
+.sw-confirm-field {
+    position: relative;
+
+    &.has--error {
+        .sw-confirm-field__button-list {
+            padding-bottom: 19px;
+        }
+    }
+
+    .sw-field input {
+        padding: 8px 16px;
+    }
+
+    .sw-confirm-field__button-list {
+        position: absolute;
+        top: 50%;
+        right: 8px;
+        transform: translate(0, -50%);
+    }
+
+    &.sw-confirm-field--compact {
+        .sw-field {
+            margin-bottom: 0;
+        }
+
+        .sw-field input {
+            padding: 2px 16px;
+        }
+
+        .sw-confirm-field__button-list {
+            right: 4px;
+        }
+    }
+
+    &.sw-confirm-field--editing {
+        .sw-field input {
+            padding-right: 64px;
+        }
+    }
+}

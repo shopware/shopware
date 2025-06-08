@@ -1,0 +1,53 @@
+{
+  "sw-newsletter-recipient": {
+    "general": {
+      "description": "Manage newsletter recipients here.",
+      "information": "Information",
+      "language": "Language",
+      "salutation": "Salutation",
+      "salesChannel": "Sales Channel",
+      "buttonSave": "Save",
+      "mainMenuItemGeneral": "Newsletter recipients",
+      "placeholderSearchBarSnippets": "Search all newsletter recipients...",
+      "tags": "Tags"
+    },
+    "detail": {
+      "messageSaveSuccess": "Data for \"{key}\" has been saved.",
+      "messageSaveError": "Data for \"{key}\" could not be saved."
+    },
+    "list": {
+      "titleSidebarItemRefresh": "Refresh",
+      "titleSidebarItemFilter": "Filters",
+      "status": "Status",
+      "textHeadline": "Newsletter recipients",
+      "email": "Email address",
+      "name": "Name",
+      "title": "Title",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "salesChannel": "Sales Channel",
+      "zipCode": "Postal code",
+      "city": "City",
+      "street": "Street",
+      "notSet": "Awaiting activation",
+      "createdAt": "Created at",
+      "updatedAt": "Updated at",
+      "optIn": "Active",
+      "optOut": "Awaiting deletion",
+      "direct": "Instantly active",
+      "messageEmpty": "No newsletter recipients yet"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "newsletter_recipient": {
+        "label": "Newsletter recipients"
+      }
+    },
+    "additional_permissions": {
+      "marketing": {
+        "send_newsletter": "Send newsletter"
+      }
+    }
+  }
+}

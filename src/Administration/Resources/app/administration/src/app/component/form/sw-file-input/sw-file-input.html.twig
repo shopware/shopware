@@ -1,0 +1,95 @@
+{% block sw_file_input %}
+<div class="sw-file-input">
+
+    {% block sw_file_input_regular %}
+    {% block sw_file_input_regular_header %}
+    <div class="sw-file-input__header">
+        {% block sw_file_input_regular_header_label %}
+        <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+        <label
+            v-if="label"
+            :for="id"
+            class="sw-file-input__label"
+        >
+            {{ label }}
+        </label>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_file_input_regular_drop_zone %}
+    <div
+        ref="dropzone"
+        class="sw-file-input__dropzone"
+        :class="isDragActiveClass"
+    >
+
+        {% block sw_file_input_caption %}
+        <div
+            v-if="selectedFile === null"
+            class="sw-file-input__upload-caption"
+        >
+            <mt-icon name="regular-cloud-upload" />
+            <slot name="caption-label">
+                {{ $tc('global.sw-file-input.caption') }}
+            </slot>
+        </div>
+        {% endblock %}
+
+        {% block sw_file_input_actions %}
+        <div
+            class="sw-file-input__actions"
+            :class="{ 'has--source': selectedFile }"
+        >
+
+            <div
+                v-if="selectedFile"
+                class="sw-file-input__file-info"
+            >
+                <span class="sw-file-input__file-headline">
+                    {{ selectedFile.name }}
+                </span>
+                <mt-icon
+                    class="sw-file-input__remove-icon"
+                    name="regular-times-xs"
+                    size="16px"
+                    @click="onRemoveIconClick"
+                />
+            </div>
+
+            {% block sw_file_input_regular_choose_button %}
+            <mt-button
+                class="sw-file-input__button"
+                ghost
+                size="small"
+                :disabled="disabled || undefined"
+                variant="secondary"
+                @click="onChooseButtonClick"
+            >
+                {{ $tc('global.sw-file-input.buttonChoose') }}
+            </mt-button>
+            {% endblock %}
+
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+    {% endblock %}
+
+    {% block sw_file_input_hidden_form %}
+    <form
+        ref="fileForm"
+        class="sw-file-input__file-form"
+    >
+        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+        <input
+            :id="id"
+            ref="fileInput"
+            class="sw-file-input__file-input"
+            type="file"
+            @change="onFileInputChange"
+        >
+    </form>
+    {% endblock %}
+</div>
+{% endblock %}

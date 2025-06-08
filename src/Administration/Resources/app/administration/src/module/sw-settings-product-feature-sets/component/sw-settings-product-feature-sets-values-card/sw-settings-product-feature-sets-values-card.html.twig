@@ -1,0 +1,157 @@
+{% block sw_product_feature_set_card %}
+<mt-card
+    :title="$tc('sw-settings-product-feature-sets.valuesCard.cardTitle')"
+    class="sw-settings-product-feature-sets-values-card"
+    position-identifier="sw-settings-product-feature-sets-values-card"
+    :class="valuesCardClasses"
+    :is-loading="isLoading || valuesLoading || cardLoading"
+>
+
+    <template #grid>
+        <div v-if="!valuesEmpty && !disabled">
+            {% block sw_product_feature_set_toolbar %}
+            <div class="sw-product-feature-set__toolbar">
+
+                {% block sw_product_feature_set_toolbar_container %}
+                <sw-container
+                    columns="1fr 32px minmax(100px, 200px)"
+                    gap="0 10px"
+                >
+
+                    {% block sw_product_feature_set_toolbar_search %}
+                    <sw-simple-search-field
+                        v-model:value="term"
+                        size="small"
+                        variant="form"
+                        :disabled="!allowEdit || undefined"
+                        @search-term-change="onSearch"
+                    />
+                    {% endblock %}
+
+                    {% block sw_product_feature_set_toolbar_delete %}
+                    <mt-button
+                        :disabled="deleteButtonDisabled || !allowEdit || undefined"
+                        square
+                        size="small"
+                        class="sw-product-feature-set__delete-button"
+                        variant="secondary"
+                        @click="onDeleteFields"
+                    >
+                        <mt-icon
+                            name="regular-trash"
+                            size="16px"
+                        />
+                    </mt-button>
+                    {% endblock %}
+
+                    {% block sw_product_feature_set_toolbar_add %}
+                    <sw-container>
+                        <mt-button
+                            :disabled="isLoading || !allowEdit || undefined"
+                            ghost
+                            size="small"
+                            class="sw-product-feature-set__add-button"
+                            variant="secondary"
+                            @click="onAddField"
+                        >
+                            {{ $tc('sw-settings-product-feature-sets.valuesCard.labelCreateNew') }}
+                        </mt-button>
+                    </sw-container>
+                    {% endblock %}
+
+                </sw-container>
+                {% endblock %}
+
+            </div>
+            {% endblock %}
+
+            {% block sw_product_feature_set_card_grid %}
+            <sw-data-grid
+                :data-source="values"
+                :columns="getColumns()"
+                :show-selection="allowEdit"
+                :show-actions="false"
+                :is-loading="isLoading"
+                identifier="sw-product-feature-set-grid"
+                @selection-change="onGridSelectionChanged"
+            >
+
+                {% block sw_settings_product_feature_set_card_grid_column_name %}
+                <template #column-name="{ item }">
+                    {{ featureGridTranslationService.getNameTranslation(item) }}
+                </template>
+                {% endblock %}
+
+                {% block sw_settings_product_feature_set_card_grid_column_type %}
+                <template #column-type="{ item }">
+                    {{ featureGridTranslationService.getTypeTranslation(item) }}
+                </template>
+                {% endblock %}
+
+                {% block sw_settings_product_feature_set_card_grid_column_position %}
+                <template #column-position="{ item }">
+                    <sw-data-grid-column-position
+                        ref="columnPosition"
+                        v-model:value="values"
+                        :show-value="false"
+                        :item="item"
+                        :disabled="!allowEdit || undefined"
+                        @position-changed="onPositionChange"
+                    />
+                </template>
+                {% endblock %}
+
+            </sw-data-grid>
+            {% endblock %}
+
+        </div>
+    </template>
+
+    {% block sw_product_feature_set_card_empty_state %}
+    <template v-if="valuesEmpty || disabled">
+
+        <div class="sw-settings-product-feature-set-card__empty-state">
+            {% block sw_product_feature_set_card_empty_state_image %}
+            <img
+                :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
+                alt=""
+            >
+            {% endblock %}
+
+            {% block sw_product_feature_set_card_empty_state_label %}
+            <div class="sw-settings-product-feature-set-card__empty-state--label">
+                <p v-if="disabled">
+                    {{ $tc('sw-settings-product-feature-sets.valuesCard.createStateDescription') }}
+                </p>
+                <p v-else>
+                    {{ $tc('sw-settings-product-feature-sets.valuesCard.emptyStateDescription') }}
+                </p>
+            </div>
+            {% endblock %}
+
+            {% block sw_product_feature_set_card_empty_state_button %}
+            <mt-button
+                ghost
+                size="small"
+                :disabled="disabled || undefined"
+                variant="secondary"
+                @click="showModal = true"
+            >
+                {{ $tc('sw-settings-product-feature-sets.valuesCard.labelCreateNew') }}
+            </mt-button>
+            {% endblock %}
+        </div>
+
+    </template>
+    {% endblock %}
+
+    {% block sw_product_feature_set_card_grid_column_modal %}
+    <sw-settings-product-feature-sets-modal
+        v-if="showModal"
+        :product-feature-set="productFeatureSet"
+        @modal-close="onModalClose"
+    />
+    {% endblock %}
+
+</mt-card>
+{% endblock %}

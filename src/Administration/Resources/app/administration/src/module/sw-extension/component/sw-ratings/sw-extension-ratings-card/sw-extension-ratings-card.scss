@@ -1,0 +1,27 @@
+.sw-extension-ratings-card {
+    &__reviews {
+        margin-top: 40px;
+        width: calc(100% * (2 / 3));
+
+        @media screen and (max-width: 768px) {
+            width: 100%;
+        }
+
+        .sw-extension-review {
+            margin-bottom: 40px;
+        }
+    }
+
+    .sw-extension-ratings-summary {
+        width: calc(100% * (2 / 3));
+        max-width: inherit;
+
+        @media screen and (max-width: 768px) {
+            width: 100%;
+        }
+    }
+
+    &__footer-headline {
+        margin: 52px 0 0;
+    }
+}

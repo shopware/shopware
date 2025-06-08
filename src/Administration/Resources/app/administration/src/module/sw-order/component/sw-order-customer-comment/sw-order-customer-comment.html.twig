@@ -1,0 +1,17 @@
+{% block sw_order_customer_comment %}
+<mt-card
+    class="sw-order-customer-comment"
+    position-identifier="sw-order-customer-comment"
+    :title="$tc('sw-order.detailCustomerComment.title')"
+    :is-loading="isLoading"
+>
+    {% block sw_order_customer_comment_content %}
+    <sw-text-preview
+        :text="customerComment"
+        :modal-title="$tc('sw-order.detailCustomerComment.title')"
+        :maximum-length="750"
+        :maximum-new-lines="5"
+    />
+    {% endblock %}
+</mt-card>
+{% endblock %}

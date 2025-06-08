@@ -1,0 +1,19 @@
+{% block sw_condition_base_field_condition %}
+<sw-arrow-field
+    v-if="options.length > 1"
+    class="sw-product-stream-field-select"
+    :class="{ 'has--error': hasError }"
+    :primary="arrowPrimaryColor"
+    secondary="#ffffff"
+>
+    <sw-single-select
+        size="medium"
+        :options="options"
+        :value="field"
+        :placeholder="$tc('sw-product-stream.filter.placeholderFieldSelect')"
+        :disabled="disabled"
+        show-clearable-button
+        @update:value="changeField"
+    />
+</sw-arrow-field>
+{% endblock %}

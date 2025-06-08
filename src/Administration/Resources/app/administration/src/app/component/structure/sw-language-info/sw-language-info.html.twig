@@ -1,0 +1,23 @@
+{% block sw_language_info %}
+<p
+    v-if="infoText"
+    class="sw-language-info"
+>
+    {% block sw_language_info_text %}
+    <span
+        class="sw_language-info__info"
+        v-html="$sanitize(infoText)"
+    ></span>
+    <span
+        v-if="infoParent"
+        class="sw-language-info__link-parent"
+        role="link"
+        tabindex="0"
+        @click="onClickParentLanguage"
+        @keydown.enter="onClickParentLanguage"
+    >
+        "{{ infoParent }}".
+    </span>
+    {% endblock %}
+</p>
+{% endblock %}

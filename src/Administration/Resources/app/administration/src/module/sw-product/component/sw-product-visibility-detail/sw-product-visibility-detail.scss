@@ -1,0 +1,25 @@
+@import "~scss/variables";
+
+.sw-product-category-form__visibility_modal.sw-modal .sw-modal__body {
+    font-size: $font-size-xs;
+    padding: 20px 30px;
+
+    .sw-grid .sw-grid__header .sw-grid__cell-label {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: initial;
+    }
+
+    .sw-grid .sw-grid__header .sw-grid-column .sw-grid__cell-content {
+        font-size: $font-size-xs;
+    }
+}
+
+.sw-product-category-form .sw-card__quick-link.advanced-visibility {
+    cursor: pointer;
+}
+
+.sw-product-detail__select-visibility {
+    margin-top: 15px;
+    margin-bottom: 22px;
+}

@@ -1,0 +1,261 @@
+@import "~scss/variables";
+
+$sw-login-color-background: $color-gray-100;
+$sw-login-container-color-background: $color-white;
+$sw-login-badge-color-background: $color-shopware-brand-500;
+$sw-login-back-color: $color-darkgray-200;
+$sw-login-forgot-password-link-color: blue;
+$sw-login-success-animation-duration: 0.3s;
+$sw-login-media-query-animation-duration: 0.2s;
+$sw-login-error-animation-duration: 0.15s;
+
+.sw-login {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-color: $sw-login-color-background;
+    transition: background-color $sw-login-success-animation-duration ease-in-out;
+    overflow: auto;
+
+    @media screen and (max-width: 500px) {
+        padding: 0;
+        align-items: start;
+        background: $sw-login-container-color-background;
+        transition: none;
+    }
+
+    .sw-login__container {
+        background: $color-white;
+        width: 1120px;
+        min-height: 590px;
+        display: grid;
+        grid-template-columns: auto 480px;
+        transition: all $sw-login-success-animation-duration ease-in-out;
+        transform: scale(1);
+
+        &.is--login-error {
+            animation: sw-login-error-shake $sw-login-error-animation-duration ease-in-out infinite;
+        }
+
+        @media screen and (max-width: 600px) {
+            min-height: auto;
+            width: 100%;
+            display: block;
+        }
+    }
+
+    .sw-login__content {
+        min-width: 320px;
+        padding: 130px 50px;
+        position: relative;
+        opacity: 1;
+        transition:
+            opacity $sw-login-success-animation-duration ease-in-out,
+            padding $sw-login-media-query-animation-duration ease-in-out;
+
+        @media screen and (max-width: 600px) {
+            padding: 30px;
+        }
+    }
+
+    .sw-login__content-headline {
+        font-size: $font-size-l;
+        font-weight: $font-weight-semi-bold;
+    }
+
+    .mt-button {
+        @media screen and (max-width: 600px) {
+            display: block;
+        }
+    }
+
+    .sw-login__form-headline {
+        margin-bottom: 40px;
+        font-size: $font-size-m;
+        font-weight: normal;
+        display: flex;
+        align-items: center;
+
+        .mt-icon {
+            margin-right: 10px;
+        }
+
+        @media screen and (max-width: 600px) {
+            padding-right: 80px;
+        }
+    }
+
+    .sw-login__back {
+        background: 0 none;
+        border: 0 none;
+        padding: 0;
+        line-height: inherit;
+        color: $sw-login-back-color;
+        outline: none;
+    }
+
+    .sw-login__badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 64px;
+        height: 64px;
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        z-index: 420;
+        background: $sw-login-badge-color-background;
+        transition:
+            top $sw-login-media-query-animation-duration ease-in-out,
+            right $sw-login-media-query-animation-duration ease-in-out;
+
+        svg {
+            fill: $color-white;
+        }
+
+        @media screen and (max-width: 600px) {
+            top: 0;
+            right: 0;
+        }
+    }
+
+    .sw-login__submit {
+        margin-top: 32px;
+        text-align: right;
+
+        .mt-button {
+            display: inline-block;
+        }
+
+        @media screen and (max-width: 500px) {
+            .mt-button {
+                display: block;
+            }
+
+            .sw-button__element {
+                display: block;
+                width: 100%;
+            }
+        }
+    }
+
+    .sw-login__image {
+        display: flex;
+        flex-direction: row;
+        overflow: hidden;
+        background-color: lighten($sw-login-color-background, 10%);
+        background-image: url("https://login-image.shopware.com/login/login.jpg"), url("./assets/sw-login-background.png");
+        background-position: center center;
+        background-size: cover;
+        opacity: 1;
+        transition:
+            opacity $sw-login-success-animation-duration ease-in-out,
+            padding $sw-login-media-query-animation-duration ease-in-out;
+
+        @media screen and (max-width: 600px) {
+            display: none;
+        }
+    }
+
+    .sw-login__image-headlines {
+        padding-left: 60px;
+        padding-bottom: 115px;
+        align-self: flex-end;
+        white-space: nowrap;
+        color: $color-white;
+        transition: opacity $sw-login-media-query-animation-duration ease-in-out;
+        opacity: 1;
+
+        @media screen and (max-width: 850px) {
+            opacity: 0;
+        }
+    }
+
+    .sw-login__headline {
+        font-size: 60px;
+        font-weight: $font-weight-semi-bold;
+        transition: font-size $sw-login-media-query-animation-duration ease-in-out;
+
+        @media screen and (max-width: 1100px) {
+            font-size: 40px;
+        }
+    }
+
+    .sw-login__sub-headline {
+        font-size: 48px;
+        font-weight: $font-weight-regular;
+        transition: font-size $sw-login-media-query-animation-duration ease-in-out;
+
+        @media screen and (max-width: 1100px) {
+            font-size: 30px;
+        }
+    }
+
+    .sw-login__forgot-password-action {
+        color: $sw-login-badge-color-background;
+        text-decoration: none;
+        margin-right: 12px;
+        font-size: $font-size-xs;
+    }
+
+    .sw-login__back-arrow {
+        cursor: pointer;
+    }
+
+    .fade-enter-active,
+    .fade-leave-active {
+        transition: all 0.3s;
+        transform: translateX(0);
+    }
+
+    .fade-enter,
+    .fade-leave-to {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    .sw-login__recovery-form {
+        margin-top: 20px;
+    }
+
+    &.is--login-success {
+        background-color: $sw-login-container-color-background;
+        overflow: hidden;
+
+        .sw-login__container {
+            transform: scale(1.3);
+        }
+
+        .sw-login__content {
+            opacity: 0;
+        }
+
+        .sw-login__image {
+            opacity: 0;
+        }
+    }
+
+    @keyframes sw-login-error-shake {
+        0% {
+            transform: translateX(-2px);
+        }
+
+        25% {
+            transform: translateX(0);
+        }
+
+        50% {
+            transform: translateX(3px);
+        }
+
+        75% {
+            transform: translateX(0);
+        }
+
+        100% {
+            transform: translateX(-2px);
+        }
+    }
+}

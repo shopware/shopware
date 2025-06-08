@@ -1,0 +1,106 @@
+@import "~scss/variables";
+
+$sw-modal-action-z-index: $z-index-modal + 1;
+$sw-modal-transition-duration: 0.4s;
+$sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
+
+.sw-image-preview-modal {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: #fff;
+    z-index: $z-index-modal;
+
+    .sw-image-preview-modal__action,
+    .sw-image-preview-modal__button-close {
+        position: absolute;
+        top: 0;
+        margin: 15px;
+        z-index: $sw-modal-action-z-index;
+    }
+
+    .sw-image-preview-modal__action {
+        left: 0;
+        display: inline-flex;
+    }
+
+    .sw-image-preview-modal__button-close {
+        right: 0;
+    }
+
+    .sw-image-preview-modal__button-action {
+        padding: 8px 12px;
+        background: $color-gray-50;
+        border: 1px solid transparent;
+        color: $color-gray-900;
+
+        &:first-child {
+            border-top-left-radius: $border-radius-default;
+            border-bottom-left-radius: $border-radius-default;
+        }
+
+        &:last-child {
+            border-top-right-radius: $border-radius-default;
+            border-bottom-right-radius: $border-radius-default;
+        }
+
+        &.is--disabled {
+            opacity: 0.3;
+        }
+    }
+
+    .sw-image-preview-modal__image-slider {
+        position: absolute;
+        top: 0;
+        bottom: 140px;
+
+        .sw-image-slider__element-image {
+            height: auto;
+            width: auto;
+            max-height: 100%;
+            max-width: 100%;
+        }
+    }
+
+    .sw-image-preview-modal__thumbnail-slider {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        padding: 20px 0;
+        background: $color-white;
+    }
+
+    .sw-image-preview-modal__divider {
+        border: 1px solid $color-gray-300;
+        position: absolute;
+        bottom: 139px;
+        left: 20px;
+        right: 20px;
+    }
+}
+
+// Vue.js Transitions
+.sw-image-preview-modal-fade-enter-active,
+.sw-image-preview-modal-fade-leave-active {
+    transition: opacity $sw-modal-transition-duration $sw-modal-transition-timing-function;
+
+    .sw-image-preview-modal {
+        transition: transform $sw-modal-transition-duration $sw-modal-transition-timing-function;
+        transform: scale(1);
+    }
+}
+
+// Vue.js Transitions
+.sw-image-preview-modal-fade-enter,
+.sw-image-preview-modal-fade-leave-to {
+    opacity: 0;
+
+    .sw-image-preview-modal {
+        transform: scale(0.8);
+    }
+}

@@ -1,0 +1,17 @@
+{% block sw_cms_element_text %}
+<div class="sw-cms-el-text">
+    <div
+        v-if="element.config.content.source === 'mapped'"
+        class="sw-cms-el-text__mapping-preview content-editor"
+        v-html="$sanitize(demoValue)"
+    ></div>
+
+    <mt-text-editor
+        v-else
+        :model-value="element.config.content.value"
+        :custom-buttons="customTextEditorButtons"
+        is-inline-edit
+        @update:model-value="onInput"
+    />
+</div>
+{% endblock %}

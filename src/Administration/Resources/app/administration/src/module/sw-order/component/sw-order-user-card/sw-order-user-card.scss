@@ -1,0 +1,105 @@
+@import "~scss/variables";
+
+$sw-order-user-card-link: $color-shopware-brand-500;
+
+.sw-order-user-card {
+    .sw-order-user-card__container {
+        padding-bottom: 24px;
+    }
+
+    .sw-order-user-card__metadata-user-name,
+    .sw-order-user-card__metadata-price {
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-m;
+        margin-bottom: 8px;
+    }
+
+    .sw-order-user-card__metadata {
+        .sw-select.is--disabled .sw-select__inner {
+            background: none;
+            border: none;
+        }
+    }
+
+    .sw-order-user-card__metadata-item {
+        margin-bottom: 8px;
+        font-size: $font-size-xs;
+    }
+
+    .sw-order-user-card__actions {
+        padding-top: 10px;
+
+        .mt-button {
+            margin-right: 6px;
+
+            &:last-of-type {
+                margin-right: 0;
+            }
+        }
+    }
+
+    &__info-summary {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-end;
+        margin-left: 64px;
+    }
+
+    .sw-order-user-card__summary-vertical {
+        line-height: 15px;
+
+        dt,
+        dd {
+            padding: 4px;
+            border-bottom: none;
+        }
+
+        dt {
+            font-weight: $font-weight-semi-bold;
+
+            &:not(:first-child),
+            &:only-of-type {
+                padding-top: 21px;
+            }
+        }
+    }
+
+    .sw-description-list {
+        .sw-order-user-card__address-edit-button,
+        .sw-order-user-card__address-add-button {
+            color: $sw-order-user-card-link;
+            background: transparent;
+            border: none;
+            line-height: 10px;
+            padding-top: 0;
+            padding-bottom: 0;
+            vertical-align: top;
+        }
+
+        .sw-order-user-card__address-phone-label {
+            margin: 0;
+            vertical-align: text-bottom;
+        }
+
+        .sw-order-user-card__address-add-button {
+            margin-top: 5px;
+            padding-top: 12px;
+        }
+    }
+
+    .sw-order-user-card__tag-select.is--disabled,
+    .sw-order-user-card__tracking-code-select {
+        .sw-select__selection-indicators {
+            display: none;
+        }
+    }
+
+    .sw-order-user-card__tracking-code-link {
+        &:not(:last-child) {
+            margin-right: 0.25rem;
+        }
+
+        margin-bottom: 0.25rem;
+    }
+}

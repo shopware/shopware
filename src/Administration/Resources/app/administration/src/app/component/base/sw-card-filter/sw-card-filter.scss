@@ -1,0 +1,11 @@
+.sw-card-filter {
+    display: flex;
+
+    .sw-card-filter-container {
+        flex: 1;
+
+        &.hasFilter {
+            padding-right: 20px;
+        }
+    }
+}

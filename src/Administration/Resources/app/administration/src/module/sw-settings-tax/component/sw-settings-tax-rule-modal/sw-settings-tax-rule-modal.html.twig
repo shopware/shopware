@@ -1,0 +1,105 @@
+{% block sw_settings_tax_rule_modal %}
+<sw-modal
+    :title="$tc('sw-settings-tax.taxRuleCard.labelCountryName')"
+    class="sw-settings-tax-rule-modal__settings-modal"
+    @modal-close="$emit('modal-close')"
+>
+    {% block sw_settings_tax_rule_modal_form_first_row %}
+    <sw-container
+        columns="1fr 1fr"
+        gap="0px 32px"
+    >
+        {% block sw_settings_tax_rule_modal_country_select %}
+        <sw-entity-single-select
+            v-model:value="taxRule.countryId"
+            show-clearable-button
+            required
+            :label="$tc('sw-settings-tax.taxRuleCard.labelCountryName')"
+            :help-text="$tc('sw-settings-tax.taxRuleCard.tooltipCountries')"
+            :error="taxRuleCountryIdError"
+            :criteria="countryCriteria"
+            entity="country"
+        />
+        {% endblock %}
+        {% block sw_settings_tax_rule_modal_type_select %}
+        <sw-entity-single-select
+            v-model:value="taxRule.taxRuleTypeId"
+            show-clearable-button
+            required
+            :label="$tc('sw-settings-tax.taxRuleCard.labelAppliesOn')"
+            label-property="typeName"
+            :error="taxRuleTaxRuleTypeIdError"
+            :criteria="taxRuleTypeCriteria"
+            entity="tax_rule_type"
+            @update:value="changeRuleType"
+        />
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+
+    {% block sw_settings_tax_rule_modal_form_second_row %}
+    <sw-container
+        columns="1fr 1fr"
+        gap="0 32px"
+    >
+        {% block sw_settings_tax_rule_modal_additional_component %}
+        <component
+            :is="additionalComponent"
+            v-if="additionalComponent"
+            :tax-rule="taxRule"
+        />
+        {% endblock %}
+
+        {% block sw_settings_tax_rule_modal_tax_rate %}
+        <mt-number-field
+            v-model="taxRule.taxRate"
+            required
+            :digits="3"
+            :error="taxRuleTaxRateError"
+            :label="$tc('sw-settings-tax.taxRuleCard.labelTaxRate')"
+        >
+            <template #suffix>
+                <span>
+                    <span v-html="$sanitize($tc('sw-settings-tax.general.taxRateSymbol'))"></span>
+                </span>
+            </template>
+        </mt-number-field>
+        {% endblock %}
+
+        {% block sw_settings_tax_rule_modal_tax_active_from %}
+        <mt-datepicker
+            v-model="taxRule.activeFrom"
+            date-type="datetime"
+            :error="taxRuleActiveFromError"
+            :label="$tc('sw-settings-tax.taxRuleCard.labelActiveFrom')"
+            :placeholder="$tc('sw-datepicker.datetime.placeholder')"
+        />
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+
+    {% block sw_settings_tax_rule_modal_form_footer %}
+    <template #modal-footer>
+        {% block sw_settings_tax_rule_modal_form_footer_cancel %}
+        <mt-button
+            size="small"
+            variant="secondary"
+            @click="$emit('modal-close')"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_settings_tax_rule_modal_form_footer_button_create %}
+        <mt-button
+            variant="primary"
+            size="small"
+            @click="onConfirm"
+        >
+            {{ $tc('sw-settings-tax.detail.buttonSave') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

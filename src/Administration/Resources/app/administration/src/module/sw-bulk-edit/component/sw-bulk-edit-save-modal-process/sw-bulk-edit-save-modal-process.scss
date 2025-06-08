@@ -1,0 +1,43 @@
+@import "~scss/variables";
+
+.sw-bulk-edit-save-modal-process {
+    &__generate-document-container {
+        width: 100%;
+        margin: 24px 0;
+    }
+
+    &__generate-document {
+        list-style: none;
+
+        &:not(:first-child) {
+            margin-top: 24px;
+        }
+    }
+
+    &__generate-document .progress {
+        &__label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: $font-size-xs;
+        }
+
+        &__bar {
+            position: relative;
+            width: 100%;
+            height: 8px;
+            background-color: $color-gray-100;
+            border-radius: $border-radius-pill;
+        }
+
+        &__bar-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            background-color: $color-emerald-500;
+            border-radius: $border-radius-pill;
+            transition: width 0.15s ease-in-out;
+        }
+    }
+}

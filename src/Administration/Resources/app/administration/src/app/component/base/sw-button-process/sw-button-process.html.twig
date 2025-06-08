@@ -1,0 +1,21 @@
+{% block sw_button_process %}
+<mt-button
+    class="sw-button-process"
+    size="default"
+    v-bind="$attrs"
+    :variant="$attrs.variant || 'secondary'"
+>
+
+    <mt-icon
+        v-if="processSuccess"
+        class="sw-button-process__status-indicator"
+        name="regular-checkmark-xs"
+    />
+    <span
+        class="sw-button-process__content"
+        :class="contentVisibilityClass"
+    >
+        <slot></slot>
+    </span>
+</mt-button>
+{% endblock %}

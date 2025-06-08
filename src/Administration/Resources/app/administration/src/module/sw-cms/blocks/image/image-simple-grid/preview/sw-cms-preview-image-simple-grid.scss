@@ -1,0 +1,20 @@
+.sw-cms-preview-image-simple-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 20px;
+    padding: 15px;
+
+    img {
+        display: block;
+        object-fit: cover;
+        width: 100%;
+        height: 100%;
+    }
+
+    .sw-cms-preview-image-simple-grid__side-images {
+        height: 100%;
+        display: grid;
+        grid-template-rows: 96px 96px;
+        grid-gap: 24px;
+    }
+}

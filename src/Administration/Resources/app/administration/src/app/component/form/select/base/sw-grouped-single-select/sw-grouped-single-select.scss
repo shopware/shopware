@@ -1,0 +1,19 @@
+@import "~scss/variables";
+
+.sw-grouped-single-select__group-separator {
+    margin: 5px 5px 0;
+    padding: 10px 16px 5px;
+    font-weight: $font-weight-semi-bold;
+    color: $color-darkgray-200;
+    border-top: 1px solid $color-gray-300;
+
+    &:first-of-type {
+        border: 0;
+        margin: 0 5px;
+        padding: 5px 16px;
+    }
+}
+
+.sw_grouped-single-select_group-misc-separator {
+    border-top: 2px solid $color-gray-300;
+}

@@ -1,0 +1,62 @@
+{
+  "sw-settings-number-range": {
+    "general": {
+      "mainMenuItemGeneral": "Number ranges",
+      "placeholderSearchBar": "Search number ranges...",
+      "infoGlobalType": "There can be only be one \"{typeName}\" number range. Changes to the number range of type \"{typeName}\" have to be made here and will globally affect all Sales Channels.",
+      "infoGlobalTypeTitle": "Global number range type \"{typeName}\"",
+      "infoGlobal": "You cannot change a global number range's type. But you can create additional number ranges for most types and particular Sales Channels back in the overview.",
+      "infoGlobalTitle": "Global number range \"{name}\"",
+      "infoSalesChannelBound": "To change a number range's type, remove all Sales Channel assignments first."
+    },
+    "list": {
+      "textHeadline": "Number ranges",
+      "textDeleteConfirm": "Are you sure you want to delete the number range \"{name}\"?",
+      "columnName": "Name",
+      "columnUsedIn": "Type",
+      "columnAssignment": "Assignment",
+      "buttonAddNumberRange": "Add number range",
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
+      "messageDeleteSuccess": "Number range \"{name}\" has been deleted.",
+      "buttonDelete": "Delete",
+      "global": "Global"
+    },
+    "detail": {
+      "textHeadline": "New number range",
+      "configCard": "Settings",
+      "assignmentCard": "Assignment",
+      "messageSaveSuccess": "Number range \"{name}\" has been saved.",
+      "messageSaveError": "Number range \"{name}\" has not been saved.",
+      "labelName": "Name",
+      "labelDescription": "Description",
+      "labelPrefix": "Prefix",
+      "labelSuffix": "Suffix",
+      "labelPattern": "Pattern",
+      "labelStart": "Start number",
+      "labelCurrentNumber": "Current number",
+      "labelPreview": "Preview",
+      "labelAdvanced": "Advanced mode",
+      "labelType": "Type",
+      "labelSalesChannel": "Sales Channel",
+      "placeholderName": "Enter name...",
+      "placeholderDescription": "Enter description...",
+      "placeholderPrefix": "Enter prefix...",
+      "placeholderSuffix": "Enter suffix...",
+      "placeholderPattern": "Enter pattern... \"prefix_{n}_suffix\"",
+      "placeholderStart": "Enter start number...",
+      "placeholderPleaseSelect": "Please select...",
+      "placeholderSimpleModeImpossible": "Advanced mode active",
+      "helpTextAdvancedField": "Advanced pattern definition: <br/>{'{prefix}_{n}_{suffix}'}<br/><li>'n' is the defined start number</li><li>('_' is an arbitrarily chosen separator)</li><br/>Use e.g. the PHP parameter 'date': <br/><li>{'{date}'}: International date format (YYYY-MM-DD)</li><li>{'{date_dmy}'}: User defined date format (DD-MM-YY)</li>",
+      "errorPatternNeededMessage": "No pattern defined. Please define at least a start value.",
+      "infoStartDecrementMessage": "Changes to the start number will only take effect when the start number is higher than the current number."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "number_ranges": {
+        "label": "Number ranges"
+      }
+    }
+  }
+}

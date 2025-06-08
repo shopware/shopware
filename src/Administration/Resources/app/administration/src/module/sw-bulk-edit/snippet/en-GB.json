@@ -1,0 +1,395 @@
+{
+  "sw-bulk-edit": {
+    "general": {
+      "mainMenuTitle": "Bulk edit",
+      "descriptionTextModule": "Module to bulk edit data",
+      "defaultChangeLabel": "Change:"
+    },
+    "changeTypes": {
+      "overwrite": "Overwrite",
+      "clear": "Clear"
+    },
+    "product": {
+      "textTitle": "Bulk edit: {productTotal} product | Bulk edit: {productTotal} products",
+      "messageEmptyTitle": "No products selected for bulk edit",
+      "messageEmptySubline": "Please go back and select some products",
+      "alertInheritance": {
+        "message": "These variants have inherited fields. The contents of inherited fields are drawn form the respective parent product. You can activate and deactivate inheritances by clicking on the chain symbol."
+      },
+      "alertRestrictedFields": {
+        "title": "Restricted bulk edit",
+        "message": "Bulk edit can only be applied to fields that are available for all selected products.<br><br>Not available for all selected products:",
+        "stock": "Stock",
+        "isCloseout": "On clearance sale",
+        "restockTime": "Restock time",
+        "maxPurchase": "Max. order quantity",
+        "purchaseSteps": "Purchase steps",
+        "minPurchase": "Min. order quantity",
+        "shippingFree": "Free shipping"
+      },
+      "generalInformation": {
+        "cardTitle": "General information",
+        "description": {
+          "changeLabel": "Change: Description"
+        },
+        "manufacturer": {
+          "changeLabel": "Change: Manufacturer",
+          "placeholderManufacturer": "Select manufacturer..."
+        },
+        "active": {
+          "changeLabel": "Change: Active",
+          "switchLabel": "Active"
+        },
+        "productPromotion": {
+          "changeLabel": "Change: Product promotion",
+          "switchLabel": "Product promotion"
+        }
+      },
+      "prices": {
+        "cardTitle": "Prices",
+        "taxRate": {
+          "changeLabel": "Change: Tax rate",
+          "placeholderTax": "Select tax rate..."
+        },
+        "isPriceInherited": {
+          "changeLabel": "Change: Price inheritance"
+        },
+        "price": {
+          "label": "Price",
+          "changeLabel": "Change: Price",
+          "placeholderPrice": "Enter price..."
+        },
+        "purchasePrices": {
+          "label": "Purchase price",
+          "changeLabel": "Change: Purchase price",
+          "placeholderPurchasePrices": "Enter purchase price..."
+        },
+        "listPrice": {
+          "label": "List price",
+          "changeLabel": "Change: List price",
+          "placeholderListPrice": "Enter list price..."
+        },
+        "regulationPrice": {
+          "label": "Cheapest price (last 30 days)",
+          "changeLabel": "Change: Cheapest price (last 30 days)",
+          "placeholderRegulationPrice": "Enter Cheapest price..."
+        }
+      },
+      "advancedPrices": {
+        "cardTitle": "Advanced pricing",
+        "changeLabel": "Change: Advanced pricing",
+        "selectRule": "Select pricing rule ...",
+        "newAdvancedPrices": "Create new Advanced Prices ({count})"
+      },
+      "property": {
+        "cardTitle": "Properties",
+        "changeLabel": "Change: Properties"
+      },
+      "deliverability": {
+        "cardTitle": "Deliverability",
+        "stock": {
+          "changeLabel": "Change: Stock",
+          "placeholderStock": "Enter quantity in stock... "
+        },
+        "isCloseout": {
+          "changeLabel": "Change: Clearance sale",
+          "switchLabel": "Clearance sale"
+        },
+        "deliveryTime": {
+          "changeLabel": "Change: Delivery time",
+          "placeholderDeliveryTime": "Select delivery time..."
+        },
+        "restockTime": {
+          "changeLabel": "Change: Restock time",
+          "placeholderRestockTime": "Enter restock time in days..."
+        },
+        "freeShipping": {
+          "changeLabel": "Change: Free shipping",
+          "switchLabel": "Free shipping"
+        },
+        "minOrderQuantity": {
+          "changeLabel": "Change: Min order quantity",
+          "placeholderMinOrderQuantity": "Enter min order quantity..."
+        },
+        "purchaseSteps": {
+          "changeLabel": "Change: Purchase steps",
+          "placeholderPurchaseSteps": "Enter purchase step size..."
+        },
+        "maxOrderQuantity": {
+          "changeLabel": "Change: Max order quantity",
+          "placeholderMaxOrderQuantity": "Enter max order quantity..."
+        }
+      },
+      "assignment": {
+        "cardTitle": "Visibility & structure",
+        "categories": {
+          "changeLabel": "Change: Category",
+          "placeholder": "Select categories..."
+        },
+        "tags": {
+          "changeLabel": "Change: Tags",
+          "placeholder": "Enter tags..."
+        },
+        "visibilities": {
+          "changeLabel": "Change: Sales Channel",
+          "placeholder": "Select Sales Channels..."
+        },
+        "searchKeywords": {
+          "changeLabel": "Change: Search keywords",
+          "placeholder": "Enter keywords..."
+        }
+      },
+      "media": {
+        "cardTitle": "Media",
+        "changeLabel": "Change: Media"
+      },
+      "labelling": {
+        "cardTitle": "Labelling",
+        "releaseDate": {
+          "changeLabel": "Change: Release date",
+          "placeholderReleaseDate": "Enter release date..."
+        }
+      },
+      "seo": {
+        "cardTitle": "SEO",
+        "metaTitle": {
+          "changeLabel": "Change: Meta title",
+          "placeholderMetaTitle": "Enter meta title..."
+        },
+        "metaDescription": {
+          "changeLabel": "Change: Meta description",
+          "placeholderMetaDescription": "Enter meta description..."
+        },
+        "seoKeywords": {
+          "changeLabel": "Change: SEO keywords",
+          "placeholderSeoKeywords": "Enter keywords..."
+        }
+      },
+      "measuresAndPackaging": {
+        "cardTitle": "Measures & packaging",
+        "widthTitle": {
+          "changeLabel": "Change: Width",
+          "placeholder": "e.g. 500..."
+        },
+        "heightTitle": {
+          "changeLabel": "Change: Height",
+          "placeholder": "e.g. 200..."
+        },
+        "lengthTitle": {
+          "changeLabel": "Change: Length",
+          "placeholder": "e.g. 100..."
+        },
+        "weightTitle": {
+          "changeLabel": "Change: Weight",
+          "placeholder": "e.g. 0.4..."
+        },
+        "sellingUnitTitle": {
+          "changeLabel": "Change: Selling unit",
+          "placeholder": "Enter selling unit..."
+        },
+        "scaleUnitTitle": {
+          "changeLabel": "Change: Scale unit",
+          "placeholder": "Enter scale unit..."
+        },
+        "packUnitTitle": {
+          "changeLabel": "Change: Packaging unit",
+          "placeholder": "Enter packaging unit..."
+        },
+        "packUnitPluralTitle": {
+          "changeLabel": "Change: Packaging unit plural",
+          "placeholder": "Enter packaging unit plural..."
+        },
+        "basicUnitTitle": {
+          "changeLabel": "Change: Basic unit",
+          "placeholder": "Enter basic unit..."
+        }
+      },
+      "featureSets": {
+        "cardTitle": "Essential Characteristics",
+        "changeLabel": "Change: Template",
+        "placeholder": "Select a template..."
+      },
+      "customFields": {
+        "cardTitle": "Custom fields",
+        "changeLabel": "Change: {name}"
+      }
+    },
+    "variant": {
+      "textTitle": "Bulk edit: {variantTotal} variant | Bulk edit: {variantTotal} variants"
+    },
+    "modal": {
+      "confirm": {
+        "title": "Bulk edit - Apply?",
+        "description": "Apply changes to {itemCount} selected item? This action cannot be undone. | Apply changes to {itemCount} selected items? This action cannot be undone.",
+        "switchLabel": "Trigger Flows with this bulk edit",
+        "switchHelpText": "If this action is active, all triggers created in the Flow Builder are executed for all changes of this bulk edit. Under certain circumstances, this can lead to Flows being executed twice.",
+        "alertTitle": "The following triggers/flows might be executed:",
+        "triggeredFlows": {
+          "orderDeliveries": {
+            "key": "orderDeliveries",
+            "label": "Delivery state changes"
+          },
+          "orderTransactions": {
+            "key": "orderTransactions",
+            "label": "Payment state changes"
+          },
+          "orders": {
+            "key": "orders",
+            "label": "Order state changes"
+          },
+          "requestedCustomerGroupId": {
+            "key": "requestedCustomerGroupId",
+            "label": "Customer group registration request"
+          }
+        },
+        "buttons": {
+          "applyChanges": "Apply changes"
+        }
+      },
+      "process": {
+        "title": "Bulk edit - In process",
+        "description": "Depending on the amount of changes, this may take a while.",
+        "helpText": "Please be aware that manual changes to one of the selected items during the bulk edit process may yield unwanted results."
+      },
+      "success": {
+        "title": "Bulk edit - Success",
+        "description": "Bulk edit finished.",
+        "instruction": "The bulk edit has been finished successfully.",
+        "buttonDownload": "Download",
+        "messageNoDocumentsFound": "No documents found"
+      },
+      "error": {
+        "title": "Bulk edit - Error",
+        "description": "Bulk edit finished with errors.",
+        "buttons": {
+          "openLog": "Open log file"
+        }
+      },
+      "warningText": "Please wait for the bulk edit to complete. This may take a while. If you close the browser tab or cancel the process prematurely, not all changes will be applied. You can run the bulk edit again at any time.",
+      "messageBeforeTabLeave": "Bulk edits are being made. If you close the tab, not all changes may be applied."
+    },
+    "order": {
+      "textTitle": "Bulk edit: {orderTotal} order | Bulk edit: {orderTotal} orders",
+      "messageEmptyTitle": "No orders selected",
+      "messageEmptySubline": "Go back and select orders.",
+      "alertRestrictedFields": {
+        "title": "Restricted bulk edit",
+        "message": "Bulk edit can only be applied to fields that are available for all selected orders.<br><br>Not available for all selected orders:",
+        "orderDeliveries": "Delivery status"
+      },
+      "status": {
+        "cardTitle": "Status",
+        "payment": {
+          "label": "Change: Payment status",
+          "placeholder": "Select payment status..."
+        },
+        "shipping": {
+          "label": "Change: Delivery status",
+          "placeholder": "Select Delivery status..."
+        },
+        "order": {
+          "label": "Change: Order status",
+          "placeholder": "Select order status..."
+        },
+        "statusMails": {
+          "label": "Send: Status emails",
+          "helpText": "Available only if status has been changed."
+        },
+        "documents": {
+          "label": "Send: Documents",
+          "helpText": "Existing documents can be sent as attachments with the status mails. The most recent document is always used. If documents are generated via this bulk edit, they are used.",
+          "options": {
+            "newest": "Newest",
+            "all": "All"
+          },
+          "documentType": {
+            "invoices": "Invoices",
+            "deliveryNotes": "Delivery notes",
+            "creditNotes": "Credit notes",
+            "cancellationInvoices": "Cancellation notes"
+          },
+          "skipSentDocuments": "Skip already sent documents"
+        }
+      },
+      "documents": {
+        "cardTitle": "Documents",
+        "warning": "The bulk edit now uses an improved document creation. However, one or more extensions on your system may produce different results with the new document creation.\nTherefore, please check if your documents show differences with and without using the bulk edit.",
+        "generateInvoice": {
+          "label": "Generate: Invoice",
+          "helpText": "This action increases the value of the corresponding number range.",
+          "labelDatePicker": "Date",
+          "labelTextarea": "Comment",
+          "placeholderTextarea": ""
+        },
+        "generateCancellationInvoice": {
+          "label": "Generate: Cancellation invoice",
+          "helpText": "This action increases the value of the corresponding number range.",
+          "changeSubLabel": "The latest reference invoice number will  be used."
+        },
+        "generateDeliveryNote": {
+          "label": "Generate: Delivery note",
+          "helpText": "This action increases the value of the corresponding number range.",
+          "labelDeliveryDatePicker": "Delivery date"
+        },
+        "generateCreditNote": {
+          "label": "Generate: Credit note",
+          "helpText": "Credit notes generally employ the latest corresponding invoice number for reference.",
+          "changeSubLabel": "This document is generated only if a credit position exists in the order."
+        },
+        "downloadDocuments": {
+          "label": "Download: Documents",
+          "helpText": "With this option, the most recent documents available are offered for download. Multiple documents are merged into the same file. The download is available after the multiple change has been completed."
+        },
+        "forceDocumentCreation": "Force document creation",
+        "forceDocumentCreationHelpText": "The document is also generated if the order already contains a document of this type."
+      },
+      "customFields": {
+        "cardTitle": "Custom fields",
+        "changeLabel": "Change: {name}"
+      },
+      "tags": {
+        "cardTitle": "Tags",
+        "changeLabel": "Change: Tags",
+        "placeholder": "Enter tags..."
+      }
+    },
+    "customer": {
+      "textTitle": "Bulk edit: {customerTotal} customer | Bulk edit: {customerTotal} customers",
+      "messageEmptyTitle": "No customers selected",
+      "messageEmptySubline": "Go back and select customers.",
+      "account": {
+        "cardTitle": "Account",
+        "customerGroup": {
+          "label": "Change: Customer group",
+          "placeholder": "Select customer group..."
+        },
+        "status": {
+          "label": "Change: Account status"
+        },
+        "language": {
+          "label": "Change: Language",
+          "placeholder": "Select language..."
+        },
+        "customerGroupRequest": {
+          "label": "Reply to: Customer group request",
+          "helpText": "Please note that emails will be sent to the selected customers. Customers without requests will be skipped.",
+          "placeholder": "Select customer group request reply...",
+          "options": {
+            "accept": "Accept",
+            "decline": "Decline"
+          }
+        }
+      },
+      "customFields": {
+        "cardTitle": "Custom fields",
+        "changeLabel": "Change: {name}"
+      },
+      "tags": {
+        "cardTitle": "Tags",
+        "changeLabel": "Change: Tags",
+        "placeholder": "Add tags..."
+      }
+    },
+    "applyChanges": "Apply changes"
+  }
+}

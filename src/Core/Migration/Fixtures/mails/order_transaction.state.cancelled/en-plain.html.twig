@@ -1,0 +1,111 @@
+{% set currencyIsoCode = order.currency.isoCode %}
+{% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},
+
+We have received your order on {{ order.orderDateTime|format_datetime('medium', 'short', locale='en-GB') }}.
+
+Order number: {{ order.orderNumber }}.
+
+You have not completed your payment with {{ order.transactions.first.paymentMethod.translated.name }} yet. You can resume the payment process by using the following URL: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode }, salesChannel.domains|first.url) }}
+
+Information on your order:
+
+{% for lineItem in order.lineItems %}
+Pos. {{ loop.index }}
+---------------------
+{% if lineItem.payload.productNumber is defined %}
+Product number {{ lineItem.payload.productNumber|u.wordwrap(80) }},
+{% endif %}
+{% if nestedItem.cover is defined and nestedItem.cover is not null %}
+Image {{ lineItem.cover.alt }},
+{% endif %}
+Description {{ lineItem.label|u.wordwrap(80) }},
+{% if lineItem.payload.options is defined and lineItem.payload.options|length >= 1 %}
+{% for option in lineItem.payload.options %}
+{{ option.group }}: {{ option.option }}{{ ", " }}
+{% endfor %}
+{% endif %}
+{% if lineItem.payload.features is defined and lineItem.payload.features|length >= 1 %}
+{% set referencePriceFeatures = lineItem.payload.features|filter(feature => feature.type == 'referencePrice') %}
+{% if referencePriceFeatures|length >= 1 %}
+{% set referencePriceFeature = referencePriceFeatures|first %}
+{{ referencePriceFeature.value.purchaseUnit }} {{ referencePriceFeature.value.unitName }}({{ referencePriceFeature.value.price|currency(currencyIsoCode) }} per {{ referencePriceFeature.value.referenceUnit }} {{ referencePriceFeature.value.unitName }}),
+{% endif %}
+{% endif %}
+Quantity {{ lineItem.quantity }},
+Price {{ lineItem.unitPrice|currency(currencyIsoCode) }},
+Total {{ lineItem.totalPrice|currency(currencyIsoCode) }},
+
+{% endfor %}
+{% set delivery = order.deliveries.first %}
+{% set displayRounded = order.totalRounding.interval != 0.01 or order.totalRounding.decimals != order.itemRounding.decimals %}
+{% set decimals = order.totalRounding.decimals %}
+{% set total = order.price.totalPrice %}
+{% if displayRounded %}
+    {% set total = order.price.rawTotal %}
+    {% set decimals = order.itemRounding.decimals %}
+{% endif %}
+{% for shippingCost in order.deliveries %}
+Shipping costs: {{ shippingCost.shippingCosts.totalPrice|currency(currencyIsoCode) }}
+{% endfor %}
+Net total: {{ order.amountNet|currency(currencyIsoCode) }}
+{% for calculatedTax in order.price.calculatedTaxes %}
+{% if order.taxStatus is same as('net') %}plus{% else %}including{% endif %} {{ calculatedTax.taxRate }}% VAT. {{ calculatedTax.tax|currency(currencyIsoCode) }}
+{% endfor %}
+Total gross: {{ total|currency(currencyIsoCode,decimals=decimals) }}
+{% if displayRounded %}
+Rounded total gross: {{ order.price.totalPrice|currency(currencyIsoCode,decimals=order.totalRounding.decimals) }}
+{% endif %}
+
+{% if order.transactions is defined and order.transactions is not empty %}
+Selected payment type: {{ order.transactions.first.paymentMethod.translated.name }}
+{{ order.transactions.first.paymentMethod.translated.description }}
+{% endif %}
+
+{% if delivery %}
+Selected shipping type: {{ delivery.shippingMethod.translated.name }}
+{{ delivery.shippingMethod.translated.description }}
+{% endif %}
+{% set billingAddress = order.addresses.get(order.billingAddressId) %}
+Billing address:
+{{ billingAddress.company }}
+{{ billingAddress.firstName }} {{ billingAddress.lastName }}
+{{ billingAddress.street }}
+{{ billingAddress.zipcode }} {{ billingAddress.city }}
+{{ billingAddress.country.translated.name }}
+
+{% if delivery %}
+Shipping address:
+{{ delivery.shippingOrderAddress.company }}
+{{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}
+{{ delivery.shippingOrderAddress.street }}
+{{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}
+{{ delivery.shippingOrderAddress.country.translated.name }}
+{% endif %}
+
+{% if order.orderCustomer.vatIds %}
+Your VAT-ID: {{ order.orderCustomer.vatIds|first }}
+In case of a successful order and if you are based in one of the EU countries, you will receive your goods exempt from turnover tax.
+
+{% endif %}
+You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode }, salesChannel.domains|first.url) }}
+If you have any questions, do not hesitate to contact us.
+
+{% if a11yDocuments is defined and a11yDocuments is not empty %}
+For better accessibility we also provide an HTML version of the documents here:
+
+{% for a11y in a11yDocuments %}
+{% set documentLink = rawUrl(
+    'frontend.account.order.single.document.a11y',
+    {
+        documentId: a11y.documentId,
+        'deepLinkCode': a11y.deepLinkCode,
+        fileType: a11y.fileExtension,
+    },
+    salesChannel.domains|first.url
+)%}
+- {{ documentLink }}
+{% endfor %}
+
+For data protection reasons the HTML version requires a login.
+In case of a guest order, you can use your mail address and postal code of the billing address.
+{% endif %}

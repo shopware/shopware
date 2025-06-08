@@ -1,0 +1,79 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/seo-url": {
+            "post": {
+                "tags": [
+                    "Sitemap & Routes",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch SEO routes",
+                "description": "Perform a filtered search for seo urls.",
+                "operationId": "readSeoUrl",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Criteria"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Entity search result containing seo urls.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "elements": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/SeoUrl"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object",
+                                            "required": ["elements"]
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/EntitySearchResult"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,17 @@
+@import "~scss/variables";
+
+.sw-system-config {
+    .sw-select,
+    .sw-single-select {
+        margin-bottom: 22px;
+    }
+
+    .sw-system-config__global-sales-channel-switch {
+        max-width: $content-width;
+        margin: 0 auto 40px;
+
+        @media screen and (max-width: 1360px) {
+            max-width: 770px;
+        }
+    }
+}

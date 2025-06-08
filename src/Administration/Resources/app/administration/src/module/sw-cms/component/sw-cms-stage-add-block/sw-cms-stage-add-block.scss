@@ -1,0 +1,51 @@
+@import "~scss/variables";
+
+.sw-cms-stage-add-block {
+    width: 100%;
+    height: 32px;
+    justify-content: center;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    z-index: 250;
+    transform: translateY(-50%);
+
+    &:hover {
+        .sw-cms-stage-add-block__handle,
+        .sw-cms-stage-add-block__button {
+            display: flex;
+        }
+    }
+
+    &.is--valid-drop {
+        background: rgba($color-shopware-brand-500, 0.2);
+        border: 2px dashed $color-shopware-brand-500;
+
+        .sw-cms-stage-add-block__handle,
+        .sw-cms-stage-add-block__button {
+            display: none;
+        }
+    }
+
+    .sw-cms-stage-add-block__handle {
+        display: none;
+        height: 2px;
+        width: 100%;
+        background-color: $color-shopware-brand-500;
+        box-shadow: 0 0 10px 0 rgba($color-shopware-brand-500, 0.6);
+        position: relative;
+    }
+
+    .sw-cms-stage-add-block__button {
+        display: none;
+        width: 30px;
+        height: 30px;
+        border-radius: 15px;
+        justify-content: center;
+        align-items: center;
+        background-color: $color-shopware-brand-500;
+        color: $color-white;
+        position: absolute;
+    }
+}

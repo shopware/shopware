@@ -1,0 +1,7 @@
+{
+    "shopUserToken": {
+        "token": "updated-token",
+        "expirationDate": "2021-08-04T15:54:54+02:00"
+    },
+    "shopSecret": "shop.secret"
+}

@@ -1,0 +1,73 @@
+{
+  "sw-property": {
+    "general": {
+      "placeholderSearchBar": "Search properties...",
+      "mainMenuItemGeneral": "Properties",
+      "descriptionTextModule": "Manage properties here."
+    },
+    "list": {
+      "textProperties": "Properties",
+      "buttonAddProperty": "Add property",
+      "columnName": "Property",
+      "columnOptions": "Property values",
+      "columnFilterable": "Display in product filter",
+      "contextMenuView": "Edit",
+      "contextMenuDelete": "Delete",
+      "titleSidebarItemRefresh": "Refresh",
+      "messageEmpty": "No properties yet",
+      "columnDescription": "Description",
+      "buttonDelete": "Delete",
+      "textDeleteConfirm": "Are you sure you really want to delete the property \"{name}\"?"
+    },
+    "detail": {
+      "mediaDisplayType": "Image",
+      "textDisplayType": "Text",
+      "selectDisplayType": "Dropdown",
+      "colorDisplayType": "Colour",
+      "numericSortingType": "Numeric",
+      "alphanumericSortingType": "Alphanumeric",
+      "positionSortingType": "Custom",
+      "cardTitleGroupInfo": "Basic information",
+      "labelName": "Name",
+      "placeholderName": "Enter name...",
+      "labelFilterable": "Display in product filters",
+      "labelvisibleOnProductDetailPage": "Display on product detail page",
+      "labelDisplayType": "Value display type",
+      "labelSortingType": "Sorting",
+      "labelOptionName": "Name",
+      "labelOptionColor": "Colour",
+      "labelOptionMedia": "Image",
+      "labelPosition": "Position",
+      "placeholderPosition": "Rank this group...",
+      "placeholderOptionName": "Enter name...",
+      "labelOptionPosition": "Position",
+      "placeholderOptionPosition": "Rank this value...",
+      "addMediaCaption": "Use media",
+      "contextMenuOptionView": "Edit",
+      "contextMenuOptionDelete": "Delete",
+      "textHeadline": "New property",
+      "buttonSave": "Save",
+      "labelDescription": "Description",
+      "placeholderDescription": "Enter a description...",
+      "placeholderOptionSearch": "Search property values...",
+      "cardTitle": "Property values",
+      "addOption": "Add value",
+      "addOptionNotPossible": "Property values can only be added in the default language",
+      "contextMenuOptionResetDelete": "Restore",
+      "textOptionHeadline": "New value",
+      "messageSaveSuccess": "Property \"{name}\" has been saved.",
+      "messageSaveError": "Property \"{name}\" could not be saved",
+      "messageOptionsEmpty": "No property values yet",
+      "messageOptionsEmptySubline": "Add property values here.",
+      "optionEmptyStateSubline": "Fill in basic information, save the property - then add values.",
+      "labelMediaUpload": "Default image"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "property": {
+        "label": "Properties"
+      }
+    }
+  }
+}

@@ -1,0 +1,71 @@
+@import "~scss/variables";
+
+.sw-order-create-general-info__summary {
+    display: flex;
+    flex-direction: column;
+
+    &-main {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+
+        &-header {
+            flex-grow: 1;
+        }
+
+        &-header,
+        &-total {
+            font-size: $font-size-s;
+            font-weight: $font-weight-semi-bold;
+            line-height: 25px;
+        }
+
+        &-total {
+            flex-shrink: 0;
+        }
+    }
+
+    &-sub {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+
+        &-description {
+            flex-grow: 1;
+        }
+
+        &-description,
+        &-last-changed {
+            font-size: $font-size-xs;
+            line-height: 22px;
+        }
+
+        &-last-changed {
+            flex-shrink: 0;
+            color: $color-gray-500;
+
+            &-user,
+            &-time {
+                display: inline;
+            }
+        }
+    }
+}
+
+.sw-order-create-general-info__order {
+    &-states {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        margin-top: 24px;
+
+        .sw-order-create-general-info__order-state {
+            flex-grow: 1;
+            flex-basis: 30%;
+        }
+    }
+
+    &-tags {
+        margin-top: 24px;
+    }
+}

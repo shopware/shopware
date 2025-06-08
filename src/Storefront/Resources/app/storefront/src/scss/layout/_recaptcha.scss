@@ -1,0 +1,11 @@
+.grecaptcha-badge {
+    visibility: hidden;
+    opacity: 0;
+}
+
+.grecaptcha-v2-container {
+    iframe.has-error {
+        border: 1px solid $red;
+        border-radius: 3px;
+    }
+}

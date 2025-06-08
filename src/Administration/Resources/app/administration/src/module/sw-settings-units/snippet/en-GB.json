@@ -1,0 +1,36 @@
+{
+  "sw-settings-units": {
+    "detail": {
+      "fieldLabels": {
+        "name": "Scale unit name",
+        "shortCode": "Short code"
+      }
+    },
+    "general": {
+      "mainMenuItemGeneral": "Scale units",
+      "placeholderSearchBar": "Search scale units...",
+      "createNewUnit": "Add scale unit",
+      "disableAddNewUnitMessage": "New scale units can only be added in the system default language."
+    },
+    "grid": {
+      "columnName": "Scale unit",
+      "columnShortCode": "Shorthand",
+      "contextMenuDelete": "Delete"
+    },
+    "empty-state": {
+      "title": "No scale units yet",
+      "subline": "Manage scale units here."
+    },
+    "notification": {
+      "successMessage": "Scale unit has been saved.",
+      "errorMessage": "Scale unit could not be saved. Please fill in all required fields."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "scale_unit": {
+        "label": "Scale units"
+      }
+    }
+  }
+}

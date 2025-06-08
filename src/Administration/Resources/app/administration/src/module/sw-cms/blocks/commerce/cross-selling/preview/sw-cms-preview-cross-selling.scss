@@ -1,0 +1,72 @@
+@import "~scss/variables";
+
+.sw-cms-sidebar__block-preview .sw-cms-block-preview-cross-selling {
+    padding: 10px;
+
+    h4 {
+        display: inline-block;
+        font-size: $font-size-xs;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #d1d9e0;
+        padding-bottom: 5px;
+    }
+
+    &__slider {
+        align-items: center;
+        display: grid;
+        grid-template-columns: 10px repeat(4, 1fr) 10px;
+        grid-gap: 10px;
+        height: 100%;
+    }
+
+    &__product-box {
+        height: 100%;
+        display: grid;
+        grid-template-rows: 35px 30px 20px;
+        align-items: center;
+        align-content: stretch;
+        padding: 0;
+        color: $color-darkgray-200;
+        border-radius: 2px;
+    }
+
+    &__product-image {
+        height: 100%;
+        width: 100%;
+        display: block;
+        object-fit: cover;
+    }
+
+    &__product-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__product-skeleton {
+        background: $color-gray-100;
+        border-radius: 5px;
+        height: 7px;
+
+        &:nth-child(1) {
+            width: 70%;
+        }
+
+        &:nth-child(2) {
+            width: 90%;
+            height: 3px;
+            margin: 2px 0;
+        }
+
+        &:nth-child(3) {
+            width: 20%;
+            margin-top: 2px;
+        }
+    }
+
+    &__product-action {
+        background: $color-gray-900;
+        border-radius: 2px;
+        width: 100%;
+        height: 14px;
+    }
+}

@@ -1,0 +1,13 @@
+@import "~scss/variables";
+
+$sw-settings-rule-list-invalidColor: $color-crimson-500;
+
+.sw-settings-rule-list {
+    .sw-settings-rule-list-invalid {
+        color: $sw-settings-rule-list-invalidColor;
+    }
+
+    .sw-grid {
+        overflow: scroll;
+    }
+}

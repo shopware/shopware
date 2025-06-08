@@ -1,0 +1,111 @@
+{% block sw_custom_entity_input_field %}
+<div class="sw-custom-entity-input-field">
+
+    <mt-text-field
+        v-if="type === 'string'"
+        class="sw-custom-entity-input-field__string"
+        :model-value="currentValue"
+        :label="label"
+        :placeholder="placeholder"
+        :help-text="helpText"
+        @update:model-value="onChange"
+    />
+
+    <mt-textarea
+        v-else-if="type === 'text'"
+        class="sw-custom-entity-input-field__text"
+        :model-value="currentValue"
+        :label="label"
+        :placeholder="placeholder"
+        :help-text="helpText"
+        @update:model-value="onChange"
+    />
+
+    <mt-number-field
+        v-else-if="type === 'int'"
+        class="sw-custom-entity-input-field__int"
+        :model-value="currentValue"
+        number-type="int"
+        :label="label"
+        :placeholder="placeholder"
+        :help-text="helpText"
+        @update:model-value="onChange"
+    />
+
+    <mt-number-field
+        v-else-if="type === 'float'"
+        class="sw-custom-entity-input-field__float"
+        :model-value="currentValue"
+        number-type="float"
+        :digits="10"
+        :label="label"
+        :placeholder="placeholder"
+        :help-text="helpText"
+        @update:model-value="onChange"
+    />
+
+    <mt-switch
+        v-else-if="type === 'boolean'"
+        class="sw-custom-entity-input-field__boolean"
+        :model-value="currentValue"
+        :label="label"
+        :placeholder="placeholder"
+        :help-text="helpText"
+        @update:model-value="onChange"
+    />
+
+    <mt-datepicker
+        v-else-if="type === 'date'"
+        class="sw-custom-entity-input-field__date"
+        hide-hint
+        :model-value="currentValue"
+        :label="label"
+        :placeholder="placeholder"
+        :help-text="helpText"
+        @update:model-value="onChange"
+    />
+
+    <!-- ToDo NEXT-22874 - Implement email-field verification to entity_schema
+    <sw-email-field
+        v-else-if="type === 'email'"
+        class="sw-custom-entity-input-field__email"
+        :value="currentValue"
+        :label="label"
+        :placeholder="placeholder"
+        :help-text="helpText"
+        @change="onChange"
+    />-->
+
+    <!-- ToDo NEXT-22874 - Implement json field -->
+    <!--<sw-????
+        v-else-if="type === 'json'"
+        class="sw-custom-entity-input-field__json"
+        :value="currentValue"
+        :label="label"
+        :placeholder="placeholder"
+        :help-text="helpText"
+        @change="onChange"
+    />-->
+
+    <!-- ToDo NEXT-22874 - Implement price-field verification to entity_schema  -->
+    <!--<sw-price-field
+        v-else-if="type === 'json_object'"
+        class="sw-custom-entity-input-field__price"
+        :value="currentValue"
+        :label="label"
+        :placeholder="placeholder"
+        :help-text="helpText"
+        @change="onChange"
+    />-->
+
+    <!-- ToDo NEXT-22874 - Remove after Debug -->
+
+    <mt-text-field
+        v-else
+        class="sw-custom-entity-input-field__undefined"
+        :label="label"
+        :error="{ code: 'CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE' }"
+        disabled
+    />
+</div>
+{% endblock %}

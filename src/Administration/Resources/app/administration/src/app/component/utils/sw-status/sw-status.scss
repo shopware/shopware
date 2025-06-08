@@ -1,0 +1,60 @@
+@import "~scss/variables";
+
+.sw-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    font-size: $font-size-xxs;
+    line-height: $font-size-xxs;
+    border-radius: $font-size-xxs * 2;
+
+    .sw-color-badge {
+        margin: 0;
+    }
+
+    &--gray {
+        background-color: $color-gray-300;
+        color: $color-gray-900;
+
+        .sw-color-badge {
+            background-color: $color-gray-900;
+        }
+    }
+
+    &--blue {
+        background-color: $color-shopware-brand-50;
+        color: $color-shopware-brand-500;
+
+        .sw-color-badge {
+            background-color: $color-shopware-brand-500;
+        }
+    }
+
+    &--red {
+        background-color: $color-crimson-50;
+        color: $color-crimson-500;
+
+        .sw-color-badge {
+            background-color: $color-crimson-500;
+        }
+    }
+
+    &--orange {
+        background-color: $color-pumpkin-spice-50;
+        color: $color-pumpkin-spice-700;
+
+        .sw-color-badge {
+            background-color: $color-pumpkin-spice-700;
+        }
+    }
+
+    &--green {
+        background-color: $color-emerald-50;
+        color: $color-emerald-700;
+
+        .sw-color-badge {
+            background-color: $color-emerald-700;
+        }
+    }
+}

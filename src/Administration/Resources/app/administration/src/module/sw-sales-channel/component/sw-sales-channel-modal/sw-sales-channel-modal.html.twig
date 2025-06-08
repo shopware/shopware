@@ -1,0 +1,82 @@
+{% block sw_sales_channel_modal %}
+<sw-modal
+    class="sw-sales-channel-modal"
+    :title="$tc(modalTitle)"
+    @modal-close="onCloseModal"
+>
+    {% block sw_sales_channel_modal_grid %}
+    <sw-sales-channel-modal-grid
+        v-if="!detailType"
+        :product-streams-exist="productStreamsExist"
+        :product-streams-loading="productStreamsLoading"
+        :add-channel-action="addChannelAction"
+        @grid-detail-open="onGridOpenDetails"
+        @grid-channel-add="onAddChannel"
+    />
+    {% endblock %}
+
+    {% block sw_sales_channel_modal_detail %}
+    <sw-sales-channel-modal-detail
+        v-else
+        :detail-type="detailType"
+    />
+    {% endblock %}
+
+    {% block sw_sales_channel_modal_footer %}
+    <template #modal-footer>
+        <a
+            href="#"
+            class="sw-sales-channel-modal__footer_left"
+            @click.prevent="openRoute({ name: 'sw.sales.channel.list' })"
+        >
+            {{ $tc('sw-sales-channel.general.manageSalesChannels') }}
+        </a>
+
+        {% block sw_sales_channel_modal_footer_detail_actions %}
+        {% block sw_sales_channel_modal_footer_back %}
+        <mt-button
+            v-if="detailType"
+            size="small"
+            variant="secondary"
+            @click.prevent="detailType = false"
+        >
+            {{ $tc('sw-sales-channel.modal.buttonBack') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_sales_channel_modal_footer_add_channel %}
+        <mt-button
+            v-if="detailType"
+            v-tooltip="{
+                message: $tc('sw-sales-channel.modal.messageNoProductStreams'),
+                showOnDisabledElements: true,
+                disabled: !addChannelAction.disabled(detailType.id)
+            }"
+            class="sw-sales-channel-modal__add-sales-channel-action"
+            variant="primary"
+            size="small"
+            :is-loading="addChannelAction.loading(detailType.id)"
+            :disabled="addChannelAction.disabled(detailType.id)"
+            @click="onAddChannel(detailType.id)"
+        >
+            {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
+        </mt-button>
+        {% endblock %}
+        {% endblock %}
+
+        {% block sw_sales_channel_modal_footer_actions %}
+        {% block sw_sales_channel_modal_footer_cancel %}
+        <mt-button
+            v-if="!detailType"
+            size="small"
+            variant="secondary"
+            @click="onCloseModal"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

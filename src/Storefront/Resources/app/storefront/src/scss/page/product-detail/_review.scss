@@ -1,0 +1,149 @@
+// review widget
+.product-detail-review-widget {
+    margin-bottom: $spacer;
+    z-index: 1;
+}
+
+.product-detail-reviews {
+    margin-bottom: $spacer;
+
+    .icon {
+        svg {
+            top: 2px;
+        }
+    }
+}
+
+.product-detail-review-teaser-btn {
+    .product-detail-review-teaser-hide {
+        display: none;
+    }
+
+    &.collapsed {
+        .product-detail-review-teaser-show {
+            display: none;
+        }
+
+        .product-detail-review-teaser-hide {
+            display: block;
+        }
+    }
+}
+
+.product-review-rating {
+    margin-right: $spacer;
+}
+
+// review item
+.product-detail-review-item-points {
+    margin-bottom: $spacer-sm;
+}
+
+// review item
+.product-detail-review-item-content {
+    word-break: break-word;
+}
+
+// review form
+.product-detail-review-form-radio {
+    display: none;
+}
+
+.product-detail-review-form-rating-input {
+    display: flex;
+    align-items: center;
+}
+
+.product-review-point svg {
+    top: 0;
+}
+
+.product-review-point,
+.point-container {
+    display: inline-block;
+    position: relative;
+}
+
+.point-rating {
+    display: block;
+    top: 0;
+    left: 0;
+
+    &.point-blank {
+        .icon {
+            color: $gray-200;
+        }
+    }
+}
+
+.point-partial {
+    position: absolute;
+}
+
+.product-detail-review-form-rating-text {
+    margin-left: $spacer-sm;
+    margin-bottom: 0;
+}
+
+.product-detail-review-form-star {
+    margin-right: 10px;
+}
+
+.product-detail-review-login .login-card .card-body {
+    padding-top: 0;
+}
+
+// review actions
+.product-detail-review-language {
+    margin-bottom: $spacer;
+}
+
+.product-detail-review-sortby-label {
+    margin-right: $spacer-xs;
+}
+
+.product-detail-review-cancel {
+    margin-right: 5px;
+}
+
+// review offcanvas
+.offcanvas {
+    .product-detail-review-widget {
+        position: static;
+    }
+
+    .product-detail-review-form-rating-input .product-review-point {
+        margin-right: $spacer-sm;
+    }
+}
+
+@include media-breakpoint-up(md) {
+    // review widget
+    .product-detail-review-widget {
+        margin-bottom: 0;
+    }
+
+    // review actions
+    .product-detail-review-sortby-form {
+        justify-content: flex-end;
+    }
+
+    // review item
+    .product-detail-review-language {
+        margin-bottom: 0;
+    }
+
+    .product-detail-review-item-points {
+        padding-right: 0;
+        margin-bottom: 0;
+    }
+
+    .product-detail-review-item-title {
+        padding-left: 0;
+    }
+
+    // review form
+    .product-detail-review-form-star {
+        margin-right: 5px;
+    }
+}

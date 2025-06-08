@@ -1,0 +1,10 @@
+{% block sw_icon_deprecated %}
+<span
+    class="sw-icon sw-icon--fill"
+    :class="classes"
+    :style="styles"
+    :aria-hidden="decorative || undefined"
+    :data-testid="'sw-icon__' + name"
+    v-html="iconSvgData"
+></span>
+{% endblock %}

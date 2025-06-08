@@ -1,0 +1,81 @@
+{% block sw_order_create_details_footer %}
+<sw-container
+    class="sw-order-create-details-footer"
+    columns="minmax(min-content, 1fr) minmax(min-content, 1fr)"
+    gap="0 32px"
+>
+    <div>
+        {% block sw_order_create_details_footer_sales_channel %}
+        <sw-entity-single-select
+            v-model:value="salesChannelId"
+            disabled
+            size="small"
+            entity="sales_channel"
+            class="sw-order-create-details-footer__item"
+            :label="$tc('sw-order.createBase.detailsFooter.labelSalesChannel')"
+            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderSalesChannel')"
+            show-clearable-button
+        />
+        {% endblock %}
+
+        {% block sw_order_create_details_footer_payment_method %}
+        <sw-entity-single-select
+            v-model:value="context.paymentMethodId"
+            size="small"
+            entity="payment_method"
+            label-property="distinguishableName"
+            class="sw-order-create-details-footer__item"
+            :disabled="!isCustomerActive"
+            :criteria="paymentMethodCriteria"
+            :label="$tc('sw-order.createBase.detailsFooter.labelPaymentMethod')"
+            :help-text="$tc('sw-order.createBase.detailsFooter.helpTextPaymentMethod')"
+            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderPaymentMethod')"
+            show-clearable-button
+        />
+        {% endblock %}
+
+        {% block sw_order_create_details_footer_shipping_method %}
+        <sw-entity-single-select
+            v-model:value="context.shippingMethodId"
+            size="small"
+            entity="shipping_method"
+            class="sw-order-create-details-footer__item"
+            :disabled="!isCustomerActive"
+            :criteria="salesChannelCriteria"
+            :label="$tc('sw-order.createBase.detailsFooter.labelShippingMethod')"
+            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderShippingMethod')"
+        />
+        {% endblock %}
+    </div>
+
+    <div>
+        {% block sw_order_create_details_footer_order_language %}
+        <sw-entity-single-select
+            v-model:value="context.languageId"
+            size="small"
+            entity="language"
+            class="sw-order-create-details-footer__item"
+            :disabled="!isCustomerActive"
+            :criteria="salesChannelCriteria"
+            :label="$tc('sw-order.createBase.detailsFooter.labelOrderLanguage')"
+            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderOrderLanguage')"
+            show-clearable-button
+        />
+        {% endblock %}
+
+        {% block sw_order_create_details_footer_currency %}
+        <sw-entity-single-select
+            v-model:value="context.currencyId"
+            size="small"
+            entity="currency"
+            class="sw-order-create-details-footer__item"
+            :disabled="!isCustomerActive"
+            :criteria="salesChannelCriteria"
+            :label="$tc('sw-order.createBase.detailsFooter.labelCurrency')"
+            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderCurrency')"
+            show-clearable-button
+        />
+        {% endblock %}
+    </div>
+</sw-container>
+{% endblock %}

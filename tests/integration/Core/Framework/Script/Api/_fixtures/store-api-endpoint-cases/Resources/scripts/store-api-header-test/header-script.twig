@@ -1,0 +1,9 @@
+{% block response %}
+    {% do debug.dump('some debug information') %}
+
+    {% set response = services.response.json({ 'foo': 'bar' }) %}
+    {% do response.setHeader('test', 'value') %}
+    {% do response.setHeader('test2', 'value') %}
+    {% do response.removeHeader('test2') %}
+    {% do hook.setResponse(response) %}
+{% endblock %}

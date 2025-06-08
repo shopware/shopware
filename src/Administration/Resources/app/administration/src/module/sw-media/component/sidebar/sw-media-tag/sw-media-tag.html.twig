@@ -1,0 +1,18 @@
+{% block sw_media_tag %}
+<div class="sw-media-tag">
+    <sw-media-collapse
+        :title="$tc('global.sw-tag-field.title')"
+        :expand-on-loading="true"
+    >
+        {% block sw_media_tag_input %}
+        <template #content>
+            <sw-entity-tag-select
+                v-model:entity-collection="media.tags"
+                :disabled="disabled"
+                @update:entity-collection="handleChange"
+            />
+        </template>
+        {% endblock %}
+    </sw-media-collapse>
+</div>
+{% endblock %}

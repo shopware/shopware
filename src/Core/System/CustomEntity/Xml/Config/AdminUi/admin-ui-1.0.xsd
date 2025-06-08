@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="admin-ui">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element name="entity" type="entity" maxOccurs="unbounded" />
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="entity">
+        <xs:sequence>
+            <xs:element name="listing" type="listing"/>
+            <xs:element name="detail" type="detail"/>
+        </xs:sequence>
+
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="navigation-parent" type="navigation-parent" use="required"/>
+        <xs:attribute name="position" type="xs:int" use="required"/>
+        <xs:attribute name="icon" type="xs:string" default="pencil"/>
+        <xs:attribute name="color" type="xs:string" default="#758CA3"/>
+    </xs:complexType>
+
+    <xs:complexType name="listing">
+        <xs:choice minOccurs="1" maxOccurs="1">
+            <xs:element name="columns" type="listing-columns" minOccurs="1" maxOccurs="1"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="listing-columns">
+        <xs:choice>
+            <xs:element name="column" type="listing-column" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="listing-column">
+        <xs:attribute name="ref" type="xs:string" use="required"/>
+        <xs:attribute name="hidden" type="xs:boolean" default="false"/>
+    </xs:complexType>
+
+    <xs:complexType name="detail">
+        <xs:choice minOccurs="1" maxOccurs="1">
+            <xs:element name="tabs" type="detail-tabs" minOccurs="1" maxOccurs="1"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="detail-tabs">
+        <xs:choice maxOccurs="unbounded" minOccurs="1">
+            <xs:element name="tab" type="detail-tab"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="detail-tab">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element name="card" type="detail-card" minOccurs="1"/>
+        </xs:choice>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="detail-card">
+        <xs:choice maxOccurs="unbounded" minOccurs="1">
+            <xs:element name="field" type="detail-field"/>
+        </xs:choice>
+        <xs:attribute type="xs:string" name="name" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="detail-field">
+        <xs:attribute type="xs:string" name="ref" use="required"/>
+        <xs:attribute type="xs:boolean" name="helpText" default="false"/>
+        <xs:attribute type="xs:boolean" name="placeholder" default="false"/>
+    </xs:complexType>
+
+    <xs:simpleType name="navigation-parent">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="sw-catalogue"/>
+            <xs:enumeration value="sw-order"/>
+            <xs:enumeration value="sw-customer"/>
+            <xs:enumeration value="sw-content"/>
+            <xs:enumeration value="sw-marketing"/>
+            <xs:enumeration value="sw-extension"/>
+            <xs:enumeration value="sw-settings"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

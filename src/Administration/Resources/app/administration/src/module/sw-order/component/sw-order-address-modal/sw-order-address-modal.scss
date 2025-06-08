@@ -1,0 +1,31 @@
+@import "~scss/variables";
+
+$sw-order-address-modal-highlight: #edf8ff;
+$sw-order-address-modal-link: $color-shopware-brand-500;
+$sw-order-address-modal-selected: $color-shopware-brand-500;
+$sw-order-address-modal-selected-text: $color-white;
+
+.sw-order-address-modal {
+    .sw-order-address-modal__entry {
+        text-align: left;
+        font-weight: normal;
+        line-height: 22px;
+        padding: 8px 15px;
+        border: none;
+
+        &:hover {
+            background-color: $sw-order-address-modal-highlight;
+            color: $sw-order-address-modal-link;
+        }
+    }
+
+    .sw-order-address-modal__entry__selected {
+        color: $sw-order-address-modal-selected-text;
+        background-color: $sw-order-address-modal-selected;
+
+        &:hover {
+            color: $sw-order-address-modal-selected-text;
+            background-color: $sw-order-address-modal-selected;
+        }
+    }
+}

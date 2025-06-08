@@ -1,0 +1,23 @@
+.sw-cms-block-image-text-bubble {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+    align-content: stretch;
+    align-items: start;
+    justify-content: stretch;
+    justify-items: center;
+    grid-gap: 40px;
+
+    .sw-cms-el-text {
+        padding-top: 20px;
+    }
+
+    .sw-cms-el-image,
+    .sw-cms-el-image.is--cover {
+        height: 300px;
+        width: 300px;
+        margin: auto;
+        border-radius: 50%;
+        background-clip: padding-box;
+        overflow: hidden;
+    }
+}

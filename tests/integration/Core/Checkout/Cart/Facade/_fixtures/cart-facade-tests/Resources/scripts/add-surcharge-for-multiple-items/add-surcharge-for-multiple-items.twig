@@ -1,0 +1,10 @@
+{# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
+
+{% do services.cart.products.add(hook.ids.get('p1')) %}
+
+{% do services.cart.products.add(hook.ids.get('v2.1')) %}
+
+{% if services.cart.has('my-surcharge') %}
+    {% return %}
+{% endif %}
+{% do services.cart.surcharge('my-surcharge', 'percentage', 10, 'Fancy surcharge') %}

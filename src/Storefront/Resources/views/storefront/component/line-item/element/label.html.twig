@@ -1,0 +1,26 @@
+{% block component_line_item_label %}
+    {% set label = lineItem.label|trans|sw_sanitize %}
+    {% set label = label !== '' ? label : lineItem.label %}
+
+    <div class="line-item-label-descriptor visually-hidden">
+        {{ 'checkout.lineItemLabelDescriptor'|trans|sw_sanitize }}:
+    </div>
+
+    {% if lineItemLink %}
+        <a href="{{ lineItemLink }}"
+           class="line-item-label"
+           title="{{ label }}"
+            {% if lineItemModalLink %}
+                data-ajax-modal="modal"
+                data-modal-class="quickview-modal"
+                data-url="{{ lineItemModalLink }}"
+            {% endif %}
+        >
+            {{ label|u.truncate(60, '...', false)|raw }}
+        </a>
+    {% else %}
+        <div class="line-item-label">
+            {{ label|u.truncate(60, '...', false)|raw }}
+        </div>
+    {% endif %}
+{% endblock %}

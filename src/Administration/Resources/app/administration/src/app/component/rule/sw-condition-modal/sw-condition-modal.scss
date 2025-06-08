@@ -1,0 +1,13 @@
+@import "~scss/variables";
+
+.sw-condition-modal {
+    &.sw-modal {
+        .sw-modal__body {
+            padding: 10px 0 170px;
+        }
+
+        .sw-modal__footer {
+            justify-content: flex-end;
+        }
+    }
+}

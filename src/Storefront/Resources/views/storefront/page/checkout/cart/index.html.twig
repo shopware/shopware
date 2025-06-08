@@ -1,0 +1,263 @@
+{% sw_extends '@Storefront/storefront/page/checkout/_page.html.twig' %}
+
+{% block page_checkout_container %}
+    {% if page.cart.lineItems.count is same as(0) %}
+        {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+            type: 'info',
+            content: 'checkout.cartEmpty'|trans|sw_sanitize
+        } %}
+
+        {% set messages = app.flashes %}
+
+        {% if messages.danger|length > 0 %}
+            <div class="flashbags">
+                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with { type: 'danger', list: messages.danger } %}
+            </div>
+        {% endif %}
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
+{% block page_checkout_main_content %}
+    {% block page_checkout_cart %}
+        {% block page_checkout_cart_header %}
+            <h1 class="cart-main-header d-inline-block">
+                {{ 'checkout.cartHeader'|trans|sw_sanitize }}
+            </h1>
+            <span class="cart-main-header-item-counter d-inline-block mb-4 fw-bold fs-3 ms-1 text-dark-emphasis">
+                ({{- 'checkout.itemCounter'|trans({'%count%': page.cart.lineItems|length})|sw_sanitize -}})
+            </span>
+        {% endblock %}
+
+        {% block page_checkout_cart_product_table %}
+            {% set showTaxPrice = config('core.cart.columnTaxInsteadUnitPrice') %}
+            {# @deprecated tag:v6.8.0 - Will listening to core.cart.columnTaxInsteadUnitPrice instead #}
+            {% if not feature('v6.8.0.0') %}
+                {% set showTaxPrice = false %}
+            {% endif %}
+            {% set showSubtotal = config('core.cart.showSubtotal') %}
+
+            <div class="card checkout-product-table">
+                <ul class="card-body list-unstyled">
+                    {% block page_checkout_cart_table_header %}
+                        {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' with {
+                            showSubtotal: showSubtotal,
+                            showTaxPrice: showTaxPrice
+                        } %}
+                    {% endblock %}
+
+                    {% block page_checkout_cart_table_items %}
+                        {% for lineItem in page.cart.lineItems %}
+                            {% block page_checkout_cart_table_item %}
+                                {% block page_checkout_item %}
+                                    {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
+                                        showSubtotal: showSubtotal,
+                                        showTaxPrice: showTaxPrice
+                                    } %}
+                                {% endblock %}
+                            {% endblock %}
+                        {% endfor %}
+                    {% endblock %}
+                </ul>
+            </div>
+        {% endblock %}
+
+        {% block page_checkout_cart_hidden_line_items_information %}
+            {% sw_include '@Storefront/storefront/component/checkout/hidden-line-items-information.html.twig' with {
+                cart: page.cart,
+                lineItems: page.cart.lineItems
+            } %}
+        {% endblock %}
+
+        {% block page_checkout_cart_add_product_and_shipping %}
+            <div class="row">
+                {% block page_checkout_cart_add_product %}
+                    <div class="col-md-5 cart-add-product-container">
+                        <form action="{{ path('frontend.checkout.product.add-by-number') }}" method="post">
+                            {% block page_checkout_cart_add_product_redirect %}
+                                <input type="hidden"
+                                       name="redirectTo"
+                                       value="frontend.checkout.cart.page">
+                            {% endblock %}
+
+                            {% block page_checkout_cart_add_product_label %}
+                                <label class="visually-hidden" for="addProductInput">
+                                    {{ 'checkout.addProductLabel'|trans|sw_sanitize }}
+                                </label>
+                            {% endblock %}
+
+                            {% block page_checkout_cart_add_product_input_group %}
+                                <div class="input-group">
+                                    {% block page_checkout_cart_add_product_input %}
+                                        <input type="text"
+                                               name="number"
+                                               class="form-control"
+                                               id="addProductInput"
+                                               placeholder="{{ 'checkout.addProductPlaceholder'|trans|striptags }}"
+                                               aria-label="{{ 'checkout.addProductLabel'|trans|striptags }}"
+                                               aria-describedby="addProductButton"
+                                               required="required">
+                                    {% endblock %}
+
+                                    {% block page_checkout_cart_add_product_submit %}
+                                        <button class="btn btn-outline-secondary add-product-button"
+                                                type="submit"
+                                                aria-labelledby="addProductInput"
+                                                id="addProductButton">
+                                            {% sw_icon 'checkmark' %}
+                                        </button>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        </form>
+                    </div>
+                {% endblock %}
+
+                {% block page_checkout_cart_shipping_costs %}
+                    <div class="col-md-7 cart-shipping-costs-container">
+                        <form name="precalc"
+                              method="post"
+                              action="{{ path('frontend.checkout.configure') }}"
+                              data-form-auto-submit="true">
+                            {% block page_checkout_cart_shipping_costs_trigger %}
+                                {% set PHYSICAL_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_PHYSICAL') %}
+                                {% if page.cart.lineItems.hasLineItemWithState(PHYSICAL_STATE) %}
+                                    <a class="btn btn-link cart-shipping-costs-btn"
+                                       data-bs-toggle="collapse"
+                                       href="#collapseShippingCost"
+                                       role="button"
+                                       aria-expanded="false"
+                                       aria-controls="collapseExample">
+                                        {{ 'checkout.shippingCosts'|trans|sw_sanitize }}
+                                    </a>
+                                {% endif %}
+                            {% endblock %}
+
+                            {% block page_checkout_cart_shipping_costs_form_group %}
+                                <div class="collapse" id="collapseShippingCost">
+                                    {% block page_checkout_cart_shipping_costs_form_group_country %}
+                                        {% if not context.customer %}
+                                            <div class="form-group">
+                                                <label for="countryId">{{ 'checkout.shippingCountry'|trans|sw_sanitize }}</label>
+                                                <select class="form-select" type="text" id="countryId" name="countryId">
+                                                    {% for country in page.countries %}
+                                                        <option value="{{ country.id }}"
+                                                            {{ country.id == context.shippingLocation.country.id ? 'selected="selected"' : '' }}>
+                                                            {{ country.translated.name }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        {% endif %}
+                                    {% endblock %}
+
+                                    {% block page_checkout_cart_shipping_costs_form_group_payment_method %}
+                                        <div class="form-group">
+                                            <label for="paymentMethodId">{{ 'checkout.paymentMethod'|trans|sw_sanitize }}</label>
+                                            <select class="form-select" type="text" id="paymentMethodId" name="paymentMethodId">
+                                                {% if context.paymentMethod.id not in page.paymentMethods.ids %}
+                                                    <option value="{{ context.paymentMethod.id }}"
+                                                            selected="selected"
+                                                            disabled="disabled">
+                                                        {{ context.paymentMethod.translated.name }} {{ 'checkout.notAvailableSuffix'|trans|sw_sanitize }}
+                                                    </option>
+                                                {% endif %}
+                                                {% for payment in page.paymentMethods %}
+                                                    <option value="{{ payment.id }}"
+                                                        {% if payment.id == context.paymentMethod.id %} selected="selected"{% endif %}>
+                                                        {{ payment.translated.name }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    {% endblock %}
+
+                                    {% block page_checkout_cart_shipping_costs_form_group_shipping_method %}
+                                        <div class="form-group">
+                                            <label for="shippingMethodId">{{ 'checkout.shippingMethod'|trans|sw_sanitize }}</label>
+                                            <select class="form-select" type="text" id="shippingMethodId" name="shippingMethodId">
+                                                {% if context.shippingMethod.id not in page.shippingMethods.ids %}
+                                                    <option value="{{ context.shippingMethod.id }}"
+                                                            selected="selected"
+                                                            disabled="disabled">
+                                                        {{ context.shippingMethod.translated.name }} {{ 'checkout.notAvailableSuffix'|trans|sw_sanitize }}
+                                                    </option>
+                                                {% endif %}
+                                                {% for shipping in page.shippingMethods %}
+                                                    <option value="{{ shipping.id }}"
+                                                        {% if shipping.id == context.shippingMethod.id %} selected="selected"{% endif %}>
+                                                        {{ shipping.translated.name }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    {% endblock %}
+
+                                    <input type="hidden" name="redirectTo" value="frontend.checkout.cart.page">
+                                </div>
+                            {% endblock %}
+                        </form>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    {% endblock %}
+{% endblock %}
+
+{% block page_checkout_aside_actions %}
+    <div class="checkout-aside-action">
+        {% block page_checkout_cart_add_promotion %}
+            <form action="{{ path('frontend.checkout.promotion.add') }}"
+                  class="cart-add-promotion"
+                  method="post">
+                {% block page_checkout_cart_add_promotion_forward %}
+                    <input type="hidden"
+                           name="redirectTo"
+                           value="frontend.checkout.cart.page">
+                {% endblock %}
+
+                {% block page_checkout_cart_add_promotion_label %}
+                    <label class="mb-1" for="addPromotionInput">
+                        {{ 'checkout.addPromotionLabel'|trans|sw_sanitize }}
+                    </label>
+                {% endblock %}
+
+                {% block page_checkout_cart_add_promotion_input_group %}
+                    <div class="input-group checkout-aside-add-code">
+                        {% block page_checkout_cart_add_promotion_input %}
+                            <input type="text"
+                                   name="code"
+                                   class="form-control"
+                                   placeholder="{{ 'checkout.addPromotionPlaceholder'|trans|striptags }}"
+                                   id="addPromotionInput"
+                                   aria-label="{{ 'checkout.addPromotionLabel'|trans|striptags }}"
+                                   aria-describedby="addPromotion"
+                                   required="required"
+                                   aria-invalid="false">
+                        {% endblock %}
+
+                        {% block page_checkout_cart_add_promotion_submit %}
+                            <button class="btn btn-outline-secondary checkout-aside-add-promotion-button"
+                                    type="submit"
+                                    aria-labelledby="addPromotionInput"
+                                    id="addPromotion">
+                                {% sw_icon 'checkmark' %}
+                            </button>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </form>
+        {% endblock %}
+    </div>
+
+    {% block page_checkout_cart_action_proceed %}
+        <div class="checkout-aside-action d-grid">
+            <a href="{{ path('frontend.checkout.confirm.page') }}"
+               class="btn btn-primary btn-lg begin-checkout-btn"
+               title="{{ 'checkout.proceedLink'|trans|striptags }}">
+                {{ 'checkout.proceedLink'|trans|sw_sanitize }}
+            </a>
+        </div>
+    {% endblock %}
+{% endblock %}

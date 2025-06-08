@@ -1,0 +1,12 @@
+{% set ids = hook.event.getIds('product_manufacturer') %}
+
+{% if ids.empty %}
+    {% return %}
+{% endif %}
+
+{% set tags = [] %}
+{% for id in ids %}
+    {% set tags = tags|merge(['my-manufacturer-' ~ id]) %}
+{% endfor %}
+
+{% do services.cache.invalidate(tags) %}

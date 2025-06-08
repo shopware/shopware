@@ -1,0 +1,244 @@
+{% block sw_cms_slot %}
+<div
+    :id="slotElementId"
+    class="sw-cms-slot"
+    :class="componentClasses"
+>
+
+    {% block sw_cms_slot_content %}
+
+    {% block sw_cms_slot_content_component %}
+    <component
+        :is="elementConfig.component"
+        v-if="elementConfig?.component"
+        v-model:element="element"
+        :element-data="elementConfig"
+        :disabled="disabled || undefined"
+    />
+    {% endblock %}
+
+    {# This is just a quick inline design which needs to be refactored for a real design implementation #}
+    <div
+        v-else-if="elementNotFound"
+        class="sw-cms-slot__element-not-found"
+        style="
+            width: 100%;
+            min-height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fbe5ea;
+            border: 1px solid #de294c;
+            border-radius: 4px;
+            gap: 16px;
+        "
+    >
+        <mt-icon
+            name="regular-exclamation-circle"
+            color="#de294c"
+        />
+
+        <div>
+            <p style="color: #de294c;">
+                <strong>Element could not be load</strong>
+            </p>
+            <p style="color: #de294c; margin-top: 6px;">
+                Please try again or select another element.
+            </p>
+        </div>
+    </div>
+
+    <div v-else>
+        <sw-skeleton-bar style="width: 100%; min-height: 250px;" />
+    </div>
+
+    {% block sw_cms_slot_content_preview_overlay %}
+    <div
+        v-if="!active"
+        class="sw-cms-slot__preview-overlay"
+    ></div>
+    {% endblock %}
+
+    {% block sw_cms_slot_content_overlay %}
+    <div
+        v-if="active"
+        class="sw-cms-slot__overlay"
+    >
+        {% block sw_cms_slot_content_overlay_content %}
+        <div class="sw-cms-slot__actions">
+            {% block sw_cms_slot_content_overlay_action_settings %}
+            <div
+                v-tooltip.bottom="tooltipDisabled"
+                class="sw-cms-slot__settings-action"
+                :class="cmsSlotSettingsClasses"
+                role="button"
+                tabindex="0"
+                @click="onSettingsButtonClick"
+                @keydown.enter="onSelectElement(element.name)"
+            >
+                <mt-icon
+                    name="regular-cog"
+                    size="16"
+                />
+            </div>
+            {% endblock %}
+
+            {% block sw_cms_slot_content_overlay_action_swap %}
+            <div
+                v-if="elementConfig?.removable !== false"
+                class="sw-cms-slot__element-action"
+                role="button"
+                tabindex="0"
+                @click="onElementButtonClick"
+                @keydown.enter="onSelectElement(element.name)"
+            >
+                <mt-icon
+                    name="regular-repeat"
+                    size="16"
+                />
+            </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_cms_slot_content_settings_modal %}
+    <sw-modal
+        v-show="showElementSettings"
+        class="sw-cms-slot__config-modal"
+        :variant="modalVariant"
+        :title="$tc('sw-cms.detail.title.elementSettingsModal')"
+        @modal-close="onCloseSettingsModal"
+    >
+        {% block sw_cms_slot_content_settings_modal_component %}
+        <component
+            :is="elementConfig?.configComponent"
+            ref="elementComponentRef"
+            v-model:element="element"
+            :element-data="elementConfig"
+        />
+        {% endblock %}
+
+        {% block sw_cms_slot_content_settings_modal_footer %}
+        <template #modal-footer>
+            {% block sw_cms_slot_content_settings_modal_action_confirm %}
+            <mt-button
+                variant="primary"
+                @click="onCloseSettingsModal"
+            >
+                {{ $tc('sw-cms.detail.label.buttonElementSettingsConfirm') }}
+            </mt-button>
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </sw-modal>
+    {% endblock %}
+
+    {% block sw_cms_slot_content_element_modal %}
+    <sw-modal
+        v-if="showElementSelection"
+        :title="$tc('sw-cms.detail.title.elementChangeModal')"
+        @modal-close="onCloseElementModal"
+    >
+        {% block sw_cms_slot_content_element_modal_selection %}
+        <div class="sw-cms-slot__modal-container">
+            {% block sw_cms_slot_content_element_modal_selection_groups %}
+            <sw-sidebar-collapse
+                v-for="cmsElementGroup in groupedCmsElements"
+                :key="cmsElementGroup.title"
+                expand-on-loading
+                expand-chevron-direction="up"
+            >
+                <template #header>
+                    {{ $tc(cmsElementGroup.title) }}
+                </template>
+
+                <template #content>
+                    <div class="sw-cms-slot__element-selection">
+                        {% block sw_cms_slot_content_element_modal_selection_element %}
+                        <template
+                            v-for="element in cmsElementGroup.items"
+                            :key="element.name"
+                        >
+                            <div
+                                v-if="!element.hidden && element.previewComponent"
+                                class="element-selection__element-wrapper"
+                            >
+                                <div class="element-selection__element">
+                                    {% block sw_cms_slot_content_element_modal_selection_element_component %}
+                                    <component
+                                        :is="element.previewComponent"
+                                        class="sw-cms-slot__element-preview"
+                                        :element-data="element"
+                                    />
+                                    {% endblock %}
+
+                                    {% block sw_cms_slot_content_element_modal_selection_element_overlay %}
+                                    <div
+                                        class="element-selection__overlay element-selection__overlay-action-select"
+                                        role="button"
+                                        tabindex="0"
+                                        @click="onSelectElement(element)"
+                                        @keydown.enter="onSelectElement(element)"
+                                    >
+                                        <mt-icon
+                                            name="regular-repeat"
+                                            size="28"
+                                        />
+                                    </div>
+                                    {% endblock %}
+
+                                    {% block sw_cms_slot_content_element_modal_selection_element_overlay_favorite %}
+                                    <div
+                                        class="element-selection__overlay element-selection__overlay-action-favorite"
+                                        role="button"
+                                        tabindex="0"
+                                        @click="onToggleElementFavorite(element.name)"
+                                        @keydown.enter="onToggleElementFavorite(element.name)"
+                                    >
+                                        <mt-icon
+                                            v-if="cmsElementFavorites.isFavorite(element.name)"
+                                            name="solid-heart"
+                                            size="28"
+                                        />
+                                        <mt-icon
+                                            v-else
+                                            name="regular-heart"
+                                            size="28"
+                                        />
+                                    </div>
+                                {% endblock %}
+                                </div>
+
+                                {% block sw_cms_slot_content_element_modal_selection_element_label %}
+                                <span class="element-selection__label">{{ $tc(element.label) }}</span>
+                            {% endblock %}
+                            </div>
+                        </template>
+                        {% endblock %}
+                    </div>
+                </template>
+            </sw-sidebar-collapse>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_cms_slot_content_element_modal_footer %}
+        <template #modal-footer>
+
+            {% block sw_cms_slot_content_element_modal_action_abort %}
+            <mt-button
+                variant="secondary"
+                @click="onCloseElementModal"
+            >
+                {{ $tc('global.default.cancel') }}
+            </mt-button>
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </sw-modal>
+    {% endblock %}
+    {% endblock %}
+</div>
+{% endblock %}

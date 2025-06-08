@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<flow-extensions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://gitlab.shopware.com/shopware/6/product/platform/-/raw/7a0708804d0669cb63cc5f677b034bedec43e64e/src/Core/Framework/App/Flow/Schema/flow-1.0.xsd">
+    <flow-actions>
+        <flow-action>
+            <meta>
+                <name>abc.cde.ccc</name>
+                <label>First action app</label>
+                <label lang="de-DE">First action app DE</label>
+                <description>First action app description</description>
+                <description lang="de-DE">First action app description DE</description>
+                <url>https://example.xyz</url>
+                <requirements>order</requirements>
+                <requirements>customer</requirements>
+            </meta>
+        </flow-action>
+    </flow-actions>
+</flow-extensions>

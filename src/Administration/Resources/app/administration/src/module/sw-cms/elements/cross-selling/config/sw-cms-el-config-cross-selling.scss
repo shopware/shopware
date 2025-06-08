@@ -1,0 +1,79 @@
+@import "~scss/variables";
+
+.sw-cms-el-config-cross-selling {
+    &__products {
+        margin-bottom: 22px;
+    }
+
+    &__tab-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(185px, 305px));
+        gap: 0 30px;
+    }
+
+    .sw-select-result .sw-select-result__result-item-text {
+        display: block;
+
+        .sw-highlight-text {
+            display: inline;
+        }
+
+        .sw-cms-el-config-cross-selling__select-product-number {
+            display: inline;
+            color: $color-gray-400;
+            margin-left: 10px;
+        }
+    }
+
+    .sw-label {
+        .sw-product-variant-info {
+            max-width: 180px;
+        }
+    }
+
+    &__product-stream-performance-hint {
+        width: 100%;
+    }
+
+    &__product-stream-preview-link-container {
+        margin-top: -20px;
+        text-align: right;
+    }
+
+    &__product-stream-preview-link {
+        font-size: $font-size-xs;
+        text-decoration: none;
+
+        &.is--disabled {
+            opacity: 0.5;
+            cursor: default;
+            pointer-events: none;
+        }
+    }
+
+    .sw-container {
+        display: block;
+    }
+
+    .sw-entity-single-select__selection {
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+    }
+
+    .sw-entity-single-select__selection-text {
+        vertical-align: middle;
+        padding-right: 16px;
+        width: 100%;
+    }
+}
+
+.sw-modal.sw-cms-el-config-cross-selling__product-stream-preview-modal {
+    .sw-modal__body {
+        padding: 0;
+    }
+
+    .sw-product-stream-grid-preview__toolbar {
+        border-top: 0;
+    }
+}

@@ -1,0 +1,180 @@
+{% block sw_newsletter_recipient_detail %}
+<sw-page class="sw-newsletter-recipient-detail">
+    {% block sw_newsletter_recipient_detail_header %}
+    <template #smart-bar-header>
+        <h2 v-if="newsletterRecipient">
+            {{ newsletterRecipient.email }}
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_newsletter_recipient_detail_actions %}
+    <template #smart-bar-actions>
+        {% block sw_newsletter_recipient_detail_actions_edit %}
+        <mt-button
+            class="sw-newsletter-recipient-detail__open-edit-mode-action"
+            variant="primary"
+            :disabled="isLoading || !acl.can('newsletter_recipient.editor')"
+            size="default"
+            @click="onClickSave"
+        >
+            {{ $tc('sw-newsletter-recipient.general.buttonSave') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_newsletter_recipient_detail_content %}
+    <template #content>
+        <sw-card-view>
+            <template v-if="isLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
+
+            <mt-card
+                v-else-if="newsletterRecipient"
+                position-identifier="sw-newsletter-recipient-detail"
+                :title="$tc('sw-newsletter-recipient.general.information')"
+            >
+                {% block sw_newsletter_recipient_detail_form %}
+
+                <sw-container
+                    columns="1fr 1fr"
+                    gap="10px"
+                >
+                    {% block sw_newsletter_recipient_detail_form_salutation %}
+                    <sw-entity-single-select
+                        v-model:value="newsletterRecipient.salutationId"
+                        :disabled="!acl.can('newsletter_recipient.editor')"
+                        :label="$tc('sw-newsletter-recipient.general.salutation')"
+                        label-property="displayName"
+                        entity="salutation"
+                        show-clearable-button
+                    />
+                    {% endblock %}
+
+                    {% block sw_newsletter_recipient_detail_form_title %}
+
+                    <mt-text-field
+                        v-model="newsletterRecipient.title"
+                        :label="$tc('sw-newsletter-recipient.list.title')"
+                        :disabled="!acl.can('newsletter_recipient.editor')"
+                    />
+                    {% endblock %}
+                </sw-container>
+
+                <sw-container
+                    columns="1fr 1fr"
+                    gap="10px"
+                >
+                    {% block sw_newsletter_recipient_detail_form_first_name %}
+
+                    <mt-text-field
+                        v-model="newsletterRecipient.firstName"
+                        :label="$tc('sw-newsletter-recipient.list.firstName')"
+                        :disabled="!acl.can('newsletter_recipient.editor')"
+                    />
+                    {% endblock %}
+
+                    {% block sw_newsletter_recipient_detail_form_last_name %}
+
+                    <mt-text-field
+                        v-model="newsletterRecipient.lastName"
+                        :label="$tc('sw-newsletter-recipient.list.lastName')"
+                        :disabled="!acl.can('newsletter_recipient.editor')"
+                    />
+                    {% endblock %}
+                </sw-container>
+
+                {% block sw_newsletter_recipient_detail_form_email %}
+
+                <mt-text-field
+                    v-model="newsletterRecipient.email"
+                    :label="$tc('sw-newsletter-recipient.list.email')"
+                    :disabled="!acl.can('newsletter_recipient.editor')"
+                />
+                {% endblock %}
+
+                {% block sw_newsletter_recipient_detail_form_street %}
+
+                <mt-text-field
+                    v-model="newsletterRecipient.street"
+                    :label="$tc('sw-newsletter-recipient.list.street')"
+                    :disabled="!acl.can('newsletter_recipient.editor')"
+                />
+                {% endblock %}
+
+                <sw-container
+                    columns="1fr 1fr"
+                    gap="10px"
+                >
+                    {% block sw_newsletter_recipient_detail_form_zip_code %}
+
+                    <mt-text-field
+                        v-model="newsletterRecipient.zipCode"
+                        :label="$tc('sw-newsletter-recipient.list.zipCode')"
+                        :disabled="!acl.can('newsletter_recipient.editor')"
+                    />
+                    {% endblock %}
+
+                    {% block sw_newsletter_recipient_detail_form_city %}
+
+                    <mt-text-field
+                        v-model="newsletterRecipient.city"
+                        :label="$tc('sw-newsletter-recipient.list.city')"
+                        :disabled="!acl.can('newsletter_recipient.editor')"
+                    />
+                    {% endblock %}
+                </sw-container>
+
+                {% block sw_newsletter_recipient_detail_form_language %}
+                <sw-entity-single-select
+                    v-model:value="newsletterRecipient.languageId"
+                    :label="$tc('sw-newsletter-recipient.general.language')"
+                    :disabled="!acl.can('newsletter_recipient.editor')"
+                    entity="language"
+                    show-clearable-button
+                />
+                {% endblock %}
+
+                {% block sw_newsletter_recipient_detail_form_sales_channel %}
+                <sw-entity-single-select
+                    v-model:value="newsletterRecipient.salesChannelId"
+                    :label="$tc('sw-newsletter-recipient.general.salesChannel')"
+                    label-property="name"
+                    :disabled="true"
+                    entity="sales_channel"
+                    show-clearable-button
+                />
+                {% endblock %}
+
+                {% block sw_newsletter_recipient_detail_form_tags %}
+                <sw-entity-tag-select
+                    v-model:entity-collection="newsletterRecipient.tags"
+                    :label="$tc('sw-newsletter-recipient.general.tags')"
+                    :disabled="!acl.can('newsletter_recipient.editor')"
+                />
+                {% endblock %}
+
+                {% endblock %}
+            </mt-card>
+
+            {% block sw_newsletter_recipient_detail_custom_fields %}
+            <mt-card
+                v-if="newsletterRecipient && customFieldSets && customFieldSets.length > 0"
+                position-identifier="sw-newsletter-customFields"
+                :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+            >
+                <sw-custom-field-set-renderer
+                    :entity="newsletterRecipient"
+                    :disabled="!acl.can('newsletter_recipient.editor')"
+                    :sets="customFieldSets"
+                />
+            </mt-card>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

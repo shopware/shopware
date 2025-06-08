@@ -1,0 +1,41 @@
+{
+  "name": "SwagTheme",
+  "author": "shopware AG",
+  "views": [
+     "@Storefront",
+     "@Plugins",
+     "@SwagTheme"
+  ],
+  "style": [
+    {
+      "app/storefront/src/scss/overrides.scss": {}
+    },
+    "@Storefront",
+    {
+      "app/storefront/src/scss/base.scss": {
+        "resolve": {
+          "vendor": "app/storefront/vendor"
+        }
+      }
+    }
+  ],
+  "script": [
+    "@Storefront",
+    "app/storefront/dist/js/main.js"
+  ],
+  "asset": [
+    "app/storefront/dist/assets"
+  ],
+  "previewMedia": "app/storefront/dist/assets/preview.jpg",
+  "config": {
+    "fields": {
+      "sw-image": {
+        "type": "media",
+        "value": "app/storefront/dist/assets/test.jpg"
+      }
+    }
+  },
+  "iconSets": {
+    "custom-icons": "app/storefront/src/assets/icon-pack/custom-icons"
+  }
+}

@@ -1,0 +1,11 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "\/_action\/order_delivery\/{orderDeliveryId}\/state\/{transition}": {
+            "post": {
+                "description":  "Override"
+                }
+            }
+        }
+}

@@ -1,0 +1,59 @@
+--- /dev/null
++++ ../src/CompareClasses.php
+@@ -16,11 +16,15 @@
+ 
+ final class CompareClasses implements CompareApi
+ {
++    private array $excludePatterns;
++
+     public function __construct(
+         private ClassBased $classBasedComparisons,
+         private InterfaceBased $interfaceBasedComparisons,
+         private TraitBased $traitBasedComparisons,
+     ) {
++        $excludes = require getcwd() . '/.bc-exclude.php';
++        $this->excludePatterns = $excludes['errors'];
+     }
+ 
+     public function __invoke(
+@@ -40,11 +44,24 @@
+             },
+         );
+ 
+-        return Changes::fromIterator($this->makeSymbolsIterator(
++        $filteredSymbolIterator = function (iterable $symbols): iterable {
++            /** @var Change $symbol */
++            foreach($symbols as $symbol) {
++                foreach($this->excludePatterns as $pattern) {
++                    if(0 < preg_match("/$pattern/", $symbol->__toString())) {
++                        continue 2;
++                    }
++                }
++
++                yield $symbol;
++            }
++        };
++
++        return Changes::fromIterator($filteredSymbolIterator($this->makeSymbolsIterator(
+             $definedApiClassNames,
+             $pastSourcesWithDependencies,
+             $newSourcesWithDependencies,
+-        ));
++        )));
+     }
+ 
+     /**
+@@ -58,7 +75,12 @@
+         Reflector $newSourcesWithDependencies,
+     ): iterable {
+         foreach ($definedApiClassNames as $apiClassName) {
+-            $oldSymbol = $pastSourcesWithDependencies->reflectClass($apiClassName);
++            try {
++                $oldSymbol = $pastSourcesWithDependencies->reflectClass($apiClassName);
++            } catch(IdentifierNotFound $e) {
++                yield Change::skippedDueToFailure($e);
++                continue;
++            }
+ 
+             yield from $this->examineSymbol($oldSymbol, $newSourcesWithDependencies);
+         }

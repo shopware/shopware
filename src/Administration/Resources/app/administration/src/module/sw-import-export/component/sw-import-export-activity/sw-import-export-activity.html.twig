@@ -1,0 +1,188 @@
+{% block sw_import_export_activity %}
+<div class="sw-import-export-activity">
+    {% block sw_import_export_activity_listing %}
+    <sw-entity-listing
+        v-if="showGrid"
+        :repository="logRepository"
+        :items="logs"
+        :columns="exportActivityColumns"
+        sort-by="createdAt"
+        sort-direction="DESC"
+        :show-selection="false"
+        :allow-column-edit="false"
+        :full-page="true"
+    >
+        {% block sw_import_export_activity_listing_size %}
+        <template #column-file.size="{ item }">
+            {{ calculateFileSize(item.file.size) }}
+        </template>
+        {% endblock %}
+        {% block sw_import_export_activity_listing_records %}
+        <template #column-records="{ item }">
+            {{ item.records }}
+        </template>
+        {% endblock %}
+        <template #column-label-invalidRecords="{ column }">
+            {{ $te(column.label) ? $t(column.label) : column.label }}
+            <sw-help-text
+                class="sw-import-export-activity__invalid-records-help-text"
+                :text="$t('sw-import-export.activity.invalidHelpText')"
+            />
+        </template>
+        {% block sw_import_export_activity_listing_invalid_records %}
+        <template #column-invalidRecords="{ item }">
+            <template v-if="item.invalidRecordsLog">
+                {{ item.invalidRecordsLog.records }}
+            </template>
+            <template v-else>
+                0
+            </template>
+        </template>
+        {% endblock %}
+        {% block sw_import_export_activity_listing_createdAt %}
+        <template #column-createdAt="{ item }">
+            <sw-label
+                v-if="item.activity === 'dryrun'"
+                size="small"
+                appearance="pill"
+            >
+                {{ $t('sw-import-export.activity.dryrun') }}
+            </sw-label>
+            <a
+                href="#"
+                @click.prevent="onShowLog(item)"
+            >
+                {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
+            </a>
+        </template>
+        {% endblock %}
+
+        {% block sw_import_export_activity_listing_state %}
+        <template #column-state="{ item }">
+            <sw-color-badge
+                v-if="item.state === 'failed'"
+                variant="error"
+                rounded
+            />
+            <sw-color-badge
+                v-else-if="item.state === 'succeeded'"
+                variant="success"
+                rounded
+            />
+            <sw-color-badge
+                v-else
+                rounded
+            />
+            <span :class="getStateClass(item.state)">{{ getStateLabel(item.state) }}</span>
+        </template>
+        {% endblock %}
+
+        {% block sw_import_export_activity_listing_actions %}
+        <template #actions="{ item }">
+            {% block sw_import_export_activity_listing_actions_show_results %}
+            <sw-context-menu-item
+                v-if="item.result && Object.keys(item.result).length"
+                class="sw-import-export-activity__results-action"
+                @click="onShowResult(item)"
+            >
+                {{ $t('sw-import-export.activity.contextMenu.showResults') }}
+            </sw-context-menu-item>
+            {% endblock %}
+            {% block sw_import_export_activity_listing_actions_show_log_info %}
+            <sw-context-menu-item
+                v-if="type === 'export'"
+                class="sw-import-export-activity__log-info-action"
+                @click="onShowLog(item)"
+            >
+                {{ $t('sw-import-export.activity.contextMenu.showLogInfo') }}
+            </sw-context-menu-item>
+            {% endblock %}
+            {% block sw_import_export_activity_listing_actions_download_file %}
+            <a
+                class="sw-import-export-activity__download-action"
+                role="button"
+                tabindex="0"
+                @click="openProcessFileDownload(item)"
+                @keydown.enter="openProcessFileDownload(item)"
+            >
+                <sw-context-menu-item :disabled="type === 'export' && item.state !== 'succeeded'">
+                    {{ downloadFileText }}
+                </sw-context-menu-item>
+            </a>
+            {% endblock %}
+            {% block sw_import_export_activity_listing_actions_open_profile %}
+            <sw-context-menu-item @click="onOpenProfile(item.profileId)">
+                {{ $t('sw-import-export.activity.contextMenu.showProfile') }}
+            </sw-context-menu-item>
+            {% endblock %}
+            {% block sw_import_export_activity_listing_actions_abort_process %}
+            <sw-context-menu-item
+                v-if="item.state === 'progress'"
+                class="sw-import-export-activity__abort-process-action"
+                variant="danger"
+                @click="onAbortProcess(item)"
+            >
+                {{ $t('sw-import-export.activity.contextMenu.abortProcess') }}
+            </sw-context-menu-item>
+            {% endblock %}
+            {% block sw_import_export_activity_listing_actions_download_invalid %}
+            <template v-if="item.invalidRecordsLog">
+                <a
+                    class="sw-import-export-activity__download-action"
+                    role="button"
+                    tabindex="0"
+                    @click="openProcessFileDownload(item.invalidRecordsLog)"
+                    @keydown.enter="openProcessFileDownload(item.invalidRecordsLog)"
+                >
+                    <sw-context-menu-item>
+                        {{ $t('sw-import-export.activity.contextMenu.downloadInvalidFile') }}
+                    </sw-context-menu-item>
+                </a>
+            </template>
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </sw-entity-listing>
+    {% endblock %}
+
+    {% block sw_import_export_activity_spinner %}
+    <sw-loader v-else-if="showSpinner" />
+    {% endblock %}
+
+    {% block sw_import_export_activity_empty_state %}
+    <sw-empty-state
+        v-if="showEmptyState"
+        :title="emptyStateTitle"
+        :subline="emptyStateSubLine"
+        :absolute="false"
+        icon="regular-database"
+    />
+    {% endblock %}
+
+    {% block sw_import_export_activity_log_info_modal %}
+    <sw-import-export-activity-log-info-modal
+        v-if="showDetailModal"
+        :log-entity="selectedLog"
+        @log-close="closeSelectedLog"
+    />
+    {% endblock %}
+
+    {% block sw_import_export_activity_result_modal %}
+    <sw-import-export-activity-result-modal
+        v-if="showResultModal"
+        :log-entity="selectedLog"
+        :result="selectedResult"
+        @result-close="closeSelectedResult"
+    />
+    {% endblock %}
+
+    {% block sw_import_export_activity_modal %}
+    <sw-import-export-edit-profile-modal
+        v-if="selectedProfile"
+        :profile="selectedProfile"
+        @profile-save="saveSelectedProfile"
+        @profile-close="closeSelectedProfile"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

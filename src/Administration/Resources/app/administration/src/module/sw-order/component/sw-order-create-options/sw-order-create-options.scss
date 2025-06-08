@@ -1,0 +1,27 @@
+@import "~scss/variables";
+
+.sw-order-create-options {
+    height: 594px;
+
+    &__headline {
+        margin-bottom: 5px;
+    }
+
+    &__disable-auto-promotion.sw-field--switch {
+        margin: 0 0 -12px;
+    }
+
+    .sw-container {
+        margin-bottom: 12px;
+    }
+
+    .sw-field,
+    .sw-field--switch__input {
+        margin-bottom: 28px;
+    }
+
+    &__currency-select {
+        grid-column-start: 1;
+        grid-column-end: 3;
+    }
+}

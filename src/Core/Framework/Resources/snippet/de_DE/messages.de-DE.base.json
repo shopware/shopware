@@ -1,0 +1,65 @@
+{
+    "document": {
+        "invoiceNumber": "Rechnungs-Nr. %invoiceNumber%",
+        "invoiceHeadline": "Rechnungs-Nr. %invoiceNumber%",
+        "stornoHeadline": "Storno-Nr. %stornoNumber% für Rechnung Nr. %invoiceNumber%",
+        "stornoNumber": "Storno-Nr. %stornoNumber%",
+        "stornoDate": "Storno-Nr Datum %date%",
+        "deliveryNoteNumber": "Lieferschein-Nr. %deliveryNoteNumber%",
+        "deliveryNoteHeadline": "Lieferschein-Nr. %deliveryNoteNumber% für Bestellung Nr. %orderNumber%",
+        "creditNoteNumber": "Gutschrift-Nr. %creditNoteNumber%",
+        "creditNoteHeadline": "Gutschrift-Nr. %creditNoteNumber% für Rechnung Nr. %invoiceNumber%",
+        "customerNumber": "Kunden-Nr. %customerNumber%",
+        "date": "Datum %date%",
+        "comment": "Kommentar: %comment%",
+        "orderDate": "Bestelldatum %orderDate%",
+        "deliveryDate": "Liefertermin: %deliveryDate%",
+        "page": "Seite %pageNumber%",
+        "orderNumber": "Bestell-Nr. %orderNumber%",
+        "taxNumber": "IdNr.: %taxNumber%",
+        "vatId": "USt-IdNr.: %vatId%",
+        "taxOffice": "Finanzamt: %taxOffice%",
+        "bankAccount": "Bankverbindung",
+        "bankIban": "IBAN: %bankIban%",
+        "bankBic": "BIC: %bankBic%",
+        "placeOfJurisdiction": "<strong>Gerichtsstand:</strong> %placeOfJurisdiction%",
+        "serviceDateNotice": "Leistungsdatum entspricht Rechnungsdatum",
+        "placeOfFulfillment": "<strong>Erfüllungsort:</strong> %placeOfFulfillment%",
+        "intraCommunity": "Innergemeinschaftliche Lieferung (EU)",
+        "shippingAddress": "Lieferadresse",
+        "phoneNumber": "Telefon %phoneNumber%",
+        "email": "E-Mail-Adresse: %email%",
+        "ceo": "Geschäftsführer",
+        "lineItems": {
+            "header": {
+                "position": "Pos.",
+                "label": "Produkt / Dienst",
+                "tax": "USt.",
+                "quantity": "Anzahl",
+                "unitPrice": "Stückpreis",
+                "productNumber": "Prod.-Nr.",
+                "total": "Gesamt"
+            },
+            "tax": "zzgl. %taxRate%% MwSt.:",
+            "taxLabeled": "zzgl. %taxRate%% %label%:",
+            "total": "Gesamtsumme:",
+            "roundedTotal": "Gesamtsumme gerundet:",
+            "totalNet": "Gesamtsumme (Netto):",
+            "shippingCosts": "Versandkosten",
+            "inclVAT": "Inkl. MwSt.",
+            "exclVAT": "Exkl. MwSt."
+        },
+        "paymentShippingInfo": {
+            "paymentMethod": "<strong>Gewählte Zahlungsart:</strong> %paymentMethod%",
+            "shippingMethod": "<strong>Gewählte Versandart:</strong> %shippingMethod%",
+            "additionalInfo": "Die Ware bleibt, bis zur vollständigen Bezahlung, unser Eigentum."
+        }
+    },
+    "filter": {
+        "sortByNameAscending": "Name, A-Z",
+        "sortByNameDescending": "Name, Z-A",
+        "sortByPriceAscending": "Preis, aufsteigend",
+        "sortByPriceDescending": "Preis, absteigend",
+        "sortByScore": "Beste Ergebnisse"
+    }
+}

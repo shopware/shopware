@@ -1,0 +1,49 @@
+{
+  "sw-settings-language": {
+    "general": {
+      "mainMenuItemGeneral": "Sprachen",
+      "placeholderSearchBar": "Durchsuche alle Sprachen ..."
+    },
+    "list": {
+      "textHeadline": "Sprachen",
+      "textDeleteConfirm": "Bist Du sicher, dass Du die Sprache \"{name}\" löschen möchtest? Dies löscht alle Inhalte in dieser Sprache unwiederbringlich!",
+      "columnName": "Name",
+      "columnLocaleName": "Lokalisierung",
+      "columnIsoCode": "ISO-Code ",
+      "columnInherit": "Erbt von",
+      "columnDefault": "Standard",
+      "buttonAddLanguage": "Sprache anlegen",
+      "contextMenuEdit": "Bearbeiten",
+      "messageDeleteSuccess": "Die Sprache \"{name}\" wurde erfolgreich gelöscht.",
+      "buttonDelete": "Löschen",
+      "titleSidebarFilter": "Filter",
+      "titleSidebarQuickFilter": "Quick Filter",
+      "textFilterRootLanguages": "Zeige nur \"Root\"-Sprachen",
+      "textFilterInheritedLanguages": "Zeige nur vererbte Sprachen"
+    },
+    "detail": {
+      "textHeadline": "Neue Sprache",
+      "titleCard": "Einstellungen",
+      "messageSaveSuccess": "Die Sprache \"{name}\" wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelLocale": "Lokalisierung",
+      "labelParent": "Erben von",
+      "labelIsoCode": "ISO Code",
+      "placeholderName": "Namen eingeben ...",
+      "placeholderPleaseSelect": "Bitte wählen ...",
+      "buttonSave": "Speichern",
+      "tooltipLanguageNotChoosable": "Es kann nur von einer Sprache geerbt werden, die nicht bereits selbst erbt.",
+      "tooltipInheritanceNotPossible": "Die System-Standard-Sprache kann nicht von einer anderen Sprache erben.",
+      "textAlertChangeParent": "Ein Wechsel der geerbten Sprache kann gegebenenfalls zu inkonsistenten Übersetzungen führen.",
+      "textIsoCodeIsInUse": "Dieser ISO-Code wird bereits verwendet.",
+      "textLanguageHasParent": "Diese Sprache erbt bereits von einer anderen Sprache."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "language": {
+        "label": "Sprachen"
+      }
+    }
+  }
+}

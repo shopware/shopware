@@ -1,0 +1,85 @@
+{
+  "sw-settings-payment": {
+    "general": {
+      "mainMenuItemGeneral": "Payment methods",
+      "placeholderSearchBar": "Search all payment methods..."
+    },
+    "overview": {
+      "openSortingModalButton": "Edit display order in checkout",
+      "editDetails": "Edit details",
+      "activeToggle": "Active",
+      "missingEditorPermission": "You don't have the permissions, to edit payment methods.",
+      "notification": {
+        "activationSuccess": "{name} successfully activated.",
+        "deactivationSuccess": "{name} successfully deactivated.",
+        "activationError": "{name} could not be activated.",
+        "deactivationError": "{name} could not be deactivated."
+      }
+    },
+    "sorting-modal": {
+      "modalTitle": "Display order in checkout",
+      "subTitle": "Use drag & drop to define the order of payment methods displayed during checkout.",
+      "saveSuccessful": "The order of payment methods has been updated.",
+      "errorMessage": "An error occurred while updating the order of payment methods."
+    },
+    "list": {
+      "textHeadline": "Payment",
+      "textDeleteConfirm": "Are you sure you want to delete the payment method \"{name}\"?",
+      "columnName": "Name",
+      "columnDescription": "Description",
+      "columnActive": "Active",
+      "columnPosition": "Position",
+      "columnExtension": "Extension",
+      "buttonAddPaymentMethod": "Add payment method",
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
+      "messageDeleteSuccess": "Payment method \"{name}\" has been deleted.",
+      "buttonDelete": "Delete",
+      "pluginDeleteTitleText": "Plugin payment methods cannot be deleted."
+    },
+    "detail": {
+      "textHeadline": "New payment method",
+      "titleCard": "Payment methods",
+      "messageSaveSuccess": "Payment method \"{name}\" has been saved.",
+      "messageSaveError": "Payment method \"{name}\" could not be saved.",
+      "labelName": "Name",
+      "labelTechnicalName": "Technical name",
+      "labelPosition": "Position",
+      "labelActive": "Active",
+      "labelAfterOrderEnabled": "Allow payment change after checkout",
+      "labelDescription": "Description",
+      "labelLogoUpload": "Logo",
+      "sidebar": {
+        "labelUseAsLogo": "Use as logo"
+      },
+      "topRule": "Availability rule",
+      "placeholderName": "Enter name...",
+      "placeholderTechnicalName": "Enter technical name...",
+      "placeholderPosition": "Enter position...",
+      "placeholderDescription": "Enter description...",
+      "placeholderAvailabilityRule": "Choose availability rule...",
+      "buttonSave": "Save",
+      "helpTextTechnicalName": "The technical name is used to uniquely reference the payment method. A subsequent change to the technical name can cause payment integrations that rely on it to no longer work.",
+      "hintTextTechnicalNameIsProvided": "The technical name has been provided by {name}.",
+      "delete": {
+        "textHeadline": "Delete payment method",
+        "textAlert": "This payment method is used in rules, Sales Channels or orders and can therefore not be deleted.",
+        "textButton": "Delete payment method",
+        "modal": {
+          "textConfirmation": "Do you really want to delete this payment method?",
+          "buttonDelete": "Delete"
+        }
+      }
+    }
+  },
+  "sw-plugin-box": {
+    "buttonPluginSettings": "Extension settings"
+  },
+  "sw-privileges": {
+    "permissions": {
+      "payment": {
+        "label": "Payment methods"
+      }
+    }
+  }
+}

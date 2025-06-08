@@ -1,0 +1,120 @@
+{% block sw_order_create_modal %}
+<sw-modal
+    class="sw-order-create-initial-modal"
+    :closable="false"
+    :title="$tc('sw-order.initialModal.titleNewOrder')"
+    variant="large"
+    @modal-close="onCloseModal"
+>
+    <template #default>
+        {% block sw_order_create_modal_tabs %}
+        <sw-tabs
+            class="sw-order-create-initial-modal__tabs"
+            default-item="customer"
+            position-identifier="sw-order-create-initial-modal"
+        >
+            <template #default="{ active }">
+                {% block sw_order_create_modal_tabs_customer %}
+                <sw-tabs-item
+                    class="sw-order-create-initial-modal__tab-customer"
+                    name="customer"
+                    :active-tab="active"
+                >
+                    {{ $tc('sw-order.initialModal.tabCustomer') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_order_create_modal_tabs_products %}
+                <sw-tabs-item
+                    class="sw-order-create-initial-modal__tab-product"
+                    name="products"
+                    :active-tab="active"
+                    :disabled="!customer || undefined"
+                >
+                    {{ $tc('sw-order.initialModal.tabProducts') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_order_create_modal_tabs_options %}
+                <sw-tabs-item
+                    class="sw-order-create-initial-modal__tab-options"
+                    name="options"
+                    :active-tab="active"
+                    :disabled="!customer || undefined"
+                >
+                    {{ $tc('sw-order.initialModal.tabOptions') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_order_create_modal_tabs_extension %}{% endblock %}
+            </template>
+
+            <template #content="{ active }">
+                {% block sw_order_create_modal_tabs_content %}
+                <div class="sw-order-create-initial-modal__content">
+                    {% block sw_order_create_modal_tabs_content_customer %}
+                    <div v-show="active === 'customer'">
+                        <sw-order-customer-grid />
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_order_create_modal_tabs_content_products %}
+                    <sw-order-line-items-grid-sales-channel
+                        v-show="active === 'products'"
+                        :is-loading="isProductGridLoading"
+                        :sales-channel-id="salesChannelId"
+                        :cart="cart"
+                        :currency="currency"
+                        :is-customer-active="isCustomerActive"
+                        @on-save-item="onSaveItem"
+                        @on-remove-items="onRemoveItems"
+                    />
+                    {% endblock %}
+
+                    {% block sw_order_create_modal_tabs_content_options %}
+                    <sw-order-create-options
+                        v-show="active === 'options'"
+                        :disabled="!customer || undefined"
+                        :disabled-auto-promotion="disabledAutoPromotion"
+                        :promotion-codes="promotionCodes"
+                        :context="context"
+                        @promotions-change="updatePromotion"
+                        @auto-promotion-toggle="updateAutoPromotionToggle"
+                        @shipping-cost-change="updateShippingCost"
+                    />
+                    {% endblock %}
+                </div>
+                {% endblock %}
+            </template>
+        </sw-tabs>
+        {% endblock %}
+    </template>
+
+    <template #modal-footer>
+        {% block sw_order_create_modal_footer_modal_footer_cancel %}
+        <mt-button
+            class="sw-order-create-initial-modal__button-cancel"
+            size="small"
+            variant="secondary"
+            @click="onCloseModal"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_order_create_modal_footer_modal_footer_preview_order %}
+        <mt-button
+            class="sw-order-create-initial-modal__button-preview"
+            size="small"
+            variant="primary"
+            :disabled="!customer || undefined"
+            :is-loading="isLoading"
+            @click="onPreviewOrder"
+        >
+            {{ $tc('sw-order.initialModal.buttonPreviewOrder') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+
+</sw-modal>
+{% endblock %}

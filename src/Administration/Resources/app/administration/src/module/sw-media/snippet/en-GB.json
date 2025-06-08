@@ -1,0 +1,111 @@
+{
+  "sw-media": {
+    "general": {
+      "mainMenuItemGeneral": "Media",
+      "descriptionTextModule": "Manage media here.",
+      "placeholderSearchBar": "Search current folder...",
+      "notification": {
+        "urlCopied": {
+          "message": "URL has been copied to clipboard."
+        }
+      }
+    },
+    "sidebar": {
+      "labelHeadlineMultiple": "{count} files selected",
+      "labelNoMediaSelected": "No media selected",
+      "actions": {
+        "copyLink": "Copy link",
+        "delete": "Delete",
+        "dissolve": "Dissolve",
+        "download": "Download",
+        "move": "Move",
+        "replace": "Replace",
+        "settings": "Settings",
+        "ar": "Activate AR view",
+        "arHelpText": "AR function enabled when presented in the storefront. You can change the default in <a href=\"{settingsLink}\">the 3D settings</a>."
+      },
+      "sections": {
+        "actions": "Actions",
+        "configuration": "Configuration",
+        "preview": "Preview",
+        "metadata": "Meta data",
+        "usage": "Used in",
+        "selectedFiles": "Selected files"
+      },
+      "infoMissingFile": {
+        "titleMissingFile": "File not found",
+        "descriptionMissingFile": "Unable to find requested file. Upload new file(s) or delete placeholder."
+      },
+      "metadata": {
+        "name": "Name",
+        "fileType": "File type",
+        "altText": "Alt text",
+        "title": "Title",
+        "mimeType": "MIME-Type",
+        "fileSize": "Size",
+        "createdAt": "Uploaded at",
+        "width": "Width",
+        "height": "Height",
+        "totalSize": "A total of"
+      },
+      "usage": {
+        "tooltipFoundInProducts": "Found in products",
+        "tooltipFoundInLandingPages": "Found in landing pages",
+        "tooltipFoundInCategories": "Found in categories",
+        "tooltipFoundInManufacturers": "Found in manufacturers",
+        "tooltipFoundInMailTemplate": "Found in mail templates",
+        "tooltipFoundInDocument": "Found in Document",
+        "tooltipFoundInUser": "Found in User",
+        "tooltipFoundInPayment": "Found in Payment",
+        "tooltipFoundShipping": "Found in Shipping",
+        "tooltipFoundLayout": "Found in Shopping Experiences",
+        "titleMediaNotUsed": "Unused medium",
+        "labelMediaNotUsed": "This media item is currently not in use."
+      }
+    },
+    "index": {
+      "buttonCreateFolder": "Add new folder",
+      "rootFolderName": "Media"
+    },
+    "mediaLibrary": {
+      "labelButtonLoadMore": "Load more",
+      "titleEmptyState": "No media items yet",
+      "descriptionEmptyState": "Manage media items here."
+    },
+    "sorting": {
+      "labelSort": "Sort by:",
+      "labelSortByNameAsc": "Name, A-Z",
+      "labelSortByNameDsc": "Name, Z-A",
+      "labelSortBySizeAsc": "Size, asc.",
+      "labelSortBySizeDsc": "Size, desc.",
+      "labelSortByCreatedAsc": "Creation date, asc.",
+      "labelSortByCreatedDsc": "Creation date, desc."
+    },
+    "presentation": {
+      "labelPresentation": "Presentation:",
+      "labelPresentationSmall": "Small preview",
+      "labelPresentationMedium": "Regular preview",
+      "labelPresentationLarge": "Large preview",
+      "labelPresentationList": "List"
+    },
+    "sw-media-modal": {
+      "titleModal": "Choose media",
+      "labelTabItemLibrary": "Media Library",
+      "labelTabItemUpload": "Upload files",
+      "labelButtonSaveSelection": "Add media"
+    },
+    "sw-media-modal-v2": {
+      "titleModal": "Choose media",
+      "labelTabItemLibrary": "Media Library",
+      "labelTabItemUpload": "Upload files",
+      "labelButtonSaveSelection": "Add media"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "media": {
+        "label": "Media"
+      }
+    }
+  }
+}

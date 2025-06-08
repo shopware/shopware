@@ -1,0 +1,71 @@
+#!/usr/bin/env php
+<?php declare(strict_types=1);
+
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\Process\Process;
+
+set_time_limit(0);
+
+$classLoader = require __DIR__ . '/../vendor/autoload.php';
+
+if (!class_exists(Application::class) || !class_exists(Dotenv::class)) {
+    throw new LogicException('You need to add "symfony/framework-bundle" and "symfony/dotenv" as Composer dependencies.');
+}
+
+$input = new ArgvInput();
+if ($env = $input->getParameterOption(['--env', '-e'], null, true) !== null) {
+    $_ENV['APP_ENV'] = $env;
+    $_SERVER['APP_ENV'] = $env;
+    putenv('APP_ENV=' . $env);
+}
+
+if ($input->hasParameterOption('--no-debug', true)) {
+    $_ENV['APP_DEBUG'] = '0';
+    $_SERVER['APP_DEBUG'] = '0';
+    putenv('APP_DEBUG=0');
+}
+
+$projectRoot = dirname(__DIR__);
+if (class_exists(Dotenv::class) && (file_exists($projectRoot . '/.env.local.php') || file_exists($projectRoot . '/.env') || file_exists($projectRoot . '/.env.dist'))) {
+    (new Dotenv())->usePutenv()->bootEnv(dirname(__DIR__) . '/.env');
+}
+
+$args = $_SERVER['argv'];
+array_shift($args);
+
+$cmd = array_shift($args);
+$cmd = escapeshellcmd($cmd);
+$args = array_map('escapeshellarg', $args);
+
+$command = $cmd . ' ' . implode(' ', $args);
+$process = Process::fromShellCommandline($command);
+$process->setTimeout(null);
+
+$isTty = (static function () {
+    $fd = defined('STDOUT') ? \STDOUT : fopen('php://stdout', 'wb');
+
+    if (function_exists('stream_isatty')) {
+        return stream_isatty($fd);
+    }
+
+    if (function_exists('posix_isatty') && posix_isatty($fd)) {
+        return true;
+    }
+
+    $stat = @fstat($fd);
+
+    return $stat && ($stat['mode'] & 0170000) === 0020000;
+})();
+
+$process->setTty($isTty);
+$process->run(function ($type, $buffer): void {
+    if ($type === Process::ERR) {
+        fwrite(\STDERR, (string) $buffer);
+    } else {
+        echo $buffer;
+    }
+});
+
+exit($process->getExitCode());

@@ -1,0 +1,114 @@
+{# @sw-package framework #}
+
+{% block component_pagination_nav %}
+    {% set currentPage = currentPage ?? entities.page %}
+
+    {% set totalPages = totalPages ?? (entities.total / (entities.limit ?: 1))|round(0, 'ceil') %}
+
+    {% set paginationSuffix = '' %}
+    {% if paginationLocation %}
+        {% set paginationSuffix = '-' ~ paginationLocation %}
+    {% endif %}
+
+    {% if href is not defined %}
+        {% set href = true %}
+    {% endif %}
+
+    {% if href and pageParameter is not defined %}
+        {% set pageParameter = 'p' %}
+    {% endif %}
+
+    {% set searchQuery = '' %}
+    {% if searchResult.currentFilters.search %}
+        {% set searchQuery = '&search=' ~ searchResult.currentFilters.search %}
+    {% endif %}
+
+    {% if totalPages > 1 %}
+        <nav aria-label="{{ 'general.pagination.title'|trans|striptags }}" class="pagination-nav listing-pagination{{ paginationSuffix }}"{% if paginationLocation %} data-pagination-location="{{ paginationLocation }}"{% endif %}>
+            {% block component_pagination %}
+            <ul class="pagination">
+                {% block component_pagination_first %}
+                    <li class="page-item page-first{% if currentPage == 1 %} disabled{% endif %}">
+                        {% block component_pagination_first_link_element %}
+                            <a href="{{ href ? '?' ~ pageParameter ~ '=1' ~ searchQuery : '#' }}" class="page-link" data-page="1" aria-label="{{ 'general.first'|trans|striptags }}" data-focus-id="first"{% if currentPage == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
+                                {% block component_pagination_first_link_icon %}
+                                    {% sw_icon 'arrow-medium-double-left' style { size: 'fluid', pack: 'solid' } %}
+                                {% endblock %}
+                            </a>
+                        {% endblock %}
+                    </li>
+                {% endblock %}
+
+                {% block component_pagination_prev %}
+                    <li class="page-item page-prev{% if currentPage == 1 %} disabled{% endif %}">
+                        {% block component_pagination_prev_link_element %}
+                            <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ (currentPage - 1) ~ searchQuery : '#' }}" class="page-link" data-page="{{ currentPage - 1 }}" aria-label="{{ 'general.pagination.prev'|trans|striptags }}" data-focus-id="prev"{% if currentPage == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
+                                {% block component_pagination_prev_link_icon %}
+                                    {% sw_icon 'arrow-medium-left' style { size: 'fluid', pack: 'solid' } %}
+                                {% endblock %}
+                            </a>
+                        {% endblock %}
+                    </li>
+                {% endblock %}
+
+                {% block component_pagination_loop %}
+                    {% set start = currentPage - 2 %}
+                    {% if start <= 0 %}
+                        {% set start = currentPage - 1 %}
+                        {% if start <= 0 %}
+                            {% set start = currentPage %}
+                        {% endif %}
+                    {% endif %}
+
+                    {% set end = start + 4 %}
+
+                    {% if end > totalPages %}
+                        {% set end = totalPages %}
+                    {% endif %}
+
+                    {% for page in start..end %}
+
+                        {% set isActive = (currentPage == page) %}
+
+                        {% block component_pagination_item %}
+                            <li class="page-item{% if isActive %} active{% endif %}"{% if isActive %} aria-current="page"{% endif %}>
+                                    {% block component_pagination_item_link_element %}
+                                        <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ page ~ searchQuery : '#' }}" class="page-link" data-page="{{ page }}" data-focus-id="{{ page }}">
+                                            {% block component_pagination_item_link_text %}
+                                                <span class="visually-hidden">{{ 'general.pagination.page'|trans|sw_sanitize }}</span> {{ page }}
+                                            {% endblock %}
+                                        </a>
+                                    {% endblock %}
+                            </li>
+                        {% endblock %}
+                    {% endfor %}
+                {% endblock %}
+
+                {% block component_pagination_next %}
+                    <li class="page-item page-next{% if currentPage == totalPages %} disabled{% endif %}">
+                        {% block component_pagination_next_link_element %}
+                            <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ (currentPage + 1) ~ searchQuery : '#' }}" class="page-link" data-page="{{ currentPage + 1 }}" aria-label="{{ 'general.pagination.next'|trans|striptags }}" data-focus-id="next"{% if currentPage == totalPages %} tabindex="-1" aria-disabled="true"{% endif %}>
+                                {% block component_pagination_next_link_icon %}
+                                    {% sw_icon 'arrow-medium-right' style { size: 'fluid', pack: 'solid' } %}
+                                {% endblock %}
+                            </a>
+                        {% endblock %}
+                    </li>
+                {% endblock %}
+
+                {% block component_pagination_last %}
+                    <li class="page-item page-last{% if currentPage == totalPages %} disabled{% endif %}">
+                        {% block component_pagination_last_link_element %}
+                            <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ totalPages ~ searchQuery : '#' }}" class="page-link" data-page="{{ totalPages }}" aria-label="{{ 'general.pagination.last'|trans|striptags }}" data-focus-id="last"{% if currentPage == totalPages %} tabindex="-1" aria-disabled="true"{% endif %}>
+                                {% block component_pagination_last_link_icon %}
+                                    {% sw_icon 'arrow-medium-double-right' style { size: 'fluid', pack: 'solid' } %}
+                                {% endblock %}
+                            </a>
+                        {% endblock %}
+                    </li>
+                {% endblock %}
+            </ul>
+        {% endblock %}
+        </nav>
+    {% endif %}
+{% endblock %}

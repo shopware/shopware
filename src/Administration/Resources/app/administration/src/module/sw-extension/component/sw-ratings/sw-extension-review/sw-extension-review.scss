@@ -1,0 +1,28 @@
+@import "~scss/variables";
+
+.sw-extension-review {
+    margin-bottom: 20px;
+
+    &__headline {
+        font-weight: $font-weight-semi-bold;
+        margin-bottom: 2px;
+    }
+
+    .sw-extension-rating-stars {
+        margin-bottom: 8px;
+    }
+
+    &__text {
+        margin-bottom: 4px;
+    }
+
+    &__meta-data {
+        color: $color-gray-500;
+        font-size: $font-size-xxs;
+    }
+
+    &__comma:not(:last-child)::after {
+        content: ",";
+        margin-left: -3px;
+    }
+}

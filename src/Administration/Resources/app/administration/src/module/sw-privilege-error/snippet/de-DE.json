@@ -1,0 +1,9 @@
+{
+  "sw-privilege-error": {
+    "general": {
+      "mainMenuItemGeneral": "Zugriff verweigert",
+      "descriptionTextModule": "Du bist nicht berechtigt auf diese Seite zuzugreifen. Wende Dich an einen Administratoren, um Zugang zu erhalten.",
+      "goBack": "Zurück"
+    }
+  }
+}

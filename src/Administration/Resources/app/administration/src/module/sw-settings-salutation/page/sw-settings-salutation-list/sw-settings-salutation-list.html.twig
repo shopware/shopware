@@ -1,0 +1,104 @@
+{% block sw_settings_salutation_list %}
+<sw-page class="sw-settings-salutation-list">
+
+    {% block sw_settings_salutation_list_search_bar %}
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="salutation"
+            :placeholder="$tc('sw-settings-salutation.general.placeholderSearchBar')"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_salutation_list_smart_bar_header %}
+    <template #smart-bar-header>
+        {% block sw_settings_salutation_list_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_salutation_list_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <mt-icon
+                name="regular-chevron-right-xs"
+                size="12px"
+            />
+            {{ $tc('sw-settings-salutation.general.mainMenuItemGeneral') }}
+            {% endblock %}
+
+            {% block sw_settings_salutation_list_smart_bar_header_amount %}
+            <span
+                v-if="!isLoading && salutations && total"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ total }})
+            </span>
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_salutation_list_language_switch %}
+    <template #language-switch>
+        <sw-language-switch @on-change="onRefresh" />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_salutation_list_actions %}
+    <template #smart-bar-actions>
+        {% block sw_settings_salutation_list_actions_create %}
+        <mt-button
+            v-tooltip.bottom="tooltipAdd"
+            class="sw-settings-salutation-list__create"
+            variant="primary"
+            :disabled="!acl.can('salutation.creator') || undefined"
+            size="default"
+            @click="$router.push({ name: 'sw.settings.salutation.create' })"
+        >
+            {{ $tc('sw-settings-salutation.general.buttonCreate') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_salutation_list_cardview %}
+    <template #content>
+        <sw-card-view>
+            {% block sw_settings_salutation_list_card_content %}
+            <mt-card
+                position-identifier="sw-settings-salutation-list-content"
+            >
+
+                {% block sw_settings_salutation_list_grid %}
+                <template #grid>
+                    <sw-entity-listing
+                        class="sw-settings-salutation-list-grid"
+                        :repository="salutationRepository"
+                        :is-loading="isLoading"
+                        :items="salutations"
+                        :columns="columns"
+                        identifier="sw-settings-salutation-list"
+                        :sort-by="sortBy"
+                        :sort-direction="sortDirection"
+                        :full-page="false"
+                        detail-route="sw.settings.salutation.detail"
+                        :disable-data-fetching="true"
+                        :show-selection="acl.can('salutation.deleter') || undefined"
+                        :allow-edit="acl.can('salutation.editor') || undefined"
+                        :allow-inline-edit="acl.can('salutation.editor') || undefined"
+                        :allow-view="acl.can('salutation.viewer') || undefined"
+                        :allow-delete="acl.can('salutation.deleter') || undefined"
+                        @column-sort="onSortColumn"
+                        @page-change="onPageChange"
+                    />
+                </template>
+                {% endblock %}
+
+            </mt-card>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+
+</sw-page>
+{% endblock %}

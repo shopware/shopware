@@ -1,0 +1,15 @@
+{% block sw_search_more_results %}
+<router-link
+    v-if="searchTypeRoute"
+    :to="{ name: searchTypeRoute, query: { term: term }}"
+    class="sw-search-more-results__link sw-search-more-results__link--v2"
+>
+    {% block sw_search_more_results_content %}
+    <slot name="content">
+        {% block sw_search_more_results_slot_content %}
+        {{ searchContent }}
+        {% endblock %}
+    </slot>
+    {% endblock %}
+</router-link>
+{% endblock %}

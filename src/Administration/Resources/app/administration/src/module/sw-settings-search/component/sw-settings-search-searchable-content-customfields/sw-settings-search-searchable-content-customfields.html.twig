@@ -1,0 +1,186 @@
+{% block sw_settings_search_searchable_content_customfields %}
+<div class="sw-settings-search__searchable-content-customfields">
+    {% block sw_settings_search_searchable_content_customfields_empty_state %}
+    <sw-empty-state
+        v-if="isEmpty"
+        :title="$tc('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
+        :show-description="false"
+        :has-action-slot="true"
+        :absolute="false"
+    >
+        <template #icon>
+            {% block sw_settings_search_searchable_content_customfields_state_image %}
+            <img
+                :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
+                :alt="$tc('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
+            >
+            {% endblock %}
+        </template>
+
+        <template #actions>
+            {% block sw_settings_search_searchable_content_customfields_empty_state_action %}
+            <mt-button
+                ghost
+                size="small"
+                :disabled="!acl.can('product_search_config.creator')"
+                variant="secondary"
+                @click="onAddField"
+            >
+                {{ $tc('sw-settings-search.generalTab.buttonAddContent') }}
+            </mt-button>
+            {% endblock %}
+        </template>
+    </sw-empty-state>
+    {% endblock %}
+
+    {% block sw_settings_search_searchable_content_customfields_grid %}
+    <sw-entity-listing
+        v-if="!isEmpty"
+        ref="customGrid"
+        class="sw-settings-search__searchable-content-list"
+        :columns="columns"
+        :repository="repository"
+        :allow-column-edit="false"
+        :full-page="false"
+        :show-settings="false"
+        :show-selection="false"
+        :is-loading="isLoading"
+        :items="searchConfigs"
+        :allow-inline-edit="acl.can('product_search_config.editor')"
+        :allow-edit="acl.can('product_search_config.editor')"
+        :allow-delete="acl.can('product_search_config.deleter')"
+        @inline-edit-save="onInlineEditSave"
+        @inline-edit-cancel="onInlineEditCancel"
+    >
+        {% block sw_settings_search_searchable_content_customfields_field %}
+        <template #column-field="{ item, isInlineEdit }">
+            <template v-if="item._isNew && isInlineEdit">
+                {% block sw_settings_search_searchable_content_customfields_field_editor %}
+                <sw-entity-single-select
+                    v-model:value="currentCustomFieldId"
+                    class="sw-settings-search-custom-field-select"
+                    entity="custom_field"
+                    :criteria="customFieldFilteredCriteria"
+                    show-clearable-button
+                    @update:value="(id, customfield) => onSelectCustomField(customfield)"
+                >
+
+                    <template #selection-label-property="{ item }">
+                        {{ showCustomFieldWithSet(item) }}
+                    </template>
+
+                    <template #result-label-property="{ item }">
+                        {{ showCustomFieldWithSet(item) }}
+                    </template>
+
+                </sw-entity-single-select>
+                {% endblock %}
+            </template>
+
+            <template v-else>
+                {% block sw_settings_search_searchable_content_customfields_field_label %}
+                {{ getMatchingCustomFields(item.field) }}
+                {% endblock %}
+            </template>
+        </template>
+        {% endblock %}
+
+        {% block sw_settings_search_searchable_content_customfields_ranking %}
+        <template #column-ranking="{ item, isInlineEdit }">
+            <template v-if="isInlineEdit">
+                {% block sw_settings_search_searchable_content_customfields_ranking_editor %}
+                <mt-number-field
+                    v-model="item.ranking"
+                    number-type="int"
+                    size="small"
+                />
+                {% endblock %}
+            </template>
+        </template>
+        {% endblock %}
+
+        {% block sw_settings_search_searchable_content_customfields_searchable %}
+        <template #column-searchable="{ item, isInlineEdit }">
+            <template v-if="isInlineEdit">
+                {% block sw_settings_search_searchable_content_customfields_searchable_editor %}
+                <mt-checkbox
+                    v-model:checked="item.searchable"
+                />
+                {% endblock %}
+            </template>
+
+            <template v-else>
+                {% block sw_settings_search_searchable_content_customfields_searchable_label %}
+                <mt-icon
+                    v-if="item.searchable"
+                    class="is--active"
+                    name="regular-checkmark-xs"
+                    size="16px"
+                />
+                <mt-icon
+                    v-else
+                    class="is--inactive"
+                    name="regular-times-s"
+                    size="16px"
+                />
+                {% endblock %}
+            </template>
+        </template>
+        {% endblock %}
+
+        {% block sw_settings_search_searchable_content_customfields_tokenize %}
+        <template #column-tokenize="{ item, isInlineEdit }">
+            <template v-if="isInlineEdit">
+                {% block sw_settings_search_searchable_content_customfields_tokenize_editor %}
+                <mt-checkbox
+                    v-model:checked="item.tokenize"
+                />
+                {% endblock %}
+            </template>
+
+            <template v-else>
+                {% block sw_settings_search_searchable_content_customfields_tokenize_label %}
+                <mt-icon
+                    v-if="item.tokenize"
+                    class="is--active"
+                    name="regular-checkmark-xs"
+                    size="16px"
+                />
+                <mt-icon
+                    v-else
+                    class="is--inactive"
+                    name="regular-times-s"
+                    size="16px"
+                />
+                {% endblock %}
+            </template>
+        </template>
+        {% endblock %}
+
+        {% block sw_settings_search_searchable_content_customfields_columns_actions %}
+        <template #actions="{ item }">
+            {% block sw_settings_search_searchable_content_customfields_columns_actions_edit %}
+            <sw-context-menu-item
+                class="sw-settings-search__searchable-content-list-action sw-settings-search__searchable-content-list-reset"
+                :disabled="!acl.can('product_search_config.editor')"
+                @click="onResetRanking(item)"
+            >
+                {{ $tc('sw-settings-search.generalTab.list.textResetRanking') }}
+            </sw-context-menu-item>
+            {% endblock %}
+
+            {% block sw_settings_search_searchable_content_customfields_columns_actions_delete %}
+            <sw-context-menu-item
+                class="sw-settings-search__searchable-content-list-action sw-settings-search__searchable-content-list-remove"
+                :disabled="!acl.can('product_search_config.deleter')"
+                @click="onRemove(item)"
+            >
+                {{ $tc('sw-settings-search.generalTab.list.textRemove') }}
+            </sw-context-menu-item>
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </sw-entity-listing>
+    {% endblock %}
+</div>
+{% endblock %}

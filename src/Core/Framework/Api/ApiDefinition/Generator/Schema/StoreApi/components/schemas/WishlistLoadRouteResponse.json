@@ -1,0 +1,29 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "WishlistLoadRouteResponse": {
+                "type": "object",
+                "required": ["products"],
+                "properties": {
+                    "wishlist": {
+                        "type": "object",
+                        "properties": {
+                            "customerId": {
+                                "type": "string"
+                            },
+                            "salesChannelId": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "products": {
+                        "$ref": "#/components/schemas/ProductListingResult"
+                    }
+                }
+            }
+        }
+    }
+}

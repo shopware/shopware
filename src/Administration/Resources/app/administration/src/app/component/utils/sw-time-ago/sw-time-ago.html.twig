@@ -1,0 +1,8 @@
+{% block sw_time_ago %}
+<span
+    v-tooltip="{
+        message: fullDatetime,
+        disabled: !isToday
+    }"
+>{{ formattedRelativeTime }}</span>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% set page = hook.page %}
+{# @var page \Shopware\Storefront\Page\Page #}
+
+{% set criteria = {
+    'ids': [ hook.productId ],
+    'associations': {
+        'manufacturer': {}
+    }
+} %}
+
+{% set product = services.repository.search('product', criteria).first %}
+
+{% do page.addExtension('myProduct', product) %}
+{% do page.addExtension('myManufacturer', product.manufacturer) %}

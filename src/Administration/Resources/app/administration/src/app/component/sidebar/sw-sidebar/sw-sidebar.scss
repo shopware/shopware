@@ -1,0 +1,44 @@
+@import "~scss/variables";
+
+$sw-sidebar-color-background: $color-white;
+$sw-sidebar-color-border: $color-gray-300;
+$sw-sidebar-item-width: 400px;
+$sw-sidebar-navigation-width: 64px;
+$sw-sidebar-transition: cubic-bezier(0.5, 0.32, 0.01, 1) 0.3s;
+
+.sw-sidebar {
+    height: 100%;
+    background-color: $sw-sidebar-color-background;
+    border-left: 1px solid $sw-sidebar-color-border;
+    display: grid;
+    grid-template-columns: $sw-sidebar-navigation-width auto;
+    width: $sw-sidebar-navigation-width;
+    transition: width $sw-sidebar-transition;
+
+    &.is--opened {
+        width: $sw-sidebar-navigation-width + $sw-sidebar-item-width;
+    }
+
+    .sw-sidebar__navigation {
+        height: 100%;
+        display: grid;
+        grid-template-rows: 1fr auto;
+        grid-template-areas:
+            "navigationTop"
+            "navigationBottom";
+    }
+
+    .sw_sidebar__navigation-list {
+        list-style: none;
+
+        &.is--top {
+            grid-area: navigationTop;
+            align-self: start;
+        }
+
+        &.is--bottom {
+            grid-area: navigationBottom;
+            align-self: end;
+        }
+    }
+}

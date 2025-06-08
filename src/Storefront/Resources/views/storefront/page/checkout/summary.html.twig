@@ -1,0 +1,71 @@
+{% block page_checkout_summary %}
+    <div class="checkout-aside-summary-container">
+        {% if page.cart %}
+            {% set summary = page.cart %}
+        {% elseif page.order %}
+            {% set summary = page.order %}
+        {% endif %}
+
+        {% set displayRounded = context.totalRounding.interval != 0.01 or context.totalRounding.decimals != context.itemRounding.decimals %}
+        {% set decimals = context.totalRounding.decimals %}
+        {% set total = summary.price.totalPrice %}
+
+        {% if displayRounded %}
+            {% set decimals = context.itemRounding.decimals %}
+            {% set total = summary.price.rawTotal %}
+        {% endif %}
+
+        {% block page_checkout_summary_live_update %}
+            <div class="cart-live-update visually-hidden" role="alert" aria-live="assertive">
+                {{ 'checkout.cartScreenReaderUpdate'|trans({
+                    '%count%': summary.lineItems|length,
+                    '%total%': total|currency,
+                })|sw_sanitize }}
+            </div>
+        {% endblock %}
+
+        <dl class="row checkout-aside-summary-list g-0 {% if displayRounded %}display-rounded{% endif %}">
+            {% block page_checkout_summary_inner %}
+
+                {% sw_include '@Storefront/storefront/page/checkout/summary/summary-position.html.twig' with { summary: summary } %}
+
+                {% sw_include '@Storefront/storefront/page/checkout/summary/summary-shipping.html.twig' with { summary: summary } %}
+
+                {% if summary.price.taxStatus == 'gross' %}
+                    {% sw_include '@Storefront/storefront/page/checkout/summary/summary-total.html.twig' with {
+                        total: total,
+                        decimals: decimals
+                    } %}
+
+                    {% if displayRounded %}
+                        {% sw_include '@Storefront/storefront/page/checkout/summary/summary-total-rounded.html.twig' with {
+                            summary: summary,
+                            decimals: context.totalRounding.decimals
+                        } %}
+                    {% endif %}
+
+                    {% sw_include '@Storefront/storefront/page/checkout/summary/summary-net.html.twig' with { summary: summary } %}
+
+                    {% sw_include '@Storefront/storefront/page/checkout/summary/summary-tax.html.twig' with { summary: summary } %}
+                {% else %}
+
+                    {% sw_include '@Storefront/storefront/page/checkout/summary/summary-net.html.twig' with { summary: summary } %}
+
+                    {% sw_include '@Storefront/storefront/page/checkout/summary/summary-tax.html.twig' with { summary: summary } %}
+
+                    {% sw_include '@Storefront/storefront/page/checkout/summary/summary-total.html.twig' with {
+                        total: total,
+                        decimals: decimals
+                    } %}
+
+                    {% if displayRounded %}
+                        {% sw_include '@Storefront/storefront/page/checkout/summary/summary-total-rounded.html.twig' with {
+                            summary: summary,
+                            decimals: context.totalRounding.decimals
+                        } %}
+                    {% endif %}
+                {% endif %}
+            {% endblock %}
+        </dl>
+    </div>
+{% endblock %}

@@ -1,0 +1,10 @@
+@import "~scss/variables";
+
+.sw-settings-logging-mail-sent-info__mail-content {
+    border: 1px solid $color-gray-500;
+    padding: 12px;
+}
+
+.sw-settings-logging-mail-sent-info__recipients {
+    padding-bottom: 12px;
+}

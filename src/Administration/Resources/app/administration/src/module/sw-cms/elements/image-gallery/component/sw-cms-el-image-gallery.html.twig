@@ -1,0 +1,70 @@
+{% block sw_cms_element_image_gallery %}
+<div
+    class="sw-cms-el-image-gallery"
+    :class="[galleryPositionClass, currentDeviceViewClass]"
+    :style="verticalAlignStyle"
+>
+
+    {% block sw_cms_element_image_gallery_grid %}
+    <div
+        ref="galleryItemHolder"
+        class="sw-cms-el-image-gallery__grid"
+    >
+
+        <template v-if="mediaUrls && mediaUrls.length">
+            <div class="sw-cms-el-image-gallery__item-holder">
+                {% block sw_cms_element_image_gallery_selection %}
+                <template
+                    v-for="(sliderItem, index) in mediaUrls"
+                    :key="index"
+                >
+                    <sw-media-list-selection-item-v2
+                        v-if="index < galleryLimit"
+                        :item="sliderItem.media"
+                        :class="activeMediaClass(sliderItem.media)"
+                        hide-actions
+                        hide-tooltip
+                        @click="onChangeGalleryImage(sliderItem.media, index)"
+                    />
+                </template>
+                {% endblock %}
+            </div>
+        </template>
+
+        <template v-else>
+            {% block sw_cms_element_image_gallery_empty %}
+            <div class="sw-cms-el-image-gallery__item-holder">
+                <img
+                    v-for="mediaItem in getPlaceholderItems()"
+                    :key="mediaItem.url"
+                    class="sw-cms-el-image-gallery__item-placeholder"
+                    :src="mediaItem.url"
+                    alt=""
+                >
+            </div>
+            {% endblock %}
+        </template>
+
+        {% block sw_cms_element_image_gallery_nav_arrow %}
+        <div
+            v-if="element.config.sliderItems.value.length > galleryLimit"
+            class="sw-cms-el-image-gallery__grid-arrow"
+        >
+            <mt-icon
+                name="regular-chevron-down"
+                size="20"
+            />
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_cms_element_image_gallery_slider %}
+    <sw-cms-el-image-slider
+        :element="element"
+        :active-media="activeMedia"
+        @active-image-change="onChangeGalleryImage"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

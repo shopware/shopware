@@ -1,0 +1,12 @@
+@import "~scss/variables";
+
+.sw-extension-privacy-policy-extensions-modal {
+    .sw-extension-privacy-policy-extensions-modal__intro {
+        margin-bottom: 24px;
+    }
+
+    .sw-extension-privacy-policy-extensions-modal__text {
+        font-size: $font-size-xs;
+        white-space: pre;
+    }
+}

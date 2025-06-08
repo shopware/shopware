@@ -1,0 +1,16 @@
+{
+  "sw-settings-store": {
+    "general": {
+      "mainMenuItemGeneral": "Shopware Account",
+      "textHeadline": "Shopware Account",
+      "description": "Hier können Einstellungen am Shopware Account vorgenommen werden.",
+      "buttonSave": "Speichern",
+      "messageSaveSuccess": "Die Daten Deines Shopware Accounts wurden erfolgreich gespeichert."
+    },
+    "detail": {
+      "titleCard": "Einstellungen",
+      "labelHost": "Lizenzdomain",
+      "placeholderHost": "Trage hier die Lizenzdomain (Shopdomain) ein, die in Deinem Shopware Account hinterlegt ist."
+    }
+  }
+}

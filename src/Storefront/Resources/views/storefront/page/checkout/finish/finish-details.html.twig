@@ -1,0 +1,106 @@
+{% block page_checkout_finish_details_inner %}
+    {% block page_checkout_finish_data %}
+        <div class="card checkout-card">
+            <div class="card-body">
+                {% block page_checkout_finish_header %}
+                    <h1 class="finish-header">
+                        {% if page.changedPayment == true %}
+                            {{ 'checkout.finishUpdateHeader'|trans|sw_sanitize }}
+                        {% else %}
+                            {{ 'checkout.finishHeader'|trans({
+                                '%shop%': config('core.basicInformation.shopName')
+                            })|sw_sanitize }}
+                        {% endif %}
+                    </h1>
+                {% endblock %}
+
+                {% block page_checkout_finish_ordernumber %}
+                    <p class="finish-ordernumber" data-order-number="{{ page.order.orderNumber }}">
+                        {{ 'checkout.finishInfoOrdernumber'|trans|sw_sanitize }}{{ page.order.orderNumber }}
+                    </p>
+                {% endblock %}
+
+                {% block page_checkout_finish_hidden_information_line_items %}
+                    {% sw_include '@Storefront/storefront/component/checkout/hidden-line-items-information.html.twig' with {
+                        cart: page.order,
+                        lineItems: page.order.lineItems,
+                    } %}
+                {% endblock %}
+
+                {% block page_checkout_finish_subtitle %}
+                    {% if page.changedPayment == true %}
+                        <p class="finish-order-subtitle">
+                            {{ 'checkout.finishPaymentHeader'|trans({'%paymentName%': page.order.transactions.last.paymentMethod.translated.name})|sw_sanitize }}
+                        </p>
+                    {% endif %}
+                {% endblock %}
+
+                {% block page_checkout_finish_content %}
+                    <div class="finish-content">
+                        {% block page_checkout_finish_teaser %}
+                            {% if page.changedPayment != true %}
+                                <p class="finish-teaser">{{ 'checkout.finishInfoConfirmationMail'|trans|sw_sanitize }}</p>
+                            {% endif %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        </div>
+    {% endblock %}
+
+    {% block page_checkout_finish_order %}
+        <div class="row finish-info">
+            {% block page_checkout_finish_order_address %}
+                <div class="col-md-8 finish-address">
+                    {% sw_include '@Storefront/storefront/page/checkout/finish/finish-address.html.twig' %}
+                </div>
+            {% endblock %}
+
+            {% block page_checkout_finish_order_details %}
+                <div class="col-md-4 finish-order-details">
+                    <div class="card checkout-card">
+                        <div class="card-body">
+                            {% block page_checkout_finish_order_title %}
+                                <div class="card-title">
+                                    {{ 'checkout.finishInfoHeader'|trans|sw_sanitize }}
+                                </div>
+                            {% endblock %}
+
+                            {% block page_checkout_finish_order_payment_method %}
+                                {% if feature('v6.8.0.0') %}
+                                    <p>
+                                        <strong>{{ 'checkout.finishInfoPayment'|trans|sw_sanitize }}</strong>
+                                        {{ page.order.primaryOrderTransaction.paymentMethod.translated.name }}
+                                    </p>
+                                {% else %}
+                                    <p>
+                                        <strong>{{ 'checkout.finishInfoPayment'|trans|sw_sanitize }}</strong>
+                                        {{ page.order.transactions.last.paymentMethod.translated.name }}
+                                    </p>
+                                {% endif %}
+                            {% endblock %}
+
+                            {% block page_checkout_finish_order_dispatch_method %}
+                                {% if feature('v6.8.0.0') %}
+                                    {% if page.order.primaryOrderDelivery is defined %}
+                                        <p>
+                                            <strong>{{ 'checkout.finishInfoShipping'|trans|sw_sanitize }}</strong>
+                                            {{ page.order.primaryOrderDelivery.shippingMethod.translated.name }}
+                                        </p>
+                                    {% endif %}
+                                {% else %}
+                                    {% if page.order.deliveries.first.shippingMethod is defined %}
+                                        <p>
+                                            <strong>{{ 'checkout.finishInfoShipping'|trans|sw_sanitize }}</strong>
+                                            {{ page.order.deliveries.first.shippingMethod.translated.name }}
+                                        </p>
+                                    {% endif %}
+                                {% endif %}
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

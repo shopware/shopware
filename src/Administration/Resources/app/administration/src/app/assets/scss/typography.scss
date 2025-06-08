@@ -1,0 +1,68 @@
+@import "~scss/variables";
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: $color-darkgray-200;
+    font-weight: $font-weight-semi-bold;
+    margin: 0 0 20px;
+}
+
+/*
+ * Utility classes for adjusting the font styling
+ */
+
+.slashed-zero {
+    font-variant-numeric: slashed-zero;
+}
+
+.ordinal {
+    font-variant-numeric: ordinal;
+}
+
+.underline {
+    text-decoration-line: underline;
+}
+
+.line-through {
+    text-decoration-line: line-through;
+}
+
+.no-underline {
+    text-decoration-line: none;
+}
+
+.uppercase {
+    text-transform: uppercase;
+}
+
+.lowercase {
+    text-transform: lowercase;
+}
+
+.normal-case {
+    text-transform: none;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-justify {
+    text-align: justify;
+}
+
+.disambiguation {
+    font-feature-settings: "ss02" on;
+}

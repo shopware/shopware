@@ -1,0 +1,30 @@
+@import "~scss/variables";
+
+$sw-customer-detail-base-color-text: $color-darkgray-200;
+
+.sw-customer-base-info {
+    color: $sw-customer-detail-base-color-text;
+    font-size: $font-size-xs;
+    margin-bottom: 16px;
+
+    .sw-customer-base-info-columns {
+        dt {
+            padding: 21px 4px 4px;
+        }
+
+        dd {
+            padding: 1px 4px;
+        }
+    }
+}
+
+.sw-bound-sales-channel {
+    &__label {
+        display: flex;
+        align-items: center;
+
+        .sw-help-text {
+            margin-left: 10px;
+        }
+    }
+}

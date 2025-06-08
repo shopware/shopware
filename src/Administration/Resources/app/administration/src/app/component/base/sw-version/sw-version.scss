@@ -1,0 +1,42 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+$sw-version-font-size-info: 12px;
+
+.sw-version {
+    white-space: nowrap;
+    width: 100%;
+
+    .sw-version__title {
+        @include truncate;
+
+        max-width: 200px;
+        color: $color-white;
+        font-size: $font-size-s;
+        font-weight: $font-weight-bold;
+        margin: 0;
+        vertical-align: top;
+    }
+
+    .sw-version__status {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        padding: 4px;
+        line-height: 0;
+        margin-left: 5px;
+
+        .sw-color-badge {
+            display: inline-block;
+            margin: 0;
+        }
+    }
+
+    .sw-version__info {
+        @include truncate;
+
+        max-width: 200px;
+        color: $color-gray-300;
+        font-size: $sw-version-font-size-info;
+    }
+}

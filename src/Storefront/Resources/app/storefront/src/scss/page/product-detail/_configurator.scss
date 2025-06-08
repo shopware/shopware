@@ -1,0 +1,30 @@
+.product-detail-configurator-option-label {
+    --#{$prefix}btn-font-weight: #{$font-weight-normal};
+    --#{$prefix}btn-border-color: #{$border-color};
+    --#{$prefix}btn-color: #{$body-color};
+    --#{$prefix}btn-padding-y: 0.125rem;
+    --#{$prefix}btn-line-height: 1.625rem;
+    --#{$prefix}btn-active-bg: #{$white};
+    --#{$prefix}btn-active-color: #{$body-color};
+    --#{$prefix}btn-active-border-color: #{$primary};
+    --#{$prefix}btn-disabled-border-color: #{$gray-600};
+    --#{$prefix}btn-disabled-color: #{$body-color};
+    --#{$prefix}btn-disabled-opacity: 0.65;
+
+    &.disabled {
+        pointer-events: auto;
+        text-decoration: line-through;
+    }
+
+    &.is-display-color,
+    &.is-display-media {
+        --#{$prefix}btn-padding-x: 0.125rem;
+        background-clip: content-box;
+        min-width: 3.75rem;
+        height: 3.75rem;
+    }
+}
+
+.btn-check:checked + .product-detail-configurator-option-label {
+    --#{$prefix}btn-border-width: 2px;
+}

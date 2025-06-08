@@ -1,0 +1,8 @@
+{
+  "name": "ConfigWithoutStorefrontDefined",
+  "author": "shopware AG",
+  "views": [
+    "@ConfigWithoutStorefrontDefined",
+    "@Plugins"
+  ]
+}

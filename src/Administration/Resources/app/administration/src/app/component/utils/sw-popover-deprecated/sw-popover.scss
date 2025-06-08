@@ -1,0 +1,11 @@
+.sw-popover {
+    .sw-popover__wrapper {
+        position: inherit;
+    }
+}
+
+.sw-popover__wrapper {
+    &.--placement-bottom-outside {
+        transform: translate(0, calc(-100% - 57px));
+    }
+}

@@ -1,0 +1,40 @@
+{% block sw_sidebar_item %}
+<div
+    v-if="showContent"
+    class="sw-sidebar-item"
+>
+    {% block sw_sidebar_item_headline %}
+    <div class="sw-sidebar-item__headline">
+        {% block sw_sidebar_item_title %}
+        <h3 class="sw-sidebar-item__title">
+            {{ title }}
+        </h3>
+        {% endblock %}
+
+        <slot name="headline-content">
+            {% block sw_sidebar_item_headline_slot%}{% endblock %}
+        </slot>
+
+        {% block sw_sidebar_item_close_button %}
+        <button
+            class="sw-sidebar-item__close-button"
+            aria-label="closeContent"
+            @click="closeContent"
+        >
+            <mt-icon name="regular-times-xs" />
+        </button>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_sidebar_item_content %}
+    <div class="sw-sidebar-item__content">
+        <div class="sw-sidebar-item__scrollable-container">
+            <slot>
+                {% block sw_sidebar_item_default_slot%}{% endblock %}
+            </slot>
+        </div>
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

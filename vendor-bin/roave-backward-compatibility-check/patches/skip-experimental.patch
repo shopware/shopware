@@ -1,0 +1,117 @@
+--- /dev/null
++++ ../bin/roave-backward-compatibility-check.php
+@@ -54,6 +54,28 @@
+         throw new RuntimeException('Could not find Composer autoload.php');
+     })();
+ 
++    class ExcludeExperimental implements  ClassBased\ClassBased, InterfaceBased\InterfaceBased, TraitBased\TraitBased, MethodBased\MethodBased, PropertyBased\PropertyBased, FunctionBased\FunctionBased
++    {
++        public function __construct(private $check)
++        {
++        }
++
++        public function __invoke($from, $to): \Roave\BackwardCompatibility\Changes
++        {
++            if ($this->isInternalDocComment($from->getDocComment())) {
++                return \Roave\BackwardCompatibility\Changes::empty();
++            }
++
++            return ($this->check)($from, $to);
++        }
++
++        private function isInternalDocComment(string|null $comment): bool
++        {
++            return $comment !== null
++                && \Psl\Regex\matches($comment, '/\s+@experimental\s+/');
++        }
++    }
++
+     $application = new Application('roave/backward-compatibility-check', Versions::getVersion('roave/backward-compatibility-check'));
+     $helperSet   = $application->getHelperSet();
+     $input       = new ArgvInput();
+@@ -85,7 +107,7 @@
+             $astLocator,
+         ),
+         new CompareClasses(
+-            new ClassBased\SkipClassBasedErrors(new ClassBased\ExcludeAnonymousClasses(new ClassBased\ExcludeInternalClass(
++            new ClassBased\SkipClassBasedErrors(new ExcludeExperimental(new ClassBased\ExcludeAnonymousClasses(new ClassBased\ExcludeInternalClass(
+                 new ClassBased\MultipleChecksOnAClass(
+                     new ClassBased\SkipClassBasedErrors(new ClassBased\ClassBecameAbstract()),
+                     new ClassBased\SkipClassBasedErrors(new ClassBased\ClassBecameInterface()),
+@@ -115,7 +137,7 @@
+                                 ),
+                             )),
+                             new ClassBased\SkipClassBasedErrors(new ClassBased\PropertyChanged(
+-                                new PropertyBased\SkipPropertyBasedErrors(new PropertyBased\ExcludeInternalProperty(new PropertyBased\MultipleChecksOnAProperty(
++                                new PropertyBased\SkipPropertyBasedErrors(new ExcludeExperimental(new PropertyBased\ExcludeInternalProperty(new PropertyBased\MultipleChecksOnAProperty(
+                                     new PropertyBased\SkipPropertyBasedErrors(new PropertyBased\OnlyPublicPropertyChanged(
+                                         new PropertyBased\MultipleChecksOnAProperty(
+                                             new PropertyBased\SkipPropertyBasedErrors(new PropertyBased\PropertyBecameInternal()),
+@@ -134,10 +156,10 @@
+                                             new PropertyBased\SkipPropertyBasedErrors(new PropertyBased\PropertyScopeChanged()),
+                                         ),
+                                     )),
+-                                ))),
++                                )))),
+                             )),
+                             new ClassBased\SkipClassBasedErrors(new ClassBased\MethodChanged(
+-                                new MethodBased\SkipMethodBasedErrors(new MethodBased\ExcludeInternalMethod(new MethodBased\MultipleChecksOnAMethod(
++                                new MethodBased\SkipMethodBasedErrors(new ExcludeExperimental(new MethodBased\ExcludeInternalMethod(new MethodBased\MultipleChecksOnAMethod(
+                                     new MethodBased\SkipMethodBasedErrors(new MethodBased\OnlyPublicMethodChanged(
+                                         new MethodBased\MultipleChecksOnAMethod(
+                                             new MethodBased\SkipMethodBasedErrors(new MethodBased\MethodBecameFinal()),
+@@ -182,7 +204,7 @@
+                                             )),
+                                         ),
+                                     )),
+-                                ))),
++                                )))),
+                             )),
+                         ),
+                     )),
+@@ -208,7 +230,7 @@
+                                 )),
+                             )),
+                             new ClassBased\SkipClassBasedErrors(new ClassBased\MethodChanged(
+-                                new MethodBased\SkipMethodBasedErrors(new MethodBased\OnlyPublicMethodChanged(new MethodBased\ExcludeInternalMethod(
++                                new MethodBased\SkipMethodBasedErrors(new MethodBased\OnlyPublicMethodChanged(new ExcludeExperimental(new MethodBased\ExcludeInternalMethod(
+                                     new MethodBased\MultipleChecksOnAMethod(
+                                         new MethodBased\SkipMethodBasedErrors(new MethodBased\MethodBecameFinal()),
+                                         new MethodBased\SkipMethodBasedErrors(new MethodBased\MethodConcretenessChanged()),
+@@ -226,13 +248,13 @@
+                                             ),
+                                         )),
+                                     ),
+-                                ))),
++                                )))),
+                             )),
+                         ),
+                     )),
+                 ),
+-            ))),
+-            new InterfaceBased\SkipInterfaceBasedErrors(new InterfaceBased\ExcludeInternalInterface(new InterfaceBased\MultipleChecksOnAnInterface(
++            )))),
++            new InterfaceBased\SkipInterfaceBasedErrors(new ExcludeExperimental(new InterfaceBased\ExcludeInternalInterface(new InterfaceBased\MultipleChecksOnAnInterface(
+                 new InterfaceBased\SkipInterfaceBasedErrors(new InterfaceBased\InterfaceBecameClass()),
+                 new InterfaceBased\SkipInterfaceBasedErrors(new InterfaceBased\InterfaceBecameTrait()),
+                 new InterfaceBased\SkipInterfaceBasedErrors(new InterfaceBased\AncestorRemoved()),
+@@ -266,8 +288,8 @@
+                         )),
+                     ),
+                 )),
+-            ))),
+-            new TraitBased\SkipTraitBasedErrors(new TraitBased\ExcludeInternalTrait(new TraitBased\MultipleChecksOnATrait(
++            )))),
++            new TraitBased\SkipTraitBasedErrors(new ExcludeExperimental(new TraitBased\ExcludeInternalTrait(new TraitBased\MultipleChecksOnATrait(
+                 new TraitBased\SkipTraitBasedErrors(new TraitBased\TraitBecameInterface()),
+                 new TraitBased\SkipTraitBasedErrors(new TraitBased\TraitBecameClass()),
+                 new TraitBased\SkipTraitBasedErrors(new TraitBased\UseClassBasedChecksOnATrait(
+@@ -311,7 +333,7 @@
+                         )),
+                     ),
+                 )),
+-            ))),
++            )))),
+         ),
+     );
+ 

@@ -1,0 +1,120 @@
+@import "~scss/variables";
+@import "./../sw-order-state-history-card-entry/sw-order-state-history-card-entry";
+
+.sw-order-state-select-v2 {
+    .sw-single-select.sw-order-state-select-v2__field,
+    .sw-single-select.sw-order-state-select-v2__field--rounded {
+        margin-bottom: 0;
+
+        .sw-block-field__block {
+            border-radius: 15px;
+        }
+    }
+
+    .sw-single-select.sw-order-state-select-v2__field--rounded {
+        .sw-single-select__load-placeholder,
+        .sw-single-select__selection-text,
+        input {
+            border-radius: 15px;
+        }
+    }
+
+    .sw-order-state__neutral-select.sw-single-select {
+        input {
+            background-color: $color-gray-100;
+        }
+
+        .sw-block-field__block {
+            background-color: $color-gray-100;
+            border: none;
+        }
+
+        .sw-single-select__selection-text {
+            background-color: $color-gray-100;
+        }
+    }
+
+    .sw-order-state__progress-select.sw-single-select {
+        input {
+            background-color: $color-shopware-brand-50;
+        }
+
+        .sw-block-field__block {
+            background-color: $color-shopware-brand-50;
+            border: none;
+        }
+
+        .sw-single-select__selection-text {
+            color: $sw-order-state-card-progress;
+        }
+
+        .sw-select__select-indicator {
+            svg {
+                color: $sw-order-state-card-progress;
+            }
+        }
+    }
+
+    .sw-order-state__danger-select.sw-single-select {
+        input {
+            background-color: $color-crimson-50;
+        }
+
+        .sw-block-field__block {
+            background-color: $color-crimson-50;
+            border: none;
+        }
+
+        .sw-single-select__selection-text {
+            color: $sw-order-state-card-danger;
+        }
+
+        .sw-select__select-indicator {
+            svg {
+                color: $sw-order-state-card-danger;
+            }
+        }
+    }
+
+    .sw-order-state__success-select.sw-single-select {
+        input {
+            background-color: $color-emerald-50;
+        }
+
+        .sw-block-field__block {
+            background-color: $color-emerald-50;
+            border: none;
+        }
+
+        .sw-single-select__selection-text {
+            color: $sw-order-state-card-success;
+        }
+
+        .sw-select__select-indicator {
+            svg {
+                color: $sw-order-state-card-success;
+            }
+        }
+    }
+
+    .sw-order-state__warning-select.sw-single-select {
+        input {
+            background-color: $color-pumpkin-spice-50;
+        }
+
+        .sw-block-field__block {
+            background-color: $color-pumpkin-spice-50;
+            border: none;
+        }
+
+        .sw-single-select__selection-text {
+            color: $sw-order-state-card-warning;
+        }
+
+        .sw-select__select-indicator {
+            svg {
+                color: $sw-order-state-card-warning;
+            }
+        }
+    }
+}

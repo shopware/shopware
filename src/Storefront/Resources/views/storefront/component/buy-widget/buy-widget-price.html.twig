@@ -1,0 +1,152 @@
+{% block buy_widget_price_inner %}
+    {% if product.calculatedPrices|length > 1 %}
+        {% block buy_widget_price_block %}
+            <div class="product-block-prices">
+                {% block buy_widget_price_block_table %}
+                    <table class="table product-block-prices-grid">
+                        {% block buy_widget_price_block_table_head %}
+                            <thead class="product-block-prices-head">
+                            {% block buy_widget_price_block_table_head_inner %}
+                                <tr class="product-block-prices-row">
+                                    <th scope="col" class="product-block-prices-cell">
+                                        {{ 'detail.dataColumnQuantity'|trans|sw_sanitize }}
+                                    </th>
+                                    <th scope="col" class="product-block-prices-cell">
+                                        {{ 'detail.dataColumnPrice'|trans|sw_sanitize }}
+                                    </th>
+                                    {% if product.calculatedPrice.referencePrice %}
+                                        <th scope="col" class="product-block-prices-cell">
+                                            {{ 'detail.dataColumnReferencePrice'|trans|sw_sanitize }}
+                                        </th>
+                                    {% endif %}
+                                </tr>
+                            {% endblock %}
+                            </thead>
+                        {% endblock %}
+
+                        {% block buy_widget_price_block_table_body %}
+                            <tbody class="product-block-prices-body">
+                            {% block buy_widget_price_block_table_body_inner %}
+                                {% for price in product.calculatedPrices %}
+                                    {% block buy_widget_price_block_table_body_row %}
+                                        <tr class="product-block-prices-row"
+                                            itemprop="offers" itemscope
+                                            itemtype="https://schema.org/Offer">
+                                            {% block buy_widget_price_block_table_body_cell_quantity %}
+                                                <th scope="row" class="product-block-prices-cell product-block-prices-cell-thin">
+                                                    <meta itemprop="priceCurrency" content="{{ context.currency.translated.shortName }}">
+                                                    <meta itemprop="price" content="{{ price.unitPrice }}">
+
+                                                    {% if loop.last %}
+                                                        {{ 'detail.priceDataInfoFrom'|trans|sw_sanitize }}
+                                                        <span class="product-block-prices-quantity">{{ price.quantity }}</span>
+
+                                                    {% else %}
+                                                        {{ 'detail.priceDataInfoUntil'|trans|sw_sanitize }}
+                                                        <span class="product-block-prices-quantity">{{ price.quantity }}</span>
+                                                    {% endif %}
+                                                </th>
+                                            {% endblock %}
+
+                                            {% block buy_widget_price_block_table_body_cell_price %}
+                                                <td class="product-block-prices-cell">
+                                                    {% sw_include '@Storefront/storefront/component/product/block-price.html.twig' with {
+                                                        price: price
+                                                    } only %}
+                                                </td>
+                                            {% endblock %}
+
+                                            {% block buy_widget_price_block_table_body_cell_reference_price %}
+                                                {% if price.referencePrice is not null %}
+                                                    <td class="product-block-prices-cell product-block-prices-cell-thin">
+                                                        {{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}
+                                                    </td>
+                                                {% endif %}
+                                            {% endblock %}
+                                        </tr>
+                                    {% endblock %}
+                                {% endfor %}
+                            {% endblock %}
+                            </tbody>
+                        {% endblock %}
+                    </table>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    {% else %}
+        {% set price = product.calculatedPrice %}
+
+        {% if product.calculatedPrices|length == 1 %}
+            {% set price = product.calculatedPrices.first %}
+        {% endif %}
+
+        <meta itemprop="price"
+              content="{{ price.unitPrice }}">
+
+        {% block buy_widget_price_content %}
+            {% set listPrice = price.listPrice %}
+            {% set isListPrice = price.listPrice.percentage > 0 %}
+            {% set isRegulationPrice = price.regulationPrice != null %}
+
+            <p class="product-detail-price{% if isListPrice %} with-list-price{% endif %}{% if isRegulationPrice %} with-regulation-price{% endif %}">
+                {{ price.unitPrice|currency }}
+            </p>
+
+            {% if isListPrice %}
+                {% block buy_widget_was_price %}
+                    {% block buy_widget_was_price_badge %}
+                        <span class="list-price-badge">&#37;</span>
+                    {% endblock %}
+
+                    {% set afterListPriceSnippetExists = 'listing.afterListPrice'|trans|length > 0 %}
+                    {% set beforeListPriceSnippetExists = 'listing.beforeListPrice'|trans|length > 0 %}
+
+                    {% block buy_widget_was_price_wrapper %}
+                        <span class="product-detail-list-price-wrapper">
+                            {% if beforeListPriceSnippetExists %}{{'listing.beforeListPrice'|trans|trim}}{% endif %}
+
+                            <span{% if not (afterListPriceSnippetExists or beforeListPriceSnippetExists) %} class="list-price-price"{% endif %}>{{ listPrice.price|currency }}</span>
+
+                            {% if afterListPriceSnippetExists %}
+                                {{'listing.afterListPrice'|trans|trim}}
+                            {% endif %}
+
+                            <span class="list-price-percentage">{{ 'detail.listPricePercentage'|trans({'%price%': listPrice.percentage })|sw_sanitize }}</span>
+                        </span>
+                    {% endblock %}
+                {% endblock %}
+            {% endif %}
+            {% if isRegulationPrice %}
+                <span class="product-detail-list-price-wrapper">
+                    <span class="regulation-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}</span>
+                </span>
+            {% endif %}
+        {% endblock %}
+
+        {% if product.purchaseUnit %}
+            {% block buy_widget_price_unit %}
+                <div class="product-detail-price-unit">
+                    {% block buy_widget_price_unit_label %}
+                        <span class="price-unit-label">
+                            {{ 'detail.priceUnitName'|trans|sw_sanitize }}
+                        </span>
+                    {% endblock %}
+
+                    {% block buy_widget_price_unit_content %}
+                        <span class="price-unit-content">
+                            {{ product.purchaseUnit }} {{ product.unit.translated.name }}
+                        </span>
+                    {% endblock %}
+
+                    {% if price.referencePrice is not null %}
+                        {% block buy_widget_price_unit_reference_content %}
+                            <span class="price-unit-reference-content">
+                                ({{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }})
+                            </span>
+                        {% endblock %}
+                    {% endif %}
+                </div>
+            {% endblock %}
+        {% endif %}
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,173 @@
+/*
+Product box for wishlist
+==============================================
+Styling for productbox component.
+*/
+
+$box-standard-height-img: 200px;
+
+.product-box {
+    // Do not expand the Bootstrap `stretched-link` pseudo element over the entire product card.
+    // By giving it the image height, only the image itself is linked and the remaining content is still selectable.
+    &.box-wishlist .stretched-link::after {
+        height: calc(#{$box-standard-height-img} + var(--#{$prefix}card-spacer-y));
+    }
+}
+
+.product-wishlist {
+    margin-top: 10px;
+
+    .icon-wishlist {
+        svg {
+            top: 0;
+        }
+    }
+
+    &-not-added {
+        .icon-wishlist-added,
+        .text-wishlist-remove {
+            display: none;
+        }
+
+        .icon-wishlist-not-added,
+        .text-wishlist-not-added {
+            display: inline-flex;
+        }
+
+        .icon-wishlist-not-added {
+            animation: pulse 0.5s alternate;
+        }
+    }
+
+    &-added {
+        .icon-wishlist-added,
+        .text-wishlist-remove {
+            display: inline-flex;
+        }
+
+        .icon-wishlist-added {
+            animation: pulse 0.5s alternate;
+        }
+
+        .icon-wishlist-not-added,
+        .text-wishlist-not-added {
+            display: none;
+        }
+    }
+
+    &-action-circle {
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+
+        &.btn {
+            text-overflow: initial;
+        }
+
+        &::before {
+            content: '';
+            position: absolute;
+            width: 120%;
+            height: 120%;
+            left: calc(50% - 24px);
+            top: calc(50% - 24px);
+        }
+    }
+
+    &-action {
+        background: transparent;
+        border-style: none;
+        padding: 0;
+        display: inline-flex;
+    }
+
+    &-btn {
+        --#{$prefix}btn-border-radius: 50%;
+        --#{$prefix}btn-border-width: 0;
+        --#{$prefix}btn-padding-x: 0.5rem;
+        --#{$prefix}btn-padding-y: 0.5rem;
+        --#{$prefix}btn-color: var(--#{$prefix}gray-800);
+        --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
+        height: 40px;
+        width: 40px;
+    }
+
+    &-btn-remove {
+        z-index: 10;
+        position: absolute;
+        right: 1.5rem;
+        top: 1.5rem;
+    }
+
+    .icon-wishlist,
+    .icon-wishlist-remove {
+        svg {
+            top: 0;
+        }
+    }
+
+    &-btn-content {
+        text-decoration: underline;
+
+        &-md {
+            margin-left: 8px;
+            font-size: 14px;
+        }
+
+        &-sm {
+            margin-left: 6px;
+            font-size: 12px;
+        }
+
+        &-disabled {
+            display: none;
+        }
+
+        &-active {
+            display: inline-flex;
+        }
+    }
+}
+
+.product-wishlist-info {
+    &-item {
+        min-height: 2em;
+        font-size: $font-size-sm;
+    }
+
+    &-text {
+        font-weight: $font-weight-bold;
+    }
+
+    /* stylelint-disable value-no-vendor-prefix, property-no-vendor-prefix */
+    &-manufacturer {
+        display: block;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .product-variant-characteristics-text {
+        text-transform: capitalize;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}

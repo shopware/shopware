@@ -1,0 +1,68 @@
+@import "~scss/variables";
+
+.sw-field {
+    width: 100%;
+    margin-bottom: 32px;
+
+    .sw-ai-copilot-badge {
+        height: 18px;
+    }
+
+    .sw-field__label {
+        display: flex;
+        line-height: 16px;
+        font-size: $font-size-xs;
+        margin-bottom: 8px;
+        color: var(--color-text-primary-default);
+
+        label {
+            flex-grow: 1;
+        }
+    }
+
+    .sw-field__label .is--required::after {
+        content: "*";
+        color: $color-shopware-brand-500;
+    }
+
+    .sw-field__inheritance-icon {
+        margin-right: 8px;
+    }
+
+    .sw-field__button-restore {
+        color: $color-darkgray-200;
+        padding: 0 8px;
+        border: none;
+        background: none;
+        outline: none;
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        cursor: pointer;
+    }
+
+    .sw-field__help-text {
+        align-self: center;
+    }
+
+    &.is--inherited {
+        .sw-field__label {
+            color: $color-module-purple-900;
+        }
+    }
+
+    &.has--error {
+        margin-bottom: 12px;
+
+        .sw-field__label {
+            color: $color-crimson-500;
+        }
+    }
+
+    &__hint {
+        margin-top: 4px;
+        font-size: $font-size-xxs;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+}

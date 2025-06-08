@@ -1,0 +1,47 @@
+{% block sw_settings_search_search_behaviour %}
+<mt-card
+    class="sw-settings-search-search-behaviour"
+    position-identifier="sw-settings-search-search-behaviour"
+    :title="$tc('sw-settings-search.generalTab.labelSearchBehaviour')"
+    :is-loading="isLoading"
+>
+    {% block sw_settings_search_search_behaviour_title %}
+    <h4 class="sw-settings-search__search-behaviour-title">
+        {{ $tc('sw-settings-search.generalTab.textTitleSearchBehaviour') }}
+    </h4>
+    {% endblock %}
+
+    {% block sw_settings_search_search_behaviour_condition %}
+    <sw-radio-field
+        v-model:value="searchBehaviourConfigs.andLogic"
+        v-tooltip="{
+            message: $tc('sw-privileges.tooltip.warning'),
+            disabled: acl.can('product_search_config.editor'),
+            showOnDisabledElements: true
+        }"
+        name="sw-field--searchBehaviourConfigs-andLogic"
+        class="sw-settings-search__search-behaviour-condition"
+        block
+        :disabled="!acl.can('product_search_config.editor')"
+        :options="conditionsOptions"
+    />
+    {% endblock %}
+
+    {% block sw_settings_search_search_behaviour_search_term_length %}
+    <mt-number-field
+        v-model="searchBehaviourConfigs.minSearchLength"
+        v-tooltip="{
+            message: $tc('sw-privileges.tooltip.warning'),
+            disabled: acl.can('product_search_config.editor'),
+            showOnDisabledElements: true
+        }"
+        name="sw-field--searchBehaviourConfigs-minSearchLength"
+        class="sw-settings-search__search-behaviour-term-length"
+        :label="$tc('sw-settings-search.generalTab.labelMinimalSearchTerm')"
+        :disabled="!acl.can('product_search_config.editor')"
+        :min="min"
+        :max="max"
+    />
+    {% endblock %}
+</mt-card>
+{% endblock %}

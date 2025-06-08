@@ -1,0 +1,20 @@
+@import "~scss/variables";
+
+.sw-settings-listing-option-criteria-grid__criteria-card {
+    div.sw-select {
+        margin-bottom: 0;
+    }
+
+    div.sw-empty-state {
+        position: static;
+        padding: 30px;
+    }
+
+    div.sw-card__toolbar {
+        background-color: $color-white;
+    }
+
+    div.sw-card__content {
+        padding: 0;
+    }
+}

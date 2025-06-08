@@ -1,0 +1,44 @@
+<admin-ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../../../../../src/Core/System/CustomEntity/Xml/Config/AdminUi/admin-ui-1.0.xsd">
+    <entity name="ce_invalid_ref_complex" navigation-parent="sw-content" position="50" icon="regular-tools-alt" color="#f00">
+        <listing>
+            <columns>
+                <column ref="test_string"/>
+                <column ref="test_text"/>
+                <column ref="test_int"/>
+                <column ref="test_float"/>
+                <column ref="i_am_an_invalid_reference"/>
+            </columns>
+        </listing>
+        <detail>
+            <tabs>
+                <tab name="firstTab">
+                    <card name="one">
+                        <field ref="test_text"/>
+                        <field ref="i_am_an_invalid_reference"/>
+                    </card>
+                    <card name="two">
+                        <field ref="test_float"/>
+                    </card>
+                </tab>
+                <tab name="secondTab">
+                    <card name="one">
+                        <field ref="test_int"/>
+                        <field ref="test_string"/>
+                        <field ref="test_float"/>
+                        <field ref="test_text"/>
+                    </card>
+                    <card name="two">
+                        <field ref="test_int"/>
+                        <field ref="test_string"/>
+                        <field ref="test_float"/>
+                        <field ref="test_text"/>
+                        <field ref="i_am_an_invalid_reference"/>
+                    </card>
+                    <card name="three">
+                        <field ref="i_am_an_invalid_reference"/>
+                    </card>
+                </tab>
+            </tabs>
+        </detail>
+    </entity>
+</admin-ui>

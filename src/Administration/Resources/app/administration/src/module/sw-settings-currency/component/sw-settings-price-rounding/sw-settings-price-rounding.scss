@@ -1,0 +1,21 @@
+@import "~scss/variables";
+
+.sw-settings-price-rounding {
+    .sw-settings-price-rounding__headline {
+        font-size: $font-size-s;
+        color: $color-darkgray-200;
+        margin: 0 0 10px;
+        font-weight: $font-weight-bold;
+    }
+
+    .sw-settings-price-rounding__info-text {
+        margin-bottom: 22px;
+    }
+
+    .sw-settings-price-rounding__spacer {
+        margin: 0 0 20px;
+        border: none;
+        height: 1px;
+        background-color: $color-gray-300;
+    }
+}

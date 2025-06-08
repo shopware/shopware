@@ -1,0 +1,76 @@
+@import "~scss/variables";
+
+.sw-modal {
+    .sw-modal__body {
+        &.sw-settings-payment-sorting-modal__subtitle {
+            padding: 24px;
+            display: flex;
+            flex: none;
+            overflow-y: hidden;
+            border-bottom: 1px solid $color-gray-300;
+        }
+    }
+}
+
+.sw-settings-payment-sorting-modal__payment-method-list {
+    display: grid;
+    grid-template-rows: auto;
+    grid-row-gap: 16px;
+
+    &-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px 12px 12px;
+        border: 1px solid $color-gray-300;
+        border-radius: 4px;
+
+        &.is--disabled {
+            color: $color-gray-500;
+            background-color: $color-gray-100;
+        }
+
+        &__name {
+            font-weight: $font-weight-semi-bold;
+            font-size: $font-size-xs;
+        }
+
+        &__icon {
+            position: relative;
+            width: 34px;
+            height: 24px;
+        }
+
+        &__action {
+            padding: 4px;
+        }
+
+        .sw-media-preview-v2.is--icon .sw-media-preview-v2__item {
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
+
+    &.sw-sortable-list__empty-state {
+        position: relative;
+    }
+}
+
+.sw-sortable-list__item {
+    &.is--dragging {
+        border-radius: 4px;
+
+        > .sw-settings-payment-sorting-modal__payment-method-list-item {
+            padding: 11px 24px 11px 12px;
+        }
+    }
+
+    &.is--drag-element {
+        background-color: $color-white;
+        border-radius: 4px;
+
+        &,
+        &.is--valid-drag {
+            box-shadow: 0 1px 3px 0 $color-gray-300;
+        }
+    }
+}

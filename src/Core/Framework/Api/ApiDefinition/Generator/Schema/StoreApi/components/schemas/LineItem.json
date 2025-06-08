@@ -1,0 +1,221 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "LineItemType": {
+                "type": "string",
+                "enum": [
+                    "product",
+                    "credit",
+                    "custom",
+                    "promotion",
+                    "discount",
+                    "container",
+                    "quantity"
+                ]
+            },
+            "LineItem": {
+                "type": "object",
+                "properties": {
+                    "children": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/LineItem" }
+                    },
+                    "cover": {
+                        "$ref": "#/components/schemas/ProductMedia"
+                    },
+                    "dataContextHash": {
+                        "type": "string"
+                    },
+                    "dataTimestamp": {
+                        "type": "string"
+                    },
+                    "deliveryInformation": {
+                        "$ref": "#/components/schemas/CartDeliveryInformation"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "good": {
+                        "type": "boolean"
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "modified": {
+                        "type": "boolean"
+                    },
+                    "modifiedByApp": {
+                        "type": "boolean"
+                    },
+                    "payload": {
+                        "$ref": "#/components/schemas/ProductJsonApi"
+                    },
+                    "price": {
+                        "type": "object",
+                        "properties": {
+                            "apiAlias": {
+                                "type": "string",
+                                "enum": ["calculated_price"]
+                            },
+                            "calculatedTaxes": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "apiAlias": {
+                                            "type": "string",
+                                            "enum": ["cart_tax_calculated"]
+                                        },
+                                        "tax": {
+                                            "type": "number"
+                                        },
+                                        "taxRate": {
+                                            "type": "number"
+                                        },
+                                        "price": {
+                                            "type": "number"
+                                        }
+                                    },
+                                    "required": [
+                                        "apiAlias",
+                                        "tax",
+                                        "taxRate",
+                                        "price"
+                                    ]
+                                }
+                            },
+                            "listPrice": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/CartListPrice"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            },
+                            "quantity": {
+                                "type": "number"
+                            },
+                            "referencePrice": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/CartPriceReference"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            },
+                            "regulationPrice": {
+                                "oneOf": [
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "price": {
+                                                "type": "number"
+                                            },
+                                            "apiAlias": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "cart_regulation_price"
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            },
+                            "totalPrice": {
+                                "type": "number"
+                            },
+                            "unitPrice": {
+                                "type": "number"
+                            },
+                            "taxRules": {
+                                "type": "array",
+                                "description": "Currently active tax rules and/or rates",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "taxRate": {
+                                            "type": "number",
+                                            "format": "float"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "required": [
+                            "apiAlias",
+                            "totalPrice",
+                            "quantity",
+                            "unitPrice"
+                        ]
+                    },
+                    "priceDefinition": {
+                        "$ref": "#/components/schemas/CartPriceQuantity"
+                    },
+                    "quantity": {
+                        "type": "number"
+                    },
+                    "quantityInformation": {
+                        "type": "object",
+                        "properties": {
+                            "maxPurchase": {
+                                "type": "number"
+                            },
+                            "minPurchase": {
+                                "type": "number"
+                            },
+                            "purchaseSteps": {
+                                "type": "number"
+                            }
+                        }
+                    },
+                    "referencedId": {
+                        "type": "string"
+                    },
+                    "removable": {
+                        "type": "boolean"
+                    },
+                    "stackable": {
+                        "type": "boolean"
+                    },
+                    "states": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": ["is-physical", "is-download"]
+                        }
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/LineItemType"
+                    },
+                    "uniqueIdentifier": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "type",
+                    "deliveryInformation",
+                    "payload",
+                    "quantity",
+                    "states"
+                ]
+            }
+        }
+    }
+}

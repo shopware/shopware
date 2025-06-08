@@ -1,0 +1,12 @@
+diff --git a/node_modules/inter-ui/Inter (web)/Inter-italic.var.woff2 b/node_modules/inter-ui/Inter (web)/Inter-italic.variable.woff2
+similarity index 100%
+rename from node_modules/inter-ui/Inter (web)/Inter-italic.var.woff2
+rename to node_modules/inter-ui/Inter (web)/Inter-italic.variable.woff2
+diff --git a/node_modules/inter-ui/Inter (web)/Inter-roman.var.woff2 b/node_modules/inter-ui/Inter (web)/Inter-roman.variable.woff2
+similarity index 100%
+rename from node_modules/inter-ui/Inter (web)/Inter-roman.var.woff2
+rename to node_modules/inter-ui/Inter (web)/Inter-roman.variable.woff2
+diff --git a/node_modules/inter-ui/Inter (web)/Inter.var.woff2 b/node_modules/inter-ui/Inter (web)/Inter.variable.woff2
+similarity index 100%
+rename from node_modules/inter-ui/Inter (web)/Inter.var.woff2
+rename to node_modules/inter-ui/Inter (web)/Inter.variable.woff2

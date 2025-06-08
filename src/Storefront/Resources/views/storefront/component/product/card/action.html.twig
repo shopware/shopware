@@ -1,0 +1,80 @@
+{% block component_product_box_action_inner %}
+    {% set id = product.id %}
+    <div class="product-action">
+        {% set isAvailable = not product.isCloseout or (product.stock >= product.minPurchase) %}
+        {% set displayFrom = product.calculatedPrices.count > 1 %}
+        {% set displayBuyButton = isAvailable and not displayFrom and product.childCount <= 0 %}
+
+        {% if displayBuyButton and config('core.listing.allowBuyInListing') %}
+            {% block component_product_box_action_buy %}
+                {# @var product \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity #}
+                <form action="{{ path('frontend.checkout.line-item.add') }}"
+                      method="post"
+                      class="buy-widget"
+                      data-add-to-cart="true">
+                    {% block component_product_box_action_form %}
+                        {% block component_product_box_action_buy_redirect_input %}
+                            {# fallback redirect back to detail page is deactivated via js #}
+                            <input type="hidden"
+                                   name="redirectTo"
+                                   value="frontend.detail.page">
+
+                            <input type="hidden"
+                                   name="redirectParameters"
+                                   data-redirect-parameters="true"
+                                   value="{{ {productId: id}|json_encode }}">
+                        {% endblock %}
+
+                        {% block component_product_box_action_buy_info %}
+                            <input type="hidden"
+                                   name="lineItems[{{ id }}][id]"
+                                   value="{{ id }}">
+                            <input type="hidden"
+                                   name="lineItems[{{ id }}][referencedId]"
+                                   value="{{ id }}">
+                            <input type="hidden"
+                                   name="lineItems[{{ id }}][type]"
+                                   value="product">
+                            <input type="hidden"
+                                   name="lineItems[{{ id }}][stackable]"
+                                   value="1">
+                            <input type="hidden"
+                                   name="lineItems[{{ id }}][removable]"
+                                   value="1">
+                            <input type="hidden"
+                                   name="lineItems[{{ id }}][quantity]"
+                                   value="{{ product.minPurchase }}">
+                        {% endblock %}
+
+                        {% block component_product_box_action_buy_meta %}
+                            <input type="hidden"
+                                   name="product-name"
+                                   value="{{ product.translated.name }}">
+                        {% endblock %}
+
+                        {% block component_product_box_action_buy_button %}
+                            <div class="d-grid">
+                                <button class="btn btn-buy">
+                                    {% block page_product_detail_product_buy_button_label %}
+                                        {{ 'listing.boxAddProduct'|trans|sw_sanitize }}
+                                    {% endblock %}
+                                </button>
+                            </div>
+                        {% endblock %}
+                    {% endblock %}
+                </form>
+            {% endblock %}
+        {% else %}
+            {% block component_product_box_action_detail %}
+                <div class="d-grid">
+                    <a href="{{ seoUrl('frontend.detail.page', {productId: id}) }}"
+                       class="btn btn-light btn-detail">
+                        {% block component_product_box_action_detail_label %}
+                            {{ 'listing.boxProductDetails'|trans|sw_sanitize }}
+                        {% endblock %}
+                    </a>
+                </div>
+            {% endblock %}
+        {% endif %}
+    </div>
+{% endblock %}

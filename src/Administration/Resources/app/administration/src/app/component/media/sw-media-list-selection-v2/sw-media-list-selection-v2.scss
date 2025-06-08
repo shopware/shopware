@@ -1,0 +1,14 @@
+@import "~scss/variables";
+
+.sw-media-list-selection-v2 {
+    .sw-media-list-selection-v2__grid {
+        border-radius: $border-radius-default;
+        border: 1px solid $color-gray-300;
+        display: grid;
+        padding: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+        grid-gap: 10px;
+        grid-auto-flow: dense;
+        margin-top: 20px;
+    }
+}

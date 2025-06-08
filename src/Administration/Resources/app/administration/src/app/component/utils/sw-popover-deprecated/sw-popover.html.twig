@@ -1,0 +1,12 @@
+{% block sw_popover %}
+<div class="sw-popover">
+    <div
+        v-popover="popoverConfig"
+        class="sw-popover__wrapper"
+        :class="popoverClass"
+        :style="componentStyle"
+    >
+        <slot></slot>
+    </div>
+</div>
+{% endblock %}

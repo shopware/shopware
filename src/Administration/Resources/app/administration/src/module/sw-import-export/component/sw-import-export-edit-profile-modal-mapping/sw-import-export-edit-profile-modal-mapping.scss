@@ -1,0 +1,46 @@
+@import "~scss/variables";
+
+.sw-import-export-edit-profile-modal-mapping {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid $color-gray-300;
+
+    &__toolbar {
+        z-index: 10;
+        height: 83px;
+        display: flex;
+        padding: 25px 35px;
+        background-color: $color-gray-100;
+        border-bottom: 1px solid $color-gray-300;
+
+        .sw-simple-search-field {
+            flex-basis: 100%;
+            margin-right: 16px;
+        }
+    }
+
+    &__grid,
+    &__empty-state {
+        flex-grow: 1;
+    }
+
+    .sw-data-grid__cell-content .sw-field--switch {
+        margin-top: 22px;
+    }
+
+    &__default-value-switch {
+        margin-right: 12px;
+    }
+
+    .sw-data-grid__cell-content .mt-switch,
+    .sw-data-grid__cell-content .mt-field {
+        margin-bottom: 0;
+    }
+
+    &__position-buttons {
+        .mt-icon {
+            display: flex;
+            margin: 0 auto;
+        }
+    }
+}

@@ -1,0 +1,16 @@
+{% block sw_string_filter %}
+<sw-base-filter
+    :title="filter.label"
+    :show-reset-button="!!filter.value"
+    :active="active"
+    @filter-reset="resetFilter"
+>
+    {% block sw_string_filter_content %}
+    <mt-text-field
+        :model-value="filter.value"
+        :placeholder="filter.placeholder"
+        @change="updateFilter"
+    />
+    {% endblock %}
+</sw-base-filter>
+{% endblock %}

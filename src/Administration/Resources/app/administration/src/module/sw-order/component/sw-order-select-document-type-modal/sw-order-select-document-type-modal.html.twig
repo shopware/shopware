@@ -1,0 +1,41 @@
+{% block sw_order_select_document_type_modal %}
+<sw-modal
+    v-bind="$attrs"
+    :title="$tc('sw-order.components.selectDocumentTypeModal.title')"
+    variant="small"
+    class="sw-order-select-document-type-modal"
+    @modal-close="$emit('modal-close', false)"
+>
+
+    {% block sw_order_select_document_type_modal_document_types %}
+    <sw-radio-field
+        v-if="!isLoading && documentTypes.length"
+        v-model:value="documentType"
+        :options="documentTypes"
+        class="sw-order-select-document-type-modal__radio-field"
+        @update:value="onRadioFieldChange"
+    />
+    {% endblock %}
+
+    <template #modal-footer>
+        {% block sw_order_select_document_type_modal_footer_action_cancel %}
+        <mt-button
+            variant="secondary"
+            @click="$emit('modal-close', false)"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_order_select_document_type_modal_footer_action_create %}
+        <mt-button
+            variant="primary"
+            @click="$emit('modal-close', true)"
+        >
+            {{ $tc('sw-order.components.selectDocumentTypeModal.primaryAction') }}
+        </mt-button>
+        {% endblock %}
+
+    </template>
+</sw-modal>
+{% endblock %}

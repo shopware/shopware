@@ -1,0 +1,34 @@
+{% block component_product_detail_block_price %}
+    {% set isListPrice = price.listPrice.percentage > 0 %}
+    {% set isRegulationPrice = price.regulationPrice != null %}
+
+    <div>
+        {% block component_product_detail_block_price_content %}
+            {% if price.listprice and isListPrice %}
+                <div class="product-detail-price{% if price %} with-advanced-list-price{% endif %}">{{ price.unitPrice|currency }}</div>
+
+                {% block component_product_detail_block_list_price_wrapper %}
+                    {% set afterListPriceSnippetExists = 'listing.afterListPrice'|trans|length > 0 %}
+                    {% set beforeListPriceSnippetExists = 'listing.beforeListPrice'|trans|length > 0 %}
+
+                    <span class="product-detail-advanced-list-price-wrapper{% if beforeListPriceSnippetExists or afterListPriceSnippetExists %} product-detail-advanced-list-price-wrapper-no-line-through{% endif %}">
+                        {% if beforeListPriceSnippetExists %}{{ 'listing.beforeListPrice'|trans }}{% endif %}
+
+                        <span class="list-price-price">{{ price.listprice.price|currency }}</span>
+
+                        {% if afterListPriceSnippetExists %}{{ 'listing.afterListPrice'|trans }}{% endif %}
+
+                        <span class="list-price-percentage">{{ 'detail.listPricePercentage'|trans({'%price%': price.listPrice.percentage })|sw_sanitize }}</span>
+                    </span>
+                {% endblock %}
+            {% else %}
+                {{ price.unitPrice|currency }}
+            {% endif %}
+            {% if isRegulationPrice %}
+                <span class="product-detail-advanced-regulation-price-wrapper{% if isListPrice %} with-list-price{% endif %}">
+                    <span class="regulation-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}</span>
+                </span>
+            {% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}

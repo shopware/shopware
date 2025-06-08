@@ -1,0 +1,58 @@
+@import "~scss/variables";
+
+$sw-product-variants-configurator-restrictions-active-color-background: $color-shopware-brand-50;
+$sw-product-variants-configurator-restrictions-search-background: #f8f9fa;
+$sw-product-variants-configurator-restrictions-search-border: $color-gray-300;
+
+.sw-product-variants-configurator-restrictions {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .sw-product-variants-configurator-restrictions__search {
+        display: grid;
+        grid-template-columns: 1fr 200px;
+        grid-column-gap: 16px;
+        padding: 25px;
+        background-color: $sw-product-variants-configurator-restrictions-search-background;
+        border-bottom: 1px solid $sw-product-variants-configurator-restrictions-search-border;
+    }
+
+    .sw-product-variants-configurator-restrictions__modal.sw-modal .sw-modal__body {
+        min-height: 50vh;
+    }
+
+    .sw-product-variants-configurator-restrictions__grid-wrapper {
+        position: relative;
+        flex: 1;
+    }
+
+    .sw-product-variants-configurator-restrictions__group-name {
+        margin-right: 5px;
+        margin-left: 10px;
+    }
+}
+
+// Modal for adding new restrictions
+.sw-modal.sw-modal--default.sw-product-variants-configurator-restrictions__modal {
+    .sw-modal__dialog {
+        max-width: 960px;
+    }
+
+    .sw-product-variants-configurator-restrictions__modal-main {
+        background-color: $sw-product-variants-configurator-restrictions-search-background;
+        padding: 40px 40px 80px;
+        overflow: hidden;
+    }
+
+    .sw-product-variants-configurator-restrictions__seperator {
+        text-transform: uppercase;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .sw-product-variants-configurator-restrictions__button-new-restriction {
+        text-transform: uppercase;
+        margin-top: 10px;
+    }
+}

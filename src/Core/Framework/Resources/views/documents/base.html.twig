@@ -1,0 +1,102 @@
+{#
+
+Notice for plugins and theme developer:
+
+This template can be extended over sw_extends.
+The blocks from the templates in the /includes folder can be overwritten directly in this template
+
+merge 16.11.2020
+#}
+{% use '@Framework/documents/includes/loop.html.twig' %}
+{% use '@Framework/documents/includes/footer.html.twig' %}
+{% use '@Framework/documents/includes/summary.html.twig' %}
+{% use '@Framework/documents/includes/payment_shipping.html.twig' %}
+{% use '@Framework/documents/includes/comment.html.twig' %}
+{% use '@Framework/documents/includes/shipping_address.html.twig' %}
+
+{% block document_base %}
+    {# @var order \Shopware\Core\Checkout\Order\OrderEntity #}
+    {# @var config \Shopware\Core\Checkout\Document\DocumentConfiguration #}
+    {# @var context \Shopware\Core\Framework\Context #}
+
+    {# @var customer \Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity #}
+    {% set customer = order.orderCustomer %}
+
+    {% set total = order.lineItems.count %}
+
+    {# @var billingAddress \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity #}
+    {% set billingAddress = order.addresses.get(order.billingAddressId) %}
+
+    {% set currencyIsoCode = order.currency.isoCode %}
+
+    {% set locale = order.language.locale.code %}
+    {% set languageId = order.language.id %}
+
+    {% set nestedLineItems = order.nestedLineItems %}
+
+    {% if config.itemsPerPage|intval === 0 or config.itemsPerPage <= 0 %}
+        {% set itemsPerPage = 10 %}
+    {% else %}
+        {% set itemsPerPage = config.itemsPerPage|intval %}
+    {% endif %}
+
+    <!DOCTYPE html>
+    <html lang="{{ locale }}">
+    <head>
+        {% block document_head_meta_protection %}
+            <meta http-equiv="Content-Security-Policy" content="script-src 'none'; base-uri 'self';">
+            <meta name="date" content="{{ 'now'|date('c') }}">
+        {% endblock %}
+
+        {% block document_head %}
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+            {#{% if config.title %}#}
+            <title>{% block document_title_tag %}{% endblock %}</title>
+            {#{% endif %}#}
+
+            {% block document_font_links %}
+                <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700;1,900&display=swap" rel="stylesheet">
+            {% endblock %}
+
+            {% if config.pageOrientation == 'landscape' %}
+                {% sw_include '@Framework/documents/style_base_landscape.css.twig' %}
+            {% else %}
+                {% sw_include '@Framework/documents/style_base_portrait.css.twig' %}
+            {% endif %}
+
+            {% if config.fileType == constant('Shopware\\Core\\Checkout\\Document\\Service\\HtmlRenderer::FILE_EXTENSION') %}
+                {% sw_include '@Framework/documents/style_base_html.css.twig' %}
+            {% endif %}
+        {% endblock %}
+    </head>
+
+    <body>
+
+    <main>
+        {% block document_body %}
+            {% set position = 1 %}
+            {% set prefix = '' %}
+            {% set level = 0 %}
+
+            {% for lineItem in nestedLineItems %}
+                {{ block('loop') }}
+
+                {% set position = position + 1 %}
+            {% endfor %}
+
+            {{ block('summary') }}
+
+            {{ block('payment_shipping')  }}
+
+            {{ block('comment')  }}
+
+            {{ block('shipping_address')  }}
+        {% endblock %}
+    </main>
+
+    {{ block('footer') }}
+
+    </body>
+    </html>
+{% endblock %}

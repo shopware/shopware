@@ -1,0 +1,30 @@
+@import "~scss/variables";
+
+.sw-card-section {
+    padding: 30px;
+
+    &.sw-card-section--divider-top {
+        border-top: 1px solid $color-gray-300;
+    }
+
+    &.sw-card-section--divider-right {
+        border-right: 1px solid $color-gray-300;
+    }
+
+    &.sw-card-section--divider-bottom {
+        border-bottom: 1px solid $color-gray-300;
+    }
+
+    &.sw-card-section--divider-left {
+        border-left: 1px solid $color-gray-300;
+    }
+
+    &.sw-card-section--secondary {
+        background-color: $color-gray-100;
+    }
+
+    &.sw-card-section--slim {
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+}

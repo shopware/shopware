@@ -1,0 +1,62 @@
+{% block sw_notifications %}
+<transition name="sw-notifications-slide-fade">
+
+    {% block sw_notifications_element %}
+    <div
+        v-if="notifications.length"
+        class="sw-notifications"
+        :style="notificationsStyle"
+    >
+
+        {% block sw_notifications_transition_group %}
+        <transition-group name="sw-notifications-slide-fade">
+
+            {% block sw_notifications_item %}
+            <mt-banner
+                v-for="(notification, index) in notifications"
+                :key="notification.uuid"
+                :class="['sw-notifications__notification--' + index, 'sw-notification__alert']"
+                :title="notification.title"
+                :variant="getNotificationVariant(notification)"
+                :notification-index="notification.uuid"
+                :closable="true"
+                @close="onClose(notification)"
+            >
+
+                {% block sw_notifications_item_content %}
+                <div
+                    class="sw-notifications__message"
+                    v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'br'], ALLOWED_ATTR: ['href', 'target'] })"
+                ></div>
+                {% endblock %}
+
+                {# TODO: Implement buttons and add tests for action buttons #}
+                <div
+                    v-if="notification.actions.length"
+                    class="sw-notifications__actions"
+                >
+                    {% block sw_notifications_item_actions %}
+                    <template
+                        v-for="action in notification.actions"
+                        :key="action.label"
+                    >
+                        {% block sw_notifications_item_action_item %}
+                        <mt-button
+                            :disabled="action.disabled"
+                            variant="secondary"
+                            @click="handleAction(action, notification)"
+                        >
+                            {{ action.label }}
+                        </mt-button>
+                        {% endblock %}
+                    </template>
+                    {% endblock %}
+                </div>
+            </mt-banner>
+            {% endblock %}
+        </transition-group>
+        {% endblock %}
+    </div>
+    {% endblock %}
+</transition>
+{% endblock %}

@@ -1,0 +1,11 @@
+@import "~scss/variables";
+
+.sw-import-export-progress {
+    .sw-import-export-progress__progress {
+        display: flex;
+    }
+
+    .sw-import-export-progress__start-process-dryrun-action {
+        margin-left: 3px;
+    }
+}

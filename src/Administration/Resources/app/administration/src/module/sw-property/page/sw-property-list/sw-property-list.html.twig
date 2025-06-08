@@ -1,0 +1,248 @@
+{% block sw_property_list %}
+<sw-page class="sw-property-list">
+
+    {% block sw_property_list_search_bar %}
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="property"
+            :placeholder="$tc('sw-property.general.placeholderSearchBar')"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_property_list_smart_bar_header %}
+    <template #smart-bar-header>
+
+        {% block sw_property_list_smart_bar_header_title %}
+        <h2>
+
+            {% block sw_property_list_smart_bar_header_title_text %}
+            {{ $tc('sw-property.list.textProperties') }}
+            {% endblock %}
+
+            {% block sw_property_list_smart_bar_header_title_amount %}
+            <span
+                v-if="!isLoading"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ total }})
+            </span>
+            {% endblock %}
+
+        </h2>
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+
+    {% block sw_property_list_ %}
+    <template #smart-bar-actions>
+
+        {% block sw_property_list_add_button %}
+        <mt-button
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('property.creator'),
+                showOnDisabledElements: true
+            }"
+            class="sw-property-list__button-create"
+            :disabled="!acl.can('property.creator')"
+            variant="primary"
+            size="default"
+            @click="$router.push({ name: 'sw.property.create' })"
+        >
+            {{ $tc('sw-property.list.buttonAddProperty') }}
+        </mt-button>
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+
+    {% block sw_property_list_language_switch %}
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
+    {% endblock %}
+
+    <template #content>
+
+        {% block sw_property_list_content %}
+        <div class="sw-property-list__content">
+
+            {% block sw_property_list_grid %}
+            <sw-entity-listing
+                v-if="entitySearchable"
+                ref="propertyList"
+                class="sw-property-list-grid"
+                :items="propertyGroup"
+                :columns="getPropertyColumns()"
+                :repository="propertyRepository"
+                :show-selection="false"
+                :show-settings="true"
+                :full-page="true"
+                :sort-by="currentSortBy"
+                :sort-direction="sortDirection"
+                :is-loading="isLoading"
+                :allow-column-edit="true"
+                :compact-mode="false"
+                :allow-edit="acl.can('property.editor')"
+                :allow-delete="acl.can('property.deleter')"
+                :allow-inline-edit="acl.can('property.editor')"
+                identifier="sw-properties-list"
+                :disable-data-fetching="true"
+                @column-sort="onSortColumn"
+                @page-change="onPageChange"
+            >
+
+                {% block sw_property_list_grid_options %}
+                <template
+                    #column-options="{ item }"
+                >
+                    <span
+                        v-for="(option, index) in item.options.slice(0, 4)"
+                        :key="option.id"
+                    >
+                        {{ (index > 0) ? `, ${option.translated.name}` : option.translated.name }}
+                    </span>
+                    <span v-if="item.options.length >= 5">
+                        , ...
+                    </span>
+                </template>
+                {% endblock %}
+
+                {% block sw_property_list_grid_filterable %}
+                <template #column-filterable="{ item, isInlineEdit }">
+                    {% block sw_property_list_grid_columns_filterable_inline_edit %}
+                    <template v-if="isInlineEdit">
+                        <mt-checkbox
+                            v-model:checked="item.filterable"
+                        />
+                    </template>
+                    {% endblock %}
+
+                    {% block sw_property_list_grid_columns_filterable_content %}
+                    <template v-else>
+                        <mt-icon
+                            v-if="item.filterable"
+                            name="regular-checkmark-xs"
+                            class="is--active"
+                        />
+                        <mt-icon
+                            v-else
+                            name="regular-times-s"
+                            class="is--inactive"
+                        />
+                    </template>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
+                {% block sw_property_list_grid_columns_actions %}
+                <template
+                    #actions="{ item }"
+                >
+                    {% block sw_property_list_grid_columns_actions_detail %}
+                    <sw-context-menu-item
+                        class="sw-property-list__edit-action"
+                        :router-link="{ name: 'sw.property.detail', params: { id: item.id } }"
+                        :disabled="!acl.can('property.editor')"
+                    >
+                        {{ $tc('sw-property.list.contextMenuView') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+
+                    {% block sw_property_list_grid_columns_actions_delete %}
+                    <sw-context-menu-item
+                        class="sw-property-list__delete-action"
+                        variant="danger"
+                        :disabled=" !acl.can('property.deleter')"
+                        @click="onDelete(item.id)"
+                    >
+                        {{ $tc('sw-property.list.contextMenuDelete') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
+                {% block sw_product_list_grid_action_modals %}
+                <template
+                    #action-modals="{ item }"
+                >
+                    <sw-modal
+                        v-if="showDeleteModal === item.id"
+                        variant="small"
+                        :title="$tc('global.default.warning')"
+                        @modal-close="onCloseDeleteModal"
+                    >
+                        <p class="sw-property-list__confirm-delete-text">
+                            {{ $tc('sw-property.list.textDeleteConfirm', { name: item.translated.name }, 0) }}
+                        </p>
+
+                        <template #modal-footer>
+                            <mt-button
+                                size="small"
+                                variant="secondary"
+                                @click="onCloseDeleteModal"
+                            >
+                                {{ $tc('global.default.cancel') }}
+                            </mt-button>
+
+                            <mt-button
+                                variant="critical"
+                                size="small"
+                                @click="onConfirmDelete(item.id)"
+                            >
+                                {{ $tc('sw-property.list.buttonDelete') }}
+                            </mt-button>
+                        </template>
+                    </sw-modal>
+                </template>
+                {% endblock %}
+
+            </sw-entity-listing>
+            {% endblock %}
+
+            {% block sw_property_list_empty_state %}
+            <template v-if="!isLoading && !total">
+                <sw-empty-state
+                    v-if="isValidTerm(term)"
+                    :title="$tc('sw-empty-state.messageNoResultTitle')"
+                >
+                    <template #default>
+                        {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
+                        <router-link
+                            class="sw-empty-state__description-link"
+                            :to="{ name: 'sw.profile.index.searchPreferences' }"
+                        >
+                            {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
+                        </router-link>
+                        {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
+                    </template>
+                </sw-empty-state>
+
+                <sw-empty-state
+                    v-else
+                    :title="$tc('sw-property.list.messageEmpty')"
+                />
+            </template>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </template>
+
+    {% block sw_property_list_sidebar %}
+    <template #sidebar>
+        <sw-sidebar>
+            {% block sw_property_list_sidebar_refresh_item %}
+            <sw-sidebar-item
+                icon="regular-undo"
+                :title="$tc('sw-property.list.titleSidebarItemRefresh')"
+                @click="onRefresh"
+            />
+            {% endblock %}
+        </sw-sidebar>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

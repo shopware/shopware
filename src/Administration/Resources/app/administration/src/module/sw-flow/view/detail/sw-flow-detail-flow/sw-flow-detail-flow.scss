@@ -1,0 +1,178 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+.sw-flow-detail-flow {
+    &__content {
+        display: flex;
+        flex-direction: column;
+        margin: auto;
+        max-width: $content-width;
+        transition: max-width 0.3s ease-in-out;
+    }
+
+    &__warning-unknow-trigger {
+        p {
+            &:nth-child(2) {
+                margin-top: 20px;
+            }
+        }
+    }
+
+    &__trigger-card {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-gap: 48px;
+        align-items: start;
+    }
+
+    &__trigger-select {
+        min-width: 324px;
+        background: $color-white;
+        border-radius: 8px;
+        border: 1px solid $color-gray-300;
+        box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 20%);
+        padding: 24px;
+        transition: all 100ms ease-in-out;
+
+        &:hover {
+            box-shadow: 0 6px 10px 0 rgba(120, 138, 155, 20%);
+        }
+    }
+
+    &__trigger-explain {
+        padding: 24px;
+        border: 2px dashed $color-gray-300;
+        border-radius: 8px;
+        color: $color-darkgray-200;
+        width: 420px;
+
+        h4 {
+            margin-bottom: 12px;
+        }
+
+        p {
+            font-size: $font-size-xs;
+            line-height: 22px;
+        }
+    }
+
+    &__oval {
+        @include circle(12px);
+
+        position: absolute;
+        top: -6px;
+        left: -5px;
+        background: $color-white;
+        border: 1px solid $color-gray-400;
+        z-index: 2;
+    }
+
+    &__sequence-diagram {
+        position: relative;
+        margin-left: 29px;
+        padding: 0 0 44px;
+    }
+
+    &__position {
+        position: relative;
+        display: flex;
+
+        &:not(:last-child) .sw-flow-detail-flow__sequences {
+            padding-bottom: 63px;
+            border-bottom: 2px solid $color-gray-400;
+            width: 100%;
+        }
+
+        & .sw-flow-detail-flow__sequences {
+            padding-top: 63px;
+        }
+
+        & .sw-flow-detail-flow__position-connection {
+            @include size(24px);
+
+            position: absolute;
+            left: 0;
+            top: 118px;
+            border-bottom: 2px dashed $color-gray-400;
+            border-left: 2px dashed $color-gray-400;
+            border-bottom-left-radius: 40px;
+        }
+
+        &:last-child .sw-flow-detail-flow__position-plus {
+            @include circle(24px);
+            @include flex-centering;
+
+            cursor: pointer;
+            position: absolute;
+            color: $color-darkgray-200;
+            top: 155px;
+            left: -11px;
+            background: $color-white;
+            border-radius: 16px;
+            border: 1px solid $color-gray-500;
+            z-index: 2;
+
+            .mt-icon {
+                @include size(12px);
+            }
+
+            &:hover:not([disabled]) {
+                background: $color-gray-100;
+            }
+
+            &:disabled {
+                background: $color-gray-100;
+            }
+        }
+
+        .icon--regular-chevron-right-s {
+            position: absolute;
+            bottom: -8px;
+            right: -6px;
+            color: $color-gray-500;
+        }
+
+        &:not(:last-child) .icon--regular-plus-xs {
+            display: none;
+        }
+
+        &::before {
+            display: block;
+            content: "";
+            border-left: 2px dashed $color-gray-400;
+            z-index: 1;
+        }
+
+        &:last-child::before {
+            display: block;
+            content: "";
+            height: 165px;
+            border-left: 2px dashed $color-gray-400;
+            z-index: 1;
+        }
+    }
+
+    &__sequences {
+        margin-left: 32px;
+    }
+
+    .sw-block-field__block {
+        height: auto;
+    }
+}
+
+.sw-flow-detail-flow-template {
+    pointer-events: none;
+}
+
+// style for transition group.
+.list-enter-active,
+.list-leave-active {
+    transition: all 0.5s ease-in-out;
+}
+
+.list-enter,
+.list-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+}

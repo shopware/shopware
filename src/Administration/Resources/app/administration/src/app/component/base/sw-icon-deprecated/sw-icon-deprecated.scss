@@ -1,0 +1,33 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+.sw-icon {
+    @include size(24px);
+
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 0;
+
+    > svg {
+        width: 100% !important;
+        height: 100% !important;
+        vertical-align: middle;
+    }
+
+    &.sw-icon--fill > svg {
+        fill: currentcolor;
+
+        path,
+        use {
+            fill: currentcolor;
+        }
+    }
+
+    &.sw-icon--small {
+        @include size(16px);
+    }
+
+    &.sw-icon--large {
+        @include size(32px);
+    }
+}

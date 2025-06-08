@@ -1,0 +1,169 @@
+{% block sw_settings_list %}
+{% block sw_settings_product_feature_set_index %}
+<sw-page class="sw-settings-product-feature-sets-list">
+
+    {% block sw_settings_product_feature_set_list_search_bar %}
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="feature_set"
+            :placeholder="$tc('sw-settings-product-feature-sets.general.placeholderSearchBar')"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_product_feature_set_list_smart_bar_header %}
+    <template #smart-bar-header>
+        {% block sw_settings_product_feature_set_list_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_product_feature_set_list_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <mt-icon
+                name="regular-chevron-right-xs"
+                size="12px"
+            /> {{ $tc('sw-settings-product-feature-sets.list.textHeadline') }}
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_product_feature_set_list_smart_bar_actions %}
+    <template #smart-bar-actions>
+        {% block sw_settings_product_feature_set_list_smart_bar_actions_add %}
+        <mt-button
+            :disabled="!acl.can('product_feature_sets.creator') || undefined"
+            class="sw-settings-product-feature-sets-list-grid__create-button"
+            variant="primary"
+            size="default"
+            @click="$router.push({ name: 'sw.settings.product.feature.sets.create' })"
+        >
+            {{ $tc('sw-settings-product-feature-sets.list.buttonAddEssentialCharacteristics') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_product_feature_set_list_smart_bar_language_switch %}
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
+    {% endblock %}
+
+    <template #content>
+        {% block sw_settings_product_feature_set_list_content %}
+        <div class="sw-product-feature-sets-list__content">
+
+            <sw-entity-listing
+                v-if="isLoading || productFeatureSets"
+                ref="swSettingsProductFeatureSetsGrid"
+                class="sw-settings-product-feature-sets-list-grid"
+                :items="productFeatureSets"
+                :columns="getProductFeatureSetsColumns()"
+                :repository="productFeatureSetsRepository"
+                detail-route="sw.settings.product.feature.sets.detail"
+                :disable-data-fetching="true"
+                :sort-by="sortBy"
+                :sort-direction="sortDirection"
+                :allow-inline-edit="acl.can('product_feature_sets.editor')"
+                :allow-edit="acl.can('product_feature_sets.editor')"
+                :allow-view="acl.can('product_feature_sets.viewer')"
+                :allow-delete="acl.can('product_feature_sets.deleter')"
+                :is-loading="isLoading"
+                @page-change="onPageChange"
+                @column-sort="onSortColumn"
+                @inline-edit-save="onInlineEditSave"
+            >
+
+                <template #column-features="{ item }">
+                    <span v-if="item.features">
+                        {{ renderFeaturePreview(item.features) }}
+                    </span>
+                </template>
+
+                {% block sw_settings_product_feature_set_list_grid_columns_actions %}
+                <template #actions="{ item }">
+
+                    {% block sw_settings_product_feature_set_list_grid_columns_actions_edit %}
+                    <sw-context-menu-item
+                        :router-link="{ name: 'sw.settings.product.feature.sets.detail', params: { id: item.id, edit: 'edit' }}"
+                        :disabled="!acl.can('product_feature_sets.editor') || undefined"
+                        class="sw-product-feature-sets-list__edit-action"
+                    >
+                        {{ $tc('sw-settings-product-feature-sets.list.contextMenuEdit') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+
+                    {% block sw_settings_product_feature_set_list_grid_columns_actions_delete %}
+                    <sw-context-menu-item
+                        :disabled="item.isSystemDefault || !acl.can('product_feature_sets.deleter') || undefined"
+                        variant="danger"
+                        class="sw-product-feature-sets-list__delete-action"
+                        @click="onDelete(item.id)"
+                    >
+                        {{ $tc('sw-settings-product-feature-sets.list.contextMenuDelete') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+
+                </template>
+                {% endblock %}
+
+                {% block sw_settings_product_feature_set_list_grid_action_modals %}
+                <template #action-modals="{ item }">
+
+                    {% block sw_settings_product_feature_set_list_delete_modal %}
+                    <sw-modal
+                        v-if="showDeleteModal"
+                        :title="$tc('global.default.warning')"
+                        variant="small"
+                        @modal-close="onCloseDeleteModal"
+                    >
+
+                        {% block sw_settings_product_feature_set_list_delete_modal_confirm_delete_text %}
+                        <p class="sw-settings-product-feature-sets-list__confirm-delete-text">
+                            {{ $tc('sw-settings-product-feature-sets.list.textDeleteConfirm', { name: item.name }, 0) }}
+                        </p>
+                        {% endblock %}
+
+                        {% block sw_settings_product_feature_set_list_delete_modal_footer %}
+                        <template #modal-footer>
+
+                            {% block sw_settings_product_feature_set_list_delete_modal_cancel %}
+                            <mt-button
+                                size="small"
+                                variant="secondary"
+                                @click="onCloseDeleteModal"
+                            >
+                                {{ $tc('global.default.cancel') }}
+                            </mt-button>
+                            {% endblock %}
+
+                            {% block sw_settings_product_feature_set_list_delete_modal_confirm %}
+                            <mt-button
+                                variant="critical"
+                                size="small"
+                                @click="onConfirmDelete(item.id)"
+                            >
+                                {{ $tc('sw-settings-product-feature-sets.list.buttonDelete') }}
+                            </mt-button>
+                            {% endblock %}
+
+                        </template>
+                        {% endblock %}
+                    </sw-modal>
+                    {% endblock %}
+
+                </template>
+                {% endblock %}
+
+            </sw-entity-listing>
+
+        </div>
+        {% endblock %}
+
+    </template>
+
+</sw-page>
+    {% endblock %}
+{% endblock %}

@@ -1,0 +1,17 @@
+.sw-cms-block-image-simple-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+    grid-gap: 40px;
+
+    .sw-cms-el-image.is--cover {
+        min-height: 300px;
+    }
+
+    .sw-cms-block-image-simple-grid__side-images {
+        height: 100%;
+    }
+
+    .sw-cms-block-image-simple-grid__image-top {
+        margin-bottom: 40px;
+    }
+}

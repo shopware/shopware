@@ -1,0 +1,20 @@
+@import "~scss/variables";
+
+.sw-product-category-form {
+    .sw-product-category-form__tag-field-wrapper {
+        margin-top: 8px;
+    }
+
+    &__visibility-title {
+        font-weight: $font-weight-semi-bold;
+        margin-bottom: 8px;
+    }
+
+    &__visibility_field {
+        margin-top: 20px;
+
+        .sw-product-detail__select-visibility.sw-field {
+            margin-bottom: 0;
+        }
+    }
+}

@@ -1,0 +1,15 @@
+@import "~scss/variables";
+
+$sw-media-quickinfo-border-color-preview: $color-gray-300;
+$sw-media-quickinfo-border-radius-preview: $border-radius-default;
+
+.sw-media-folder-info {
+    .sw-media-sidebar__quickaction--disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    .sw-media-quickinfo-metadata-name.has--error {
+        margin-bottom: 14px;
+    }
+}

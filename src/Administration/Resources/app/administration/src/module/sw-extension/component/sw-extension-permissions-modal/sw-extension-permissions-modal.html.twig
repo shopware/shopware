@@ -1,0 +1,139 @@
+{% block sw_extension_permissions_modal %}
+<sw-modal
+    class="sw-extension-permissions-modal"
+    :title="modalTitle"
+    variant="small"
+    @modal-close="close"
+>
+    {% block sw_extension_permissions_modal_content %}
+    {% block sw_extension_permissions_modal_intro %}
+    <div class="sw-extension-permissions-modal__intro">
+        {% block sw_extension_permissions_modal_intro_image %}
+        <img
+            class="sw-extension-permissions-modal__image"
+            :src="assetFilter('/administration/administration/static/img/extension-store/permissions.svg')"
+            alt=""
+        >
+        {% endblock %}
+
+        {% block sw_extension_permissions_modal_intro_text %}
+        <p class="sw-extension-permissions-modal__description">
+            {{ descriptionText }}
+        </p>
+
+        <p
+            v-if="domainsList.length > 0"
+            class="sw-extension-permissions-modal__domain-hint"
+        >
+            {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.domainHint') }}
+        </p>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_extension_permissions_modal_categories %}
+    <div class="sw-extension-permissions-modal__categories">
+        {% block sw_extension_permissions_modal_category %}
+        <div
+            v-for="(permission, key) in permissionsWithGroupedOperations"
+            :key="key"
+            class="sw-extension-permissions-modal__category"
+        >
+            {% block sw_extension_permissions_modal_category_inner %}
+            {% block sw_extension_permissions_modal_category_label %}
+            <span class="sw-extension-permissions-modal__category-label">
+                {{ categoryLabel(key) }}
+            </span>
+            {% endblock %}
+
+            {% block sw_extension_permissions_modal_link %}
+            <mt-button
+                class="sw-extension-permissions-modal__link"
+                variant="secondary"
+                @click="openDetailsModal(key)"
+            >
+                {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.textEntities') }}
+                <mt-icon
+                    name="regular-long-arrow-right"
+                    size="12px"
+                />
+            </mt-button>
+            {% endblock %}
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_extension_permissions_modal_category_domains %}
+        <div
+            v-if="domainsList.length > 0"
+            class="sw-extension-permissions-modal__category"
+        >
+            <span class="sw-extension-permissions-modal__category-label">
+                {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.domains') }}
+            </span>
+
+            <mt-button
+                class="sw-extension-permissions-modal__link"
+                variant="secondary"
+                @click="toggleDomainsModal(true)"
+            >
+                {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.showDomains') }}
+
+                <mt-icon
+                    name="regular-long-arrow-right"
+                    size="12px"
+                />
+            </mt-button>
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+    {% endblock %}
+
+    {% block sw_extension_permissions_modal_footer %}
+    <template #modal-footer>
+        {% block sw_extension_permissions_modal_footer_inner %}
+        {% block sw_extension_permissions_modal_footer_close %}
+        <mt-button
+            :variant="actionLabel === null ? 'primary' : ''"
+            size="small"
+            @click="close"
+        >
+            {{ closeBtnLabel }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_extension_permissions_modal_footer_action %}
+        <mt-button
+            v-if="actionLabel"
+            variant="primary"
+            size="small"
+            @click="closeWithAction"
+        >
+            {{ actionLabel }}
+        </mt-button>
+        {% endblock %}
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_extension_permissions_modal_details %}
+    <sw-extension-permissions-details-modal
+        v-if="showDetailsModal"
+        :modal-title="modalTitle"
+        :permissions="permissionsWithGroupedOperations"
+        :selected-entity="selectedEntity"
+        @modal-close="closeDetailsModal"
+    />
+    {% endblock %}
+
+    {% block sw_extension_permissions_modal_domains %}
+    <sw-extension-domains-modal
+        v-if="showDomainsModal"
+        :extension-label="extensionLabel"
+        :domains="domainsList"
+        @modal-close="toggleDomainsModal(false)"
+    />
+    {% endblock %}
+</sw-modal>
+{% endblock %}

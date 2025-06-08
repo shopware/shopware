@@ -1,0 +1,37 @@
+{% extends '@Installer/installer/base.html.twig' %}
+
+{% block base_content %}
+    <div class="card__title">
+        <h2>{{ "shopware.installer.license_agreement_header"|trans }}</h2>
+    </div>
+
+    <form action="{{ url('installer.license') }}" id="license-agreement" method="post">
+        <div class="card__body">
+            {% if error %}
+                <div class="alert alert-error">
+                    {{ "shopware.installer.license_agreement_error"|trans }}
+                </div>
+            {% endif %}
+
+            <p>
+                {{ "shopware.installer.license_agreement_info"|trans }}
+            </p>
+
+            <div id="tos" class="license-agreement">{{ licenseAgreement|raw }}</div>
+
+            <div class="custom-checkbox">
+                <input type="checkbox" id="terms" name="tos" required/>
+                <label for="terms">{{ "shopware.installer.license_agreement_checkbox"|trans }}</label>
+            </div>
+        </div>
+
+        <div class="card__footer flex-container">
+            <a href="{{ url('installer.requirements') }}" class="btn btn-default flex-item">{{ "shopware.installer.back"|trans }}</a>
+            <button type="submit"
+                    class="btn btn-primary flex-item flex-right"
+                    onclick="document.getElementById('license-agreement').classList.add('is--submitted')">
+                {{ "shopware.installer.forward"|trans }}
+            </button>
+        </div>
+    </form>
+{% endblock %}

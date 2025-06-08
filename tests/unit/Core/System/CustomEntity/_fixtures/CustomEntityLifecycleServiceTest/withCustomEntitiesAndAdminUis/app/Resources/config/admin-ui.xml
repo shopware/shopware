@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<admin-ui
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../../../../../../../../../../src/Core/System/CustomEntity/Xml/Config/AdminUi/admin-ui-1.0.xsd">
+    <entity name="ce_super_simple" navigation-parent="sw-content" position="50" icon="regular-tools-alt" color="#f00">
+        <listing>
+            <columns>
+                <column ref="test_string"/>
+            </columns>
+        </listing>
+        <detail>
+            <tabs>
+                <tab name="main">
+                    <card name="general">
+                        <field ref="test_string"/>
+                    </card>
+                </tab>
+            </tabs>
+        </detail>
+    </entity>
+    <entity name="ce_cms_aware" navigation-parent="sw-content" position="50" icon="regular-tools-alt" color="#f00">
+        <listing>
+            <columns>
+                <column ref="payload"/>
+                <column ref="email"/>
+                <column ref="price"/>
+                <column ref="my_date"/>
+            </columns>
+        </listing>
+        <detail>
+            <tabs>
+                <tab name="foo">
+                    <card name="water">
+                        <field ref="payload"/>
+                        <field ref="email"/>
+                        <field ref="price"/>
+                    </card>
+                    <card name="fire">
+                        <field ref="my_date"/>
+                        <field ref="price"/>
+                    </card>
+                </tab>
+                <tab name="bar">
+                    <card name="stone">
+                        <field ref="price"/>
+                    </card>
+                    <card name="ice">
+                        <field ref="my_date"/>
+                        <field ref="price"/>
+                        <field ref="email"/>
+                        <field ref="payload"/>
+                    </card>
+                    <card name="air">
+                        <field ref="email"/>
+                        <field ref="price"/>
+                    </card>
+                </tab>
+            </tabs>
+        </detail>
+    </entity>
+</admin-ui>

@@ -1,0 +1,24 @@
+{
+    "name": "swag/swag_test_validate_conflicts_specific_message",
+    "description": "Test conflict handling",
+    "version": "v1.0.0",
+    "type": "shopware-platform-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "shopware AG",
+            "role": "Manufacturer"
+        }
+    ],
+    "conflict": {
+        "shopware/core": "> 6.3.0.0"
+    },
+    "extra": {
+        "shopware-plugin-class": "SwagTestValidateConflictsSpecificMessage\\SwagTestValidateConflictsSpecificMessage",
+        "copyright": "(c) by shopware AG",
+        "label": {
+            "de-DE": "Test für Konflikte-Handling",
+            "en-GB": "Test for conflict handling"
+        }
+    }
+}

@@ -1,0 +1,62 @@
+@import "~scss/variables";
+
+$sw-media-modal-folder-settings-color-switch-mode: $color-shopware-brand-500;
+$sw-media-modal-folder-settings-border-color: $color-gray-300;
+$sw-media-modal-folder-settings-color-disabled-switch-mode: $color-gray-300;
+$sw-media-modal-folder-settings-delete-color: $color-crimson-500;
+
+.sw-media-modal-folder-settings {
+    .sw-tabs__bar {
+        &.sw-tabs__bar-minimal {
+            margin: 0 0 24px;
+            max-width: none;
+        }
+    }
+
+    .sw-media-modal-folder-settings__thumbnails-list-caption {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .sw-media-modal-folder-settings__thumbnails-list-container {
+        border: 1px solid $sw-media-modal-folder-settings-border-color;
+        padding: 22px 24px 0;
+    }
+
+    .sw-media-modal-folder-settings__thumbnails-list {
+        list-style: none;
+
+        &.is--editable {
+            li {
+                border-bottom: 1px solid $sw-media-modal-folder-settings-border-color;
+            }
+        }
+
+        li {
+            border-bottom: 1px solid transparent;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+
+            .sw-field--switch {
+                margin: 0;
+            }
+        }
+
+        .sw-media-modal-folder-settings__delete-thumbnail {
+            margin: 16px 6px 8px 0;
+            height: 16px;
+            background: 0 none;
+            border: 0 none;
+            color: $sw-media-modal-folder-settings-delete-color;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .sw-media-modal-folder-settings__delete-thumbnail[disabled] {
+            color: $color-gray-300;
+            cursor: not-allowed;
+        }
+    }
+}

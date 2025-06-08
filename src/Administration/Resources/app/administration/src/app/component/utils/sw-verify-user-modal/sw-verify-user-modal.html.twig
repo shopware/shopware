@@ -1,0 +1,46 @@
+{% block sw_settings_user_detail_content_confirm_password_modal %}
+<sw-modal
+    :title="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.titleConfirmPasswordModal')"
+    variant="small"
+    @modal-close="onCloseConfirmPasswordModal"
+>
+
+    {% block sw_settings_user_detail_content_confirm_password_modal_input__confirm_password %}
+    <mt-password-field
+        v-model="confirmPassword"
+        class="sw-settings-user-detail__confirm-password"
+        name="sw-field--confirm-password"
+        :password-toggle-able="true"
+        autocomplete="current-password"
+        :label="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.labelConfirmPassword')"
+        :placeholder="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.placeholderConfirmPassword')"
+        @keypress.enter="onSubmitConfirmPassword"
+    />
+    {% endblock %}
+
+    {% block sw_settings_user_detail_content_confirm_password_modal_footer %}
+    <template #modal-footer>
+        {% block sw_settings_user_detail_content_confirm_password_modal_actions_cancel %}
+        <mt-button
+            size="small"
+            variant="secondary"
+            @click="onCloseConfirmPasswordModal"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_settings_user_detail_content_confirm_password_modal_actions_change %}
+        <mt-button
+            variant="primary"
+            :disabled="!confirmPassword"
+            size="small"
+            @click="onSubmitConfirmPassword"
+        >
+            {{ $tc('sw-users-permissions.users.user-detail.passwordConfirmation.labelButtonConfirm') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

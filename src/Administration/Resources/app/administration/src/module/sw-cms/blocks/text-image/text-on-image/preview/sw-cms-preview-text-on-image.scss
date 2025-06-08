@@ -1,0 +1,39 @@
+.sw-cms-preview-text-on-image {
+    height: 150px;
+    padding: 2px;
+
+    .sw-cms-preview-text-on-image__content {
+        position: relative;
+        height: 100%;
+    }
+
+    .sw-cms-preview-text-on-image__image {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        left: 0;
+        top: 0;
+
+        img {
+            display: block;
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .sw-cms-preview-text-on-image__text {
+        display: grid;
+        align-content: center;
+        justify-items: center;
+        position: relative;
+        z-index: 2;
+        height: 100%;
+        width: 100%;
+
+        h2,
+        p {
+            color: #fff;
+        }
+    }
+}

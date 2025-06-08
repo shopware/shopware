@@ -1,0 +1,25 @@
+@import "~scss/variables";
+
+.sw-condition-time-range {
+    display: grid;
+    gap: 4px;
+    grid-template-columns: 1fr 1fr;
+
+    .wrapper {
+        row-gap: 0;
+    }
+
+    .field-hint {
+        display: none;
+    }
+
+    .mt-field-label {
+        display: none;
+    }
+
+    .sw-contextual-field {
+        .sw-field__addition .mt-icon {
+            line-height: 0;
+        }
+    }
+}

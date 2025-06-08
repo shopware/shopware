@@ -1,0 +1,152 @@
+{% block sw_cms_page_form %}
+<div
+    v-responsive="{ 'is--compact': el => el.width <= 1620, timeout: 100 }"
+    class="sw-cms-page-form"
+>
+
+    {% block sw_cms_page_form_content %}
+    <template
+        v-for="section in page.sections"
+        :key="section.id"
+    >
+
+        {% block sw_cms_page_form_section %}
+        <div
+            class="sw-cms-page-form__section"
+        >
+            <div class="sw-cms-page-form__section-actions">
+
+                {% block sw_cms_page_form_section_name_wrapper %}
+                <div class="sw-cms-page-form__section-action sw-cms-page-form__section-name">
+
+                    {% block sw_cms_page_form_section_name_icon %}
+                    <mt-icon
+                        name="regular-layout"
+                        size="20"
+                        class="sw-cms-page-form__section-action-icon sw-cms-page-form__section-name-icon"
+                    />
+                    {% endblock %}
+
+                    {% block sw_cms_page_form__section_name %}
+                    <span class="sw-cms-page-form__section-action-label sw-cms-page-form__section-name-label">
+                        {{ getSectionName(section) }}
+                    </span>
+                    {% endblock %}
+
+                    <div class="sw-cms-page-form__device-actions">
+                        <mt-icon :name="getDeviceActive('mobile', section)" />
+
+                        <mt-icon :name="getDeviceActive('tablet', section)" />
+
+                        <mt-icon :name="getDeviceActive('desktop', section)" />
+                    </div>
+                </div>
+                {% endblock %}
+            </div>
+
+            {% block sw_cms_page_form_section_empty_state_block %}
+            <mt-card
+                v-if="section.blocks.length === 0"
+                position-identifier="sw-cms-page-form-empty"
+                class="sw-cms-page-form__block-card is--empty"
+            >
+
+                {% block sw_cms_page_form_section_empty_state_block_text %}
+                <p class="sw-cms-page-form__empty-state-text">
+                    {{ $tc('sw-cms.section.sectionEmptyState') }}
+                </p>
+                {% endblock %}
+            </mt-card>
+            {% endblock %}
+
+            <template
+                v-for="(block, index) in section.blocks"
+                v-else
+                :key="block.id"
+            >
+
+                {% block sw_cms_page_form_section_type_label_wrapper %}
+                <div
+                    v-if="displaySectionType(block)"
+                    class="sw-cms-page-form__section-type"
+                >
+
+                    {% block sw_cms_page_form_section_type_label %}
+                    <div class="sw-cms-page-form__section-type-label">
+
+                        {% block sw_cms_page_form_section_type_label_icon %}
+                        <mt-icon
+                            v-if="block.sectionPosition !== 'main'"
+                            size="20"
+                            name="regular-align-left-xs"
+                            class="sw-cms-page-form__section-type-icon"
+                        />
+
+                        <mt-icon
+                            v-else
+                            size="20"
+                            name="regular-align-right-xs"
+                            class="sw-cms-page-form__section-type-icon"
+                        />
+                        {% endblock %}
+
+                        {% block sw_cms_page_form_section_type %}
+                        <span class="sw-cms-page-form__section-type-name">
+                            {{ getSectionPosition(block) }}
+                        </span>
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+
+                    <hr class="sw-cms-page-form__section-divider">
+                </div>
+                {% endblock %}
+
+                {% block sw_cms_page_form_card %}
+                <mt-card
+                    position-identifier="sw-cms-page-form-block"
+                    class="sw-cms-page-form__block-card"
+                    :title="$tc(getBlockTitle(block))"
+                >
+                    <template #headerRight>
+                        <div class="sw-cms-page-form__block-device-actions">
+                            <mt-icon :name="getDeviceActive('mobile', section, block)" />
+
+                            <mt-icon :name="getDeviceActive('tablet', section, block)" />
+
+                            <mt-icon :name="getDeviceActive('desktop', section, block)" />
+                        </div>
+                    </template>
+
+                    {% block sw_cms_page_form_card_content %}
+                    <div
+                        v-for="(element, blockIndex) in block.slots"
+                        :key="blockIndex"
+                        class="sw-cms-page-form__element-config"
+                    >
+
+                        <template v-if="displayNotification(section, block)">
+                            <mt-banner variant="info">
+                                {{ $tc('sw-cms.blocks.blockDisableState') }}
+                            </mt-banner>
+                        </template>
+
+                        {% block sw_cms_page_form_element_config %}
+                        <component
+                            :is="cmsElements[element.type].configComponent"
+                            :element="element"
+                            :element-data="cmsElements[element.type]"
+                            @element-update="elementUpdate"
+                        />
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+                </mt-card>
+                {% endblock %}
+            </template>
+        </div>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+.checkout-container {
+    margin-bottom: $spacer-lg;
+}
+
+.checkout-product-table {
+    margin-bottom: $spacer-lg;
+}
+
+.checkout-confirm-tos-checkbox,
+.checkout-confirm-tos-label {
+    cursor: pointer;
+}
+
+.is-ctl-checkout,
+.is-act-checkoutregisterpage {
+    .footer-minimal {
+        .footer-service-menu-list {
+            display: block;
+        }
+    }
+}

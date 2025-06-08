@@ -1,0 +1,16 @@
+.sw-settings-number-range-detail {
+    .sw-settings-number-range--alert-change-parent {
+        margin-top: 30px;
+        margin-bottom: 0;
+    }
+
+    .sw-settings-number-range-detail__field_default {
+        position: relative;
+
+        .sw-help-text {
+            position: absolute;
+            top: 38px;
+            right: 18px;
+        }
+    }
+}

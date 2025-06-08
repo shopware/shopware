@@ -1,0 +1,19 @@
+{% set listingColumns = 'col-sm-6 col-lg-4 col-xl-3' %}
+
+{% block element_product_listing_wrapper %}
+    {% sw_include '@Storefront/storefront/element/cms-element-sidebar-filter.html.twig' with {
+        listing: page.listing,
+        sidebar: false
+    } %}
+
+    {% sw_include '@Storefront/storefront/component/product/listing.html.twig' with {
+        searchResult: page.listing,
+        dataUrl: path('widgets.search.pagelet.v2'),
+        filterUrl: path('widgets.search.filter'),
+        params: { search: page.searchTerm },
+        sidebar: 0,
+        boxLayout: 'minimal',
+        displayMode: '',
+        ariaLiveUpdates: true
+    } %}
+{% endblock %}

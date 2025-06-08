@@ -1,0 +1,72 @@
+/*
+Form
+==============================================
+Custom styling for bootstrap forms.
+
+https://getbootstrap.com/docs/5.2/forms/overview
+*/
+
+// fixes background image positioning for input validation icons
+@mixin custom-form-validation-state($state, $color, $icon) {
+    .form-control {
+        .was-validated &:#{$state},
+        &.is-#{$state} {
+            @if $enable-validation-icons {
+                background-position: 97% 50%;
+            }
+        }
+    }
+}
+
+@each $state, $data in $form-validation-states {
+    @include custom-form-validation-state($state, map-get($data, color), map-get($data, icon));
+}
+
+// overwrites the style applied by bootstrap on elements that don't need validation styling
+// (e.g. checkbox that expands different shipping address)
+.was-validated .custom-control-input:valid ~ .custom-control-label.no-validation {
+    color: inherit;
+
+    &::before {
+        border-color: inherit;
+    }
+}
+
+.required-fields {
+    margin-bottom: $spacer;
+}
+
+.form-text {
+    font-size: $font-size-base;
+}
+
+.forms-boolean {
+    display: block;
+    border: 1px solid $border-color;
+    padding: 0 36px;
+    margin: 12px 0;
+    height: 40px;
+    border-radius: 3px;
+    cursor: pointer;
+
+    &.is-active {
+        border-color: $primary;
+    }
+
+    &:hover {
+        border-color: $primary;
+        color: $primary;
+    }
+}
+
+.forms-boolean-label {
+    cursor: pointer;
+    height: 38px;
+    line-height: 38px;
+    width: 100%;
+
+    &::before,
+    &::after {
+        top: 11px;
+    }
+}

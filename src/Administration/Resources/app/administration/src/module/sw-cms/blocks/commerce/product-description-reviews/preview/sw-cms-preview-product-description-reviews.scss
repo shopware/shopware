@@ -1,0 +1,30 @@
+@import "~scss/variables";
+
+.sw-cms-sidebar__block-preview .sw-cms-block-preview-product-description-reviews {
+    color: $color-darkgray-200;
+    padding: 10px;
+
+    &__tabs {
+        display: flex;
+        margin: 0 0 10px;
+    }
+
+    &__tab-description,
+    &__tab-reviews {
+        font-size: $font-size-xs;
+        color: $color-gray-500;
+        border-bottom: 1px solid $color-gray-500;
+        margin: auto 10px auto 0;
+        padding: 0 0 5px;
+    }
+
+    &__tab-description {
+        color: $color-darkgray-200;
+        border-bottom: 1px solid $color-darkgray-200;
+    }
+
+    &__content {
+        font-size: $font-size-xxs;
+        color: $color-darkgray-200;
+    }
+}

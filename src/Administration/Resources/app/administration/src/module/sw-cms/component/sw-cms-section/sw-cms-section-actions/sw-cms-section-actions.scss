@@ -1,0 +1,33 @@
+@import "~scss/variables";
+
+.sw-cms-section__actions {
+    display: grid;
+    grid-auto-rows: 40px;
+    justify-content: center;
+    align-items: center;
+    grid-gap: 8px;
+    padding: 16px 0;
+    box-shadow: inset -7px 0 9px -7px $color-gray-300;
+
+    &.is--disabled {
+        .sw-cms-section__action {
+            cursor: not-allowed;
+            color: $color-gray-300;
+
+            &:hover,
+            .is--active {
+                color: $color-gray-300;
+            }
+        }
+    }
+
+    .sw-cms-section__action {
+        cursor: pointer;
+        color: $color-gray-900;
+
+        &:hover,
+        .is--active {
+            color: $color-shopware-brand-500;
+        }
+    }
+}

@@ -1,0 +1,44 @@
+{% block sw_inactivity_login %}
+<div class="sw-inactivity-login">
+
+    <sw-modal
+        v-if="lastKnownUser"
+        class="sw-inactivity-login__modal"
+        :title="$tc('sw-inactivity-login.modal.title')"
+        :closable="false"
+    >
+        <mt-password-field
+            v-model="password"
+            v-autofocus
+            :label="$tc('sw-login.index.labelPassword')"
+            :disabled="isLoading"
+            :error="passwordError"
+            @keydown.enter="loginUserWithPassword"
+        />
+
+        <mt-checkbox
+            v-model:checked="rememberMe"
+            :label="$tc('sw-login.index.labelKeepLoggedIn')"
+        />
+
+        <template #modal-footer>
+            <a
+                role="link"
+                tabindex="0"
+                @click="onBackToLogin"
+                @keydown.enter="onBackToLogin"
+            >
+                {{ $tc('sw-inactivity-login.modal.actions.backToLogin') }}
+            </a>
+
+            <mt-button
+                variant="primary"
+                :is-loading="isLoading"
+                @click="loginUserWithPassword"
+            >
+                {{ $tc('sw-login.index.buttonLogin') }}
+            </mt-button>
+        </template>
+    </sw-modal>
+</div>
+{% endblock %}

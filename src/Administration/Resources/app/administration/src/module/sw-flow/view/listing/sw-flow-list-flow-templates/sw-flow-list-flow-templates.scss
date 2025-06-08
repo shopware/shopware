@@ -1,0 +1,28 @@
+@import "~scss/variables";
+
+.sw-flow-list-flow-templates-card {
+    overflow: hidden;
+
+    .sw-card__content {
+        padding: 0;
+    }
+}
+
+.sw-data-grid.sw-flow-list-my-templates__grid {
+    .sw-flow-list-my-flows__content__update-flow-template-link {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .sw-flow-list-my-templates {
+        .sw-flow-list-my_templates__empty-state {
+            min-height: 550px;
+        }
+    }
+
+    .sw-data-grid__cell.sw-data-grid__cell--createFlow.sw-data-grid__cell--align-right {
+        .sw-internal-link {
+            color: $color-shopware-brand-500;
+        }
+    }
+}

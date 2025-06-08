@@ -1,0 +1,89 @@
+{
+  "sw-settings-currency": {
+    "general": {
+      "mainMenuItemGeneral": "Currencies",
+      "placeholderSearchBar": "Search all currencies..."
+    },
+    "list": {
+      "textHeadline": "Currencies",
+      "textDeleteConfirm": "Are you sure you want to delete the currency \"{name}\"?",
+      "columnName": "Name",
+      "columnIsoCode": "ISO code",
+      "columnShortName": "Short name",
+      "columnSymbol": "Symbol",
+      "columnFactor": "Factor",
+      "columnDecimalPrecision": "Decimal place",
+      "buttonAddCurrency": "Add currency",
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
+      "messageDeleteSuccess": "Currency \"{name}\" has been deleted.",
+      "buttonDelete": "Delete"
+    },
+    "detail": {
+      "textHeadline": "New currency",
+      "labelPrecision": "Decimals",
+      "placeholderPrecision": "Enter number of decimals to be displayed...",
+      "titleCard": "Settings",
+      "messageSaveSuccess": "Currency \"{name}\" has been saved.",
+      "labelName": "Name",
+      "labelIsoCode": "ISO code",
+      "labelShortName": "Short name",
+      "labelSymbol": "Symbol",
+      "labelFactor": "Conversion factor",
+      "placeholderName": "Enter name...",
+      "placeholderIsoCode": "Enter ISO code...",
+      "placeholderShortName": "Enter short name...",
+      "placeholderSymbol": "Enter currency symbol...",
+      "placeholderFactor": "Enter conversion factor...",
+      "buttonSave": "Save",
+      "notificationErrorMessage": "An error occurred while saving your currency.",
+      "titleRoundingCard": "Price rounding",
+      "titleCountryRoundingCard": "Countries",
+      "searchbarPlaceholder": "Search countries...",
+      "notificationCountryErrorMessage": "An error occurred while saving your country currency settings.",
+      "notificationCountrySuccessMessage": "Country currency settings successful saved.",
+      "currencyCountry": {
+        "countryColumn": "Country",
+        "itemDecimalsColumn": "Item decimals",
+        "itemIntervalColumn": "Item interval",
+        "itemNetRoundingColumn": "Item round net ",
+        "totalDecimalsColumn": "Grand total decimals",
+        "totalIntervalColumn": "Grand total interval",
+        "totalNetRoundingColumn": "Grand total round net"
+      },
+      "emptyCountryRoundings": "Add individual decimals and rounding factors for different countries.",
+      "emptyCountryRoundingsNewCurrency": "Fill in basic information, save the currency - then add values",
+      "buttonAddCountry": "Add country",
+      "taxFreeFrom": "Tax-free from",
+      "taxFreeFromHelpText": "If the shopping cart total is higher than the value set in \"Tax-free from\", the whole shopping cart will be tax-free. Applies to  shopping carts payed in \"{currencyName}\", only."
+    },
+    "currency-country-modal": {
+      "labelCountrySelect": "Country",
+      "titleNewCurrencyCountry": "Country",
+      "countryAlreadyAssigned": "The country has already a setting for this currency."
+    },
+    "price-rounding": {
+      "itemsHeadline": "Items",
+      "itemsSubline": "Rounding applies to all items",
+      "labelDecimals": "Decimals",
+      "labelInterval": "Interval",
+      "labelRoundForNet": "Round for net customers too",
+      "grandHeadline": "Grand total",
+      "grandSubline": "Rounding applies to grand totals",
+      "headerWarning": "Different rounding intervals - Be sure to check back with your individual service providers to avoid accounting problems.",
+      "headerInfo": "Tax calculation is based on unrounded totals. Occuring rounding differences are not subject to tax calculation.",
+      "helpTextDecimals": "Decimals indicate the maximum number of digits after the decimal separator.",
+      "helpTextInterval": "Use rounding intervals to account for markets where the lowest physical denominations of the currency have been abolished and cash roundings are in place. <br><br> Hint: Select \"None\" if you don't want to apply any price rounding. E.g. when utilising decimals larger than 2.",
+      "helpTextRoundForNet": "Activate rounding for net customer groups additionally.",
+      "labelIntervalNone": "None",
+      "tooltipIntervalDisabled": "Price rounding is not applied if decimals larger than 2 are configured."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "currencies": {
+        "label": "Currencies"
+      }
+    }
+  }
+}

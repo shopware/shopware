@@ -1,0 +1,107 @@
+{% block sw_generic_cms_page_assignment %}
+<div>
+    <mt-card
+        class="sw-generic-cms-page-assignment"
+        position-identifier="sw-generic-cms-page-assignment"
+        :title="$tc('sw-category.base.cms.title')"
+        :is-loading="isLoading"
+    >
+        <div class="sw-generic-cms-page-assignment__base-layout">
+            <sw-cms-list-item
+                active
+                :page="cmsPage"
+                @on-item-click="openLayoutModal"
+            />
+
+            <div class="sw-generic-cms-page-assignment__page-selection">
+                <div class="sw-generic-cms-page-assignment__page-selection-info">
+                    <div
+                        class="sw-generic-cms-page-assignment__page-selection-headline"
+                        :class="{ 'is--empty': !cmsPage }"
+                    >
+                        {{ cmsPage ? cmsPage.name : $tc('sw-category.base.cms.defaultTitle') }}
+                    </div>
+                    <div
+                        class="sw-generic-cms-page-assignment__page-selection-subheadline"
+                        :class="{ 'is--empty': !cmsPage }"
+                    >
+                        {{ pageTypeTitle }}
+                    </div>
+                </div>
+
+                <div
+                    v-if="cmsPage"
+                    class="sw-generic-cms-page-assignment__page-selection-actions"
+                >
+                    <mt-button
+                        class="sw-generic-cms-page-assignment__change-layout-action"
+                        size="small"
+                        variant="secondary"
+                        @click="openLayoutModal"
+                    >
+                        {{ $tc('sw-category.base.cms.changeLayout') }}
+                    </mt-button>
+
+                    <mt-button
+                        class="sw-generic-cms-page-assignment__open-in-pagebuilder"
+                        size="small"
+                        variant="secondary"
+                        @click="openInCmsEditor"
+                    >
+                        {{ $tc('sw-category.base.cms.editInPagebuilder') }}
+                    </mt-button>
+
+                    <mt-button
+                        size="small"
+                        class="sw-generic-cms-page-assignment__layout-reset"
+                        square
+                        variant="secondary"
+                        @click="onLayoutSelect(null)"
+                    >
+                        <mt-icon
+                            name="regular-trash"
+                            size="16px"
+                        />
+                    </mt-button>
+                </div>
+
+                <div
+                    v-else
+                    class="sw-generic-cms-page-assignment__page-selection-actions"
+                >
+                    <mt-button
+                        class="sw-generic-cms-page-assignment__change-layout-action"
+                        size="small"
+                        variant="secondary"
+                        @click="openLayoutModal"
+                    >
+                        {{ $tc('sw-category.base.cms.changeLayoutEmpty') }}
+                    </mt-button>
+
+                    <mt-button
+                        class="sw-generic-cms-page-assignment__create-layout"
+                        size="small"
+                        variant="secondary"
+                        @click="createNewLayout"
+                    >
+                        {{ $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
+                    </mt-button>
+                </div>
+            </div>
+        </div>
+    </mt-card>
+
+    <sw-cms-page-form
+        v-if="cmsPage"
+        :page="cmsPage"
+    />
+
+    <sw-cms-layout-modal
+        v-if="showLayoutSelection"
+        :cms-page-types="allowedPageTypes"
+        :pre-selection="cmsPage"
+        @modal-layout-select="onLayoutSelect"
+        @modal-close="closeLayoutModal"
+    />
+</div>
+{% endblock %}

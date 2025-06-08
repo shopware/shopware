@@ -1,0 +1,65 @@
+/*
+Filter range
+==============================================
+Styling for range filter item.
+This filter item should only be used inside a filter panel.
+*/
+
+.filter-range-dropdown {
+    padding: 0;
+    overflow: hidden;
+}
+
+.filter-range-container {
+    display: flex;
+    align-items: flex-end;
+    padding: 16px;
+}
+
+.filter-range-error {
+    padding: 0 16px 16px;
+    font-size: 13px;
+    color: $danger;
+}
+
+.filter-range-min,
+.filter-range-max {
+    width: calc(50% - 14px);
+    margin-bottom: 0;
+    font-size: 11px;
+    position: relative;
+}
+
+.min-input,
+.max-input {
+    margin-bottom: 0;
+    height: 28px;
+    padding: 6px 10px;
+    appearance: none;
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+        appearance: none;
+        margin: 0;
+    }
+}
+
+.filter-range-unit {
+    position: absolute;
+    bottom: 1px;
+    right: 1px;
+    height: 26px;
+    line-height: 26px;
+    font-size: 14px;
+    padding: 0 10px;
+    background-color: $white;
+    border-radius: $border-radius;
+}
+
+.filter-range-divider {
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    font-weight: $font-weight-bold;
+}

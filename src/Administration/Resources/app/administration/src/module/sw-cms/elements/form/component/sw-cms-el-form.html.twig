@@ -1,0 +1,8 @@
+{% block sw_cms_element_form %}
+<div class="sw-cms-el-form">
+    <component
+        :is="selectedForm"
+        :form-settings="element.config"
+    />
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "Document": {
+                "type": "object",
+                "properties": {
+                    "config": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "title": {
+                                "type": "string"
+                            }
+                        },
+                        "required": ["name", "title"]
+                    },
+                    "fileType": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

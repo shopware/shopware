@@ -1,0 +1,59 @@
+{% block layout_header_actions_currency_widget %}
+    {% if position is empty %}
+        {% set position = 'top-bar' %}
+    {% endif %}
+
+    {% if header.currencies.count > 1 %}
+        <div class="top-bar-nav-item top-bar-currency">
+            {% block layout_header_actions_currency_widget_form %}
+                <form method="post"
+                      action="{{ path('frontend.checkout.configure') }}"
+                      class="currency-form"
+                      data-form-add-dynamic-redirect="true">
+                    {% block layout_header_actions_currency_widget_content %}
+                        <div class="currencies-menu dropdown">
+                            {% block layout_header_actions_currency_widget_dropdown_toggle %}
+                                <button class="btn dropdown-toggle top-bar-nav-btn"
+                                        type="button"
+                                        id="currenciesDropdown-{{ position }}"
+                                        data-bs-toggle="dropdown"
+                                        aria-haspopup="true"
+                                        aria-expanded="false"
+                                        aria-label="{{ 'header.currencyTrigger'|trans({ '%currency%': context.currency.translated.name })|striptags }}">
+                                    {% block layout_header_actions_currency_widget_dropdown_toggle_name %}
+                                        <span aria-hidden="true">{{ context.currency.symbol }}</span>
+                                        <span class="top-bar-nav-text">{{ context.currency.translated.name }}</span>
+                                    {% endblock %}
+                                </button>
+                            {% endblock %}
+
+                            {% block layout_header_actions_currency_widget_form_items %}
+                                <ul class="top-bar-list dropdown-menu dropdown-menu-end"
+                                    aria-label="{{ 'header.currencyList'|trans|striptags }}">
+                                    {% for currency in header.currencies %}
+                                        {% set isActiveCurrency = currency.id is same as(context.currency.id) %}
+
+                                        {% block layout_header_actions_currency_widget_form_items_element %}
+                                            <li class="top-bar-list-item">
+                                                {% block layout_header_actions_currency_widget_form_items_element_label %}
+                                                    <button class="dropdown-item d-flex gap-1{% if isActiveCurrency %} active{% endif %}" type="submit" name="currencyId" id="{{ position }}-{{ currency.id }}" value="{{ currency.id }}">
+                                                        <span aria-hidden="true" class="top-bar-list-item-currency-symbol">{{ currency.symbol }}</span>
+                                                        {{ currency.translated.name }}
+                                                    </button>
+                                                {% endblock %}
+                                            </li>
+                                        {% endblock %}
+                                    {% endfor %}
+                                </ul>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% if position == 'offcanvas' %}
+                        <input name="redirectParameters[offcanvas]" type="hidden" value="menu">
+                    {% endif %}
+                </form>
+            {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}

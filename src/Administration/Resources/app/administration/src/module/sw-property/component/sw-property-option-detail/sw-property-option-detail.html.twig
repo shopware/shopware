@@ -1,0 +1,89 @@
+{% block sw_property_option_detail %}
+<sw-modal
+    :title="currentOption.name ? currentOption.name : $tc('sw-property.detail.textOptionHeadline')"
+    @modal-close="onCancel"
+>
+    {% block sw_property_option_detail_name %}
+
+    <mt-text-field
+        v-model="currentOption.name"
+        name="sw-field--currentOption-name"
+        validation="required"
+        :label="$tc('sw-property.detail.labelOptionName')"
+        :disabled="!allowEdit"
+        :placeholder="$tc('sw-property.detail.placeholderOptionName')"
+        :error="currentOptionNameError"
+        required
+    />
+    {% endblock %}
+
+    {% block sw_property_option_detail_position %}
+    <mt-number-field
+        v-model="currentOption.position"
+        name="sw-field--currentOption-position"
+        pattern="[0-9]"
+        :step="1"
+        :disabled="!allowEdit"
+        :label="$tc('sw-property.detail.labelOptionPosition')"
+        :placeholder="$tc('sw-property.detail.placeholderOptionPosition')"
+    />
+    {% endblock %}
+
+    {% block sw_property_option_detail_color %}
+    <mt-colorpicker
+        v-model="colorHexCode"
+        name="sw-field--currentOption-colorHexCode"
+        :disabled="!allowEdit"
+        :label="$tc('sw-property.detail.labelOptionColor')"
+        :z-index="1000"
+    />
+    {% endblock %}
+
+    {% block sw_property_option_detail_media %}
+    <sw-upload-listener
+        :upload-tag="currentOption.id"
+        auto-upload
+        @media-upload-finish="successfulUpload"
+    />
+    <sw-media-compact-upload-v2
+        default-folder="product"
+        :label="$tc('sw-property.detail.labelMediaUpload')"
+        :source="currentOption.mediaId"
+        :upload-tag="currentOption.id"
+        :disabled="!allowEdit"
+        @media-upload-remove-image="removeMedia"
+        @selection-change="setMedia"
+    />
+    {% endblock %}
+
+    {% block sw_property_option_detail_footer %}
+    <template #modal-footer>
+        {% block sw_property_option_detail_footer_cancel %}
+        <mt-button
+            size="small"
+            variant="secondary"
+            @click="onCancel"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_property_option_detail_footer_save %}
+        <mt-button
+            v-tooltip.bottom="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('property.editor'),
+                showOnDisabledElements: true
+            }"
+            variant="primary"
+            size="small"
+            :disabled="!allowEdit"
+            @click="onSave"
+        >
+            {{ $tc('global.default.apply') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

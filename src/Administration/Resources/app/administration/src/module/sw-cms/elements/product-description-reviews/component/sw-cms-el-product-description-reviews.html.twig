@@ -1,0 +1,124 @@
+{% block sw_cms_element_product_description_reviews %}
+<div
+    class="sw-cms-el-product-description-reviews"
+    :style="alignStyle"
+>
+    {% block sw_cms_element_product_description_reviews_tabs %}
+    <div class="sw-cms-el-product-description-reviews__tabs">
+        <h2 class="sw-cms-el-product-description-reviews__description-tab">
+            {{ $tc('sw-cms.elements.productDescriptionReviews.preview.label.description') }}
+        </h2>
+        <h2 class="sw-cms-el-product-description-reviews__reviews-tab">
+            {{ $tc('sw-cms.elements.productDescriptionReviews.preview.label.reviews') }}
+        </h2>
+    </div>
+    {% endblock %}
+
+    {% block sw_cms_element_product_description_reviews_placeholder %}
+    {% block sw_cms_element_product_description_reviews_placeholder_header %}
+    <div
+        v-if="isProductPageType && !currentDemoEntity"
+        class="sw-cms-el-product-description-reviews__placeholder"
+    >
+        <div class="sw-cms-el-product-description-reviews__placeholder-title"></div>
+        <div class="sw-cms-el-product-description-reviews__placeholder-description"></div>
+        <div class="sw-cms-el-product-description-reviews__placeholder-description"></div>
+        <div class="sw-cms-el-product-description-reviews__placeholder-description"></div>
+    </div>
+    {% endblock %}
+
+    {% block sw_cms_element_product_description_reviews_placeholder_listing %}
+    <ul
+        v-if="isProductPageType && !currentDemoEntity"
+        class="sw-cms-el-product-description-reviews__placeholder-listing"
+    >
+        <li class="sw-cms-el-product-description-reviews__placeholder-item">
+            <div class="sw-cms-el-product-description-reviews__placeholder-left"></div>
+            <div class="sw-cms-el-product-description-reviews__placeholder-right"></div>
+        </li>
+        <li class="sw-cms-el-product-description-reviews__placeholder-item">
+            <div class="sw-cms-el-product-description-reviews__placeholder-left"></div>
+            <div class="sw-cms-el-product-description-reviews__placeholder-right"></div>
+        </li>
+        <li class="sw-cms-el-product-description-reviews__placeholder-item">
+            <div class="sw-cms-el-product-description-reviews__placeholder-left"></div>
+            <div class="sw-cms-el-product-description-reviews__placeholder-right"></div>
+        </li>
+        <li class="sw-cms-el-product-description-reviews__placeholder-item">
+            <div class="sw-cms-el-product-description-reviews__placeholder-left"></div>
+            <div class="sw-cms-el-product-description-reviews__placeholder-right"></div>
+        </li>
+        <li class="sw-cms-el-product-description-reviews__placeholder-item">
+            <div class="sw-cms-el-product-description-reviews__placeholder-left"></div>
+            <div class="sw-cms-el-product-description-reviews__placeholder-right"></div>
+        </li>
+    </ul>
+    {% endblock %}
+
+    {% endblock %}
+
+    {% block sw_cms_element_product_description_reviews_detail %}
+    {% block sw_cms_element_product_description_reviews_detail_header %}
+    <div
+        v-if="!isProductPageType || currentDemoEntity"
+        class="sw-cms-el-product-description-reviews__detail"
+    >
+        <h3 class="sw-cms-el-product-description-reviews__detail-title">
+            {{ placeholder(product, 'name', product.name) }}
+        </h3>
+        <div class="sw-cms-el-product-description-reviews__detail-description">
+            {{ placeholder(product, 'description', product.description) }}
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block sw_cms_element_product_description_reviews_detail_listing %}
+    <ul
+        v-if="!isProductPageType || currentDemoEntity"
+        class="sw-cms-el-product-description-reviews__detail-listing"
+    >
+        <li class="sw-cms-el-product-description-reviews__detail-item">
+            <div class="sw-cms-el-product-description-reviews__detail-item-label">
+                property
+            </div>
+            <div class="sw-cms-el-product-description-reviews__detail-item-value">
+                property value
+            </div>
+        </li>
+        <li class="sw-cms-el-product-description-reviews__detail-item">
+            <div class="sw-cms-el-product-description-reviews__detail-item-label">
+                property
+            </div>
+            <div class="sw-cms-el-product-description-reviews__detail-item-value">
+                property value
+            </div>
+        </li>
+        <li class="sw-cms-el-product-description-reviews__detail-item">
+            <div class="sw-cms-el-product-description-reviews__detail-item-label">
+                property
+            </div>
+            <div class="sw-cms-el-product-description-reviews__detail-item-value">
+                property value
+            </div>
+        </li>
+        <li class="sw-cms-el-product-description-reviews__detail-item">
+            <div class="sw-cms-el-product-description-reviews__detail-item-label">
+                property
+            </div>
+            <div class="sw-cms-el-product-description-reviews__detail-item-value">
+                property value
+            </div>
+        </li>
+        <li class="sw-cms-el-product-description-reviews__detail-item">
+            <div class="sw-cms-el-product-description-reviews__detail-item-label">
+                property
+            </div>
+            <div class="sw-cms-el-product-description-reviews__detail-item-value">
+                property value
+            </div>
+        </li>
+    </ul>
+    {% endblock %}
+    {% endblock %}
+</div>
+{% endblock %}

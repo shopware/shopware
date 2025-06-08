@@ -1,0 +1,164 @@
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+./Icon?
+ehthumbs.db
+Thumbs.db
+# SASS/SCSS cache
+.sass-cache/
+
+# PhpStorm-Project
+/.idea/
+!/.idea/icon.svg
+/.fleet/
+*.http
+/.run/
+
+# VSCode-Project
+/.vscode/
+!/.vscode/settings.json
+
+# Composer
+/composer.phar
+/auth.json
+/vendor/*
+/composer.lock
+
+# Generated database schema files
+/schema
+
+# Symfony-CLI
+php.ini
+.php-version
+
+# Caches/Proxies
+.php_cs
+.php_cs.cache
+/.phpunit.cache
+/var/*
+/var/bootstrap.php.cache
+/var/config_administration_plugins.json
+/var/jwt/public.pem
+/var/jwt/private.pem
+.eslintcache
+.stylelintcache
+.jestcache
+/.phpunit.cache
+
+/public/*
+!/public/index.php
+!/public/.htaccess.dist
+/public/css/*
+!/public/css/
+!/public/css/.gitkeep
+/public/js/*
+!/public/js/
+!/public/js/.gitkeep
+/public/media/*
+!/public/media/
+!/public/media/.gitkeep
+src/Administration/Resources/public/static/
+
+/files/documents/*
+!/files/documents/.htaccess
+/files/downloads/*
+
+# Snippet exports
+/snippetsExport/
+
+!**/.gitkeep
+
+# Log files
+/var/logs/*
+!/var/logs/.htaccess
+/var/log/*
+!/var/log/.htaccess
+npm-debug.log
+
+# User configurations
+app/config/parameters.yml
+
+# tooling
+/dev-ops/docker/_volumes
+/compose.override.yml
+/compose.override.yaml
+/.psh.yml
+/dev-ops/docker/containers/*/createuser.sh
+/dev-ops/docker/containers/php7/Dockerfile
+/.psh.yaml.override
+/.psh.yml.override
+/.env
+.env.local
+.env.local.php
+.env.test
+.env.e2e
+.env.dev
+/dev-ops/check_requirements.php
+/performance/_fixtures.php
+src/Core/DevOps/Locust/fixtures/*
+src/Core/DevOps/Locust/env.json
+src/Core/DevOps/Locust/**/__pycache__/
+/.shopware-project.yml
+/.tinkerwell
+/shop
+
+.php-cs-fixer.cache
+
+# tests / ci
+/build/
+!build/artifacts/.gitkeep
+tests/integration/Core/Framework/Plugin/_fixtures/SwagFashionTheme.zip
+tests/integration/Core/Framework/Plugin/_fixtures/TestShippingApp.zip
+.jest
+###> symfony/phpunit-bridge ###
+.phpunit
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit-bridge ###
+
+###> symfony/framework-bundle ###
+.env
+/public/bundles/
+/var/
+/vendor/
+phpstan.neon
+###< symfony/framework-bundle ###
+
+config/jwt/
+config/packages/*
+!config/packages/test/
+config/routes*
+!config/routes/
+config/routes/*
+!config/routes/test/
+config/services*
+!/config/services_test.xml
+
+custom
+!/custom/scripts/boot
+!/custom/scripts/examples
+files/*
+install.lock
+
+vendor-bin/**/vendor
+vendor-bin/**/composer.lock
+.uniqueid.txt
+
+http-client.private.env.json
+
+# nix
+.direnv/
+.phpbench/*
+
+# Devenv
+.devenv*
+devenv.local.nix
+
+# danger.php
+danger.phar
+
+# Vite deps
+**/.tmp/vite/*

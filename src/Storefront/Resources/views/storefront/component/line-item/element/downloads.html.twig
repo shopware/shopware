@@ -1,0 +1,15 @@
+{% block component_line_item_downloads %}
+    {% if lineItem.downloads is defined and lineItem.downloads|length > 0 %}
+        <div class="order-detail-content-list">
+            {% block component_line_item_download_items %}
+                {% for download in lineItem.downloads %}
+                    {% if download.accessGranted %}
+                        {% block component_line_item_download_item %}
+                            {% sw_include '@Storefront/storefront/component/line-item/element/download-item.html.twig' %}
+                        {% endblock %}
+                    {% endif %}
+                {% endfor %}
+            {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}

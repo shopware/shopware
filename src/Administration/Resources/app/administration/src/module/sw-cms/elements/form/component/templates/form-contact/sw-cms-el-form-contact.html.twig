@@ -1,0 +1,66 @@
+{% block sw_cms_el_form_contact %}
+<div class="sw-cms-el-form-contact">
+    <h3
+        v-if="formSettings.title.value.length > 0"
+        class="sw-cms-el-form-headline"
+    >
+        {{ formSettings.title.value }}
+    </h3>
+
+    <div class="sw-cms-el-form-contact-form-group three-items">
+        <mt-select
+            :model-value="'default'"
+            :label="$tc('sw-cms.elements.form.element.label.salutation')"
+            :options="salutationOptions"
+        />
+
+        <mt-text-field
+            :label="$tc('sw-cms.elements.form.element.label.firstName')"
+            :model-value="$tc('sw-cms.elements.form.element.placeholder.firstName')"
+        />
+
+        <mt-text-field
+            :label="$tc('sw-cms.elements.form.element.label.lastName')"
+            :model-value="$tc('sw-cms.elements.form.element.placeholder.lastName')"
+        />
+    </div>
+
+    <div class="sw-cms-el-form-contact-form-group two-items">
+
+        <mt-text-field
+            :label="$tc('sw-cms.elements.form.element.label.email')"
+            :model-value="$tc('sw-cms.elements.form.element.placeholder.email')"
+        />
+
+        <mt-text-field
+            :label="$tc('sw-cms.elements.form.element.label.phone')"
+            :model-value="$tc('sw-cms.elements.form.element.placeholder.phone')"
+        />
+    </div>
+
+    <mt-text-field
+        :label="$tc('sw-cms.elements.form.element.label.subject')"
+        :model-value="$tc('sw-cms.elements.form.element.placeholder.subject')"
+    />
+
+    <mt-textarea
+        :label="$tc('sw-cms.elements.form.element.label.message')"
+        :model-value="$tc('sw-cms.elements.form.element.placeholder.message')"
+    />
+
+    <h4>{{ $t('sw-cms.elements.form.element.label.privacy') }}</h4>
+
+    <p
+        class="sw-cms-el-form-contact__privacy"
+        v-html="$t('sw-cms.general.privacyNotice')"
+    ></p>
+
+    <p class="sw-cms-el-form-contact__note">
+        {{ $t('sw-cms.elements.form.element.helpText.requiredFields') }}
+    </p>
+
+    <div class="sw-cms-el-form__action">
+        {{ $t('global.default.submit') }}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+@import "~scss/variables";
+
+$sw-payment-card_content-gap: 20px;
+
+.sw-payment-card {
+    .sw-payment-card_content {
+        display: flex;
+        align-items: center;
+        column-gap: $sw-payment-card_content-gap;
+    }
+
+    .sw-payment-card__preview {
+        max-width: 40px;
+        max-height: 40px;
+        flex-shrink: 0;
+    }
+
+    .sw-payment-card__description {
+        flex-grow: 1;
+        margin-right: 36px;
+    }
+
+    .sw-field--switch {
+        margin: 0;
+    }
+
+    .sw-internal-link {
+        text-decoration: underline;
+        flex-shrink: 0;
+    }
+}

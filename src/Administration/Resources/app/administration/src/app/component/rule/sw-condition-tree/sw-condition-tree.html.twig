@@ -1,0 +1,12 @@
+{% block sw_condition_tree %}
+<div class="sw-condition-tree">
+    <sw-condition-tree-node
+        v-if="conditionTree"
+        :disabled="disabled"
+        :parent-condition="rootCondition"
+        :condition="conditionTree"
+        :level="0"
+    />
+    <sw-loader v-else />
+</div>
+{% endblock %}

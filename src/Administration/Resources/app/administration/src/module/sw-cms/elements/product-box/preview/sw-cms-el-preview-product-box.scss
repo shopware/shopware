@@ -1,0 +1,21 @@
+@import "~scss/variables";
+
+.sw-cms-el-preview-product-box {
+    height: 100%;
+    display: flex;
+    justify-items: center;
+    justify-content: center;
+
+    .sw-cms-product-box-preview {
+        max-width: 180px;
+        grid-template-rows: 75px 36px;
+
+        .sw-cms-product-box-preview__image {
+            height: 75px;
+        }
+    }
+
+    .sw-cms-product-box-preview__action {
+        align-self: flex-end;
+    }
+}

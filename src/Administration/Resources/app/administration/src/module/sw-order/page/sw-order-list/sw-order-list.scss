@@ -1,0 +1,49 @@
+@import "~scss/variables";
+
+$sw-order-list-color-error: $color-crimson-500;
+$sw-order-list-color-success: $color-emerald-500;
+
+.sw-order-list {
+    .sw-order-list__content {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+    }
+
+    .sw-data-grid__cell:not(.sw-data-grid__cell--header) {
+        .is--inactive {
+            color: $sw-order-list-color-error;
+        }
+
+        .is--active {
+            color: $sw-order-list-color-success;
+        }
+    }
+
+    .sw-order-list__sidebar .sw-sidebar-item__scrollable-container {
+        padding: 0 25px;
+    }
+
+    .sw-order-list__manual-order-label,
+    .sw-order-list__tooltip-order-comment {
+        margin-left: 12px;
+        text-align: center;
+    }
+
+    .sw-filter-panel {
+        padding: 0;
+    }
+
+    &__state {
+        .sw-color-badge {
+            margin: 0 8px 0 0;
+        }
+    }
+}
+
+.sw-order-bulk-edit-modal {
+    .sw-order-bulk_edit__manual-order-label {
+        margin-left: 12px;
+        text-align: center;
+    }
+}

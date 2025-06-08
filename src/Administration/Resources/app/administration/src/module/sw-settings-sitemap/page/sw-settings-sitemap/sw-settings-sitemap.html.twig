@@ -1,0 +1,62 @@
+{% block sw_settings_sitemap_index %}
+<sw-page class="sw-settings-sitemap">
+
+    {% block sw_settings_sitemap_search_bar %}
+    <template #search-bar>
+        <sw-search-bar />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_sitemap_smart_bar_header %}
+    <template #smart-bar-header>
+        {% block sw_settings_sitemap_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_sitemap_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <mt-icon
+                name="regular-chevron-right-xs"
+                size="12px"
+            />
+            {{ $tc('sw-settings-sitemap.general.textHeadline') }}
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_sitemap_smart_bar_actions %}
+    <template #smart-bar-actions>
+        {% block sw_settings_sitemap_actions_save %}
+        <sw-button-process
+            class="sw-settings-sitemap__save-action"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="isLoading"
+            variant="primary"
+            @update:process-success="saveFinish"
+            @click="onSave"
+        >
+            {{ $tc('sw-settings-sitemap.general.buttonSave') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_sitemap_content %}
+    <template #content>
+        <sw-card-view>
+            <sw-skeleton v-if="isLoading" />
+
+            {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
+            <sw-system-config
+                v-show="!isLoading"
+                ref="systemConfig"
+                sales-channel-switchable
+                domain="core.sitemap"
+                @loading-changed="onLoadingChanged"
+            />
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

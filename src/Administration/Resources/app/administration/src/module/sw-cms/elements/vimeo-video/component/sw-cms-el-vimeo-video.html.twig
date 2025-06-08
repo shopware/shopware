@@ -1,0 +1,10 @@
+{% block sw_cms_el_vimeo_video %}
+<div class="sw-cms-el-vimeo-video">
+    <!-- eslint-disable-next-line vuejs-accessibility/iframe-has-title -->
+    <iframe
+        class="sw-cms-el-vimeo-video__video"
+        :title="iframeTitle"
+        :src="videoUrl"
+    ></iframe>
+</div>
+{% endblock %}

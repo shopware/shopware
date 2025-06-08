@@ -1,0 +1,30 @@
+@import "~scss/variables";
+
+$sw-media-collapse-color-divider: $color-gray-300;
+$sw-media-collapse-color-title: $color-darkgray-200;
+$sw-media-collapse-font-size-title: $font-size-s;
+
+.sw-media-sidebar .sw-collapse {
+    .sw-media-collapse__header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        cursor: pointer;
+        padding: 16px 25px 0;
+        color: $sw-media-collapse-color-title;
+    }
+
+    .sw-media-collapse__title {
+        font-size: $sw-media-collapse-font-size-title;
+        font-weight: normal;
+    }
+
+    .sw-media-collapse__button.is--hidden {
+        display: none;
+    }
+
+    .sw-collapse__content {
+        padding: 0 25px 25px;
+    }
+
+    border-bottom: 1px solid $sw-media-collapse-color-divider;
+}

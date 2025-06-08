@@ -1,0 +1,39 @@
+{% block sw_custom_field_type_base_content %}
+{% parent() %}
+
+{% block sw_custom_field_type_number_container %}
+<sw-container
+    columns="1fr 1fr"
+    gap="0 20px"
+>
+    {% block sw_custom_field_type_number_container_numbertype %}
+    <mt-select
+        v-model="currentCustomField.config.numberType"
+        :label="$tc('sw-settings-custom-field.customField.detail.labelNumberType')"
+        :options="numberTypes"
+    />
+    {% endblock %}
+
+    {% block sw_custom_field_type_number_container_step %}
+    <mt-number-field
+        v-model="currentCustomField.config.step"
+        :label="$tc('sw-settings-custom-field.customField.detail.labelStep')"
+    />
+    {% endblock %}
+
+    {% block sw_custom_field_type_number_container_min %}
+    <mt-number-field
+        v-model="currentCustomField.config.min"
+        :label="$tc('sw-settings-custom-field.customField.detail.labelMin')"
+    />
+    {% endblock %}
+
+    {% block sw_custom_field_type_number_container_max %}
+    <mt-number-field
+        v-model="currentCustomField.config.max"
+        :label="$tc('sw-settings-custom-field.customField.detail.labelMax')"
+    />
+    {% endblock %}
+</sw-container>
+{% endblock %}
+{% endblock %}

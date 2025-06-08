@@ -1,0 +1,15 @@
+.sw-boolean-radio-group {
+    .sw-field__radio-group {
+        display: flex;
+        line-height: 1.1;
+    }
+
+    .sw-field__radio-option.group-bordered {
+        padding: 3px 5px;
+        margin: 0;
+
+        label {
+            margin-left: 5px;
+        }
+    }
+}

@@ -1,0 +1,80 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Newsletter\SalesChannel\SalesChannelNewsletterRecipientDefinition">
+            <tag name="shopware.sales_channel.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipientTag\NewsletterRecipientTagDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Newsletter\ScheduledTask\NewsletterRecipientTask">
+            <tag name="shopware.scheduled.task" />
+        </service>
+
+        <service id="Shopware\Core\Content\Newsletter\ScheduledTask\NewsletterRecipientTaskHandler">
+            <argument type="service" id="scheduled_task.repository" />
+            <argument type="service" id="logger"/>
+            <argument type="service" id="newsletter_recipient.repository" />
+            <tag name="messenger.message_handler" />
+        </service>
+
+        <service id="Shopware\Core\Content\Newsletter\NewsletterExceptionHandler">
+            <tag name="shopware.dal.exception_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute" public="true">
+            <argument type="service" id="newsletter_recipient.repository" />
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="shopware.rate_limiter" />
+            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack" />
+            <argument type="service" id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper"/>
+            <argument type="service" id="customer.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute" public="true">
+            <argument type="service" id="newsletter_recipient.repository" />
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute" public="true">
+            <argument type="service" id="newsletter_recipient.repository" />
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Newsletter\DataAbstractionLayer\NewsletterRecipientIndexer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="newsletter_recipient.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater"/>
+            <argument type="service" id="event_dispatcher"/>
+            <tag name="shopware.entity_indexer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Newsletter\Event\Subscriber\NewsletterRecipientDeletedSubscriber">
+            <argument type="service" id="messenger.default_bus"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Newsletter\Subscriber\NewsletterRecipientSalutationSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+    </services>
+</container>

@@ -1,0 +1,51 @@
+{% block sw_confirm_modal %}
+<sw-modal
+    class="sw-confirm-modal"
+    v-bind="$attrs"
+    :variant="variant"
+    :title="titleText"
+    @modal-close="$emit('close')"
+>
+
+    {% block sw_confirm_modal_text %}
+    <slot>
+
+        {% block sw_confirm_modal_text_default %}
+        <p class="sw-confirm-modal__text">
+            {{ descriptionText }}
+        </p>
+        {% endblock %}
+
+    </slot>
+    {% endblock %}
+
+    {% block sw_confirm_modal_footer %}
+    <template #modal-footer>
+
+        {% block sw_confirm_modal_footer_cancel %}
+        <mt-button
+            class="sw-confirm-modal__button-cancel"
+            size="small"
+            variant="secondary"
+            @click="$emit('cancel')"
+        >
+            {{ cancelText }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_confirm_modal_footer_confirm %}
+        <mt-button
+            class="sw-confirm-modal__button-confirm"
+            :variant="confirmButtonVariant"
+            size="small"
+            @click="$emit('confirm')"
+        >
+            {{ confirmText }}
+        </mt-button>
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+
+</sw-modal>
+{% endblock %}

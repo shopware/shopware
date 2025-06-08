@@ -1,0 +1,35 @@
+{% block sw_login_recovery_info %}
+<div class="sw-login-recovery-info">
+    {% block sw_login_recovery_info_headline %}
+    <h2 class="sw-login__form-headline">
+        <router-link
+            class="sw-login__back"
+            :to="{ name: 'sw.login.index.login' }"
+        >
+            <mt-icon
+                class="sw-login__back-arrow"
+                name="regular-long-arrow-left"
+                size="16px"
+            />
+        </router-link>
+        {{ $tc('sw-login.recovery.info.headline') }}
+    </h2>
+    {% endblock %}
+
+    {% block sw_login_recovery_info_info %}
+    <template v-if="!rateLimitTime">
+        <mt-banner variant="info">
+            {{ $tc('sw-login.recovery.info.info') }}
+        </mt-banner>
+        <mt-banner variant="attention">
+            {{ $tc('sw-login.recovery.info.warning') }}
+        </mt-banner>
+    </template>
+    <template v-else>
+        <mt-banner variant="info">
+            {{ $tc('global.error-codes.FRAMEWORK__RATE_LIMIT_EXCEEDED', { seconds: rateLimitTime }, 0) }}
+        </mt-banner>
+    </template>
+    {% endblock %}
+</div>
+{% endblock %}

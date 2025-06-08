@@ -1,0 +1,24 @@
+@import "~scss/variables";
+
+.sw-settings-search {
+    &__search-index-latest-build {
+        padding-left: 16px;
+        font-size: $font-size-xs;
+    }
+
+    &__search-index-rebuilding-text {
+        display: inline-block;
+        margin-bottom: 2px;
+        font-size: $font-size-xs;
+    }
+
+    &__search-index-warning-top {
+        padding-bottom: 10px;
+    }
+
+    &__search-index-rebuilding-progress {
+        display: block;
+        width: 100%;
+        margin: 24px 0;
+    }
+}

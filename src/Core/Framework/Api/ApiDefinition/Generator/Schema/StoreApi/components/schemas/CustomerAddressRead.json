@@ -1,0 +1,62 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CustomerAddressRead": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$",
+                        "readOnly": true
+                    },
+                    "customerId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$",
+                        "readOnly": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "country": {
+                        "$ref": "#/components/schemas/Country"
+                    },
+                    "countryState": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/CountryState"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "salutation": {
+                        "$ref": "#/components/schemas/Salutation"
+                    }
+                },
+                "required": [
+                    "customerId",
+                    "createdAt",
+                    "updatedAt",
+                    "country",
+                    "salutation"
+                ]
+            }
+        }
+    }
+}

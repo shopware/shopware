@@ -1,0 +1,525 @@
+{% block sw_cms_list %}
+<sw-page class="sw-cms-list">
+    {% block sw_cms_list_search_bar %}
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="cms_page"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_cms_list_toolbar %}
+    <template #smart-bar-header>
+        <h2>{{ $tc('sw-cms.general.moduleTitle') }}</h2>
+    </template>
+
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
+
+    <template #smart-bar-actions>
+        <mt-button
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('cms.creator'),
+                showOnDisabledElements: true
+            }"
+            variant="primary"
+            :disabled="!acl.can('cms.creator') || undefined"
+            size="default"
+            @click="onCreateNewLayout"
+        >
+            {{ $tc('sw-cms.general.createNewLayout') }}
+        </mt-button>
+    </template>
+    {% endblock %}
+
+    {% block sw_cms_list_card_view %}
+    <template #content>
+        <sw-card-view>
+
+            {% block sw_cms_list_content %}
+            <div class="sw-cms-list__content">
+                {% block sw_cms_list_sidebar %}
+                <div class="sw-cms-list__sidebar">
+                    {% block sw_cms_list_sidebar_tabs %}
+                    <sw-tabs
+                        is-vertical
+                        small
+                        position-identifier="sw-cms-list-sidebar"
+                        class="sw-cms-list__type-nav"
+                    >
+                        <sw-tabs-item
+                            v-for="pageType in sortPageTypes"
+                            :key="pageType.name"
+                            :disabled="pageType.disabled || undefined"
+                            :active="pageType.active"
+                            @click="onSortPageType(pageType.value)"
+                        >
+                            {{ pageType.name }}
+                        </sw-tabs-item>
+                    </sw-tabs>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+
+                {% block sw_cms_list_listing %}
+                <div class="sw-cms-list__listing">
+
+                    {% block sw_cms_list_listing_actions %}
+                    <div class="sw-cms-list__actions">
+                        {% block sw_cms_list_listing_title %}
+                        <h3>{{ $tc('sw-cms.general.greeting') }}</h3>
+                        {% endblock %}
+
+                        {% block sw_cms_list_listing_actions_sorting %}
+                        <div class="sw-cms-list__actions-sorting">
+
+                            {% block sw_cms_list_listing_actions_sorting_select %}
+                            <sw-sorting-select
+                                :sort-by="sortBy"
+                                :sort-direction="sortDirection"
+                                @sorting-changed="onSort"
+                            />
+                            {% endblock %}
+
+                        </div>
+                        {% endblock %}
+
+                        {% block sw_cms_list_listing_actions_mode %}
+                        <div
+                            class="sw-cms-list__actions-mode"
+                            role="button"
+                            tabindex="0"
+                            @click="onListModeChange"
+                            @keydown.enter="onListModeChange"
+                        >
+                            <mt-icon
+                                v-if="listMode === 'grid'"
+                                name="regular-view-normal"
+                                size="16"
+                            />
+                            <mt-icon
+                                v-if="listMode === 'list'"
+                                name="regular-view-grid"
+                                size="16"
+                            />
+                        </div>
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_cms_list_listing_list %}
+                    <div class="sw-cms-list__list">
+
+                        {% block sw_cms_list_listing_list_grid %}
+                        <div
+                            v-if="listMode === 'grid'"
+                            class="sw-cms-list__list-grid"
+                        >
+
+                            {% block sw_cms_list_listing_list_grid_content %}
+                            <div class="sw-cms-list__list-grid-content">
+                                <template v-if="!isLoading">
+                                    {% block sw_cms_list_listing_list_item %}
+                                    <sw-cms-list-item
+                                        v-for="(cmsPage, index) in pages"
+                                        :key="cmsPage.id"
+                                        :class="'sw-cms-list-item--' + index"
+                                        :page="cmsPage"
+                                        :active="layoutIsLinked(cmsPage.id)"
+                                        :is-default="[defaultProductId, defaultCategoryId].includes(cmsPage.id)"
+                                        @item-click="onListItemClick"
+                                        @preview-image-change="onPreviewChange"
+                                        @cms-page-delete="onDeleteCmsPage"
+                                    >
+                                        <template #contextMenu>
+                                            <sw-context-button class="sw-cms-list-item__options">
+                                                {% block sw_cms_list_listing_list_item_option_add_preview %}
+                                                <sw-context-menu-item
+                                                    class="sw-cms-list-item__option-preview"
+                                                    :disabled="!acl.can('cms.editor') || undefined"
+                                                    @click="onPreviewChange(cmsPage)"
+                                                >
+                                                    {{ $tc('sw-cms.components.cmsListItem.addPreviewImage') }}
+                                                </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                <sw-context-menu-item
+                                                    v-if="showDefaultLayoutContextMenu(cmsPage)"
+                                                    class="sw-cms-list-item__option-set-as-default"
+                                                    :disabled="!acl.can('system_config:update') || !acl.can('system_config:create') || !acl.can('system_config:delete') || undefined"
+                                                    @click="onOpenLayoutSetAsDefault(cmsPage)"
+                                                >
+                                                    <template v-if="cmsPage.type == 'product_detail'">
+                                                        {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductDetail') }}
+                                                    </template>
+                                                    <template v-else>
+                                                        {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
+                                                    </template>
+                                                </sw-context-menu-item>
+
+                                                {% block sw_cms_list_listing_list_item_option_duplicate %}
+                                                <sw-context-menu-item
+                                                    :disabled="!acl.can('cms.creator') || undefined"
+                                                    class="sw-cms-list-item__option-duplicate"
+                                                    @click="onDuplicateCmsPage(cmsPage)"
+                                                >
+                                                    {{ $tc('sw-cms.components.cmsListItem.duplicate') }}
+                                                </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                {% block sw_cms_list_listing_list_item_option_remove_preview %}
+                                                <sw-context-menu-item
+                                                    v-if="cmsPage.previewMediaId"
+                                                    class="sw-cms-list-item__option-preview"
+                                                    variant="danger"
+                                                    :disabled="!acl.can('cms.editor') || undefined"
+                                                    @click="onPreviewImageRemove(cmsPage)"
+                                                >
+                                                    {{ $tc('sw-cms.components.cmsListItem.removePreviewImage') }}
+                                                </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                {% block sw_cms_list_listing_list_item_option_delete %}
+                                                <sw-context-menu-item
+                                                    v-if="!cmsPage.locked && defaultProductId !== cmsPage.id && defaultCategoryId !== cmsPage.id"
+                                                    v-tooltip="deleteDisabledToolTip(cmsPage)"
+                                                    class="sw-cms-list-item__option-delete"
+                                                    variant="danger"
+                                                    :disabled="optionContextDeleteDisabled(cmsPage) || undefined"
+                                                    @click="onDeleteCmsPage(cmsPage)"
+                                                >
+                                                    {{ $tc('sw-cms.components.cmsListItem.delete') }}
+                                                </sw-context-menu-item>
+                                            {% endblock %}
+
+                                            </sw-context-button>
+                                        </template>
+                                    </sw-cms-list-item>
+                                    {% endblock %}
+                                </template>
+
+                                <template v-else>
+                                    <sw-skeleton
+                                        v-for="index in 9"
+                                        :key="`cms-list-skeleton-${index}`"
+                                        variant="gallery"
+                                    />
+                                </template>
+                            </div>
+                            {% endblock %}
+
+                            {% block sw_cms_list_listing_pagination %}
+                            <sw-pagination
+                                v-if="!isLoading"
+                                class="sw-cms-list__list-pagination"
+                                :page="page"
+                                :limit="limit"
+                                :total="total"
+                                :steps="[9]"
+                                @page-change="onPageChange"
+                            />
+                            {% endblock %}
+                        </div>
+                        {% endblock %}
+
+                        {% block sw_cms_list_listing_list_card %}
+                        <mt-card
+                            v-else-if="listMode === 'list'"
+                            position-identifier="sw-cms-list-list-mode"
+                            class="sw-cms-list__list-card"
+                        >
+                            <template #grid>
+                                {% block sw_cms_list_listing_list_data_grid %}
+                                <sw-data-grid
+                                    class="sw-cms-list__list-data-grid"
+                                    identifier="sw-cms-list"
+                                    :is-loading="isLoading"
+                                    :data-source="pages"
+                                    :columns="columnConfig"
+                                    :skeleton-item-amount="limit"
+                                    :sort-by="sortBy"
+                                    :sort-direction="sortDirection"
+                                    :allow-inline-edit="false"
+                                    :allow-column-edit="false"
+                                    show-settings
+                                    :show-selection="false"
+                                >
+
+                                    {% block sw_cms_list_listing_list_data_grid_column_name %}
+                                    <template #column-name="{ item }">
+                                        <mt-icon
+                                            v-if="item.locked"
+                                            name="regular-lock"
+                                            class="sw-cms-list__icon-lock"
+                                            size="14"
+                                        />
+                                        <router-link :to="{ name: 'sw.cms.detail', params: { id: item.id } }">
+                                            {{ item.translated.name }}
+                                        </router-link>
+                                    </template>
+                                    {% endblock %}
+
+                                    {% block sw_cms_list_listing_list_data_grid_column_type %}
+                                    <template #column-type="{ item }">
+                                        {{ getPageType(item) }}
+                                    </template>
+                                    {% endblock %}
+
+                                    {% block sw_cms_list_listing_list_data_grid_column_assignments %}
+                                    <template #column-assignments="{ item }">
+                                        <mt-icon
+
+                                            size="10px"
+                                            :name="layoutIsLinked(item.id) ? 'regular-checkmark-xs' : 'regular-times-xs'"
+                                            :class="layoutIsLinked(item.id) ? 'is--active' : 'is--inactive'"
+                                        />
+                                    </template>
+                                    {% endblock %}
+
+                                    {% block sw_cms_list_listing_list_data_grid_column_assignment_list %}
+                                    <template #column-assignedPages="{ item }">
+                                        <div v-tooltip="getPagesTooltip(item)">
+                                            {{ getPagesString(item) }}
+                                        </div>
+                                    </template>
+                                    {% endblock %}
+
+                                    {% block sw_cms_list_listing_list_data_grid_column_created %}
+                                    <template #column-createdAt="{ item }">
+                                        {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
+                                    </template>
+                                    {% endblock %}
+
+                                    {% block sw_cms_list_listing_list_data_grid_column_updated %}
+                                    <template #column-updatedAt="{ item }">
+                                        {{ dateFilter(item.updatedAt, { hour: '2-digit', minute: '2-digit' }) }}
+                                    </template>
+                                    {% endblock %}
+
+                                    {% block sw_cms_list_listing_list_data_grid_actions %}
+                                    <template #actions="{ item }">
+                                        {% block sw_cms_list_listing_list_data_grid_actions_edit %}
+                                        <sw-context-menu-item
+                                            :router-link="{ name: 'sw.cms.detail', params: { id: item.id } }"
+                                            class="sw-cms-list__context-menu-item-edit"
+                                            :disabled="!acl.can('cms.editor') || undefined"
+                                        >
+                                            <template v-if="item.locked">
+                                                {{ $tc('sw-cms.components.cmsListItem.view') }}
+                                            </template>
+                                            <template v-else>
+                                                {{ $tc('sw-cms.components.cmsListItem.edit') }}
+                                            </template>
+                                        </sw-context-menu-item>
+                                        {% endblock %}
+
+                                        <sw-context-menu-item
+                                            v-if="showDefaultLayoutContextMenu(item)"
+                                            class="sw-cms-list-item__option-set-as-default"
+                                            :disabled="!acl.can('system_config:update') || !acl.can('system_config:create') || !acl.can('system_config:delete') || undefined"
+                                            @click="onOpenLayoutSetAsDefault(item)"
+                                        >
+                                            <template v-if="item.type == 'product_detail'">
+                                                {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductDetail') }}
+                                            </template>
+                                            <template v-else>
+                                                {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
+                                            </template>
+                                        </sw-context-menu-item>
+
+                                        {% block sw_cms_list_listing_list_data_grid_actions_edit_duplicate %}
+                                        <sw-context-menu-item
+                                            :disabled="!acl.can('cms.creator') || undefined"
+                                            class="sw-cms-list__context-menu-item-duplicate"
+                                            @click="onDuplicateCmsPage(item)"
+                                        >
+                                            {{ $tc('sw-cms.components.cmsListItem.duplicate') }}
+                                        </sw-context-menu-item>
+                                        {% endblock %}
+
+                                        {% block sw_cms_list_listing_list_item_option_rename %}
+                                        <sw-context-menu-item
+                                            v-if="!item.locked"
+                                            :disabled="!acl.can('cms.editor') || undefined"
+                                            class="sw-cms-list__context-menu-item-rename"
+                                            @click="onRenameCmsPage(item)"
+                                        >
+                                            {{ $tc('sw-cms.components.cmsListItem.rename') }}
+                                        </sw-context-menu-item>
+                                        {% endblock %}
+
+                                        {% block sw_cms_list_listing_list_data_grid_actions_edit_delete %}
+                                        <sw-context-menu-item
+                                            v-if="!item.locked && defaultProductId !== item.id && defaultCategoryId !== item.id"
+                                            v-tooltip="deleteDisabledToolTip(item)"
+                                            variant="danger"
+                                            class="sw-cms-list__context-menu-item-delete"
+                                            :disabled="optionContextDeleteDisabled(item) || undefined"
+                                            @click="onDeleteCmsPage(item)"
+                                        >
+                                            {{ $tc('sw-cms.components.cmsListItem.delete') }}
+
+                                        </sw-context-menu-item>
+                                        {% endblock %}
+
+                                    </template>
+                                    {% endblock %}
+
+                                    {% block sw_cms_list_listing_list_data_grid_pagination %}
+                                    <template #pagination>
+                                        <sw-pagination
+                                            :page="page"
+                                            :limit="limit"
+                                            :total="total"
+                                            :steps="[5, 10, 25, 50]"
+                                            @page-change="onPageChange"
+                                        />
+                                    </template>
+                                    {% endblock %}
+                                </sw-data-grid>
+                                {% endblock %}
+                            </template>
+                        </mt-card>
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_cms_list_listing_list_empty_state %}
+                    <sw-empty-state
+                        v-if="isValidTerm(term) && !isLoading && !total"
+                        :title="$tc('sw-empty-state.messageNoResultTitle')"
+                        :style="{ minHeight: '200px' }"
+                    >
+                        <template #default>
+                            {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
+                            <router-link
+                                class="sw-empty-state__description-link"
+                                :to="{ name: 'sw.profile.index.searchPreferences' }"
+                            >
+                                {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
+                            </router-link>
+                            {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
+                        </template>
+                    </sw-empty-state>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+            </div>
+            {% endblock %}
+
+            {% block sw_cms_list_media_modal %}
+            <sw-media-modal-v2
+                v-if="showMediaModal"
+                :caption="$tc('sw-cms.components.cmsListItem.modal.captionMediaUpload')"
+                :entity-context="'cms_page'"
+                :allow-multi-select="false"
+                @media-modal-selection-change="onPreviewImageChange"
+                @modal-close="onModalClose"
+            />
+            {% endblock %}
+
+            <sw-confirm-modal
+                v-if="showLayoutSetAsDefaultModal"
+                class="sw-cms-list__confirm-set-as-default-modal"
+                :title="$tc('sw-cms.components.setDefaultLayoutModal.title')"
+                :text="$tc('sw-cms.components.setDefaultLayoutModal.infoText', {}, newDefaultLayout.type === 'product_detail')"
+                @confirm="onConfirmLayoutSetAsDefault"
+                @cancel="onCloseLayoutSetAsDefault"
+                @close="onCloseLayoutSetAsDefault"
+            />
+
+            {% block sw_cms_list_rename_modal %}
+            <sw-modal
+                v-if="showRenameModal"
+                :title="$tc('sw-cms.components.cmsListItem.modal.renameModalTitle')"
+                variant="small"
+                @modal-close="onCloseRenameModal"
+            >
+
+                {% block sw_cms_list_rename_modal_confirm_rename_input %}
+                <div class="sw_tree__confirm-rename-text">
+                    {{ $tc('sw-cms.components.cmsListItem.modal.textRenameConfirm', { pageName: currentPage.translated.name || currentPage.name }, 0) }}
+                </div>
+
+                <mt-text-field
+                    v-model="newName"
+                    class="sw_tree__confirm-rename-text-field"
+                    size="default"
+                />
+                {% endblock %}
+
+                {% block sw_cms_list_rename_modal_footer %}
+                <template #modal-footer>
+                    {% block sw_cms_list_rename_modal_cancel %}
+                    <mt-button
+                        size="small"
+                        variant="secondary"
+                        @click="onCloseRenameModal"
+                    >
+                        {{ $tc('global.default.cancel') }}
+                    </mt-button>
+                    {% endblock %}
+
+                    {% block sw_cms_list_rename_modal_confirm %}
+                    <mt-button
+                        size="small"
+                        variant="primary"
+                        @click="onConfirmPageRename"
+                    >
+                        {{ $tc('sw-cms.components.cmsListItem.modal.buttonRename') }}
+                    </mt-button>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+            </sw-modal>
+            {% endblock %}
+
+            {% block sw_cms_list_delete_modal %}
+            <sw-modal
+                v-if="showDeleteModal"
+                :title="$tc('global.default.warning')"
+                variant="small"
+                @modal-close="onCloseDeleteModal"
+            >
+
+                {% block sw_cms_list_delete_modal_confirm_delete_text %}
+                <div class="sw_tree__confirm-delete-text">
+                    {{ $tc('sw-cms.components.cmsListItem.modal.textDeleteConfirm', { pageName: currentPage.translated.name || currentPage.name }, 0) }}
+                </div>
+                {% endblock %}
+
+                {% block sw_cms_list_delete_modal_footer %}
+                <template #modal-footer>
+                    {% block sw_cms_list_delete_modal_cancel %}
+                    <mt-button
+                        size="small"
+                        variant="secondary"
+                        @click="onCloseDeleteModal"
+                    >
+                        {{ $tc('global.default.cancel') }}
+                    </mt-button>
+                    {% endblock %}
+
+                    {% block sw_cms_list_delete_modal_confirm %}
+                    <mt-button
+                        variant="critical"
+                        size="small"
+                        @click="onConfirmPageDelete"
+                    >
+                        {{ $tc('sw-cms.components.cmsListItem.modal.buttonDelete') }}
+                    </mt-button>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+            </sw-modal>
+            {% endblock %}
+
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

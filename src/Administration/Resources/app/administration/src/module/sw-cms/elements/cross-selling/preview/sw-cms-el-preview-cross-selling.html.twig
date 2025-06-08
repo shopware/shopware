@@ -1,0 +1,34 @@
+{% block sw_cms_element_cross_selling_preview %}
+<div class="sw-cms-el-preview-cross-selling">
+    <h4>{{ $tc('sw-cms.elements.crossSelling.preview.label.crossSellingTitle') }}</h4>
+    <div class="sw-cms-el-preview-cross-selling__slider">
+        <mt-icon
+            name="regular-chevron-left"
+            size="10"
+        />
+
+        {% block sw_cms_element_cross_selling_preview_box %}
+        <div class="sw-cms-el-preview-cross-selling-box">
+            <div class="sw-cms-el-preview-cross-selling-box__image">
+                <img
+                    :src="assetFilter('/administration/administration/static/img/cms/preview_glasses_small.jpg')"
+                    alt=""
+                >
+            </div>
+
+            <div class="sw-cms-el-preview-cross-selling-box__info">
+                <div class="sw-cms-el-preview-cross-selling-box__skeleton-left"></div>
+                <div class="sw-cms-el-preview-cross-selling-box__skeleton-right"></div>
+            </div>
+
+            <div class="sw-cms-el-preview-cross-selling-box__action"></div>
+        </div>
+        {% endblock %}
+
+        <mt-icon
+            name="regular-chevron-right"
+            size="10"
+        />
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,295 @@
+{% block sw_cms_element_product_slider_config %}
+<div class="sw-cms-el-config-product-slider">
+    {% block sw_cms_element_product_slider_config_tabs %}
+    <sw-tabs
+        position-identifier="sw-cms-element-config-product-slider"
+        class="sw-cms-el-config-product-slider__tabs"
+        default-item="content"
+    >
+        <template #default="{ active }">
+            {% block sw_cms_element_product_slider_config_tab_content %}
+            <sw-tabs-item
+                :title="$tc('sw-cms.elements.general.config.tab.content')"
+                name="content"
+                :active-tab="active"
+            >
+                {{ $tc('sw-cms.elements.general.config.tab.content') }}
+            </sw-tabs-item>
+            {% endblock %}
+            {% block sw_cms_element_product_slider_config_tab_options %}
+            <sw-tabs-item
+                :title="$tc('sw-cms.elements.general.config.tab.settings')"
+                name="settings"
+                :active-tab="active"
+            >
+                {{ $tc('sw-cms.elements.general.config.tab.settings') }}
+            </sw-tabs-item>
+            {% endblock %}
+        </template>
+
+        <template #content="{ active }">
+            {% block sw_cms_element_product_slider_config_content %}
+            <sw-container
+                v-if="active === 'content'"
+                class="sw-cms-el-config-product-slider__tab-content"
+            >
+                {% block sw_cms_element_product_slider_config_content_title %}
+
+                <mt-text-field
+                    v-model="element.config.title.value"
+                    class="sw-cms-el-config-product-slider__tab-content-title"
+                    :label="$tc('sw-cms.elements.productSlider.config.label.title')"
+                    :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.title')"
+                />
+                {% endblock %}
+
+                {% block sw_cms_element_product_slider_config_content_product_assignment_type %}
+                <sw-single-select
+                    v-model:value="element.config.products.source"
+                    class="sw-cms-el-config-product-slider__tab-content-product-assignment-type-select"
+                    :label="$tc('sw-cms.elements.productSlider.config.label.productAssignmentType')"
+                    :options="productAssignmentTypes"
+                    show-clearable-button
+                    @update:value="onChangeAssignmentType"
+                />
+                {% endblock %}
+
+                <template v-if="element.config.products.source === 'product_stream'">
+                    {% block sw_cms_element_product_slider_config_content_product_stream_select %}
+                    <sw-entity-single-select
+                        v-model:value="element.config.products.value"
+                        entity="product_stream"
+                        class="sw-cms-el-config-product-slider__tab-content-product-stream-select"
+                        :label="$tc('sw-cms.elements.productSlider.config.label.productStreamChoice')"
+                        :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.productStreamChoice')"
+                        show-clearable-button
+                        @update:value="onChangeProductStream"
+                    />
+                    {% endblock %}
+
+                    {% block sw_cms_element_product_slider_config_content_product_stream_performance_hint %}
+                    <mt-banner
+                        class="sw-cms-el-config-product-slider__tab-content-product-stream-performance-hint"
+                        variant="info"
+                    >
+                        {{ $tc('sw-cms.elements.productSlider.config.textProductStreamPerformanceHint') }}
+                    </mt-banner>
+                    {% endblock %}
+
+                    <sw-product-stream-modal-preview
+                        v-if="showProductStreamPreview"
+                        :filters="productStream.apiFilter"
+                        :default-limit="element.config.productStreamLimit.value"
+                        :default-sorting="element.config.productStreamSorting.value"
+                        @modal-close="onCloseProductStreamModal"
+                    />
+
+                    <sw-container
+                        columns="1fr 1fr"
+                        gap="30px"
+                    >
+                        {% block sw_cms_element_product_slider_config_content_product_stream_sorting %}
+                        <sw-single-select
+                            v-model:value="element.config.productStreamSorting.value"
+                            class="sw-cms-el-config-product-slider__tab-content-product-stream-sorting"
+                            :options="productStreamSortingOptions"
+                            :label="$tc('sw-cms.elements.productSlider.config.label.productStreamSorting')"
+                            :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.productStreamSorting')"
+                            :disabled="!productStream"
+                            show-clearable-button
+                        />
+                        {% endblock %}
+
+                        {% block sw_cms_element_product_slider_config_content_product_stream_limit %}
+                        <mt-number-field
+                            v-model="element.config.productStreamLimit.value"
+                            class="sw-cms-el-config-product-slider__tab-content-product-stream-limit"
+                            :label="$tc('sw-cms.elements.productSlider.config.label.productStreamLimit')"
+                            :disabled="!productStream"
+                            :min="1"
+                        />
+                        {% endblock %}
+                    </sw-container>
+
+                    {% block sw_cms_element_product_slider_config_content_product_stream_preview_link %}
+                    <div class="sw-cms-el-config-product-slider__product-stream-preview-link-container">
+                        <a
+                            class="sw-cms-el-config-product-slider__product-stream-preview-link link"
+                            :class="{ 'is--disabled': !productStream }"
+                            href="#"
+                            @click.prevent="onClickProductStreamPreview"
+                        >
+                            {{ $tc('sw-cms.elements.productSlider.config.textProductStreamPreviewLink') }}
+                            <mt-icon
+                                name="regular-long-arrow-right"
+                                size="16px"
+                            />
+                        </a>
+                    </div>
+                    {% endblock %}
+                </template>
+
+                {% block sw_cms_element_product_slider_config_content_products %}
+                <sw-entity-multi-select
+                    v-else
+                    v-model:entity-collection="productCollection"
+                    class="sw-cms-el-config-product-slider__tab-content-products"
+                    :label="$tc('sw-cms.elements.productSlider.config.label.selection')"
+                    :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.selection')"
+                    :context="productMultiSelectContext"
+                    :criteria="productMediaFilter"
+                    @update:entity-collection="onProductsChange"
+                >
+                    <template #selection-label-property="{ item }">
+                        <sw-product-variant-info :variations="item.variation">
+                            {{ item.translated.name || item.name }}
+                        </sw-product-variant-info>
+                    </template>
+                    <template #result-item="{ item, index }">
+                        <slot
+                            name="result-item"
+                            v-bind="{ item, index }"
+                        >
+                            <sw-select-result v-bind="{ item, index, selected: isSelected(item.id)}">
+                                {% block sw_entity_single_select_base_results_list_result_label %}
+                                <span class="sw-select-result__result-item-text">
+                                    <sw-product-variant-info :variations="item.variation">
+                                        {{ item.translated.name || item.name }}
+                                    </sw-product-variant-info>
+                                </span>
+                                {% endblock %}
+                            </sw-select-result>
+                        </slot>
+                    </template>
+                </sw-entity-multi-select>
+                {% endblock %}
+            </sw-container>
+            {% endblock %}
+
+            {% block sw_cms_element_product_slider_config_settings %}
+            <sw-container
+                v-if="active === 'settings'"
+                class="sw-cms-el-config-product-slider__tab-settings"
+            >
+                <div class="sw-cms-el-config-product-slider__tab-settings-display">
+                    {% block sw_cms_element_product_slider_config_settings_display_mode %}
+                    <mt-select
+                        v-model="element.config.displayMode.value"
+                        class="sw-cms-el-config-product-slider__tab-settings-display-mode"
+                        :label="$tc('sw-cms.elements.general.config.label.displayMode')"
+                        :help-text="$tc('sw-cms.elements.productSlider.config.helpText.displayMode')"
+                        :options="displayModeOptions"
+                    />
+                    {% endblock %}
+                </div>
+
+                <div class="sw-cms-el-config-product-slider__tab-settings-alignment has--two-elements">
+                    {% block sw_cms_element_product_slider_config_settings_min_width %}
+
+                    <mt-text-field
+                        v-model="element.config.elMinWidth.value"
+                        class="sw-cms-el-config-product-slider__tab-settings-alignment-min-width"
+                        :label="$tc('sw-cms.elements.productSlider.config.label.minWidth')"
+                        :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.minWidth')"
+                        :help-text="$tc('sw-cms.elements.productSlider.config.helpText.minWidth')"
+                    />
+                    {% endblock %}
+
+                    {% block sw_cms_element_product_slider_config_settings_vertical_align %}
+                    <mt-select
+                        v-model="element.config.verticalAlign.value"
+                        class="sw-cms-el-config-product-slider__tab-settings-alignment-vertical"
+                        :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
+                        :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
+                        :options="alignmentOptions"
+                    />
+                    {% endblock %}
+                </div>
+
+                <div class="sw-cms-el-config-product-slider__tab-settings-layout has--two-elements">
+                    {% block sw_cms_element_product_slider_config_settings_box_layout %}
+                    <mt-select
+                        v-model="element.config.boxLayout.value"
+                        class="sw-cms-el-config-product-slider__tab-settings-layout-type"
+                        :label="$tc('sw-cms.elements.productBox.config.label.layoutType')"
+                        :options="boxLayoutOptions"
+                    />
+                    {% endblock %}
+
+                    {% block sw_cms_element_product_slider_config_settings_border %}
+                    <mt-switch
+                        v-model="element.config.border.value"
+                        class="sw-cms-el-config-product-slider__tab-settings-layout-border"
+                        :label="$tc('sw-cms.elements.productSlider.config.label.border')"
+                        bordered
+                    />
+                    {% endblock %}
+                </div>
+
+                <div class="sw-cms-el-config-product-slider__tab-settings-navigation">
+                    {% block sw_cms_element_product_slider_config_settings_navigation_arrows %}
+                    <mt-select
+                        v-model="element.config.navigationArrows.value"
+                        class="sw-cms-el-config-product-slider__tab-settings-navigation-arrows"
+                        :label="$tc('sw-cms.elements.productSlider.config.label.navigationArrows')"
+                        :options="arrowOptions"
+                        @update:model-value="emitUpdateEl"
+                    />
+                    {% endblock %}
+                </div>
+
+                <div class="sw-cms-el-config-product-slider__tab-settings-speed">
+                    {% block sw_cms_element_product_slider_config_settings_speed %}
+                    <mt-number-field
+                        v-model="element.config.speed.value"
+                        class="sw-cms-el-config-product-slider__tab-settings-speed"
+                        number-type="int"
+                        :min="0"
+                        :max="3600000"
+                        :label="$tc('sw-cms.elements.general.config.label.speed')"
+                        :placeholder="$tc('sw-cms.elements.general.config.label.speed')"
+                        :help-text="$tc('sw-cms.elements.general.config.helpText.speed')"
+                    />
+                    {% endblock %}
+                </div>
+
+                <mt-banner
+                    class="sw-cms-el-config-product-slider__tab-settings-rotate"
+                    variant="attention"
+                    :title="$tc('sw-cms.elements.general.config.infoText.autoSlideTitle')"
+                >
+                    <p class="sw-cms-el-config-product-slider__tab-settings-rotate-attention">
+                        {{ $tc('sw-cms.elements.general.config.infoText.autoSlide') }}
+                    </p>
+
+                    <div class="sw-cms-el-config-product-slider__tab-settings-rotate-config has--two-elements">
+                        {% block sw_cms_element_product_slider_config_settings_rotate %}
+                        <mt-switch
+                            v-model="element.config.rotate.value"
+                            class="sw-cms-el-config-product-slider__tab-settings-rotate-switch"
+                            :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
+                            bordered
+                        />
+                        {% endblock %}
+
+                        {% block sw_cms_element_product_slider_config_settings_autoplay_timeout %}
+                        <mt-number-field
+                            v-model="element.config.autoplayTimeout.value"
+                            class="sw-cms-el-config-product-slider__tab-settings-rotate-autoplay"
+                            number-type="int"
+                            :min="0"
+                            :max="3600000"
+                            :label="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
+                            :placeholder="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
+                            :help-text="$tc('sw-cms.elements.general.config.helpText.autoplayTimeout')"
+                        />
+                        {% endblock %}
+                    </div>
+                </mt-banner>
+            </sw-container>
+            {% endblock %}
+        </template>
+    </sw-tabs>
+    {% endblock %}
+</div>
+{% endblock %}

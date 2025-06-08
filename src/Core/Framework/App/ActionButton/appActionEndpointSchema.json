@@ -1,0 +1,76 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "source": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Shop url"
+                },
+                "appVersion": {
+                    "type": "string",
+                    "pattern": "^[0-9]+\\.[0-9]\\.[0-9]+$",
+                    "description": "App version of the shop"
+                },
+                "shopId": {
+                    "type": "string",
+                    "description": "The unique identifier of the shop triggering the action"
+                }
+            },
+            "required": ["url","appVersion", "shopId"]
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "ids" : {
+                    "type": "array",
+                    "minItems": 0,
+                    "items": {
+                        "$ref": "#/definitions/uuidv4"
+                    },
+                    "description": "The ids selected by the user"
+                },
+                "entity": {
+                    "type": "string",
+                    "description": "The name of the affected entity"
+                },
+                "action": {
+                    "type": "string",
+                    "description": "The technical action name"
+                }
+            },
+            "required": ["ids", "entity", "action"]
+        },
+        "meta": {
+            "type": "object",
+            "properties": {
+                "timestamp": {
+                    "type": "integer",
+                    "description": "The moment the action was sent"
+                },
+                "reference": {
+                    "type": "string",
+                    "description": "A reference id to track and debug actions"
+                },
+                "language": {
+                    "type": "string",
+                    "$ref": "#/definitions/uuidv4",
+                    "description": "The languageId that should be used to fetch and write data"
+                }
+            },
+            "required": ["timestamp", "reference"]
+        }
+    },
+    "required": ["source","data","meta"],
+    "definitions": {
+        "uuidv4": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 32,
+            "pattern": "^[0-9a-f]{32}$"
+        }
+    }
+}

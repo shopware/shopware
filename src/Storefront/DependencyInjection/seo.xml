@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute">
+            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+
+            <tag name="shopware.seo_url.route"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute">
+            <argument type="service" id="Shopware\Core\Content\Category\CategoryDefinition"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder"/>
+
+            <tag name="shopware.seo_url.route"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\LandingPageSeoUrlRoute">
+            <argument type="service" id="Shopware\Core\Content\LandingPage\LandingPageDefinition"/>
+
+            <tag name="shopware.seo_url.route"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlUpdateListener">
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlUpdater"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+    </services>
+</container>

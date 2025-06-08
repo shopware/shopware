@@ -1,0 +1,34 @@
+@import "~scss/variables";
+
+$sw-settings-number-range-list-color-success: $color-emerald-500;
+$sw-settings-number-range-list-color-border-collapse: $color-gray-300;
+$sw-settings-number-range-list-font-size-default: $font-size-s;
+
+.sw-settings-number-range-list {
+    .is--default {
+        color: $sw-settings-number-range-list-color-success;
+    }
+
+    .sw-settings-number-range-list__columns-assignment-tag {
+        margin: auto 5px auto 0;
+    }
+
+    .sw-settings-number-range-list__collapse-title {
+        font-size: $sw-settings-number-range-list-font-size-default;
+        font-weight: normal;
+        margin: 0 25px;
+    }
+
+    .sw-settings-number-range-list__collapse-header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        cursor: pointer;
+        padding-bottom: 16px;
+        color: #607182;
+        border-bottom: 1px solid $sw-settings-number-range-list-color-border-collapse;
+
+        .sw-settings-number-range-list__collapse-indicator {
+            margin-right: 25px;
+        }
+    }
+}

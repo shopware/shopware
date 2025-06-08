@@ -1,0 +1,44 @@
+<div class="sw-users-permissions-role-view-general">
+    {% block sw_users_permissions_role_role_view_general_card_view_basic_information %}
+    <mt-card
+        :title="$tc('sw-users-permissions.roles.detail.basicInformation')"
+        position-identifier="sw-users-permissions-role-view-general"
+    >
+        {% block sw_users_permissions_role_role_view_general_card_view_basic_information_name %}
+
+        <mt-text-field
+            v-model="role.name"
+            name="sw-field--role-name"
+            :error="roleNameError"
+            :disabled="!acl.can('users_and_permissions.editor') || undefined"
+            :label="$tc('sw-users-permissions.roles.detail.labelName')"
+            required
+        />
+        {% endblock %}
+
+        {% block sw_users_permissions_role_role_view_general_card_view_basic_information_description %}
+        <mt-textarea
+            v-model="role.description"
+            name="sw-field--role-description"
+            :error="roleDescriptionError"
+            :disabled="!acl.can('users_and_permissions.editor') || undefined"
+            :label="$tc('sw-users-permissions.roles.detail.labelDescription')"
+        />
+        {% endblock %}
+    </mt-card>
+    {% endblock %}
+
+    {% block sw_users_permissions_role_role_view_general_card_view_permissions %}
+    <sw-users-permissions-permissions-grid
+        :role="role"
+        :disabled="!acl.can('users_and_permissions.editor') || undefined"
+    />
+    {% endblock %}
+
+    {% block sw_users_permissions_role_role_view_general_card_view_additional_permissions %}
+    <sw-users-permissions-additional-permissions
+        :role="role"
+        :disabled="!acl.can('users_and_permissions.editor') || undefined"
+    />
+    {% endblock %}
+</div>

@@ -1,0 +1,32 @@
+@import "~scss/variables";
+
+$sw-category-tree-border-color: $color-gray-300;
+
+.sw-category-tree {
+    height: 100%;
+
+    .sw-category-tree__inner.sw-tree {
+        background: $color-white;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    .sw-tree {
+        .sw-tree__content {
+            max-height: unset;
+            min-height: unset;
+            height: calc(100% - 75px);
+        }
+    }
+
+    .sw-field--checkbox {
+        margin-bottom: 0;
+    }
+
+    .tree-link {
+        cursor: pointer;
+        color: inherit;
+        text-decoration: inherit;
+    }
+}

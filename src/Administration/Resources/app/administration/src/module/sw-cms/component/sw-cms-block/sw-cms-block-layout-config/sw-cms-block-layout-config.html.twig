@@ -1,0 +1,49 @@
+{% block sw_cms_block_layout_config %}
+<div class="sw-cms-block-layout-config">
+    {% block sw_cms_block_layout_config_css_class %}
+
+    <mt-text-field
+        v-model="block.cssClass"
+        class="sw-cms-block-layout-config__css-class"
+        :label="$tc('sw-cms.detail.label.cssClassField')"
+        :help-text="$tc('sw-cms.detail.helpText.cssClassField')"
+    />
+    {% endblock %}
+
+    {% block sw_cms_block_layout_config_top_margin_field %}
+
+    <mt-text-field
+        v-model="block.marginTop"
+        class="sw-cms-block-layout-config__margin-top"
+        :label="$tc('sw-cms.detail.label.blockTopMarginField')"
+    />
+    {% endblock %}
+
+    {% block sw_cms_block_layout_config_bottom_margin_field %}
+
+    <mt-text-field
+        v-model="block.marginBottom"
+        class="sw-cms-block-layout-config__margin-bottom"
+        :label="$tc('sw-cms.detail.label.blockBottomMarginField')"
+    />
+    {% endblock %}
+
+    {% block sw_cms_block_layout_config_left_margin_field %}
+
+    <mt-text-field
+        v-model="block.marginLeft"
+        class="sw-cms-block-layout-config__margin-left"
+        :label="$tc('sw-cms.detail.label.blockLeftMarginField')"
+    />
+    {% endblock %}
+
+    {% block sw_cms_block_layout_config_right_margin_field %}
+
+    <mt-text-field
+        v-model="block.marginRight"
+        class="sw-cms-block-layout-config__margin-right"
+        :label="$tc('sw-cms.detail.label.blockRightMarginField')"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

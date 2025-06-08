@@ -1,0 +1,72 @@
+@import "~scss/variables";
+
+.sw-text-editor-toolbar-table-button {
+    padding: 12px;
+
+    .sw-text-editor-toolbar-table-button__grid-input {
+        display: grid;
+        grid-template-columns: 96px 12px 96px 1fr;
+        align-items: center;
+        grid-gap: 0 8px;
+        margin-bottom: 8px;
+
+        .sw-field {
+            margin-bottom: 0;
+        }
+
+        .sw-text-editor-toolbar-table-button__grid-input-icon {
+            color: $color-gray-700;
+        }
+    }
+
+    .sw-text-editor-toolbar-table-button__grid-info {
+        white-space: pre-wrap;
+        color: $color-gray-700;
+        font-size: $font-size-xxs;
+    }
+
+    .sw-text-editor-toolbar-table-button__table {
+        border-collapse: collapse;
+        cursor: pointer;
+        border-radius: 2px;
+        border-style: hidden;
+        box-shadow: 0 0 0 1px $color-gray-300;
+        margin-top: 22px;
+
+        .sw-text-editor-toolbar-table-button__col-placeholder {
+            min-width: 20px;
+            min-height: 16px;
+        }
+
+        .sw-text-editor-toolbar-table-button__table-head {
+            .sw-text-editor-toolbar-table-button__col {
+                border: 1px solid $color-gray-300;
+                background: $color-gray-100;
+            }
+        }
+
+        .sw-text-editor-toolbar-table-button__col {
+            border: 1px solid $color-gray-300;
+
+            &.is--selected {
+                background: $color-shopware-brand-50;
+                border-color: $color-shopware-brand-500;
+            }
+        }
+    }
+
+    .sw-text-editor-toolbar-table-button__insert {
+        display: grid;
+        grid-auto-flow: column;
+        justify-content: end;
+        margin-top: 12px;
+    }
+
+    .sw-field--switch {
+        margin: 4px 0 16px;
+
+        .sw-field--switch__content {
+            grid-gap: 0 4px;
+        }
+    }
+}

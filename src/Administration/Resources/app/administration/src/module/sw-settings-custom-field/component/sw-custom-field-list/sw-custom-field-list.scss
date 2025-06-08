@@ -1,0 +1,58 @@
+@import "~scss/variables";
+
+$sw-custom-field-list-color-label-link: $color-shopware-brand-500;
+$sw-custom-field-list-color-toolbar-background: $color-gray-100;
+$sw-custom-field-list-color-toolbar-bottom: $color-gray-300;
+$sw-custom-field-list-color-border: $color-crimson-500;
+$sw-custom-field-list-color-label-link: $color-shopware-brand-500;
+
+.sw-custom-field-list {
+    .sw-empty-state {
+        position: static;
+    }
+
+    .media-column .sw-grid__cell-content {
+        padding: 0;
+    }
+
+    &.sw-card .sw-card__content {
+        padding: 0;
+    }
+
+    .sw-custom-field-list__toolbar {
+        padding: 25px 35px;
+        background-color: $sw-custom-field-list-color-toolbar-background;
+        border-bottom: 1px solid $sw-custom-field-list-color-toolbar-bottom;
+
+        .sw-custom-field-list__delete-button.mt-button--square {
+            border-color: $sw-custom-field-list-color-border;
+
+            .mt-icon {
+                color: $sw-custom-field-list-color-border;
+            }
+
+            &.mt-button--disabled {
+                opacity: 0.2;
+            }
+        }
+
+        .sw-tooltip--wrapper {
+            .mt-button {
+                width: 100%;
+            }
+        }
+    }
+
+    .sw-custom-field-list__custom-field-label {
+        cursor: pointer;
+
+        &:hover {
+            color: $sw-custom-field-list-color-label-link;
+            text-decoration: underline;
+        }
+    }
+
+    .sw-simple-search-field {
+        margin: unset;
+    }
+}

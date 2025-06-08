@@ -1,0 +1,162 @@
+@import "~scss/variables";
+
+/* stylelint-disable */
+.sw-product-modal-variant-generation__variant-amount {
+    font-weight: $font-weight-bold;
+}
+
+.sw-modal.sw-modal--default.sw-product-modal-variant-generation.sw-product-modal-variant-generation__upload_files {
+    .sw-product-modal-variant-generation__toolbar {
+        flex-basis: 100%;
+        padding: 30px;
+        background-color: $color-gray-100;
+        border-bottom: 1px solid $color-gray-300;
+    }
+
+    .sw-media-upload-v2__content {
+        width: 370px;
+    }
+
+    .sw-modal__dialog .sw-modal__body {
+        flex-direction: column;
+        height: auto;
+        min-height: 80vh;
+        padding-bottom: 16px;
+    }
+
+    .sw-product-modal-variant-generation__upload-card {
+        max-width: unset;
+        margin-left: 24px;
+        margin-right: 24px;
+        border: 1px solid $color-gray-300;
+        border-radius: $border-radius-default;
+        filter: none;
+
+        .sw-product-modal-variant-generation__card-title {
+            padding: 22px 24px;
+            border-bottom: 1px solid $color-gray-300;
+        }
+
+        .sw-field--switch.sw-field--default {
+            margin: 0;
+        }
+
+        .sw-product-modal-variant-generation__upload-all-container {
+            border-bottom: 1px solid $color-gray-300;
+            padding: 8px 24px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sw-data-grid.sw-product-modal-variant-generation__grid .sw-data-grid__item .sw-field--switch.sw-field--default {
+            margin: 0 16px 0;
+        }
+    }
+}
+
+.sw-modal.sw-modal--default.sw-product-modal-variant-generation {
+
+    .sw-product-modal-variant-generation__grid {
+        width: 100%;
+        height: 100%;
+
+        .sw-data-grid__item {
+            display: flex;
+            align-items: center;
+
+            .mt-switch {
+                margin: 0 80px 0 80px;
+            }
+        }
+    }
+
+    .sw-data-grid__cell-content {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        padding-right: 24px;
+    }
+
+    .sw-modal__dialog {
+        max-width: 1440px;
+
+        .sw-modal__body {
+            display: flex;
+            padding: 0;
+            max-height: 1024px;
+            height: 80vh;
+
+            .sw-tabs .sw-tabs__custom-content {
+                padding: 10px 0;
+            }
+
+            .sw-product-modal-variant-generation__main {
+                width: 100%;
+
+                .sw-property-search {
+                    display: flex;
+                    flex-direction: column;
+                    height: 100%;
+
+                    .sw-property-search__search-selection {
+                        min-height: 0;
+
+                        .sw-grid__pagination {
+                            background-color: $color-white;
+                        }
+
+                        .sw-grid__content,
+                        .sw-grid__body {
+                            min-height: 0;
+                        }
+
+                        // deep selector is needed to avoid specifity problems
+                        // uncommon BEM class name is used in 'sw-property-search'
+                        .sw-grid.sw-property-search__search-selection__option_grid.sw-grid--table.sw-grid--normal {
+                            height: 100%;
+                        }
+                    }
+                }
+            }
+
+            .sw-product-modal-variant-generation__sidebar {
+                padding: 20px 30px;
+                max-width: 310px;
+                border-right: 1px solid $color-gray-300;
+            }
+        }
+
+        .sw-modal__footer {
+            border-top: 1px solid $color-gray-300;
+        }
+    }
+
+    .sw-property-search .sw-property-search__toolbar {
+        margin-bottom: 0;
+    }
+
+    .sw-property-search__tree-selection {
+        height: calc(100% - 93px);
+    }
+}
+
+p.sw-product-variants-configurator-selection__modal--delete-text {
+    margin-bottom: 20px;
+}
+
+.sw-product-modal-variant-generation__notification-modal {
+    p:first-child {
+        margin-bottom: 20px;
+    }
+}
+
+.sw-product-modal-variant-generation__infoBox {
+    margin: 20px 0 20px 24px;
+}
+
+.sw-product-modal-variant-generation__infoBoxContent {
+    padding-top: 8px;
+}
+/* stylelint-enable */

@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+# requires /.gitlab/base.yml
+
+Symfony security check:
+    extends: .long-running
+    stage: unit
+    needs: []
+    before_script: []
+    script:
+        - composer install --no-interaction --no-scripts
+        - composer audit

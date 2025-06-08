@@ -1,0 +1,68 @@
+{% sw_extends '@Storefront/storefront/component/product/card/box-standard.html.twig' %}
+
+{% block component_product_box_content %}
+    {{ sw_icon_cache_disable() }}
+
+    <div class="card-body card-body-wishlist">
+        {{ sw_block('component_product_box_badges') }}
+
+        {{ sw_block('component_product_box_image') }}
+
+        {% block component_product_box_wishlist_action %}{% endblock %}
+
+        {% block component_product_box_wishlist %}
+            <div class="product-wishlist product-wishlist-remove">
+                {% block component_product_wishlist_remove_form %}
+                    {% set size = size ?? 'md' %}
+
+                    <form action="{{ path('frontend.wishlist.product.delete', {id: id}) }}"
+                          method="post"
+                          class="product-wishlist-form">
+                        {% block component_product_wishlist_remove_redirect %}
+                            <input type="hidden"
+                                   name="redirectTo"
+                                   value="frontend.wishlist.page">
+                        {% endblock %}
+
+                        {% block component_product_wishlist_remove_submit %}
+                            <button type="submit" class="btn btn-light product-wishlist-btn product-wishlist-btn-remove" aria-label="{{ 'wishlist.remove'|trans({ '%product_name%': product.translated.name })|striptags }}" title="{{ 'listing.removeFromWishlist'|trans|sw_sanitize }}">
+                                {% sw_icon 'x' style { class: 'icon-wishlist icon-wishlist-remove', size: size, pack: 'solid' } %}
+                            </button>
+                        {% endblock %}
+                    </form>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block component_product_box_info %}
+            <div class="product-info product-wishlist-info">
+                {{ sw_block('component_product_box_rating') }}
+
+                {{ sw_block('component_product_box_name') }}
+
+                {{ sw_block('component_product_box_variant_characteristics') }}
+
+                {% block component_product_box_manufacturer %}
+                    <div class="product-wishlist-info-item product-wishlist-info-manufacturer">
+                        {% if product.manufacturer %}
+                            {{ 'wishlist.manufacturerDisplayName'|trans|sw_sanitize }}:
+                            <span class="product-wishlist-info-text">{{ product.manufacturer.translated.name }}</span>
+                        {% endif %}
+                    </div>
+                {% endblock %}
+
+                {% block component_product_box_delivery_time %}
+                    <div class="product-wishlist-info-item product-wishlist-info-delivery-time">
+                        {% sw_include '@Storefront/storefront/component/wishlist/delivery-information.html.twig' %}
+                    </div>
+                {% endblock %}
+
+                {{ sw_block('component_product_box_price') }}
+
+                {{ sw_block('component_product_box_action') }}
+            </div>
+        {% endblock %}
+    </div>
+
+    {{ sw_icon_cache_enable() }}
+{% endblock %}

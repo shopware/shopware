@@ -1,0 +1,22 @@
+@import "~scss/variables";
+
+.sw-extension-review-reply {
+    background: $color-gray-100;
+    border-radius: $border-radius-md;
+    margin: 16px 0;
+    padding: 24px;
+
+    &__head {
+        line-height: 17px;
+        margin-bottom: 4px;
+    }
+
+    &__producer-name {
+        font-weight: $font-weight-semi-bold;
+    }
+
+    &__date {
+        color: $color-gray-500;
+        display: inline-block;
+    }
+}

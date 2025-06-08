@@ -1,0 +1,112 @@
+{#
+
+Notice for plugins and theme developer:     Do not extend this template!
+
+This template will be rendered over the `block` function.
+Templates which are rendered over the `block` function can not be extended.
+Instead of extending this template, simply extend the `base.html.twig` (or the document specific template) and override the block you want.
+All blocks of this template are available in the template which renders this template over the `block` function.
+
+#}
+
+{% block letter_header %}
+    {% set addressParts = config.getAddressParts %}
+
+    <div class="letter-header">
+        <div class="recipient-address-container" tabindex="0">
+            {% block document_recipient %}
+                {% sw_include '@Framework/snippets/render.html.twig' with {
+                    format: billingAddress.country.translated.addressFormat,
+                    address: billingAddress
+                } %}<br/>
+
+                {% if (customer.customer.vatIds|first and config.displayCustomerVatId) or (customer.customer.vatIds|first and billingAddress.country.companyTax.enabled and config.displayAdditionalNoteDelivery and billingAddress.country.id in config.deliveryCountries) %}
+                    {{ 'document.vatId'|trans({'%vatId%': customer.customer.vatIds|first})|sw_sanitize }}<br>
+                {% endif %}
+            {% endblock %}
+        </div>
+
+        <div class="sender-address-container" tabindex="0">
+            {% block document_sender_address %}
+                <table>
+                    {% for part in addressParts %}
+                        {% if loop.first and config.companyName %}
+                            <tr>
+                                <td class="bold">{{ part }}</td>
+                            </tr>
+                        {% elseif config.displayCompanyAddress %}
+                            <tr>
+                                <td>{{ part }}</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+
+
+                    {% if config.companyPhone %}
+                        {% block document_side_info_phone_number %}
+                            <tr>
+                                <td>
+                                    {{'document.phoneNumber'|trans({'%phoneNumber%': config.companyPhone })|sw_sanitize }}
+                                </td>
+                            </tr>
+                        {% endblock %}
+                    {% endif %}
+
+                    {% if config.companyEmail %}
+                        {% block document_side_info_email %}
+                            <tr>
+                                <td>{{ config.companyEmail }}</td>
+                            </tr>
+                        {% endblock %}
+                    {% endif %}
+
+                    {% if config.companyUrl %}
+                        {% block document_side_company_url %}
+                            <tr>
+                                <td>{{ config.companyUrl }}</td>
+                            </tr>
+                        {% endblock %}
+                    {% endif %}
+                </table><br>
+            {% endblock %}
+
+            {% block document_side_info %}
+                <table>
+                    {% block document_side_info_contents %}
+                        {% block document_side_info_customer_number %}
+                            <tr>
+                                <td>
+                                    {{ 'document.customerNumber'|trans({'%customerNumber%': customer.customerNumber})|sw_sanitize }}
+                                </td>
+                            </tr>
+                        {% endblock %}
+
+                        {% block document_side_info_order_number %}
+                            <tr>
+                                <td>
+                                    {{ 'document.orderNumber'|trans({'%orderNumber%': order.orderNumber })|sw_sanitize }}
+                                </td>
+                            </tr>
+                        {% endblock %}
+
+                        {% block document_side_info_order_date %}
+                            <tr>
+                                <td>
+                                    {{ 'document.orderDate'|trans({'%orderDate%': order.orderDateTime|format_date('medium', locale=locale)})|sw_sanitize }}
+                                </td>
+                            </tr>
+                        {% endblock %}
+
+                        {% block document_side_info_date %}
+                            <tr>
+                                <td>
+                                    {{ 'document.date'|trans({'%date%': config.documentDate|format_date('medium', locale=locale)})|sw_sanitize }}
+                                </td>
+                            </tr>
+                        {% endblock %}
+                    {% endblock %}
+                </table>
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

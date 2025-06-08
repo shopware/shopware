@@ -1,0 +1,10 @@
+{
+  "name": "PluginWildcardAndExplicit",
+  "author": "shopware AG",
+  "views": [
+    "@Storefront",
+    "@PayPal",
+    "@PluginWildcardAndExplicit",
+    "@Plugins"
+  ]
+}

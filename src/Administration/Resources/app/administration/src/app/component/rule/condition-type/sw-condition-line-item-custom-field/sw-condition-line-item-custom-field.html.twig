@@ -1,0 +1,68 @@
+{% block sw_condition_value_content %}
+<div class="sw-condition-line-item-custom-field sw-condition__condition-value">
+    {% block sw_condition_line_item_custom_field_field %}
+    <sw-entity-single-select
+        ref="selectedField"
+        v-model:value="selectedField"
+        name="sw-field--selectedField"
+        entity="custom_field"
+        :criteria="customFieldCriteria"
+        :placeholder="$tc('global.sw-condition.condition.lineItemCustomField.field.customFieldSelect.placeholder')"
+        :disabled="disabled || undefined"
+        size="medium"
+        show-clearable-button
+        @update:value="onFieldChange"
+    >
+        <template #selection-label-property="{ item }">
+            {{ getInlineSnippet(item.config.label) || item.name }}
+        </template>
+        <template #result-item="{ item, index, isSelected, setValue }">
+            <sw-select-result
+                v-tooltip="getTooltipConfig(item)"
+                :disabled="!item.allowCartExpose"
+                :selected="isSelected(item)"
+                v-bind="{ item, index }"
+                @item-select="setValue"
+            >
+                {{ getInlineSnippet(item.config.label) || item.name }}
+
+                <template #description>
+                    {% block sw_condition_line_item_custom_field_field_description %}
+                    <span
+                        v-if="getFieldDescription(item).length > 20"
+                        :title="getFieldDescription(item)"
+                    >
+                        {{ truncateFilter(getFieldDescription(item), 20) }}
+                    </span>
+                    <template v-else>
+                        {{ getFieldDescription(item) }}
+                    </template>
+                    {% endblock %}
+                </template>
+            </sw-select-result>
+        </template>
+    </sw-entity-single-select>
+    {% endblock %}
+
+    {% block sw_condition_line_item_custom_field_operator %}
+    <sw-condition-operator-select
+        v-if="renderedField"
+        name="sw-field--operator"
+        v-bind="{ operators, condition }"
+        :disabled="disabled || undefined"
+    />
+    {% endblock %}
+
+    {% block sw_condition_line_item_custom_field_value %}
+    <sw-form-field-renderer
+        v-if="renderedField"
+        name="sw-field--renderedFieldValue"
+        size="medium"
+        :value="renderedFieldValue"
+        :config="renderedField.config"
+        :disabled="disabled || undefined"
+        @update:value="renderedFieldValue = $event"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

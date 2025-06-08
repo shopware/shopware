@@ -1,0 +1,11 @@
+{
+  "sw-settings-cart": {
+    "general": {
+      "mainMenuItemGeneral": "Warenkorb",
+      "textHeadline": "Warenkorb",
+      "description": "Verwaltung von Warenkorbeinstellungen.",
+      "buttonSave": "Speichern",
+      "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert."
+    }
+  }
+}

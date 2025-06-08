@@ -1,0 +1,10 @@
+{% block sw_first_run_wizard_mailer_base %}
+<router-view
+    v-slot="{ Component }"
+>
+    <component
+        :is="Component"
+        v-bind="filteredAttributes"
+    />
+</router-view>
+{% endblock %}

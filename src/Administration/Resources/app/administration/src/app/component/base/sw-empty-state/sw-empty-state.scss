@@ -1,0 +1,55 @@
+@import "~scss/variables";
+
+.sw-empty-state {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    &--absolute {
+        position: absolute;
+    }
+
+    &--empty-module {
+        height: 400px;
+    }
+
+    &--auto-height {
+        height: auto;
+    }
+
+    &__element {
+        max-width: 600px;
+        padding: 20px;
+        margin: 0 auto;
+        align-self: center;
+        text-align: center;
+    }
+
+    &__title {
+        font-size: $font-size-m;
+        margin-bottom: 4px;
+        color: $color-darkgray-200;
+    }
+
+    &__description {
+        color: $color-darkgray-200;
+        font-size: $font-size-xs;
+    }
+
+    &__description-link {
+        display: inline-block;
+        cursor: pointer;
+        color: rgb(24, 158, 255);
+        text-decoration: underline;
+    }
+
+    &__icon {
+        margin-bottom: 24px;
+    }
+
+    &__actions {
+        margin-top: 16px;
+    }
+}

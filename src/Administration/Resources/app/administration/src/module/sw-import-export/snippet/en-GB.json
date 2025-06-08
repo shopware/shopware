@@ -1,0 +1,243 @@
+{
+    "sw-import-export": {
+        "general": {
+            "mainMenuItemGeneral": "Import/Export",
+            "descriptionTextModule": "Management of imports and exports"
+        },
+        "activity": {
+            "invalidHelpText": "Invalid records can be downloaded via the context menu",
+            "dryrun": "Dry run",
+            "columns": {
+                "size": "Size",
+                "profile": "Profile",
+                "date": "Date",
+                "user": "User",
+                "state": "Status",
+                "records": "Records",
+                "invalidRecords": "Invalid records"
+            },
+            "contextMenu": {
+                "showLog": "Open log entry",
+                "showLogInfo": "Open log information",
+                "abortProcess": "Abort process",
+                "downloadFile": "Download file",
+                "downloadImportFile": "Download import file",
+                "downloadExportFile": "Download export file",
+                "showProfile": "Show profile",
+                "downloadInvalidFile": "Download invalid records",
+                "showResults": "Show summary"
+            },
+            "logInfo": {
+              "modalTitle": "Log information",
+              "labelClose": "Close",
+              "labelFilename": "Filename",
+              "labelType": "Type",
+              "labelExportRecords": "Exported records",
+              "labelSize": "File size",
+              "labelUser": "User",
+              "labelDate": "Date / time",
+              "labelState": "Status",
+              "labelProfile": "Profile",
+              "exportLabel": "Export",
+              "importLabel": "Import",
+              "dryrunLabel": "Dry run",
+              "labelDownloadFile": "Download export file"
+            },
+            "result": {
+              "modalTitle": "Import summary",
+              "activityHeadline": "Import activity: related changes",
+              "activityDescription": "The following entities were affected by the {entity} import.",
+              "entityName": "Data sets",
+              "changes": "Changes",
+              "errors": "Errors",
+              "skipped": "Skipped",
+              "labelDownloadFile": "Download import file",
+              "labelDownloadInvalidFile": "Download failed records",
+              "mainEntity": {
+                "title": "Import activity: {entity}",
+                "insert": "Created",
+                "update": "Updated",
+                "insertError": "Creation error",
+                "updateError": "Update error",
+                "otherError": "Other error",
+                "insertSkip": "Creation skipped",
+                "updateSkip": "Update skipped"
+              },
+              "logInfo": {
+                "title": "Log information",
+                "labelFilename": "Filename",
+                "labelType": "Type",
+                "labelImported": "Imported records",
+                "labelSize": "File size",
+                "labelState": "Status",
+                "labelUser": "User",
+                "labelProfile": "Profile",
+                "labelDate": "Date / time"
+              }
+            },
+            "status": {
+                "progress": "Processing",
+                "merging_files": "Merging files",
+                "succeeded": "Succeeded",
+                "failed": "Failed",
+                "aborted": "Aborted"
+            },
+            "emptyState": {
+                "titleExport": "No exports",
+                "titleImport": "No imports",
+                "subLineExport": "No recorded export activities yet.",
+                "subLineImport": "No recorded import activities yet."
+            }
+        },
+        "profile": {
+            "messageSaveSuccess": "Profile saved.",
+            "messageSaveError": "Profile could not be saved.",
+            "messageDeleteSuccess": "Profile deleted.",
+            "messageDeleteError": "Profile could not be saved. Please delete all of this profile's logs.",
+            "messageDuplicateSuccess": "Profile duplicated.",
+            "messageDuplicateError": "Profile could not be duplicated.",
+            "messageSearchParentProfileError": "Cannot process request",
+            "messageCsvTemplateUploadError": "Cannot process CSV file.",
+            "messageCsvTemplateUploadEmptyError": "CSV file does not contain any columns.",
+            "messageCsvTemplateUploadWarning": "Imported mapping may be incorrect. CSV file only contains one column. Check CSV separator setting.",
+            "productLabel": "Product",
+            "customerLabel": "Customer",
+            "categoriesLabel": "Categories",
+            "orderLabel": "Orders",
+            "mediaLabel": "Media",
+            "newsletterRecipientLabel": "Newsletter recipient",
+            "caretsLabel": "Caret (^)",
+            "commasLabel": "Comma (,)",
+            "semicolonLabel": "Semicolon (;)",
+            "doubleQuoteLabel": "Double quotes (\")",
+            "newProfileLabel": "New profile",
+            "editProfileLabel": "Edit profile",
+            "addProfileLabel": "Add profile",
+            "addNewProfileLabel": "Add new profile",
+            "addNewProfileTooltipLanguage": "Profiles can only be created in the default system language",
+            "openLabel": "Edit",
+            "indicatorHeadline" : "Field Indicators",
+            "duplicateLabel": "Duplicate",
+            "copyOfLabel": "Copy of:",
+            "saveProfileLabel": "Save profile",
+            "closeProfileLabel": "Close profile",
+            "generalTab": "General",
+            "fieldIndicatorsTab": "Field indicator",
+            "csvUploadTab": "Upload CSV file",
+            "mappingsTab": "Mappings",
+            "advancedTab": "Advanced settings",
+            "profileNameFieldLabel": "Profile name",
+            "technicalNameFieldLabel": "Technical name",
+            "objectTypeFieldLabel": "Object type",
+            "separatorFieldLabel": "Separator character",
+            "enclosureFieldLabel": "Enclosure character",
+            "addMappingTooltipText": "Please define an object type first.",
+            "objectTypeFieldTooltipText": "The object type cannot be changed when mapping options are present.",
+            "descriptionBlock": "Object types define a certain mode for importing and exporting data. Selecting an object type will limit the mapping options. Notice that you cannot change the object type after mapping options have been introduced.",
+            "mappingDescriptionBlock": "Use the table on the \"Mappings\" tab to map CSV fields to their respective database counterparts.",
+            "csvDescriptionBlock": "Separators and enclosure characters are used to indicate the separate field within the CSV file. Separators are used to split single fields, enclosure characters are used to group multiple fields.",
+            "addMappingLabel": "Add new mapping",
+            "deleteMappingLabel": "Remove mapping",
+            "downloadTemplateLabel": "Download template",
+            "deleteLabel": "Delete profile",
+            "systemDefaultInfoText": "You are viewing a system default profile which cannot be modified. You can either create a new profile or duplicate a system default profile.",
+            "mapping": {
+                "fileValueLabel": "CSV name",
+                "entityLabel": "Database entry",
+                "isRequired": "Required",
+                "defaultValue": "Default value",
+                "position": "Position",
+                "notMapped": "Not mapped"
+            },
+            "identifiers": {
+              "identifierNameLabel": "Entity",
+              "mappedKeyLabel": "Identifier"
+            },
+            "typeColumn": "Type",
+            "nameColumn": "Name",
+            "technicalNameColumn": "Technical name",
+            "customTypeLabel": "Custom",
+            "defaultTypeLabel": "Default",
+            "propertyLabel": "Properties",
+            "mappingAutomatedDescription": "Shopware has automatically mapped {automatedCount} database entries. Please complete the process by assigning unmapped entries to the correct database entry manually. Required fields that are left empty will cause errors during import unless default values have been set. Default values will also be used to fill empty database entries.",
+            "mappingDescription": "Use the table below to map the CSV column names to Shopware database entries. Empty required fields will cause errors during import unless default values have been set.",
+            "mappingEmptyState": "No custom mapping provided yet.",
+            "advancedDescription": "Identifiers are used to unambiguously determine updateable entities and thus have to be unique.",
+            "configuratorSettingLabel": "Variant configuration settings",
+            "productCrossSellingLabel": "Cross Selling",
+            "promotionDiscountLabel": "Promotion discounts",
+            "promotionIndividualCodesLabel": "Promotion codes",
+            "productPriceLabel": "Advanced prices",
+            "closeViolation": "Close",
+            "violationMessage": "Your profile is not valid, yet. You need to add mappings to the required fields shown below to save the profile:",
+            "importSettingsHeadline": "Import settings",
+            "fieldIndicatorsHeadline": "Field indicators",
+            "createEntitiesLabel": "Create new entities",
+            "updateEntitiesLabel": "Update existing data",
+            "typeFieldLabel": "Usage",
+            "types": {
+                "importExportLabel": "Import and export",
+                "importLabel": "Import",
+                "exportLabel": "Export"
+            },
+          "profileTypeDisabledText": "Clear 'object type' in order to be able to select any 'usage'.",
+          "objectTypeDisabledText": "Clear 'usage' in order to be able to select any 'object type'.",
+          "csvUploadText": "Create mapping from an existing CSV file.",
+          "skipCsvUpload": "Skip CSV upload"
+        },
+        "exporter": {
+            "messageExportStarted": "Export started.",
+            "messageExportSuccess": "Export \"{profile}\" completed.",
+            "messageExportError": "Export file could not be created. | Export file could not be created. Please download the \"invalid records\" file or more information.",
+            "startExportLabel": "Start export",
+            "showLogLabel": "Show log file",
+            "exportActivityLabel": "Export activity",
+            "exportActivityDescription": "Activities older than 30 days will be removed automatically.",
+            "exportLabel": "Export",
+            "directExportVariantsLabel": "Export variant settings",
+            "directExportPropertiesLabel": "Export properties",
+            "close": "Close",
+            "variantsWarning": "<strong>Warning:</strong> Make sure that the properties and variants linked to the products in the exported CSV file are available in the new system. If this is not the case, you have the possibility to export properties and variants as single CSV files with corresponding profiles. If you do not have both cases, you have to create the product variants manually in the new system after the export.",
+            "exportVariants": "Export product variants"
+        },
+        "importer": {
+            "messageImportStarted": "Import started.",
+            "messageImportSuccess": "Import \"{profile}\" completed.",
+            "messageImportError": "Could not import data using profile \"{profile}\". | Could not import data using profile \"{profile}\". Please download the \"invalid records\" file for more information.",
+            "messageImportWarning": "No records imported. Please make sure your delimiters match the current profile.",
+            "uploadCsvLabel": "Upload CSV file",
+            "startImportLabel": "Start import",
+            "selectProfileLabel": "Select profile",
+            "profileLabel": "Profile",
+            "warningBlock": "<strong>Warning:</strong> Make sure that the properties and variants linked to the products in the uploaded CSV file are available in your shop. If this is not the case, you can import properties and variants as separate CSV files with corresponding profiles. If neither of these do apply, you'll have to maintain the product variants manually in the product module after the import.",
+            "importActivityLabel": "Import activity",
+            "importLabel": "Import",
+            "directImportVariantsLabel": "Import variant settings",
+            "directImportPropertiesLabel": "Import properties",
+            "close": "Close",
+            "labelUploadCaption": "Select a CSV file to upload",
+            "variantsWarning": "<strong>Attention: </strong> If you are importing products with variants, be sure to use a profile that can import variant settings.<br>If you don't, only the main products are imported and the variants must be created manually by the admin afterwards.",
+            "importVariants": "Import product variants"
+        },
+        "page": {
+            "profileTab": "Profiles",
+            "importTab": "Import",
+            "exportTab": "Export"
+        },
+        "progress": {
+            "startImportLabel": "Start import",
+            "startImportDryrunLabel": "Start dry run",
+            "startExportLabel": "Start export"
+        },
+        "errors": {
+            "CONTENT__IMPORT_EXPORT__DUPLICATE_TECHNICAL_NAME": "The technical name is not unique."
+        }
+    },
+  "sw-privileges": {
+    "additional_permissions": {
+      "system": {
+        "import_export": "Import/Export"
+      }
+    }
+  }
+}

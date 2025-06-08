@@ -1,0 +1,77 @@
+{% block sw_settings_custom_field_set_detail %}
+<sw-page class="sw-settings-set-detail">
+
+    {% block sw_settings_customField_set_detail_header %}
+    <template #smart-bar-header>
+        <h2 v-if="set && set.config && getInlineSnippet(set.config.label)">
+            {{ getInlineSnippet(set.config.label) }}
+        </h2>
+        <h2 v-else>
+            {{ $tc('sw-settings-custom-field.set.detail.textHeadline') }}
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_custom_field_set_detail_actions %}
+    <template #smart-bar-actions>
+        {% block sw_settings_custom_field_set_detail_actions_abort %}
+        <mt-button
+            v-tooltip.bottom="tooltipCancel"
+            :disabled="set.isLoading"
+            variant="secondary"
+            size="default"
+            @click="onCancel"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_settings_custom_field_set_detail_actions_save %}
+        <sw-button-process
+            v-tooltip.bottom="tooltipSave"
+            class="sw-settings-set-detail__save-action"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="set.isLoading || !acl.can('custom_field.editor')"
+            variant="primary"
+            @update:process-success="saveFinish"
+            @click.prevent="onSave"
+        >
+            {{ $tc('sw-settings-custom-field.set.detail.buttonSave') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_custom_field_set_detail_content %}
+    <template #content>
+        <sw-card-view>
+            <template v-if="isLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
+
+            {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
+            <div v-show="!isLoading">
+                {% block sw_settings_custom_field_set_detail_content_detail_base %}
+                <sw-custom-field-set-detail-base
+                    :set="set"
+                    :technical-name-error="technicalNameError"
+                    @reset-errors="onResetErrors"
+                />
+                {% endblock %}
+
+                {% block sw_settings_custom_field_set_detail_content_detail_custom_field_list %}
+                <sw-custom-field-list
+                    v-if="set.id"
+                    ref="customFieldList"
+                    :set="set"
+                    @loading-changed="onLoadingChanged"
+                />
+                {% endblock %}
+            </div>
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

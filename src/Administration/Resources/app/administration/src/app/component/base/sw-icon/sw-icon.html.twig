@@ -1,0 +1,19 @@
+{% block sw_icon %}
+<mt-icon
+    v-if="!deprecated"
+    size="24px"
+    v-bind="$attrs"
+    :name="name"
+>
+    <slot></slot>
+</mt-icon>
+{% endblock %}
+
+{# Deprecated component #}
+<sw-icon-deprecated
+    v-else
+    v-bind="$attrs"
+    :name="name"
+>
+    <slot></slot>
+</sw-icon-deprecated>

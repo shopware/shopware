@@ -1,0 +1,152 @@
+{
+  "sw-profile": {
+    "general": {
+      "mainMenuItemGeneral": "Profiles",
+      "description": "Manage your profile here.",
+      "headlineProfile": "Your profile"
+    },
+    "index": {
+      "buttonSaveLabel": "Save",
+      "titleInfoCard": "Profile information",
+      "titleImageCard": "Profile image",
+      "titlePasswordCard": "Password",
+      "labelFirstNameField": "First name",
+      "labelLastNameField": "Last name",
+      "labelUsernameField": "Username",
+      "labelEmailField": "Email address",
+      "labelTimezoneField": "Timezone",
+      "labelOldPassword": "Old password",
+      "placeholderOldPassword": "Enter old password...",
+      "labelNewPassword": "New password",
+      "placeholderNewPassword": "Enter new password...",
+      "labelNewPasswordConfirm": "Confirm password",
+      "placeholderNewPasswordConfirm": "Re-enter new password...",
+      "notificationPasswordErrorMessage": "The submitted passwords do not match.",
+      "notificationNewPasswordIsSameAsOldErrorMessage": "The new password is identical with your old one. Please choose a new password.",
+      "notificationInvalidEmailErrorMessage": "Please enter a valid email address.",
+      "notificationSaveSuccessMessage": "Profile information have been saved.",
+      "notificationSaveErrorMessage": "Profile information could not be saved.",
+      "labelUploadAvatar": "Upload avatar",
+      "labelUseAsAvatar": "Use as avatar"
+    },
+    "tabGeneral": {
+      "title": "General"
+    },
+    "tabSearchPreferences": {
+      "title": "Search preferences",
+      "alert_elasticsearch": {
+        "title": "Elasticsearch is now enabled",
+        "text": "You have enabled the elasticsearch for the admin search, these fields are searchable and you can't turn it off, however you can turn off which entities are searchable"
+      },
+      "cardSearchableElements": {
+        "title": "Searchable elements",
+        "description": "Set the searchable content for each module and entry.",
+        "buttonSelect": "Select all",
+        "buttonDeselect": "Deselect all",
+        "buttonReset": "Reset to default"
+      },
+      "modules": {
+        "order": {
+          "countryName": "Country",
+          "city": "City",
+          "street": "Street",
+          "company": "Company",
+          "zipcode": "Postal code",
+          "lastName": "Last name",
+          "firstName": "First name",
+          "phoneNumber": "Phone number",
+          "additionalAddressLine1": "Additional address line 1",
+          "additionalAddressLine2": "Additional address line 2",
+          "trackingCodes": "Tracking codes",
+          "amountTotal": "Amount total",
+          "orderNumber": "Order number",
+          "email": "Email address",
+          "tagsName": "Tags",
+          "customerNumber": "Customer number",
+          "documentNumber": "Document number",
+          "promotionCode": "Applied promotion codes"
+        },
+        "customer": {
+          "tagsName": "Tags",
+          "email": "Email address",
+          "company": "Company",
+          "firstName": "First name",
+          "lastName": "Last name",
+          "customerNumber": "Customer number",
+          "countryName": "Country",
+          "city": "City",
+          "street": "Street",
+          "zipcode": "Postal code",
+          "phoneNumber": "Phone number",
+          "additionalAddressLine1": "Additional address line 1",
+          "additionalAddressLine2": "Additional address line 2"
+        },
+        "product": {
+          "ean": "GTIN/EAN",
+          "name": "Name",
+          "tagsName": "Tags",
+          "productNumber": "Product number",
+          "manufacturerNumber": "Manufacturer number",
+          "customSearchKeywords": "SEO keywords"
+        },
+        "media": {
+          "alt": "Alt text",
+          "tagsName": "Tags",
+          "title": "Title",
+          "fileName": "Name",
+          "mediaFolderName": "Folder",
+          "path": "Path"
+        },
+        "landing_page": {
+          "name": "Name",
+          "tagsName": "Tags"
+        },
+        "category": {
+          "name": "Name",
+          "tagsName": "Tags"
+        },
+        "shipping_method": {
+          "name": "Name"
+        },
+        "payment_method": {
+          "name": "Name"
+        },
+        "customer_group": {
+          "name": "Name"
+        },
+        "sales_channel": {
+          "name": "Name"
+        },
+        "property": {
+          "name": "Name"
+        },
+        "property_group": {
+          "name": "Name"
+        },
+        "promotion": {
+          "name": "Name",
+          "code": "Code"
+        },
+        "product_stream": {
+          "name": "Name"
+        },
+        "newsletter_recipient": {
+          "email": "Email address"
+        },
+        "product_manufacturer": {
+          "name": "Name"
+        },
+        "cms_page": {
+          "name": "Name"
+        }
+      }
+    }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "user": {
+        "update_profile": "Update own profile"
+      }
+    }
+  }
+}

@@ -1,0 +1,74 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Checkout\Customer\Event;
+
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
+
+#[Package('checkout')]
+class CustomerWishlistProductListingResultEvent extends NestedEvent implements ShopwareSalesChannelEvent
+{
+    final public const EVENT_NAME = 'checkout.customer.wishlist_listing_product_result';
+
+    /**
+     * @param EntitySearchResult<ProductCollection> $result
+     */
+    public function __construct(
+        protected Request $request,
+        protected EntitySearchResult $result,
+        private SalesChannelContext $context
+    ) {
+    }
+
+    public function getName(): string
+    {
+        return self::EVENT_NAME;
+    }
+
+    public function getRequest(): Request
+    {
+        return $this->request;
+    }
+
+    public function setRequest(Request $request): void
+    {
+        $this->request = $request;
+    }
+
+    /**
+     * @return EntitySearchResult<ProductCollection>
+     */
+    public function getResult(): EntitySearchResult
+    {
+        return $this->result;
+    }
+
+    /**
+     * @param EntitySearchResult<ProductCollection> $result
+     */
+    public function setResult(EntitySearchResult $result): void
+    {
+        $this->result = $result;
+    }
+
+    public function getSalesChannelContext(): SalesChannelContext
+    {
+        return $this->context;
+    }
+
+    public function setSalesChannelContext(SalesChannelContext $context): void
+    {
+        $this->context = $context;
+    }
+
+    public function getContext(): Context
+    {
+        return $this->context->getContext();
+    }
+}

@@ -1,0 +1,51 @@
+@import "~scss/variables";
+
+.sw-product-detail-cross-selling {
+    & &__restore-inheritance-btn.mt-button {
+        display: block;
+        margin: 0 auto 40px;
+
+        .mt-icon {
+            color: $color-module-purple-900;
+        }
+
+        &:disabled,
+        &.mt-button--disabled {
+            .mt-icon {
+                color: $color-module-purple-200;
+            }
+        }
+    }
+
+    &__inherit-toggle-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        line-height: 16px;
+        font-size: $font-size-xs;
+        margin: 20px 0;
+        color: $color-darkgray-200;
+
+        &.is--inherited {
+            color: $color-module-purple-900;
+        }
+    }
+
+    &__inherit-switch {
+        margin: 0 10px 0 0;
+
+        .sw-field--switch__input {
+            height: 16px;
+            padding: 0;
+        }
+    }
+
+    &__inheritance-icon {
+        margin-right: 8px;
+    }
+
+    &__cross-selling-list + .sw-tooltip--wrapper {
+        margin: 0 auto;
+        width: fit-content;
+    }
+}

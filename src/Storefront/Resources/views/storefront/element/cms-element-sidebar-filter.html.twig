@@ -1,0 +1,43 @@
+{% block element_sidebar_filter %}
+    {# Use values from cms data if context is a cmsPage, otherwise `listing` and `sidebar` must be set manually #}
+    {% if cmsPage is defined %}
+        {% set config = element.fieldConfig.elements %}
+        {% set slot = cmsPage.getFirstElementOfType('product-listing') %}
+        {% set listing = slot.data.listing %}
+        {% set sidebar = block.sectionPosition == 'sidebar' %}
+    {% endif %}
+
+    {% if listing.aggregations.elements|length > 0 %}
+        <div class="cms-element-sidebar-filter">
+            {% block element_product_listing_filter_button %}
+                <button
+                    class="btn btn-outline-primary filter-panel-wrapper-toggle"
+                    type="button"
+                    data-off-canvas-filter="true"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                >
+                    {% block element_product_listing_filter_button_icon %}
+                        {% sw_icon 'sliders-horizontal' style { size: 'sm' } %}
+                    {% endblock %}
+
+                    {{ 'listing.filterTitleText'|trans }}
+                </button>
+            {% endblock %}
+
+            {% block element_sidebar_filter_panel %}
+                <div
+                    id="filter-panel-wrapper"
+                    class="filter-panel-wrapper"
+                    data-off-canvas-filter-content="true"
+                >
+                    {% sw_include '@Storefront/storefront/component/listing/filter-panel.html.twig' with {
+                        listing: listing,
+                        sidebar: sidebar,
+                        ariaLiveUpdates: true
+                    } %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}

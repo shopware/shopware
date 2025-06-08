@@ -1,0 +1,39 @@
+@import "~scss/variables";
+
+.sw-cms-stage-add-section {
+    width: 100%;
+    padding: 19px 0;
+    text-align: center;
+    z-index: 200;
+    background: $color-gray-50;
+    display: grid;
+
+    &.is--disabled {
+        .sw-cms-stage-add-section__button {
+            color: $color-gray-300;
+            cursor: not-allowed;
+
+            &:hover {
+                color: $color-gray-300;
+            }
+        }
+    }
+
+    .sw-cms-stage-add-section__button {
+        width: 30px;
+        height: 30px;
+        justify-self: center;
+        align-self: center;
+        cursor: pointer;
+        color: $color-gray-900;
+        transition: 0.5s;
+
+        &:hover {
+            color: $color-shopware-brand-500;
+        }
+
+        &.is--open {
+            transform: rotate(45deg);
+        }
+    }
+}

@@ -1,0 +1,27 @@
+{% block sw_sidebar_filter_panel %}
+<sw-sidebar-item
+    class="sw-sidebar-filter-panel"
+    icon="regular-filter"
+    :badge="activeFilterNumber"
+    :title="$tc('sw-filter-panel.titleSidebarItemFilter')"
+>
+    {% block sw_sidebar_filter_panel_headline %}
+    <template #headline-content>
+        <a
+            v-if="activeFilterNumber"
+            role="button"
+            tabindex="0"
+            @click="resetAll"
+            @keydown.enter="resetAll"
+        >{{ $tc('sw-sidebar-filter-panel.resetButton') }}</a>
+    </template>
+    {% endblock %}
+
+    {% block sw_sidebar_filter_panel_content %}
+    <sw-filter-panel
+        ref="filterPanel"
+        v-bind="$attrs"
+    />
+    {% endblock %}
+</sw-sidebar-item>
+{% endblock %}

@@ -1,0 +1,18 @@
+@import "~scss/variables";
+
+.sw-promotion-v2-cart-condition-form {
+    &__setgroup-card-title {
+        font-size: $font-size-m;
+        line-height: $line-height-md;
+        margin-bottom: 32px;
+    }
+
+    &__add-group-button-container {
+        text-align: center;
+        margin-bottom: 32px;
+    }
+
+    .sw-multi-select {
+        margin-top: 20px;
+    }
+}

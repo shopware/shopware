@@ -1,0 +1,19 @@
+/*
+Base
+==================================================
+Contains global base styles for all pages
+
+@sw-package framework
+*/
+
+body {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+main {
+    flex-grow: 1;
+}

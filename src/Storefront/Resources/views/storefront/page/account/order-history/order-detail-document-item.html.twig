@@ -1,0 +1,35 @@
+{% block page_account_order_document_item_detail %}
+    <li class="row order-detail-content-row">
+        {% block page_account_order_document_item_detail_file_name %}
+            <div class="col-12 col-md-6 document-item document-item-file-name">
+                {% set documentMediaFiles = [document.documentMediaFile, document.documentA11yMediaFile] %}
+
+                {% for media in documentMediaFiles|filter(media => media is not null) %}
+                    {% set documentLink = path('frontend.account.order.single.document', {
+                        documentId: document.id,
+                        deepLinkCode: document.deepLinkCode,
+                        fileType: media.fileExtension,
+                    }) %}
+
+                    <a href="{{ documentLink }}"
+                       target="_blank">
+                        {% block page_account_order_document_item_detail_file_name_icon %}
+                            <span class="icon icon-xs">{% sw_icon 'file' %}</span>
+                        {% endblock %}
+
+                        {% block page_account_order_document_item_detail_file_name_value %}
+                            {{ document.config.filenamePrefix }}{{ document.config.documentNumber }}{{ document.config.filenameSuffix is not empty? document.config.filenameSuffix ~ '_': '_' }}{{ document.createdAt|format_date(pattern='Y-MM-dd') }}.{{ media.fileExtension }}
+                        {% endblock %}
+                    </a><br>
+                {% endfor %}
+            </div>
+        {% endblock %}
+
+        {% block page_account_order_document_item_detail_date %}
+            <div class="col-9 col-md-4 align-content-center document-item document-item-date">
+                <span class="document-item-date-label visually-hidden">{{ "account.documentItemColumnDate"|trans|sw_sanitize }}:</span>
+                {{ document.createdAt|format_datetime('medium', 'short', locale=app.request.locale) }}
+            </div>
+        {% endblock %}
+    </li>
+{% endblock %}

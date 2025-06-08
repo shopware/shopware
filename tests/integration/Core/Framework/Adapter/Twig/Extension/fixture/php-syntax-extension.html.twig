@@ -1,0 +1,112 @@
+{%- if 1 === 1 -%}
+-1
+{%- endif -%}
+
+{%- if 1 is same as(1) -%}
+-2
+{%- endif -%}
+
+{%- if 1 === '1' -%}
+0
+{%- endif -%}
+
+{%- if test === "test" -%}
+-3
+{%- endif -%}
+
+{%- if test !== "test" -%}
+0
+{%- endif -%}
+
+{%- foreach list as entry -%}
+    {{ entry }}
+    {%- break -%}
+{%- endforeach -%}
+
+{%- if trueValue is true -%} {# instead of {%- if someflag is same as(true) -%} #}
+-5
+{%- endif -%}
+
+{%- if falseValue is false -%} {# instead of {%- if someflag is same as(false) -%} #}
+-6
+{%- endif -%}
+
+{%- if stringValue is string -%} {# no equivalent in Twig -%} #}
+-7
+{%- endif -%}
+
+{%- if scalarValue is scalar -%} {# no equivalent in Twig -%} #}
+-8
+{%- endif -%}
+
+{%- if objectValue is object -%} {# no equivalent in Twig -%} #}
+-9
+{%- endif -%}
+
+{%- if intValue is integer -%} {# no equivalent in Twig -%} #}
+-10
+{%- endif -%}
+
+{%- if intValue is int -%} {# same as integer test above, alternate way to write it -%} #}
+-11
+{%- endif -%}
+
+{%- if floatValue is float -%} {# no equivalent in Twig -%} #}
+-12
+{%- endif -%}
+
+{%- if callableValue is callable -%} {# no equivalent in Twig -%} #}
+-13
+{%- endif -%}
+
+{%- if trueValue is boolean -%} {# no equivalent in Twig -%} #}
+-14
+{%- endif -%}
+
+{%- if falseValue is bool -%} {# same as boolean test above, alternate way to write it -%} #}
+-15
+{%- endif -%}
+
+{%- if arrayValue is array -%} {# no equivalent in Twig -%} #}
+-16
+{%- endif -%}
+
+{%- if '5'|intval === 5 -%}
+-17
+{%- endif -%}
+
+{%- if 5.7|strval === '5.7' -%}
+-18
+{%- endif -%}
+
+{%- if 1|boolval === true -%}
+-19
+{%- endif -%}
+
+{%- if '5.7'|floatval === 5.7 -%}
+-20
+{%- endif -%}
+
+{%- if true === true && false === false -%}
+-21
+{%- endif -%}
+
+{%- if false === true || true === true -%}
+-22
+{%- endif -%}
+
+{%- if jsonEncode.expected[0] === jsonEncode.data|json_encode -%}
+    -jsonEncode0
+{%- endif -%}
+
+{%- if jsonEncode.expected[1] === jsonEncode.data|json_encode(constant('JSON_UNESCAPED_SLASHES')) -%}
+    -jsonEncode1
+{%- endif -%}
+
+{%- if jsonEncode.expected[2] === jsonEncode.data|json_encode(constant('JSON_PRETTY_PRINT')) -%}
+    -jsonEncode2
+{%- endif -%}
+
+{%- if jsonEncode.expected[3] === jsonEncode.data|json_encode(constant('JSON_PRETTY_PRINT') + constant('JSON_UNESCAPED_SLASHES')) -%}
+    -jsonEncode3
+{%- endif -%}

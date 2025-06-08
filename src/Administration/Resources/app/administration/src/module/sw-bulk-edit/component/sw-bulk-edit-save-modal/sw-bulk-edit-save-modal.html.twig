@@ -1,0 +1,62 @@
+{% block sw_bulk_edit_save_modal %}
+<sw-modal
+    class="sw-bulk-edit-save-modal"
+    variant="small"
+    :title="title"
+    @modal-close="onModalClose"
+>
+
+    {% block sw_bulk_edit_save_modal_body %}
+    <div class="sw-bulk-edit-save-modal-body">
+        <router-view
+            v-slot="{ Component }"
+        >
+            <component
+                :is="Component"
+                :item-total="itemTotal"
+                :bulk-edit-data="bulkEditData"
+                class="sw-bulk-edit-save-modal__component"
+                @changes-apply="applyChanges"
+                @buttons-update="updateButtons"
+                @redirect="redirect"
+                @title-set="setTitle"
+            />
+        </router-view>
+    </div>
+    {% endblock %}
+
+    {% block sw_bulk_edit_save_modal_footer %}
+    <template #modal-footer>
+        {% block sw_bulk_edit_save_modal_footer_left %}
+        <div class="footer-left">
+            <mt-button
+                v-for="button in buttons.left"
+                :key="button.key"
+                size="small"
+                :variant="button.variant"
+                :disabled="button.disabled"
+                @click="onButtonClick(button.action)"
+            >
+                {{ button.label }}
+            </mt-button>
+        </div>
+        {% endblock %}
+
+        {% block sw_bulk_edit_save_modal_footer_right %}
+        <div class="footer-right">
+            <mt-button
+                v-for="button in buttons.right"
+                :key="button.key"
+                size="small"
+                :variant="button.variant"
+                :disabled="button.disabled"
+                @click="onButtonClick(button.action)"
+            >
+                {{ button.label }}
+            </mt-button>
+        </div>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

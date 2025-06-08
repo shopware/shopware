@@ -1,0 +1,68 @@
+{% if selectedPaymentMethodId is not defined %}
+    {% set selectedPaymentMethodId = context.paymentMethod.id %}
+{% endif %}
+
+<div class="payment-method">
+    {% block component_payment_method_field %}
+        <div class="payment-form-group form-group">
+            {% block component_payment_method_control %}
+                <div class="form-check payment-method-radio">
+                    {% block component_payment_method_input %}
+                        <input type="radio"
+                               id="paymentMethod{{ payment.id }}"
+                               name="paymentMethodId"
+                               value="{{ payment.id }}"
+                               {% if payment.id is same as(selectedPaymentMethodId) %}checked="checked"{% endif %}
+                               {% if page.isPaymentChangeable is defined and not page.isPaymentChangeable %}
+                                   disabled="disabled"
+                               {% endif %}
+                               class="form-check-input payment-method-input"
+                               data-focus-id="{{ payment.id }}">
+                    {% endblock %}
+
+                    {% block component_payment_method_label %}
+                        <label class="form-check-label payment-method-label"
+                               for="paymentMethod{{ payment.id }}">
+                            {% block component_payment_method_image %}
+                                {% if payment.media %}
+                                    {% sw_thumbnails 'payment-method-image-thumbnails' with {
+                                        media: payment.media,
+                                        sizes: {
+                                            default: '100px'
+                                        },
+                                        attributes: {
+                                            class: 'payment-method-image',
+                                            alt: (payment.media.translated.alt ?: payment.translated.name),
+                                            title: (payment.media.translated.title ?: payment.translated.name)
+                                        }
+                                    } %}
+                                {% endif %}
+                            {% endblock %}
+
+                            {% block component_payment_method_description %}
+                                <div class="payment-method-description">
+                                    {% set paymentName = payment.translated.name %}
+
+                                    {% block component_payment_method_name %}
+                                        <strong>{{ paymentName }}</strong>
+                                    {% endblock %}
+
+                                    {% if payment.translated.description and payment.id is same as(selectedPaymentMethodId) %}
+                                        {% set paymentDescription = payment.translated.description|raw %}
+                                        {% set paymentDescriptionTitle = payment.translated.description|striptags|raw %}
+
+                                        {% set paymentDescription = (paymentDescription|length > 75 ? paymentDescription[:75] ~ ' ...' : paymentDescription) %}
+
+                                        {% block component_payment_method_description_text %}
+                                            <p class="mb-0" title="{{ paymentDescriptionTitle }}">{{ paymentDescription }}</p>
+                                        {% endblock %}
+                                    {% endif %}
+                                </div>
+                            {% endblock %}
+                        </label>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+</div>

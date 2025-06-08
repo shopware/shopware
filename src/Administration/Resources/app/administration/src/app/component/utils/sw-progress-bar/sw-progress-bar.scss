@@ -1,0 +1,29 @@
+@use "sass:math";
+@import "~scss/variables";
+
+$sw-progress-bar-value-color: $color-shopware-brand-500;
+$sw-progress-bar-background-color: lighten($color-darkgray-200, 40%);
+$sw-progress-bar-height: 8px;
+
+.sw-progress-bar {
+    width: 100%;
+    height: $sw-progress-bar-height;
+
+    .sw-progress-bar__total {
+        width: 100%;
+        height: 100%;
+        background-color: $sw-progress-bar-background-color;
+        border-radius: math.div($sw-progress-bar-height, 2);
+    }
+
+    .sw-progress-bar__value {
+        transition: 1s width linear;
+        height: 100%;
+        background-color: $sw-progress-bar-value-color;
+        border-radius: math.div($sw-progress-bar-height, 2);
+    }
+
+    .sw-progress-bar__value--no-transition {
+        transition: 0s width linear;
+    }
+}

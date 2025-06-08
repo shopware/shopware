@@ -1,0 +1,66 @@
+@import "~scss/variables";
+
+$sw-condition-or-container-background-even: $color-white;
+$sw-condition-or-container-background-odd: $color-gray-100;
+
+// $sw-condition-or-container-border: #788a9b;
+
+.sw-condition-or-container {
+    padding: 24px;
+
+    &.container-condition-level__is--even {
+        background-color: $sw-condition-or-container-background-even;
+        border: 1px solid $color-gray-400;
+        border-radius: 4px;
+
+        &.is--disabled {
+            background-color: $color-gray-100;
+        }
+    }
+
+    &.container-condition-level__is--odd {
+        background-color: $sw-condition-or-container-background-odd;
+        border: 1px solid $color-gray-500;
+        border-radius: 4px;
+
+        &.is--disabled {
+            background-color: $color-gray-50;
+        }
+    }
+
+    .condition-content__spacer--or {
+        padding: 8px 0;
+        margin-left: 0;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semi-bold;
+        display: inline-block;
+        position: relative;
+        width: 100%;
+        text-transform: uppercase;
+
+        &::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: calc(100% - 40px);
+            margin-left: 48px;
+        }
+    }
+
+    .sw-condition-or-container__actions {
+        display: flex;
+        margin-top: 16px;
+
+        .sw-condition-or-container__actions--or {
+            margin-right: 8px;
+        }
+
+        .sw-condition-or-container__actions--delete {
+            float: right;
+        }
+
+        :last-child {
+            margin-left: auto;
+        }
+    }
+}

@@ -1,0 +1,24 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CartError": {
+                "type": "object",
+                "description": "A list of all cart errors, such as insufficient stocks, invalid addresses or vouchers.",
+                "properties": {
+                    "key": { "type": "string" },
+                    "level": {
+                        "type": "number",
+                        "enum": [0, 10, 20],
+                        "description": "* `0` - notice,\n* `10` - warning,\n* `20` - error"
+                    },
+                    "message": { "type": "string" },
+                    "messageKey": { "type": "string" }
+                },
+                "required": ["key", "level", "message", "messageKey"]
+            }
+        }
+    }
+}

@@ -1,0 +1,112 @@
+{% block sw_profile_index %}
+<sw-page class="sw-profile-index">
+    <template #smart-bar-back>
+        {% block sw_profile_index_smart_bar_back %}
+        <span></span>
+        {% endblock %}
+    </template>
+
+    <template #smart-bar-header>
+        {% block sw_profile_index_headline %}
+        <h2>{{ $tc('sw-profile.general.headlineProfile') }}</h2>
+        {% endblock %}
+    </template>
+
+    <template #smart-bar-actions>
+        {% block sw_profile_index_actions %}
+        <sw-button-process
+            class="sw-profile__save-action"
+            variant="primary"
+            :is-loading="isLoading || isUserLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="isLoading || isUserLoading || !acl.can('user.update_profile') || undefined"
+            @update:process-success="saveFinish"
+            @click.prevent="onSave"
+        >
+            {{ $tc('sw-profile.index.buttonSaveLabel') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+
+    <template #content>
+        <sw-card-view>
+            {% block sw_profile_index_tabs %}
+            <sw-tabs
+                position-identifier="sw-profile-index"
+            >
+                {% block sw_profile_index_tabs_item_general %}
+                <sw-tabs-item
+                    :route="{ name: 'sw.profile.index.general' }"
+                    :title="$tc('sw-profile.tabGeneral.title')"
+                >
+                    {{ $tc('sw-profile.tabGeneral.title') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_profile_index_tabs_item_search_preferences %}
+                <sw-tabs-item
+                    :route="{ name: 'sw.profile.index.searchPreferences' }"
+                    :title="$tc('sw-profile.tabSearchPreferences.title')"
+                >
+                    {{ $tc('sw-profile.tabSearchPreferences.title') }}
+                </sw-tabs-item>
+                {% endblock %}
+            </sw-tabs>
+            {% endblock %}
+
+            {% block sw_profile_index_router_view %}
+            <template v-if="isUserLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
+
+            <template v-else>
+                <router-view
+                    v-slot="{ Component }"
+                >
+                    <component
+                        :is="Component"
+                        v-bind="{
+                            user,
+                            timezoneOptions,
+                            languages,
+                            newPassword,
+                            newPasswordConfirm,
+                            avatarMediaItem,
+                            isUserLoading,
+                            languageId,
+                            isDisabled,
+                            userRepository,
+                        }"
+                        @new-password-change="onChangeNewPassword"
+                        @new-password-confirm-change="onChangeNewPasswordConfirm"
+                        @media-upload="setMediaItem"
+                        @media-remove="onUnlinkAvatar"
+                        @media-open="openMediaModal"
+                    />
+                </router-view>
+            </template>
+            {% endblock %}
+        </sw-card-view>
+
+        {% block sw_profile_index_content_confirm_password_modal %}
+        <sw-verify-user-modal
+            v-if="confirmPasswordModal"
+            @verified="onVerifyPasswordFinished"
+            @close="onCloseConfirmPasswordModal"
+        />
+        {% endblock %}
+
+        {% block sw_profile_index_media_upload_actions_media_modal %}
+        <sw-media-modal-v2
+            v-if="showMediaModal"
+            :allow-multi-select="false"
+            :initial-folder-id="mediaDefaultFolderId"
+            :entity-context="user.getEntityName()"
+            @modal-close="showMediaModal = false"
+            @media-modal-selection-change="onMediaSelectionChange"
+        />
+        {% endblock %}
+    </template>
+</sw-page>
+{% endblock %}

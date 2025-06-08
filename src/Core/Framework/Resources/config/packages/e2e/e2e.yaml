@@ -1,0 +1,31 @@
+framework:
+    messenger:
+        transports:
+            async:
+                dsn: "sync://"
+
+shopware:
+    media:
+        enable_url_upload_feature: true
+        enable_url_validation: false
+    admin_worker:
+        enable_admin_worker: false
+        enable_queue_stats_worker: false
+        enable_notification_worker: false
+    api:
+        rate_limiter:
+            login:
+                enabled: false
+            guest_login:
+                enabled: false
+            oauth:
+                enabled: false
+            reset_password:
+                enabled: false
+            user_recovery:
+                enabled: false
+            contact_form:
+                enabled: false
+            notification:
+                enabled: false
+        access_token_ttl: 'PT4H'

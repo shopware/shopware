@@ -1,0 +1,15 @@
+{% block sw_sales_channel_detail_content_tabs %}{% endblock %}
+
+{% block sw_sales_channel_detail_language_switch %}
+<!-- eslint-disable-next-line vue/valid-v-slot -->
+<template #language-switch>
+    <sw-language-switch disabled />
+</template>
+{% endblock %}
+
+{% block sw_sales_channel_detail_content_language_info %}
+<sw-language-info
+    :entity-description="placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.textHeadline'))"
+    is-new-entity
+/>
+{% endblock %}

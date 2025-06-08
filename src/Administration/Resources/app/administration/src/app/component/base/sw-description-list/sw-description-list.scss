@@ -1,0 +1,23 @@
+@import "~scss/variables";
+
+.sw-description-list {
+    line-height: $line-height-sm;
+    font-size: $font-size-xs;
+    display: grid;
+    place-content: start;
+
+    dt,
+    dd {
+        padding: 15px;
+        border-bottom: 1px solid $color-gray-300;
+
+        &:last-of-type {
+            border-bottom-color: transparent;
+        }
+    }
+
+    dt {
+        font-weight: $font-weight-semi-bold;
+        color: $color-darkgray-200;
+    }
+}

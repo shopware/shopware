@@ -1,0 +1,120 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+$sw-grid-column-color-action: $color-shopware-brand-500;
+$sw-grid-column-color-border: $color-gray-300;
+$sw-grid-column-content-color-text: $color-darkgray-200;
+$sw-grid-column-color-link: $color-shopware-brand-500;
+
+.sw-grid-column {
+    cursor: default;
+    position: relative;
+    border-right: 1px solid $sw-grid-column-color-border;
+
+    &:last-child {
+        border-right: 0 none;
+    }
+
+    .sw-field {
+        margin-bottom: 0;
+
+        &.sw-field--checkbox,
+        &.sw-field--radio {
+            grid-template-columns: auto;
+            align-items: center;
+            justify-items: center;
+            justify-content: center;
+        }
+
+        .sw-field__radio-group .sw-field__radio-option {
+            margin: 0;
+        }
+    }
+
+    .sw-price-field {
+        label {
+            display: none;
+        }
+
+        .sw-price-field__lock {
+            margin-top: 10px;
+            align-self: center;
+        }
+    }
+
+    .sw-context-button {
+        height: 24px;
+    }
+
+    .sw-grid__cell-content {
+        height: 100%;
+        display: grid;
+        grid-auto-flow: column;
+        align-items: center;
+        min-height: 64px;
+        line-height: $line-height-md;
+        padding: 20px;
+        text-align: left;
+        color: $sw-grid-column-content-color-text;
+
+        &.is--truncate {
+            @include truncate;
+
+            display: block;
+        }
+
+        a {
+            color: $sw-grid-column-content-color-text;
+            text-decoration: none;
+
+            &:hover {
+                color: $sw-grid-column-color-link;
+                text-decoration: underline;
+            }
+        }
+
+        .sw-field--checkbox {
+            margin-bottom: 0;
+        }
+    }
+
+    &.sw-grid-column--left {
+        .sw-grid__cell-content {
+            text-align: left;
+            justify-items: start;
+            justify-content: start;
+        }
+    }
+
+    &.sw-grid-column--center {
+        .sw-grid__cell-content {
+            text-align: center;
+            justify-items: center;
+            justify-content: center;
+        }
+    }
+
+    &.sw-grid-column--right {
+        .sw-grid__cell-content {
+            text-align: right;
+            justify-items: end;
+            justify-content: end;
+        }
+    }
+
+    &.sw-grid-column--stretch {
+        .sw-grid__cell-content {
+            text-align: left;
+            justify-items: stretch;
+            justify-content: stretch;
+        }
+    }
+
+    &.has--action {
+        cursor: pointer;
+
+        &:hover {
+            color: $sw-grid-column-color-action;
+        }
+    }
+}

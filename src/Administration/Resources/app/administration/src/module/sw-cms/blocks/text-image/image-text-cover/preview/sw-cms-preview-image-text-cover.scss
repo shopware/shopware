@@ -1,0 +1,16 @@
+.sw-cms-preview-image-text-cover {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 2px;
+
+    .sw-cms-preview-image-text-cover__text {
+        padding: 15px;
+    }
+
+    img {
+        display: block;
+        object-fit: cover;
+        width: 100%;
+        height: 100%;
+    }
+}

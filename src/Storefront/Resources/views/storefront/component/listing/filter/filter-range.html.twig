@@ -1,0 +1,138 @@
+{% set filterItemId = 'filter-' ~ name ~ '-' ~ random() %}
+
+{% if filterRangeActiveMinLabel is not defined %}
+    {% set filterRangeActiveMinLabel = 'listing.filterRangeActiveMinLabel'|trans({'%displayName%': displayName})|sw_sanitize %}
+{% endif %}
+
+{% if filterRangeActiveMaxLabel is not defined %}
+    {% set filterRangeActiveMaxLabel = 'listing.filterRangeActiveMaxLabel'|trans({'%displayName%': displayName})|sw_sanitize %}
+{% endif %}
+
+{% if filterRangeErrorMessage is not defined %}
+    {% set filterRangeErrorMessage = 'listing.filterRangeErrorMessage'|trans|sw_sanitize %}
+{% endif %}
+
+{% if filterRangeLowerBoundErrorMessage is not defined %}
+    {% set filterRangeLowerBoundErrorMessage = 'listing.filterRangeLowerBoundErrorMessage'|trans({'%lowerBound%': lowerBound})|sw_sanitize %}
+{% endif %}
+
+{% if minKey is not defined %}
+    {% set minKey = 'min-price' %}
+{% endif %}
+
+{% if maxKey is not defined %}
+    {% set minKey = 'max-price' %}
+{% endif %}
+
+{% if unit is not defined %}
+    {% set unit = context.currency.symbol %}
+{% endif %}
+
+{% if minInputValue is not defined %}
+    {% set minInputValue = 0 %}
+{% endif %}
+
+{% set filterRangeOptions = {
+    name,
+    minKey,
+    maxKey,
+    lowerBound,
+    unit,
+    snippets: {
+        filterRangeActiveMinLabel,
+        filterRangeActiveMaxLabel,
+        filterRangeErrorMessage,
+        filterRangeLowerBoundErrorMessage
+    }
+} %}
+
+{% block component_filter_range %}
+    <div class="filter-range filter-panel-item{% if sidebar %} d-grid{% else %} dropdown{% endif %}"
+         role="listitem"
+         data-filter-range="true"
+         data-filter-range-options="{{ filterRangeOptions|json_encode }}">
+        {% block component_filter_range_toggle %}
+            <button class="filter-panel-item-toggle btn"
+                    aria-expanded="false"
+                    {% if ariaLabel %}
+                    aria-label="{{ ariaLabel }}"
+                    {% endif %}
+                    {% if sidebar %}
+                    data-bs-toggle="collapse"
+                    data-bs-target="#{{ filterItemId }}"
+                    {% else %}
+                    data-bs-toggle="dropdown"
+                    data-boundary="viewport"
+                    data-bs-offset="0,8"
+                    aria-haspopup="true"
+                    {% endif %}>
+                {% block component_filter_range_display_name %}
+                    {{ displayName }}
+                {% endblock %}
+
+                {% block component_filter_range_toggle_icon %}
+                    {% sw_icon 'arrow-medium-down' style {pack: 'solid', size: 'xs', class: 'filter-panel-item-toggle'} %}
+                {% endblock %}
+            </button>
+        {% endblock %}
+
+        {% block component_filter_range_dropdown %}
+            <div class="filter-range-dropdown filter-panel-item-dropdown{% if sidebar %} collapse{% else %} dropdown-menu{% endif %}"
+                 id="{{ filterItemId }}">
+                {% block component_filter_range_container %}
+                    <div class="filter-range-container">
+                        {% block component_filter_range_min %}
+                            <label class="filter-range-min">
+                                {% block component_filter_range_min_label %}
+                                    {{ 'listing.filterRangeMinLabel'|trans|sw_sanitize }}
+                                {% endblock %}
+
+                                {% block component_filter_range_min_input %}
+                                    <input class="form-control min-input"
+                                           type="number"
+                                           name="{{ minKey }}"
+                                           min="{{ minInputValue }}"
+                                           max="{{ maxInputValue }}">
+                                {% endblock %}
+
+                                {% block component_filter_range_min_unit %}
+                                   <span class="filter-range-unit">
+                                            {{ unit }}
+                                    </span>
+                                {% endblock %}
+                            </label>
+                        {% endblock %}
+
+                        {% block component_filter_range_divider %}
+                            <div class="filter-range-divider">
+                                &ndash;
+                            </div>
+                        {% endblock %}
+
+                        {% block component_filter_range_max %}
+                            <label class="filter-range-max">
+                                {% block component_filter_range_max_label %}
+                                    {{ 'listing.filterRangeMaxLabel'|trans|sw_sanitize }}
+                                {% endblock %}
+
+                                {% block component_filter_range_max_input %}
+                                    <input class="form-control max-input"
+                                           type="number"
+                                           name="{{ maxKey }}"
+                                           min="{{ minInputValue }}"
+                                           max="{{ maxInputValue }}">
+                                {% endblock %}
+
+                                {% block component_filter_range_max_unit %}
+                                    <span class="filter-range-unit">
+                                        {{ unit }}
+                                    </span>
+                                {% endblock %}
+                            </label>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

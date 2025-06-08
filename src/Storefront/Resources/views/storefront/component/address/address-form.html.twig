@@ -1,0 +1,187 @@
+{% block component_address_form %}
+    {# ludtwig-ignore twig-block-name-snake-case #}
+    {% block component_address_form_addressId %}
+        {% if data.get('id') %}
+            <input type="hidden"
+                   name="{{ prefix }}[id]"
+                   value="{{ data.get('id') }}">
+        {% endif %}
+    {% endblock %}
+
+    {% block component_address_form_company %}
+        {% if showFormCompany %}
+            {% if config('core.loginRegistration.showAccountTypeSelection') %}
+                {% set accountTypeRequired = true %}
+            {% endif %}
+
+            {% if config('core.loginRegistration.showAccountTypeSelection') or prefix == 'address' or prefix == 'shippingAddress' or hasSelectedBusiness %}
+                <div class="{% if prefix == 'shippingAddress' or hasSelectedBusiness %}address-contact-type-company{% elseif prefix == 'address' %}js-field-toggle-contact-type-company d-block {% else %}js-field-toggle-contact-type-company d-none{% endif %}">
+                    {% block component_address_form_company_fields %}
+                        <div class="row g-2">
+                            {% block component_address_form_company_name %}
+                                {% sw_include '@Storefront/storefront/component/address/field/address-company-name-field.html.twig' %}
+                            {% endblock %}
+
+                            {% block component_address_form_company_department %}
+                                {% sw_include '@Storefront/storefront/component/address/field/address-company-department-field.html.twig' %}
+                            {% endblock %}
+
+                            {# ludtwig-ignore twig-block-name-snake-case #}
+                            {% block component_address_form_company_vatId %}
+                                {% if prefix == 'address' and showVatIdField %}
+                                    {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
+                                        vatIds: context.customer.vatIds
+                                    } %}
+                                {% endif %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endblock %}
+
+    {% block component_address_form_address_fields %}
+        {% set options = {
+            scopeElementSelector,
+            prefix,
+        } %}
+
+        {% set arrangement = config('core.loginRegistration.addressInputFieldArrangement') %}
+        {# @deprecated tag:v6.8.0 - Variable will be removed #}
+        {% set isOldArrangement = not feature('v6.8.0.0') and (arrangement === 'city-zip-state' or arrangement === 'zip-city-state') %}
+
+        {# @deprecated tag:v6.8.0 - Only condition will be removed #}
+        {% if feature('v6.8.0.0') %}
+        <div
+            class="row g-2 country-and-state-form-elements"
+            data-country-state-select="true"
+            data-country-state-select-options="{{ options|json_encode }}"
+        >
+            {% block component_address_form_country_field %}
+                {% sw_include '@Storefront/storefront/component/address/field/address-country-field.html.twig' with {
+                    additionalClass: 'col-md'
+                } %}
+            {% endblock %}
+        </div>
+        {% endif %}
+
+        <div class="row g-2">
+            {% block component_address_form_street %}
+                {# @deprecated tag:v6.8.0 - `additionalClass` will always be 'col-md-12' #}
+                {% sw_include '@Storefront/storefront/component/address/field/address-street-field.html.twig' with {
+                    additionalClass: isOldArrangement ? 'col-md-6' : 'col-md-12'
+                } %}
+            {% endblock %}
+
+            {# @deprecated tag:v6.8.0 - Will be removed #}
+            {% if not feature('v6.8.0.0') %}
+                {# @deprecated tag:v6.8.0 - Will be removed. Use `component_address_form_city_state_zipcode`, `component_address_field_city` of `address-city-field.html.twig` or `component_address_field_zipcode` of `address-zipcode-field.html.twig` as replacement #}
+                {% block component_address_form_zipcode_city %}
+                    {% set zipcodeField %}
+                        {% sw_include '@Storefront/storefront/component/address/field/address-zipcode-field.html.twig' %}
+                    {% endset %}
+
+                    {% set cityField %}
+                        {% sw_include '@Storefront/storefront/component/address/field/address-city-field.html.twig' %}
+                    {% endset %}
+
+                    {% set wrappedZipcodeField %}
+                        {% block component_address_form_zipcode_field %}
+                            <div class="form-group col-md-2 col-4">
+                                {{ zipcodeField }}
+                            </div>
+                        {% endblock %}
+                    {% endset %}
+
+                    {% set wrappedCityField %}
+                        {% block component_address_form_city_field %}
+                            <div class="form-group col-md-4 col-8">
+                                {{ cityField }}
+                            </div>
+                        {% endblock %}
+                    {% endset %}
+
+                    {# @deprecated tag:v6.8.0 - Will be removed. Use `component_address_form_city_state_zipcode`, `component_address_field_city` of `address-city-field.html.twig` or `component_address_field_zipcode` of `address-zipcode-field.html.twig` as replacement #}
+                    {% block component_address_form_zipcode_city_fields %}
+                        {% if isOldArrangement %}
+                            {% if arrangement === 'zip-city-state' %}
+                                {{ zipcodeField }}
+                                {{ cityField }}
+                            {% else %}
+                                {{ cityField }}
+                                {{ zipcodeField }}
+                            {% endif %}
+                        {% endif %}
+                    {% endblock %}
+                {% endblock %}
+            {% endif %}
+
+            {% block component_address_form_additional_field1 %}
+                {% if config('core.loginRegistration.showAdditionalAddressField1') %}
+                    {% sw_include '@Storefront/storefront/component/address/field/address-additional-line-field.html.twig' with {
+                        index: 1
+                    } %}
+                {% endif %}
+            {% endblock %}
+
+            {% block component_address_form_additional_field2 %}
+                {% if config('core.loginRegistration.showAdditionalAddressField2') %}
+                    {% sw_include '@Storefront/storefront/component/address/field/address-additional-line-field.html.twig' with {
+                        index: 2
+                    } %}
+                {% endif %}
+            {% endblock %}
+        </div>
+
+        {# @deprecated tag:v6.8.0 - Only condition will be removed #}
+        {% if not isOldArrangement %}
+        <div class="row g-2">
+            {% block component_address_form_city_state_zipcode %}
+                {% for field in arrangement|split('-') %}
+                    {% if field === 'city' %}
+                        {% sw_include '@Storefront/storefront/component/address/field/address-city-field.html.twig' with { additionalClass: 'col-md' } %}
+                    {% elseif field === 'state' %}
+                        {% sw_include '@Storefront/storefront/component/address/field/address-country-state-field.html.twig' with { additionalClass: 'col-md' } %}
+                    {% elseif field === 'zip' %}
+                        {% sw_include '@Storefront/storefront/component/address/field/address-zipcode-field.html.twig' with { additionalClass: 'col-md' } %}
+                    {% endif %}
+                {% endfor %}
+            {% endblock %}
+        </div>
+        {% endif %}
+
+        {# @deprecated tag:v6.8.0 - Will be removed #}
+        {% if not feature('v6.8.0.0') %}
+        <div
+            class="row g-2 country-and-state-form-elements"
+            data-country-state-select="true"
+            data-country-state-select-options="{{ options|json_encode }}"
+        >
+            {# @deprecated tag:v6.8.0 - Will be replaced by `component_address_form_country_field` #}
+            {% block component_address_form_country %}
+                {% block component_address_form_country_select %}
+                    {% sw_include '@Storefront/storefront/component/address/field/address-country-field.html.twig' %}
+                {% endblock %}
+
+                {# @deprecated tag:v6.8.0 - Will be removed. Use `component_address_form_city_state_zipcode` or `component_address_field_country_state` of `address-country-state-field.html.twig` as replacement #}
+                {% block component_address_form_state_select %}
+                    {% if isOldArrangement %}
+                        {% sw_include '@Storefront/storefront/component/address/field/address-country-state-field.html.twig' with {
+                            additionalClass: 'col-md-6 d-none',
+                        } %}
+                    {% endif %}
+                {% endblock %}
+            {% endblock %}
+        </div>
+        {% endif %}
+
+        <div class="row g-2">
+            {% block component_address_form_phone_number %}
+                {% if config('core.loginRegistration.showPhoneNumberField') %}
+                    {% sw_include '@Storefront/storefront/component/address/field/address-phone-number-field.html.twig' %}
+                {% endif %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

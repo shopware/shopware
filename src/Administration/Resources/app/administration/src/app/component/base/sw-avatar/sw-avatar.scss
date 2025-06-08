@@ -1,0 +1,25 @@
+@import "~scss/variables";
+
+$sw-avatar-size-default: 40px;
+
+.sw-avatar {
+    display: inline-block;
+    width: $sw-avatar-size-default;
+    height: $sw-avatar-size-default;
+    border-radius: 100%;
+    background: $color-gray-200 no-repeat center center;
+    background-size: cover;
+    text-align: center;
+    font-weight: $font-weight-semi-bold;
+    text-transform: uppercase;
+    color: $color-white;
+    user-select: none;
+
+    .mt-icon {
+        color: $color-shopware-brand-500;
+    }
+
+    &.sw-avatar__square {
+        border-radius: 4px;
+    }
+}

@@ -1,0 +1,70 @@
+[
+  {
+    "name": "product-module",
+    "entity": "product",
+    "routes": {
+      "index": {
+        "path": "index",
+        "component": "sw-index"
+      }
+    },
+    "defaultSearchConfiguration": {
+      "_searchable": true,
+      "name": {
+        "_searchable": true,
+        "_score": 500
+      }
+    }
+  },
+  {
+    "name": "property-module",
+    "entity": "property_group",
+    "routes": {
+      "index": {
+        "path": "index",
+        "component": "sw-index"
+      }
+    },
+    "defaultSearchConfiguration": {
+      "_searchable": true,
+      "name": {
+        "_searchable": true,
+        "_score": 500
+      }
+    }
+  },
+  {
+    "name": "order-module",
+    "entity": "order",
+    "routes": {
+      "index": {
+        "path": "index",
+        "component": "sw-index"
+      }
+    },
+    "defaultSearchConfiguration": {
+      "_searchable": true,
+      "name": {
+        "_searchable": false,
+        "_score": 500
+      }
+    }
+  },
+  {
+    "name": "cms-module",
+    "entity": "cms_page",
+    "routes": {
+      "index": {
+        "path": "index",
+        "component": "sw-index"
+      }
+    },
+    "defaultSearchConfiguration": {
+      "_searchable": false,
+      "name": {
+        "_searchable": true,
+        "_score": 500
+      }
+    }
+  }
+]

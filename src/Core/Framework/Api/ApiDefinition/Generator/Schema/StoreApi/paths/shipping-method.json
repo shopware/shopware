@@ -1,0 +1,86 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/shipping-method": {
+            "post": {
+                "tags": [
+                    "Payment & Shipping",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch shipping methods",
+                "description": "Perform a filtered search for shipping methods.",
+                "operationId": "readShippingMethod",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Criteria"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "required": [
+                                                "elements"
+                                            ],
+                                            "properties": {
+                                                "total": {
+                                                    "description": "Total amount",
+                                                    "type": "integer"
+                                                },
+                                                "aggregations": {
+                                                    "description": "aggregation result",
+                                                    "type": "object"
+                                                },
+                                                "elements": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/ShippingMethod"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/EntitySearchResult"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

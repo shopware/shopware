@@ -1,0 +1,19 @@
+{% block component_line_item_unit_price %}
+    {% block component_line_item_unit_price_label %}
+        <div class="line-item-unit-price-label">
+            {{ 'checkout.cartHeaderUnitPrice'|trans|sw_sanitize }}:
+        </div>
+    {% endblock %}
+
+    {% block component_line_item_unit_price_inner %}
+        <div class="line-item-unit-price-value">
+            {% if displayMode === 'order' %}
+                {{ lineItem.price.unitPrice|currency(order.currency.isoCode) }}
+            {% else %}
+                {{ lineItem.price.unitPrice|currency }}
+            {% endif %}
+            {# Setting aria-hidden="true" because for screen reader it is already labelled by "line-item-unit-price-label" #}
+            <span class="line-item-unit-price-value-descriptor" aria-hidden="true"> / {{ 'checkout.lineItemUnitPriceDescriptor'|trans|sw_sanitize }}</span>
+        </div>
+     {% endblock %}
+{% endblock %}

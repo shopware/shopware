@@ -1,0 +1,152 @@
+{% block sw_settings_tax_detail %}
+<sw-page class="sw-settings-tax-detail">
+    {% block sw_settings_tax_detail_header %}
+    <template #smart-bar-header>
+        <h2 v-if="label">
+            {{ label }}
+        </h2>
+        <h2 v-else>
+            {{ $tc('sw-settings-tax.detail.textHeadline') }}
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_tax_detail_actions %}
+    <template #smart-bar-actions>
+        {% block sw_settings_tax_detail_actions_abort %}
+        <mt-button
+            v-tooltip.bottom="{ message: 'ESC', appearance: 'light' }"
+            :disabled="isLoading"
+            variant="secondary"
+            size="default"
+            @click="onCancel"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_settings_tax_detail_actions_save %}
+        <sw-button-process
+            v-model:process-success="isSaveSuccessful"
+            v-tooltip.bottom="tooltipSave"
+            class="sw-settings-tax-detail__save-action"
+            variant="primary"
+            :is-loading="isLoading"
+            :disabled="isLoading || !allowSave || undefined"
+            @click.prevent="onSave"
+        >
+            {{ $tc('sw-settings-tax.detail.buttonSave') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    <template #language-switch>
+        <sw-language-switch
+            :save-changes-function="saveOnLanguageChange"
+            :abort-change-function="abortOnLanguageChange"
+            @on-change="onChangeLanguage"
+        />
+    </template>
+
+    {% block sw_settings_tax_detail_content %}
+    <template #content>
+        <sw-card-view>
+            <template v-if="isLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
+
+            <template v-else>
+                {% block sw_settings_tax_detail_content_card %}
+                <mt-card
+                    :title="$tc('sw-settings-tax.detail.titleCard')"
+                    position-identifier="sw-settings-tax-detail-content"
+                >
+                    <sw-container
+                        columns="repeat(auto-fit, minmax(250px, 1fr))"
+                        gap="0px 30px"
+                    >
+
+                        {% block sw_settings_tax_detail_content_field_name %}
+
+                        <mt-text-field
+                            id="sw-field--tax-name"
+                            :model-value="label"
+                            required
+                            name="sw-field--tax-name"
+                            :disabled="!acl.can('tax.editor') || isShopwareDefaultTax || undefined"
+                            :label="$tc('sw-settings-tax.detail.labelName')"
+                            :placeholder="$tc('sw-settings-tax.detail.placeholderName')"
+                            :error="taxNameError"
+                            @update:model-value="changeName"
+                        />
+                        {% endblock %}
+
+                        {% block sw_settings_tax_detail_content_field_tax_rate %}
+                        <mt-number-field
+                            v-model="tax.taxRate"
+                            name="sw-field--tax-taxRate"
+                            required
+                            :digits="3"
+                            :disabled="!acl.can('tax.editor') || undefined"
+                            :label="$tc('sw-settings-tax.detail.labelDefaultTaxRate')"
+                            :placeholder="$tc('sw-settings-tax.detail.placeholderDefaultTaxRate')"
+                            :error="taxTaxRateError"
+                        >
+                            <template #suffix>
+                                <span>
+                                    <span v-html="$sanitize($tc('sw-settings-tax.general.taxRateSymbol'))"></span>
+                                </span>
+                            </template>
+                        </mt-number-field>
+                        {% endblock %}
+
+                        <div class="sw-settings-tax-detail__switches">
+                            {% block sw_settings_tax_detail_content_field_default_tax_rate %}
+
+                            <mt-switch
+                                :key="isDefault"
+                                class="sw-settings-tax-detail__default-tax-rate"
+                                :label="$tc('sw-settings-tax.detail.defaultTaxLabel')"
+                                :help-text="$tc('sw-settings-tax.detail.defaultTaxHelpText')"
+                                :model-value="isDefault"
+                                name="sw-field--isDefault"
+                                @update:model-value="onChangeDefaultTaxRate"
+                            />
+                        {% endblock %}
+                        </div>
+                    </sw-container>
+                </mt-card>
+                {% endblock %}
+
+                {% block sw_settings_tax_detail_rule_card %}
+                <sw-tax-rule-card
+                    v-if="tax.id"
+                    :disabled="!taxId"
+                    class="sw-settings-tax-detail__tax-rule-grid"
+                    :tax="tax"
+                    :is-loading="isLoading"
+                />
+                {% endblock %}
+
+                {% block sw_settings_tax_detail_custom_field_sets %}
+                <mt-card
+                    v-if="showCustomFields"
+                    position-identifier="sw-settings-tax-detail-custom-field-sets"
+                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                    :is-loading="isLoading"
+                >
+                    <sw-custom-field-set-renderer
+                        :entity="tax"
+                        :disabled="!acl.can('tax.editor')"
+                        :sets="customFieldSets"
+                    />
+                </mt-card>
+                {% endblock %}
+            </template>
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

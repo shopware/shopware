@@ -1,0 +1,11 @@
+{% block layout_header_actions_cart_widget %}
+    <span class="header-cart-icon">
+        {% sw_icon 'bag' %}
+    </span>
+    {% if page.cart.lineItems|length > 0 %}
+        <span class="badge bg-primary header-cart-badge">{{ page.cart.lineItems|length }}</span>
+    {% endif %}
+    <span class="header-cart-total d-none d-sm-inline-block ms-sm-2">
+        {{ page.cart.price.positionPrice|currency }}
+    </span>
+{% endblock %}

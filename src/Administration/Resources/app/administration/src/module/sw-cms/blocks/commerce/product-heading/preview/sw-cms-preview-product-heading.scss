@@ -1,0 +1,52 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+.sw-cms-preview-product-heading {
+    display: grid;
+    grid-template-columns: 5fr 1fr;
+    grid-column-gap: 20px;
+    padding: 15px;
+
+    &__name {
+        @include flex-centering-vertical;
+
+        color: $color-darkgray-200;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semi-bold;
+    }
+
+    &__logo {
+        @include flex-centering-vertical;
+
+        &::before {
+            @include circle(26px);
+
+            content: "";
+            margin-right: 4px;
+            background: $color-gray-100;
+        }
+    }
+
+    &__placeholder-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__placeholder {
+        height: 6px;
+        background: $color-gray-100;
+        border-radius: $border-radius-pill;
+
+        &:first-child {
+            width: 30px;
+        }
+
+        &:last-child {
+            width: 46px;
+        }
+
+        &:not(:first-child) {
+            margin: 4px 0 0;
+        }
+    }
+}

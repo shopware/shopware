@@ -1,0 +1,16 @@
+.sw-order-state-change-modal {
+    min-height: 260px;
+
+    &__mail-template-select-field {
+        margin-bottom: 32px;
+    }
+
+    &__btn-wrapper {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .sw-order-state-change-modal__btn {
+        margin-left: auto;
+    }
+}

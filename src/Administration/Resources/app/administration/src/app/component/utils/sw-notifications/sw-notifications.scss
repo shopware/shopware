@@ -1,0 +1,56 @@
+@import "~scss/variables";
+
+$sw-notifications-gap: 20px;
+$sw-notifications-z-index: $z-index-notifications;
+$sw-notifications-width: 400px;
+$sw-notifications-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+.sw-notifications {
+    position: absolute;
+    top: $sw-notifications-gap;
+    right: $sw-notifications-gap;
+    width: $sw-notifications-width;
+    z-index: $sw-notifications-z-index;
+    max-height: calc(100% - #{$sw-notifications-gap});
+
+    .mt-banner {
+        background-color: var(--color-elevation-surface-overlay);
+        border-color: var(--color-border-primary-default);
+        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 6%);
+    }
+
+    .mt-banner__message {
+        width: 100%;
+        color: var(--color-text-primary-default);
+    }
+
+    .mt-banner .mt-banner__close {
+        color: var(--color-icon-primary-default);
+    }
+
+    &__actions {
+        margin-top: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+}
+
+// Vue.js Transitions
+.sw-notifications-slide-fade-move,
+.sw-notifications-slide-fade-enter-active,
+.sw-notifications-slide-fade-leave-active, {
+    transition: transform $sw-notifications-transition;
+}
+
+// Vue.js Transitions
+.sw-notifications-slide-fade-leave-active {
+    position: absolute;
+    width: $sw-notifications-width;
+}
+
+// Vue.js Transitions
+.sw-notifications-slide-fade-enter-from,
+.sw-notifications-slide-fade-leave-to {
+    transform: translateX(calc($sw-notifications-gap * 2) + $sw-notifications-width);
+}

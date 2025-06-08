@@ -1,0 +1,61 @@
+{% block component_account_register_company_fields %}
+    {% set accountTypeRequired = config('core.loginRegistration.showAccountTypeSelection') %}
+
+    {% if accountTypeRequired or prefix == 'address' or prefix == 'shippingAddress' or hasSelectedBusiness %}
+        <div class="{% if hasSelectedBusiness %}address-contact-type-company{% elseif prefix == 'address' %}js-field-toggle-contact-type-company d-block{% else %}js-field-toggle-contact-type-company{% if customToggleTarget %}-{{ prefix }}{% endif %} d-none{% endif %}">
+            {% block component_address_form_company_fields %}
+                <div class="row g-2">
+                    {% block component_address_form_company_name %}
+                        {% if formViolations.getViolations('/company') is not empty %}
+                            {% set violationPath = '/company' %}
+                        {% elseif formViolations.getViolations("/#{prefix}/company") is not empty %}
+                            {% set violationPath = "/#{prefix}/company" %}
+                        {% endif %}
+
+                        {% block component_address_form_company_name_input %}
+                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                label: 'address.companyNameLabel'|trans|sw_sanitize,
+                                id: idPrefix ~ prefix ~ 'company',
+                                name: prefix ? prefix ~ '[company]' : 'company',
+                                value: address.get('company'),
+                                autocomplete: 'section-personal organization',
+                                violationPath: violationPath,
+                                validationRules: 'required',
+                                additionalClass: 'col-12',
+                            } %}
+                        {% endblock %}
+                    {% endblock %}
+                </div>
+                <div class="row g-2">
+                    {% block component_address_form_company_department %}
+                        {% if formViolations.getViolations('/department') is not empty %}
+                            {% set violationPath = '/department' %}
+                        {% elseif formViolations.getViolations("/#{prefix}/department") is not empty %}
+                            {% set violationPath = "/#{prefix}/department" %}
+                        {% endif %}
+
+                        {% block component_address_form_company_department_input %}
+                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                label: 'address.companyDepartmentLabel'|trans|sw_sanitize,
+                                id: idPrefix ~ prefix ~ 'department',
+                                name: prefix ? prefix ~ '[department]' : 'department',
+                                value: address.get('department'),
+                                violationPath: violationPath,
+                                additionalClass: 'col-md-6',
+                            } %}
+                        {% endblock %}
+                    {% endblock %}
+
+                    {# ludtwig-ignore twig-block-name-snake-case #}
+                    {% block component_address_form_company_vatId %}
+                        {% if prefix != 'shippingAddress' %}
+                            {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
+                                vatIds: data.get('vatIds')
+                            } %}
+                        {% endif %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}

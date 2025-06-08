@@ -1,0 +1,15 @@
+@import "~scss/variables";
+
+.sw-promotion-v2-generate-codes-modal {
+    font-size: $font-size-xs;
+    line-height: 22px;
+
+    &__description {
+        text-align: justify;
+        margin-bottom: 26px;
+    }
+
+    .sw-field--switch {
+        margin-top: 0;
+    }
+}

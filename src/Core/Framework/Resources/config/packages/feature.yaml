@@ -1,0 +1,48 @@
+shopware:
+  feature:
+    flags:
+      - name: v6.5.0.0
+        default: true
+        major: true
+        toggleable: false
+      - name: v6.6.0.0
+        default: true
+        major: true
+        toggleable: false
+      - name: v6.7.0.0
+        default: true
+        major: true
+        toggleable: false
+      - name: v6.8.0.0
+        default: false
+        major: true
+        toggleable: false
+      - name: DISABLE_VUE_COMPAT
+        default: true
+        major: true
+        toggleable: false
+      - name: ACCESSIBILITY_TWEAKS
+        default: true
+        major: true
+        toggleable: true
+        description: "Accessibility tweaks (highly recommended)\nAccessibility improvements can alter the HTML and CSS structure of the template.\nThe accessibility improvements will be standard as of v6.7.0"
+      - name: TELEMETRY_METRICS
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Enable OpenTelemetry metrics"
+      - name: FLOW_EXECUTION_AFTER_BUSINESS_PROCESS
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Execute flows after the main unit of work has concluded"
+      - name: PERFORMANCE_TWEAKS
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Contains Performance Tweaks for future changes"
+      - name: DEFERRED_CART_ERRORS
+        default: false
+        major: false
+        toggleable: true
+        description: "Defers cart errors that happen during SalesChannelContext creation\nThis feature will be standard as of v6.8.0"

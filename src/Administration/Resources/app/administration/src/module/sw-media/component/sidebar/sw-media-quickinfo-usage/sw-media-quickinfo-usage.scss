@@ -1,0 +1,58 @@
+@import "~scss/variables";
+
+$sw-media-quickinfo-usage-hover-color: $color-shopware-brand-500;
+$sw-media-quickinfo-usage-hover-background: #e3f3ff;
+
+.sw-media-quickinfo-usage {
+    .sw-media-quickinfo-usage__loading-indicator {
+        position: relative;
+        background: none;
+
+        .sw-loader__container {
+            height: 42px;
+            justify-content: center;
+            align-items: center;
+            align-content: center;
+            transform: none;
+            top: 0;
+            left: 0;
+        }
+    }
+
+    .sw-media-quickinfo-usage__info-not-used {
+        margin: 25px;
+    }
+
+    .sw-media-quickinfo-usage__list {
+        padding: 25px 8px;
+    }
+
+    .sw-media-quickinfo-usage__item {
+        display: grid;
+        grid-template-columns: 50px max-content;
+        grid-auto-rows: 32px;
+        border-radius: 3px;
+        overflow: hidden;
+
+        &:hover {
+            cursor: pointer;
+            background-color: $sw-media-quickinfo-usage-hover-background;
+
+            .sw-media-quickinfo-usage__label {
+                color: $sw-media-quickinfo-usage-hover-color;
+            }
+        }
+
+        .sw-media-quickinfo-usage__label {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+
+    .sw-media-quickinfo-usage__icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}

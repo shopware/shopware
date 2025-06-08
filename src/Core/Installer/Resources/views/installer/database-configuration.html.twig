@@ -1,0 +1,252 @@
+{% extends '@Installer/installer/base.html.twig' %}
+
+{% block base_content %}
+    <div class="card__title">
+        <h2>{{ "shopware.installer.database-configuration_header"|trans }}</h2>
+    </div>
+
+    <form
+        action="{{ url('installer.database-configuration') }}"
+        method="post"
+        id="database-configuration">
+
+        <div class="card__body">
+            {% if error %}
+                <div class="alert alert-error">
+                    {{ error|trans }}
+                </div>
+            {% endif %}
+
+            <p>{{ "shopware.installer.database-configuration_info"|trans }}</p>
+
+            <p>
+                <label for="hostname">{{ "shopware.installer.database-configuration_field_host"|trans }}</label>
+                <input type="text" value="{{ connectionInfo.hostname|default('localhost') }}" name="hostname" id="hostname" required="required" />
+            </p>
+
+            <div class="form-group form-group--50">
+                <p>
+                    <label for="username">{{ "shopware.installer.database-configuration_field_user"|trans }}</label>
+                    <input type="text" value="{{ connectionInfo.username ?? '' }}" name="username" id="username" required="required" />
+                </p>
+
+                <p>
+                    <label for="password">{{ "shopware.installer.database-configuration_field_password"|trans }}</label>
+                    <input type="password" value="{{ connectionInfo.password ?? '' }}" name="password" id="password" />
+                </p>
+            </div>
+
+            <details {% if connectionInfo.hasAdvancedSetting %}open{% endif %}>
+                <summary>
+                    <div class="custom-checkbox">
+                        <input
+                            type="checkbox"
+                            name="advanced-settings"
+                            id="advanced"
+                            onchange="this.parentElement.click();"
+                            {% if connectionInfo.hasAdvancedSetting %}checked{% endif %}/>
+                        <label for="advanced" class="toggle">
+                            {{ "shopware.installer.database-configuration_advanced_settings"|trans }}
+                        </label>
+                    </div>
+                </summary>
+
+                <div id="advanced-settings">
+                    <p>
+                        <label for="port">{{ "shopware.installer.database-configuration_field_port"|trans }}</label>
+                        <input type="text" value="{{ connectionInfo.port }}" name="port" id="port" required="required" />
+                    </p>
+
+                    <p>
+                        <label for="sslCaPath">{{ "shopware.installer.database-configuration_field_ssl_ca_path"|trans }}</label>
+                        <input type="text" value="{{ connectionInfo.sslCaPath ?? ''}}" name="sslCaPath" id="sslCaPath" />
+                    </p>
+
+                    <p>
+                        <label for="sslCertPath">{{ "shopware.installer.database-configuration_field_ssl_cert_path"|trans }}</label>
+                        <input type="text" value="{{ connectionInfo.sslCertPath ?? ''}}" name="sslCertPath" id="sslCertPath" />
+                    </p>
+
+                    <p>
+                        <label for="sslCertKeyPath">{{ "shopware.installer.database-configuration_field_ssl_cert_key_path"|trans }}</label>
+                        <input type="text" value="{{ connectionInfo.sslCertKeyPath ?? '' }}" name="sslCertKeyPath" id="sslCertKeyPath" />
+                    </p>
+
+
+                    <div class="custom-checkbox">
+                        <input type="checkbox"
+                               id="sslDontVerifyServerCert"
+                               name="sslDontVerifyServerCert"
+                               {{ connectionInfo.sslDontVerifyServerCert ? 'checked' : ''}}/>
+                        <label for="sslDontVerifyServerCert">{{ "shopware.installer.database-configuration_field_ssl_dont_verify_cert"|trans }}</label>
+                    </div>
+                </div>
+            </details>
+
+            <p>
+                <label for="databaseName">{{ "shopware.installer.database-configuration_field_database"|trans }}</label>
+                <input
+                    type="text"
+                    value="{{ connectionInfo.databaseName }}"
+                    name="databaseName"
+                    id="databaseName"
+                    required="required"
+                    onfocus="fetchDatabaseInformation();"
+                />
+                <button id="databaseRefresh" type="button" class="database-refresh is--hidden" href="#" onclick="refreshDatabases();" >{{ "shopware.installer.database-configuration_refresh_databases"|trans }}</button>
+            </p>
+            <div id="non-empty-db-warning" class="alert alert-warning is--hidden">
+                <span class="icon-warning"></span>
+                {{ "shopware.installer.database-configuration_non_empty_database"|trans }}
+            </div>
+            <div id="db-error" class="alert alert-error is--hidden">
+                <span class="icon-warning"></span>
+                <span class="error-text"></span>
+            </div>
+            <p>
+                <div class="custom-checkbox create_database">
+                    <input
+                        id="database_create_schema_new"
+                        type="checkbox"
+                        onchange="
+                            document.getElementById('databaseName').disabled = this.checked;
+                            document.getElementById('databaseName_new').disabled =!this.checked;
+
+                            if (!this.checked) {
+                                document.getElementById('databaseName_new').value = '';
+                            }
+                        "/>
+                    <label for="database_create_schema_new">{{ "shopware.installer.database-configuration_field_new_database"|trans }}</label>
+                </div>
+
+                <input type="text" name="databaseName" id="databaseName_new" value="{{ connectionInfo.databaseName }}" disabled/>
+            </p>
+
+        </div>
+
+        <div class="card__footer flex-container">
+            <a href="{{ url('installer.license') }}" class="btn btn-default flex-item">{{ "shopware.installer.back"|trans }}</a>
+            <button type="submit"
+                    class="btn btn-primary flex-item flex-right"
+                    onclick="document.getElementById('database-configuration').classList.add('is--submitted')">
+                {{ "shopware.installer.start_installation"|trans }}
+            </button>
+        </div>
+    </form>
+
+    <script>
+        async function fetchDatabaseInformation() {
+            let dbs;
+            try {
+                dbs = await fetchDatabases();
+            } catch(e) {
+                return;
+            }
+
+            await createSelectFieldWithOptions(
+                dbs,
+                document.getElementById('databaseName').value
+            );
+        }
+
+        function createSelectFieldWithOptions(data, oldValue) {
+            if (Object.entries(data).length === 0) {
+                return;
+            }
+
+            const element = document.createElement('div');
+            element.classList.add('select-wrapper');
+
+            const select = document.createElement('select');
+            select.id = 'databaseName';
+            select.name = 'databaseName';
+            select.required = true;
+            select.onchange = function(event) {
+                const selectedDatabase = event.target.value;
+
+                if (data[selectedDatabase] !== undefined && data[selectedDatabase]) {
+                    document.getElementById('non-empty-db-warning').classList.remove('is--hidden');
+                } else {
+                    document.getElementById('non-empty-db-warning').classList.add('is--hidden');
+                }
+            };
+            element.appendChild(select);
+
+            addDatabasesToSelect(select, data, oldValue);
+
+            select.dispatchEvent(new Event('change'));
+
+            document.getElementById('databaseName').replaceWith(element);
+            document.getElementById('databaseRefresh').classList.remove('is--hidden');
+        }
+
+        async function fetchDatabases() {
+            const dbError = document.getElementById('db-error');
+            dbError.classList.add('is--hidden');
+            document.getElementById('non-empty-db-warning').classList.add('is--hidden');
+
+            const form = new FormData(document.getElementById('database-configuration'));
+            const response = await fetch('{{ url('installer.database-information') }}', {
+                method: 'POST',
+                body: form,
+            })
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                dbError.querySelector('.error-text').innerText = data.error ?? {{ "shopware.installer.db_fetch_error"|trans }};
+                dbError.classList.remove('is--hidden');
+
+                throw new Error('Failed to fetch databases');
+            }
+
+            return data
+        }
+
+        function addDatabasesToSelect(select, dbs, oldValue) {
+            let hasOldValue = false;
+            Object.entries(dbs).forEach(function([key, value]) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.text = key;
+                if (key === oldValue) {
+                    hasOldValue = true;
+                    option.selected = true;
+                }
+
+                select.add(option);
+            });
+
+            // default to the first empty database
+            if (!hasOldValue) {
+                for(const option of select.options) {
+                    if (dbs[option.value] !== undefined && !dbs[option.value]) {
+                        select.value = option.value;
+                        break;
+                    }
+                }
+            }
+
+            select.dispatchEvent(new Event('change'));
+        }
+
+        async function refreshDatabases() {
+            const select = document.getElementById('databaseName');
+            const oldValue = document.getElementById('databaseName').value
+
+            while (select.firstChild) {
+                select.removeChild(select.firstChild);
+            }
+
+
+            let dbs;
+            try {
+                dbs = await fetchDatabases();
+            } catch(e) {
+                return;
+            }
+
+            addDatabasesToSelect(select, dbs, oldValue);
+        }
+    </script>
+{% endblock %}

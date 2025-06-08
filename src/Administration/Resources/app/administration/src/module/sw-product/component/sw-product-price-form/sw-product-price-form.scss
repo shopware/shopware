@@ -1,0 +1,28 @@
+@import "~scss/variables";
+
+$sw-product-price-suffix-font-size: 20px;
+
+.sw-product-price-form {
+    .sw-product-price-form__currency {
+        font-weight: $font-weight-regular;
+        font-size: $sw-product-price-suffix-font-size;
+    }
+
+    .sw-product-price-form__links {
+        a:first-child {
+            margin-top: 0;
+        }
+
+        a {
+            transition: color 0.3s ease;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+    }
+
+    .sw-product-price-form__price-list:not(.has--parent) {
+        .sw-inherit-wrapper__toggle-wrapper {
+            margin: 0;
+        }
+    }
+}

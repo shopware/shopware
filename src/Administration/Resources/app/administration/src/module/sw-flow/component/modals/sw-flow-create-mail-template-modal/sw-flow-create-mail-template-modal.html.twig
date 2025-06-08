@@ -1,0 +1,126 @@
+{% block sw_flow_create_mail_template_modal %}
+<sw-modal
+    class="sw-flow-create-mail-template-modal"
+    :title="$tc('sw-flow.modals.mail.titleNewEmailTemplate')"
+    :closable="false"
+    @modal-close="onClose"
+>
+    {% block sw_flow_create_mail_template_modal_content %}
+    {% block sw_flow_create_mail_template_modal_type_selection %}
+    <sw-entity-single-select
+        v-model:value="mailTemplate.mailTemplateTypeId"
+        name="sw-field--mailTemplate-mailTemplateTypeId"
+        class="sw-flow-create-mail-template-modal__type"
+        entity="mail_template_type"
+        required
+        :label="$tc('sw-flow.modals.mail.labelMailType')"
+        :placeholder="$tc('sw-flow.modals.mail.placeholderMailType')"
+        :error="mailTemplateMailTemplateTypeIdError"
+        @update:value="onChangeType"
+    />
+    {% endblock %}
+
+    {% block sw_flow_create_mail_template_modal_info %}
+    <sw-container
+        columns="1fr 1fr"
+        gap="30px"
+    >
+        {% block sw_flow_create_mail_template_modal_subject %}
+
+        <mt-text-field
+            v-model="mailTemplate.subject"
+            name="sw-field--mailTemplate-subject"
+            class="sw-flow-create-mail-template-modal__subject"
+            required
+            :label="$tc('sw-flow.modals.mail.labelSubject')"
+            :placeholder="$tc('sw-flow.modals.mail.placeholderSubject')"
+            :error="mailTemplateSubjectError"
+        />
+        {% endblock %}
+
+        {% block sw_flow_create_mail_template_modal_sender_name %}
+
+        <mt-text-field
+            v-model="mailTemplate.senderName"
+            name="sw-field--mailTemplate-senderName"
+            class="sw-flow-create-mail-template-modal__sender-name"
+            :label="$tc('sw-flow.modals.mail.labelSenderName')"
+            :placeholder="$tc('sw-flow.modals.mail.placeholderSenderName')"
+        />
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+
+    {% block sw_flow_create_mail_template_modal_description %}
+    <mt-textarea
+        v-model="mailTemplate.description"
+        name="sw-field--mailTemplate-description"
+        class="sw-flow-create-mail-template-modal__description"
+        :label="$tc('sw-flow.modals.mail.labelDescription')"
+        :placeholder="$tc('sw-flow.modals.mail.placeholderDescription')"
+    />
+    {% endblock %}
+
+    {% block sw_flow_create_mail_template_modal_plain_content %}
+    <sw-code-editor
+        ref="plainEditor"
+        :key="`${mailTemplate.mailTemplateTypeId}plain`"
+        v-model:value="mailTemplate.contentPlain"
+        class="sw-flow-create-mail-template-modal__content-plain"
+        name="content_plain"
+        completion-mode="entity"
+        :label="$tc('sw-flow.modals.mail.labelContentPlain')"
+        :placeholder="placeholder(mailTemplate, 'contentPlain', $tc('sw-flow.modals.mail.placeholderPlain'))"
+        :completer-function="outerCompleterFunction"
+        :editor-config="editorConfig"
+        :error="mailTemplateContentPlainError"
+        required
+    />
+    {% endblock %}
+
+    {% block sw_flow_create_mail_template_modal_html_content %}
+    <sw-code-editor
+        ref="htmlEditor"
+        :key="`${mailTemplate.mailTemplateTypeId}html`"
+        v-model:value="mailTemplate.contentHtml"
+        class="sw-flow-create-mail-template-modal__content-html"
+        name="content_html"
+        completion-mode="entity"
+        :label="$tc('sw-flow.modals.mail.labelContentHtml')"
+        :placeholder="placeholder(mailTemplate, 'contentPlain', $tc('sw-flow.modals.mail.placeholderHtml'))"
+        :completer-function="outerCompleterFunction"
+        :editor-config="editorConfig"
+        :error="mailTemplateContentHtmlError"
+        required
+    />
+    {% endblock %}
+    {% endblock %}
+
+    {% block sw_flow_create_mail_template_modal_footer %}
+    <template #modal-footer>
+        {% block sw_flow_create_mail_template_modal_footer_cancel_button %}
+        <mt-button
+            class="sw-flow-create-mail-template-modal__cancel-button"
+            size="small"
+            variant="secondary"
+            @click="onClose"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_flow_create_mail_template_modal_footer_save_button %}
+        <mt-button
+            class="sw-flow-create-mail-template-modal__save-button"
+            variant="primary"
+            size="small"
+            :is-loading="isLoading"
+            @click="onAddMailTemplate"
+        >
+            {{ $tc('sw-flow.modals.mail.buttonAddMailTemplate') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

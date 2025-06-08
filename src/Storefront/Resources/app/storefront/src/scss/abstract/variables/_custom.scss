@@ -1,0 +1,34 @@
+/*
+Custom variables
+==================================================
+Contains custom non bootstrap variables.
+
+@sw-package framework
+*/
+
+$search-suggest-zindex: 1000 !default;
+$offcanvas-zindex: 1050 !default;
+$cookie-msg-zindex: 1100 !default;
+$scroll-up-zindex: 700 !default;
+$menu-flyout-zindex: 1030 !default;
+$zoom-modal-action-zindex: 1051 !default;
+$magnifier-overlay-zindex: 1100 !default;
+
+$icon-base-size: 1.375rem !default;
+$icon-base-color: #4a545b !default;
+$icon-review-color: #fedc70 !default;
+
+$progress-bar-review: $icon-review-color !default;
+
+$element-backdrop-bg: rgba(#fff, 0.5) !default;
+
+$spacer-xs: ($spacer * 0.25) !default;
+$spacer-sm: ($spacer * 0.5) !default;
+$spacer-md: $spacer !default;
+$spacer-lg: ($spacer * 1.5) !default;
+$spacer-xl: ($spacer * 3) !default;
+$sw-asset-theme-url: '' !default;
+$sw-features: () !default;
+
+$theme-id: '' !default;
+$app-css-relative-asset-path: '../../' + $theme-id + '/assets' !default;

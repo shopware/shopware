@@ -1,0 +1,130 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter;
+
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Uuid\Uuid;
+
+/**
+ * @phpstan-type FilterConfig array{excluded_terms: array<string>, min_search_length: int}
+ */
+#[Package('framework')]
+class TokenFilter extends AbstractTokenFilter
+{
+    /**
+     * @var array<string, FilterConfig>
+     */
+    private array $config = [];
+
+    /**
+     * @internal
+     */
+    public function __construct(private readonly Connection $connection)
+    {
+    }
+
+    public function getDecorated(): AbstractTokenFilter
+    {
+        throw new DecorationPatternException(self::class);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function filter(array $tokens, Context $context): array
+    {
+        if (empty($tokens)) {
+            return $tokens;
+        }
+
+        $config = $this->getConfig($context->getLanguageId());
+
+        if ($config === null) {
+            return $tokens;
+        }
+        $tokens = $this->searchTermLengthFilter($tokens, $config['min_search_length']);
+
+        return $this->excludedTermsFilter($tokens, $config['excluded_terms']);
+    }
+
+    public function reset(): void
+    {
+        $this->config = [];
+    }
+
+    /**
+     * @param list<string> $tokens
+     * @param array<string> $excludedTerms
+     *
+     * @return list<string>
+     */
+    private function excludedTermsFilter(array $tokens, array $excludedTerms): array
+    {
+        if (empty($excludedTerms) || empty($tokens)) {
+            return $tokens;
+        }
+
+        $filtered = [];
+        foreach ($tokens as $token) {
+            if (!isset($excludedTerms[$token])) {
+                $filtered[] = $token;
+            }
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param list<string> $tokens
+     *
+     * @return list<string>
+     */
+    private function searchTermLengthFilter(array $tokens, int $minSearchTermLength): array
+    {
+        $filtered = [];
+        foreach ($tokens as $tag) {
+            $tag = trim((string) $tag);
+
+            if (empty($tag) || mb_strlen($tag) < $minSearchTermLength) {
+                continue;
+            }
+
+            $filtered[] = $tag;
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @return FilterConfig|null
+     */
+    private function getConfig(string $languageId): ?array
+    {
+        if (isset($this->config[$languageId])) {
+            return $this->config[$languageId];
+        }
+
+        $config = $this->connection->fetchAssociative('
+            SELECT
+                LOWER(`excluded_terms`) as `excluded_terms`,
+                `min_search_length`
+            FROM product_search_config
+            WHERE language_id = :languageId
+            LIMIT 1
+        ', ['languageId' => Uuid::fromHexToBytes($languageId)]);
+
+        if (empty($config)) {
+            return null;
+        }
+
+        $excludedTerms = \is_string($config['excluded_terms']) ? array_flip(json_decode($config['excluded_terms'], true, 512, \JSON_THROW_ON_ERROR)) : [];
+
+        return $this->config[$languageId] = [
+            'excluded_terms' => $excludedTerms,
+            'min_search_length' => (int) ($config['min_search_length'] ?? self::DEFAULT_MIN_SEARCH_TERM_LENGTH),
+        ];
+    }
+}

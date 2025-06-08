@@ -1,0 +1,3 @@
+framework:
+    cache:
+        app: cache.adapter.array

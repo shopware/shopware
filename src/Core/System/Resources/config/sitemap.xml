@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="../../SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Sitemap</title>
+        <title lang="de-DE">Sitemap</title>
+
+        <input-field type="int">
+            <name>sitemapRefreshTime</name>
+            <label>Refresh interval</label>
+            <label lang="de-DE">Aktualisierungsinterval</label>
+            <placeholder>Enter refresh interval (seconds)...</placeholder>
+            <placeholder lang="de-DE">Gib ein Aktualisierungsinterval an (Sekunden) ...</placeholder>
+            <helpText>Enter interval in seconds. (Active only in live mode.)</helpText>
+            <helpText lang="de-DE">Gib einen Zeitraum in Sekunden ein. (Aktiv nur im Live-Modus.)</helpText>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>sitemapRefreshStrategy</name>
+            <options>
+                <option>
+                    <id>1</id>
+                    <name>Manually</name>
+                    <name lang="de-DE">Manuell</name>
+                </option>
+                <option>
+                    <id>2</id>
+                    <name>Scheduled</name>
+                    <name lang="de-DE">Geplant</name>
+                </option>
+                <option>
+                    <id>3</id>
+                    <name>Live</name>
+                    <name lang="de-DE">Live</name>
+                </option>
+            </options>
+            <label>Refresh strategy</label>
+            <label lang="de-DE">Aktualisierungsmethode</label>
+            <helpText>
+                Manually: refresh via console command: php bin/console sitemap:generate.
+
+                Scheduled: refresh via scheduled tasks (every 24 hours).
+
+                Live: Refresh in intervals defined above, if Administration is opened.
+            </helpText>
+            <helpText lang="de-DE">
+                Manuell: Aktualisierung über Konsolenbefehl php bin/console sitemap:generate.
+
+                Geplant: Aktualisierung über geplante Tasks (alle 24 Stunden).
+
+                Live: Aktualisierung in regelmäßigen Intervallen (definiere oben)- wenn Admin geöffnet.
+            </helpText>
+        </input-field>
+
+        <input-field type="bool">
+            <name>excludeLinkedProducts</name>
+            <label>Exclude hidden products from sitemap</label>
+            <label lang="de-DE">Versteckte Produkte von der Sitemap ausschließen</label>
+            <helpText>Products, that are hidden in listings and search, will be excluded from the sitemap</helpText>
+            <helpText lang="de-DE">Produkte, die in den Listen und in der Suche versteckt sind, werden von der Sitemap ausgeschlossen</helpText>
+        </input-field>
+
+    </card>
+</config>

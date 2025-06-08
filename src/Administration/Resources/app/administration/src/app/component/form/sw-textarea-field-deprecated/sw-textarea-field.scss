@@ -1,0 +1,14 @@
+@import "~scss/variables";
+
+.sw-field.sw-block-field.sw-field--textarea {
+    .sw-block-field__block {
+        height: unset;
+    }
+
+    textarea {
+        line-height: 22px;
+        min-height: 125px;
+        max-height: 300px;
+        resize: vertical;
+    }
+}

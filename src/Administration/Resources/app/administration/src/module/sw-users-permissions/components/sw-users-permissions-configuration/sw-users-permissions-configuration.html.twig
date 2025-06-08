@@ -1,0 +1,11 @@
+{% block sw_users_permissions_configuration %}
+<sw-system-config
+    ref="systemConfig"
+    domain="core.userPermission"
+    class="sw-users-permissions-configuration"
+    :class="{
+        'is--disabled': !acl.can('users_and_permissions.editor')
+    }"
+    @loading-changed="onChangeLoading"
+/>
+{% endblock %}

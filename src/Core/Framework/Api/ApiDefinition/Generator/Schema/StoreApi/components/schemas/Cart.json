@@ -1,0 +1,136 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "Cart": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "description": "Name of the cart - for example `guest-cart`",
+                        "type": "string"
+                    },
+                    "token": {
+                        "description": "Context token identifying the cart and the user session",
+                        "type": "string"
+                    },
+                    "price": {
+                        "$ref": "#/components/schemas/CalculatedPrice"
+                    },
+                    "lineItems": {
+                        "description": "All items within the cart",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/LineItem"
+                        }
+                    },
+                    "errors": {
+                        "type": "object",
+                        "description": "A list of all cart errors, such as insufficient stocks, invalid addresses or vouchers.",
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/CartError"
+                                }
+                            },
+                            {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "key": {
+                                            "type": "string"
+                                        },
+                                        "level": {
+                                            "type": "number"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "messageKey": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "code",
+                                        "key",
+                                        "level",
+                                        "message",
+                                        "messageKey"
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    "deliveries": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CartDelivery"
+                        }
+                    },
+                    "transactions": {
+                        "description": "A list of all payment transactions associated with the current cart.",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "paymentMethodId": {
+                                    "type": "string"
+                                },
+                                "amount": {
+                                    "$ref": "#/components/schemas/CalculatedPrice"
+                                }
+                            }
+                        }
+                    },
+                    "modified": {
+                        "type": "boolean"
+                    },
+                    "customerComment": {
+                        "description": "A comment that can be added to the cart.",
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "affiliateCode": {
+                        "description": "An affiliate tracking code",
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "campaignCode": {
+                        "description": "A campaign tracking code",
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["cart"]
+                    }
+                },
+                "required": ["price", "apiAlias"]
+            }
+        }
+    }
+}

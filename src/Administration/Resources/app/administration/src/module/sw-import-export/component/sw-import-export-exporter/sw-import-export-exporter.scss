@@ -1,0 +1,16 @@
+@import "~scss/variables";
+
+.sw-import-export-exporter {
+    &__title {
+        font-weight: $font-weight-semi-bold;
+    }
+
+    .sw-import-export-exporter__link {
+        text-decoration: underline;
+        color: $color-darkgray-200;
+
+        &:hover {
+            color: $color-shopware-brand-500;
+        }
+    }
+}

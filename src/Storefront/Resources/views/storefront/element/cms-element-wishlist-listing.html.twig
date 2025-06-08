@@ -1,0 +1,33 @@
+{% block element_wishlist_listing %}
+    {% set listingColumns = 'col-sm-6 col-lg-4 col-xl-3' %}
+
+    {% if section and section.type == 'sidebar' %}
+        {% set listingColumns = 'col-sm-6 col-lg-6 col-xl-4' %}
+    {% endif %}
+
+    {% set slot = null %}
+
+    {% set filterUrl = null %}
+    {% set dataUrl = url('widgets.wishlist.pagelet') %}
+
+    {% set boxLayout = 'wishlist' %}
+    {% set displayMode = null %}
+
+    {% set sidebar = sectionType == 'sidebar' %}
+
+    {% set params = { slots: slot.id, 'no-aggregations': 1 } %}
+
+    {% block element_wishlist_listing_wrapper %}
+        {% sw_include '@Storefront/storefront/component/wishlist/listing.html.twig' with {
+            searchResult: searchResult,
+            dataUrl: dataUrl,
+            filterUrl: filterUrl,
+            disableEmptyFilter: false,
+            params: params,
+            sidebar: sidebar,
+            boxLayout: boxLayout,
+            displayMode: displayMode,
+            listingColumns: listingColumns
+        } %}
+    {% endblock %}
+{% endblock %}

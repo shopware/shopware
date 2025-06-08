@@ -1,0 +1,13 @@
+{
+    "test": {
+        "uniqueNamespacePlugin": {
+            "someLabel": "plugin",
+            "anotherLabel": "plugin"
+        },
+        "someSharedNamespace": {
+            "uniqueKeyPlugin": "plugin",
+            "shouldBeOverwritten": "overwritten by plugin",
+            "shouldAlsoBeOverwritten": "also overwritten by plugin"
+        }
+    }
+}

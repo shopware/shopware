@@ -1,0 +1,45 @@
+/*
+Magnifier
+==============================================
+Styling for magnifier component.
+Displays a lens over a single image or gallery slider and shows the magnified version of the image.
+*/
+
+.magnifier-overlay,
+.magnifier-zoom-image {
+    background-clip: padding-box;
+    opacity: 0;
+    animation: magnifyLensFade 0.5s forwards;
+    pointer-events: none;
+    z-index: $magnifier-overlay-zindex;
+}
+
+.magnifier-overlay {
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+    background: rgba($white, 0.4);
+    border: 1px solid $border-color;
+}
+
+.magnifier-zoom-image {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    top: 0;
+    left: 0;
+}
+
+@keyframes magnifyLensFade {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}

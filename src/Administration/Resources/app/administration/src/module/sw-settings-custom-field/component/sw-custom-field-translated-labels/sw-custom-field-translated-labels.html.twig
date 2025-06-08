@@ -1,0 +1,74 @@
+{% block sw_custom_field_translated_labels %}
+<div class="sw-custom-field-translated-labels">
+    {% block sw_custom_field_translated_labels_single %}
+    <template v-if="localeCount == 1">
+        <div
+            v-for="locale in locales"
+            :key="locale"
+            class="sw-custom-field-translated-labels__single"
+        >
+
+            <mt-text-field
+                v-for="(label, name) in propertyNames"
+                :key="getInlineSnippet(name)"
+                v-model="config[name][locale]"
+                :disabled="disabled"
+                :label="getLabel(label, locale)"
+                @update:model-value="onInput($event, name, locale)"
+            />
+        </div>
+    </template>
+    {% endblock %}
+
+    {% block sw_custom_field_translated_labels_translated %}
+    <sw-tabs
+        v-else
+        variant="minimal"
+        position-identifier="sw-custom-field-translated-labels"
+        class="sw-custom-field-translated-labels__tabs"
+        :default-item="fallbackLocale"
+    >
+        {% block sw_custom_field_translated_labels_translated_tabs %}
+        <template #default="{ active }">
+            <sw-tabs-item
+                v-for="locale in locales"
+                :key="locale"
+                class="sw-custom-field-translated-labels__translated-labels-field"
+                variant="minimal"
+                :name="locale"
+                :active-tab="active"
+            >
+                {{ $tc(`locale.${locale}`) }}
+            </sw-tabs-item>
+        </template>
+        {% endblock %}
+
+        {% block sw_custom_field_translated_labels_translated_content %}
+        <template
+            #content="{ active }"
+        >
+            <template
+                v-for="locale in locales"
+                :key="locale"
+            >
+                <div v-if="active === locale">
+                    {% block sw_custom_field_translated_labels_translated_content_field %}
+
+                    <mt-text-field
+                        v-for="(label, name) in propertyNames"
+                        :key="getInlineSnippet(name)"
+                        v-model="config[name][locale]"
+                        class="sw-custom-field-translated-labels__translated-content-field"
+                        :disabled="disabled"
+                        :label="getLabel(label, locale)"
+                        @update:model-value="onInput($event, name, locale)"
+                    />
+                    {% endblock %}
+                </div>
+            </template>
+        </template>
+        {% endblock %}
+    </sw-tabs>
+    {% endblock %}
+</div>
+{% endblock %}

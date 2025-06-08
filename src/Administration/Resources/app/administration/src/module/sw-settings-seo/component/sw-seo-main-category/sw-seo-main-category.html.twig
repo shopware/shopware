@@ -1,0 +1,17 @@
+{% block sw_seo_main_category %}
+<div class="sw-seo-main-category">
+    {% block sw_seo_main_category_select %}
+    <sw-single-select
+        :options="categories"
+        label-property="translated.name"
+        value-property="id"
+        show-clearable-button
+        :placeholder="$tc('sw-seo-url.placeholderMainCategory')"
+        :label="overwriteLabel ? undefined : $tc('sw-seo-url.labelMainCategory')"
+        :value="selectedCategory"
+        :disabled="currentSalesChannelId === null || !allowEdit"
+        @update:value="onMainCategorySelected"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

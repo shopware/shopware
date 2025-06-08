@@ -1,0 +1,14 @@
+{
+  "name": "SwagTheme",
+  "author": "shopware AG",
+  "views": [
+     "@Storefront",
+     "@Plugins",
+     "@SwagTheme"
+  ],
+  "style": [
+  ],
+  "script": [],
+  "iconSets": {
+  }
+}

@@ -1,0 +1,57 @@
+{% block sw_extension_removal_modal %}
+<sw-modal
+    class="sw-extension-removal-modal"
+    :title="title"
+    variant="small"
+    @modal-close="emitClose"
+>
+    {% block sw_extension_removal_modal_content %}
+    <template #default>
+        {% block sw_installed_extension_card_removal_content_modal_body %}
+        <p>
+            {{ $tc('sw-extension-store.component.sw-extension-removal-modal.description') }}
+        </p>
+
+        <p class="sw-extension-removal-modal__bold-paragraph">
+            {{ alert }}
+        </p>
+
+        <p>
+
+            <mt-switch
+                v-model="removePluginData"
+                :label="$tc('sw-extension-store.component.sw-extension-uninstall-modal.labelRemovePluginData')"
+                :help-text="$tc('sw-extension-store.component.sw-extension-uninstall-modal.helpTextRemovePluginData')"
+            />
+        </p>
+        {% endblock %}
+    </template>
+
+    <template #modal-footer>
+        {% block sw_extension_removal_modal_footer %}
+        {% block sw_extension_removal_modal_footer_cancel %}
+        <mt-button
+            size="small"
+            :disabled="isLoading"
+            variant="secondary"
+            @click="emitClose"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_extension_removal_modal_footer_deactivate %}
+        <mt-button
+            variant="critical"
+            size="small"
+            :is-loading="isLoading"
+            @click="emitRemoval"
+        >
+            {{ btnLabel }}
+        </mt-button>
+        {% endblock %}
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

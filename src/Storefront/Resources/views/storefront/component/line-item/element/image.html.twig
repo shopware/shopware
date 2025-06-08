@@ -1,0 +1,69 @@
+{% block component_line_item_image %}
+    {% set thumbnail %}
+        {% if lineItem.cover.url and lineItem.cover.isSpatialObject() == false %}
+            {% set attributes = {
+                class: 'img-fluid line-item-img',
+                title: (lineItem.cover.translated.title ?: '')
+            } %}
+
+            {% if lineItem.cover.getMediaType().getName() === 'VIDEO' %}
+                {% block component_line_item_video %}
+                    {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
+                        media: lineItem.cover,
+                        attributes: attributes
+                    } %}
+                {% endblock %}
+            {% else %}
+                {% set attributes = attributes|merge({
+                    alt: (lineItem.cover.translated.alt ?: label),
+                    loading: 'lazy'
+                }) %}
+
+                {% block component_line_item_image_thumbnails %}
+                    {% sw_thumbnails 'line-item-img-thumbnails' with {
+                        media: lineItem.cover,
+                        sizes: {
+                            default: '100px'
+                        },
+                        attributes: attributes
+                    } %}
+                {% endblock %}
+            {% endif %}
+        {% else %}
+            {% if fallbackIcon %}
+                {% block component_line_item_image_fallback_icon %}
+                    <div class="line-item-img line-item-icon" aria-hidden="true">
+                        {% sw_include '@Storefront/storefront/utilities/icon.html.twig' with {
+                            name: fallbackIcon
+                        } %}
+                    </div>
+                {% endblock %}
+            {% else %}
+                {% block component_line_item_image_placeholder %}
+                    {% sw_include '@Storefront/storefront/utilities/icon.html.twig' with {
+                        name: 'placeholder',
+                        size: 'fluid'
+                    } %}
+                {% endblock %}
+            {% endif %}
+        {% endif %}
+    {% endset %}
+
+    {% if lineItemLink %}
+        <a
+            href="{{ lineItemLink }}"
+            class="line-item-img-link"
+            title="{{ label }}"
+            tabindex="-1"
+            {% if lineItemModalLink %}
+                data-ajax-modal="modal"
+                data-modal-class="quickview-modal"
+                data-url="{{ lineItemModalLink }}"
+            {% endif %}
+        >
+            {{ thumbnail }}
+        </a>
+    {% else %}
+        {{ thumbnail }}
+    {% endif %}
+{% endblock %}

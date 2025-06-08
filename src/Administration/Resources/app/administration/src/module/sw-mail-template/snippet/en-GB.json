@@ -1,0 +1,149 @@
+{
+  "sw-mail-template": {
+    "general": {
+      "mainMenuItemList": "Overview",
+      "mainMenuItemGeneral": "Email templates",
+      "placeholderSearchBar": "Search email templates...",
+      "notificationTestMailSalesChannelErrorMessage": "Please choose a Sales Channel",
+      "notificationTestMailErrorMessage": "An error occurred while sending the test email.",
+      "notificationTestMailSuccessMessage": "The test email has been sent.",
+      "notificationSyntaxValidationErrorMessage": "Invalid template, check syntax: {errorMsg}",
+      "notificationGeneralSyntaxValidationErrorMessage": "Invalid template, check syntax.",
+      "missingMailTemplateTypeErrorMessage": "A required mail template type is not available."
+    },
+    "list": {
+      "textMailTemplateOverview": "Email templates",
+      "titleMailTemplateList": "Templates",
+      "titleMailFooterList": "Footer",
+      "buttonAddMailTemplate": "Add email template",
+      "columnMailType": "Type",
+      "columnDescription": "Description",
+      "columnSalesChannels": "Sales Channels",
+      "contextMenuDelete": "Delete",
+      "contextMenuEdit": "Edit",
+      "contextMenuDuplicate": "Duplicate",
+      "textDeleteConfirm": "Are you sure you want to delete the email template \"{subject}\"?",
+      "buttonDelete": "Delete",
+      "titleSidebarItemRefresh": "Refresh",
+      "errorMediaItemDuplicated": "Media item already assigned",
+      "columnFilename": "File name",
+      "emptyStateTitle": "No email templates yet",
+      "emptyStateSubTitle": "Add email templates by clicking the \"add\" button."
+    },
+    "detail": {
+      "basic": {
+        "titleCard": "Information",
+        "labelMailType": "Type",
+        "labelDescription": "Description",
+        "labelSalesChannels": "Sales Channel",
+        "placeholderMailType": "Select a type...",
+        "placeholderDescription": "Enter email template description...",
+        "placeholderSalesChannels": "Select Sales Channels..."
+      },
+      "options": {
+        "titleCard": "Options",
+        "labelSenderMail": "Sender mail",
+        "labelSenderName": "Sender name",
+        "labelSubject": "Subject",
+        "placeholderSenderMail": "shop{'@'}example.com...",
+        "placeholderSenderName": "Example shop...",
+        "placeholderSubject": "Enter email template subject..."
+      },
+      "mailText": {
+        "titleCard": "Mail text",
+        "labelContentPlain": "Plain text",
+        "labelContentHtml": "HTML",
+        "placeholderPlain": "Enter email template plain text...",
+        "placeholderHtml": "Enter email template HTML text..."
+      },
+      "media": {
+        "titleCard": "Attachments",
+        "buttonDelete": "Delete"
+      },
+      "sidebar": {
+        "labelContextMenuAddToMailTemplate": "Add as attachment",
+        "placeholderTestMail": "Enter email address...",
+        "buttonTestMail": "Send",
+        "labelTestMail": "Recipient address",
+        "titleTestMail": "Send test email",
+        "titleShowPreview": "Show preview",
+        "titleShowAvailableVariables": "Variables",
+        "copyTooltip": "Copy to clipboard.",
+        "languageNotAssignedToSalesChannel": "The current language is not assigned to the selected sales channel."
+      },
+      "previewModalTitle": "Preview",
+      "buttonSave": "Save",
+      "textHeadline": "New email template",
+      "textHeadlineEdit": "Edit email template",
+      "titleResult": "Email template",
+      "messageSaveSuccess": "The email template \"{subject}\" has been saved.",
+      "messageSaveError": "The email template \"{subject}\" could not be saved.",
+      "textErrorMessage": "Error message"
+    }
+  },
+  "sw-mail-header-footer": {
+    "general": {
+      "mainMenuItemList": "Headers and footers",
+      "placeholderSearchBar": "Search email headers and footers...",
+      "mainMenuItemGeneral": "Headers & Footers"
+    },
+    "list": {
+      "textMailHeaderFooterOverview": "Headers and Footers",
+      "buttonAddMailHeaderFooter": "Add header and footer",
+      "columnName": "Name",
+      "columnDescription": "Description",
+      "columnSalesChannels": "Sales Channels",
+      "contextMenuDelete": "Delete",
+      "contextMenuEdit": "Edit",
+      "contextMenuDuplicate": "Duplicate",
+      "textDeleteConfirm": "Are you sure you want to delete the header and footer \"{name}\"?",
+      "buttonDelete": "Delete",
+      "titleSidebarItemRefresh": "Refresh",
+      "messageDeleteError": "The header and footer \"{name}\" cannot be deleted, while Sales Channels are configured.",
+      "emptyStateTitle": "No email header and footer yet",
+      "emptyStateSubTitle": "Add email header and footer by clicking the \"add\" button."
+    },
+    "detail": {
+      "basic": {
+        "titleCard": "Information",
+        "labelName": "Name",
+        "labelDescription": "Description",
+        "labelSalesChannels": "Sales Channels",
+        "placeholderName": "Enter a name...",
+        "placeholderDescription": "Enter a description...",
+        "placeholderSalesChannels": "Choose related Sales Channels..."
+      },
+      "header": {
+        "titleCard": "Mail header",
+        "labelPlain": "Plain text",
+        "labelHtml": "HTML",
+        "placeholderPlain": "Enter plain text email header...",
+        "placeholderHtml": "Enter formatted text email header..."
+      },
+      "footer": {
+        "titleCard": "Mail footer",
+        "labelPlain": "Plain text",
+        "labelHtml": "HTML",
+        "placeholderPlain": "Enter plain text email footer...",
+        "placeholderHtml": "Enter formatted text email footer..."
+      },
+      "buttonSave": "Save",
+      "textHeadline": "New email header/footer",
+      "titleResult": "Email header/footer",
+      "messageSaveSuccess": "The email header/footer \"{name}\" has been saved.",
+      "messageSaveError": "The email header/footer \"{name}\" could not be saved."
+    },
+    "modal": {
+      "title": "Multiple assignments",
+      "mainContent": "There is already a header and footer template assigned to the following Sales Channels. If you go on and save, that assignment will be overwritten with your changes.",
+      "affectedList": "The following Sales Channels are affected:"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "mail_templates": {
+        "label": "Email templates"
+      }
+    }
+  }
+}

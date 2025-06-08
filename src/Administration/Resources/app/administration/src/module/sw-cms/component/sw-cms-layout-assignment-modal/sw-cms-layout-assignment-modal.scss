@@ -1,0 +1,42 @@
+@import "~scss/variables";
+
+.sw-cms-layout-assignment-modal {
+    .sw-modal__body {
+        min-height: 550px;
+    }
+
+    .sw-cms-layout-assignment-modal__headline {
+        color: $color-darkgray-200;
+        font-size: $font-size-xs;
+    }
+
+    .sw-cms-layout-assignment-modal__info-text {
+        color: $color-darkgray-200;
+        font-size: $font-size-xs;
+        margin-bottom: 20px;
+    }
+
+    .sw-category-tree-field .sw-category-tree-field__results {
+        height: 260px;
+    }
+}
+
+.sw-modal.sw-cms-layout-assignment-modal__confirm-changes-modal {
+    .sw-modal__body p {
+        font-size: $font-size-xs;
+
+        &:not(:last-of-type) {
+            margin-bottom: 14px;
+        }
+    }
+
+    .sw-modal__footer {
+        display: flex;
+    }
+
+    .sw-cms-layout-assignment-modal__confirm-changes-modal-main-actions {
+        margin-left: auto;
+        display: flex;
+        gap: 8px;
+    }
+}

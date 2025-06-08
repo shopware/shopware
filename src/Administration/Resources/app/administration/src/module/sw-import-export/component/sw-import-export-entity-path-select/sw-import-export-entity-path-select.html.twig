@@ -1,0 +1,133 @@
+{% block sw_import_export_entity_path_select %}
+<sw-select-base
+    ref="selectBase"
+    class="sw-import-export-entity-path-select"
+    :is-loading="isLoading"
+    v-bind="$attrs"
+    @select-expanded="onSelectExpanded"
+    @select-collapsed="onSelectCollapsed"
+>
+    {% block sw_import_export_entity_path_select_base %}
+    {% block sw_import_export_entity_path_select_base_selection %}
+    <template #sw-select-selection="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+        {% block sw_import_export_entity_path_select_base_selection_slot %}
+        <div class="sw-import-export-entity-path-select__selection">
+            {% block sw_import_export_entity_path_select_single_selection_inner %}
+            {% block sw_import_export_entity_path_select_single_selection_inner_label %}
+            <div
+                v-if="!isExpanded"
+                class="sw-import-export-entity-path-select__selection-text"
+                :class="selectionTextClasses"
+            >
+                <template v-if="singleSelection">
+                    <slot
+                        name="selection-label-property"
+                        v-bind="{ item: singleSelection, labelProperty, valueProperty, searchTerm, getKey }"
+                    >
+                        {{ getKey(singleSelection, labelProperty) }}
+                    </slot>
+                </template>
+                <template v-else>
+                    {{ placeholder }}
+                </template>
+            </div>
+            {% endblock %}
+            {% block sw_import_export_entity_path_select_single_selection_inner_input %}
+            <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+            <input
+                ref="swSelectInput"
+                v-model="searchInput"
+                class="sw-import-export-entity-path-select__selection-input"
+                :class="inputClasses"
+                type="text"
+                :placeholder="placeholder"
+                @input="onInputSearch"
+            >
+            {% endblock %}
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_import_export_entity_path_select_base_results %}
+    <template #results-list>
+        {% block sw_import_export_entity_path_select_base_results_slot %}
+        <sw-select-result-list
+            ref="resultsList"
+            :options="visibleResults"
+            :is-loading="isLoading"
+            :empty-message="$tc('global.sw-single-select.messageNoResults', { term: searchInput }, 0)"
+            :focus-el="$refs.swSelectInput"
+            :popover-classes="resultListClasses"
+            @paginate="$emit('paginate')"
+            @item-select="setValue"
+        >
+            {% block sw_import_export_entity_path_select_base_results_list %}
+            {% block sw_import_export_entity_path_select_base_results_list_before %}
+            <template #before-item-list>
+                <slot name="before-item-list">
+                    <sw-select-result
+                        :selected="isSelected(notMappedItem)"
+                        v-bind="{ item: notMappedItem, index: -1 }"
+                        @item-select="setValue"
+                    >
+                        {% block sw_import_export_entity_path_select_base_results_list_not_mapped_label %}
+                        {{ notMappedItem.label }}
+                        {% endblock %}
+                    </sw-select-result>
+                    <hr class="sw-import-export-entity-path-select__listing-seperator">
+                </slot>
+            </template>
+            {% endblock %}
+
+            {% block sw_import_export_entity_path_select_base_results_list_result %}
+            <template #result-item="{ item, index }">
+                <slot
+                    name="result-item"
+                    v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
+                >
+                    <sw-select-result
+                        :selected="isSelected(item)"
+                        v-bind="{ item, index }"
+                        @item-select="setValue"
+                    >
+                        {% block sw_import_export_entity_path_select_base_results_list_result_label %}
+                        <slot
+                            name="result-label-property"
+                            v-bind="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, getKey }"
+                        >
+                            <sw-highlight-text
+                                v-if="highlightSearchTerm"
+                                :text="getKey(item, labelProperty)"
+                                :search-term="searchTerm"
+                            />
+                            <template v-else>
+                                {{ getKey(item, labelProperty) }}
+                            </template>
+
+                            <mt-icon
+                                v-if="item.relation && item.relation !== 'many_to_many'"
+                                name="regular-chevron-right-xxs"
+                                size="16px"
+                            />
+                        </slot>
+                        {% endblock %}
+                    </sw-select-result>
+                </slot>
+            </template>
+            {% endblock %}
+
+            {% block sw_import_export_entity_path_select_base_results_list_after %}
+            <template #after-item-list>
+                <slot name="after-item-list"></slot>
+            </template>
+            {% endblock %}
+            {% endblock %}
+        </sw-select-result-list>
+        {% endblock %}
+    </template>
+    {% endblock %}
+    {% endblock %}
+</sw-select-base>
+{% endblock %}

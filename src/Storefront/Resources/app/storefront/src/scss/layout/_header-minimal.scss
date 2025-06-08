@@ -1,0 +1,66 @@
+/*
+Header minimal
+==================================================
+Contains custom styles for the minimal header which is used on checkout pages.
+*/
+
+.header-minimal {
+    background: $white;
+    border-bottom: 1px solid var(--text-color-brand-primary);
+}
+
+.header-minimal.fixed-top {
+    position: static;
+}
+
+.header-minimal-row {
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-minimal-contact {
+    display: none;
+}
+
+.header-minimal-contact a {
+    color: $primary;
+}
+
+.header-minimal-back-to-shop {
+    display: flex;
+    justify-content: flex-end;
+
+    &-button {
+        color: $sw-text-color;
+    }
+}
+
+.header-minimal-logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: $spacer-xs;
+}
+
+.header-minimal-home {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.header-minimal-home-btn {
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@include media-breakpoint-up(md) {
+    .header-minimal-contact {
+        display: block;
+    }
+
+    .header-minimal-logo,
+    .header-minimal-switch {
+        margin-bottom: 0;
+    }
+}

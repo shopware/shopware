@@ -1,0 +1,223 @@
+{% block sw_sales_channel_detail_products %}
+<mt-card
+    v-if="salesChannel && products"
+    position-identifier="sw-sales-channel-detail-products"
+    class="sw-sales-channel-detail-products"
+    :is-loading="isLoading || undefined"
+>
+    {% block sw_sales_channel_detail_products_filled_state %}
+    <template
+        v-if="products.length > 0 || searchTerm"
+        #grid
+    >
+        {% block sw_sales_channel_detail_products_card_section %}
+        <sw-container rows="auto 500px">
+            {% block sw_sales_channel_detail_products_card_section_secondary %}
+            <sw-card-section secondary>
+                <sw-container
+                    columns="1fr auto"
+                    gap="0 15px"
+                >
+                    {% block sw_sales_channel_detail_products_card_section_secondary_input %}
+                    <sw-simple-search-field
+                        v-model:value="searchTerm"
+                        variant="form"
+                        size="small"
+                        @search-term-change="onChangeSearchTerm"
+                    />
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_products_card_section_secondary_button %}
+                    <mt-button
+                        v-tooltip="{
+                            message: $tc('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('sales_channel.editor'),
+                            showOnDisabledElements: true
+                        }"
+                        ghost
+                        size="small"
+                        :disabled="!acl.can('sales_channel.editor')"
+                        variant="secondary"
+                        @click="openAddProductsModal"
+                    >
+                        {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', {}, 0) }}
+                    </mt-button>
+                    {% endblock %}
+                </sw-container>
+            </sw-card-section>
+            {% endblock %}
+
+            {% block sw_sales_channel_detail_products_card_section_primary %}
+            <sw-card-section divider="top">
+                {% block sw_sales_channel_detail_products_card_section_primary_filled_state %}
+                <sw-entity-listing
+                    v-if="products.length > 0"
+                    ref="entityListing"
+                    class="sw-sales-channel-detail-products__list"
+                    identifier="sw-sales-channel-detail-products-list"
+                    detail-route="sw.product.detail"
+                    :repository="productRepository"
+                    :items="products"
+                    :data-source="products"
+                    :columns="productColumns"
+                    :plain-appearance="true"
+                    :skeleton-item-amount="limit"
+                    :is-loading="isLoading"
+                    :allow-inline-edit="false"
+                    :allow-view="acl.can('sales_channel.viewer')"
+                    :allow-edit="acl.can('product.editor')"
+                    :allow-delete="acl.can('sales_channel.deleter')"
+                    :is-record-selectable="isProductRemovable"
+                    @selection-change="onProductSelectionChanged"
+                >
+                    <template #selection-content="{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty }">
+                        <slot v-bind="{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty }">
+                            <div class="sw-data-grid__cell-content">
+                                {% block sw_sales_channel_detail_products_listing_select_item_checkbox %}
+                                <mt-checkbox
+                                    v-tooltip="{
+                                        message: $tc('sw-sales-channel.detail.products.inheritVariantNotRemovableTooltip'),
+                                        disabled: isRecordSelectable(item),
+                                        showOnDisabledElements: true
+                                    }"
+                                    :disabled="!isRecordSelectable(item)"
+                                    :checked="isSelected(item[itemIdentifierProperty])"
+                                    @update:checked="selectItem($event, item)"
+                                />
+                                {% endblock %}
+                            </div>
+                        </slot>
+                    </template>
+                    <template #column-name="{ item }">
+                        <slot v-bind="{ item }">
+                            {% block sw_sales_channel_detail_products_listing_column_name %}
+                            <sw-product-variant-info
+                                :variations="item.variation"
+                            >
+                                <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
+                                    {{ item.translated.name || item.name }}
+                                </router-link>
+                            </sw-product-variant-info>
+                            {% endblock %}
+                        </slot>
+                    </template>
+
+                    <template #column-active="{ item }">
+                        {% block sw_sales_channel_detail_products_listing_column_active %}
+                        <mt-icon
+                            size="16px"
+                            :name="item.active === false ? 'regular-times-s' : 'regular-checkmark-xs'"
+                            :color="item.active === false ? '#de294c' : '#37d046'"
+                        />
+                        {% endblock %}
+                    </template>
+
+                    <template #pagination>
+                        {% block sw_sales_channel_detail_products_listing_pagination %}
+                        <sw-pagination
+                            v-bind="{ page, limit, total }"
+                            :total-visible="5"
+                            :auto-hide="false"
+                            @page-change="onChangePage"
+                        />
+                        {% endblock %}
+                    </template>
+
+                    <template #delete-action="{ item }">
+                        {% block sw_sales_channel_detail_products_listing_delete_action %}
+                        <sw-context-menu-item
+                            variant="warning"
+                            :disabled="!isProductRemovable(item)"
+                            @click="onDeleteProduct(item)"
+                        >
+                            {{ $tc('global.default.remove') }}
+                        </sw-context-menu-item>
+                        {% endblock %}
+                    </template>
+
+                    <template #bulk>
+                        {% block sw_sales_channel_detail_products_listing_bulk %}
+                        <a
+                            class="link link-warning"
+                            role="button"
+                            tabindex="0"
+                            @click="onDeleteProducts"
+                            @keydown.enter="onDeleteProducts"
+                        >
+                            {{ $tc('global.default.remove') }}
+                        </a>
+                        {% endblock %}
+                    </template>
+                </sw-entity-listing>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_products_card_section_primary_empty_state %}
+                <sw-empty-state
+                    v-else
+                    :show-description="false"
+                    :title="$tc('sw-sales-channel.detail.products.titleEmptyStateTable')"
+                >
+                    <template #icon>
+                        {% block sw_sales_channel_detail_products_card_section_primary_image %}
+                        <img
+                            :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
+                            :alt="$tc('sw-sales-channel.detail.products.titleEmptyStateTable')"
+                        >
+                        {% endblock %}
+                    </template>
+                </sw-empty-state>
+                {% endblock %}
+            </sw-card-section>
+            {% endblock %}
+        </sw-container>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_sales_channel_detail_products_empty_state %}
+    <sw-empty-state
+        v-if="products.length <= 0 && !searchTerm && !isLoading"
+        :show-description="false"
+        :absolute="false"
+        :title="$tc('sw-sales-channel.detail.products.titleEmptyState')"
+    >
+        <template #icon>
+            {% block sw_sales_channel_detail_products_empty_state_image %}
+            <img
+                :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
+                :alt="$tc('sw-sales-channel.detail.products.titleEmptyState')"
+            >
+            {% endblock %}
+        </template>
+
+        <template #actions>
+            {% block sw_sales_channel_detail_products_empty_state_button %}
+            <mt-button
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('sales_channel.editor'),
+                    showOnDisabledElements: true
+                }"
+                ghost
+                :disabled="!acl.can('sales_channel.editor')"
+                variant="secondary"
+                @click="openAddProductsModal"
+            >
+                {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', {}, 0) }}
+            </mt-button>
+            {% endblock %}
+        </template>
+    </sw-empty-state>
+    {% endblock %}
+
+    {% block sw_sales_channel_detail_products_assignment_modal %}
+    <sw-sales-channel-products-assignment-modal
+        v-if="showProductsModal"
+        :sales-channel="salesChannel"
+        :is-assign-product-loading="isAssignProductLoading"
+        @modal-close="showProductsModal = false"
+        @products-add="onAddProducts"
+    />
+    {% endblock %}
+</mt-card>
+{% endblock %}

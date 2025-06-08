@@ -1,0 +1,28 @@
+{% block sw_connect_action_button %}
+<div
+    v-tooltip.left="{
+        message: $tc('sw-privileges.tooltip.warning'),
+        disabled: acl.can(`app.${action.app}`),
+        showOnDisabledElements: true
+    }"
+    class="sw-app-action-button sw-context-menu-item"
+    :class="{
+        'sw-context-menu-item--icon': !!action.icon,
+        'sw-context-menu-item--disabled': !acl.can(`app.${action.app}`)
+    }"
+    role="button"
+    tabindex="0"
+    @click="runAction"
+    @keydown.enter="runAction"
+>
+    <sw-extension-icon
+        v-if="action.icon"
+        :src="`data:image/png;base64, ${action.icon}`"
+        alt=""
+    />
+
+    <span class="sw-context-menu-item__text">
+        {{ $tc(buttonLabel ?? '') }}
+    </span>
+</div>
+{% endblock %}

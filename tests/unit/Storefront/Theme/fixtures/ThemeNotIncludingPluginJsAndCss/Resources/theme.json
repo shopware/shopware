@@ -1,0 +1,17 @@
+{
+  "name": "SwagTheme",
+  "author": "shopware AG",
+  "views": [
+     "@MockStorefront",
+     "@SwagTheme"
+  ],
+  "style": [
+    "@MockStorefront"
+  ],
+  "script": [
+    "@MockStorefront"
+  ],
+  "asset": [
+    "@MockStorefront"
+  ]
+}

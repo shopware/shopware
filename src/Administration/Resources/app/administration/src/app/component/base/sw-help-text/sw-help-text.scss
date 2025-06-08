@@ -1,0 +1,23 @@
+@import "~scss/variables";
+
+.sw-help-text {
+    width: 16px;
+    height: 16px;
+    color: var(--color-icon-brand-default);
+    border-radius: 50%;
+    line-height: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--color-icon-brand-hover);
+    }
+
+    .mt-icon {
+        width: 16px;
+        height: 16px;
+    }
+}

@@ -1,0 +1,20 @@
+.sw-category-detail__cms {
+    @media screen and (min-width: 1580px) {
+        .sw-card .sw-card__title {
+            width: inherit;
+            position: inherit;
+            left: inherit;
+            top: inherit;
+            text-align: inherit;
+        }
+    }
+
+    .sw-cms-page-form {
+        margin: 0;
+    }
+
+    .sw-cms-page-form__section {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}

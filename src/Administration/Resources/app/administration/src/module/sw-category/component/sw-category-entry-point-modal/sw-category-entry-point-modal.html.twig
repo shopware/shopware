@@ -1,0 +1,236 @@
+{% block sw_category_entry_point_modal %}
+<sw-modal
+    class="sw-category-entry-point-modal"
+    :title="$tc('sw-category.base.entry-point-modal.modalTitle')"
+    @modal-close="closeModal"
+>
+
+    {% block sw_category_entry_point_modal_sales_channel_selection %}
+    <sw-single-select
+        v-model:value="selectedSalesChannelId"
+        class="sw-category-entry-point-modal__sales-channel-selection"
+        :label="$tc('sw-category.base.entry-point-modal.salesChannelSelection')"
+        :options="salesChannelOptions"
+        show-clearable-button
+    />
+    {% endblock %}
+
+    {% block sw_category_entry_point_modal_selected_sales_channel %}
+    <template v-if="selectedSalesChannel">
+
+        {% block sw_category_entry_point_modal_selected_sales_channel_show_in_main_navigation %}
+
+        <mt-switch
+            v-model="selectedSalesChannel.homeEnabled"
+            class="sw-category-entry-point-modal__show-in-main-navigation"
+            :label="$tc('sw-category.base.entry-point-modal.showInMainNavigation')"
+            :disabled="!acl.can('category.editor') || undefined"
+        />
+        {% endblock %}
+
+        {% block sw_category_entry_point_modal_selected_sales_channel_name_in_main_navigation %}
+
+        <mt-text-field
+            v-model="selectedSalesChannel.homeName"
+            class="sw-category-entry-point-modal__name-in-main-navigation"
+            :label="$tc('sw-category.base.entry-point-modal.mainNavigationName')"
+            :help-text="$tc('sw-category.base.entry-point-modal.mainNavigationNameHelpText')"
+            :placeholder="selectedSalesChannel.translated.homeName || $tc('sw-category.base.entry-point-modal.mainNavigationNamePlaceholder')"
+            :disabled="!selectedSalesChannel.homeEnabled || !acl.can('category.editor')"
+        />
+        {% endblock %}
+
+        {% block sw_category_entry_point_modal_selected_sales_channel_layout_headline %}
+        <h3 class="sw-category-entry-point-modal__layout-headline">
+            {{ $tc('sw-category.base.entry-point-modal.layoutHeadline') }}
+        </h3>
+        {% endblock %}
+
+        {% block sw_category_entry_point_modal_selected_sales_channel_layout_selection %}
+        <div class="sw-category-entry-point-modal__base-layout">
+
+            {% block sw_category_entry_point_modal_layout_preview %}
+            <div
+                class="sw-category-entry-point-modal__preview"
+                role="button"
+                tabindex="0"
+                @click="openLayoutModal"
+                @keydown.enter="openLayoutModal"
+            >
+                <sw-cms-list-item
+                    class="sw-category-entry-point-modal__layout-item"
+                    :page="selectedSalesChannel.homeCmsPage"
+                    :disabled="!acl.can('category.editor') || undefined"
+                    active
+                />
+            </div>
+            {% endblock %}
+
+            {% block sw_category_entry_point_modal_layout_modal %}
+            <sw-cms-layout-modal
+                v-if="showLayoutSelectionModal"
+                :pre-selection="selectedSalesChannel.homeCmsPage"
+                :cms-page-types="pageTypes"
+                @modal-layout-select="onLayoutSelect"
+                @modal-close="closeLayoutModal"
+            />
+            {% endblock %}
+
+            {% block sw_category_entry_point_modal_layout_desc %}
+            <div class="sw-category-entry-point-modal__desc">
+
+                {% block sw_category_entry_point_modal_layout_desc_info %}
+                <div class="sw-category-entry-point-modal__desc-info">
+
+                    {% block sw_category_entry_point_modal_layout_desc_info_headline %}
+                    <div
+                        class="sw-category-entry-point-modal__desc-headline"
+                        :class="{ 'is--empty': !selectedSalesChannel.homeCmsPage }"
+                    >
+                        {{ selectedSalesChannel.homeCmsPage ? selectedSalesChannel.homeCmsPage.name : $tc('sw-category.base.cms.defaultTitle') }}
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_category_entry_point_modal_layout_desc_info_subheadline %}
+                    <div
+                        class="sw-category-entry-point-modal__desc-subheadline"
+                        :class="{ 'is--empty': !selectedSalesChannel.homeCmsPage }"
+                    >
+                        {{ getCmsPageTypeName(selectedSalesChannel.homeCmsPage?.type) }}
+                    </div>
+                    {% endblock %}
+
+                </div>
+                {% endblock %}
+
+                {% block sw_category_entry_point_modal_layout_desc_actions %}
+                <div class="sw-category-entry-point-modal__desc-actions">
+
+                    {% block sw_category_entry_point_modal_layout_desc_actions_layout %}
+                    <mt-button
+                        class="sw-category-detail-layout__change-layout-action"
+                        size="small"
+                        :disabled="!acl.can('category.editor')"
+                        variant="secondary"
+                        @click="openLayoutModal"
+                    >
+                        {{ selectedSalesChannel.homeCmsPage ? $tc('sw-category.base.cms.changeLayout') : $tc('sw-category.base.cms.changeLayoutEmpty') }}
+                    </mt-button>
+                    {% endblock %}
+
+                    {% block sw_category_entry_point_modal_layout_desc_actions_designer %}
+                    <mt-button
+                        class="sw-category-detail-layout__open-in-pagebuilder"
+                        size="small"
+                        :disabled="!acl.can('category.editor')"
+                        variant="secondary"
+                        @click="openInPagebuilder"
+                    >
+                        {{ selectedSalesChannel.homeCmsPage ? $tc('sw-category.base.cms.editInPagebuilder'): $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
+                    </mt-button>
+                    {% endblock %}
+
+                    {% block sw_category_entry_point_modal_layout_desc_actions_remove %}
+                    <mt-button
+                        v-if="selectedSalesChannel.homeCmsPage"
+                        size="small"
+                        :disabled="!acl.can('category.editor')"
+                        class="sw-category-detail-layout__layout-reset"
+                        square
+                        variant="secondary"
+                        @click="onLayoutReset"
+                    >
+                        <mt-icon
+                            name="regular-trash"
+                            size="16px"
+                        />
+                    </mt-button>
+                    {% endblock %}
+
+                </div>
+                {% endblock %}
+
+            </div>
+            {% endblock %}
+
+        </div>
+        {% endblock %}
+
+        {% block sw_category_entry_point_modal_selected_sales_channel_seo_settings_headline %}
+        <h2 class="sw-category-entry-point-modal__seo-headline">
+            {{ $tc('sw-category.base.entry-point-modal.seoSettingsHeadline') }}
+        </h2>
+        {% endblock %}
+
+        {% block sw_category_entry_point_modal_selected_sales_channel_seo_meta_title %}
+
+        <mt-text-field
+            v-model="selectedSalesChannel.homeMetaTitle"
+            class="sw-category-entry-point-modal__meta-title"
+            :label="$tc('sw-category.base.entry-point-modal.metaTitleLabel')"
+            :placeholder="selectedSalesChannel.translated.homeMetaTitle || $tc('sw-category.base.entry-point-modal.metaTitlePlaceholder')"
+            :disabled="!acl.can('category.editor') || undefined"
+        />
+        {% endblock %}
+
+        {% block sw_category_entry_point_modal_selected_sales_channel_seo_meta_description %}
+        <mt-textarea
+            v-model="selectedSalesChannel.homeMetaDescription"
+            class="sw-category-entry-point-modal__meta-description"
+            :label="$tc('sw-category.base.entry-point-modal.metaDescriptionLabel')"
+            :placeholder="selectedSalesChannel.translated.homeMetaDescription || $tc('sw-category.base.entry-point-modal.metaDescriptionPlaceholder')"
+            :disabled="!acl.can('category.editor') || undefined"
+        />
+        {% endblock %}
+
+        {% block sw_category_entry_point_modal_selected_sales_channel_seo_keywords %}
+
+        <mt-text-field
+            v-model="selectedSalesChannel.homeKeywords"
+            class="sw-category-entry-point-modal__seo-keywords"
+            :label="$tc('sw-category.base.entry-point-modal.seoKeywordsLabel')"
+            :placeholder="selectedSalesChannel.translated.homeKeywords || $tc('sw-category.base.entry-point-modal.seoKeywordsPlaceholder')"
+            :disabled="!acl.can('category.editor') || undefined"
+        />
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+
+    {% block sw_category_entry_point_modal_footer %}
+    <template #modal-footer>
+
+        {% block sw_category_entry_point_modal_footer_cancel_button %}
+        <mt-button
+            class="sw-category-entry-point-modal__cancel-button"
+            variant="secondary"
+            @click="closeModal"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_category_entry_point_modal_footer_apply_button %}
+        <mt-button
+            class="sw-category-entry-point-modal__apply-button"
+            variant="primary"
+            :disabled="!acl.can('category.editor')"
+            @click="applyChanges"
+        >
+            {{ $tc('global.default.apply') }}
+        </mt-button>
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+
+    {% block sw_category_entry_point_modal_discard_changes_modal %}
+    <sw-discard-changes-modal
+        v-if="isDisplayingLeavePageWarning"
+        @keep-editing="onLeaveModalClose()"
+        @discard-changes="onLeaveModalConfirm(nextRoute)"
+    />
+    {% endblock %}
+
+</sw-modal>
+{% endblock %}

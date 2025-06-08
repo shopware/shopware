@@ -1,0 +1,67 @@
+{% block sw_flow_tag_modal %}
+<sw-modal
+    class="sw-flow-tag-modal"
+    :title="tagTitle"
+    :closable="false"
+    @modal-close="onClose"
+>
+    {% block sw_flow_tag_modal_content %}
+    <div class="sw-flow-tag-modal__content">
+        {% block sw_flow_tag_modal_to_field %}
+        <sw-single-select
+            v-model:value="entity"
+            name="sw-field--entity"
+            class="sw-flow-tag-modal__to-field"
+            required
+            show-clearable-button
+            :label="$tc('sw-flow.modals.tag.labelToField')"
+            :placeholder="$tc('sw-flow.modals.tag.placeholderToField')"
+            :error="entityError"
+            :options="entityOptions"
+        />
+        {% endblock %}
+
+        {% block sw_flow_tag_modal_tags_field %}
+        <sw-entity-tag-select
+            v-model:entity-collection="tagCollection"
+            name="sw-field--tagCollection"
+            class="sw-flow-tag-modal__tags-field"
+            required
+            :label="$tc('sw-flow.modals.tag.labelTagsField')"
+            :placeholder="$tc('sw-flow.modals.tag.placeholderTagsField')"
+            :error="tagError"
+            @item-add="onAddTag"
+            @item-remove="onRemoveTag"
+        />
+        {% endblock %}
+
+        {% block sw_flow_tag_modal_content_custom %}
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    <template #modal-footer>
+        {% block sw_flow_tag_modal_footer_cancel_button %}
+        <mt-button
+            class="sw-flow-tag-modal__cancel-button"
+            size="small"
+            variant="secondary"
+            @click="onClose"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_flow_tag_modal_footer_save_button %}
+        <mt-button
+            class="sw-flow-tag-modal__save-button"
+            variant="primary"
+            size="small"
+            @click="onSaveTag"
+        >
+            {{ isNewTag ? $tc('sw-flow.modals.buttonAddAction') : $tc('sw-flow.modals.buttonSaveAction') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+</sw-modal>
+{% endblock %}

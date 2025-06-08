@@ -1,0 +1,49 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="shopware.store.mock_handler" class="GuzzleHttp\Handler\MockHandler" public="true"/>
+
+        <service id="shopware.store_client" class="GuzzleHttp\Client" public="true">
+            <argument type="collection">
+                <argument key="handler" type="service">
+                    <service class="GuzzleHttp\HandlerStack">
+                        <factory class="GuzzleHttp\HandlerStack" method="create"/>
+                        <argument type="service" id="shopware.store.mock_handler"/>
+                    </service>
+                </argument>
+            </argument>
+        </service>
+
+        <service id="shopware.frw.mock_handler" class="GuzzleHttp\Handler\MockHandler" public="true"/>
+
+        <service id="shopware.frw_client" class="GuzzleHttp\Client" public="true">
+            <argument type="collection">
+                <argument key="handler" type="service">
+                    <service class="GuzzleHttp\HandlerStack">
+                        <factory class="GuzzleHttp\HandlerStack" method="create"/>
+                        <argument type="service" id="shopware.frw.mock_handler"/>
+                    </service>
+                </argument>
+            </argument>
+        </service>
+
+        <service id="shopware.store_download_client" class="GuzzleHttp\Client">
+            <argument type="collection">
+                <argument key="handler" type="service">
+                    <service class="GuzzleHttp\HandlerStack">
+                        <factory class="GuzzleHttp\HandlerStack" method="create"/>
+                        <argument type="service" id="shopware.store.mock_handler"/>
+                    </service>
+                </argument>
+            </argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\InstanceService">
+            <argument type="constant">Shopware\Core\Kernel::SHOPWARE_FALLBACK_VERSION</argument>
+            <argument type="string">this-is-a-unique-id</argument>
+        </service>
+    </services>
+</container>

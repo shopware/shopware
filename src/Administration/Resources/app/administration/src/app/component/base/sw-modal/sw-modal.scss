@@ -1,0 +1,214 @@
+@use "sass:math";
+@import "~scss/mixins";
+@import "~scss/variables";
+
+$sw-modal-color-backdrop: rgba(0, 0, 0, 40%);
+$sw-modal-gap: 64px;
+$sw-modal-loader-z-index: $z-index-modal + 1;
+$sw-modal-title-font-size: $font-size-m;
+$sw-modal-transition-duration: 0.4s;
+$sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
+
+.sw-modal {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: $sw-modal-color-backdrop;
+    z-index: $z-index-modal;
+    outline: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0 math.div($sw-modal-gap, 2);
+
+    .sw-modal__dialog {
+        @include drop-shadow-default;
+
+        background-color: $color-white;
+        border-radius: $border-radius-lg;
+        color: $color-darkgray-200;
+        max-height: calc(100vh - #{$sw-modal-gap});
+        min-height: 200px;
+        width: 100%;
+        outline: none;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &.sw-modal--default .sw-modal__dialog {
+        max-width: 700px;
+    }
+
+    &.sw-modal--large .sw-modal__dialog {
+        max-width: 900px;
+    }
+
+    &.sw-modal--small .sw-modal__dialog {
+        max-width: 500px;
+    }
+
+    &--has-sidebar {
+        z-index: $z-index-help-sidebar + 1;
+    }
+
+    @media screen and (max-width: 500px) {
+        padding: 0;
+        overflow-y: hidden;
+
+        .sw-modal__dialog {
+            border-radius: 0;
+            display: grid;
+            height: 100%;
+            width: 100%;
+            max-height: 100%;
+            grid-template-rows: 1fr auto;
+
+            &.has--header {
+                grid-template-rows: auto 1fr auto;
+            }
+        }
+
+        .sw-modal__body {
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+    }
+
+    &.sw-modal--full {
+        .sw-modal__dialog {
+            max-width: 100%;
+            margin: 20px;
+            height: calc(100vh - #{$sw-modal-gap});
+        }
+    }
+
+    .sw-modal__header {
+        border-bottom: 1px solid $color-gray-300;
+        display: flex;
+        flex-shrink: 0;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        padding: 24px 16px 24px 32px;
+        min-height: 65px;
+    }
+
+    .sw-modal__titles {
+        max-width: 90%;
+    }
+
+    .sw-modal__title {
+        margin: 0;
+        color: $color-darkgray-300;
+        font-size: $font-size-m;
+        font-weight: $font-weight-semi-bold;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    .sw-modal__subtitle {
+        margin: 0;
+        color: $color-darkgray-50;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-regular;
+        line-height: $line-height-xs;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    .sw-modal__close {
+        position: absolute;
+        right: 24px;
+        background: 0 none;
+        color: $color-darkgray-100;
+        cursor: pointer;
+        outline: none;
+        flex-shrink: 0;
+        border: 0 none;
+        border-radius: 50%;
+        margin-left: auto;
+        height: 40px;
+        width: 40px;
+
+        &:hover {
+            color: $color-darkgray-200;
+        }
+
+        &:focus {
+            background-color: $color-gray-200;
+            color: $color-darkgray-200;
+        }
+
+        .mt-icon {
+            width: 16px;
+            height: 16px;
+            padding: 3px;
+        }
+    }
+
+    .sw-modal__body {
+        overflow-y: auto;
+        padding: 20px 30px;
+        position: relative;
+        word-break: break-word;
+        flex-grow: 1;
+
+        &.has--no-footer {
+            padding: 0;
+        }
+
+        .sw-data-grid .sw-data-grid__bulk {
+            padding-left: 126px;
+            padding-top: 22px;
+        }
+    }
+
+    .sw-modal__footer {
+        border-radius: 0 0 $border-radius-lg $border-radius-lg;
+        background-color: $color-gray-100;
+        display: grid;
+        grid-auto-columns: min-content;
+        grid-auto-flow: column;
+        grid-column-gap: 8px;
+        justify-content: end;
+        align-items: center;
+        flex-shrink: 0;
+        height: 72px;
+        padding: 0 32px;
+    }
+
+    .sw-loader {
+        z-index: $sw-modal-loader-z-index;
+    }
+}
+
+// Vue.js Transitions
+.sw-modal-fade-enter-active,
+.sw-modal-fade-leave-active {
+    transition: opacity $sw-modal-transition-duration $sw-modal-transition-timing-function;
+
+    .sw-modal__dialog {
+        transition: transform $sw-modal-transition-duration $sw-modal-transition-timing-function;
+        transform: scale(1);
+    }
+}
+
+// Vue.js Transitions
+.sw-modal-fade-enter,
+.sw-modal-fade-leave-to {
+    opacity: 0;
+
+    .sw-modal__dialog {
+        transform: scale(0.8);
+    }
+}

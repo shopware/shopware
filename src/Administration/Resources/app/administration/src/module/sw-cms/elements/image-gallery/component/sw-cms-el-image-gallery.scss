@@ -1,0 +1,100 @@
+@import "~scss/variables";
+
+.sw-cms-el-image-gallery {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    grid-gap: 8px;
+
+    &.is--mobile {
+        .sw-cms-el-image-gallery__item-holder {
+            justify-content: center;
+            align-self: center;
+        }
+    }
+
+    &.is--preview-underneath {
+        display: flex;
+        flex-direction: column;
+
+        .sw-cms-el-image-gallery__grid {
+            order: 2;
+            margin-top: 12px;
+            grid-template-columns: 1fr 20px;
+            grid-template-rows: none;
+            grid-gap: 4px 16px;
+            align-items: center;
+
+            .sw-cms-el-image-gallery__grid-arrow {
+                transform: rotate(-90deg);
+            }
+        }
+    }
+
+    .sw-cms-el-image-slider {
+        align-items: center;
+        display: flex;
+    }
+}
+
+.sw-cms-el-image-gallery__grid {
+    display: grid;
+    grid-template-rows: 1fr 20px;
+    grid-gap: 4px 0;
+
+    .sw-cms-el-image-gallery__grid-arrow {
+        justify-self: center;
+        color: $color-gray-400;
+    }
+}
+
+.sw-cms-el-image-gallery__item-holder {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 92px);
+    grid-auto-rows: 64px;
+    grid-auto-flow: row dense;
+    grid-gap: 8px;
+
+    .sw-cms-el-image-gallery__item-placeholder,
+    .sw-media-list-selection-item-v2 {
+        border-radius: $border-radius-default;
+        border: 1px solid #d1d9e0;
+        height: 64px;
+        display: flex;
+        align-items: center;
+    }
+
+    .sw-cms-el-image-gallery__item-placeholder {
+        padding: 4px;
+        object-fit: cover;
+        display: flex;
+        max-width: 100%;
+        max-height: 100%;
+        width: 100%;
+    }
+
+    .sw-media-list-selection-item-v2 {
+        cursor: pointer;
+
+        &:hover,
+        &.is--active {
+            border-color: $color-shopware-brand-500;
+            background: none;
+        }
+
+        .sw-media-list-selection-item-v2__image {
+            display: flex;
+            align-items: center;
+
+            .sw-media-preview-v2__item {
+                padding: 4px;
+                height: auto;
+                object-fit: cover;
+                display: flex;
+                position: initial;
+                transform: none;
+                background: none;
+            }
+        }
+    }
+}

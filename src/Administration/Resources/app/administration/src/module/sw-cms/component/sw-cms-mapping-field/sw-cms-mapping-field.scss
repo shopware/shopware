@@ -1,0 +1,89 @@
+@import "~scss/variables";
+
+.sw-cms-mapping-field {
+    .sw-cms-mapping-field__info {
+        height: 20px;
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr max-content;
+        grid-column-gap: 10px;
+        align-content: center;
+        align-items: center;
+        margin-bottom: 6px;
+    }
+
+    .sw-cms-mapping-field__label {
+        font-size: $font-size-xs;
+        line-height: 16px;
+        color: $color-darkgray-200;
+        font-weight: normal;
+        user-select: none;
+    }
+
+    .sw-cms-mapping-field__action {
+        display: grid;
+        grid-template-columns: 18px 1fr;
+        grid-column-gap: 5px;
+        align-content: center;
+        align-items: center;
+        justify-content: end;
+        justify-items: end;
+        font-size: $font-size-xs;
+        color: $color-shopware-brand-500;
+        cursor: pointer;
+
+        &:hover .sw-cms-mapping-field__action-label {
+            text-decoration: underline;
+        }
+    }
+
+    .sw-cms-mapping-field__action-remove {
+        position: absolute;
+        top: 0;
+        right: 0;
+        display: grid;
+        grid-template-columns: 18px 1fr;
+        grid-column-gap: 5px;
+        align-content: center;
+        align-items: center;
+        justify-content: end;
+        justify-items: end;
+        font-size: $font-size-xs;
+        cursor: pointer;
+
+        &:hover {
+            color: $color-crimson-500;
+        }
+
+        .mt-icon {
+            width: 16px;
+            height: 18px;
+            margin-right: 2px;
+        }
+    }
+
+    .sw-cms-mapping-field__mapping-value {
+        padding: 30px;
+        text-align: center;
+        background: $color-gray-100;
+        border: 1px dashed $color-gray-300;
+        border-radius: 4px;
+    }
+
+    .sw-cms-mapping-field__preview {
+        padding: 20px;
+        border: 1px solid $color-gray-300;
+        margin-top: 10px;
+        margin-bottom: 22px;
+    }
+
+    .sw-cms-mapping-field__empty-demo {
+        margin: 0;
+    }
+}
+
+.sw-cms-mapping-field__options {
+    max-height: 180px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}

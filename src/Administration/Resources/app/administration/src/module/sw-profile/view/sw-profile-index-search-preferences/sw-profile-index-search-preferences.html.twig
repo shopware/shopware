@@ -1,0 +1,107 @@
+{% block sw_profile_index_search_preferences %}
+<div class="sw-profile-index-search-preferences">
+    <mt-card
+        v-if="adminEsEnable"
+        class="sw-card-elasticsearch-enabled"
+        position-identifier="sw-card-elasticsearch-enabled"
+    >
+        <mt-banner
+            class="sw-card-elasticsearch-enabled__alert"
+            variant="info"
+            :title="$tc('sw-profile.tabSearchPreferences.alert_elasticsearch.title')"
+        >
+            {{ $tc('sw-profile.tabSearchPreferences.alert_elasticsearch.text') }}
+        </mt-banner>
+    </mt-card>
+
+    {% block sw_profile_index_search_preferences_searchable_elements %}
+    <mt-card
+        class="sw-profile-index-search-preferences-searchable-elements"
+        position-identifier="sw-profile-index-search-preferences"
+        :title="$tc('sw-profile.tabSearchPreferences.cardSearchableElements.title')"
+        :is-loading="isLoading"
+    >
+        {% block sw_profile_index_search_preferences_searchable_elements_content %}
+        <sw-container
+            v-if="searchPreferences.length > 0"
+            rows="auto auto auto"
+            gap="24px"
+        >
+            {% block sw_profile_index_search_preferences_searchable_elements_header %}
+            <p>{{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.description') }}</p>
+
+            <sw-container
+                columns="auto auto auto 1fr"
+                gap="8px"
+            >
+                {% block sw_profile_index_search_preferences_searchable_elements_button_select %}
+                <mt-button
+                    class="sw-profile-index-search-preferences-searchable-elements__button-select-all"
+                    variant="secondary"
+                    @click="onSelect(true)"
+                >
+                    {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonSelect') }}
+                </mt-button>
+                {% endblock %}
+
+                {% block sw_profile_index_search_preferences_searchable_elements_button_deselect %}
+                <mt-button
+                    class="sw-profile-index-search-preferences-searchable-elements__button-deselect-all"
+                    variant="secondary"
+                    @click="onSelect(false)"
+                >
+                    {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonDeselect') }}
+                </mt-button>
+                {% endblock %}
+
+                {% block sw_profile_index_search_preferences_searchable_elements_button_reset %}
+                <mt-button
+                    class="sw-profile-index-search-preferences-searchable-elements__button-reset-to-default"
+                    variant="secondary"
+                    @click="onReset"
+                >
+                    {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonReset') }}
+                </mt-button>
+                {% endblock %}
+            </sw-container>
+            {% endblock %}
+
+            {% block sw_profile_index_search_preferences_searchable_elements_body %}
+            <div class="sw-profile-index-search-preferences-searchable-elements__entity-container">
+                <ul
+                    v-for="searchPreference in searchPreferences"
+                    :key="searchPreference.entityName"
+                    class="sw-profile-index-search-preferences-searchable-elements__entity"
+                >
+                    <li class="sw-profile-index-search-preferences-searchable-elements__entity-field">
+                        <!-- eslint-disable vue/attributes-order -->
+                        <mt-checkbox
+                            v-model:checked="searchPreference._searchable"
+                            :label="getModuleTitle(searchPreference.entityName)"
+                            @update:checked="onChangeSearchPreference(searchPreference)"
+                            name="sw-field--searchPreference-_searchable"
+                        />
+                        <ul class="sw-profile-index-search-preferences-searchable-elements__entity">
+                            <li
+                                v-for="field in searchPreference.fields"
+                                :key="field.fieldName"
+                                class="sw-profile-index-search-preferences-searchable-elements__entity-field"
+                            >
+                                <mt-checkbox
+                                    v-model:checked="field._searchable"
+                                    name="sw-field--field-_searchable"
+                                    :label="$tc(`sw-profile.tabSearchPreferences.modules.${searchPreference.entityName}.${field.fieldName}`)"
+                                    :disabled="adminEsEnable || !searchPreference._searchable"
+                                />
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            {% endblock %}
+        </sw-container>
+        {% endblock %}
+    </mt-card>
+    {% endblock %}
+</div>
+{% endblock %}

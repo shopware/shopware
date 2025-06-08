@@ -1,0 +1,24 @@
+<!-- eslint-disable vue/no-v-for-template-key -->
+{% block sw_condition_value_content %}
+<div
+    class="sw-condition-script sw-condition__condition-value"
+    :class="conditionClasses"
+>
+    {% block sw_condition_script_fields %}
+    <template
+        v-for="(field, index) in config"
+        :key="index"
+    >
+        <sw-form-field-renderer
+            v-bind="getBind(field)"
+            :disabled="disabled || undefined"
+            :value="values[field.name]"
+            size="medium"
+            show-clearable-button
+            @update:value="updateFieldValue(field.name, $event)"
+        />
+    </template>
+    {% endblock %}
+</div>
+{% endblock %}
+

@@ -1,0 +1,127 @@
+{% block sw_customer_detail_order_card %}
+<mt-card
+    class="sw-customer-detail-order"
+    :title="$tc('sw-customer.detailOrder.ordersTitle')"
+    position-identifier="sw-customer-detail-order"
+>
+    {% block sw_customer_detail_order_card_toolbar %}
+    <template #toolbar>
+        <sw-card-filter
+            v-if="(orders && orders.total > 0) || term"
+            :placeholder="$tc('sw-customer.detailOrder.searchbarPlaceholder')"
+            @sw-card-filter-term-change="onChange"
+        >
+            <template #filter>
+                {% block sw_customer_detail_order_add_button %}
+                <mt-button
+                    v-tooltip="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('order.creator'),
+                        showOnDisabledElements: true
+                    }"
+                    class="sw-customer-detail-order__add-order-action"
+                    size="small"
+                    :disabled="!acl.can('order.creator')"
+                    variant="secondary"
+                    @click="navigateToCreateOrder"
+                >
+                    <mt-icon
+                        name="regular-plus-circle-s"
+                        size="16px"
+                    />
+                    {{ $tc('sw-customer.detailOrder.buttonCreateOrder') }}
+                </mt-button>
+                {% endblock %}
+            </template>
+        </sw-card-filter>
+    </template>
+    {% endblock %}
+
+    {% block sw_customer_detail_order_card_grid %}
+    <template #grid>
+        <sw-entity-listing
+            v-if="(orders && orders.total > 0) || term"
+            :columns="orderColumns"
+            :repository="orderRepository"
+            :items="orders"
+            :allow-column-edit="false"
+            :show-settings="false"
+            :show-selection="false"
+            :full-page="false"
+            :is-loading="isLoading"
+        >
+            {% block sw_customer_detail_order_card_grid_columns %}
+            {% block sw_customer_detail_order_card_grid_columns_number %}
+            <template #column-orderNumber="{ item }">
+                <router-link :to="{ name: 'sw.order.detail', params: { id: item.id } }">
+                    {{ item.orderNumber }}
+                </router-link>
+            </template>
+            {% endblock %}
+
+            {% block sw_customer_detail_order_card_grid_columns_amount %}
+            <template #column-amountTotal="{ item }">
+                {{ currencyFilter(item.amountTotal, item.currency.isoCode) }}
+            </template>
+            {% endblock %}
+
+            {% block sw_customer_detail_order_card_grid_columns_order_date_time %}
+            <template #column-orderDateTime="{ item }">
+                <sw-time-ago :date="item.orderDateTime" />
+            </template>
+            {% endblock %}
+            {% endblock %}
+
+            {% block sw_customer_detail_order_card_grid_columns_action %}
+            <template #actions="{ item }">
+                {% block sw_customer_detail_order_card_grid_columns_action_button %}
+                <sw-context-menu-item
+                    class="sw-order-list-order-view-action"
+                    :router-link="{ name: 'sw.order.detail', params: { id: item.id } }"
+                >
+                    {{ $tc('sw-customer.detailOrder.columnContextOpenOrder') }}
+                </sw-context-menu-item>
+                {% endblock %}
+            </template>
+            {% endblock %}
+        </sw-entity-listing>
+    </template>
+    {% endblock %}
+
+    {% block sw_customer_detail_order_card_grid_empty_state %}
+    <template v-if="(!orders || orders.total === 0) && !isLoading && !term">
+        <sw-empty-state
+            :title="emptyTitle"
+            :absolute="false"
+            :subline="$tc('sw-customer.detailOrder.emptySubline')"
+        >
+            <template #icon>
+                <img
+                    :src="assetFilter('/administration/administration/static/img/empty-states/order-empty-state.svg')"
+                    :alt="emptyTitle"
+                >
+            </template>
+
+            <template #actions>
+                {% block sw_customer_detail_order_card_grid_empty_state_action %}
+                <mt-button
+                    v-tooltip="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('order.creator'),
+                        showOnDisabledElements: true
+                    }"
+                    ghost
+                    class="sw-customer-detail-order__add-order-action"
+                    :disabled="!acl.can('order.creator')"
+                    variant="secondary"
+                    @click="navigateToCreateOrder"
+                >
+                    {{ $tc('sw-customer.detailOrder.buttonCreateOrder') }}
+                </mt-button>
+                {% endblock %}
+            </template>
+        </sw-empty-state>
+    </template>
+    {% endblock %}
+</mt-card>
+{% endblock %}

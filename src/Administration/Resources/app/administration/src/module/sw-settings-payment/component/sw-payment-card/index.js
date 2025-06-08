@@ -1,0 +1,39 @@
+import template from './sw-payment-card.html.twig';
+import './sw-payment-card.scss';
+
+/**
+ * @sw-package checkout
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
+    template,
+
+    inject: ['acl'],
+
+    emits: ['set-payment-active'],
+
+    props: {
+        paymentMethod: {
+            type: Object,
+            required: true,
+        },
+    },
+
+    computed: {
+        previewUrl() {
+            return this.paymentMethod.media ? this.paymentMethod.media.url : null;
+        },
+    },
+
+    methods: {
+        setPaymentMethodActive(active) {
+            if (this.paymentMethod.active === active) {
+                return;
+            }
+
+            this.paymentMethod.active = active;
+
+            this.$emit('set-payment-active', this.paymentMethod);
+        },
+    },
+};

@@ -1,0 +1,38 @@
+{
+  "sw-manufacturer": {
+    "general": {
+      "mainMenuItemList": "Hersteller",
+      "mainMenuItemGeneral": "Hersteller",
+      "placeholderSearchBar": "Durchsuche alle Hersteller ..."
+    },
+    "list": {
+      "textManufacturerOverview": "Hersteller",
+      "textTotalManufacturer": "Keine Hersteller | Ein Hersteller | {count} Hersteller",
+      "buttonAddManufacturer": "Hersteller anlegen",
+      "columnName": "Hersteller",
+      "columnLink": "Webseite"
+    },
+    "detail": {
+      "textHeadline": "Neuer Hersteller",
+      "textMediaSelection": "Medienauswahl",
+      "buttonSave": "Speichern",
+      "cardTitleManufacturerInfo": "Herstellerinformationen",
+      "labelName": "Name",
+      "labelDescription": "Beschreibung",
+      "labelLink": "Webseite",
+      "placeholderName": "Gib einen Herstellernamen ein ...",
+      "placeholderDescription": "Gib eine Herstellerbeschreibung ein ...",
+      "placeholderLink": "Gib die Herstellerwebseite ein ...",
+      "messageSaveSuccess": "Der Hersteller \"{name}\" wurde erfolgreich gespeichert.",
+      "labelLogo": "Logo",
+      "labelUseAsLogo": "Als Logo nutzen"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "product_manufacturer": {
+        "label": "Hersteller"
+      }
+    }
+  }
+}

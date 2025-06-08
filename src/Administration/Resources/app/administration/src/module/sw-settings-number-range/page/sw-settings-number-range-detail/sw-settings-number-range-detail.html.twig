@@ -1,0 +1,299 @@
+{% block sw_settings_number_range_detail %}
+<sw-page class="sw-settings-number-range-detail">
+
+    {% block sw_settings_number_range_detail_header %}
+    <template #smart-bar-header>
+        <h2>{{ placeholder(numberRange, 'name', $tc('sw-settings-number-range.detail.textHeadline')) }}</h2>
+    </template>
+    {% endblock %}
+    {% block sw_settings_number_range_detail_language_switch %}
+    <template #language-switch>
+        <sw-language-switch
+            :save-changes-function="saveOnLanguageChange"
+            :abort-change-function="abortOnLanguageChange"
+            @on-change="onChangeLanguage"
+        />
+    </template>
+    {% endblock %}
+    {% block sw_settings_number_range_detail_actions %}
+    <template #smart-bar-actions>
+        {% block sw_settings_number_range_detail_actions_abort %}
+        <mt-button
+            v-tooltip.bottom="tooltipCancel"
+            :disabled="isLoading"
+            variant="secondary"
+            size="default"
+            @click="onCancel"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_settings_number_range_detail_actions_save %}
+        <sw-button-process
+            v-tooltip.bottom="tooltipSave"
+            class="sw-settings-number-range-detail__save-action"
+            variant="primary"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="!acl.can('number_ranges.editor')"
+            @update:process-success="saveFinish"
+            @click.prevent="onSave"
+        >
+            {{ $tc('global.default.save') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_number_range_detail_content %}
+    <template #content>
+        <sw-card-view>
+            <template v-if="isLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
+
+            <template v-else>
+                {% block sw_settings_number_range_detail_language_info %}
+                <sw-language-info :entity-description="identifier" />
+                {% endblock %}
+
+                {% block sw_settings_number_range_detail_content_card %}
+                <mt-card
+                    :title="$tc('sw-settings-number-range.detail.configCard')"
+                    position-identifier="sw-settings-number-range-detail-content"
+                >
+                    {% block sw_settings_number_range_detail_content_global_warning %}
+                    <mt-banner
+                        v-if="numberRange && numberRange.type && numberRange.type.global"
+                        class="sw-number_range-quickinfo__alert-global-type"
+                        variant="attention"
+                        :title="$tc('sw-settings-number-range.general.infoGlobalTypeTitle', {typeName: numberRange.type.typeName}, 0)"
+                    >
+                        {{ $tc('sw-settings-number-range.general.infoGlobalType', {typeName: numberRange.type.typeName}, 0) }}
+                    </mt-banner>
+                    {% endblock %}
+
+                    <sw-container
+                        columns="repeat(auto-fit, minmax(250px, 1fr))"
+                        gap="0px 30px"
+                    >
+
+                        {% block sw_settings_number_range_detail_content_field_name %}
+                        <mt-text-field
+                            v-model="numberRange.name"
+                            name="sw-field--numberRange-name"
+                            :label="$tc('sw-settings-number-range.detail.labelName')"
+                            :placeholder="placeholder(numberRange,'name', $tc('sw-settings-number-range.detail.placeholderName'))"
+                            validation="required"
+                            required
+                            :disabled="!acl.can('number_ranges.editor')"
+                            :error="numberRangeNameError"
+                        />
+                        {% endblock %}
+
+                        {% block sw_settings_number_range_detail_content_field_description %}
+                        <mt-text-field
+                            v-model="numberRange.description"
+                            name="sw-field--numberRange-description"
+                            :label="$tc('sw-settings-number-range.detail.labelDescription')"
+                            :placeholder="placeholder(numberRange,'description', $tc('sw-settings-number-range.detail.placeholderDescription'))"
+                            :disabled="!acl.can('number_ranges.editor')"
+                        />
+                        {% endblock %}
+                    </sw-container>
+
+                    <sw-container
+                        columns="repeat(auto-fit, minmax(200px, 1fr))"
+                        gap="0px 30px"
+                    >
+                        {% block sw_settings_number_range_detail_content_field_prefix %}
+                        <mt-text-field
+                            v-model="prefix"
+                            name="sw-field--prefix"
+                            :disabled="advanced || !acl.can('number_ranges.editor')"
+                            :label="$tc('sw-settings-number-range.detail.labelPrefix')"
+                            :placeholder="advanced?$tc('sw-settings-number-range.detail.placeholderSimpleModeImpossible'):$tc('sw-settings-number-range.detail.placeholderPrefix')"
+                            @update:model-value="onChangePattern()"
+                        />
+                        {% endblock %}
+
+                        {% block sw_settings_number_range_detail_content_field_start %}
+                        <mt-number-field
+                            v-model="numberRange.start"
+                            name="sw-field--numberRange-start"
+                            number-type="int"
+                            :disabled="!acl.can('number_ranges.editor')"
+                            :label="$tc('sw-settings-number-range.detail.labelStart')"
+                            :placeholder="$tc('sw-settings-number-range.detail.placeholderStart')"
+                            required
+                            validation="required"
+                            @update:model-v-salue="onChangePattern()"
+                        />
+                        {% endblock %}
+
+                        {% block sw_settings_number_range_detail_content_field_suffix %}
+                        <mt-text-field
+                            v-model="suffix"
+                            name="sw-field--suffix"
+                            :disabled="advanced || !acl.can('number_ranges.editor')"
+                            :label="$tc('sw-settings-number-range.detail.labelSuffix')"
+                            :placeholder="advanced?$tc('sw-settings-number-range.detail.placeholderSimpleModeImpossible'):$tc('sw-settings-number-range.detail.placeholderSuffix')"
+                            @update:model-value="onChangePattern()"
+                        />
+                        {% endblock %}
+
+                        {% block sw_settings_number_range_detail_content_field_pattern %}
+                        <mt-text-field
+                            v-if="advanced"
+                            v-model="numberRange.pattern"
+                            name="sw-field--numberRange-pattern"
+                            :label="$tc('sw-settings-number-range.detail.labelPattern')"
+                            :placeholder="$tc('sw-settings-number-range.detail.placeholderPattern')"
+                            :disabled="!acl.can('number_ranges.editor')"
+                            @update:model-value="onChangePattern()"
+                        />
+                        <div v-if="!advanced"></div>
+                        {% endblock %}
+                    </sw-container>
+
+                    <sw-container
+                        columns="1fr 1fr"
+                        gap="0px 30px"
+                    >
+                        {% block sw_settings_number_range_detail_content_field_default %}
+                        <div class="sw-settings-number-range-detail__field_default">
+
+                            <mt-switch
+                                v-model="advanced"
+                                name="sw-field--advanced"
+                                bordered
+                                :disabled="!acl.can('number_ranges.editor')"
+                                :label="$tc('sw-settings-number-range.detail.labelAdvanced')"
+                            />
+                            <sw-help-text
+                                :width="380"
+                                :text="$t('sw-settings-number-range.detail.helpTextAdvancedField')"
+                            />
+                        </div>
+                        {% endblock %}
+                    </sw-container>
+
+                    <sw-container
+                        columns="repeat(auto-fit, minmax(250px, 1fr))"
+                        gap="0px 30px"
+                    >
+                        {% block sw_settings_number_range_detail_content_field_current_number %}
+                        <mt-text-field
+                            v-if="state"
+                            v-model="stateInput"
+                            name="sw-field--state"
+                            :disabled="true"
+                            :label="$tc('sw-settings-number-range.detail.labelCurrentNumber')"
+                            :placeholder="numberRange.start?numberRange.start.toString():''"
+                        />
+                        {% endblock %}
+
+                        {% block sw_settings_number_range_detail_content_field_preview %}
+                        <mt-text-field
+                            v-model="previewInput"
+                            name="sw-field--preview"
+                            :disabled="true"
+                            :label="$tc('sw-settings-number-range.detail.labelPreview')"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                </mt-card>
+                {% endblock %}
+
+                {% block sw_settings_number_range_detail_assignment_card %}
+                <mt-card
+                    :title="$tc('sw-settings-number-range.detail.assignmentCard')"
+                    position-identifier="sw-settings-number-range-detail-assignment"
+                    class="sw-settings-number-range-detail-assignment"
+                >
+                    {% block sw_settings_number_range_detail_assignment_card_global_warning %}
+                    <mt-banner
+                        v-if="numberRange !== null && numberRange.global"
+                        class="sw-number_range-quickinfo__alert-global-type"
+                        variant="info"
+                        :title="$tc('sw-settings-number-range.general.infoGlobalTitle', {name: numberRange.name}, 0)"
+                    >
+                        {{ $tc('sw-settings-number-range.general.infoGlobal', {name: numberRange.name}, 0) }}
+                    </mt-banner>
+                    <mt-banner
+                        v-if="
+                            numberRange.type !== null &&
+                                numberRange.numberRangeSalesChannels &&
+                                numberRange.numberRangeSalesChannels.length > 0"
+                        class="sw-number_range-quickinfo__alert-global-type"
+                        variant="attention"
+                    >
+                        {{ $tc('sw-settings-number-range.general.infoSalesChannelBound', {name: numberRange.name}, 0) }}
+                    </mt-banner>
+                    {% endblock %}
+                    <sw-container
+                        columns="repeat(auto-fit, minmax(100%, 1fr))"
+                        gap="0px 30px"
+                    >
+                        {% block sw_settings_number_range_detail_content_global_product_warning %}
+                        {% endblock %}
+                        {% block sw_sales_channel_detail_base_general_input_type %}
+                        <sw-entity-single-select
+                            v-if="numberRange.type"
+                            id="numberRangeTypes"
+                            v-model:value="numberRange.typeId"
+                            name="sw-field--numberRange-typeId"
+                            entity="number_range_type"
+                            class="sw-number-range-detail__select-type"
+                            :disabled="disableNumberRangeTypeSelect"
+                            required
+                            show-clearable-button
+                            label-property="typeName"
+                            :label="$tc('sw-settings-number-range.detail.labelType')"
+                            :criteria="numberRange.type.global ? numberRangeTypeCriteriaGlobal : numberRangeTypeCriteria"
+                            :error="numberRangeTypeIdError"
+                            @update:value="onChangeType"
+                        />
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_base_general_input_sales_channel %}
+                        <sw-multi-select
+                            v-if="numberRange && (!numberRange.global || numberRange.global === false)"
+                            class="sw-number-range-detail__select-type"
+                            :label="$tc('sw-settings-number-range.detail.labelSalesChannel')"
+                            :disabled="!numberRange.typeId || !acl.can('number_ranges.editor')"
+                            :value="selectedNumberRangeSalesChannels"
+                            :options="salesChannels"
+                            name="sw-field--selectedNumberRangeSalesChannels"
+                            label-property="translated.name"
+                            value-property="id"
+                            @item-add="addSalesChannel"
+                            @item-remove="removeSalesChannel"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                </mt-card>
+                {% endblock %}
+
+                {% block sw_settings_number_range_detail_custom_field_sets %}
+                <mt-card
+                    v-if="showCustomFields"
+                    position-identifier="sw-settings-number-range-detail-custom-field-sets"
+                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                    :is-loading="isLoading"
+                >
+                    <sw-custom-field-set-renderer
+                        :entity="numberRange"
+                        :disabled="!acl.can('number_ranges.editor')"
+                        :sets="customFieldSets"
+                    />
+                </mt-card>
+                {% endblock %}
+            </template>
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

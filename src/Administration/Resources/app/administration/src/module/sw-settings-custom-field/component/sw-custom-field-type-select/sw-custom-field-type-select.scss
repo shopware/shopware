@@ -1,0 +1,21 @@
+@import "~scss/variables";
+
+$sw-custom-field-type-select-button-add-color: $color-shopware-brand-500;
+$sw-custom-field-type-select-button-delete-color: $color-crimson-500;
+
+.sw-custom-field-type-base {
+    .sw-custom-field-type-select__delete-option-button {
+        background: none;
+        color: $sw-custom-field-type-select-button-delete-color;
+        margin-left: 20px;
+    }
+
+    .sw-custom-field-type-select__option-container {
+        margin-top: 10px;
+    }
+
+    .sw-custom-field-type-select__button-add {
+        color: $sw-custom-field-type-select-button-add-color;
+        border-color: $sw-custom-field-type-select-button-add-color;
+    }
+}

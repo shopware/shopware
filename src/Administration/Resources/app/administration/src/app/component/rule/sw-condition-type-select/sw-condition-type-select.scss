@@ -1,0 +1,60 @@
+@import "~scss/variables";
+
+.sw-condition-type-select {
+    position: relative;
+    height: 100%;
+
+    &.is--disabled {
+        background-color: $color-gray-300;
+
+        .sw-single-select__selection-text {
+            color: $color-darkgray-200;
+        }
+    }
+
+    &.has--error {
+        background-color: $color-crimson-500;
+    }
+
+    .sw-select.sw-block-field {
+        .sw-block-field__block {
+            background-color: unset;
+            border-radius: $border-radius-default;
+        }
+
+        input {
+            background-color: unset;
+            border-radius: $border-radius-default;
+            color: $color-white;
+        }
+
+        .sw-single-select__selection,
+        .sw-single-select__selection-text.is--placeholder,
+        .sw-select__select-indicator {
+            color: $color-white;
+        }
+    }
+
+    .sw-condition-type-select__select {
+        height: 100%;
+
+        .sw-single-select__inner {
+            border: none;
+            border-radius: $border-radius-default;
+            background-color: $color-gray-900;
+        }
+
+        .sw-single-select__single-selection,
+        .sw-select__select-indicator {
+            color: $color-white;
+        }
+
+        .sw-single-select__single-selection .sw-single-select__searchPlaceholder {
+            color: $color-white;
+        }
+
+        .sw-single-select__indicators {
+            color: white;
+        }
+    }
+}

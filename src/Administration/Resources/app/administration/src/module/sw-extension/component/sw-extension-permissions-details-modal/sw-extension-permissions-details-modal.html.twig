@@ -1,0 +1,100 @@
+{% block sw_extension_permissions_details_modal %}
+<sw-modal
+    class="sw-extension-permissions-details-modal"
+    :title="modalTitle"
+    @modal-close="close"
+>
+    {% block sw_extension_permissions_details_modal_content %}
+    {% block sw_extension_permissions_details_modal_table %}
+    <table class="sw-extension-permissions-details-modal__table">
+        {% block sw_extension_permissions_details_modal_table_head %}
+        <thead class="sw-extension-permissions-details-modal__operations">
+            {% block sw_extension_permissions_details_modal_table_head_row %}
+            <tr class="sw-extension-permissions-details-modal__grid-columns">
+                <td></td>
+                <td
+                    v-for="operation in operations"
+                    :key="operation.label"
+                    class="sw-extension-permissions-details-modal__operation-header"
+                >
+                    {{ operation.label }}
+                </td>
+            </tr>
+            {% endblock %}
+        </thead>
+        {% endblock %}
+
+        {% block sw_extension_permissions_details_modal_table_body %}
+        <tbody>
+            {% block sw_extension_permissions_details_modal_table_permissions %}
+            <template
+                v-for="(permissionCategory, category) in permissions"
+                :key="`permission-${category}`"
+            >
+                {% block sw_extension_permissions_details_modal_permissions_category %}
+                <tr
+                    :id="`permission-${category}`"
+                    class="sw-extension-permissions-details-modal__category"
+                >
+                    <td>{{ categoryLabel(category) }}</td>
+                </tr>
+                {% endblock %}
+
+                {% block sw_extension_permissions_details_modal_permission_row %}
+                <tr
+                    v-for="(permissions, entity) in permissionCategory"
+                    :key="entity"
+                    class="sw-extension-permissions-details-modal__grid-columns"
+                >
+                    {% block sw_extension_permissions_details_modal_permission_entity %}
+                    <td class="sw-extension-permissions-details-modal__entity-label">
+                        {{ entityLabel(category, entity) }}
+                    </td>
+                    {% endblock %}
+
+                    {% block sw_extension_permissions_details_modal_permission_operation %}
+                    <td
+                        v-for="operation in operations"
+                        :key="operation.operation"
+                        class="sw-extension-permissions-details-modal__operation"
+                    >
+                        <mt-icon
+                            v-if="permissions.includes(operation.operation)"
+                            name="regular-checkmark-xs"
+                            size="12px"
+                            color="#37D046"
+                        />
+
+                        <mt-icon
+                            v-else-if="category !== 'additional_privileges'"
+                            name="regular-times-s"
+                            size="12px"
+                            color="#DE294C"
+                        />
+                    </td>
+                    {% endblock %}
+                </tr>
+                {% endblock %}
+            </template>
+            {% endblock %}
+        </tbody>
+        {% endblock %}
+    </table>
+    {% endblock %}
+    {% endblock %}
+
+    {% block sw_extension_permissions_details_modal_footer %}
+    <template #modal-footer>
+        {% block sw_extension_permissions_details_modal_footer_inner %}
+        <mt-button
+            variant="primary"
+            size="small"
+            @click="close"
+        >
+            {{ $tc('global.sw-modal.labelClose') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

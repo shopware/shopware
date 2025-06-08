@@ -1,0 +1,25 @@
+{% block component_hidden_line_items_information %}
+    <div class="d-none hidden-line-items-information"
+         data-currency="{{ context.currency.translated.shortName }}"
+         data-shipping="{{ cart.shippingCosts.totalPrice }}"
+         data-value="{{ cart.price.totalPrice }}"
+         data-tax="{{ cart.price.calculatedTaxes.amount }}"
+    >
+        {% for lineItem in lineItems %}
+            {% if lineItem.priceDefinition.price and lineItem.priceDefinition.price is float %}
+              {% set gaPrice = lineItem.priceDefinition.price %}
+            {% else %}
+              {% set gaPrice = lineItem.price.totalPrice %}
+            {% endif %}
+
+            {% block component_hidden_line_item_information %}
+                <span class="hidden-line-item"
+                      data-id="{{ lineItem.id }}"
+                      data-name="{{ lineItem.label }}"
+                      data-quantity="{{ lineItem.quantity }}"
+                      data-price="{{ gaPrice }}">
+                </span>
+            {% endblock %}
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% block sw_property_option_list %}
+<mt-card
+    :is-loading="isLoading"
+    class="sw-property-option-list"
+    position-identifier="sw-property-option-list"
+    :title="$tc('sw-property.detail.cardTitle')"
+>
+
+    {% block sw_property_option_list_toolbar %}
+    <div class="sw-property-option-list__toolbar">
+
+        {% block sw_property_option_list_toolbar_container %}
+        <sw-container
+            columns="1fr 32px minmax(100px, 200px)"
+            gap="0 10px"
+        >
+
+            {% block sw_property_option_list_toolbar_search %}
+            <sw-simple-search-field
+                v-model:value="term"
+                size="small"
+                variant="form"
+                @search-term-change="onSearch"
+            />
+            {% endblock %}
+
+            {% block sw_property_option_list_toolbar_delete %}
+            <mt-button
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('property.editor'),
+                    showOnDisabledElements: true
+                }"
+                :disabled="deleteButtonDisabled || !acl.can('property.editor')"
+                square
+                size="small"
+                class="sw-property-option-list__delete-button"
+                variant="secondary"
+                @click="onDeleteOptions"
+            >
+                <mt-icon
+                    name="regular-trash"
+                    size="16px"
+                />
+            </mt-button>
+            {% endblock %}
+
+            {% block sw_property_option_list_toolbar_add %}
+            <sw-container v-tooltip="tooltipAdd">
+                <mt-button
+                    v-tooltip="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('property.editor'),
+                        showOnDisabledElements: true
+                    }"
+                    :disabled="disableAddButton"
+                    size="small"
+                    class="sw-property-option-list__add-button"
+                    variant="secondary"
+                    @click="onAddOption(propertyGroup)"
+                >
+                    {{ $tc('sw-property.detail.addOption') }}
+                </mt-button>
+            </sw-container>
+            {% endblock %}
+        </sw-container>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_property_option_list_grid %}
+    <template #grid>
+        <sw-one-to-many-grid
+            ref="grid"
+            :is-loading="isLoading"
+            :collection="propertyGroup.options"
+            :columns="getGroupColumns()"
+            :full-page="false"
+            :local-mode="false"
+            :allow-inline-edit="allowInlineEdit"
+            :sort-by="sortBy"
+            :sort-direction="sortDirection"
+            @load-finish="checkEmptyState"
+            @selection-change="onGridSelectionChanged"
+        >
+            <template #column-name="{ item, isInlineEdit }">
+                <template v-if="isInlineEdit">
+                    <mt-text-field
+                        v-model="item.name"
+                        size="small"
+                    />
+                </template>
+
+                <a
+                    v-else
+                    class="sw-settings-option-detail__link"
+                    role="button"
+                    tabindex="0"
+                    @click="onOptionEdit(item)"
+                    @keydown.enter="onOptionEdit(item)"
+                >
+                    {{ item.translated.name }}
+                </a>
+            </template>
+
+            {% block sw_settings_property_list_grid_columns_actions %}
+            <template #more-actions="{ item }">
+                {% block sw_settings_property_list_grid_columns_actions_edit %}
+                <sw-context-menu-item
+                    class="sw-property-option-list__edit-action"
+                    :disabled="!acl.can('property.editor')"
+                    @click="onOptionEdit(item)"
+                >
+                    {{ $tc('sw-property.list.contextMenuView') }}
+                </sw-context-menu-item>
+                {% endblock %}
+            </template>
+            {% endblock %}
+
+            {% block sw_property_list_grid_columns_actions_delete %}
+            <template #delete-action="{ item }">
+                <sw-context-menu-item
+                    variant="danger"
+                    :disabled="!acl.can('property.editor')"
+                    @click="onSingleOptionDelete(item.id)"
+                >
+                    {{ $tc('sw-property.list.contextMenuDelete') }}
+                </sw-context-menu-item>
+            </template>
+            {% endblock %}
+        </sw-one-to-many-grid>
+
+        {% block sw_settings_country_state_list_empty %}
+        <sw-empty-state
+            v-if="showEmptyState"
+            :absolute="false"
+            :title="$tc('sw-property.detail.messageOptionsEmpty')"
+            :subline="$tc('sw-property.detail.messageOptionsEmptySubline')"
+            auto-height
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_property_option_list_detail %}
+    <sw-property-option-detail
+        v-if="currentOption"
+        :current-option="currentOption"
+        :allow-edit="acl.can('property.editor')"
+        @save-option-edit="onSaveOption"
+        @cancel-option-edit="onCancelOption"
+    />
+    {% endblock %}
+
+    {% block sw_property_option_list_loader %}
+    <sw-loader v-if="isLoading" />
+    {% endblock %}
+</mt-card>
+{% endblock %}

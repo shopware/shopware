@@ -1,0 +1,47 @@
+/*
+Filter boolean
+==============================================
+Styling for boolean filter item.
+This filter item should only be used inside a filter panel.
+*/
+
+.filter-boolean {
+    display: inline-block;
+    border: 1px solid $border-color;
+    padding-left: 12px;
+    padding-right: 12px;
+    height: 40px;
+    border-radius: $border-radius;
+    cursor: pointer;
+
+    &.is-active {
+        border-color: $primary;
+    }
+
+    &:hover {
+        border-color: $primary;
+        color: $primary;
+    }
+
+    &.disabled {
+        cursor: default;
+        background: $disabled-btn-bg;
+        border-color: $disabled-btn-border-color;
+
+        .filter-boolean-label {
+            color: $gray-300;
+            cursor: default;
+        }
+    }
+}
+
+.filter-boolean-input {
+    margin-top: 11px;
+}
+
+.filter-boolean-label {
+    cursor: pointer;
+    height: 38px;
+    line-height: 38px;
+    width: 100%;
+}

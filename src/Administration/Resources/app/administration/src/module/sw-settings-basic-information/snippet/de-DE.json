@@ -1,0 +1,29 @@
+{
+  "sw-settings-basic-information": {
+    "general": {
+      "mainMenuItemGeneral": "Stammdaten",
+      "description": "Hier können Einstellungen an den Stammdaten vorgenommen werden.",
+      "textHeadline": "Stammdaten",
+      "buttonSave": "Speichern",
+      "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert."
+    },
+    "captcha": {
+      "label": {
+        "honeypot": "Honeypot",
+        "basicCaptcha": "Einfaches CAPTCHA",
+        "googleReCaptchaV2": "Google reCAPTCHA v2",
+        "googleReCaptchaV2SiteKey": "Website-Schlüssel für Google reCAPTCHA v2",
+        "googleReCaptchaV2SecretKey": "Geheimer Schlüssel für Google reCAPTCHA v2",
+        "googleReCaptchaV2Invisible": "Unsichtbares Google reCAPTCHA v2",
+        "googleReCaptchaV3": "Google reCAPTCHA v3",
+        "googleReCaptchaV3SiteKey": "Website-Schlüssel für Google reCAPTCHA v3",
+        "googleReCaptchaV3SecretKey": "Geheimer Schlüssel für Google reCAPTCHA v3",
+        "googleReCaptchaV3ThresholdScore": "Grenzwertpunktzahl für Google reCAPTCHA v3",
+        "googleReCaptchaV2CheckboxDescription": "Die  \"Ich bin kein Roboter\"-Checkbox verlangt vom Nutzer das Anklicken einer Checkbox um zu bestätigen, dass er kein Roboter ist. Hierbei wird der Nutzer entweder sofort weitergelassen (ohne CAPTCHA-Abfrage) oder aufgefordert zu bestätigen ob er ein Mensch ist oder nicht. Diese Option ist am einfachsten zu integrieren, da sie nur zwei Zeilen HTML benötigt, um die Checkbox anzuzeigen.",
+        "googleReCaptchaV2InvisibleDescription": "Das unsichtbare reCAPTCHA-Abzeichen verpflichtet den Nutzer nicht auf eine Checkbox zu klicken, sondern wird entweder beim Klick des Nutzers auf einen existierenden Button in Deiner Seite oder durch einen JavaScript-API-Call aufgerufen. Für die Integration wird ein JavaScript-Callback benötigt, sobald die reCAPTCHA-Verifikation abgeschlossen ist. Standardmäßig wird nur bei sehr verdächtigen Aufrufen ein CAPTCHA-Abfrage erforderlich. Diese Einstellung können in den Seiten-Sicherheits-Einstellungen innerhalb der Erweiterten Einstellungen bearbeitet werden.",
+        "googleReCaptchaV3Description": "Mit reCAPTCHA v3 können Interaktionen ohne Zutun des Nutzers verifiziert werden. Es handelt sich hierbei um eine reine JavaScript-API, die eine Punktzahl zurückgibt und es dadurch ermöglicht, im Kontext Deiner Seite tätig zu werden: Zum Beispiel können weitere Faktoren zur Authentifizierung angefordert, die Moderation informiert oder Bots, die Inhalte abgreifen, unterdrückt werden.",
+        "googleReCaptchaV3DescriptionThresholdScore": "reCAPTCHA v3 vergibt für jede Nutzeranfrage eine Punktzahl, ohne den Nutzer zu behelligen. Die Punktzahl errechnet sich aus den Interaktionen mit Deiner Seite und versetzt Dich in die Lage, eine für Deine Seite angemessene Aktion auszuführen. Die Grenzwertpunktzahl kann Werte zwischen 0.0 und 1.0 annehmen."
+      }
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{% block sw_base_field %}
+<div
+    class="sw-field"
+    :class="swFieldClasses"
+    v-bind="$attrs"
+    :label="label"
+>
+    <div
+        v-if="hasLabel"
+        class="sw-field__label"
+    >
+        <sw-inheritance-switch
+            v-if="isInheritanceField"
+            :disabled="disableInheritanceToggle"
+            class="sw-field__inheritance-icon"
+            :is-inherited="isInherited"
+        />
+
+        <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+        <label
+            v-if="showLabel"
+            :for="identification"
+            :class="swFieldLabelClasses"
+        >
+            <slot name="label">
+                {{ label }}
+            </slot>
+
+            <sw-ai-copilot-badge v-if="aiBadge" />
+
+        </label>
+
+        <sw-help-text
+            v-if="helpText"
+            class="sw-field__help-text"
+            :text="helpText"
+        />
+    </div>
+    <slot
+        name="sw-field-input"
+        v-bind="{ identification, error, disabled }"
+    ></slot>
+
+    <sw-field-error :error="error" />
+
+    <div
+        v-if="hasHint"
+        class="sw-field__hint"
+    >
+        <slot name="hint">
+            {{ $tc(hint) }}
+        </slot>
+    </div>
+</div>
+{% endblock %}

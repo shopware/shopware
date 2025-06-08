@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Newsletter configuration</title>
+        <title lang="de-DE">Newsletter-Konfiguration</title>
+
+        <input-field type="text">
+            <name>subscribeUrl</name>
+            <label>Subscription URL</label>
+            <label lang="de-DE">Anmelde-URL</label>
+            <placeholder><![CDATA[/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%]]></placeholder>
+            <helpText><![CDATA[URL to confirm the subscription to the newsletter.<br/>Available placeholders: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%]]></helpText>
+            <helpText lang="de-DE"><![CDATA[URL um die Newsletter-Anmeldung zu bestätigen.<br/>Verfügbare Platzhalter: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%]]></helpText>
+        </input-field>
+
+        <input-field type="bool">
+            <name>doubleOptIn</name>
+            <label>Double opt-in</label>
+            <helpText>Use double opt-in for newsletter subscriptions.</helpText>
+            <helpText lang="de-DE">Nutze das Double-Opt-In-Verfahren für Newsletter-Anmeldungen.</helpText>
+        </input-field>
+
+        <input-field type="bool">
+            <name>doubleOptInRegistered</name>
+            <label>Double opt-in for registered customers</label>
+            <label lang="de-DE">Double-Opt-in für registrierte Kunden</label>
+            <helpText>Use double opt-in for newsletter subscriptions of registered customers.</helpText>
+            <helpText lang="de-DE">Nutze das Double-Opt-In-Verfahren für Newsletter-Anmeldungen von registrierten Kunden.</helpText>
+        </input-field>
+
+        <input-field type="text">
+            <name>doubleOptInDomain</name>
+            <label>Double opt-in domain</label>
+            <label lang="de-DE">Double-Opt-In-Domain</label>
+            <placeholder><![CDATA[https://localhost]]></placeholder>
+            <helpText>Leave empty to use the Sales Channel's domain.</helpText>
+            <helpText lang="de-DE">Leer lassen um die Domain des Verkaufskanals zu nutzen.</helpText>
+        </input-field>
+
+    </card>
+</config>

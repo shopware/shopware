@@ -1,0 +1,25 @@
+.sw-order-product-select {
+    width: 100%;
+
+    &__single-select.sw-entity-single-select {
+        .sw-product-variant-info {
+            top: 0;
+        }
+    }
+
+    .sw-entity-single-select__selection {
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+    }
+
+    .sw-entity-single-select__selection-text {
+        vertical-align: middle;
+        padding-right: 16px;
+        width: 100%;
+    }
+
+    &__label {
+        padding: 0 10px;
+    }
+}

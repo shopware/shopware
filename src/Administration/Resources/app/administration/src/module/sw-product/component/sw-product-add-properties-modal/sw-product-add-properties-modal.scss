@@ -1,0 +1,94 @@
+@import "~scss/variables";
+
+$min-height-empty-state: 420px;
+$background-color: $color-gray-100;
+
+.sw-product-add-properties-modal {
+    &.sw-modal.sw-modal--default {
+        .sw-modal__dialog {
+            max-width: 900px;
+        }
+
+        .sw-modal__body {
+            padding: 0;
+        }
+    }
+
+    &__content .sw-card-section {
+        position: relative;
+        min-height: $min-height-empty-state;
+        padding: 0;
+    }
+
+    &__content .sw-grid {
+        height: 100%;
+    }
+
+    &__content .sw-grid .sw-grid-row {
+        border-bottom: 0;
+    }
+
+    &__content .sw-grid .sw-grid__cell-content {
+        min-height: 0;
+        line-height: $line-height-sm;
+        padding: 10px 30px;
+    }
+
+    &__content .sw-grid.sw-grid--table .sw-grid-row.is--selected {
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    &__property-name {
+        cursor: pointer;
+        margin-left: 10px;
+    }
+
+    &__property-selected {
+        font-size: $font-size-xs;
+    }
+
+    &__property-values .sw-grid__cell .sw-grid__cell-content {
+        padding-left: 5px;
+    }
+
+    .sw-empty-state {
+        min-height: $min-height-empty-state;
+    }
+
+    .sw-empty-state .sw-empty-state__title {
+        margin-bottom: 0;
+        font-size: $font-size-s;
+    }
+
+    .sw-property-search {
+        .sw-property-search__toolbar {
+            margin-bottom: 0;
+        }
+
+        .sw-property-search__tree-selection-container,
+        .sw-property-search__search-selection {
+            min-height: $min-height-empty-state;
+        }
+    }
+
+    .sw-product-add-properties-modal__toolbar {
+        border-bottom: 1px solid #d8dde6;
+        background-color: $background-color;
+        grid-template-columns: 1fr auto;
+    }
+
+    .sw-property-search__search-field.sw-product-add-properties-modal__search-field {
+        .sw-simple-search-field {
+            margin: 0;
+        }
+
+        .mt-icon.sw-simple-search-field__search-icon.icon--regular-search-s.mt-icon--small {
+            right: 45px;
+        }
+    }
+
+    .sw-extension-teaser-popover {
+        margin-left: 14px;
+    }
+}

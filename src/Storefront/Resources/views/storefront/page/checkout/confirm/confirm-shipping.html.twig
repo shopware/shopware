@@ -1,0 +1,28 @@
+{% block page_checkout_confirm_shipping_inner %}
+    <div class="card checkout-card">
+        <div class="card-body">
+            {% set shippingMethodInvalid = true %}
+
+            {% for shipping in page.shippingMethods %}
+                {% if shipping.id is same as(context.shippingMethod.id) %}
+                    {% set shippingMethodInvalid = false %}
+                {% endif %}
+            {% endfor %}
+
+            {% block page_checkout_confirm_shipping_title %}
+                <div class="card-title">
+                    {{ 'checkout.confirmShippingMethod'|trans|sw_sanitize }}
+                </div>
+            {% endblock %}
+
+            {% block page_checkout_confirm_shipping_form %}
+                {% sw_include '@Storefront/storefront/component/shipping/shipping-form.html.twig' with {
+                    action: 'frontend.checkout.configure',
+                    actionPath: path('frontend.checkout.configure'),
+                    redirect: 'frontend.checkout.confirm.page',
+                    redirectParameters: {redirected: 0}|json_encode,
+                } %}
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

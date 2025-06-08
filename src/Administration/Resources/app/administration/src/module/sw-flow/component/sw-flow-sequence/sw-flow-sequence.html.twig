@@ -1,0 +1,55 @@
+{% block sw_flow_sequence %}
+<div class="sw-flow-sequence">
+    {% block sw_flow_sequence_selector %}
+    <sw-flow-sequence-selector
+        v-if="isSelectorSequence"
+        :disabled="disabled"
+        :sequence="sequenceData"
+    />
+    {% endblock %}
+
+    {% block sw_flow_sequence_condition %}
+    <sw-flow-sequence-condition
+        v-if="isConditionSequence"
+        :disabled="disabled"
+        :sequence="sequenceData"
+    />
+    {% endblock %}
+
+    {% block sw_flow_sequence_action %}
+    <sw-flow-sequence-action
+        v-show="isActionSequence"
+        :sequence="sequenceData"
+        :disabled="disabled"
+        :is-unknown-trigger="isUnknownTrigger"
+    />
+    {% endblock %}
+
+    {% block sw_flow_sequence_extension %}{% endblock %}
+
+    {% block sw_flow_sequence_true_block %}
+    <div
+        v-if="sequenceData.trueBlock"
+        class="sw-flow-sequence__true-block"
+        :class="trueBlockClasses"
+    >
+        <sw-flow-sequence
+            :sequence="sequenceData.trueBlock"
+            :disabled="disabled"
+        />
+    </div>
+    {% endblock %}
+
+    {% block sw_flow_sequence_false_block %}
+    <div
+        v-if="sequenceData.falseBlock"
+        class="sw-flow-sequence__false-block"
+    >
+        <sw-flow-sequence
+            :sequence="sequenceData.falseBlock"
+            :disabled="disabled"
+        />
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

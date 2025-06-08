@@ -1,0 +1,29 @@
+{% block sw_address %}
+<div
+    class="sw-address"
+    :class="addressClasses"
+>
+    {% block sw_address_headline %}
+    <div
+        v-if="headline"
+        class="sw-address__headline"
+    >
+        {{ headline }}
+        <router-link
+            v-if="showEditButton && editLink"
+            class="sw-address-headline-link"
+            :to="editLink"
+        >
+            {{ $tc('global.default.edit') }}
+        </router-link>
+    </div>
+    {% endblock %}
+
+    {% block sw_address_formatting %}
+    <div
+        class="sw-address__formatting"
+        v-html="displayFormattingAddress"
+    ></div>
+    {% endblock %}
+</div>
+{% endblock %}

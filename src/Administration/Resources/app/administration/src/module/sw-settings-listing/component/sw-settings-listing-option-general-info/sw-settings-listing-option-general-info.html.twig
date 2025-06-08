@@ -1,0 +1,57 @@
+{% block sw_settings_listing_option_general_info %}
+<mt-card
+    :title="$tc('sw-settings-listing.base.general.title')"
+    position-identifier="sw-settings-listing-option-general-info"
+>
+
+    {% block sw_settings_listing_option_general_info_container %}
+    <sw-container
+        columns="1fr 1fr"
+        gap="0 20px"
+    >
+
+        {% block sw_settings_listing_option_general_info_name %}
+
+        <mt-text-field
+            v-model="sortingOption.label"
+            class="sw-settings-listing-edit__general-input"
+            :label="$tc('sw-settings-listing.base.general.labelName')"
+            :placeholder="$tc('sw-settings-listing.base.general.placeholderName')"
+            :required="true"
+            :error="labelError"
+        />
+        {% endblock %}
+
+        {% block sw_settings_listing_option_general_info_technical_name %}
+
+        <mt-text-field
+            v-model="sortingOption.key"
+            name="sw-field--listing-option-technicalName"
+            class="sw-settings-listing-option-general-info__field-technical-name"
+            required
+            :label="$tc('sw-settings-listing.base.general.labelTechnicalName')"
+            :placeholder="$tc('sw-settings-listing.base.general.placeholderTechnicalName')"
+            :error="technicalNameError"
+            :help-text="$tc('sw-settings-listing.base.general.helpTextTechnicalName')"
+        />
+        {% endblock %}
+
+        {% block sw_settings_listing_option_general_info_active %}
+
+        <mt-switch
+            v-model="sortingOption.active"
+            v-tooltip="{
+                showDelay: 300,
+                message: $tc('sw-cms.elements.productListing.config.sorting.defaultSortingCantBeDisabled'),
+                disabled: !isDefaultSorting
+            }"
+            :disabled="isDefaultSorting"
+            class="sw-settings-listing-edit__general-input"
+            :bordered="true"
+            :label="$tc('sw-settings-listing.base.general.labelActive')"
+        />
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+</mt-card>
+{% endblock %}

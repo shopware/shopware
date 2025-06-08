@@ -1,0 +1,111 @@
+{
+  "sw-media": {
+    "general": {
+      "mainMenuItemGeneral": "Medien",
+      "descriptionTextModule": "Verwaltung von Mediendateien.",
+      "placeholderSearchBar": "Durchsuche den aktuellen Ordner ...",
+      "notification": {
+        "urlCopied": {
+          "message": "URL in Zwischenablage kopiert."
+        }
+      }
+    },
+    "sidebar": {
+      "labelHeadlineMultiple": "{count} ausgewählte Dateien",
+      "labelNoMediaSelected": "Keine Medien ausgewählt",
+      "actions": {
+        "copyLink": "Link kopieren",
+        "delete": "Löschen",
+        "dissolve": "Auflösen",
+        "download": "Download",
+        "move": "Verschieben",
+        "replace": "Ersetzen",
+        "settings": "Einstellungen",
+        "ar": "AR-Ansicht aktivieren",
+        "arHelpText": "AR-Funktion aktiviert, wenn sie in der Storefront präsentiert wird. Sie können die Standardeinstellung in <a href=\"{settingsLink}\">den 3D-Einstellungen</a> ändern."
+      },
+      "sections": {
+        "actions": "Aktionen",
+        "configuration": "Konfiguration",
+        "preview": "Vorschau",
+        "metadata": "Metadaten",
+        "usage": "Wird verwendet in",
+        "selectedFiles": "Ausgewählte Dateien"
+      },
+      "infoMissingFile": {
+        "titleMissingFile": "Datei nicht gefunden",
+        "descriptionMissingFile": "Wir konnten diese Datei nicht finden. Du kannst eine neue Datei hochladen oder diese löschen."
+      },
+      "metadata": {
+        "name": "Name",
+        "fileType": "Dateityp",
+        "altText": "Alt-Text",
+        "title": "Titel",
+        "mimeType": "MIME-Type",
+        "fileSize": "Größe",
+        "createdAt": "Hochgeladen am",
+        "width": "Breite",
+        "height": "Höhe",
+        "totalSize": "Insgesamt"
+      },
+      "usage": {
+        "tooltipFoundInProducts": "Gefunden in Produkten",
+        "tooltipFoundInLandingPages": "Gefunden in Landingpages",
+        "tooltipFoundInCategories": "Gefunden in Kategorien",
+        "tooltipFoundInManufacturers": "Gefunden in Herstellern",
+        "tooltipFoundInMailTemplate": "Gefunden in E-Mail-Templates",
+        "tooltipFoundInDocument": "Gefunden in Document",
+        "tooltipFoundInUser": "Gefunden in User",
+        "tooltipFoundInPayment": "Gefunden in Zahlungart",
+        "tooltipFoundShipping": "Gefunden in Versandart",
+        "tooltipFoundLayout": "Gefunden in Erlebniswelten",
+        "titleMediaNotUsed": "Medium nicht verwendet",
+        "labelMediaNotUsed": "Das Medium wird zurzeit nicht verwendet."
+      }
+    },
+    "index": {
+      "buttonCreateFolder": "Neuen Ordner hinzufügen",
+      "rootFolderName": "Medien"
+    },
+    "mediaLibrary": {
+      "labelButtonLoadMore": "Weitere laden",
+      "titleEmptyState": "Noch keine Medien vorhanden",
+      "descriptionEmptyState": "Verwaltung von Medien."
+    },
+    "sorting": {
+      "labelSort": "Sortiere nach:",
+      "labelSortByNameAsc": "Name, A-Z",
+      "labelSortByNameDsc": "Name, Z-A",
+      "labelSortBySizeAsc": "Größe, aufsteigend",
+      "labelSortBySizeDsc": "Größe, absteigend",
+      "labelSortByCreatedAsc": "Erstelldatum, aufsteigend",
+      "labelSortByCreatedDsc": "Erstelldatum, absteigend"
+    },
+    "presentation": {
+      "labelPresentation": "Darstellung:",
+      "labelPresentationSmall": "Kleine Vorschau",
+      "labelPresentationMedium": "Normale Vorschau",
+      "labelPresentationLarge": "Große Vorschau",
+      "labelPresentationList": "Liste"
+    },
+    "sw-media-modal": {
+      "titleModal": "Medien auswählen",
+      "labelTabItemLibrary": "Bibliothek",
+      "labelTabItemUpload": "Dateien hochladen",
+      "labelButtonSaveSelection": "Medien hinzufügen"
+    },
+    "sw-media-modal-v2": {
+      "titleModal": "Medien auswählen",
+      "labelTabItemLibrary": "Bibliothek",
+      "labelTabItemUpload": "Dateien hochladen",
+      "labelButtonSaveSelection": "Medien hinzufügen"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "media": {
+        "label": "Medien"
+      }
+    }
+  }
+}

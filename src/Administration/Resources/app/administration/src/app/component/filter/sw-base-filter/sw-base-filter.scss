@@ -1,0 +1,17 @@
+@import "~scss/variables";
+
+.sw-base-filter {
+    &__headline {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    &__title {
+        font-size: $font-size-xs;
+        margin-bottom: 16px;
+    }
+
+    .sw-base-filter__headline .sw-base-filter__reset {
+        padding-right: 0;
+    }
+}

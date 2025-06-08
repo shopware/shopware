@@ -1,0 +1,109 @@
+{% block sw_image_preview_modal %}
+<transition
+    name="sw-image-preview-modal-fade"
+    appear
+>
+    {% block sw_image_preview_modal_element %}
+    <div class="sw-image-preview-modal">
+
+        {% block sw_image_preview_modal_action %}
+        <div class="sw-image-preview-modal__action">
+            {% block sw_image_preview_modal_button_zoom_out %}
+            <button
+                ref="btnZoomOut"
+                class="sw-image-preview-modal__button-action"
+                :class="buttonClass(isDisabledZoomOut)"
+                :disabled="isDisabledZoomOut"
+                @click="onClickZoomOut"
+            >
+                <mt-icon name="regular-minus-circle" />
+            </button>
+            {% endblock %}
+
+            {% block sw_image_preview_modal_button_zoom_reset %}
+            <button
+                ref="btnReset"
+                class="sw-image-preview-modal__button-action"
+                :class="buttonClass(isDisabledReset)"
+                :disabled="isDisabledReset"
+                @click="onClickReset"
+            >
+                <mt-icon name="regular-compress-arrows" />
+            </button>
+            {% endblock %}
+
+            {% block sw_image_preview_modal_button_zoom_in %}
+            <button
+                ref="btnZoomIn"
+                class="sw-image-preview-modal__button-action"
+                :class="buttonClass(isDisabledZoomIn)"
+                :disabled="isDisabledZoomIn"
+                @click="onClickZoomIn"
+            >
+                <mt-icon name="regular-plus-circle" />
+            </button>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_image_preview_modal_button_close %}
+        <div
+            class="sw-image-preview-modal__button-close"
+            role="button"
+            tabindex="0"
+            @click="onClickClose"
+            @keydown.enter="onClickClose"
+        >
+            <mt-icon name="regular-times" />
+        </div>
+        {% endblock %}
+
+        {% block sw_image_preview_modal_image_slider %}
+        <sw-image-slider
+            class="sw-image-preview-modal__image-slider"
+            overflow="hidden"
+            navigation-type="arrow"
+            arrow-style="outside"
+            display-mode="contain"
+            rewind
+            :images="images"
+            :bordered="false"
+            :rounded="false"
+            :initial-index="activeItemIndex"
+            @image-change="onImageSliderChange"
+            @vue:mounted="afterComponentsMounted"
+        />
+        {% endblock %}
+
+        {% block sw_image_preview_modal_divider %}
+        <hr
+            v-if="images.length > 1"
+            class="sw-image-preview-modal__divider"
+        >
+        {% endblock %}
+
+        {% block sw_image_preview_modal_thumbnail_slider %}
+        <sw-image-slider
+            v-if="images.length > 1"
+            class="sw-image-preview-modal__thumbnail-slider"
+            overflow="hidden"
+            navigation-type="arrow"
+            arrow-style="outside"
+            display-mode="contain"
+            rewind
+            :auto-width="images.length < itemPerPage"
+            :bordered="false"
+            :rounded="false"
+            :initial-index="activeItemIndex"
+            :images="images"
+            :canvas-height="100"
+            :item-per-page="itemPerPage"
+            :element-padding="6"
+            @image-change="onThumbnailSliderChange"
+            @vue:mounted="afterComponentsMounted"
+        />
+        {% endblock %}
+    </div>
+    {% endblock %}
+</transition>
+{% endblock %}

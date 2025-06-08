@@ -1,0 +1,27 @@
+{% block cms_form_select_salutation_content %}
+
+    {% set salutationOptions %}
+        {% if not data.get('salutationId') %}
+            <option disabled="disabled" selected="selected" value="">
+                {{ 'account.personalSalutationPlaceholder'|trans }}
+            </option>
+        {% endif %}
+
+        {% for salutation in element.data %}
+            <option value="{{ salutation.id }}">
+                {{ salutation.translated.displayName }}
+            </option>
+        {% endfor %}
+    {% endset %}
+
+    {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
+        label: 'account.personalSalutationLabel'|trans|sw_sanitize,
+        id: formPrefix ~ '-form-Salutation',
+        name: 'salutationId',
+        options: salutationOptions,
+        violationPath: '/salutationId',
+        validationRules: required ? 'required',
+        additionalClass: additionalClass,
+        additionalSelectClass: 'contact-select',
+    } %}
+{% endblock %}

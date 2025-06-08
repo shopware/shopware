@@ -1,0 +1,19 @@
+{% block sw_boolean_filter %}
+<div class="sw-boolean-filter">
+    <sw-base-filter
+        :title="filter.label"
+        :show-reset-button="!!value"
+        :active="active"
+        @filter-reset="resetFilter"
+    >
+        {% block sw_boolean_filter_content %}
+        <mt-select
+            :model-value="value"
+            :placeholder="filter.placeholder"
+            :options="options"
+            @update:model-value="changeValue"
+        />
+        {% endblock %}
+    </sw-base-filter>
+</div>
+{% endblock %}

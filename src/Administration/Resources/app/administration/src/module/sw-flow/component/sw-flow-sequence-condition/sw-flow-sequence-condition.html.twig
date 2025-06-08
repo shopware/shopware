@@ -1,0 +1,341 @@
+{% block sw_flow_sequence_condition %}
+<div class="sw-flow-sequence-condition">
+    {% block sw_flow_sequence_condition_true_arrow %}
+    <div
+        v-if="!showHelpElement"
+        class="sw-flow-sequence-condition__true-arrow"
+        :class="arrowClasses(true)"
+    >
+        {% block sw_flow_sequence_condition_true_arrow_line %}
+        <div class="sw-flow-sequence-condition__true-line"></div>
+        {% endblock %}
+
+        {% block sw_flow_sequence_condition_true_arrow_oval %}
+        <div class="sw-flow-sequence-condition__oval"></div>
+        {% endblock %}
+
+        {% block sw_flow_sequence_condition_true_arrow_icon %}
+        <mt-icon
+            v-if="showArrowIcon(true)"
+            name="regular-chevron-right-s"
+            size="16px"
+        />
+
+        <sw-context-button
+            v-else
+            class="arrow-action sw-flow-sequence-condition__true-action"
+            icon="regular-plus-xs"
+            :disabled="disabledAddSequence(true) || undefined"
+        >
+            {% block sw_flow_sequence_condition_true_arrow_add_condition %}
+            <sw-context-menu-item
+                class="sw-flow-sequence-condition__add-true-condition"
+                :disabled="disabled || undefined"
+                @click="addIfCondition(true)"
+            >
+                {{ $tc('sw-flow.detail.sequence.selectorIfCondition') }}
+            </sw-context-menu-item>
+            {% endblock %}
+
+            {% block sw_flow_sequence_condition_true_arrow_add_action %}
+            <sw-context-menu-item
+                class="sw-flow-sequence-condition__add-true-action"
+                :disabled="disabled || undefined"
+                @click="addThenAction(true)"
+            >
+                {{ $tc('sw-flow.detail.sequence.selectorThenAction') }}
+            </sw-context-menu-item>
+            {% endblock %}
+
+            {% block sw_flow_sequence_condition_true_arrow_extension_options %}{% endblock %}
+        </sw-context-button>
+        {% endblock %}
+
+        {% block sw_flow_sequence_condition_true_arrow_label %}
+        <sw-label
+            appearance="pill"
+            size="medium"
+            :caps="true"
+            :dismissable="false"
+            class="sw-flow-sequence-condition__true-label"
+        >
+            {{ $tc('sw-flow.detail.sequence.labelTrue') }}
+        </sw-label>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_flow_sequence_condition_false_arrow %}
+    <div
+        v-if="!showHelpElement"
+        class="sw-flow-sequence-condition__false-arrow"
+        :class="arrowClasses(false)"
+    >
+        {% block sw_flow_sequence_condition_false_arrow_line %}
+        <div class="sw-flow-sequence-condition__false-line"></div>
+        {% endblock %}
+
+        {% block sw_flow_sequence_condition_false_arrow_oval %}
+        <div class="sw-flow-sequence-condition__oval"></div>
+        {% endblock %}
+
+        {% block sw_flow_sequence_condition_false_arrow_label %}
+        <sw-label
+            appearance="pill"
+            size="medium"
+            :caps="true"
+            :dismissable="false"
+            class="sw-flow-sequence-condition__false-label"
+        >
+            {{ $tc('sw-flow.detail.sequence.labelFalse') }}
+        </sw-label>
+        {% endblock %}
+
+        {% block sw_flow_sequence_condition_false_arrow_icon %}
+        <mt-icon
+            v-if="showArrowIcon(false)"
+            name="regular-chevron-down-s"
+            size="16px"
+        />
+
+        <sw-context-button
+            v-else
+            class="arrow-action sw-flow-sequence-condition__false-action"
+            icon="regular-plus-xs"
+            :disabled="disabledAddSequence(false) || undefined"
+        >
+            {% block sw_flow_sequence_condition_false_arrow_add_condition %}
+            <sw-context-menu-item
+                class="sw-flow-sequence-condition__add-false-condition"
+                :disabled="disabled || undefined"
+                @click="addIfCondition(false)"
+            >
+                {{ $tc('sw-flow.detail.sequence.selectorIfCondition') }}
+            </sw-context-menu-item>
+            {% endblock %}
+
+            {% block sw_flow_sequence_condition_false_arrow_add_action %}
+            <sw-context-menu-item
+                class="sw-flow-sequence-condition__add-false-action"
+                :disabled="disabled || undefined"
+                @click="addThenAction(false)"
+            >
+                {{ $tc('sw-flow.detail.sequence.selectorThenAction') }}
+            </sw-context-menu-item>
+            {% endblock %}
+
+            {% block sw_flow_sequence_condition_false_arrow_extension_options %}{% endblock %}
+        </sw-context-button>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_flow_sequence_condition_container %}
+    <div class="sw-flow-sequence-condition__container">
+        {% block sw_flow_sequence_condition_card %}
+        <div class="sw-flow-sequence-condition__card">
+            {% block sw_flow_sequence_condition_header %}
+            <div class="sw-flow-sequence-condition__header">
+                {% block sw_flow_sequence_condition_title %}
+                <div class="sw-flow-sequence-condition__title-description">
+                    <h3 class="sw-flow-sequence-condition__title">
+                        {{ $tc('sw-flow.detail.sequence.conditionTitle') }}
+                    </h3>
+
+                    <p class="sw-flow-sequence-condition__description">
+                        {{ $tc('sw-flow.detail.sequence.conditionDescription') }}
+                    </p>
+                </div>
+                {% endblock %}
+
+                {% block sw_flow_sequence_condition_context_button %}
+                <sw-context-button
+                    class="sw-flow-sequence-condition__context-button"
+                    :disabled="disabled || undefined"
+                >
+
+                    {% block sw_flow_sequence_condition_context_button_delete %}
+                    <sw-context-menu-item
+                        class="sw-flow-sequence-condition__delete-condition"
+                        variant="danger"
+                        @click="removeCondition"
+                    >
+                        {{ $tc('sw-flow.detail.sequence.contextButton.deleteCondition') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+                </sw-context-button>
+                {% endblock %}
+            </div>
+            {% endblock %}
+
+            {% block sw_flow_sequence_condition_content %}
+            <div class="sw-flow-sequence-condition__content">
+
+                {% block sw_flow_sequence_condition_rule %}
+                <div class="sw-flow-sequence-condition__rule">
+                    {% block sw_flow_sequence_condition_rule_empty %}
+                    <div
+                        v-if="!sequence.rule"
+                        class="sw-flow-sequence-condition__rule-empty"
+                    >
+                        <mt-icon
+                            size="12px"
+                            name="regular-rule-s"
+                        />
+                        <span class="sw-flow-sequence-condition__no-rule">
+                            {{ $tc('sw-flow.detail.sequence.noRule') }}
+                        </span>
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_flow_sequence_condition_rule_info %}
+                    <div
+                        v-else
+                        class="sw-flow-sequence-condition__rule-info"
+                    >
+                        {% block sw_flow_sequence_condition_rule_header %}
+                        <div class="sw-flow-sequence-condition__rule-header">
+                            <div class="sw-flow-sequence-condition__rule-icon">
+                                <mt-icon
+                                    size="12px"
+                                    name="regular-rule-s"
+                                />
+                            </div>
+
+                            {% block sw_flow_sequence_condition_rule_name %}
+                            <div class="sw-flow-sequence-condition__rule-name">
+                                <h3>{{ sequence.rule.name }}</h3>
+                            </div>
+                            {% endblock %}
+
+                            {% block sw_flow_sequence_condition_rule_context_button %}
+                            <sw-context-button
+                                class="sw-flow-sequence-condition__rule-context-button"
+                                :disabled="disabled || undefined"
+                            >
+
+                                {% block sw_flow_sequence_condition_rule_context_button_edit %}
+                                <sw-context-menu-item
+                                    class="sw-flow-sequence-condition__rule-edit"
+                                    @click="onEditRule"
+                                >
+                                    {{ $tc('sw-flow.rule.contextButton.editRule') }}
+                                </sw-context-menu-item>
+                                {% endblock %}
+
+                                {% block sw_flow_sequence_condition_rule_context_button_change %}
+                                <sw-context-menu-item
+                                    class="sw-flow-sequence-condition__rule-change"
+                                    @click="showRuleSelection = true"
+                                >
+                                    {{ $tc('sw-flow.rule.contextButton.changeRule') }}
+                                </sw-context-menu-item>
+                                {% endblock %}
+
+                                {% block sw_flow_sequence_condition_rule_context_button_delete %}
+                                <sw-context-menu-item
+                                    class="sw-flow-sequence-condition__rule-delete"
+                                    variant="danger"
+                                    @click="deleteRule"
+                                >
+                                    {{ $tc('sw-flow.rule.contextButton.deleteRule') }}
+                                </sw-context-menu-item>
+                                {% endblock %}
+                            </sw-context-button>
+                            {% endblock %}
+                        </div>
+
+                        {% endblock %}
+
+                        {% block sw_flow_sequence_condition_rule_description %}
+                        <div
+                            class="sw-flow-sequence-condition__rule-description"
+                            v-html="ruleDescription"
+                        >
+                        </div>
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+
+                {% block sw_flow_sequence_condition_content_custom %}
+                {% endblock %}
+
+                {% block sw_flow_sequence_condition_rule_selection %}
+                <div
+                    v-if="showRuleSelection || !sequence.ruleId"
+                    class="sw-flow-sequence-condition__select"
+                >
+                    <sw-entity-single-select
+                        class="sw-flow-sequence-condition__selection-rule"
+                        size="small"
+                        value=""
+                        entity="rule"
+                        :criteria="ruleCriteria"
+                        :placeholder="$tc('sw-flow.rule.placeholderSelectRule')"
+                        :disabled="disabled || undefined"
+                        :error="fieldError"
+                        advanced-selection-component="sw-advanced-selection-rule"
+                        :advanced-selection-parameters="advanceSelectionParameters"
+                        :selection-disabling-method="isRuleDisabled"
+                        :disabled-selection-tooltip="{
+                            message: $t('sw-restricted-rules.restrictedAssignment.general', {
+                                relation: $t('sw-restricted-rules.restrictedAssignment.flowSequences'),
+                            }), }"
+                        @update:value="(id, rule) => onRuleChange(rule)"
+                    >
+                        <template #before-item-list>
+                            {% block sw_flow_sequence_condition_select_selection_before_list %}
+                            <ul class="sw-select-result__item-list">
+                                <li
+                                    class="sw-select-result sw-select-result__create-new-rule"
+                                    role="button"
+                                    tabindex="0"
+                                    @click="onCreateNewRule"
+                                    @keydown.enter="onCreateNewRule"
+                                >
+                                    {{ $tc('sw-flow.rule.createNewRule') }}
+                                </li>
+                            </ul>
+                            {% endblock %}
+                        </template>
+
+                        <template #result-label-property="{ item, labelProperty, getKey }">
+                            {{ getKey(item, labelProperty) }}
+                        </template>
+                    </sw-entity-single-select>
+                </div>
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_flow_sequence_condition_help_text %}
+        <div
+            v-if="showHelpElement"
+            class="sw-flow-sequence-condition__explains"
+        >
+            {% block sw_flow_sequence_selector_title %}
+            <h4>{{ $tc('sw-flow.detail.sequence.conditionExplainsTitle') }}</h4>
+            {% endblock %}
+
+            {% block sw_flow_sequence_selector_help_text %}
+            <p v-html="$tc('sw-flow.detail.sequence.conditionExplainsDescription')"></p>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_flow_sequence_condition_rule_modal %}
+    <sw-flow-rule-modal
+        v-if="showCreateRuleModal"
+        :rule-id="selectedRuleId"
+        @process-finish="onSaveRuleSuccess"
+        @modal-close="onCloseModal"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

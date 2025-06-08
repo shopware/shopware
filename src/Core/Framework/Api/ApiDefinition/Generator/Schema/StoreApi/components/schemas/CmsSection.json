@@ -1,0 +1,29 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CmsSection": {
+                "type": "object",
+                "properties": {
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["cms_section"]
+                    },
+                    "blocks": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CmsBlock"
+                        }
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": ["default", "sidebar"]
+                    }
+                },
+                "required": ["apiAlias", "blocks"]
+            }
+        }
+    }
+}

@@ -1,0 +1,102 @@
+<div class="sw-product-cross-selling-assignment">
+    {% block sw_product_cross_selling_assignment_container %}
+    <div class="sw-product-cross-selling-assignment__select-container">
+        {% block sw_product_cross_selling_assignment_select %}
+        <sw-entity-single-select
+            :label="$tc('sw-product.crossselling.inputCrossSellingProductList')"
+            entity="product"
+            value=""
+            :placeholder="$tc('sw-product.crossselling.inputCrossSellingProductListPlaceholder')"
+            :criteria="searchCriteria"
+            :context="searchContext"
+            disable-auto-close
+            :disabled="!allowEdit"
+            show-clearable-button
+            @update:value="onToggleProduct"
+        >
+
+            <template #result-item="{ item, index }">
+                <slot
+                    name="result-item"
+                    v-bind="{ item, index, isSelected }"
+                >
+                    <sw-select-result
+                        :selected="isSelected(item)"
+                        v-bind="{ item, index }"
+                    >
+                        {% block sw_entity_single_select_base_results_list_result_label %}
+                        <span class="sw-select-result__result-item-text">
+                            <sw-product-variant-info :variations="item.variation">
+                                {{ item.translated.name || item.name }}
+                            </sw-product-variant-info>
+                        </span>
+                        {% endblock %}
+                    </sw-select-result>
+                </slot>
+            </template>
+
+        </sw-entity-single-select>
+        {% endblock %}
+
+        {% block sw_product_cross_selling_assignment_option_grid %}
+        <sw-data-grid
+            v-if="total"
+            :key="isLoadingGrid"
+            :data-source="assignedProducts"
+            :is-loading="isLoadingGrid"
+            :columns="assignedProductColumns"
+            :show-settings="true"
+            :show-selection="false"
+        >
+
+            <template #actions="{ item }">
+                <sw-context-menu-item
+                    :disabled="!allowEdit"
+                    variant="danger"
+                    @click="removeItem(item)"
+                >
+                    {{ $tc('global.default.delete') }}
+                </sw-context-menu-item>
+            </template>
+
+            <template #column-product.translated.name="{ item }">
+                {% block sw_data_grid_columns_render_value %}
+                <span>
+                    <sw-product-variant-info :variations="item.product.variation">
+                        {{ item.product.translated.name || item.product.name || variantNames[item.product.id] }}
+                    </sw-product-variant-info>
+                </span>
+                {% endblock %}
+            </template>
+
+            {% block sw_product_cross_selling_assignment_option_grid_column_position %}
+            <template #column-position="{ item }">
+                <sw-data-grid-column-position
+                    ref="columnPosition"
+                    v-model:value="assignedProducts"
+                    :show-value="true"
+                    :item="item"
+                />
+            </template>
+            {% endblock %}
+        </sw-data-grid>
+        {% endblock %}
+        {% block sw_product_cross_selling_assignment_empty_state %}
+        <sw-empty-state
+            v-if="!total && !isLoadingGrid"
+            class="sw-product-cross-selling-assignment__option-list-empty-state"
+            :title="$tc('sw-product.crossselling.assignEmptyStateTitle')"
+            :show-description="false"
+            :absolute="false"
+        >
+            <template #icon>
+                <img
+                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
+                    alt=""
+                >
+            </template>
+        </sw-empty-state>
+        {% endblock %}
+    </div>
+    {% endblock %}
+</div>

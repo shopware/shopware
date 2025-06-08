@@ -1,0 +1,130 @@
+@import "~scss/variables";
+
+$sw-condition-color-border-default: $color-gray-500;
+
+.sw-condition {
+    width: 100%;
+
+    .sw-condition__container {
+        display: grid;
+        gap: 4px;
+        width: 100%;
+        align-items: start;
+        grid-template-columns: 240px 1fr auto;
+        border-radius: 5px;
+
+        &.has--error {
+            border: 1px solid $color-crimson-500;
+            background: $color-crimson-50;
+
+            .sw-condition__placeholder {
+                background: $color-crimson-50;
+
+                /* stylelint-disable-next-line max-nesting-depth */
+                input {
+                    background: $color-crimson-50;
+                }
+            }
+
+            .sw-condition__context-button {
+                border-left: 1px solid $color-crimson-500;
+            }
+        }
+
+        &.is--disabled {
+            background-color: $color-gray-100;
+        }
+
+        & > * {
+            // all direct children (grid items) should expand to the full height
+            height: 100%;
+        }
+    }
+
+    .sw-block-field {
+        margin: 12px 0 0;
+        height: 100%;
+        border: 1px solid $color-gray-500;
+        border-radius: $border-radius-default;
+        overflow: hidden;
+        background-color: $color-white;
+
+        &.sw-field {
+            margin: 0;
+        }
+
+        &.sw-field--datepicker {
+            display: grid;
+            grid-template-columns: 1fr auto;
+
+            .sw-field__hint {
+                margin: 0;
+                padding: 0 16px;
+                border-left: 1px solid $color-gray-300;
+            }
+        }
+
+        .sw-block-field__block {
+            height: 100%;
+            align-items: flex-start;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .sw-field__addition {
+            height: 100%;
+        }
+    }
+
+    .sw-condition__placeholder {
+        background-color: $color-gray-100;
+    }
+
+    .sw-condition__context-button {
+        height: 100%;
+        width: 40px;
+        position: relative;
+        border-radius: $border-radius-default;
+        border: 1px solid $color-gray-500;
+        background-color: $color-white;
+
+        &.is--disabled {
+            background-color: transparent;
+        }
+
+        .sw-context-button__button {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border: none;
+        }
+    }
+
+    .sw-tagged-field .sw-tagged-field__inner,
+    .sw-single-select .sw-single-select__inner {
+        border: none;
+        border-radius: 0;
+    }
+
+    .sw-condition__condition-value {
+        display: grid;
+        gap: 4px;
+        grid-template-columns: auto 1fr;
+        width: 100%;
+    }
+
+    .sw-condition__value-content {
+        display: flex;
+        gap: 4px;
+
+        .mt-field {
+            margin: 0;
+        }
+
+        & > div:last-of-type {
+            width: 100%;
+        }
+    }
+}

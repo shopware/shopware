@@ -1,0 +1,123 @@
+@import "~scss/variables";
+
+.sw-cms-create-wizard {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    .sw-cms-create-wizard-inner {
+        width: 600px;
+        margin-top: -150px;
+    }
+
+    .sw-cms-create-wizard__title {
+        color: $color-darkgray-200;
+        font-size: 32px;
+        font-weight: normal;
+    }
+
+    .sw-cms-create-wizard__back {
+        margin: 20px 0;
+        color: $color-shopware-brand-500;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .mt-icon {
+            margin: 1px 4px 0 0;
+        }
+    }
+
+    .sw-cms-stage-section-selection {
+        height: auto;
+        margin: 40px 0 20px;
+    }
+}
+
+.sw-cms-create-wizard__step-1 {
+    .sw-cms-create-wizard__page-type-selection {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin: 40px 200px 20px;
+    }
+
+    .sw-cms-create-wizard__page-type {
+        border: 1px solid $color-gray-300;
+        color: $color-darkgray-200;
+        background: #fff;
+        padding: 28px 20px;
+        margin-right: 20px;
+        text-align: center;
+        cursor: pointer;
+        border-radius: $border-radius-default;
+        display: flex;
+        flex-basis: 140px;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        &.is--disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .mt-icon {
+            margin-bottom: 8px;
+        }
+
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+}
+
+.sw-cms-create-wizard__step-3 {
+    .sw-cms-create-wizard__name-select {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        align-items: flex-start;
+        justify-content: center;
+    }
+
+    .sw-field {
+        text-align: left;
+    }
+
+    .sw-cms-create-wizard__page-preview {
+        border: 1px solid $color-gray-300;
+        border-radius: 4px;
+        padding: 10px 10px 0;
+        background: #fff;
+        display: grid;
+        grid-template-rows: 120px 40px;
+
+        .sw-cms-create-wizard__preview_image {
+            background: center center no-repeat $color-white;
+            border: 1px solid $color-gray-300;
+            border-radius: 4px;
+        }
+
+        .sw-cms-create-wizard__preview_info {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            color: $color-darkgray-200;
+            align-items: center;
+
+            .mt-icon {
+                margin-right: 8px;
+            }
+        }
+    }
+
+    .sw-cms-create-wizard__page-completion-buttons {
+        display: grid;
+        align-items: center;
+        width: 280px;
+    }
+}

@@ -1,0 +1,68 @@
+@import "~scss/variables";
+
+$sw-cms-block-color-active: $color-shopware-brand-500;
+$sw-cms-block-color-error: $color-crimson-500;
+$sw-cms-block-color-warning: $color-pumpkin-spice-500;
+
+.sw-cms-block {
+    position: relative;
+    background-repeat: no-repeat;
+    background-position: center center;
+
+    &:hover {
+        .sw-cms-block__config-overlay {
+            display: block;
+        }
+
+        .sw-cms-slot__preview-overlay {
+            display: block;
+        }
+
+        .sw-cms-block__config-toolbar {
+            display: block;
+        }
+    }
+
+    &.is--boxed .sw-cms-block__content {
+        max-width: 1080px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .sw-cms-block__config-overlay {
+        display: none;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        border: 1px dashed rgba($sw-cms-block-color-active, 0.4);
+        cursor: pointer;
+        z-index: 50;
+
+        &.is--active {
+            display: block;
+            pointer-events: none;
+            border: 1px solid $sw-cms-block-color-active;
+            z-index: 10;
+        }
+    }
+
+    &.has--error {
+        border: 2px solid $sw-cms-block-color-error;
+    }
+
+    &.has--warning {
+        border: 2px solid $sw-cms-block-color-warning;
+    }
+
+    &.has--error > .sw-cms-block__config-overlay,
+    &.has--warning > .sw-cms-block__config-overlay {
+        border: none;
+    }
+
+    &__content.is--expanded {
+        opacity: 0.6;
+    }
+}

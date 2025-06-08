@@ -1,0 +1,354 @@
+/* stylelint-disable max-nesting-depth */
+@import "~scss/variables";
+@import "~scss/mixins";
+
+$sw-tree-item-color-border: $color-gray-300;
+$sw-tree-item-color-background: $color-gray-50;
+$sw-tree-item-color-text: $color-darkgray-200;
+
+.sw-tree-item {
+    &.is--dragging {
+        user-select: none;
+        pointer-events: none;
+
+        .sw-tree-item__element {
+            background: transparent;
+            border: 1px dashed $sw-tree-item-color-border;
+
+            .sw-tree-item__leaf,
+            .sw-tree-item__toggle,
+            .sw-tree-item__icon,
+            .sw-tree-item__content,
+            .sw-tree-item__actions,
+            .sw-tree-item__child-count,
+            .sw-tree-item__selection {
+                display: none;
+            }
+        }
+
+        .sw-tree-item__children {
+            .sw-tree-item__element {
+                border-bottom: 1px dashed $sw-tree-item-color-border;
+                border-left: 1px dashed $sw-tree-item-color-border;
+                border-top: 0 none;
+
+                &::before {
+                    display: none;
+                }
+            }
+        }
+    }
+
+    &.is--drag-element {
+        user-select: none;
+        pointer-events: none;
+        background: $color-white;
+        box-shadow: 0 0 5px 1px $color-shopware-brand-500;
+
+        .sw-tree-item__child-count {
+            background: $color-shopware-brand-500;
+            color: $color-white;
+        }
+
+        .sw-tree-item__actions {
+            display: none;
+        }
+
+        .sw-tree-item__children {
+            display: none;
+        }
+    }
+
+    &.is--sortable {
+        .sw-tree-item__grip,
+        .sw-tree-item__content {
+            cursor: move;
+            user-select: none;
+        }
+    }
+
+    &.is--no-checkbox {
+        .sw-tree-item__element {
+            grid-template-columns: 30px 0 20px auto 50px;
+        }
+    }
+
+    .sw-tree-item__element {
+        height: 42px;
+        display: grid;
+        grid-template-columns: 30px 24px 20px auto 50px;
+        grid-column-gap: 2px;
+        align-items: center;
+        align-content: center;
+        padding: 0;
+        font-size: $font-size-xs;
+        color: $sw-tree-item-color-text;
+        border-radius: $border-radius-default;
+
+        &:hover {
+            background: $sw-tree-item-color-background;
+
+            .sw-tree-item__icon,
+            .sw-tree-item__content {
+                color: $color-shopware-brand-500;
+            }
+        }
+    }
+
+    &.is--active {
+        > .sw-tree-item__element {
+            background: $sw-tree-item-color-background;
+
+            .sw-tree-item__icon,
+            .sw-tree-item__content {
+                color: $color-shopware-brand-500;
+            }
+        }
+    }
+
+    &.is--marked-inactive {
+        .sw-tree-item__label {
+            color: lighten($color-darkgray-200, 30);
+        }
+    }
+
+    &.is--focus {
+        > .sw-tree-item__element {
+            background-color: lighten($color-shopware-brand-500, 40);
+        }
+    }
+
+    &:focus {
+        outline: 0;
+
+        > .sw-tree-item__element {
+            box-shadow: inset 0 0 0 2px $color-shopware-brand-500;
+            outline: 0;
+        }
+    }
+
+    &.is--highlighted > .sw-tree-item__element {
+        .sw-tree-item__label {
+            background-color: $color-gray-100;
+            padding: 1px 3px;
+            border-radius: $border-radius-default;
+        }
+    }
+
+    &.is--disabled {
+        & > .sw-tree-item__element {
+            &:hover {
+                cursor: not-allowed;
+            }
+
+            .sw-tree-item__label {
+                color: $color-gray-500;
+            }
+
+            .sw-tree-item__icon {
+                color: $color-gray-500;
+            }
+        }
+    }
+
+    .sw-tree-item__toggle {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        line-height: $line-height-sm;
+        text-align: center;
+        position: relative;
+        cursor: pointer;
+        user-select: none;
+
+        .sw-loader {
+            background: none;
+        }
+
+        .icon--regular-chevron-down-xxs {
+            padding: 7px;
+        }
+
+        .icon--regular-chevron-right-xxs {
+            padding: 6px 7px 8px 9px;
+        }
+    }
+
+    .sw-tree-item__icon {
+        width: 45px;
+        height: 22px;
+    }
+
+    .sw-tree-item__content {
+        .sw-field {
+            width: auto;
+            margin-bottom: 0;
+        }
+    }
+
+    .sw-tree-item__actions {
+        text-align: right;
+        margin-left: 4px;
+
+        .sw-context-button__button {
+            padding: 0 6px;
+
+            .mt-icon {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        .mt-button {
+            width: 100%;
+            height: 26px;
+            padding: 2px 8px;
+            font-size: $font-size-xs;
+            line-height: 19px;
+        }
+    }
+
+    .sw-tree-item__children {
+        position: relative;
+        padding-left: 24px;
+
+        .sw-tree-item {
+            &.is--no-children > .sw-tree-item__element {
+                &::before {
+                    width: 35px;
+                }
+            }
+
+            &.is--dragging > .sw-tree-item__element {
+                &::before {
+                    display: none;
+                }
+            }
+
+            .sw-tree-item__children {
+                border-left: 1px solid $color-gray-300;
+            }
+        }
+    }
+
+    &__icon {
+        display: flex;
+        align-items: center;
+
+        .icon--regular-circle-xxs {
+            margin-left: 3px;
+
+            @include size(8px);
+        }
+    }
+
+    &__content {
+        .icon--regular-times-xs,
+        .icon--regular-checkmark-xxs {
+            @include size(8px);
+        }
+    }
+
+    .sw-tree-detail__edit-tree-item {
+        .mt-field {
+            margin-bottom: 0;
+        }
+    }
+
+    .mt-field--checkbox__container {
+        .mt-field--checkbox {
+            margin-bottom: 0;
+        }
+    }
+}
+
+.sw-tree-item__element {
+    height: 42px;
+    display: grid;
+    color: $sw-tree-item-color-text;
+    grid-template-columns: 30px 24px 20px auto 50px;
+    grid-column-gap: 2px;
+    align-items: center;
+    align-content: center;
+    padding: 0;
+    font-size: $font-size-xs;
+
+    &:hover {
+        background: $sw-tree-item-color-background;
+
+        .sw-tree-item__icon,
+        .sw-tree-item__content {
+            color: $color-shopware-brand-500;
+        }
+    }
+
+    .sw-tree-item__content {
+        .tree-link {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: inherit;
+            text-decoration: inherit;
+            padding: 12px 0;
+            display: block;
+
+            &:focus {
+                box-shadow: inset 0 0 0 2px $color-shopware-brand-500;
+                outline: none;
+            }
+        }
+    }
+
+    &.is--drag-element {
+        user-select: none;
+        pointer-events: none;
+        background: $color-white;
+        box-shadow: 0 0 5px 1px $color-shopware-brand-500;
+
+        .sw-tree-item__child-count {
+            background: $color-shopware-brand-500;
+            color: $color-white;
+        }
+
+        .sw-tree-item__actions {
+            display: none;
+        }
+
+        .sw-tree-item__children {
+            display: none;
+        }
+
+        .icon--regular-chevron-down-xxs {
+            padding: 7px;
+        }
+
+        .icon--regular-chevron-right-xxs {
+            padding: 6px 7px 8px 9px;
+        }
+    }
+
+    &.is--sortable {
+        .sw-tree-item__grip,
+        .sw-tree-item__content {
+            cursor: move;
+            user-select: none;
+        }
+    }
+
+    .sw-tree-item__child-count {
+        width: 20px;
+        height: 20px;
+        padding: 2px 6px;
+        margin-left: 10px;
+        line-height: $line-height-sm;
+        font-size: $font-size-xxs;
+        text-align: center;
+        border-radius: $border-radius-default;
+        background: $color-gray-100;
+        color: $color-darkgray-200;
+    }
+
+    .sw-field--checkbox {
+        margin-bottom: 0;
+    }
+}

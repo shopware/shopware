@@ -1,0 +1,69 @@
+{% block layout_navigation_categories %}
+    {% set navigationMaxDepth = context.salesChannel.navigationCategoryDepth %}
+
+    {% if not level %}
+        {% set level = 0 %}
+    {% endif %}
+
+    {% set activeId = shopware.navigation.id %}
+    {% set activePath = shopware.navigation.pathIdList %}
+
+    {% block layout_navigation_categories_list %}
+        <ul class="category-navigation level-{{ level }}">
+            {% for item in navigationTree %}
+                {% set categoryId = item.category.id %}
+                {% set categoryName = item.category.translated.name %}
+                {% set categoryType = item.category.type %}
+                {% set categoryUrl = item.category.seoUrl %}
+                {% set categoryLinkNewTab = item.category.shouldOpenInNewTab %}
+
+                {% block layout_navigation_categories_list_entry %}
+                    <li class="category-navigation-entry">
+                        {% if (categoryId in activeId) or (categoryId in activePath) %}
+                            {% if categoryType == 'folder' %}
+                                {% block layout_navigation_categories_folder_children %}
+                                    <span class="category-navigation-link">{{ categoryName }}</span>
+                                {% endblock %}
+                            {% else %}
+                                {% block layout_navigation_categories_link_children %}
+                                    <a class="category-navigation-link{% if categoryId is same as(activeId) %} is-active{% endif %}{% if categoryId in activePath %} in-path{% endif %}"
+                                        href="{{ categoryUrl }}"
+                                        {% if categoryLinkNewTab %}target="_blank"{% endif %}>
+                                        {% block layout_navigation_categories_link_children_name %}
+                                            {{ categoryName }}
+                                        {% endblock %}
+                                    </a>
+                                {% endblock %}
+                            {% endif %}
+
+                            {% block layout_navigation_categories_recoursion %}
+                                {% if level < navigationMaxDepth and item.children %}
+                                    {% sw_include '@Storefront/storefront/layout/sidebar/category-navigation.html.twig' with {
+                                        navigationTree: item.children,
+                                        level: level + 1
+                                    } only %}
+                                {% endif %}
+                            {% endblock %}
+                        {% else %}
+                            {% if categoryType == 'folder' %}
+                                {% block layout_navigation_categories_text %}
+                                    <span class="category-navigation-link">{{ categoryName }}</span>
+                                {% endblock %}
+                            {% else %}
+                                {% block layout_navigation_categories_link %}
+                                    <a class="category-navigation-link{% if categoryId is same as(activeId) %} is-active{% endif %}"
+                                        href="{{ categoryUrl }}"
+                                        {% if categoryLinkNewTab %}target="_blank"{% endif %}>
+                                        {% block layout_navigation_categories_link_name %}
+                                            {{ categoryName }}
+                                        {% endblock %}
+                                    </a>
+                                {% endblock %}
+                            {% endif %}
+                        {% endif %}
+                    </li>
+                {% endblock %}
+            {% endfor %}
+        </ul>
+    {% endblock %}
+{% endblock %}

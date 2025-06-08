@@ -1,0 +1,75 @@
+/*
+Shopware skin
+==================================================
+Contains the imports to all Shopware skin styles.
+
+The file organization follows the 7-1 pattern architecture
+https://sass-guidelin.es/#the-7-1-pattern
+
+@sw-package framework
+*/
+
+/*
+ * Vendors
+ * ------- */
+@import 'vendor/inter-fontface';
+
+/*
+ * Variables, Mixins, Functions
+ * ---------------------------- */
+
+/*
+ * Base stuff
+ * ---------- */
+@import 'base/base';
+@import 'base/typography';
+
+/*
+ * Components
+ * ---------- */
+@import 'component/alert';
+@import 'component/badge';
+@import 'component/breadcrumb';
+@import 'component/button';
+@import 'component/card';
+@import 'component/custom-select';
+@import 'component/form';
+@import 'component/modal';
+@import 'component/product-box';
+@import 'component/tab-menu';
+@import 'component/cms-block';
+@import 'component/cms-element';
+@import 'component/quickview-modal';
+@import 'component/pagination';
+
+/*
+ * Layout-related sections
+ * ----------------------- */
+@import 'layout/top-bar';
+@import 'layout/header';
+@import 'layout/footer';
+@import 'layout/main-navigation';
+@import 'layout/navigation-flyout';
+@import 'layout/navigation-offcanvas';
+@import 'layout/offcanvas-cart';
+
+/*
+ * Page-specific styles
+ * -------------------- */
+@import 'page/product-detail/product-detail';
+@import 'page/product-detail/tabs';
+@import 'page/product-detail/review';
+@import 'page/product-detail/cross-selling';
+
+@import 'page/account/aside';
+@import 'page/account/register';
+@import 'page/account/address';
+@import 'page/account/profile';
+@import 'page/account/order';
+@import 'page/account/order-detail';
+
+@import 'page/checkout/aside';
+@import 'page/checkout/cart';
+
+@import 'page/contact/contact';
+@import 'page/newsletter/newsletter';

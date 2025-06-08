@@ -1,0 +1,22 @@
+@import "~scss/variables";
+
+.sw-flow-sequence {
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: auto 1fr;
+    width: min-content;
+
+    &__true-block {
+        grid-column: 2;
+        grid-row: 1;
+
+        &.has--selector {
+            grid-row: 1 / span 2;
+        }
+    }
+
+    &__false-block {
+        grid-column: 1;
+        grid-row: 2 / span 2;
+    }
+}

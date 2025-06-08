@@ -1,0 +1,37 @@
+@import "~scss/variables";
+
+.sw-flow-sequence-selector {
+    padding: 24px;
+    border: 2px dashed $color-gray-300;
+    border-radius: 8px;
+    color: $color-darkgray-200;
+    width: 322px;
+    margin-right: 32px;
+
+    &__title {
+        h4 {
+            margin-bottom: 12px;
+        }
+    }
+
+    &__help-text {
+        font-size: $font-size-xs;
+        line-height: 22px;
+        margin-bottom: 16px;
+    }
+
+    &__actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    &__actions .mt-button {
+        color: $color-darkgray-200;
+        padding: 2px 12px;
+    }
+
+    &__actions .mt-button .sw-button__content {
+        justify-content: start;
+    }
+}

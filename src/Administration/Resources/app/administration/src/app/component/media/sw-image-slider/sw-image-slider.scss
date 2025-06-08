@@ -1,0 +1,125 @@
+@import "~scss/variables";
+
+.sw-image-slider {
+    position: relative;
+
+    &__image-container {
+        height: 100%;
+    }
+
+    &__image-scrollable {
+        display: flex;
+        transform: translateX(0);
+        transition: transform 0.5s ease-out;
+        clear: both;
+        height: 100%;
+        justify-content: center;
+    }
+
+    &__element-container {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+
+        &.is--rounded {
+            border-radius: $border-radius-default;
+        }
+
+        &.is--bordered {
+            border: 1px solid #ccc;
+        }
+
+        &.is--active {
+            border: 1px solid $color-shopware-brand-500;
+            border-radius: $border-radius-default;
+        }
+    }
+
+    &__element-wrapper {
+        flex-direction: column;
+        align-self: flex-start;
+        border-radius: calc(#{$border-radius-default} + 2px);
+        height: 100%;
+    }
+
+    &__element-description {
+        padding: 24px 12px;
+    }
+
+    &__element-image {
+        user-select: none;
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+
+        &.is--auto-width {
+            height: auto;
+            width: auto;
+            max-height: 100%;
+            max-width: 100%;
+        }
+    }
+
+    &__buttons {
+        text-align: center;
+
+        &.is--button-inside {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        &-element {
+            width: 12px;
+            height: 12px;
+            margin: 12px 6px;
+            border: 0 none;
+            border-radius: 100%;
+            background: $color-gray-500;
+            transition: background 0.3s ease-out;
+            outline: none;
+            cursor: pointer;
+            text-indent: -9999px;
+
+            &.is--active {
+                background: $color-darkgray-100;
+            }
+        }
+    }
+
+    &__arrow {
+        position: absolute;
+        width: 56px;
+        top: 0;
+        background-color: rgba(255, 255, 255, 0%);
+        transition: background-color 0.3s ease-out;
+        cursor: pointer;
+        height: 100%;
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 30%);
+        }
+
+        & > span {
+            position: absolute;
+            top: 50%;
+            margin: 0 16px;
+            transform: translateY(-50%);
+        }
+
+        &.arrow-left {
+            left: 0;
+        }
+
+        &.arrow-right {
+            right: 0;
+
+            & > span {
+                right: 0;
+            }
+        }
+    }
+}

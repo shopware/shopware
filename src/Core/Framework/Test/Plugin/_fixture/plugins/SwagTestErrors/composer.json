@@ -1,0 +1,20 @@
+{
+    "name": "swag/test-error",
+    "description": "test plugin with errors",
+    "type": "shopware-platform-plugin",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Swag\\Foo\\": "src/"
+        }
+    },
+    "require": {
+        "shopware/core": "~6.3"
+    },
+    "extra": {
+        "shopware-plugin-class": "Swag\\Test\\SwagTestErrors",
+        "label": {
+            "en_GB": "Invalid locale Code for label"
+        }
+    }
+}

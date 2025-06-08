@@ -1,0 +1,139 @@
+{% block sw_data_grid_settings %}
+<sw-context-button
+    v-tooltip="{ message: $tc('global.sw-data-grid.tooltipListSettings') }"
+    :disabled="disabled"
+    :menu-width="300"
+    :auto-close="false"
+    :auto-close-outside-click="true"
+    :additional-context-menu-classes="contextMenuClasses"
+>
+
+    <template #button>
+        {% block sw_data_grid_settings_trigger %}
+        <mt-button
+            class="sw-data-grid-settings__trigger"
+            :disabled="disabled"
+            :aria-label="$tc('global.sw-data-grid.tooltipListSettings')"
+            size="x-small"
+            square
+            variant="secondary"
+        >
+            {% block sw_data_grid_settings_trigger_icon %}
+            <mt-icon
+                name="regular-bars-s"
+                size="14px"
+            />
+            {% endblock %}
+        </mt-button>
+        {% endblock %}
+    </template>
+
+    {% block sw_data_grid_settings_content %}
+    {% block sw_data_grid_settings_general %}
+    <div class="sw-data-grid__settings-container">
+
+        {% block sw_data_grid_settings_compact_switch %}
+
+        <mt-switch
+            :model-value="currentCompact"
+            remove-top-margin
+            :label="$tc('global.sw-data-grid.labelSettingsCompactMode')"
+            @update:model-value="onChangeCompactMode"
+        />
+        {% endblock %}
+
+        {% block sw_data_grid_settings_preview_switch %}
+
+        <mt-switch
+            v-if="enablePreviews"
+            :model-value="currentPreviews"
+            remove-top-margin
+            :label="$tc('global.sw-data-grid.labelSettingsPreviewImages')"
+            @update:model-value="onChangePreviews"
+        />
+        {% endblock %}
+
+        {% block sw_data_grid_settings_additional_settings %}
+        <slot name="additionalSettings">
+            {% block sw_data_grid_settings_additional_settings_slot %}{% endblock %}
+        </slot>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_data_grid_settings_devider %}
+    <sw-context-menu-divider />
+    {% endblock %}
+
+    {% block sw_data_grid_settings_columns %}
+    <transition-group
+        name="columns-list"
+        tag="div"
+        class="sw-data-grid__settings-container sw-data-grid__settings-column-list"
+    >
+
+        {% block sw_data_grid_settings_column_element %}
+        <div
+            v-for="(column, index) in currentColumns"
+            :key="column.property"
+            :class="['sw-data-grid__settings-column-item', 'sw-data-grid__settings-item--' + index]"
+        >
+
+            {% block sw_data_grid_settings_column_visibility_checkbox %}
+            <mt-checkbox
+                :disabled="column.primary"
+                :label="$te(column.label) ? $tc(column.label) : column.label"
+                :checked="currentColumns[index].visible"
+                @update:checked="onChangeColumnVisibility($event, index)"
+            />
+            {% endblock %}
+
+            {% block sw_data_grid_settings_column_item_conrols %}
+            <sw-button-group
+                v-if="currentColumns.length >= 2"
+                class="sw-data-grid__settings-column-item-controls"
+            >
+
+                {% block sw_data_grid_settings_column_control_up %}
+                <mt-button
+                    size="x-small"
+                    square
+                    :disabled="index === 0"
+                    variant="secondary"
+                    @click="onClickChangeColumnOrderUp(column)"
+                >
+                    {% block sw_data_grid_settings_column_control_up_icon %}
+                    <mt-icon
+                        name="regular-chevron-up-xxs"
+                        size="14px"
+                    />
+                    {% endblock %}
+                </mt-button>
+                {% endblock %}
+
+                {% block sw_data_grid_settings_column_control_down %}
+                <mt-button
+                    size="x-small"
+                    square
+                    :disabled="index === (currentColumns.length - 1)"
+                    class="down"
+                    variant="secondary"
+                    @click="onClickChangeColumnOrderDown(column)"
+                >
+                    {% block sw_data_grid_settings_column_control_down_icon %}
+                    <mt-icon
+                        name="regular-chevron-down-xxs"
+                        size="14px"
+                    />
+                    {% endblock %}
+                </mt-button>
+                {% endblock %}
+            </sw-button-group>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </transition-group>
+    {% endblock %}
+    {% endblock %}
+</sw-context-button>
+{% endblock %}

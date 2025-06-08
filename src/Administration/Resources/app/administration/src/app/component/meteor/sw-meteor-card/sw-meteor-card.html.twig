@@ -1,0 +1,116 @@
+{% block sw_meteor_card %}
+<div
+    class="sw-meteor-card"
+    :class="cardClasses"
+>
+    {% block sw_meteor_card_header %}
+    <div
+        v-if="hasHeader"
+        class="sw-meteor-card__header"
+    >
+        {% block sw_meteor_card_header_grid %}
+        <div
+            v-if="!!title || !!$slots.action"
+            class="sw-meteor-card__header-grid"
+        >
+            {% block sw_meteor_card_title %}
+            <slot name="title">
+                <div
+                    v-if="title"
+                    class="sw-meteor-card__title"
+                >
+                    {{ title }}
+                </div>
+            </slot>
+            {% endblock %}
+
+            {% block sw_meteor_card_header_action %}
+            <div
+                v-if="!!$slots.action"
+                class="sw-meteor-card__header-action"
+            >
+                {% block sw_meteor_card_header_action_inner %}
+                <slot name="action">
+                    {% block sw_meteor_card_slot_header_action %}{% endblock %}
+                </slot>
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_meteor_card_toolbar %}
+        <div
+            v-if="!!$slots.toolbar"
+            class="sw-meteor-card__toolbar"
+        >
+            {% block sw_meteor_card_toolbar_inner %}
+            <slot name="toolbar">
+                {% block sw_meteor_card_slot_toolbar %}{% endblock %}
+            </slot>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_meteor_card_tabs %}
+        <sw-tabs
+            v-if="hasTabs"
+            position-identifier="sw-meteor-card"
+            :small="false"
+            :default-item="defaultTab"
+            @new-item-active="setActiveTab($event.name)"
+        >
+            <slot
+                name="tabs"
+                v-bind="{ activeTab }"
+            ></slot>
+        </sw-tabs>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_meteor_card_content %}
+    <div
+        v-if="hasContent"
+        class="sw-meteor-card__content"
+    >
+        {% block sw_meteor_card_content_wrapper %}
+        <div
+            v-if="hasDefaultSlot"
+            class="sw-meteor-card__content-wrapper"
+        >
+            {% block sw_meteor_card_default_inner %}
+            <slot v-bind="{ activeTab }">
+                {% block sw_meteor_card_slot_default %}{% endblock %}
+            </slot>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        <slot
+            name="grid"
+            :title="title"
+        >
+            {% block sw_meteor_card_slot_grid %}{% endblock %}
+        </slot>
+
+        {% block sw_meteor_card_loader %}
+        <sw-loader v-if="isLoading" />
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_meteor_card_footer %}
+    <div
+        v-if="!!$slots.footer"
+        class="sw-meteor-card__footer"
+    >
+        {% block sw_meteor_card_footer_inner %}
+        <slot name="footer">
+            {% block sw_meteor_card_slot_footer %}{% endblock %}
+        </slot>
+        {% endblock %}
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

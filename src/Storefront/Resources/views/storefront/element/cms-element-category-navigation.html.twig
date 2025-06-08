@@ -1,0 +1,15 @@
+{% set navigation = element.data.tree %}
+
+{% block element_category_navigation %}
+    <div class="cms-element-{{ element.type }}">
+        {% block element_category_navigation_element %}
+            <div class="category-navigation-box">
+                {% block element_category_navigation_box %}
+                    {% sw_include '@Storefront/storefront/layout/sidebar/category-navigation.html.twig' with {
+                        navigationTree: navigation
+                    } only %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% block sw_block_field %}
+<sw-base-field
+    class="sw-block-field"
+    :class="swBlockFieldClasses"
+    v-bind="$attrs"
+>
+    <template #sw-field-input="{ identification, error, disabled }">
+        <div class="sw-block-field__block">
+            <slot
+                name="sw-field-input"
+                v-bind="{ identification, error, disabled, size, setFocusClass, removeFocusClass }"
+            ></slot>
+        </div>
+    </template>
+
+    <template #hint>
+        <slot name="hint"></slot>
+    </template>
+
+    <template #label>
+        <slot name="label"></slot>
+    </template>
+</sw-base-field>
+{% endblock %}

@@ -1,0 +1,18 @@
+.sw-cms-block-text-teaser-section {
+    display: flex;
+    flex-wrap: wrap;
+
+    .sw-cms-block-text-teaser-section__teaser {
+        flex-grow: 1;
+        flex-shrink: 0;
+        flex-basis: 180px;
+        margin-right: 30px;
+        margin-bottom: 20px;
+    }
+
+    .sw-cms-block-text-teaser-section__content {
+        flex-grow: 3;
+        flex-shrink: 0;
+        flex-basis: 300px;
+    }
+}

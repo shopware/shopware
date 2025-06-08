@@ -1,0 +1,58 @@
+<div>
+    <!-- outside form element -->
+    <input type="email" form="test" name="emailtest">
+
+    <form id="test" data-form-preserver="true">
+        <!-- buttons -->
+        <button type="button" form="test" id="buttontest1">button</button>
+        <button type="reset" form="test" id="buttontest2">reset</button>
+        <button type="submit" form="test" id="buttontest3">submit</button>
+
+        <!-- input types -->
+        <input type="button" form="test" name="buttontest">
+        <input type="checkbox" form="test" name="checkboxtest">
+        <input type="color" form="test" name="colortest">
+        <input type="date" form="test" name="datetest">
+        <input type="datetime-local" form="test" name="datetime-localtest">
+        <input type="file" form="test" name="filetest">
+        <input type="hidden" form="test" name="hiddentest">
+        <input type="image" form="test" name="imagetest">
+        <input type="month" form="test" name="monthtest">
+        <input type="number" form="test" name="numbertest">
+        <input type="password" form="test" name="passwordtest">
+        <input type="radio" form="test" name="radiotest" value="radio1">
+        <input type="radio" form="test" name="radiotest" value="radio2">
+        <input type="reset" form="test" name="resettest">
+        <input type="search" form="test" name="searchtest">
+        <input type="submit" form="test" name="submittest">
+        <input type="tel" form="test" name="teltest">
+        <input type="text" form="test" name="texttest">
+        <input type="time" form="test" name="timetest">
+
+        <!-- input types without form attribute -->
+        <input type="url" name="urltest">
+        <input type="week" name="weektest">
+
+        <!-- selects -->
+        <select form="test" id="cars" name="cars">
+            <option value="volvo">Volvo</option>
+            <option value="saab">Saab</option>
+            <option value="fiat">Fiat</option>
+            <option value="audi">Audi</option>
+        </select>
+        <select form="test" id="cars2" name="cars2" multiple>
+            <option value="volvo">Volvo</option>
+            <option value="saab">Saab</option>
+            <option value="fiat">Fiat</option>
+            <option value="audi">Audi</option>
+        </select>
+
+        <!-- textarea -->
+        <textarea form="test" name="textareatest"></textarea>
+
+        <div class="form-group">
+            <!-- nested input element -->
+            <input type="text" name="nestedtest">
+        </div>
+    </form>
+</div>

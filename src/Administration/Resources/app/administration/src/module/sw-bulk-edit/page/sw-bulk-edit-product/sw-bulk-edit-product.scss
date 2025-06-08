@@ -1,0 +1,146 @@
+@import "~scss/variables";
+
+.sw-bulk-edit-product {
+    &.is--variant {
+        // Hide form-field-renderer for price inheritance field
+        .sw-bulk-edit-change-field-isPriceInherited .sw-form-field-renderer {
+            display: none;
+        }
+
+        // Hide checkbox for price, purchasePrices, listPrice and regulationPrice
+        .sw-bulk-edit-change-field-price .sw-field__checkbox,
+        .sw-bulk-edit-change-field-purchasePrices .sw-field__checkbox,
+        .sw-bulk-edit-change-field-listPrice .sw-field__checkbox,
+        .sw-bulk-edit-change-field-regulationPrice .sw-field__checkbox {
+            display: none;
+        }
+
+        // Adjust space after hiding those checkboxes
+        .sw-bulk-edit-change-field-price .sw-field--checkbox__content,
+        .sw-bulk-edit-change-field-purchasePrices .sw-field--checkbox__content,
+        .sw-bulk-edit-change-field-listPrice .sw-field--checkbox__content,
+        .sw-bulk-edit-change-field-regulationPrice .sw-field--checkbox__content {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .mt-card .mt-card__content {
+        padding: 0;
+
+        .mt-card__quick-link {
+            text-align: right;
+            display: block;
+            padding-top: 14px;
+            cursor: pointer;
+        }
+
+        .mt-card__quick-link.is--disabled {
+            cursor: default;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+    }
+
+    .sw-text-editor {
+        &.is--boxed {
+            .sw-text-editor__content {
+                height: 105px;
+            }
+        }
+
+        .sw-text-editor-buttons.is--middle {
+            display: none;
+        }
+    }
+
+    .sw-block-field__block {
+        background: $color-white;
+    }
+
+    .sw-product-detail-context-prices {
+        max-width: 462px;
+
+        .sw-product-detail-context-prices__empty-state {
+            padding: 20px;
+        }
+    }
+
+    .sw-product-detail-properties {
+        .sw-card__title {
+            display: none;
+        }
+
+        .sw-property-assignment {
+            padding: 8px;
+        }
+
+        .sw-product-detail-properties__empty-state {
+            padding: 20px 12px;
+        }
+
+        .sw-property-search__tree-selection,
+        .sw-property-search__search-selection {
+            width: 500px;
+            right: -94px;
+        }
+
+        .sw-property-search__tree-selection {
+            .sw-field--checkbox__content {
+                padding: 0;
+            }
+        }
+    }
+
+    .sw-bulk-edit-product-advancing-prices .mt-button {
+        width: 100%;
+    }
+
+    .sw-bulk-edit-product-base__advanced-prices {
+        .sw-bulk-edit-change-type {
+            position: relative;
+        }
+
+        .sw-inheritance-switch {
+            position: absolute;
+            top: 15px;
+            left: -30px;
+        }
+    }
+
+    .sw-product-media-form .sw-product-media-form__previews {
+        grid-template-columns: none;
+    }
+
+    .sw-product-category-form__visibility_field {
+        margin-top: 0;
+    }
+
+    &__inheritance {
+        &.mt-card {
+            border: none;
+            border-radius: 0;
+        }
+
+        .mt-banner {
+            margin-bottom: 0;
+        }
+    }
+}
+
+.sw-bulk-edit-product-base__property {
+    .sw-product-properties .sw-inheritance-switch {
+        left: 0;
+    }
+}
+
+.sw-bulk-edit-product-base__custom_fields {
+    .sw-tabs.sw-tabs--scrollable {
+        padding: 0;
+    }
+}
+
+.sw-bulk-edit-product-content-advanced-prices-modal {
+    .sw-product-detail-context-prices {
+        min-width: 100%;
+    }
+}

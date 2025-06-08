@@ -1,0 +1,284 @@
+{% block sw_settings_snippet_set_list %}
+<sw-page class="sw-settings-snippet-set-list">
+    {% block sw_settings_snippet_set_list_search_bar %}
+    <template #search-bar>
+        <sw-search-bar
+            :initial-search-type="$tc('sw-settings-snippet.general.searchBarTitleSets')"
+            :placeholder="$tc('sw-settings-snippet.general.placeholderSearchBarSets')"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_snippet_set_list_smart_bar_header %}
+    <template #smart-bar-header>
+        {% block sw_settings_snippet_set_list_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_snippet_set_list_smart_bar_header_title_text %}
+            {{ $t('sw-settings.index.title') }}
+            <mt-icon
+                name="regular-chevron-right-xs"
+                size="12px"
+            />
+            {{ $t('sw-settings-snippet.general.mainMenuItemGeneral') }}
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    <template #smart-bar-actions>
+        <mt-button
+            class="sw-settings-snippet-set-list__action-add"
+            variant="primary"
+            :is-loading="isLoading"
+            :disabled="!acl.can('snippet.creator')"
+            size="default"
+            @click="onAddSnippetSet"
+        >
+            {{ $t('sw-settings-snippet.setList.buttonAddSet') }}
+        </mt-button>
+    </template>
+
+    {% block sw_settings_snippet_set_list_card %}
+    <template #content>
+        <sw-card-view>
+            {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+            {% block sw_settings_snippet_set_list_card_title %}
+            <mt-card
+                v-if="false"
+                position-identifier="sw-settings-snippet-set-list-title"
+            />
+            {% endblock %}
+
+            {% block sw_settings_snippet_set_list_card_list %}
+            <mt-card
+                position-identifier="sw-settings-snippet-set-list-card-list"
+                :is-loading="isLoading"
+                :title="$t('sw-settings-snippet.setList.cardTitle')"
+                large
+            >
+                {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                {% block sw_settings_snippet_set_list_card_list_container %}
+                {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                {% block sw_settings_snippet_set_list_card_list_container_header %}
+                {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                {% block sw_settings_snippet_set_list_card_list_container_header_btn_export %}{% endblock %}
+
+                {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                {% block sw_settings_snippet_set_list_card_list_container_header_btn_edit_set %}{% endblock %}
+
+                {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                {% block sw_settings_snippet_set_list_card_list_container_header_btn_split %}
+                {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                {% block sw_settings_snippet_set_list_card_list_container_header_btn_add_set %}{% endblock %}
+
+                {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                {% block sw_settings_snippet_set_list_card_btn_copy_icon %}{% endblock %}
+
+                {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                {% block sw_settings_snippet_set_list_card_list_btn_copy_split %}
+                {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                {% block sw_settings_snippet_set_list_card_btn_copy %}{% endblock %}
+
+                {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                {% block sw_settings_snippet_set_list_card_copy_context_menu %}{% endblock %}
+
+                {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                {% block sw_settings_snippet_set_list_card_copy_context_divider %}{% endblock %}
+
+                {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                {% block sw_settings_snippet_set_list_card_copy_context_menu_items %}{% endblock %}
+                {% endblock %}
+                {% endblock %}
+                {% endblock %}
+                {% endblock %}
+
+                {% block sw_settings_snippet_set_list_card_list_grid %}
+                <template #grid>
+                    <div class="sw-settings-snippet-set-list__container">
+                        <sw-entity-listing
+                            v-if="snippetSets.length"
+                            ref="snippetSetList"
+                            class="sw-snippet-set-list__list"
+                            identifier="sw-snippet-set-list"
+                            :items="snippetSets"
+                            :columns="snippetSetColumns"
+                            :repository="snippetSetRepository"
+                            large
+                            show-settings
+                            show-selection
+                            allow-bulk-edit
+                            :allow-edit="acl.can('snippet.editor')"
+                            :allow-delete="acl.can('snippet.deleter')"
+                            :allow-inline-edit="acl.can('snippet.editor')"
+                            :skeleton-item-amount="5"
+                            :sort-by="sortBy"
+                            :sort-direction="sortDirection"
+                            @selection-change="onSelectionChanged"
+                            @bulk-edit-modal-open="onEditSnippetSets"
+                        >
+                            <template #column-name="{ item, isInlineEdit }">
+                                <router-link
+                                    v-if="!isInlineEdit"
+                                    class="sw-settings-snippet-set__column-name"
+                                    :to="{ name: 'sw.settings.snippet.list', query: { ids: [item.id] } }"
+                                >
+                                    {{ item.name }}
+                                </router-link>
+                                <template v-else>
+                                    <mt-text-field
+                                        v-model="item.name"
+                                        class="sw-settings-snippet-set__column-name"
+                                        :placeholder="$t('sw-settings-snippet.setList.placeholderName')"
+                                        size="small"
+                                    />
+                                </template>
+                            </template>
+
+                            <template #column-updatedAt="{ item }">
+                                <template v-if="item.updatedAt">
+                                    {{ dateFilter(item.updatedAt) }}
+                                </template>
+                                <template v-else>
+                                    {{ dateFilter(item.createdAt) }}
+                                </template>
+                            </template>
+
+                            <template #column-baseFile="{ item, isInlineEdit, compact }">
+                                <template v-if="!isInlineEdit">
+                                    {{ item.baseFile }}
+                                </template>
+                                <mt-select
+                                    v-else
+                                    v-model="item.baseFile"
+                                    class="sw-settings-snippet-set__column-base-file"
+                                    :options="baseFileOptions"
+                                    :placeholder="$t('sw-settings-snippet.setList.placeholderBaseFile')"
+                                    :small="compact"
+                                />
+                            </template>
+
+                            <template #actions="{ item }">
+                                <sw-context-menu-item
+                                    class="sw-snippet-set-list__list-context-edit"
+                                    :router-link="{ name: 'sw.settings.snippet.list', query: { ids: [item.id] } }"
+                                >
+                                    {{ contextMenuEditSnippet }}
+                                </sw-context-menu-item>
+
+                                <sw-context-menu-item
+                                    class="sw-snippet-set-list__list-context-clone"
+                                    :disabled="!acl.can('snippet.creator')"
+                                    @click="onConfirmClone(item.id)"
+                                >
+                                    {{ $t('global.default.duplicate') }}
+                                </sw-context-menu-item>
+
+                                <sw-context-menu-item
+                                    class="sw-snippet-set-list__list-context-delete"
+                                    variant="danger"
+                                    :disabled="!acl.can('snippet.deleter')"
+                                    @click="onDeleteSet(item.id)"
+                                >
+                                    {{ $t('global.default.delete') }}
+                                </sw-context-menu-item>
+                            </template>
+
+                            <template #action-modals="{ item }">
+                                <sw-confirm-modal
+                                    v-if="showDeleteModal === item.id"
+                                    type="delete"
+                                    :text="$t('sw-settings-snippet.setList.textDeleteConfirm', { name: item.name })"
+                                    @confirm="onConfirmDelete"
+                                    @cancel="closeDeleteModal"
+                                    @close="closeDeleteModal"
+                                />
+                            </template>
+                        </sw-entity-listing>
+                    </div>
+
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_card_list_grid_template %}
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_card_list_grid_column_name %}
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_card_list_grid_column_name_link %}{% endblock %}
+
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_card_list_grid_column_name_editor %}{% endblock %}
+                    {% endblock %}
+
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_card_list_grid_column_changed %}
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_card_list_grid_column_changed_date %}{% endblock %}
+                    {% endblock %}
+
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_card_list_grid_column_base_file %}
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_card_list_grid_column_base_file_editor %}{% endblock %}
+                    {% endblock %}
+
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_card_list_grid_column_base_action %}
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_buttons %}
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_edit %}{% endblock %}
+
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_clone %}{% endblock %}
+
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_delete %}{% endblock %}
+                    {% endblock %}
+                    {% endblock %}
+
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_columns_delete_modal %}
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_delete_modal_confirm_delete_text %}{% endblock %}
+
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_delete_modal_footer %}
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_delete_modal_cancel %}{% endblock %}
+
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_delete_modal_confirm %}{% endblock %}
+                    {% endblock %}
+                    {% endblock %}
+
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_columns_clone_modal %}
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_clone_modal_confirm_delete_text %}{% endblock %}
+
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_clone_modal_footer %}
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_clone_modal_cancel %}{% endblock %}
+
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_clone_modal_confirm %}{% endblock %}
+                    {% endblock %}
+                    {% endblock %}
+                    {% endblock %}
+
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_card_list_grid_pagination %}
+                    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
+                    {% block sw_settings_snippet_set_list_card_list_grid_pagination_bar %}{% endblock %}
+                    {% endblock %}
+                </template>
+                {% endblock %}
+            </mt-card>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

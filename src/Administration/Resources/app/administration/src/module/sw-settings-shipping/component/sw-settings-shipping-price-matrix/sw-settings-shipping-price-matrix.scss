@@ -1,0 +1,90 @@
+@import "~scss/variables";
+
+$sw-shipping-list-color-error: $color-crimson-500;
+
+.sw-settings-shipping-price-matrix {
+    &.sw-card .sw-card__content {
+        padding: 0;
+        overflow: auto;
+    }
+
+    .sw-settings-shipping-price-matrix__top-container {
+        padding: 32px 24px;
+        background-color: $color-gray-100;
+        border-bottom: 1px solid #d1d9e0;
+
+        .sw-select__single-selection {
+            min-height: 30px;
+        }
+    }
+
+    .sw-data-grid.is--compact .sw-data-grid__body .sw-data-grid__cell-content {
+        height: auto;
+    }
+
+    .sw-settings-shipping-price-matrix__price-group-context {
+        width: 35px;
+        border: 1px solid #d6dde5;
+        border-radius: 3px;
+        padding: 0;
+        cursor: pointer;
+
+        &.sw-context-button {
+            height: 100%;
+            display: flex;
+            align-items: center;
+
+            .sw-context-button__button {
+                border: none;
+                width: 100%;
+                padding: 0;
+            }
+        }
+    }
+
+    .sw-settings-shipping-price-matrix__empty {
+        max-width: 500px;
+        margin: 47px auto 50px;
+    }
+
+    .sw-settings-shipping-price-matrix__empty-text {
+        max-width: 500px;
+        font-size: $font-size-xs;
+        text-align: center;
+        margin-bottom: 17px;
+    }
+
+    .sw-settings-shipping-price-matrix__price {
+        display: flex;
+        align-items: center;
+    }
+
+    .sw-settings-shipping-price-matrix__price-inherit-icon {
+        margin-right: 5px;
+    }
+
+    .sw-settings-shipping-price-matrix__top-container-rule-select .sw-field {
+        margin-bottom: 0;
+    }
+
+    .sw-settings-shipping-price-matrix__column-calculation-rule-select {
+        width: 100%;
+    }
+
+    .sw-settings-shipping-price-matrix__empty-text-or {
+        padding-top: 8px;
+    }
+
+    .sw-settings-shipping-price-matrix__new-matrix-alert {
+        margin-bottom: 0;
+    }
+
+    .sw-settings-shipping-price-matrix__price-load-all {
+        border-top: 1px solid $color-gray-300;
+        padding: 20px;
+
+        &-button {
+            width: 100%;
+        }
+    }
+}

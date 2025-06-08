@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Basic information</title>
+        <title lang="de-DE">Stammdaten</title>
+
+        <input-field>
+            <name>shopName</name>
+            <label>Shop name</label>
+            <label lang="de-DE">Shopname</label>
+            <placeholder>Enter a shop name...</placeholder>
+            <placeholder lang="de-DE">Gib den Shopnamen ein ...</placeholder>
+        </input-field>
+
+        <input-field>
+            <name>email</name>
+            <label>Shop owner's email address</label>
+            <label lang="de-DE">Shopbetreiber-E-Mail-Adresse</label>
+            <placeholder>Enter email address...</placeholder>
+            <placeholder lang="de-DE">E-Mail-Adresse eingeben ...</placeholder>
+        </input-field>
+
+        <input-field>
+            <name>metaAuthor</name>
+            <label>Meta Author</label>
+            <label lang="de-DE">Meta-Author</label>
+            <placeholder>Enter author's name...</placeholder>
+            <placeholder lang="de-DE">Author-Namen eingeben ...</placeholder>
+            <helpText>Enter the name that will appear as the author of the website in search results or on social
+                media. This name will be used by default for all pages on the website.
+            </helpText>
+            <helpText lang="de-DE">Hier kannst du den Namen eintragen, der als Verfasser der Webseite in den
+                Suchergebnissen oder in sozialen Netzwerken angezeigt wird. Dieser Name wird standardmäßig für alle
+                Seiten der Webseite verwendet.</helpText>
+        </input-field>
+
+        <input-field type="bool">
+            <name>familyFriendly</name>
+            <label>Family friendly shop</label>
+            <label lang="de-DE">Familienfreundlicher Shop</label>
+            <helpText>Sets meta tag "isFamilyFriendly" for search engines</helpText>
+            <helpText lang="de-DE">Setzt den Metatag "isFamilyFriendly" für Suchmaschinen</helpText>
+        </input-field>
+
+        <input-field type="text-editor">
+            <name>address</name>
+            <label>Shop owner's address</label>
+            <label lang="de-DE">Shopbetreiber-Adresse</label>
+            <placeholder>Enter address...</placeholder>
+            <placeholder lang="de-DE">Adresse eingeben ...</placeholder>
+        </input-field>
+
+        <input-field type="text-editor">
+            <name>bankAccount</name>
+            <label>Shop owner's banking information</label>
+            <label lang="de-DE">Shopbetreiber-Bankinformationen</label>
+            <placeholder>Enter banking information...</placeholder>
+            <placeholder lang="de-DE">Bankinformationen eingeben ...</placeholder>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Shop pages</title>
+        <title lang="de-DE">Shopseiten</title>
+
+        <component name="sw-cms-page-select">
+            <name>tosPage</name>
+            <entity>cms_page</entity>
+            <pageType>page</pageType>
+            <label>Layout for GTC pages</label>
+            <label lang="de-DE">Shopseiten-Layout für AGB-Seiten</label>
+            <placeholder>Assign layout...</placeholder>
+            <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+        </component>
+
+        <component name="sw-cms-page-select">
+            <name>revocationPage</name>
+            <entity>cms_page</entity>
+            <pageType>page</pageType>
+            <label>Layout for revocation notices</label>
+            <label lang="de-DE">Shopseiten-Layout für Widerrufsbelehrungen</label>
+            <placeholder>Assign layout...</placeholder>
+            <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+        </component>
+
+        <component name="sw-cms-page-select">
+            <name>shippingPaymentInfoPage</name>
+            <entity>cms_page</entity>
+            <pageType>page</pageType>
+            <label>Layout for payment and shipping information</label>
+            <label lang="de-DE">Shopseiten-Layout für Versand- und Zahlungsarten</label>
+            <placeholder>Assign layout...</placeholder>
+            <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+        </component>
+
+        <component name="sw-cms-page-select">
+            <name>privacyPage</name>
+            <entity>cms_page</entity>
+            <pageType>page</pageType>
+            <label>Layout for privacy pages</label>
+            <label lang="de-DE">Shopseiten-Layout für Datenschutz-Seiten</label>
+            <placeholder>Assign layout...</placeholder>
+            <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+        </component>
+
+        <component name="sw-cms-page-select">
+            <name>imprintPage</name>
+            <entity>cms_page</entity>
+            <pageType>page</pageType>
+            <label>Layout for an imprint</label>
+            <label lang="de-DE">Shopseiten-Layout für ein Impressum</label>
+            <placeholder>Select layout</placeholder>
+            <placeholder lang="de-DE">Layout auswählen</placeholder>
+        </component>
+
+        <component name="sw-cms-page-select">
+            <name>http404Page</name>
+            <entity>cms_page</entity>
+            <pageType>page</pageType>
+            <label>Layout for 404 pages</label>
+            <label lang="de-DE">Shopseiten-Layout für 404-Seiten</label>
+            <placeholder>Assign layout...</placeholder>
+            <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+        </component>
+
+        <component name="sw-cms-page-select">
+            <name>maintenancePage</name>
+            <entity>cms_page</entity>
+            <pageType>page</pageType>
+            <label>Shop page layout for maintenance pages</label>
+            <label lang="de-DE">Shopseiten-Layout für Wartungsseiten</label>
+            <placeholder>Select layout</placeholder>
+            <placeholder lang="de-DE">Layout auswählen</placeholder>
+        </component>
+
+        <component name="sw-cms-page-select">
+            <name>contactPage</name>
+            <entity>cms_page</entity>
+            <pageType>page</pageType>
+            <label>Shop page layout for contact pages</label>
+            <label lang="de-DE">Shopseiten-Layout für Kontaktseiten</label>
+            <placeholder>Assign layout...</placeholder>
+            <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+        </component>
+
+        <component name="sw-cms-page-select">
+            <name>newsletterPage</name>
+            <entity>cms_page</entity>
+            <pageType>page</pageType>
+            <label>Shop page layout for newsletter pages</label>
+            <label lang="de-DE">Shopseiten-Layout für Newsletterseiten</label>
+            <placeholder>Assign layout...</placeholder>
+            <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+        </component>
+
+    </card>
+
+    <card>
+        <title>Security and Privacy</title>
+        <title lang="de-DE">Sicherheit und Datenschutz</title>
+
+        <component name="sw-switch-field">
+            <name>useDefaultCookieConsent</name>
+            <bordered>bordered</bordered>
+            <label>Use default cookie notification</label>
+            <label lang="de-DE">Standard-Cookie-Hinweis verwenden</label>
+            <helpText>You should deactivate the default cookie notification only if you are using an alternative third-party solution.</helpText>
+            <helpText lang="de-DE">Du solltest den Standard-Cookie-Hinweis hier nur deaktivieren, wenn Du eine alternative Drittanbieterlösung verwendest.</helpText>
+        </component>
+
+        <component name="sw-switch-field">
+            <name>acceptAllCookies</name>
+            <bordered>bordered</bordered>
+            <label>Show "Accept all cookies" button</label>
+            <label lang="de-DE">"Alle Cookies akzeptieren"-Button anzeigen</label>
+            <helpText>Shows a button which allows users to accept all cookies in the storefront</helpText>
+            <helpText lang="de-DE">Zeigt einen Button an, der es Nutzern erlaubt alle Cookies in der Storefront zu akzeptieren</helpText>
+        </component>
+
+        <component name="sw-switch-field">
+            <name>firstNameFieldRequired</name>
+            <bordered>bordered</bordered>
+            <label>First name in contact forms required</label>
+            <label lang="de-DE">Vorname in Kontaktformularen als Pflichtfeld behandeln</label>
+            <helpText>If active, the field "first name" has to be filled in, in order to submit a contact form.</helpText>
+            <helpText lang="de-DE">Wenn aktiv, muss das Feld "Vorname" ausgefüllt werden, um ein Kontaktformular absenden zu können.</helpText>
+        </component>
+
+        <component name="sw-switch-field">
+            <name>lastNameFieldRequired</name>
+            <bordered>bordered</bordered>
+            <label>Last name in contact forms required</label>
+            <label lang="de-DE">Nachname in Kontaktformularen als Pflichtfeld behandeln</label>
+            <helpText>If active, the field "last name" has to be filled in, in order to submit a contact form.</helpText>
+            <helpText lang="de-DE">Wenn aktiv, muss das Feld "Nachname" ausgefüllt werden, um ein Kontaktformular absenden zu können.</helpText>
+        </component>
+
+        <component name="sw-switch-field">
+            <name>phoneNumberFieldRequired</name>
+            <bordered>bordered</bordered>
+            <label>Phone number in contact forms required</label>
+            <label lang="de-DE">Telefonummer in Kontaktformularen als Pflichtfeld behandeln</label>
+            <helpText>If active, the field "phone number" has to be filled in, in order to submit a contact form.</helpText>
+            <helpText lang="de-DE">Wenn aktiv, muss das Feld "Telefonnummer" ausgefüllt werden, um ein Kontaktformular absenden zu können.</helpText>
+        </component>
+    </card>
+
+    <card>
+        <title>CAPTCHA</title>
+        <title lang="de-DE">CAPTCHA</title>
+
+        <component name="sw-settings-captcha-select-v2">
+            <name>activeCaptchasV2</name>
+            <label>Active CAPTCHAS</label>
+            <label lang="de-DE">Aktive CAPTCHAS</label>
+            <placeholder>None</placeholder>
+            <placeholder lang="de-DE">Keine</placeholder>
+        </component>
+    </card>
+
+</config>

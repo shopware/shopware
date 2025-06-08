@@ -1,0 +1,25 @@
+@import "~scss/variables";
+
+$sw-condition-not-found-color-error: $color-crimson-500;
+$sw-condition-not-found-color-background: $color-white;
+
+.sw-condition-not-found {
+    .sw-select.field--condition {
+        background-color: $sw-condition-not-found-color-error;
+
+        &::before,
+        &::after {
+            background-color: $sw-condition-not-found-color-error;
+        }
+    }
+
+    &.sw-condition-base .field--actions {
+        border-color: $sw-condition-not-found-color-error;
+    }
+
+    &.sw-condition-base .sw-field.field--main .sw-field__addition {
+        display: flex;
+        padding: 11px 15px;
+        background-color: $sw-condition-not-found-color-background;
+    }
+}

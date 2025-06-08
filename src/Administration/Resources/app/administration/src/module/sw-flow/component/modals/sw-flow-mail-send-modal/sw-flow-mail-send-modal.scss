@@ -1,0 +1,43 @@
+@import "~scss/variables";
+
+.sw-flow-mail-send-modal {
+    .sw-flow-mail-send-modal__mail-template-detail {
+        margin-top: -25px;
+        margin-bottom: 20px;
+        display: flex;
+
+        a {
+            color: $color-shopware-brand-500;
+            font-size: $font-size-xs;
+            text-decoration: none;
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+    }
+
+    &__recipient-grid {
+        border: 1px solid $color-gray-300;
+        margin-bottom: 32px;
+
+        &.has--error {
+            border-color: $color-crimson-500;
+        }
+
+        &.sw-data-grid .sw-data-grid__body .sw-data-grid__row.is--inline-edit .sw-data-grid__cell-content {
+            padding: 30px 20px;
+        }
+
+        &.sw-data-grid .sw-data-grid__wrapper {
+            overflow: hidden;
+        }
+    }
+
+    &__use-different-reply-to {
+        &.sw-field--switch {
+            display: inline-block;
+            margin-top: 0;
+        }
+    }
+}

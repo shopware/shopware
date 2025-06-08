@@ -1,0 +1,167 @@
+{% block sw_grid %}
+<div
+    class="sw-grid"
+    :class="gridClasses"
+>
+    <slot name="content">
+        {% block sw_grid_slot_content %}
+        <div
+            class="sw-grid__content"
+            :class="gridContentClasses"
+        >
+
+            <slot
+                v-if="header"
+                name="header"
+            >
+                {% block sw_grid_slot_header %}
+                <div
+                    class="sw-grid__header"
+                    :style="[columnFlex, { paddingRight: `${scrollbarOffset}px` }]"
+                >
+                    {% block sw_grid_slot_header_cell_selectable %}
+                    <div
+                        v-if="selectable"
+                        class="sw-grid-column"
+                    >
+                        <div class="sw-grid__cell-content">
+                            <mt-checkbox
+                                v-model:checked="allSelectedChecked"
+                                @update:checked="selectAll"
+                            />
+                        </div>
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_grid_slot_header_cell %}
+                    <div
+                        v-for="(column, columnIndex) in columns"
+                        :key="columnIndex"
+                        :class="[{ 'sw-grid-column': true, 'is--sortable': column.sortable, 'is--sorted': sort === column.dataIndex }, `sw-grid-column--${column.align}`]"
+                        role="gridcell"
+                        tabindex="0"
+                        @click="onGridCellClick($event, column)"
+                        @keydown.enter="onGridCellClick($event, column)"
+                    >
+
+                        {% block sw_grid_slot_header_cell_content %}
+                        <div class="sw-grid__cell-content">
+                            {% block sw_grid_slot_header_cell_icon_label %}
+                            <span
+                                v-if="column.iconLabel"
+                                class="sw-grid__cell-label"
+                            >
+                                <mt-icon
+                                    :name="column.iconLabel"
+                                    :title="column.label"
+                                />
+                            </span>
+                            {% endblock %}
+
+                            {% block sw_grid_slot_header_cell_label %}
+                            <span
+                                v-else-if="column.label"
+                                class="sw-grid__cell-label"
+                            >{{ column.label }}</span>
+                            {% endblock %}
+
+                            {% block sw_grid_slot_header_cell_sortable %}
+                            <span
+                                v-if="column.sortable && sort === column.dataIndex"
+                                class="sw-grid_cell-sortable"
+                            >
+                                <mt-icon
+                                    v-if="sortDir === 'ASC'"
+                                    name="regular-chevron-down-xxs"
+                                    size="16px"
+                                />
+                                <mt-icon
+                                    v-else
+                                    name="regular-chevron-up-xxs"
+                                    size="16px"
+                                />
+                            </span>
+                            {% endblock %}
+                        </div>
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+            </slot>
+
+            <slot name="body">
+                {% block sw_grid_slot_body %}
+                <div
+                    ref="swGridBody"
+                    class="sw-grid__body"
+                >
+
+                    <slot
+                        v-for="(item, index) in items"
+                        :key="getKey(item)"
+                        name="items"
+                    >
+                        {% block sw_grid_body_slot_items %}
+                        <sw-grid-row
+                            ref="rowRefs"
+                            :style="columnFlex"
+                            :item="item"
+                            :index="index"
+                            :allow-inline-edit="allowInlineEdit"
+                            :class="['sw-grid__row--' + index, { 'is--selected': isSelected(item.id), 'is--deleted': item.isDeleted, 'is--new': item.isLocal }]"
+                            @inline-edit-finish="onInlineEditFinish"
+                            @inline-edit-start="onInlineEditStart"
+                        >
+
+                            {% block sw_grid_body_item_selectable %}
+                            <div
+                                v-if="selectable"
+                                class="sw-grid-column"
+                            >
+                                <div class="sw-grid__cell-content">
+                                    <mt-checkbox
+                                        :checked="isSelected(item.id)"
+                                        @update:checked="selectItem($event, item)"
+                                    />
+                                </div>
+                            </div>
+                            {% endblock %}
+
+                            <slot
+                                name="columns"
+                                :item="item"
+                            >
+                                {% block sw_grid_slot_columns %}{% endblock %}
+                            </slot>
+                        </sw-grid-row>
+                        {% endblock %}
+                    </slot>
+
+                    {% block sw_grid_slot_empty_columns %}
+                    <slot
+                        v-if="!items.length"
+                        name="empty"
+                    >
+                        {% block sw_grid_slot_empty_columns_content %}{% endblock %}
+                    </slot>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+            </slot>
+
+            {% block sw_grid_pagination %}
+            <div
+                v-if="hasPaginationSlot && items.length"
+                class="sw-grid__pagination"
+            >
+                <slot name="pagination">
+                    {% block sw_grid_slot_pagination %}{% endblock %}
+                </slot>
+            </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </slot>
+</div>
+{% endblock %}

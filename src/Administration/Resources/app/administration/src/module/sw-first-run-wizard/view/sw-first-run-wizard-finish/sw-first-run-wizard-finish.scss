@@ -1,0 +1,80 @@
+@import "~scss/variables";
+
+.sw-first-run-wizard-finish {
+    text-align: center;
+    align-self: center;
+
+    &__bubble {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: $color-emerald-50;
+        margin-bottom: 16px;
+    }
+
+    &__icon {
+        color: $color-emerald-500;
+    }
+
+    .headline {
+        font-size: $font-size-m;
+        font-weight: $font-weight-semi-bold;
+        text-align: center;
+        letter-spacing: 0.1px;
+        line-height: 25px;
+    }
+
+    .message {
+        font-size: $font-size-xs;
+        font-weight: normal;
+        text-align: center;
+        letter-spacing: 0.1px;
+        line-height: 22px;
+        margin: 20px 0;
+    }
+
+    .headline-useful-links {
+        font-size: $font-size-m;
+        font-weight: $font-weight-semi-bold;
+        letter-spacing: 0.1px;
+        line-height: 25px;
+        margin-top: 50px;
+        text-align: center;
+    }
+
+    .list-useful-links {
+        .external-link {
+            width: 100%;
+            display: inline-block;
+            text-decoration: none;
+            color: $color-shopware-brand-500;
+            font-size: $font-size-xs;
+            font-weight: normal;
+            letter-spacing: 0.1px;
+            line-height: 22px;
+            padding: 10px;
+            border-radius: $border-radius-default;
+
+            &:hover {
+                background-color: $color-gray-100;
+            }
+        }
+    }
+
+    .restart-progress {
+        transform: translate(0, 80px);
+
+        .sw-loader {
+            background: none;
+        }
+
+        .sw-loader-info-text {
+            position: relative;
+            top: 50px;
+        }
+    }
+}

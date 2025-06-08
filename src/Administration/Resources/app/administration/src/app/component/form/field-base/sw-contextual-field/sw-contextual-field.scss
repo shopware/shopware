@@ -1,0 +1,57 @@
+@import "~scss/variables";
+
+$sw-field-transition: border-color 0.3s ease-out;
+
+.sw-contextual-field {
+    input:-webkit-autofill {
+        -webkit-box-shadow: 0 0 0 1000px $color-white inset;
+    }
+
+    .sw-block-field__block {
+        display: flex;
+    }
+
+    .sw-field__addition {
+        display: flex;
+        flex-shrink: 0;
+        justify-content: center;
+        align-items: center;
+        min-width: 50px;
+        background: $color-gray-50;
+        border-left: 1px solid $color-gray-300;
+        border-right: none;
+        line-height: 22px;
+        padding: 12px 15px;
+        font-size: $font-size-xs;
+        color: $color-darkgray-200;
+        transition: $sw-field-transition;
+
+        .mt-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        &.is--prefix {
+            border-right: 1px solid $color-gray-300;
+            border-left: none;
+        }
+    }
+
+    &.is--disabled {
+        .sw-field__addition {
+            background: $color-gray-100;
+        }
+    }
+
+    &.sw-field--small {
+        .sw-field__addition {
+            padding: 4px 16px;
+        }
+    }
+
+    &.sw-field--medium {
+        .sw-field__addition {
+            padding: 8px 16px;
+        }
+    }
+}

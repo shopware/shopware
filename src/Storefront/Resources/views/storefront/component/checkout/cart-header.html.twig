@@ -1,0 +1,68 @@
+{% block component_checkout_cart_header %}
+    {% if showRemoveColumn is not defined %}
+        {% set showRemoveColumn = true %}
+    {% endif %}
+
+    {% if showSubtotal is not defined %}
+        {% set showSubtotal = true %}
+    {% endif %}
+
+    {% set subtotalColumnSize = 2 %}
+    {% set infoColumnSize = 8 %}
+    {% if showSubtotal %}
+        {% set infoColumnSize = infoColumnSize - subtotalColumnSize %}
+    {% endif %}
+    {% if showRemoveColumn %}
+        {% set infoColumnSize = infoColumnSize - 1 %}
+    {% endif %}
+
+    {# @deprecated tag:v6.8.0 - Will be removed, use infoColumnSize with a prefix instead. #}
+    {% set infoColumnClass = 'col-' ~ infoColumnSize %}
+
+    {% block component_checkout_cart_header_element %}
+        <li class="card-title cart-table-header" aria-hidden="true">
+
+            <div class="row cart-header-row">
+                {% block component_checkout_cart_header_product_info %}
+                    <div class="col-{{ infoColumnSize }} cart-header-info">
+                        {{ 'checkout.cartHeaderInfo'|trans|sw_sanitize }}
+                    </div>
+                {% endblock %}
+
+                {% block component_checkout_cart_header_quantity %}
+                    <div class="col-2 cart-header-quantity">
+                        {{ 'checkout.cartHeaderQuantity'|trans|sw_sanitize }}
+                    </div>
+                {% endblock %}
+
+                {% if showTaxPrice %}
+                    {% block component_checkout_cart_header_tax_price %}
+                        <div class="col-2 cart-header-tax-price">
+                            {% if context.salesChannel.taxCalculationType == 'horizontal' %}
+                                {% if context.taxState == 'gross' %}
+                                    {{ 'checkout.cartHeaderTaxIncludeVat'|trans|sw_sanitize }}
+                                {% else %}
+                                    {{ 'checkout.cartHeaderTaxExcludeVat'|trans|sw_sanitize }}
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    {% endblock %}
+                {% else %}
+                    {% block component_checkout_cart_header_unit_price %}
+                        <div class="col-2 cart-header-unit-price">
+                            {{ 'checkout.cartHeaderUnitPrice'|trans|sw_sanitize }}
+                        </div>
+                    {% endblock %}
+                {% endif %}
+
+                {% block component_checkout_cart_header_total_price %}
+                    {% if showSubtotal %}
+                        <div class="col-{{ subtotalColumnSize }} cart-header-total-price">
+                            {{ 'checkout.cartHeaderTotalPrice'|trans|sw_sanitize }}
+                        </div>
+                    {% endif %}
+                {% endblock %}
+            </div>
+        </li>
+    {% endblock %}
+{% endblock %}

@@ -1,0 +1,27 @@
+@import "~scss/variables";
+
+.sw-bulk-edit__custom-fields {
+    .sw-bulk-edit-custom-fields__change {
+        display: flex;
+        align-items: center;
+    }
+
+    .sw-tabs__content {
+        margin: auto 32px;
+    }
+
+    .sw-tabs__custom-content {
+        .sw-container {
+            padding: 12px 32px;
+
+            &:nth-child(even) {
+                background-color: $color-gray-100;
+            }
+
+            .sw-field,
+            .sw-field--checkbox {
+                margin-bottom: unset;
+            }
+        }
+    }
+}

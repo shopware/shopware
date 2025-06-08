@@ -1,0 +1,13 @@
+@import "~scss/variables";
+
+.sw-search-more-results__link {
+    color: $color-shopware-brand-500;
+    margin-left: 5px;
+
+    &--v2 {
+        font-size: $font-size-xs;
+        color: $color-gray-500;
+        text-decoration: none;
+        margin-left: 10px;
+    }
+}

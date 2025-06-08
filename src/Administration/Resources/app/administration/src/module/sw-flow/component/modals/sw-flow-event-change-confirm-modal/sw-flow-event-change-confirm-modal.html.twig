@@ -1,0 +1,49 @@
+{% block sw_flow_event_change_confirm_modal %}
+<sw-modal
+    class="sw-flow-event-change-confirm-modal"
+    variant="small"
+    @modal-close="onClose"
+>
+    <template #modal-header>
+        {% block sw_flow_event_change_confirm_modal_header %}
+        <mt-icon
+            name="regular-exclamation-triangle"
+        />
+
+        <h4 class="sw-flow-event-change-confirm-modal__title">
+            {{ $tc('global.default.warning') }}
+        </h4>
+        {% endblock %}
+    </template>
+    {% block sw_flow_event_change_confirm_modal_text_confirmation %}
+    <p
+        class="sw-flow-event-change-confirm-modal__text-confirmation"
+        v-html="$tc('sw-flow.modals.confirmation.textConfirmChangeTrigger')"
+    ></p>
+    {% endblock %}
+
+    <template #modal-footer>
+        {% block sw_flow_event_change_confirm_footer_cancel_button %}
+        <mt-button
+            class="sw-flow-event-change-confirm-modal__cancel-button"
+            size="small"
+            variant="secondary"
+            @click="onClose"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_flow_event_change_confirm_footer_save_button %}
+        <mt-button
+            class="sw-flow-event-change-confirm-modal__confirm-button"
+            variant="primary"
+            size="small"
+            @click="onConfirm"
+        >
+            {{ $tc('global.default.confirm') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+</sw-modal>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% block sw_collapse_panel_header %}
+
+{% block sw_collapse_panel_header_slot %}
+<div
+    class="sw-sidebar-collapse__header"
+>
+
+    {% block sw_sidebar_collapse_title %}
+    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+    <h4
+        class="sw-sidebar-collapse__title"
+        aria-level="4"
+        @click="collapseItem"
+    >
+        <slot
+            name="header"
+            :expanded="expanded"
+        >
+
+            {% block sw_sidebar_collapse_panel_header_slot %}{% endblock %}
+
+        </slot>
+    </h4>
+    {% endblock %}
+
+    {% block sw_sidebar_collapse_buttons %}
+    <div class="sw-sidebar-collapse__actions">
+        <slot name="actions"></slot>
+    </div>
+    <div
+        class="sw-sidebar-collapse__indicator"
+        role="button"
+        tabindex="0"
+        :aria-label="$t('sw-sidebar-collapse.collapseIndicator')"
+        @click="collapseItem"
+        @keydown.enter="collapseItem"
+    >
+        <mt-icon
+            size="24px"
+            :name="`regular-chevron-${expandChevronDirection}-xxs`"
+            class="sw-sidebar-collapse__expand-button"
+            :class="expandButtonClass"
+        />
+        <mt-icon
+            size="16px"
+            name="regular-chevron-down-xxs"
+            class="sw-sidebar-collapse__collapse-button"
+            :class="collapseButtonClass"
+        />
+    </div>
+    {% endblock %}
+
+</div>
+{% endblock %}
+
+{% endblock %}
+
+{% block sw_sidebar_collapse_panel_content_template %}
+<!-- eslint-disable-next-line vue/valid-v-slot -->
+<template #content>
+    <slot name="content">
+
+        {% block sw_sidebar_collapse_panel_content_slot %}{% endblock %}
+
+    </slot>
+</template>
+{% endblock %}

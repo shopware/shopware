@@ -1,0 +1,37 @@
+@import "~scss/variables";
+
+.sw-meteor-navigation {
+    display: flex;
+    align-items: center;
+    color: $color-gray-500;
+    font-size: $font-size-xs;
+
+    .sw-meteor-navigation__back-arrow {
+        margin-right: 8px;
+        cursor: pointer;
+    }
+
+    .sw-meteor-navigation__link {
+        display: flex;
+        align-items: center;
+        color: $color-gray-500;
+        font-weight: $font-weight-medium;
+        text-decoration: none;
+        padding: 6px 10px;
+        border-radius: $border-radius-md;
+        transition: color 0.15s ease, background-color 0.15s ease;
+
+        &:hover,
+        &:focus,
+        &:focus-within,
+        &:focus-visible {
+            background-color: $color-gray-100;
+            color: $color-darkgray-800;
+        }
+
+        &:active {
+            background-color: $color-gray-200;
+            color: $color-darkgray-900;
+        }
+    }
+}

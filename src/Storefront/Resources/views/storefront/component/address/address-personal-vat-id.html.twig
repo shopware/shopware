@@ -1,0 +1,26 @@
+{% block component_account_register_personal_vat_id_field %}
+    {% set vatIdValue = activeRoute == 'frontend.account.profile.page' or (activeRoute == 'frontend.account.addressmanager.get' and context.customer.guest) ? vatIds[0] : vatIds.get(0) %}
+    {% set violationLabel = null %}
+    {% set violationPath = null %}
+
+    {% for violation in formViolations.getViolations('/vatIds') %}
+        {% set violationPath = '/vatIds' %}
+        {% set violationLabel = 'address.companyVatLabel'|trans|sw_sanitize %}
+        {% if violation.code === 'VIOLATION::IS_BLANK_ERROR' %}
+            {% set vatIdValue = null %}
+        {% elseif formViolations.getInputData()['vatIds'][0] is defined %}
+            {% set vatIdValue = formViolations.getInputData()['vatIds'][0] %}
+        {% endif %}
+    {% endfor %}
+
+    {% block component_account_register_personal_vat_id_field_input %}
+        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+            label: 'address.companyVatLabel'|trans|sw_sanitize,
+            id: 'vatIds',
+            name: 'vatIds[]',
+            value: vatIdValue,
+            violationPath: violationPath,
+            additionalClass: 'col-md-6',
+        } %}
+    {% endblock %}
+{% endblock %}

@@ -1,0 +1,21 @@
+@import "~scss/variables";
+
+.sw-modal.sw-shortcut-overview--modal {
+    .sw-modal__dialog {
+        max-width: 1200px;
+    }
+
+    .sw-modal__body {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+    }
+
+    h3 {
+        margin: 20px 0 10px;
+
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+}

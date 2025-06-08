@@ -1,0 +1,26 @@
+<!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/v-on-event-hyphenation -->
+{% block sw_form_field_renderer %}
+<component
+    :is="componentName"
+    v-if="!config.hidden"
+    v-bind="bind"
+    ref="component"
+    v-model:value="currentValue"
+    v-model:entity-collection="currentValue"
+    class="sw-form-field-renderer"
+    @update:value="emitUpdate"
+    @update:ids="emitUpdate"
+    @update:entity-collection="emitUpdate"
+>
+    {% block sw_form_field_renderer_inner %}
+    {% parent %}
+
+    <template
+        v-if="suffixLabel"
+        #suffix
+    >
+        <span>{{ suffixLabel }}</span>
+    </template>
+    {% endblock %}
+</component>
+{% endblock %}

@@ -1,0 +1,63 @@
+{
+  "sw-settings-mailer": {
+    "general": {
+      "mainMenuItemGeneral": "Mailer",
+      "textHeadline": "Mailer",
+      "buttonSave": "Speichern",
+      "helpText": "Für weitere Informationen schaue bitte in die <a target=\"_blank\" href=\"https://docs.shopware.com/de/shopware-6-de\">Dokumentation</a>"
+    },
+    "mailer-configuration": {
+      "card-title": "Mailer-Konfiguration",
+      "agent": "Bevorzugter E-Mail-Agent",
+      "local-agent": "Lokaler E-Mail-Agent",
+      "local-helptext": "Es wird der Standard-Mailer (Sendmail) Deines Systems verwendet. Stelle sicher, dass Sendmail in Deiner Host-Umgebung verfügbar ist und funktioniert.",
+      "smtp-server": "SMTP-Server",
+      "smtp-server-oauth": "SMTP server mit OAuth 2",
+      "env-file": "Umgebungs-Konfiguration benutzen"
+    },
+    "first-configuration": {
+      "headline": "E-Mail-Kommunikation einrichten",
+      "description": "Die Kommunikation mit den Kunden ist ein Schlüsselfaktor im täglichen E-Commerce. Daher sollte die Einrichtung eines Mailingsystems so schnell wie möglich von Deiner Liste gestrichen werden."
+    },
+    "sendmail": {
+      "sync": "Synchroner Mailversand",
+      "async": "Asynchroner Mailversand"
+    },
+    "card-smtp": {
+      "host": "Host",
+      "host-placeholder": "Host-Namen eingeben ...",
+      "port": "Port",
+      "port-placeholder": "Port-Nummer eingeben ...",
+      "username": "Benutzername",
+      "username-placeholder": "Gib Deinen Benutzernamen ein ...",
+      "password": "Passwort",
+      "password-placeholder": "Gib ein Passwort ein ...",
+      "oauth-url": "OAuth URL",
+      "oauth-url-placeholder": "OAuth URL eingeben ...",
+      "oauth-scope": "OAuth Scope",
+      "oauth-scope-placeholder": "OAuth Scope eingeben ...",
+      "oauth-client-id": "Client ID",
+      "oauth-client-id-placeholder": "Client ID eingeben ...",
+      "oauth-client-secret": "Client Secret",
+      "oauth-client-secret-placeholder": "Client Secret eingeben ...",
+      "encryption": "Verschlüsselungsmethode",
+      "encryption-placeholder": "Verschlüsselungsmethode auswählen ...",
+      "sender-address": "Absender-Adresse",
+      "sender-address-placeholder": "Gib eine E-Mail-Adresse ein, auf die Du Zugriff hast ...",
+      "delivery-address": "Empfänger-Adresse",
+      "delivery-address-placeholder": "Gib eine E-Mail-Adresse für Testzwecke ein ...",
+      "delivery-address-helptext": "Alle ausgehenden E-Mails werden ebenfalls an diese Adresse gesendet. Diese Funktion dient nur zu Testzwecken.",
+      "disable-delivery": "E-Mail-Versand deaktivieren",
+      "error": {
+        "notificationMessage": "Die eingegebene SMTP-Konfiguration scheint fehlerhaft zu sein."
+      }
+    },
+    "encryption": {
+      "no-encryption": "Keine Verschlüsselung",
+      "ssl": "SSL",
+      "tls": "TLS"
+    },
+    "helpText": "Für weitere Informationen schaue bitte in die <a target=\"_blank\" href=\"https://docs.shopware.com/de/shopware-6-de\">Dokumentation</a>"
+  }
+}
+

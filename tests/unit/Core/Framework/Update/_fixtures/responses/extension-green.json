@@ -1,0 +1,10 @@
+[{
+  "name": "TestApp",
+  "label": "Test app without registration",
+  "iconPath": "https://xx",
+  "status": {
+    "name": "compatible",
+    "label": "Compatible",
+    "type": "green"
+  }
+}]

@@ -1,0 +1,65 @@
+@import "~scss/variables";
+
+$sw-select-result-list-transition: all ease-in-out 0.2s;
+
+.sw-select-result-list {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.sw-select-result-list-popover:not(.mt-floating-ui__content) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+}
+
+.sw-select-result-list-popover .mt-floating-ui__trigger {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.sw-select-result-list-popover .sw-popover__wrapper {
+    width: 100%;
+}
+
+.sw-select-result-list__content {
+    width: 100%;
+    max-height: 250px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border: 1px solid $color-gray-100;
+    box-shadow: 0 3px 6px 0 $color-gray-300;
+    background-color: $color-white;
+    font-size: $font-size-xs;
+    padding: 8px;
+    border-radius: 4px;
+
+    .sw-select-result-list__item-list {
+        list-style: none;
+    }
+
+    .sw-select-result-list__empty {
+        padding: 10px 16px;
+    }
+}
+
+.sw-select-result-list__content_empty {
+    opacity: 0;
+    min-height: 293px;
+    height: 293px;
+}
+
+.sw-popover__wrapper.--placement-bottom-outside.sw-select-result-list-popover-wrapper {
+    transform: translate(0, calc(-100% - 48px));
+}

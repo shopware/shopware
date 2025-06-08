@@ -1,0 +1,130 @@
+{
+  "sw-settings-shipping": {
+    "general": {
+      "mainMenuItemGeneral": "Versand",
+      "placeholderSearchBar": "Durchsuche alle Versandarten ...",
+      "descriptionTextModule": "Verwaltung von Versandarten."
+    },
+    "list": {
+      "textHeadline": "Versand",
+      "buttonAddShippingMethod": "Versandart anlegen",
+      "buttonDelete": "Löschen",
+      "columnName": "Name",
+      "columnDescription": "Beschreibung",
+      "columnActive": "Aktiv",
+      "columnPosition": "Position",
+      "contextMenuEdit": "Bearbeiten",
+      "contextMenuDelete": "Löschen",
+      "contextMenuDuplicate": "Duplizieren",
+      "messageEmpty": "Noch keine Versandarten",
+      "textDeleteConfirm": "Möchtest Du die Versandart \"{name}\" wirklich löschen?",
+      "titleSidebarItemRefresh": "Aktualisieren",
+      "messageSaveSuccess": "Die Versandart \"{name}\" wurde erfolgreich gespeichert.",
+      "messageSaveError": "Die Versandart \"{name}\" konnte nicht gespeichert werden.",
+      "messageDeleteError": "Die Versandart \"{name}\" konnte nicht gelöscht werden.",
+      "messageDeleteSuccess": "Die Versandart \"{name}\" wurde erfolgreich gelöscht.",
+      "columnTaxType": "Steuerberechnung",
+      "columnTaxRate": "Steuersatz",
+      "placeholderTaxType": "Wähle einen Steuertyp ..."
+    },
+    "detail": {
+      "textHeadline": "Neue Versandart",
+      "titleCard": "Einstellungen",
+      "messageSaveSuccess": "Die Versandart \"{name}\" wurde erfolgreich gespeichert.",
+      "messageSaveError": "Die Versandart \"{name}\" konnte nicht gespeichert werden.",
+      "labelName": "Name",
+      "labelTechnicalName": "Technischer Name",
+      "labelDescription": "Beschreibung",
+      "labelActive": "Aktiv",
+      "labelPosition": "Position",
+      "labelDeliveryTime": "Lieferzeit",
+      "placeholderDeliveryTime": "Durchsuche Lieferzeiten ...",
+      "placeholderName": "Namen eingeben ...",
+      "placeholderTechnicalName": "Technischen Namen eingeben ...",
+      "placeholderPosition": "Position eingeben ...",
+      "placeholderDescription": "Beschreibung eingeben ...",
+      "buttonSave": "Speichern",
+      "labelSetRules": "Regel auswählen",
+      "labelBasicInfo": "Basisinformation",
+      "topRule": "Verfügbarkeitsregel",
+      "placeholderTopRule": "Suche oder erstelle Verfügbarkeitsregel ...",
+      "labelLogoUpload": "Logo hochladen",
+      "labelTrackingUrl": "Tracking-URL",
+      "placeholderTrackingUrl": "Tracking-URL hier eingeben ...",
+      "helpTextTrackingUrl": "Hier kannst Du die Tracking-URL des Versandanbieters eingeben und \"%s\" als Platzhalter an der Stelle einfügen, an der die eigentliche Sendungsnummer stehen würde. Die Sendungsnummer wird automatisch aus den einzelnen Bestellungen eingefügt.",
+      "helpTextTechnicalName": "Der technische Name wird für die eindeutigen Identifikation der Versandart verwendet. Eine nachträgliche Änderung des technischen Namens kann dazu führen, dass Versandintegrationen, die sich auf diesen Namen verlassen, nicht mehr funktionieren.",
+      "tax": {
+        "fieldName": "Steuerberechnung",
+        "labelTaxType": "Steuertyp",
+        "labelTaxRate": "Steuersatz",
+        "placeholderTaxType": "Wähle einen Steuertyp ...",
+        "placeholderTaxRate": "Wähle einen Steuersatz ...",
+        "helpText": "Wähle aus, wie Steuern in Versandkosten berechnet werden:<ul style='margin-left: 15px'><li>Automatisch - Berechnung auf Basis aller im Warenkorb enthaltener Steuersätze</li><li>Höchste - Berechnung auf Basis des höchsten im Warenkorb enthaltenen Steuersatzes</li><li>Festgelegt - Berechnung auf Basis eines manuell ausgewählten Steuersatzes</li></ul>"
+      }
+    },
+    "constants": {
+      "weight": "Gewicht",
+      "price": "Preis",
+      "lineItemCount": "Anzahl Produkte"
+    },
+    "priceMatrix": {
+      "titleCard": "Preismatrix",
+      "noRestriction": "Keine Einschränkungen",
+      "addNewRule": "Neue Regel erstellen",
+      "addNewShippingPrice": "Neue Preisregel hinzufügen",
+      "duplicateMatrixContextLabel": "Preismatrix duplizieren",
+      "deleteMatrixContextLabel": "Preismatrix löschen",
+      "contextMenuDeletePrice": "Preisregel löschen",
+      "selectProperty": "Warenkorb-Eigenschaft wählen ...",
+      "useRules": "Erstelle eine Regel",
+      "emptyText": "Möchtest Du die Preismatrix auf vorgegebenen Warenkorbeigenschaften oder individuell erstellten Regeln basieren lassen? Bitte auswählen:",
+      "chooseCustomRule": "Wähle eine individuelle Regel",
+      "calculationLineItemCount": "Anzahl Produkte",
+      "calculationPrice": "Warenkorb-Wert",
+      "calculationWeight": "Gewicht",
+      "calculationVolume": "Volumen",
+      "columnQuantityStart": "Anzahl von ...",
+      "columnQuantityEnd": "bis ...",
+      "columnWeightStart": "Gewicht von ...",
+      "columnWeightEnd": "bis ...",
+      "columnPriceStart": "Warenkorbwert von ...",
+      "columnPriceEnd": "bis ...",
+      "columnVolumeStart": "Volumen von ...",
+      "columnVolumeEnd": "bis ...",
+      "columnPrice": "Preis",
+      "columnCalculationRule": "Regel",
+      "buttonAddAdditionalPriceMatrix": "Preismatrix hinzufügen",
+      "any": "∞",
+      "buttonDelete": "Löschen",
+      "textDeleteConfirm": "Möchtest Du die Preismatrix \"{name}\" wirklich löschen? | Möchtest Du die Preismatrix wirklich löschen?",
+      "deletionNotPossibleMessage": "Es muss immer mindestens eine Preisstaffel vorhanden sein. Versuche alternativ, die gesamte Preisregel zu löschen.",
+      "labelGrossNet": "(Brutto / Netto)",
+      "ruleAlreadyUsedOrRestricted": "Diese Regel wird bereits verwendet oder enthält Bedingungen, die nicht auf erweiterte Preise angewendet werden können.",
+      "ruleAlreadyUsedInMatrix": "Diese Regel wird bereits in dieser Preismatrix genutzt.",
+      "textOr": "oder",
+      "chooseOrCreateRule": "Wähle oder erstelle eine Regel",
+      "unrestrictedRuleAlreadyExistsMessage": "Es gibt bereits eine Preismatrix ohne Einschränkungen.",
+      "newMatrixAlreadyExists": "Es existiert bereits eine neue Preismatrix ohne zugewiesene Regel.",
+      "newMatrixAlertMessage": "Um diese Preismatrix zu speichern muss eine Regel zugewiesen werden.",
+      "buttonLoadAllPrices": "Alle Preise laden"
+    },
+    "sidebar": {
+      "labelUseAsLogo": "Als Logo verwenden"
+    },
+    "shippingPriceModal": {
+      "modalTitle": "Versand-Preisregel hinzufügen"
+    },
+    "shippingCostOptions": {
+      "auto": "Auto",
+      "highest": "Höchster Satz",
+      "fixed": "Fester Satz"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "shipping": {
+        "label": "Versand"
+      }
+    }
+  }
+}

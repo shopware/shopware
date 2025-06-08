@@ -1,0 +1,70 @@
+{% block sw_context_menu_item %}
+{% block sw_context_menu_item_router_link %}
+<router-link
+    v-if="routerLink"
+    :to="routerLink"
+    class="sw-context-menu-item"
+    :class="contextMenuItemStyles"
+    :disabled="disabled"
+    :event="disabled ? null : 'click'"
+    :target="disabled ? null : target"
+    v-bind="$attrs"
+>
+    {% block sw_context_menu_item_icon %}
+    <slot name="icon">
+        {% block sw_context_menu_item_slot_icon %}
+        <mt-icon
+            v-if="icon"
+            :name="icon"
+            size="16px"
+        />
+        {% endblock %}
+    </slot>
+    {% endblock %}
+
+    {% block sw_context_menu_item_text %}
+    <span
+        class="sw-context-menu-item__text"
+        :class="{ 'is--disabled': disabled }"
+    >
+        <slot>
+        {% block sw_context_menu_item_slot_default %}{% endblock %}
+        </slot>
+    </span>
+    {% endblock %}
+</router-link>
+{% endblock %}
+
+{% block sw_context_menu_item_entry %}
+<button
+    v-else
+    class="sw-context-menu-item"
+    :class="contextMenuItemStyles"
+    v-bind="$attrs"
+    @click.capture="handleClick"
+>
+    {% block sw_context_menu_item_entry_icon %}
+    <slot name="icon">
+        {% block sw_context_menu_item_entry_slot_icon %}
+        <mt-icon
+            v-if="icon"
+            :name="icon"
+            size="16px"
+        />
+        {% endblock %}
+    </slot>
+    {% endblock %}
+
+    {% block sw_context_menu_item_entry_text %}
+    <span
+        class="sw-context-menu-item__text"
+        :class="{ 'is--disabled': disabled }"
+    >
+        <slot>
+        {% block sw_context_menu_item_entry_slot_default %}{% endblock %}
+        </slot>
+    </span>
+    {% endblock %}
+</button>
+{% endblock %}
+{% endblock %}

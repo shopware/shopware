@@ -1,0 +1,226 @@
+{% block sw_order_create %}
+<sw-card-view>
+    {% block sw_order_create_address_modal %}
+    <sw-order-create-address-modal
+        v-if="showAddressModal"
+        :address="address"
+        :add-address-modal-title="addAddressModalTitle"
+        :edit-address-modal-title="editAddressModalTitle"
+        :customer="customer"
+        :cart="cart"
+        @close-modal="closeModal"
+        @set-customer-address="setCustomerAddress"
+    />
+    {% endblock %}
+
+    {% block sw_order_create_promotion_modal %}
+    <sw-order-create-promotion-modal
+        v-if="showPromotionModal"
+        :is-loading="isLoading"
+        :currency="currency"
+        :sales-channel-id="customer.salesChannelId"
+        @close="onClosePromotionModal"
+        @save="onSavePromotionModal"
+    />
+    {% endblock %}
+
+    {% block sw_order_create_details %}
+    <mt-card
+        :title="$tc('sw-order.createBase.labelDetailsCard')"
+        :is-loading="isLoadingDetail"
+        position-identifier="sw-order-create-base-details"
+        class="sw-order-create__card"
+    >
+        <template #grid>
+            <sw-container
+                type="row"
+                class="sw-order-user-card"
+            >
+                <sw-card-section>
+                    {% block sw_order_create_details_header %}
+                    <sw-order-create-details-header
+                        :customer="customer"
+                        :order-date="orderDate"
+                        :cart-price="cartPrice"
+                        :currency="currency"
+                        @on-select-existing-customer="onSelectExistingCustomer"
+                    />
+                    {% endblock %}
+                    {% block sw_order_create_details_body %}
+                    <sw-order-create-details-body
+                        :customer="customer"
+                        :is-customer-active="isCustomerActive"
+                        @on-edit-billing-address="onEditBillingAddress"
+                        @on-edit-shipping-address="onEditShippingAddress"
+                    />
+                    {% endblock %}
+                </sw-card-section>
+                <sw-card-section
+                    secondary
+                    divider="top"
+                >
+                    {% block sw_order_create_details_footer %}
+                    <sw-order-create-details-footer
+                        :customer="customer"
+                        :is-customer-active="isCustomerActive"
+                        :cart="cart"
+                        @loading-change="updateLoading"
+                    />
+                    {% endblock %}
+                </sw-card-section>
+            </sw-container>
+        </template>
+    </mt-card>
+    {% endblock %}
+
+    {% block sw_order_create_base_line_items_card %}
+    <mt-card
+        :title="$tc('sw-order.createBase.cardTitleLineItems')"
+        :is-loading="isLoading"
+        position-identifier="sw-order-create-base-line-items"
+        class="sw-order-create__card sw-order-create-base__line-item-grid-card"
+    >
+        {% block sw_order_create_base_line_items_card_rows %}
+        <template #grid>
+            <sw-container type="row">
+                {% block sw_order_create_base_line_items_grid %}
+                <sw-order-line-items-grid-sales-channel
+                    ref="sw-order-line-item-grid-sales-channel"
+                    :cart="cart"
+                    :currency="currency"
+                    :sales-channel-id="salesChannelId"
+                    :is-loading="isLoading"
+                    :is-customer-active="isCustomerActive"
+                    editable
+                    @on-save-item="onSaveItem"
+                    @on-remove-items="onRemoveItems"
+                />
+                {% endblock %}
+
+                {% block sw_order_create_base_line_items_summary %}
+                <sw-card-section
+                    v-show="cartLineItems.length"
+                    divider="top"
+                    secondary
+                    slim
+                >
+                    <sw-container
+                        columns="1fr 1fr"
+                        class="sw-order-create-summary"
+                    >
+                        <div>
+                            {% block sw_order_create_base_line_items_switch_promotions %}
+
+                            <mt-switch
+                                v-model="disabledAutoPromotionVisibility"
+                                class="sw-order-create-summary__switch-promotions"
+                                :label="$tc('sw-order.promotionModal.labelTitle')"
+                            />
+                            {% endblock %}
+                            {% block sw_order_create_base_line_items_voucher_field %}
+                            <sw-order-promotion-tag-field
+                                v-model:value="promotionCodeTags"
+                                :disabled="!hasLineItem"
+                                :currency="currency"
+                                :label="$tc('sw-order.createBase.labelAddPromotion')"
+                                :placeholder="$tc('sw-order.createBase.placeholderAddPromotion')"
+                                :error="promotionError"
+                                @on-remove-code="onRemoveExistingCode"
+                            />
+                            {% endblock %}
+                        </div>
+                        <sw-description-list
+                            grid="1fr 1fr"
+                            class="sw-order-create-summary__data"
+                        >
+                            {% block sw_order_create_base_line_items_summary_entries %}
+                            {% block sw_order_create_base_line_items_summary_amount %}
+                            <dt>{{ $tc('sw-order.createBase.summaryLabelAmount') }}</dt>
+                            <dd>{{ currencyFilter(cartPrice ? cartPrice.positionPrice : 0, currency.isoCode) }}</dd>
+                            {% endblock %}
+
+                            {% block sw_order_create_base_line_items_summary_shipping_cost %}
+                            <template v-if="cartDelivery">
+                                <dt>{{ $tc('sw-order.createBase.summaryLabelShippingCosts') }}</dt>
+                                <dd>
+                                    <sw-order-saveable-field
+                                        v-tooltip="{
+                                            showDelay: 300,
+                                            message: shippingCostsDetail,
+                                            disabled: taxStatus === 'tax-free'
+                                        }"
+                                        type="number"
+                                        editable
+                                        :value="cartDelivery.shippingCosts.totalPrice"
+                                        @value-change="onShippingChargeEdited"
+                                        @update:value="onShippingChargeUpdated"
+                                    >
+                                        {{ currencyFilter(cartDelivery.shippingCosts.totalPrice, currency.isoCode) }}
+                                    </sw-order-saveable-field>
+                                </dd>
+                            </template>
+                            <template
+                                v-for="(_, index) in cartDeliveryDiscounts"
+                                :key="index"
+                            >
+                                <dt>
+                                    {{ $tc('sw-order.createBase.discountLabelShippingCosts') }}
+                                </dt>
+                                <dd>
+                                    {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.isoCode) }}
+                                </dd>
+                            </template>
+                            {% endblock %}
+
+                            {% block sw_order_create_base_line_items_summary_amount_without_tax %}
+                            <template v-if="taxStatus !== 'tax-free'">
+                                <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
+                                <dd><strong>{{ currencyFilter(cartPrice ? cartPrice.netPrice : 0, currency.isoCode) }}</strong></dd>
+                            </template>
+                            {% endblock %}
+
+                            {% block sw_order_create_base_line_items_summary_taxes %}
+                            <template v-if="taxStatus !== 'tax-free'">
+                                <template
+                                    v-for="(calculatedTax, index) in filteredCalculatedTaxes"
+                                    :key="index"
+                                >
+                                    <dt>
+                                        {{ $tc('sw-order.createBase.summaryLabelTaxes', { taxRate: calculatedTax.taxRate }, 1) }}
+                                    </dt>
+                                    <dd>
+                                        {{ currencyFilter(calculatedTax.tax, currency.isoCode) }}
+                                    </dd>
+                                </template>
+                            </template>
+                            {% endblock %}
+
+                            {% block sw_order_create_base_line_items_summary_amount_total %}
+                            <template v-if="taxStatus !== 'tax-free'">
+                                <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountTotal') }}</strong></dt>
+                                <dd><strong>{{ currencyFilter(orderTotal, currency.isoCode) }}</strong></dd>
+                                <template v-if="displayRounded">
+                                    <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountTotalRounded') }}</strong></dt>
+                                    <dd><strong>{{ currencyFilter(cart.price.totalPrice, currency.isoCode) }}</strong></dd>
+                                </template>
+                            </template>
+                            {% endblock %}
+
+                            {% block sw_order_create_base_line_items_summary_amount_free_tax %}
+                            <template v-if="taxStatus === 'tax-free'">
+                                <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
+                                <dd><strong>{{ currencyFilter(cart.price.totalPrice, currency.isoCode) }}</strong></dd>
+                            </template>
+                            {% endblock %}
+                            {% endblock %}
+                        </sw-description-list>
+                    </sw-container>
+                </sw-card-section>
+                {% endblock %}
+            </sw-container>
+        </template>
+        {% endblock %}
+    </mt-card>
+    {% endblock %}
+</sw-card-view>
+{% endblock %}

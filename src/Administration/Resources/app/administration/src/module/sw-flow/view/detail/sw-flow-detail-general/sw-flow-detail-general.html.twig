@@ -1,0 +1,83 @@
+{% block sw_flow_detail_general %}
+<div class="sw-flow-detail-general">
+    {% block sw_flow_detail_general_information %}
+    <mt-banner
+        v-if="isUnknownTrigger"
+        variant="attention"
+        class="sw-flow-detail-general__warning-unknow-trigger"
+    >
+        <p>{{ $tc('sw-flow.flowNotification.messageUnknownTriggerWarning') }}</p>
+        <p>{{ $tc('sw-flow.flowNotification.textIntroduce') }}</p>
+        <ul>
+            <li>{{ $tc('sw-flow.flowNotification.textGuide1') }}</li>
+            <li>{{ $tc('sw-flow.flowNotification.textGuide2') }}</li>
+            <li>{{ $tc('sw-flow.flowNotification.textGuide3') }}</li>
+        </ul>
+    </mt-banner>
+
+    <mt-card
+        class="sw-flow-detail-general__general-card"
+        position-identifier="sw-flow-detail-general"
+        :class="{'sw-flow-detail-general__template': isTemplate }"
+        :title="$tc('sw-flow.detail.labelGeneralCard')"
+        :is-loading="isLoading"
+    >
+        {% block sw_flow_detail_general_information_name %}
+
+        <mt-text-field
+            v-model="flow.name"
+            class="sw-flow-detail-general__general-name"
+            :required="!isTemplate"
+            :disabled="!acl.can('flow.editor') || undefined"
+            :label="$tc('sw-flow.detail.labelGeneralInformationName')"
+            :placeholder="$tc('sw-flow.detail.placeholderGeneralInformationName')"
+            :error="flowNameError"
+            name="sw-field--flow-name"
+        />
+        {% endblock %}
+
+        {% block sw_flow_detail_general_information_description %}
+        <mt-textarea
+            v-model="flow.description"
+            name="sw-field--flow-description"
+            class="sw-flow-detail-general__general-description"
+            :disabled="!acl.can('flow.editor') || undefined"
+            :label="$tc('sw-flow.detail.labelGeneralInformationDescription')"
+            :placeholder="$tc('sw-flow.detail.placeholderGeneralInformationDescription')"
+        />
+        {% endblock %}
+
+        <sw-container
+            columns="repeat(auto-fit, minmax(250px, 1fr))"
+            gap="0 30px"
+        >
+            {% block sw_flow_detail_general_information_priority %}
+            <mt-number-field
+                v-if="!isFlowTemplate"
+                v-model="flow.priority"
+                class="sw-flow-detail-general__general-priority"
+                :disabled="!acl.can('flow.editor') || undefined"
+                :label="$tc('sw-flow.detail.labelGeneralInformationPriority')"
+                :step="1"
+                :min="0"
+                number-type="int"
+                name="sw-field--flow-priority"
+            />
+            {% endblock %}
+
+            {% block sw_flow_detail_general_information_active %}
+
+            <mt-switch
+                v-if="!isFlowTemplate"
+                v-model="flow.active"
+                name="sw-field--flow-active"
+                class="sw-flow-detail-general__general-active"
+                :disabled="!acl.can('flow.editor') || isUnknownTrigger || undefined"
+                :label="$tc('sw-flow.detail.labelGeneralInformationActive')"
+            />
+            {% endblock %}
+        </sw-container>
+    </mt-card>
+    {% endblock %}
+</div>
+{% endblock %}

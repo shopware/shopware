@@ -1,0 +1,80 @@
+{% block sw_tagged_field %}
+{% block sw_order_promotion_tag_field %}
+<sw-block-field
+    class="sw-tagged-field sw-order-promotion-tag-field"
+    :class="taggedFieldClasses"
+    v-bind="$attrs"
+    :disabled="disabled"
+>
+    <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+
+        {% block sw_tagged_field_inner %}
+        <ul
+            class="sw-tagged-field__tag-list"
+            :class="taggedFieldListClasses"
+            role="listbox"
+            tabindex="0"
+            @click="setFocus(true)"
+            @keydown.enter="setFocus(true)"
+        >
+
+            {% block sw_order_promotion_tag_field_tag_list %}
+            <li
+                v-for="(item, index) in value"
+                :key="`sw-tagged-field-value--${index}`"
+            >
+
+                {% block sw_order_promotion_tag_field_tag_item %}
+                <sw-label
+                    v-if="item.isInvalid"
+                    :size="size"
+                    :dismissable="!disabled"
+                    variant="danger"
+                    @selected="setFocus(true)"
+                    @dismiss="dismissTag(item)"
+                >
+                    {{ item.code }}
+                </sw-label>
+
+                <sw-label
+                    v-else
+                    v-tooltip="{
+                        message: getPromotionCodeDescription(item),
+                        width: 220
+                    }"
+                    :size="size"
+                    :dismissable="!disabled"
+                    @selected="setFocus(true)"
+                    @dismiss="dismissTag(item)"
+                >
+                    {{ item.code }}
+                </sw-label>
+                {% endblock %}
+            </li>
+            {% endblock %}
+
+            {% block sw_order_promotion_tag_field_item_input %}
+            <li>
+                {% block sw_order_promotion_tag_field_input %}
+                <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+                <input
+                    ref="taggedFieldInput"
+                    v-model="newTagName"
+                    type="text"
+                    class="sw-tagged-field__input"
+                    :class="taggedFieldInputClasses"
+                    :disabled="disabled"
+                    :placeholder="placeholder"
+                    @focus="setFocus(true)"
+                    @blur="setFocus(false)"
+                    @keydown="performAddTag"
+                >
+                {% endblock %}
+            </li>
+            {% endblock %}
+        </ul>
+        {% endblock %}
+    </template>
+</sw-block-field>
+{% endblock %}
+{% endblock %}

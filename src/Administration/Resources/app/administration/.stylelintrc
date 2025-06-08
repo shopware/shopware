@@ -1,0 +1,43 @@
+{
+  "extends": "stylelint-config-standard-scss",
+  "ignoreFiles": [
+    "build/**/*",
+    "src/app/assets/scss/fonts/*",
+    "node_modules/"
+  ],
+  "rules": {
+    "indentation": 4,
+    "color-hex-case": "lower",
+    "no-missing-end-of-source-newline": true,
+    "property-no-unknown": [true, {
+      "severity": "warning",
+      "ignoreProperties": [
+        "user-focus",
+        "user-input",
+        "user-modify"
+      ]
+    }],
+    "no-descending-specificity": null,
+    "max-nesting-depth": [3, {
+      "ignore": ["blockless-at-rules", "pseudo-classes"],
+      "severity": "warning"
+    }],
+    "at-rule-no-unknown": null,
+    "scss/at-rule-no-unknown": true,
+    "selector-class-pattern": null,
+    "color-function-notation": "legacy",
+    "declaration-block-no-redundant-longhand-properties": null,
+    "scss/no-global-function-names": null,
+    "property-no-vendor-prefix": null,
+    "custom-property-pattern": null,
+    "max-line-length": [
+      120,
+      {
+        "severity": "warning"
+      }
+    ],
+    "scss/dollar-variable-pattern": null,
+    "selector-id-pattern": null,
+    "keyframes-name-pattern": null
+  }
+}

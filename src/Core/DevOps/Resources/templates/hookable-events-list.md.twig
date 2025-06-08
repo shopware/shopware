@@ -1,0 +1,7 @@
+# Webhook Event Reference
+
+| Event | Description | Permissions needed | Payload
+| :--- | :--- | :--- | :--- |
+{% for event in eventDocs %}
+|`{{ event.eventName }}` | {{ event.description }} | {{ event.permissions }} | {{ event.payload|raw }}
+{% endfor %}

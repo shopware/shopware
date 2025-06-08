@@ -1,0 +1,81 @@
+{% sw_extends '@Storefront/storefront/page/account/_page.html.twig' %}
+
+{% block page_account_main_content %}
+    {% block page_account_orders %}
+        <div class="account-orders">
+            {% block page_account_orders_welcome %}
+                <div class="account-welcome">
+                    {% block page_account_orders_welcome_headline %}
+                        <h1>{{ 'account.ordersTitle'|trans|sw_sanitize }}</h1>
+                    {% endblock %}
+
+                    {% block page_account_orders_welcome_intro %}
+                        <p>{{ 'account.ordersWelcome'|trans|sw_sanitize }}</p>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block page_account_orders_main %}
+                <div class="account-orders-main">
+                    {% if page.orders.total == 0 %}
+                        {% block page_account_orders_info_empty %}
+                            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                type: 'warning',
+                                content: 'account.ordersInfoEmpty'|trans|sw_sanitize
+                            } %}
+                        {% endblock %}
+                    {% else %}
+                        {% block page_account_orders_overview %}
+
+                            <ul class="account-orders-overview list-unstyled">
+                                {% block page_account_orders_table %}
+                                    {% block page_account_orders_table_body %}
+                                        {% for order in page.orders %}
+                                            <li class="order-table" data-order-detail-loader="true">
+                                                {% sw_include '@Storefront/storefront/page/account/order-history/order-item.html.twig' %}
+                                            </li>
+                                        {% endfor %}
+                                    {% endblock %}
+                                {% endblock %}
+                            </ul>
+                        {% endblock %}
+
+                        {% block page_account_orders_paging %}
+
+                            {% set totalPages = (page.orders.total/(page.orders.limit ?: 1))|round(0,'ceil') %}
+
+                            {% if totalPages > 1 %}
+                                {% set formAjaxSubmitOptions = {
+                                    replaceSelectors: '.account-orders-main',
+                                    submitOnChange: true
+                                } %}
+
+                                {% block page_account_orders_paging_form %}
+                                    <div class="account-orders-pagination">
+                                        <form class="account-orders-pagination-form"
+                                              action="{{ path('frontend.account.order.page') }}"
+                                              method="post"
+                                              data-form-ajax-submit="true"
+                                              data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}"
+                                              data-form-ajax-pagination="true">
+
+                                            <input type="hidden" name="p" value="1">
+
+                                            {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {entities: page.orders}  %}
+                                        </form>
+                                    </div>
+                                {% endblock %}
+                            {% endif %}
+                        {% endblock %}
+                    {% endif %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}
+
+{% block base_footer_inner %}
+    {% sw_include '@Storefront/storefront/layout/footer/footer.html.twig' with {
+        showVatNotice: false
+    } %}
+{% endblock %}

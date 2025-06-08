@@ -1,0 +1,124 @@
+{#
+
+Notice for plugins and theme developer:     Do not extend this template!
+
+This template will be rendered over the `block` function.
+Templates which are rendered over the `block` function can not be extended.
+Instead of extending this template, simply extend the `base.html.twig` (or the document specific template) and override the block you want.
+All blocks of this template are available in the template which renders this template over the `block` function.
+
+#}
+
+{% use '@Framework/documents/includes/logo.html.twig' %}
+{% use '@Framework/documents/includes/table_close.html.twig' %}
+{% use '@Framework/documents/includes/letter_header.html.twig' %}
+{% use '@Framework/documents/includes/table_open.html.twig' %}
+{% use '@Framework/documents/includes/position.html.twig' %}
+{% use '@Framework/documents/includes/shipping_costs.html.twig' %}
+
+{% block loop %}
+    {{ counter.increment() }}
+
+    {#  check if next page should be rendered  #}
+    {% if counter.counter > 1 and (counter.counter - 1) is divisible by(itemsPerPage) %}
+        {% block document_loop_page_table_close %}
+            {{ block('table_close') }}
+        {% endblock %}
+
+        {% block document_loop_page_break %}
+            <div class="page_break"></div>
+        {% endblock %}
+
+        {#  new page header #}
+        {% block document_loop_page_logo %}
+            {{ block('logo') }}
+        {% endblock %}
+
+        {% block document_loop_page_letter_header %}
+            {{ block('letter_header') }}
+        {% endblock %}
+
+        {% block document_loop_page_table_open %}
+            {{ block('table_open') }}
+        {% endblock %}
+
+    {% elseif counter.counter == 1 %}
+        {#  new page header #}
+        {% block document_loop_first_page_logo %}
+            {{ block('logo') }}
+        {% endblock %}
+
+        {% block document_loop_first_page_letter_header %}
+            {{ block('letter_header') }}
+        {% endblock %}
+
+        {% block document_loop_first_page_table_open %}
+            {{ block('table_open') }}
+        {% endblock %}
+    {% endif %}
+
+    {% set first = (counter.counter is divisible by(itemsPerPage) or counter.counter == 1) %}
+
+    {#  render current position  #}
+    {% block document_loop_position %}
+        {{ block('position') }}
+    {% endblock %}
+
+    {# init prefix, position and level for nested line items e.g "1.1.2" #}
+    {% set level = level + 1 %}
+    {% if prefix == '' %}
+        {% set prefix = position ~ '.' %}
+    {% else %}
+        {% set prefix = prefix ~ position ~ '.' %}
+    {% endif %}
+
+    {% set position = 1 %}
+
+    {% block document_loop_children_loop %}
+        {% for child in lineItem.children %}
+            {% block document_loop_child_include %}
+                {% set lineItem = child %}
+                {{ block('loop') }}
+            {% endblock %}
+            {% set position = position + 1 %}
+        {% endfor %}
+    {% endblock %}
+
+    {% set endReached = counter.counter == total and level == 1 %}
+
+    {# all line items rendered, now render shipping costs and close table #}
+    {% if endReached %}
+        {# check if should render next page, only happend when shipping cost is also reached new page #}
+        {% set endPage = counter.counter is divisible by(itemsPerPage) %}
+        {% if endPage %}
+            {% block document_before_shipping_cost_table_close %}
+                {{ block('table_close') }}
+            {% endblock %}
+
+            {% block document_before_shipping_cost_page_break %}
+                <div class="page_break"></div>
+            {% endblock %}
+
+            {#  new page header #}
+            {% block document_shipping_cost_page_logo %}
+                {{ block('logo') }}
+            {% endblock %}
+
+            {% block document_shipping_cost_page_letter_header %}
+                {{ block('letter_header') }}
+            {% endblock %}
+
+            {% block document_loop_last_table_open %}
+                {{ block('table_open') }}
+            {% endblock %}
+        {% endif %}
+
+        {% block document_loop_shipping_costs %}
+            {{ block('shipping_costs') }}
+        {% endblock %}
+
+        {% block document_loop_last_table_close %}
+            {{ block('table_close') }}
+        {% endblock %}
+    {% endif %}
+{% endblock %}

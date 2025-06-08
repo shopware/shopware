@@ -1,0 +1,19 @@
+@import "~scss/variables";
+
+$sw-language-info-color-text: $color-darkgray-200;
+$sw-language-info-font-size: $font-size-xs;
+$sw-language-info-color-language: $color-shopware-brand-500;
+
+.sw-language-info {
+    padding: 0;
+    max-width: $content-width;
+    margin: 0 auto 20px;
+    height: 36px;
+    color: $sw-language-info-color-text;
+    font-size: $sw-language-info-font-size;
+
+    .sw-language-info__link-parent {
+        color: $sw-language-info-color-language;
+        cursor: pointer;
+    }
+}

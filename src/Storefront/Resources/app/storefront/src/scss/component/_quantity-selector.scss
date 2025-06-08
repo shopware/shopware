@@ -1,0 +1,50 @@
+.quantity-selector-group {
+    .quantity-selector-group-input {
+        -moz-appearance: textfield;
+        text-align: center;
+        border-left: 0;
+        border-right: 0;
+        padding-left: 0;
+        padding-right: 0;
+        line-height: 1rem;
+
+        &:disabled {
+            color: $gray-600;
+        }
+    }
+
+    .quantity-selector-group-input::-webkit-outer-spin-button,
+    .quantity-selector-group-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .btn-outline-light {
+        --#{$prefix}btn-disabled-bg: #{$gray-200};
+        --#{$prefix}btn-disabled-border-color: #{$border-color};
+        --#{$prefix}btn-border-color: #{$border-color};
+        --#{$prefix}btn-active-border-color: #{$border-color};
+        --#{$prefix}btn-hover-border-color: #{$border-color};
+        --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
+
+        &.btn-plus {
+            border-left: 0;
+        }
+
+        &.btn-minus {
+            border-right: 0;
+        }
+
+        &:disabled .icon {
+            color: $gray-300;
+        }
+
+        svg {
+            top: 4px;
+        }
+    }
+
+    .input-group-text {
+        line-height: 1rem;
+    }
+}

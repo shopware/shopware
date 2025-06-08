@@ -1,0 +1,64 @@
+{
+  "sw-settings-cache": {
+    "general": {
+      "mainMenuItemGeneral": "Caches & indexes"
+    },
+    "toolbar": {
+      "environment": "Environment",
+      "environmentDev": "Development",
+      "environmentProd": "Production",
+      "httpCache": "HTTP cache",
+      "httpCacheOff": "Off",
+      "httpCacheOn": "On",
+      "cacheAdapter": "Cache adapters"
+    },
+    "section": {
+      "clearCachesHeadline": "Clear cache",
+      "clearCachesText": "Immediately clears all cached data synchronously for all adapters.",
+      "clearCachesButton": "Clear cache",
+      "clearDataCachesHeadline": "Refresh cache",
+      "clearDataCachesText": "Selectively clears only cached data that has recently been altered. Use this option to make changes to your shop data immediately visible without having to wait for the automatic cache refresh or needlessly having to delete all cached data at once.",
+      "clearDataCachesButton": "Refresh cache",
+      "indexesHeadline": "Indexes",
+      "indexesText": "All indexes are updated asynchronously. Keep track of the progress by monitoring the notifications.",
+      "indexesButton": "Update indexes",
+      "indexingModeLabel": "Method",
+      "indexingModeOptionSkipLabel": "Update all, but skip selected",
+      "indexingModeOptionOnlyLabel": "Only update selected",
+      "indexesSkipSelectLabel": "Indexers and/or updaters to skip",
+      "indexesOnlySelectLabel": "Indexers and/or updaters",
+      "indexesSkipSelectPlaceholder": "Select indexers and/or updaters to skip",
+      "indexesOnlySelectPlaceholder": "Select indexers and/or updaters"
+    },
+    "notifications": {
+      "clearCache": {
+        "started": "Clearing caches.",
+        "success": "All caches cleared.",
+        "error": "Unable to clear caches ."
+      },
+      "clearDataCache": {
+        "started": "Clearing data cache.",
+        "success": "All pending changes applied.",
+        "error": "Unable to clear data cache."
+      },
+      "index": {
+        "started": "Building indexes.",
+        "success": "All indexes built."
+      }
+    },
+    "modal": {
+      "title": "Clear caches",
+      "message": "Are you sure you want to clear all caches?",
+      "actions": {
+        "clear": "Clear"
+      }
+    }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "system": {
+        "clear_cache": "Clear cache"
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "sw-settings-seo": {
+    "general": {
+      "mainMenuItemGeneral": "SEO",
+      "descriptionTextModule": "Manage SEO settings.",
+      "textHeadline": "SEO",
+      "buttonSave": "Save"
+    }
+  },
+  "sw-settings-seo-entity-detail": {
+    "labelMetaTitle": "Meta title",
+    "labelAdditionalText": "Meta description"
+  },
+  "sw-seo-url-template-card": {
+    "general": {
+      "titleCard": "SEO URL templates",
+      "labelPossibleValues": "Possible variables",
+      "tooltipValidTemplate": "Template valid",
+      "tooltipInvalidTemplate": "Invalid template",
+      "messageSaveError": "Not all templates are valid.",
+      "messageSaveSuccess": "SEO URL templates have been saved.",
+      "preview": "Preview:",
+      "placeholderSelectVariables": "Search and select...",
+      "labelSalesChannelSelect": "Sales Channel",
+      "textUrlPreviewNotPossible": "A preview for this template could not be generated.",
+      "textUrlNoEntitiesForPreview": "No {entity} available.",
+      "textUrlPreviewEmptyTemplate": "The template is empty, SEO URLs for {entity} won't be generated.",
+      "headlineInfoMessageBoxEmptyProperties": "Info",
+      "textInfoMessageBoxEmptyProperties": "When using variables, make sure that data is available in all respective fields of the entities (products, landing pages or categories). If variables refer to empty fields, no SEO URLs will be created for the corresponding entity."
+    },
+    "routeNames": {
+      "frontend-detail-page": "Product detail page",
+      "frontend-navigation-page": "Category page",
+      "frontend-landing-page": "Landing page"
+    }
+  },
+  "sw-seo-url": {
+    "titleCard": "SEO URLs",
+    "labelSalesChannelSelect": "Sales Channel",
+    "labelSeoPathInfo": "SEO path",
+    "textEmptySeoUrls": "There are no SEO URLs yet.",
+    "textSeoUrlsDisallowedForHeadless": "SEO URLs cannot be assigned to a headless Sales Channel.",
+    "labelMainCategory": "Main category",
+    "placeholderMainCategory": "Choose a main category..."
+  }
+}

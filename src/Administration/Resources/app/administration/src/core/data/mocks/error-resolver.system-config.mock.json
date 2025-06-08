@@ -1,0 +1,32 @@
+{
+  "errorWithSystemError": [
+    {
+      "code": "Dummy code",
+      "meta": "Dummy meta",
+      "detail": "Dummy detail",
+      "status": "Dummy status"
+    }
+  ],
+  "apiErrors": [
+    {
+      "code": "Dummy code",
+      "meta": "Dummy meta",
+      "detail": "Dummy detail",
+      "status": "Dummy status",
+      "source": {
+        "pointer": "/null/dummy.key"
+      }
+    }
+  ],
+  "apiErrorsWithTranslation": [
+    {
+      "code": "Dummy code",
+      "meta": "Dummy meta",
+      "detail": "Dummy detail",
+      "status": "Dummy status",
+      "source": {
+        "pointer": "/null/dummy.key/translations"
+      }
+    }
+  ]
+}

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:simpleType name="color">
+        <xs:annotation>
+            <xs:documentation>The color should be represented as hexadecimal RGB triples (#rrggbb).</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:token">
+            <xs:pattern value="#[\da-f]{6}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:attributeGroup name="backgroundCss">
+        <xs:attribute name="color" type="color"/>
+        <xs:attribute name="image" type="xs:anyURI"/>
+        <xs:attribute name="position" type="xs:string"/> <!-- TODO: define backgroundPosition type -->
+    </xs:attributeGroup>
+
+    <xs:complexType name="background">
+        <xs:annotation>
+            <xs:documentation>CSS background shorthand - <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Shorthand_properties#background_properties">see documentation</a></xs:documentation>
+        </xs:annotation>
+        <xs:attributeGroup ref="backgroundCss"/>
+    </xs:complexType>
+
+
+    <!-- Strings -->
+    <xs:complexType name="translatableString">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="lang" type="languageCode" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="translatableUrl">
+        <xs:simpleContent>
+            <xs:extension base="xs:anyURI">
+                <xs:attribute name="lang" type="languageCode" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="translatableLimitedString20">
+        <xs:simpleContent>
+            <xs:restriction base="translatableString">
+                <xs:maxLength value="20"/>
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="translatableLimitedString30">
+        <xs:simpleContent>
+            <xs:restriction base="translatableString">
+                <xs:maxLength value="30"/>
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="translatableLimitedString40">
+        <xs:simpleContent>
+            <xs:restriction base="translatableString">
+                <xs:maxLength value="40"/>
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="translatableLimitedString65">
+        <xs:simpleContent>
+            <xs:restriction base="translatableString">
+                <xs:maxLength value="65"/>
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="translatableLimitedString90">
+        <xs:simpleContent>
+            <xs:restriction base="translatableString">
+                <xs:maxLength value="90"/>
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="translatableLimitedString350">
+        <xs:simpleContent>
+            <xs:restriction base="translatableString">
+                <xs:maxLength value="350"/>
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:simpleType name="languageCode">
+        <xs:restriction base="xs:NMTOKEN">
+            <xs:pattern value="[a-z]{2,3}-[A-Z]{2}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+
+    <!-- Actions -->
+    <xs:simpleType name="actionTypeRoute">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="([a-z]+\.)+[a-z]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="actionTypeExecution">
+        <xs:simpleContent>
+            <xs:extension base="actionTypeExecutionNames">
+                <xs:attribute name="arguments" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:simpleType name="actionTypeExecutionNames">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="showBookingOptions"/>
+            <xs:enumeration value="selectBookingOption"/>
+            <xs:enumeration value="linkToExtensionStoreAndSelectCategory"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="mainActionButtonVariant">
+        <xs:annotation>
+            <xs:documentation>
+                Defines the look of the button.
+                <br>A preview of the button variants can be found <a href="https://component-library.shopware.com/components/sw-button">here</a>.</br>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="primary"/>
+            <xs:enumeration value="ghost"/>
+            <xs:enumeration value="contrast"/>
+            <xs:enumeration value="context"/>
+            <xs:enumeration value="default"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:group name="actionType">
+        <xs:choice>
+            <xs:annotation>
+                <xs:documentation>Is the action an external link, an admin route or an action (like opening a modal)?</xs:documentation>
+            </xs:annotation>
+            <xs:element name="route" type="actionTypeRoute">
+                <xs:annotation>
+                    <xs:documentation>
+                        This is a link to a page in the Admin. Example: 'sw.extension.store.listing.app'
+                        <br>(You can read it from the URL '/sw/extension/store/listing/app' and replace the slashes with points.)</br>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="externalLink" type="translatableUrl" maxOccurs="unbounded"/>
+            <xs:element name="execution" type="actionTypeExecution">
+                <xs:annotation>
+                    <xs:documentation>
+                        This is an execution of a predefined method. Simply choose the one you need.
+                        <p><br>If you choose the method 'linkToExtensionStoreAndSelectCategory' you need to define the category to which should be linked. Therefore you define the <code>arguments</code> attribute like this: <code>{ category: 'EasterSale' }</code></br></p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:choice>
+    </xs:group>
+
+    <xs:simpleType name="lowerCamelCaseString">
+        <xs:annotation>
+            <xs:documentation>Example: 'lowerCamelCase'</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[a-z]+([A-Z][a-z]+)*"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

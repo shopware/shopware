@@ -1,0 +1,62 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "Category": {
+                "type": "object",
+                "properties": {
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["category"]
+                    },
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "children": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Category"
+                        }
+                    },
+                    "childCount": {
+                        "type": "number"
+                    },
+                    "breadcrumb": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "translated": {
+                        "type": "object",
+                        "additionalProperties": true,
+                        "properties": {
+                            "breadcrumb": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "required": ["breadcrumb"]
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": ["page", "link"]
+                    }
+                },
+                "required": [
+                    "apiAlias",
+                    "breadcrumb",
+                    "children",
+                    "childCount",
+                    "translated",
+                    "type"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,55 @@
+@import "~scss/variables";
+
+$sw-product-list-color-error: $color-crimson-500;
+$sw-product-list-color-success: $color-emerald-500;
+
+.sw-product-list {
+    .sw-product-list__content {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+    }
+
+    .sw-data-grid__cell:not(.sw-data-grid__cell--header) {
+        .sw-data-grid__cell-content {
+            .is--inactive {
+                width: 16px;
+                height: 16px;
+                color: $sw-product-list-color-error;
+                padding-top: 3px;
+                padding-right: 3px;
+                padding-bottom: 3px;
+                padding-left: 3px;
+            }
+
+            .is--active {
+                width: 16px;
+                height: 16px;
+                color: $sw-product-list-color-success;
+                padding-top: 4px;
+                padding-right: 2px;
+                padding-bottom: 3px;
+                padding-left: 2px;
+            }
+        }
+    }
+
+    .sw-product-list__variant-indicator {
+        padding-top: 4px;
+        padding-bottom: 4px;
+        margin-right: 12px;
+    }
+
+    .sw-product-list__digital-indicator {
+        height: 24px;
+        padding: 4px 8px;
+        margin: 0 0 0 8px;
+        min-width: auto;
+        vertical-align: middle;
+    }
+
+    .sw-button-group a.sw-product-list__add-physical-button {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+}

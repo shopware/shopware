@@ -1,0 +1,61 @@
+{% block sw_login_recovery_recovery %}
+<div class="sw-login-recovery-recovery">
+    {% block sw_login_recovery_recovery_headline %}
+    <h2 class="sw-login__form-headline">
+        <router-link
+            class="sw-login__back"
+            :to="{ name: 'sw.login.index.login' }"
+        >
+            <mt-icon
+                class="sw-login__back-arrow"
+                name="regular-long-arrow-left"
+                size="16px"
+            />
+        </router-link>
+        {{ $tc('sw-login.recovery.recovery.headline') }}
+    </h2>
+    {% endblock %}
+    <template v-if="hashValid === true">
+        {% block sw_login_recovery_recovery_form %}
+        <form @submit.prevent="updatePassword">
+            {% block sw_login_recovery_recovery_form_new_password_field %}
+            <mt-password-field
+                ref="swLoginRecoveryRecoveryNewPasswordField"
+                v-model="newPassword"
+                :label="$tc('sw-login.recovery.recovery.newPasswordField.label')"
+                :error="userPasswordError"
+            />
+            {% endblock %}
+
+            {% block sw_login_recovery_recovery_form_password_confirm_field %}
+            <mt-password-field
+                v-model="newPasswordConfirm"
+                :label="$tc('sw-login.recovery.recovery.passwordConfirmField.label')"
+            />
+            {% endblock %}
+
+            {% block sw_login_recovery_recovery_form_submit %}
+            <div class="sw-login__submit">
+                <mt-button
+                    variant="primary"
+                    :disabled="!validatePasswords()"
+                >
+                    {{ $tc('sw-login.recovery.recovery.submit.label') }}
+                </mt-button>
+            </div>
+            {% endblock %}
+        </form>
+        {% endblock %}
+    </template>
+
+    <template v-else-if="hashValid === false">
+        <mt-banner variant="critical">
+            {{ $tc('sw-login.recovery.recovery.errorMessage') }}
+        </mt-banner>
+    </template>
+
+    <template v-else>
+        <sw-loader />
+    </template>
+</div>
+{% endblock %}

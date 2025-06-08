@@ -1,0 +1,29 @@
+{
+  "sw-settings-basic-information": {
+    "general": {
+      "mainMenuItemGeneral": "Basic information",
+      "description": "Change basic information here.",
+      "textHeadline": "Basic information",
+      "buttonSave": "Save",
+      "messageSaveSuccess": "Configuration has been saved."
+    },
+    "captcha": {
+      "label": {
+        "honeypot": "Honeypot",
+        "basicCaptcha": "Basic CAPTCHA",
+        "googleReCaptchaV2": "Google reCAPTCHA v2",
+        "googleReCaptchaV2SiteKey": "Google reCAPTCHA v2 site key",
+        "googleReCaptchaV2SecretKey": "Google reCAPTCHA v2 secret key",
+        "googleReCaptchaV2Invisible": "Invisible Google reCAPTCHA v2",
+        "googleReCaptchaV3": "Google reCAPTCHA v3",
+        "googleReCaptchaV3SiteKey": "Google reCAPTCHA v3 site key",
+        "googleReCaptchaV3SecretKey": "Google reCAPTCHA v3 secret key",
+        "googleReCaptchaV3ThresholdScore": "Google reCAPTCHA v3 threshold score",
+        "googleReCaptchaV2CheckboxDescription": "The \"I'm not a robot\" checkbox requires the user to click a checkbox indicating the user is not a robot. This will either pass the user immediately (with no CAPTCHA) or challenge them to validate whether or not they are human. This is the simplest option to integrate with and only requires two lines of HTML to render the checkbox.",
+        "googleReCaptchaV2InvisibleDescription": "The invisible reCAPTCHA badge does not require the user to click on a checkbox, instead it is invoked directly when the user clicks on an existing button on your site or can be invoked via a JavaScript API call. The integration requires a JavaScript callback when reCAPTCHA verification is complete. By default only the most suspicious traffic will be prompted to solve a CAPTCHA. To alter this behaviour edit your site security preference under advanced settings.",
+        "googleReCaptchaV3Description": "reCAPTCHA v3 allows you to verify if an interaction is legitimate without any user interaction. It is a pure JavaScript API returning a score, giving you the ability to take action in the context of your site: for instance requiring additional factors of authentication, sending a post to moderation, or throttling bots that may be scraping content.",
+        "googleReCaptchaV3DescriptionThresholdScore": "reCAPTCHA v3 returns a score for each request without user friction. The score is based on interactions with your site and enables you to take an appropriate action for your site. Threshold score values range from 0.0 to 1.0."
+      }
+    }
+  }
+}

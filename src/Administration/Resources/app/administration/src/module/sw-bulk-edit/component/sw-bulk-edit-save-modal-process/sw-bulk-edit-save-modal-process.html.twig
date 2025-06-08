@@ -1,0 +1,60 @@
+{% block sw_bulk_edit_save_modal_process %}
+<div class="sw-bulk-edit-save-modal-process">
+    {% block sw_bulk_edit_save_modal_process_icon %}
+    <sw-label
+        class="sw-bulk-edit-save-modal__icon"
+        appearance="pill"
+        variant="info"
+    >
+        <sw-loader
+            class="sw-bulk-edit-save-modal__loading-icon"
+            size="30px"
+        />
+    </sw-label>
+    {% endblock %}
+
+    {% block sw_bulk_edit_save_modal_process_generate_document %}
+    <ul
+        v-if="selectedDocumentTypes.length > 0"
+        class="sw-bulk-edit-save-modal-process__generate-document-container"
+    >
+        <li
+            v-for="selectedDocumentType in selectedDocumentTypes"
+            :key="selectedDocumentType.id"
+            class="sw-bulk-edit-save-modal-process__generate-document"
+            :class="`is--${selectedDocumentType.technicalName}`"
+        >
+            <div class="progress">
+                <div class="progress__label">
+                    <span>{{ selectedDocumentType.translated.name }}</span>
+                    <span>{{ `${document[selectedDocumentType.technicalName].isReached}%` }}</span>
+                </div>
+                <div class="progress__bar">
+                    <div
+                        class="progress__bar-fill"
+                        :style="{ width: `${document[selectedDocumentType.technicalName].isReached}%` }"
+                    >
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+    {% endblock %}
+
+    {% block sw_bulk_edit_save_modal_process_content %}
+    <p class="sw-bulk-edit-save-modal__help-text">
+        {{ $tc('sw-bulk-edit.modal.process.description') }}
+        <br>
+        <br>
+        {{ $tc('sw-bulk-edit.modal.process.helpText') }}
+    </p>
+
+    <mt-banner
+        variant="attention"
+        class="sw-bulk-edit-save-modal__warning"
+    >
+        {{ $tc('sw-bulk-edit.modal.warningText') }}
+    </mt-banner>
+    {% endblock %}
+</div>
+{% endblock %}

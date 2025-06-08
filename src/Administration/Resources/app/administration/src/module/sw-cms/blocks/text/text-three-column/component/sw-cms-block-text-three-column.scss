@@ -1,0 +1,5 @@
+.sw-cms-block-text-three-column {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+    grid-gap: 40px;
+}

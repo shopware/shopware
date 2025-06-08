@@ -1,0 +1,22 @@
+@import "~scss/variables";
+
+.sw-address {
+    margin-bottom: 20px;
+    font-style: normal;
+    font-size: $font-size-xs;
+    line-height: $line-height-sm;
+    color: $color-darkgray-200;
+
+    .sw-address__headline {
+        margin: 0 0 20px;
+        color: $color-darkgray-200;
+        font-weight: normal;
+        font-size: $font-size-m;
+
+        .sw-address-headline-link {
+            font-size: $font-size-xs;
+            color: $color-shopware-brand-500;
+            text-decoration: none;
+        }
+    }
+}

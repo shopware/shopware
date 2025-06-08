@@ -1,0 +1,22 @@
+@import "~scss/variables";
+
+.sw-product-feature-set-form__container {
+    .sw-product-feature-set-form {
+        &__description {
+            &-title {
+                font-weight: $font-weight-bold;
+                font-size: $font-size-s;
+            }
+
+            &-body,
+            &-config-info {
+                font-size: $font-size-xs;
+            }
+
+            // Nested selector, since it needs a higher specificity than sw-card__quick-link
+            .sw-product-feature-set-form__description-link a.sw-card__quick-link {
+                display: inline;
+            }
+        }
+    }
+}

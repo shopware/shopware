@@ -1,0 +1,78 @@
+{% block sw_select_base %}
+<sw-block-field
+    class="sw-select"
+    :class="swFieldClasses"
+    v-bind="$attrs"
+    :disabled="disabled"
+    :size="size"
+>
+    <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
+        <div
+            ref="selectWrapper"
+            class="sw-select__selection"
+            tabindex="0"
+            :aria-expanded="expanded ? 'true' : 'false'"
+            @click="expand"
+            @focus="expand"
+            @keydown.tab="collapse"
+            @keydown.esc="collapse"
+        >
+            <slot
+                name="sw-select-selection"
+                v-bind="{ identification, error, disabled, size, expand, collapse }"
+            ></slot>
+        </div>
+        <div class="sw-select__selection-indicators">
+            <sw-loader
+                v-if="isLoading"
+                class="sw-select__select-indicator"
+                size="16px"
+            />
+
+            <button
+                v-if="!disabled && showClearableButton"
+                class="sw-select__select-indicator-hitbox"
+                data-clearable-button
+                :aria-label="$tc('global.sw-select-base.buttonClear')"
+                @click.prevent.stop="emitClear"
+                @keydown.tab.stop="focusParentSelect"
+            >
+                <mt-icon
+                    class="sw-select__select-indicator sw-select__select-indicator-clear"
+                    name="regular-times-s"
+                    size="16px"
+                />
+            </button>
+
+            <mt-icon
+                class="sw-select__select-indicator sw-select__select-indicator-expand"
+                :class="{ 'sw-select__select-indicator-expand--rotated': !expanded }"
+                name="regular-chevron-up-xs"
+                size="10px"
+                @click="toggleExpand"
+            />
+        </div>
+
+        <template v-if="expanded">
+            <transition
+                name="sw-select-result-list-fade-down"
+                @click.stop
+            >
+                <slot
+                    name="results-list"
+                    v-bind="{ collapse }"
+                ></slot>
+            </transition>
+        </template>
+    </template>
+
+    <template #label>
+        <slot name="label"></slot>
+    </template>
+
+    <template #hint>
+        <slot name="hint"></slot>
+    </template>
+</sw-block-field>
+{% endblock %}

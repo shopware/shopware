@@ -1,0 +1,53 @@
+{
+  "sw-newsletter-recipient": {
+    "general": {
+      "description": "Verwaltung von Newsletter-Empfängern.",
+      "information": "Informationen",
+      "language": "Sprache",
+      "salutation": "Anrede",
+      "salesChannel": "Verkaufskanal",
+      "buttonSave": "Speichern",
+      "mainMenuItemGeneral": "Newsletter-Empfänger",
+      "placeholderSearchBarSnippets": "Durchsuche alle Newsletter-Empfänger ...",
+      "tags": "Tags"
+    },
+    "detail": {
+      "messageSaveSuccess": "Die Daten für \"{key}\" wurden erfolgreich gespeichert.",
+      "messageSaveError": "Die Daten für \"{key}\" konnten nicht gespeichert werden."
+    },
+    "list": {
+      "titleSidebarItemRefresh": "Aktualisieren",
+      "titleSidebarItemFilter": "Filter",
+      "status": "Status",
+      "textHeadline": "Newsletter-Empfänger",
+      "email": "E-Mail-Adresse",
+      "name": "Name",
+      "title": "Titel",
+      "firstName": "Vorname",
+      "lastName": "Nachname",
+      "salesChannel": "Verkaufskanal",
+      "zipCode": "Postleitzahl",
+      "city": "Stadt",
+      "street": "Straße",
+      "createdAt": "Hinzugefügt am",
+      "updatedAt": "Aktualisiert am",
+      "notSet": "Warten auf Aktivierung",
+      "optIn": "Aktiv",
+      "optOut": "Warten auf Löschung",
+      "direct": "Sofort aktiv",
+      "messageEmpty": "Noch keine Newsletter-Empfänger"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "newsletter_recipient": {
+        "label": "Newsletter-Empfänger"
+      }
+    },
+    "additional_permissions": {
+      "marketing": {
+        "send_newsletter": "Newsletter versenden"
+      }
+    }
+  }
+}

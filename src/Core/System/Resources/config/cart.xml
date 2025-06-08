@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Cart</title>
+        <title lang="de-DE">Warenkorb</title>
+
+        <input-field type="int">
+            <name>maxQuantity</name>
+            <label>Maximum quantity</label>
+            <label lang="de-DE">Maximale Auswahlmenge</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>showDeliveryTime</name>
+            <label>Show delivery time in cart</label>
+            <label lang="de-DE">Lieferzeit im Warenkorb anzeigen</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>enableOrderRefunds</name>
+            <label>Enable refunds</label>
+            <label lang="de-DE">Stornierungen erlauben</label>
+        </input-field>
+
+        <input-field type="int">
+            <name>paymentFinalizeTransactionTime</name>
+            <defaultValue>30</defaultValue>
+            <label>Time in minutes for a customer to finalize a transaction</label>
+            <label lang="de-DE">Zeit in Minuten, die ein Kunde Zeit hat eine Transaktion abzuschließen</label>
+        </input-field>
+
+        <input-field type="int">
+            <name>lineItemAddLimit</name>
+            <defaultValue>0</defaultValue>
+            <label>Maximum addable products to cart per minute through API</label>
+            <label lang="de-DE">Maximal hinzufügbare Produkte pro Minute in den Warenkorb durch die API</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>showSubtotal</name>
+            <label>Show subtotal column</label>
+            <label lang="de-DE">Summenspalte anzeigen</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>columnTaxInsteadUnitPrice</name>
+            <label>Order confirm page: tax column instead of unit price</label>
+            <label lang="de-DE">Bestellbestätigung: Steuerspalte anstatt Stückpreis</label>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Checkout</title>
+        <title lang="de-DE">Bestellabschluss</title>
+
+        <input-field type="bool">
+            <name>showCustomerComment</name>
+            <label>Show comment field on checkout confirm page</label>
+            <label lang="de-DE">Kommentarfeld auf der Bestellabschlussseite anzeigen</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>logoutGuestAfterCheckout</name>
+            <label>Automatically log out guest customers after order completion</label>
+            <label lang="de-DE">Gastkunden nach dem Bestellabschluss automatisch ausloggen</label>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Wishlist</title>
+        <title lang="de-DE">Merkzettel</title>
+
+        <input-field type="bool">
+            <name>wishlistEnabled</name>
+            <label>Activate wishlist</label>
+            <label lang="de-DE">Merkzettel aktivieren</label>
+        </input-field>
+
+    </card>
+
+</config>

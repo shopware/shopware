@@ -1,0 +1,29 @@
+{% block sw_data_grid_slot_pagination %}
+<sw-pagination
+    v-bind="{ page, limit, total }"
+    :total-visible="7"
+    @page-change="paginate"
+/>
+{% endblock %}
+
+{% block sw_data_grid_slot_actions %}
+<slot
+    name="more-actions"
+    v-bind="{ item }"
+></slot>
+
+<slot
+    name="delete-action"
+    :item="item"
+>
+    <sw-context-menu-item
+        v-tooltip.bottom="tooltipDelete"
+        class="sw-one-to-many-grid__delete-action"
+        variant="danger"
+        :disabled="!allowDelete || undefined"
+        @click="deleteItem(item.id)"
+    >
+        {{ $tc('global.default.delete') }}
+    </sw-context-menu-item>
+</slot>
+{% endblock %}

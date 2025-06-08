@@ -1,0 +1,28 @@
+@import "~scss/variables";
+
+.sw-cms-preview-category-navigation {
+    width: 100%;
+    background: $color-white;
+    font-size: 22px;
+    color: $color-darkgray-200;
+    font-weight: $font-weight-semi-bold;
+    border-radius: 5px;
+    padding: 20px;
+
+    .sw-cms-block-category-placeholder-listing div {
+        margin: 10px 0;
+        height: 0.7em;
+        border-radius: 4px;
+        background-color: $color-gray-100;
+
+        &.sw-cms-block-category-navigation__placeholder--subcategory {
+            margin: 7px 0 7px 30px;
+        }
+    }
+
+    hr {
+        max-width: 90%;
+        margin: 10px auto;
+        border: 1px solid $color-gray-300;
+    }
+}

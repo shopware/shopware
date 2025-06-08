@@ -1,0 +1,57 @@
+@import "~scss/variables";
+
+.sw-bulk-edit-change-field-renderer {
+    &__change-field > span {
+        color: $color-darkgray-200;
+        font-size: $font-size-xxs;
+    }
+
+    &__inheritance-group-field {
+        position: relative;
+    }
+
+    &__inheritance-group-field .sw-inheritance-switch {
+        position: absolute;
+        top: 15px;
+        left: -30px;
+        margin-top: 0;
+        line-height: 0;
+    }
+
+    &__inheritance-group-field.is--select-box-type .sw-inheritance-switch {
+        top: -40px;
+    }
+}
+
+.sw-bulk-edit-change-field__container {
+    padding: 24px 32px;
+
+    &:nth-child(even) {
+        .sw-field--switch__content {
+            background-color: $color-gray-100;
+        }
+
+        background-color: $color-gray-100;
+    }
+
+    .sw-field,
+    .sw-field--switch,
+    .sw-field--checkbox {
+        margin-top: auto;
+        margin-bottom: auto;
+    }
+
+    .mt-field--checkbox__content {
+        padding: 15px 0;
+    }
+
+    .sw-data-grid__table {
+        .sw-field--checkbox {
+            margin: 0;
+
+            &__content {
+                padding: 0;
+            }
+        }
+    }
+}

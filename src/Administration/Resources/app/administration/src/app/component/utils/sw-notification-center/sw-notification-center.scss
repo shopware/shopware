@@ -1,0 +1,58 @@
+@import "~scss/variables";
+
+.sw-notification-center__context-button {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--border-radius-button);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+
+    &.is--active {
+        background: var(--color-interaction-secondary-hover);
+    }
+}
+
+.sw-notification-center__context-button--new-available::after {
+    content: "";
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: $color-crimson-500;
+    position: absolute;
+    top: 6px;
+    right: 6px;
+}
+
+.sw-notification-center__context-container {
+    .sw-context-menu__content {
+        cursor: default;
+        padding: 0;
+    }
+
+    .sw-notification-center__content {
+        .sw-notification-center__header {
+            border-bottom: 1px solid $color-gray-300;
+            padding: 20px 24px 16px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .sw-notification-center__title {
+            margin: 0;
+            font-size: $font-size-m;
+        }
+
+        .sw-notification-center__notification-container {
+            overflow-y: auto;
+            max-height: 600px;
+        }
+
+        .sw-notification-center__empty-text {
+            padding: 24px;
+            font-size: $font-size-xs;
+        }
+    }
+}

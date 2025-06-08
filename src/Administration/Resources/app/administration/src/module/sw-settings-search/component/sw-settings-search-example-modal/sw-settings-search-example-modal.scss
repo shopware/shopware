@@ -1,0 +1,26 @@
+@import "~scss/variables";
+
+.sw-settings-search {
+    &__example-text {
+        display: block;
+        font-size: $font-size-xs;
+    }
+
+    &__searchable-content-example-list {
+        list-style-type: none;
+        display: grid;
+        grid-template-rows: 1fr 1fr 1fr;
+        grid-gap: 40px;
+    }
+
+    &__searchable-content-example-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        grid-gap: 25px;
+    }
+
+    &__searchable-content-example-detail {
+        display: grid;
+        grid-template-columns: 2fr 0.5fr;
+    }
+}

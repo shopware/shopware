@@ -1,0 +1,65 @@
+{
+  "admin-ui": {
+    "icon": "regular-tools-alt",
+    "name": "custom_entity_test",
+    "color": "#f00",
+    "detail": {
+      "tabs": [
+        {
+          "name": "main",
+          "cards": [
+            {
+              "name": "general",
+              "fields": [
+                {
+                  "ref": "custom_entity_int_field"
+                },
+                {
+                  "ref": "custom_entity_string_field"
+                }
+              ]
+            },
+            {
+              "name": "secondary",
+              "fields": [
+                {
+                  "ref": "custom_entity_string_field"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "another_tab",
+          "cards": [
+            {
+              "name": "another_card",
+              "fields": [
+                {
+                  "ref": "custom_entity_int_field"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "listing": {
+      "columns": [
+        {
+          "ref": "custom_entity_string_field",
+          "hidden": false
+        },
+        {
+          "ref": "custom_entity_int_field",
+          "hidden": false
+        }
+      ]
+    },
+    "position": 50,
+    "navigationParent": "sw-content"
+  },
+  "cms-aware": {
+    "name": "custom_entity_test"
+  }
+}

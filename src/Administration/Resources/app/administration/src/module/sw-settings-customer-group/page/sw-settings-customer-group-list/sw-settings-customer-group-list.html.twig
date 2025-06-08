@@ -1,0 +1,168 @@
+{% block sw_settings_customer_group_list %}
+<sw-page class="sw-settings-customer-group-list">
+
+    {% block sw_settings_customer_group_list_search_bar %}
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="customer_group"
+            :placeholder="$tc('sw-settings-customer-group.general.placeholderSearchBar')"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_customer_group_list_smart_bar_header %}
+    <template #smart-bar-header>
+        {% block sw_settings_customer_group_list_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_customer_group_list_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <mt-icon
+                name="regular-chevron-right-xs"
+                size="12px"
+            />
+            {{ $tc('sw-settings-customer-group.general.mainMenuItemGeneral') }}
+            {% endblock %}
+
+            {% block sw_settings_customer_group_list_smart_bar_header_amount %}
+            <span
+                v-if="!isLoading && customerGroups && total"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ total }})
+            </span>
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_customer_group_list_language_switch %}
+    <template #language-switch>
+        <sw-language-switch @on-change="onRefresh" />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_customer_group_list_actions %}
+    <template #smart-bar-actions>
+        {% block sw_settings_customer_group_list_actions_create %}
+        <mt-button
+            v-tooltip.bottom="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('customer_groups.creator'),
+                showOnDisabledElements: true
+            }"
+            class="sw-settings-customer-group-list__create"
+            variant="primary"
+            :disabled="!acl.can('customer_groups.creator') || undefined"
+            size="default"
+            @click="$router.push({ name: 'sw.settings.customer.group.create' })"
+        >
+            {{ $tc('sw-settings-customer-group.general.buttonCreate') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_customer_group_list_cardview %}
+    <template #content>
+        <sw-card-view>
+            {% block sw_settings_customer_group_list_card_content %}
+            <mt-card
+                position-identifier="sw-settings-customer-group-list"
+            >
+
+                {% block sw_settings_customer_group_list_grid %}
+                <template #grid>
+                    <sw-entity-listing
+                        v-if="isLoading || entitySearchable"
+                        ref="listing"
+                        class="sw-settings-customer-group-list-grid"
+                        identifier="sw-settings-customer-group-list"
+                        detail-route="sw.settings.customer.group.detail"
+                        :repository="customerGroupRepository"
+                        :criteria-limit="limit"
+                        :is-loading="isLoading"
+                        :items="customerGroups"
+                        :columns="columns"
+                        :sort-by="currentSortBy"
+                        :sort-direction="sortDirection"
+                        :full-page="false"
+                        :allow-view="acl.can('customer_groups.viewer')"
+                        :allow-edit="acl.can('customer_groups.editor')"
+                        :allow-inline-edit="acl.can('customer_groups.editor') || undefined"
+                        :allow-delete="acl.can('customer_groups.deleter')"
+                        :show-selection="acl.can('customer_groups.deleter') || undefined"
+                        @column-sort="onSortColumn"
+                        @page-change="onPageChange"
+                    >
+
+                        <template #bulk-modal-delete-items>
+                            <mt-button
+                                variant="critical"
+                                size="small"
+                                @click="deleteCustomerGroups"
+                            >
+                                {{ $tc('global.default.delete') }}
+                            </mt-button>
+                        </template>
+
+                        <template #delete-action="{ item }">
+                            <sw-context-menu-item
+                                class="sw-settings-customer-group-list-grid__delete-action"
+                                variant="danger"
+                                :disabled="!acl.can('customer_groups.deleter') || undefined"
+                                @click="onContextMenuDelete(item)"
+                            >
+                                {{ $tc('global.default.delete') }}
+                            </sw-context-menu-item>
+                        </template>
+
+                        <template #delete-modal-delete-item="{ item }">
+                            <mt-button
+                                variant="critical"
+                                size="small"
+                                @click="deleteCustomerGroup(item)"
+                            >
+                                {{ $tc('global.default.delete') }}
+                            </mt-button>
+                        </template>
+
+                        {% block sw_settings_customer_group_list_grid_column_display_gross %}
+                        <template #column-displayGross="{ item }">
+                            {% block sw_settings_customer_group_list_grid_column_display_gross_inner %}
+                            {{ $tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', {}, +item.displayGross) }}
+                                {% endblock %}
+                        </template>
+                        {% endblock %}
+                    </sw-entity-listing>
+                </template>
+                {% endblock %}
+
+            </mt-card>
+            {% endblock %}
+        </sw-card-view>
+
+        {% block sw_settings_customer_group_list_empty_state %}
+        <sw-empty-state
+            v-if="!isLoading && !total && isValidTerm(term)"
+            :title="$tc('sw-empty-state.messageNoResultTitle')"
+        >
+            <template #default>
+                {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
+                <router-link
+                    class="sw-empty-state__description-link"
+                    :to="{ name: 'sw.profile.index.searchPreferences' }"
+                >
+                    {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
+                </router-link>
+                {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
+            </template>
+        </sw-empty-state>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+</sw-page>
+{% endblock %}

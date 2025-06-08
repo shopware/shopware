@@ -1,0 +1,36 @@
+@import "~scss/variables";
+
+$sw-tree-item-color-border: $color-gray-300;
+$sw-tree-item-color-background: $color-gray-50;
+$sw-tree-item-color-text: $color-darkgray-200;
+
+.sw-tree-input-field {
+    .sw-tree-item__element {
+        grid-template-columns: 20px auto;
+        padding: 0 35px 0 73px;
+    }
+
+    &.is--disabled {
+        .sw-tree-item__element {
+            height: auto;
+            align-content: start;
+
+            &:hover {
+                background: 0 none;
+
+                .sw-tree-item__icon,
+                .sw-tree-item__content {
+                    color: $sw-tree-item-color-text;
+                }
+            }
+        }
+
+        .sw-confirm-field {
+            margin-bottom: 10px;
+        }
+
+        .sw-tree-input-field__language-warning {
+            white-space: normal;
+        }
+    }
+}

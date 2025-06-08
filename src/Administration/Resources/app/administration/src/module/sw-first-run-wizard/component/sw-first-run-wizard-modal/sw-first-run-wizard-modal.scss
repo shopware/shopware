@@ -1,0 +1,91 @@
+@import "~scss/variables";
+
+.sw-first-run-wizard-modal {
+    &.sw-modal--large .sw-modal__dialog {
+        height: 720px;
+        max-height: calc(100vh - 48px);
+        display: flex;
+        justify-content: space-between;
+        max-width: 1030px !important;
+    }
+
+    &.sw-modal .sw-modal__body {
+        height: 100%;
+        overflow-y: hidden !important;
+        padding: 0;
+    }
+
+    .sw-first-run-wizard-modal-content {
+        height: 100%;
+
+        .sw-first-run-wizard-modal-content__columns {
+            height: 100%;
+
+            &.one {
+                grid-template-columns: 1fr;
+            }
+
+            &.two {
+                grid-template-columns: 230px 4fr;
+            }
+        }
+
+        .sw-first-run-wizard-modal-content__steps {
+            min-width: 100%;
+            padding: 24px;
+            margin-right: 25%;
+            border-right: 1px solid $color-gray-300;
+        }
+
+        .sw-first-run-wizard-modal-content__page {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            padding: 24px;
+        }
+    }
+
+    .sw-first-run-wizard-modal__loader {
+        background: rgba(255, 255, 255, 80%);
+    }
+
+    .sw-modal__footer {
+        display: flex !important;
+
+        .footer-left .mt-button {
+            margin-right: 12px;
+
+            &:last-child {
+                margin-right: 0;
+            }
+        }
+
+        .footer-right .mt-button {
+            margin-left: 12px;
+
+            &:first-child {
+                margin-left: 0;
+            }
+        }
+    }
+
+    .sw-first-run-wizard-modal__footer {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+
+        .footer-right {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+
+            .skip-button {
+                margin-right: 12px;
+            }
+        }
+    }
+}

@@ -1,0 +1,94 @@
+{% block section_content_block %}
+
+    {% set top = block.marginTop ? block.marginTop : 0 %}
+    {% set right = block.marginRight ? block.marginRight : 0 %}
+    {% set bottom = block.marginBottom ? block.marginBottom : 0 %}
+    {% set left = block.marginLeft ? block.marginLeft : 0 %}
+
+    {% if top or right or bottom or left %}
+        {% set padding = top ~ ' ' ~ right ~ ' ' ~ bottom ~ ' ' ~ left %}
+    {% endif %}
+
+    {% set blockBgColor = block.backgroundColor %}
+
+    {% set blockClasses = [block.cssClass, 'pos-' ~ block.position, 'cms-block-' ~ block.type] %}
+
+    {% if block.backgroundMedia %}
+        {% set blockClasses = ['bg-image']|merge(blockClasses) %}
+    {% endif %}
+
+    {% if blockBgColor %}
+        {% set blockClasses = ['bg-color']|merge(blockClasses) %}
+    {% endif %}
+
+    {% set columns = 3 %}
+    {% set isInSidebar = block.sectionPosition == 'sidebar' %}
+    {% set sidebarClasses = '' %}
+
+    {% if isInSidebar == true %}
+        {% set sidebarClasses = 'has--sidebar' %}
+    {% endif %}
+
+    {% if block.visibility is null %}
+        {% set visibility = {
+            mobile: true,
+            tablet: true,
+            desktop: true
+        } %}
+    {% else %}
+        {% set visibility = block.visibility %}
+    {% endif %}
+
+    {% if not visibility.mobile %}
+        {% set blockClasses = ['hidden-mobile']|merge(blockClasses) %}
+    {% endif %}
+    {% if not visibility.tablet %}
+        {% set blockClasses = ['hidden-tablet']|merge(blockClasses) %}
+    {% endif %}
+    {% if not visibility.desktop %}
+        {% set blockClasses = ['hidden-desktop']|merge(blockClasses) %}
+    {% endif %}
+
+    <div
+        class="cms-block {{ blockClasses|join(' ') }} position-relative"
+        {% if blockBgColor %}style="background-color: {{ blockBgColor }}"{% endif %}
+    >
+        {% block section_content_block_background_image %}
+            {% if block.backgroundMedia %}
+                {% sw_thumbnails 'cms-block-background' with {
+                    media: block.backgroundMedia,
+                    autoColumnSizes: false,
+                    attributes: {
+                        class: 'cms-block-background media-mode--' ~ block.backgroundMediaMode
+                    }
+                } %}
+            {% elseif (block.type == 'text-on-image') %}
+                {% set defaultMediaUrl = null %}
+
+                {% for slot in block.slots.elements %}
+                    {% if slot.slot == 'content' and slot.config.media and slot.config.media.value %}
+                        {% set defaultMediaUrl = slot.config.media.value %}
+                        {% set backgroundImageUrl = asset(defaultMediaUrl) %}
+                        {% break %}
+                    {% endif %}
+                {% endfor %}
+
+                {% if backgroundImageUrl %}
+                    <img src="{{ backgroundImageUrl }}"
+                         class="cms-block-background media-mode--{{ block.backgroundMediaMode|default('cover') }}">
+                {% endif %}
+            {% endif %}
+        {% endblock %}
+
+        {% block section_content_block_container %}
+            <div class="cms-block-container"
+                 style="{% if padding %}padding: {{ padding }};{% endif %}">
+                {% block section_content_block_row %}
+                    <div class="cms-block-container-row row cms-row {{ sidebarClasses }}">
+                        {% sw_include '@Storefront/storefront/block/cms-block-' ~ block.type ~ '.html.twig' ignore missing %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

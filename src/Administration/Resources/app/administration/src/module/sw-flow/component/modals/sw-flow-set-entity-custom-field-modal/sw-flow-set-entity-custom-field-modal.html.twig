@@ -1,0 +1,133 @@
+{% block sw_flow_set_entity_custom_field_modal %}
+<sw-modal
+    class="sw-flow-set-entity-custom-field-modal"
+    :title="$tc('sw-flow.modals.setEntityCustomField.title')"
+    :closable="false"
+    @modal-close="onClose"
+>
+    {% block sw_flow_set_entity_custom_field_modal_content %}
+    <div class="sw-flow-set-entity-custom-field-modal__content">
+        {% block sw_flow_tag_modal_to_field %}
+        <sw-single-select
+            v-model:value="entity"
+            name="sw-field--entity"
+            class="sw-flow-set-entity-custom-field-modal__entity-field"
+            required
+            show-clearable-button
+            :label="$tc('sw-flow.modals.setEntityCustomField.labelToField')"
+            :placeholder="$tc('sw-flow.modals.setEntityCustomField.placeholderToField')"
+            :error="entityError"
+            :options="entityOptions"
+            @update:value="onEntityChange()"
+        />
+        {% endblock %}
+
+        {% block sw_flow_set_entity_custom_field_modal_category %}
+        <sw-entity-single-select
+            v-model:value="customFieldSetId"
+            name="sw-field--customFieldSetId"
+            class="sw-flow-set-entity-custom-field-modal__custom-field-set"
+            entity="custom_field_set"
+            required
+            :label-property="labelProperty"
+            :disabled="!entity"
+            :criteria="customFieldSetCriteria"
+            :label="$tc('sw-flow.modals.setEntityCustomField.customFieldSet')"
+            :placeholder="$tc('sw-flow.modals.setEntityCustomField.customFieldSetPlaceHolder')"
+            :error="customFieldSetError"
+            @update:value="(id, customFieldSet) => onCustomFieldSetChange(id, customFieldSet)"
+        >
+            <template #selection-label-property="{ item }">
+                {{ getInlineSnippet(item.config.label) || item.name }}
+            </template>
+
+            <template #result-label-property="{ item }">
+                {{ getInlineSnippet(item.config.label) || item.name }}
+            </template>
+        </sw-entity-single-select>
+        {% endblock %}
+
+        {% block sw_flow_set_entity_custom_field_modal_field_name %}
+        <sw-entity-single-select
+            v-model:value="customFieldId"
+            name="sw-field--customFieldId"
+            class="sw-flow-set-entity-custom-field-modal__custom-field"
+            entity="custom_field"
+            required
+            :label-property="labelProperty"
+            :label="$tc('sw-flow.modals.setEntityCustomField.customField')"
+            :disabled="!customFieldSetId"
+            :criteria="customFieldCriteria"
+            :placeholder="$tc('sw-flow.modals.setEntityCustomField.customFieldPlaceHolder')"
+            :error="customFieldError"
+            @update:value="(id, customField) => onCustomFieldChange(id, customField)"
+        >
+            <template #selection-label-property="{ item }">
+                {{ getInlineSnippet(item.config.label) || item.name }}
+            </template>
+
+            <template #result-label-property="{ item }">
+                {{ getInlineSnippet(item.config.label) || item.name }}
+            </template>
+        </sw-entity-single-select>
+        {% endblock %}
+
+        {% block sw_flow_set_entity_custom_field_modal_field_value_options %}
+        <sw-single-select
+            v-if="customFieldId"
+            v-model:value="fieldOptionSelected"
+            name="sw-field--fieldOptionSelected"
+            class="sw-flow-set-entity-custom-field-modal__custom-field-value-options"
+            :options="fieldOptions"
+            :label="$tc('sw-flow.modals.setEntityCustomField.customFieldOption')"
+            :highlight-search-term="false"
+        />
+        {% endblock %}
+
+        {% block sw_flow_set_entity_custom_field_modal_field_value %}
+        <sw-form-field-renderer
+            v-if="showFieldValue"
+            v-model:value="customFieldValue"
+            name="sw-field--customFieldValue"
+            class="sw-flow-set-entity-custom-field-modal__custom-field-value"
+            :config="renderedFieldConfig"
+            bordered
+        >
+            <template #label>
+                {{ $tc('sw-flow.modals.setEntityCustomField.prefixFieldName') }}
+                {{ getInlineSnippet(customField.config.label) || customField.name }}
+            </template>
+        </sw-form-field-renderer>
+        {% endblock %}
+
+    </div>
+    {% endblock %}
+
+    {% block sw_flow_set_entity_custom_field_modal_custom %}
+    {% endblock %}
+
+    {% block sw_flow_set_entity_custom_field_modal_footer %}
+    <template #modal-footer>
+        {% block sw_flow_set_entity_custom_field_modal_footer_cancel_button %}
+        <mt-button
+            class="sw-flow-set-entity-custom-field-modal__cancel-button"
+            variant="secondary"
+            @click="onClose"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_flow_set_entity_custom_field_modal_footer_save_button %}
+        <mt-button
+            class="sw-flow-set-entity-custom-field-modal__save-button"
+            variant="primary"
+            @click="onAddAction"
+        >
+            {{ sequence.id ? $tc('sw-flow.modals.buttonSaveAction') : $tc('sw-flow.modals.buttonAddAction') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

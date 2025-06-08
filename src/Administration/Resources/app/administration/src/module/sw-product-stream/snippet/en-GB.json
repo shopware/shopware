@@ -1,0 +1,156 @@
+{
+  "sw-product-stream": {
+    "general": {
+      "mainMenuItemGeneral": "Dynamic product groups",
+      "placeholderSearchBar": "Search dynamic product groups...",
+      "descriptionTextModule": "Manage dynamic product groups here.",
+      "errorCategory": "\"{name}\" provides product assignments for a category and thus cannot be deleted. | \"{name}\" provides product assignments for {count} categories and thus cannot be deleted."
+    },
+    "acl": {
+      "conditionsAlertHeading": "Not enough permissions",
+      "conditionsAlertDescription": "You have not enough permissions to perform all actions inside the \"Conditions\" section."
+    },
+    "list": {
+      "textProductStreamOverview": "Dynamic product groups",
+      "columnName": "Name",
+      "columnDescription": "Description",
+      "columnDateUpdated": "Last updated",
+      "columnStatus": "Status",
+      "titleSidebarItemRefresh": "Refresh",
+      "buttonAddProductStream": "Add dynamic product group",
+      "status": {
+        "valid": "Valid",
+        "invalid": "Invalid"
+      },
+      "messageEmpty": "No dynamic product groups yet"
+    },
+    "filter": {
+      "placeholderFieldSelect": "Choose a property...",
+      "placeholderOperatorSelect": "Choose an operator...",
+      "valid": "Show valid dynamic product groups only",
+      "type": {
+        "equals": "Is equal to",
+        "equalsAny": "Is equal to any of",
+        "equalsAll": "Is equal to all of",
+        "contains": "Contains",
+        "greaterThan": "Is greater than",
+        "lessThan": "Is less than",
+        "greaterThanEquals": "Is greater than/equal to",
+        "lessThanEquals": "Is less than/equal to",
+        "notEquals": "Is not equal to",
+        "notEqualsAny": "Is not equal to any of",
+        "notEqualsAll": "Is not equal to all of",
+        "notContains": "Does not contain",
+        "range": "Between",
+        "since": "Time since",
+        "until": "Time until"
+      },
+      "timeUnits": {
+        "days": "Days"
+      },
+      "values": {
+        "active": "Active",
+        "availableStock": "Available stock",
+        "ratingAverage": "Rating average",
+        "additionalText": "Additional text",
+        "allowNotification": "Allow notification",
+        "customFields": "Custom fields",
+        "category": "Category",
+        "categories": "Categories",
+        "categoriesRo": "Categories",
+        "cheapestPrice": "Price",
+        "choose": "Choose",
+        "coverId": "Has cover image",
+        "createdAt": "Date of creation",
+        "description": "Description",
+        "descriptionLong": "Description long",
+        "ean": "GTIN/EAN",
+        "gross": "Gross",
+        "group": "Property",
+        "height": "Height",
+        "isBlog": "Is blog",
+        "isCloseout": "On clearance sale",
+        "keywords": "Keywords",
+        "length": "Length",
+        "linked": "Linked",
+        "manufacturerId": "Manufacturer",
+        "manufacturer": "Manufacturer",
+        "manufacturerNumber": "Manufacturer product number",
+        "markAsTopseller": "Marked as promoted",
+        "maxDeliveryTime": "Max. delivery time",
+        "maxPurchase": "Max. order quantity",
+        "minDeliveryTime": "Min. delivery time",
+        "minPurchase": "Min. order quantity",
+        "minStock": "Min. stock",
+        "name": "Name",
+        "net": "Net",
+        "option": "Option",
+        "packUnit": "Pack unit",
+        "packUnitPlural": "Pack unit plural",
+        "price": "Price",
+        "product": "Product",
+        "productNumber": "Product number",
+        "purchasePrices": "Purchase price",
+        "purchaseUnit": "Purchase unit",
+        "referenceUnit": "Reference unit",
+        "releaseDate": "Release date",
+        "restockTime": "Restock time",
+        "sales": "Sales",
+        "salesChannel": "Sales Channel",
+        "shippingFree": "Free shipping",
+        "stock": "Stock",
+        "tags": "Tags",
+        "tax": "Tax",
+        "taxRate": "Tax rate",
+        "type": "Type",
+        "unit": "Unit",
+        "variations": "Variants",
+        "visibilities": "Visibility",
+        "visibility": "Visibility",
+        "visible": "Visibility",
+        "weight": "Weight",
+        "width": "Width",
+        "deliveryTime": "Delivery time",
+        "configuratorSettings": "Configurator settings",
+        "options": "Variant values",
+        "properties": "Properties",
+        "property_group": "Property",
+        "property_group_option": "Property value",
+        "product_manufacturer": "Manufacturer",
+        "product_visibility": "Product in Sales Channel",
+        "percentage": "Percentage ratio price/list price",
+        "states": "Product state",
+        "productStates": {
+          "physical": "Physical",
+          "digital": "Digital"
+        }
+      }
+    },
+    "detail": {
+      "titleCard": "General information",
+      "buttonSave": "Save",
+      "labelName": "Name",
+      "placeholderName": "Enter title...",
+      "labelDescription": "Description",
+      "placeholderDescription": "Enter description...",
+      "textHeadline": "New dynamic product group",
+      "titleFilter": "Conditions",
+      "titleResult": "Product group",
+      "messageSaveSuccess": "Dynamic product group \"{name}\" has been saved.",
+      "messageSaveError": "Dynamic product group \"{name}\" could not be saved.",
+      "buttonOpenPreview": "Preview"
+    },
+    "previewModal": {
+      "title": "Preview",
+      "empty": "No products found.",
+      "close": "Close"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "product_stream": {
+        "label": "Dynamic product groups"
+      }
+    }
+  }
+}

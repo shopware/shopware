@@ -1,0 +1,123 @@
+{% block element_image_slider %}
+    {% set sliderConfig = element.fieldConfig.elements %}
+    {% set visibleValues = ['inside', 'outside'] %}
+    {% set blockId = block.id %}
+
+    <div class="cms-element-{{ element.type }}{% if sliderConfig.displayMode.value == "standard" and sliderConfig.verticalAlign.value %} has-vertical-alignment{% endif %}">
+        {% set baseSliderOptions = {
+            slider: {
+                controls: sliderConfig.navigationArrows.value in visibleValues,
+                nav: sliderConfig.navigationDots.value in visibleValues,
+                navPosition: 'bottom',
+                mouseDrag: true,
+                autoplay: sliderConfig.autoSlide.value,
+                autoplayButtonOutput: false,
+                autoplayTimeout: sliderConfig.autoplayTimeout.value,
+                speed: sliderConfig.speed.value,
+                ariaLive: sliderConfig.autoSlide.value ? false : true,
+                autoHeight: (sliderConfig.displayMode.value == "standard") ? true : false
+            }
+        } %}
+
+        {% block element_image_slider_alignment %}
+            {% if config.verticalAlign.value %}
+                <div class="cms-element-alignment{% if sliderConfig.verticalAlign.value == "center" %} align-self-center{% elseif sliderConfig.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
+            {% endif %}
+                <div
+                    class="base-slider image-slider{% if sliderConfig.navigationArrows.value == "outside" %} has-nav-outside{% endif %}{% if sliderConfig.navigationDots.value == "outside" %} has-dots-outside{% endif %}"
+                    data-base-slider="true"
+                    data-base-slider-options='{{ baseSliderOptions|json_encode }}'
+                    role="region"
+                    aria-label="{{ 'component.cms.imageGallery.ariaLabel'|trans({ '%total%': element.data.sliderItems|length })|sw_sanitize }}"
+                    tabindex="0"
+                >
+
+                    {% block element_image_slider_inner %}
+                        {% block element_image_slider_skip_slider %}
+                            {% sw_include '@Storefront/storefront/component/skip-target.html.twig' with {
+                                targetId: blockId,
+                                snippet: 'component.cms.imageGallery.skipImageGallery',
+                            } %}
+                        {% endblock %}
+
+                        <div class="image-slider-container"
+                             data-base-slider-container="true">
+                            {% for image in element.data.sliderItems %}
+
+                                {% set imageElement %}
+                                    <div class="image-slider-item{% if loop.first != true %} is-not-first{% endif %} is-{{ sliderConfig.displayMode.value }}"{% if sliderConfig.minHeight.value and sliderConfig.displayMode.value == "cover" %} style="min-height: {{ sliderConfig.minHeight.value|trim|replace({' ':''}) }}"{% endif %}>
+                                        {% set attributes = {
+                                            'class': 'img-fluid image-slider-image',
+                                            'alt': element.config.isDecorative.value ? '' : (image.media.translated.alt ?: ''),
+                                            'title': element.config.isDecorative.value ? '' : (image.media.translated.title ?: ''),
+                                            'tabindex': (image.url ? '-1' : '0')
+                                        } %}
+
+                                        {% if element.config.displayMode.value == 'cover' or element.config.displayMode.value == 'contain' %}
+                                            {% set attributes = attributes|merge({ 'data-object-fit': element.config.displayMode.value }) %}
+                                        {% endif %}
+
+                                        {% sw_thumbnails 'cms-image-slider-thumbnails' with {
+                                            media: image.media
+                                        } %}
+                                    </div>
+                                {% endset %}
+
+                                {% block element_image_slider_inner_item %}
+                                    <div class="image-slider-item-container">
+                                        {% if image.url %}
+                                            <a href="{{ image.url }}"
+                                               class="image-slider-link"
+                                               {% if image.newTab %}target="_blank" rel="noopener"{% endif %}
+                                            >
+                                                {{ imageElement }}
+                                            </a>
+                                        {% else %}
+                                            {{ imageElement }}
+                                        {% endif %}
+                                    </div>
+                                {% endblock %}
+                            {% endfor %}
+                        </div>
+
+                        {% block element_image_slider_controls %}
+                            {% if sliderConfig.navigationArrows.value !== 'none' %}
+                                <div class="image-slider-controls-container">
+                                    <div class="base-slider-controls"
+                                        data-base-slider-controls="true">
+                                        {% block element_image_slider_controls_items %}
+                                            {% block element_image_slider_controls_items_arrows %}
+                                                <button
+                                                    class="base-slider-controls-prev image-slider-controls-prev{% if sliderConfig.navigationArrows.value == "outside" %} is-nav-prev-outside{% elseif sliderConfig.navigationArrows.value == "inside" %} is-nav-prev-inside{% endif %}"
+                                                    aria-label="{{ 'general.previous'|trans|striptags }}"
+                                                >
+                                                    {% block element_image_slider_controls_items_prev_icon %}
+                                                        {% sw_icon 'arrow-head-left' %}
+                                                    {% endblock %}
+                                                </button>
+                                                <button
+                                                    class="base-slider-controls-next image-slider-controls-next{% if sliderConfig.navigationArrows.value == "outside" %} is-nav-next-outside{% elseif sliderConfig.navigationArrows.value == "inside" %} is-nav-next-inside{% endif %}"
+                                                    aria-label="{{ 'general.next'|trans|striptags }}"
+                                                >
+                                                    {% block element_image_slider_controls_items_next_icon %}
+                                                        {% sw_icon 'arrow-head-right' %}
+                                                    {% endblock %}
+                                                </button>
+                                            {% endblock %}
+                                        {% endblock %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endblock %}
+                    {% endblock %}
+                </div>
+            {% if config.verticalAlign.value %}
+                </div>
+            {% endif %}
+        {% endblock %}
+    </div>
+
+    {% block element_image_slider_target_after_slider %}
+        <div id="content-after-target-{{ blockId }}"></div>
+    {% endblock %}
+{% endblock %}

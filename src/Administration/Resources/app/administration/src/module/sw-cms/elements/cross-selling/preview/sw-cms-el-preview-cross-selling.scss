@@ -1,0 +1,68 @@
+@import "~scss/variables";
+
+.sw-cms-el-preview-cross-selling {
+    h4 {
+        font-size: $font-size-xs;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #d1d9e0;
+        padding-bottom: 5px;
+    }
+
+    &__slider {
+        align-items: center;
+        display: grid;
+        grid-template-columns: 10px 1fr 10px;
+        grid-gap: 5px;
+        height: 100%;
+    }
+
+    &-box {
+        height: 100%;
+        display: grid;
+        grid-template-rows: 50px 10px 20px;
+        align-items: center;
+        align-content: stretch;
+        padding: 0;
+        color: $color-darkgray-200;
+        border-radius: 2px;
+
+        &__image {
+            height: 50px;
+            max-width: 100%;
+
+            img {
+                display: block;
+                object-fit: cover;
+                width: 100%;
+                height: 100%;
+            }
+        }
+
+        &__info {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        &__skeleton-left,
+        &__skeleton-right {
+            height: 5px;
+            background: $color-gray-100;
+            border-radius: 5px;
+        }
+
+        &__skeleton-left {
+            width: 70%;
+        }
+
+        &__skeleton-right {
+            width: 20%;
+        }
+
+        &__action {
+            background: $color-gray-900;
+            border-radius: 2px;
+            width: 100%;
+            height: 14px;
+        }
+    }
+}

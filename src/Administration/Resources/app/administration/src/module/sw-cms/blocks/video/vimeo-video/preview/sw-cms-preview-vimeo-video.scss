@@ -1,0 +1,22 @@
+.sw-cms-preview-vimeo-video {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 15px;
+
+    &__img {
+        width: 100%;
+        height: auto;
+    }
+
+    &__icon {
+        $icon-width: 50px;
+        $icon-height: $icon-width;
+
+        height: $icon-height;
+        width: $icon-width;
+        position: absolute;
+    }
+}

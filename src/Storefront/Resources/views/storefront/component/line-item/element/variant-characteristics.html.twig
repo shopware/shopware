@@ -1,0 +1,21 @@
+{% block component_line_item_variant_characteristics %}
+    <div class="line-item-details-characteristics">
+        {% for option in lineItem.payload.options %}
+            {% block component_line_item_variant_characteristics_option_group %}
+                {{ option.group }}:
+            {% endblock %}
+
+            {% block component_line_item_variant_characteristics_option %}
+                <span class="line-item-details-characteristics-option">
+                    {{ option.option }}
+                </span>
+            {% endblock %}
+
+            {% if lineItem.payload.options|last != option %}
+                {% block component_line_item_variant_characteristics_divider %}
+                    {{ ' | ' }}
+                {% endblock %}
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}

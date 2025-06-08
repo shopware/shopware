@@ -1,0 +1,16 @@
+@import "~scss/mixins";
+
+.sw-button-process {
+    .sw-button-process__status-indicator {
+        @include size(12px);
+
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .sw-button-process__content.is--hidden {
+        visibility: hidden;
+    }
+}

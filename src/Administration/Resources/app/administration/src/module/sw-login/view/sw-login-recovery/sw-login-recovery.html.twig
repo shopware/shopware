@@ -1,0 +1,52 @@
+{% block sw_login_recovery %}
+<div class="sw-login-recovery">
+    {% block sw_login_recovery_headline %}
+    <h2 class="sw-login__form-headline">
+        <router-link
+            class="sw-login__back"
+            :to="{ name: 'sw.login.index.login' }"
+        >
+            <mt-icon
+                class="sw-login__back-arrow"
+                name="regular-long-arrow-left"
+                size="16px"
+            />
+        </router-link>
+        {{ $tc('sw-login.recovery.headline') }}
+    </h2>
+    {% endblock %}
+
+    {% block sw_login_recovery_text %}
+    <p>{{ $tc('sw-login.recovery.text') }}</p>
+    {% endblock %}
+
+    {% block sw_login_recovery_form %}
+    <form
+        class="sw-login__recovery-form"
+        @submit.prevent="sendRecoveryMail"
+    >
+        {% block sw_login_recovery_form_email_field %}
+
+        <mt-text-field
+            ref="swLoginRecoveryEmailField"
+            v-model="email"
+            :label="$tc('sw-login.recovery.email.label')"
+            :placeholder="$tc('sw-login.recovery.email.placeholder')"
+        />
+        {% endblock %}
+
+        {% block sw_login_recovery_form_submit %}
+        <div class="sw-login__submit">
+            <mt-button
+                variant="primary"
+                :disabled="!isEmailValid()"
+                type="submit"
+            >
+                {{ $tc('sw-login.recovery.submit') }}
+            </mt-button>
+        </div>
+        {% endblock %}
+    </form>
+    {% endblock %}
+</div>
+{% endblock %}

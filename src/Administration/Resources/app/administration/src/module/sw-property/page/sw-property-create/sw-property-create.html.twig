@@ -1,0 +1,34 @@
+{% block sw_property_detail_language_switch %}
+<!-- eslint-disable-next-line vue/valid-v-slot -->
+<template #language-switch>
+    <sw-language-switch disabled />
+</template>
+{% endblock %}
+
+{% block sw_property_detail_content_language_info %}
+<sw-language-info
+    :entity-description="placeholder(propertyGroup, 'name', $tc('sw-property.detail.textHeadline'))"
+    is-new-entity
+/>
+{% endblock %}
+
+{% block sw_property_detail_content_option_list %}
+<mt-card
+    class="sw-property-create__option-list-empty-state"
+    position-identifier="sw-property-create-empty-state"
+    :title="$tc('sw-property.detail.cardTitle')"
+>
+    <sw-empty-state
+        title=""
+        :subline="$tc('sw-property.detail.optionEmptyStateSubline')"
+        :absolute="false"
+    >
+        <template #icon>
+            <img
+                :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
+                alt=""
+            >
+        </template>
+    </sw-empty-state>
+</mt-card>
+{% endblock %}

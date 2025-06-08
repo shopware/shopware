@@ -1,0 +1,259 @@
+{# Provides customer
+    type,
+    salutation,
+    title,
+    firstname,
+    lastname, and birthday fields for address forms (e.g. registering a user, creating or updating an address)
+#}
+{% block component_address_personal_fields %}
+    {% block component_address_personal_account_type %}
+        {% if (onlyCompanyRegistration or (config('core.loginRegistration.showAccountTypeSelection') and not hideCustomerTypeSelect)) and not hasSelectedBusiness %}
+            <div class="row g-2">
+                {% set toggleTarget = ".js-field-toggle-contact-type-company" %}
+
+                {% if customToggleTarget %}
+                    {% set toggleTarget = "#{toggleTarget}-#{prefix}" %}
+                {% endif %}
+
+                {% set isCompany = false %}
+
+                {% if page.address.company or data.company is not empty %}
+                    {% set isCompany = true %}
+                {% endif %}
+
+                {% if onlyCompanyRegistration or (accountType and accountType == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS')) %}
+                    {% set isCompany = true %}
+                {% endif %}
+
+                {% set isLoginPage = false %}
+                {% if activeRoute == 'frontend.account.login.page' %}
+                    {% set isLoginPage = true %}
+                {% endif %}
+
+                {% set privateType = constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') %}
+                {% set businessType = constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %}
+
+                {% set accountTypeOptions %}
+                    {% if isLoginPage %}
+                        <option disabled="disabled"
+                                selected="selected"
+                                value="">
+                            {{ "account.personalTypePlaceholder"|trans|sw_sanitize }}
+                        </option>
+                    {% endif %}
+
+                    {% if not onlyCompanyRegistration %}
+                        <option value="{{ privateType }}"
+                            {% if accountType === privateType || (isCompany == false and isLoginPage == false) %} selected="selected"{% endif %}>
+                            {{ "account.personalTypePrivate"|trans|sw_sanitize }}
+                        </option>
+                    {% endif %}
+
+                    <option value="{{ businessType }}"
+                        {% if accountType === businessType || (isCompany == true and isLoginPage == false) %} selected="selected"{% endif %}>
+                        {{ "account.personalTypeBusiness"|trans|sw_sanitize }}
+                    </option>
+                {% endset %}
+
+                {% block component_address_personal_account_type_select %}
+                    {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
+                        label: 'account.personalTypeLabel'|trans|sw_sanitize,
+                        id: idPrefix ~ prefix ~ '-accountType',
+                        name: prefix ? prefix ~ '[accountType]' : 'accountType',
+                        options: accountTypeOptions,
+                        validationRules: 'required',
+                        disabled: (onlyCompanyRegistration) ? 'true',
+                        additionalClass: 'col-md-6 contact-type',
+                        additionalSelectClass: 'contact-select',
+                        attributes: {
+                            'data-form-field-toggle': 'true',
+                            'data-form-field-toggle-target': toggleTarget,
+                            'data-form-field-toggle-value': constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS'),
+                            'data-form-field-toggle-scope': (scope == 'parent') ? 'parent' : 'all',
+                            'data-form-field-toggle-parent-selector': (scope == 'parent') ? parentSelector,
+                        },
+                    } %}
+                {% endblock %}
+
+                {% if onlyCompanyRegistration %}
+                    {# This is rendered on the profile edit page if the customer registered via a custom commercial registration form. #}
+                    {# The selection field is then disabled and the account type is set to "business". #}
+                    <input type="hidden"
+                           name="accountType"
+                           value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
+                {% endif %}
+            </div>
+        {% elseif not hideCustomerTypeSelect %}
+            {# This case applies to custom registration forms with the "Company signup form" config enabled. #}
+            {# The registration is always of type "commercial" then. #}
+            <input type="hidden" name="accountType">
+        {% endif %}
+    {% endblock %}
+
+    {% block component_address_personal_fields_salutation_title %}
+        {% if config('core.loginRegistration.showSalutation') or config('core.loginRegistration.showTitleField') %}
+            <div class="row g-2">
+                {% block component_address_personal_fields_salutation %}
+                    {% if config('core.loginRegistration.showSalutation') %}
+                        {% set salutationOptions %}
+                            {% for salutation in page.salutations %}
+                                <option {% if salutation.id == data.get('salutationId') %}
+                                    selected="selected"
+                                {% endif %}
+                                    value="{{ salutation.id }}">
+                                    {{ salutation.translated.displayName }}
+                                </option>
+                            {% endfor %}
+                        {% endset %}
+
+                        {% block component_address_personal_fields_salutation_select %}
+                            {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
+                                label: 'account.personalSalutationLabel'|trans|sw_sanitize,
+                                id: idPrefix ~ prefix ~ 'personalSalutation',
+                                name: prefix ? prefix ~ '[salutationId]' : 'salutationId',
+                                options: salutationOptions,
+                                violationPath: '/salutationId',
+                                additionalClass: 'col-md-3 col-sm-6',
+                            } %}
+                        {% endblock %}
+                    {% endif %}
+                {% endblock %}
+
+                {% block component_address_personal_fields_title %}
+                    {% if config('core.loginRegistration.showTitleField') %}
+                        {% if formViolations.getViolations("/#{prefix}/title") is not empty %}
+                            {% set violationPath = "/#{prefix}/title" %}
+                        {% elseif formViolations.getViolations("/title") is not empty %}
+                            {% set violationPath = "/title" %}
+                        {% endif %}
+
+                        {% block component_address_personal_fields_title_input %}
+                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                label: 'account.personalTitleLabel'|trans|sw_sanitize,
+                                id: idPrefix ~ prefix ~ 'personalTitle',
+                                name: prefix ? prefix ~ '[title]' : 'title',
+                                value: data.get('title'),
+                                autocomplete: 'section-personal honorific-prefix',
+                                violationPath: violationPath,
+                                additionalClass: 'col-md-3 col-sm-6',
+                            } %}
+                        {% endblock %}
+                    {% endif %}
+                {% endblock %}
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block component_address_personal_fields_name %}
+        <div class="row g-2">
+            {% block component_address_personal_fields_first_name %}
+                {% if prefix !== '' and prefix != 'address' %}
+                    {% set prefix = prefix != 'shippingAddress' ? 'billingAddress' : 'shippingAddress' %}
+                {% endif %}
+
+                {# New implementation, setting of "violationPath" #}
+                {% if formViolations.getViolations("/#{prefix}/firstName") is not empty %}
+                    {% set violationPath = "/#{prefix}/firstName" %}
+                {% elseif formViolations.getViolations("/firstName") is not empty and prefix === 'address' %}
+                    {% set violationPath = "/firstName" %}
+                {% endif %}
+
+                {% block component_address_personal_fields_first_name_input %}
+                    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                        label: 'account.personalFirstNameLabel'|trans|sw_sanitize,
+                        id: idPrefix ~ prefix ~ '-personalFirstName',
+                        name: prefix ? prefix ~ '[firstName]' : 'firstName',
+                        value: (prefix and data.has(prefix)) ? data.get(prefix).get('firstName') : data.get('firstName'),
+                        autocomplete: 'section-personal given-name',
+                        violationPath: violationPath,
+                        validationRules: 'required',
+                        additionalClass: 'col-sm-6',
+                    } %}
+                {% endblock %}
+            {% endblock %}
+
+            {% block component_address_personal_fields_last_name %}
+                {% if prefix !== '' and prefix != 'address' %}
+                    {% set prefix = prefix != 'shippingAddress' ? 'billingAddress' : 'shippingAddress' %}
+                {% endif %}
+
+                {% if formViolations.getViolations("/#{prefix}/lastName") is not empty %}
+                    {% set violationPath = "/#{prefix}/lastName" %}
+                {% elseif formViolations.getViolations("/lastName") is not empty and prefix === 'address' %}
+                    {% set violationPath = "/lastName" %}
+                {% endif %}
+
+                {% block component_address_personal_fields_last_name_input %}
+                    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                        label: 'account.personalLastNameLabel'|trans|sw_sanitize,
+                        id: idPrefix ~ prefix ~ '-personalLastName',
+                        name: prefix ? prefix ~ '[lastName]' : 'lastName',
+                        value: (prefix and data.has(prefix)) ? data.get(prefix).get('lastName') : data.get('lastName'),
+                        autocomplete: 'section-personal family-name',
+                        violationPath: violationPath,
+                        validationRules: 'required',
+                        additionalClass: 'col-sm-6',
+                    } %}
+                {% endblock %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {% block component_address_personal_company %}
+        {% if (onlyCompanyRegistration or config('core.loginRegistration.showAccountTypeSelection')) and activeRoute == 'frontend.account.profile.page' %}
+            <div class="js-field-toggle-contact-type-company{% if customToggleTarget %}-{{ prefix }}{% endif %}">
+                {% block component_address_personal_company_fields %}
+                    <div class="row g-2">
+                        {% block component_address_personal_company_name %}
+                            {% if formViolations.getViolations("/company") is not empty %}
+                                {% set violationPath = "/company" %}
+                            {% endif %}
+
+                            {# This is only rendered on the customer profile edit page. #}
+                            {% block component_address_personal_company_name_input %}
+                                {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                    label: 'address.companyNameLabel'|trans|sw_sanitize,
+                                    id: idPrefix ~ prefix ~ '-company',
+                                    name: 'company',
+                                    value: data.get('company'),
+                                    autocomplete: 'section-personal organization',
+                                    violationPath: violationPath,
+                                    validationRules: 'required',
+                                    additionalClass: 'col-sm-6',
+                                } %}
+                            {% endblock %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block component_address_personal_vat_id %}
+        {% if showVatIdField %}
+            {% if config('core.loginRegistration.showAccountTypeSelection') or onlyCompanyRegistration %}
+                <div class="js-field-toggle-contact-type-company{% if customToggleTarget %}-{{ prefix }}{% endif %} js-field-toggle-contact-type-vat-id">
+                    {% block component_address_personal_vat_id_fields %}
+                        <div class="row g-2">
+                            {# This is only rendered on the customer profile edit page. #}
+                            {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
+                                'vatIds': data.get('vatIds'),
+                                'editMode': true
+                            } %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endblock %}
+
+    {% block component_address_personal_fields_birthday %}
+        {% if showBirthdayField %}
+            {% sw_include '@Storefront/storefront/component/form/form-select-birthday.html.twig' with {
+                label: 'account.personalBirthdayLabel'|trans|sw_sanitize,
+                validationRules: config('core.loginRegistration.birthdayFieldRequired') ? 'required' : '',
+                additionalClass: 'col-sm-6',
+            } %}
+        {% endif %}
+    {% endblock %}
+{% endblock %}

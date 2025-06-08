@@ -1,0 +1,85 @@
+{
+  "sw-settings-payment": {
+    "general": {
+      "mainMenuItemGeneral": "Zahlungsarten",
+      "placeholderSearchBar": "Durchsuche alle Zahlungsarten ..."
+    },
+    "overview": {
+      "openSortingModalButton": "Darstellungsreihenfolge im Bestellprozess ändern",
+      "editDetails": "Details bearbeiten",
+      "activeToggle": "Aktiv",
+      "missingEditorPermission": "Du hast nicht die nötigen Zugriffsrechte, um Zahlarten zu bearbeiten",
+      "notification": {
+        "activationSuccess": "{name} wurde erfolgreich aktiviert.",
+        "deactivationSuccess": "{name} wurde erfolgreich deaktiviert.",
+        "activationError": "{name} konnte nicht aktiviert werden.",
+        "deactivationError": "{name} konnte nicht deaktiviert werden."
+      }
+    },
+    "sorting-modal": {
+      "modalTitle": "Darstellungsreihenfolge im Bestellprozess",
+      "subTitle": "Lege per Drag & Drop die Reihenfolge der Zahlungsarten fest, die im Bestellprozess angezeigt werden.",
+      "saveSuccessful": "Reihenfolge der Zahlungsarten wurde aktualisiert.",
+      "errorMessage": "Beim Aktualisieren der Reihenfolge der Zahlungsarten ist ein Fehler aufgetreten."
+    },
+    "list": {
+      "textHeadline": "Zahlungsarten",
+      "textDeleteConfirm": "Bist Du sicher, dass Du die Zahlungsart \"{name}\" löschen möchtest?",
+      "columnName": "Name",
+      "columnDescription": "Beschreibung",
+      "columnActive": "Aktiv",
+      "columnPosition": "Position",
+      "columnExtension": "Erweiterung",
+      "buttonAddPaymentMethod": "Zahlungsart anlegen",
+      "contextMenuEdit": "Bearbeiten",
+      "contextMenuDelete": "Löschen",
+      "messageDeleteSuccess": "Die Zahlungsart \"{name}\" wurde erfolgreich gelöscht.",
+      "buttonDelete": "Löschen",
+      "pluginDeleteTitleText": "Zahlungsarten von Plugins können nicht gelöscht werden."
+    },
+    "detail": {
+      "textHeadline": "Neue Zahlungsart",
+      "titleCard": "Zahlungsarten",
+      "messageSaveSuccess": "Die Zahlungsart \"{name}\" wurde erfolgreich gespeichert.",
+      "messageSaveError": "Die Zahlungsart \"{name}\" konnte nicht gespeichert werden.",
+      "labelName": "Name",
+      "labelTechnicalName": "Technischer Name",
+      "labelPosition": "Position",
+      "labelActive": "Aktiv",
+      "labelAfterOrderEnabled": "Zahlartwechsel nach Bestellabschluss erlauben",
+      "labelDescription": "Beschreibung",
+      "labelLogoUpload": "Logo",
+      "sidebar": {
+        "labelUseAsLogo": "Als Logo benutzen"
+      },
+      "topRule": "Verfügbarkeitsregel",
+      "placeholderName": "Namen eingeben ...",
+      "placeholderTechnicalName": "Technischen Namen eingeben ...",
+      "placeholderPosition": "Position eingeben ...",
+      "placeholderDescription": "Beschreibung eingeben ...",
+      "placeholderAvailabilityRule": "Verfügbarkeitsregel auswählen ...",
+      "buttonSave": "Speichern",
+      "helpTextTechnicalName": "Der technische Name wird für die einzigartige Identifikation der Zahlungsart verwendet. Eine nachträgliche Änderung des technischen Namens kann dazu führen, dass Zahlungsintegrationen, die sich auf diesen Namen verlassen, nicht mehr funktionieren.",
+      "hintTextTechnicalNameIsProvided": "Der technische Name wird durch {name} bereitgestellt.",
+      "delete": {
+        "textHeadline": "Zahlungsart löschen",
+        "textAlert": "Diese Zahlungsart wird in Regeln, Vertriebskanälen oder Bestellungen verwendet und kann daher nicht gelöscht werden.",
+        "textButton": "Zahlungsart löschen",
+        "modal": {
+          "textConfirmation": "Möchtest Du diese Zahlungsart wirklich löschen?",
+          "buttonDelete": "Löschen"
+        }
+      }
+    }
+  },
+  "sw-plugin-box": {
+    "buttonPluginSettings": "Erweiterung Einstellungen"
+  },
+  "sw-privileges": {
+    "permissions": {
+      "payment": {
+        "label": "Zahlungsarten"
+      }
+    }
+  }
+}

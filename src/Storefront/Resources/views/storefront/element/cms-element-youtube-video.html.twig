@@ -1,0 +1,93 @@
+{% block element_youtube_video %}
+    {% set config = element.fieldConfig.elements %}
+    {% set elementData = element.data %}
+
+    {% if config.advancedPrivacyMode.value == true %}
+        {% set videoUrl = 'https://www.youtube-nocookie.com/embed/' %}
+    {% else %}
+        {% set videoUrl = 'https://www.youtube.com/embed/' %}
+    {% endif %}
+
+    {% set locale = app.request.locale | split('-')[0] | default('en') %}
+
+    {# initialize with default values #}
+    {% set queryParams = {
+        rel: '0',
+        cc_load_policy: '1',
+        cc_lang_pref: locale,
+        hl: locale,
+        disablekb: '1'
+    } %}
+
+    {% if config.autoPlay.value %}
+        {% set queryParams = queryParams | merge({ autoplay: '1' }) %}
+    {% endif %}
+
+    {% if config.loop.value %}
+        {% set queryParams = queryParams | merge({
+            loop: '1',
+            playlist: config.videoID.value
+        }) %}
+    {% endif %}
+
+    {% if config.showControls.value == false %}
+        {% set queryParams = queryParams | merge({ controls: '0' }) %}
+    {% endif %}
+
+    {% if config.start.value > 0 %}
+        {% set queryParams = queryParams | merge({ start: config.start.value }) %}
+    {% endif %}
+
+    {% if config.end.value == not null %}
+        {% set queryParams = queryParams | merge({ end: config.end.value }) %}
+    {% endif %}
+
+    {% set videoUrl = videoUrl ~ config.videoID.value ~ '?' ~ (queryParams | url_encode) %}
+
+    {% if config.displayMode.value == 'standard' or config.displayMode.value == null %}
+        {% set displayMode = '' %}
+    {% else %}
+        {% set displayMode = 'is--' ~ config.displayMode.value %}
+    {% endif %}
+
+    <div class="cms-element-youtube-video {{ displayMode }}">
+        {% block element_youtube_video_inner %}
+            {% set iframeClass = 'cms-element-youtube-video__video' %}
+
+            {% if config.needsConfirmation.value == false %}
+                <iframe class="{{ iframeClass }}"
+                        src="{{ videoUrl }}"
+                        title="{{ config.iframeTitle.value }}"
+                        allowfullscreen="allowfullscreen">
+                </iframe>
+            {% else %}
+                {% set pluginConfiguration = {
+                    cookieName: 'youtube-video',
+                    videoUrl: videoUrl,
+                    iframeClasses: [ iframeClass ],
+                    iframeTitle: config.iframeTitle.value,
+                    btnClasses: [ 'btn', 'btn-outline-secondary' ],
+                    backdropClasses: [ 'cms-element-youtube-video__backdrop' ],
+                    confirmButtonText: 'component.cms.vimeo.acceptButtonLabel'|trans,
+                    overlayText: 'component.cms.vimeo.privacyNoticeText'|trans({
+                        '%url%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),
+                        '%platform%': 'YouTube'
+                    })|raw
+                } %}
+
+                {% block element_youtube_video_placeholder %}
+                    <div class="cms-element-youtube-video__placeholder"
+                         data-cms-gdpr-video-element="true"
+                         data-cms-gdpr-video-element-options="{{ pluginConfiguration|json_encode }}">
+
+                        {% if elementData.media %}
+                            {% sw_thumbnails 'cms-element-youtube-video__placeholder' with {
+                                media: elementData.media
+                            } %}
+                        {% endif %}
+                    </div>
+                {% endblock %}
+            {% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}

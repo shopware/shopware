@@ -1,0 +1,82 @@
+@import "~scss/variables";
+
+.sw-tree {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    border: 1px solid #dcdde2;
+
+    &:focus-within {
+        outline: 0;
+        box-shadow: inset 0 0 0 2px $color-shopware-brand-500;
+        border-radius: $border-radius-default;
+    }
+
+    .sw-tree__search {
+        padding: 10px 20px;
+        border-bottom: 1px solid #dcdde2;
+    }
+
+    .sw-tree-actions__headline {
+        display: grid;
+        color: $color-darkgray-200;
+        font-size: $font-size-m;
+        padding: 21px 40px;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        line-height: 32px;
+        border-bottom: 1px solid $color-gray-300;
+
+        .sw-tree__batch-delete {
+            color: $color-crimson-500;
+            font-size: $font-size-xs;
+            cursor: pointer;
+        }
+    }
+
+    .sw-tree__content {
+        min-height: 400px;
+        max-height: 600px;
+        position: relative;
+        overflow: auto;
+        width: 100%;
+        padding: 0;
+
+        .tree-items {
+            padding: 16px;
+            width: max-content;
+            min-width: 100%;
+        }
+
+        .sw-tree-item {
+            width: max-content;
+            min-width: 100%;
+        }
+
+        .sw-tree-item__children {
+            border-left: none !important;
+
+            &::before {
+                content: "";
+                background: $color-gray-300;
+                position: absolute;
+                left: 16px;
+                height: 100%;
+                width: 1px;
+            }
+        }
+
+        .sw-tree-item__element {
+            padding: 0;
+            width: 100%;
+        }
+
+        .sw-tree-item__content {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 8px;
+            max-width: 340px;
+        }
+    }
+}

@@ -1,0 +1,107 @@
+{% block component_product_quickview_minimal %}
+    {% set name = page.product.translated.name %}
+    {% set manufacturer = page.product.manufacturer %}
+
+    <div class="quickview-minimal-container">
+        {% block component_product_quickview_minimal_top %}
+            <div class="row quickview-minimal-top">
+                {% block component_product_quickview_minimal_img %}
+                    <div class="col-12 col-md-6 quickview-minimal-image">
+                        {% if page.product.media %}
+                            {% set attributes = {
+                                class: 'img-fluid quickview-minimal-img',
+                                title: (page.product.cover.translated.title ?: '')
+                            } %}
+
+                            {% if page.product.cover.media.getMediaType().getName() === 'VIDEO' %}
+                                {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
+                                    media: page.product.cover.media,
+                                    attributes: attributes
+                                } %}
+                            {% else %}
+                                {% set attributes = attributes|merge({
+                                    alt: ( page.product.cover.translated.alt ?: '')
+                                }) %}
+
+                                {% sw_thumbnails 'minimal-image-thumbnails' with {
+                                    media: page.product.cover.media,
+                                    sizes: {
+                                        default: '360px'
+                                    },
+                                    attributes: attributes
+                                } %}
+                            {% endif %}
+                        {% else %}
+                            {% sw_icon 'placeholder' style {
+                                size: 'fluid'
+                            } %}
+                        {% endif %}
+                    </div>
+                {% endblock %}
+
+                {% block component_product_quickview_minimal_product %}
+                    <div class="col-12 col-md-6 quickview-minimal-product">
+                        {% block component_product_quickview_minimal_product_name %}
+                            <a href="{{ seoUrl('frontend.detail.page', {productId: page.product.id}) }}"
+                               target="_blank"
+                               rel="noopener"
+                               title="{{ name }}"
+                               class="h4 quickview-minimal-product-name">
+                                {{ name }}
+                            </a>
+                        {% endblock %}
+
+                        {% block component_product_quickview_minimal_product_number %}
+                            <p class="quickview-minimal-product-number">
+                                {{ 'detail.productNumberLabel'|trans|sw_sanitize }} {{ page.product.productNumber }}
+                            </p>
+                        {% endblock %}
+
+                        {% block component_product_quickview_minimal_product_manufacturer %}
+                            {% if manufacturer %}
+                                <a href="{{ manufacturer.link }}"
+                                   target="_blank"
+                                   rel="noopener"
+                                   title="{{ manufacturer.translated.name }}"
+                                   class="quickview-minimal-product-manufacturer">
+                                    {% if manufacturer.media %}
+                                        {% sw_thumbnails 'quickview-minimal-product-manufacturer-logo' with {
+                                            media: manufacturer.media,
+                                            sizes: {
+                                                default: '360px'
+                                            },
+                                            attributes: {
+                                                class: 'quickview-minimal-product-manufacturer-logo',
+                                                alt: ( manufacturer.translated.name ?: '')
+                                            }
+                                        } %}
+                                    {% else %}
+                                        {{ manufacturer.translated.name }}
+                                    {% endif %}
+                                </a>
+                            {% endif %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block component_product_quickview_minimal_footer %}
+            {% if page.product.translated.description %}
+                <div class="quickview-minimal-footer">
+                    {% block component_product_quickview_minimal_footer_heading %}
+                        <p class="h5 quickview-minimal-footer-heading">
+                            {{ 'detail.tabsDescription'|trans|sw_sanitize }}
+                        </p>
+                    {% endblock %}
+
+                    {% block component_product_quickview_minimal_footer_text %}
+                        <p class="quickview-minimal-footer-description">
+                            {{ page.product.translated.description|sw_sanitize }}
+                        </p>
+                    {% endblock %}
+                </div>
+            {% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% block page_checkout_finish_address_inner %}
+    {% set order = page.order %}
+    {% set billingAddress = order.billingAddress %}
+    {# @deprecated tag:v6.8.0 - deliveries will be removed, use primaryOrderDelivery instead #}
+    {% set deliveries = order.deliveries.elements %}
+
+    {% if feature('v6.8.0.0') %}
+        {% if order.billingAddress.id != order.primaryOrderDelivery.shippingOrderAddressId %}
+            {% set shippingAddress = order.primaryOrderDelivery.shippingOrderAddress %}
+        {% else %}
+            {% set shippingAddress = billingAddress %}
+        {% endif %}
+    {% else %}
+        {% if deliveries|length > 0 and order.billingAddress.id != deliveries|first.shippingOrderAddressId %}
+            {% set shippingAddress = deliveries|first.shippingOrderAddress %}
+        {% else %}
+            {% set shippingAddress = billingAddress %}
+        {% endif %}
+    {% endif %}
+
+    <div class="row">
+        {% block page_checkout_finish_address_shipping %}
+            {# @deprecated tag:v6.8.0 - If condition `order.deliveries|length > 0` will be removed. If condition `order.primaryOrderDelivery` will remain in use. #}
+            {% if deliveries|length > 0 or order.primaryOrderDelivery %}
+                <div class="col-sm-6">
+                    <div class="card checkout-card">
+                        <div class="card-body">
+                            {% block page_checkout_finish_address_shipping_title %}
+                                <div class="card-title">
+                                    {{ 'checkout.shippingAddressHeader'|trans|sw_sanitize }}
+                                </div>
+                            {% endblock %}
+
+                            {% block page_checkout_finish_address_shipping_data %}
+                                <div class="finish-address-shipping">
+                                    {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {address: shippingAddress} %}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endblock %}
+
+        {% block page_checkout_finish_address_billing %}
+            <div class="col-sm-6">
+                <div class="card checkout-card">
+                    <div class="card-body">
+                        {% block page_checkout_finish_address_billing_title %}
+                            <div class="card-title">
+                                {{ 'checkout.billingAddressHeader'|trans|sw_sanitize }}
+                            </div>
+                        {% endblock %}
+
+                        {% block page_checkout_finish_address_billing_data %}
+                            <div class="finish-address-billing">
+                                {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {address: billingAddress} %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

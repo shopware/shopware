@@ -1,0 +1,19 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+$sw-metadata-item-caption-color: $color-darkgray-200;
+
+.sw-media-quickinfo-metadata-item__term {
+    font-size: $font-size-xs;
+    color: $sw-metadata-item-caption-color;
+}
+
+.sw-media-quickinfo-metadata-item__description {
+    @include truncate;
+
+    font-size: $font-size-xs;
+
+    @media screen and (max-width: 768px) {
+        margin-bottom: 16px;
+    }
+}

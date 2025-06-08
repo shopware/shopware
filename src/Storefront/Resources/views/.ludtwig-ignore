@@ -1,0 +1,54 @@
+*.xml.twig
+
+# -------------------------------------------
+# Baseline (we should fix these in the future)
+# most of them have twig syntax which slices HTML.
+# this is an anti-pattern and not supported by ludtwig.
+# ludtwig always needs complete html tags inside twig blocks, ...
+# -------------------------------------------
+/storefront/page/content/single-cms-page.html.twig
+/storefront/page/error/error-maintenance.html.twig
+/storefront/base.html.twig
+/storefront/component/listing/filter/filter-multi-select.html.twig
+/storefront/component/address/address-personal.html.twig
+/storefront/element/cms-element-image-gallery.html.twig
+/storefront/element/cms-element-image-slider.html.twig
+/storefront/element/cms-element-text.html.twig
+/storefront/element/cms-element-product-name.html.twig
+/storefront/element/cms-element-image.html.twig
+/storefront/element/cms-element-product-slider.html.twig
+/storefront/element/cms-element-product-description-reviews.html.twig
+/storefront/element/cms-element-manufacturer-logo.html.twig
+/storefront/element/cms-element-product-box.html.twig
+/storefront/element/cms-element-buy-box.html.twig
+/storefront/page/account/addressbook/address-actions.html.twig
+/storefront/page/account/addressbook/index.html.twig
+/storefront/utilities/alert.html.twig
+
+# Ignored because of exchanging opening and closing tags behind {% if %} conditions
+/storefront/page/account/order-history/index.html.twig
+/storefront/page/account/order-history/order-detail-list.html.twig
+/storefront/page/account/order-history/order-detail-document-item.html.twig
+/storefront/page/checkout/cart/index.html.twig
+/storefront/page/checkout/confirm/index.html.twig
+/storefront/page/checkout/finish/index.html.twig
+/storefront/page/checkout/address/index.html.twig
+/storefront/component/checkout/offcanvas-cart.html.twig
+/storefront/component/checkout/cart-header.html.twig
+/storefront/component/line-item/type/product.html.twig
+/storefront/component/line-item/type/discount.html.twig
+/storefront/component/line-item/type/generic.html.twig
+/storefront/component/line-item/type/container.html.twig
+/storefront/component/product/card/box-standard.html.twig
+
+# break statement in for loop is not vanilla twig
+# this should be fixed with: https://shopware.atlassian.net/browse/NEXT-39634
+/storefront/section/cms-section-block-container.html.twig
+
+# -------------------------------------------
+# Ludtwig related parser errors below.
+# These are ignored until this syntax is supported in ludtwig
+# -------------------------------------------
+
+# Twig whitespace support https://github.com/MalteJanz/ludtwig/issues/56
+/storefront/utilities/icon.html.twig

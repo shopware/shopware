@@ -1,0 +1,124 @@
+{
+  "blocks": [
+    {
+      "name": "my-first-block",
+      "label": {
+        "de-DE": "Erster Block einer App",
+        "en-GB": "First block from app"
+      },
+      "slots": {
+        "left": {
+          "type": "manufacturer-logo",
+          "default": {
+            "config": {
+              "displayMode": {
+                "source": "static",
+                "value": "cover"
+              }
+            }
+          },
+          "position": 0
+        },
+        "right": {
+          "type": "buy-box",
+          "default": {
+            "config": {
+              "displayMode": {
+                "source": "static",
+                "value": "contain"
+              }
+            }
+          },
+          "position": 2
+        },
+        "middle": {
+          "type": "image-gallery",
+          "default": {
+            "config": {
+              "displayMode": {
+                "source": "static",
+                "value": "auto"
+              },
+              "minHeight": {
+                "source": "static",
+                "value": "300px"
+              }
+            }
+          },
+          "position": 1
+        }
+      },
+      "category": "text-image",
+      "defaultConfig": {
+        "marginTop": "20px",
+        "marginLeft": "20px",
+        "sizingMode": "boxed",
+        "marginRight": "20px",
+        "marginBottom": "20px",
+        "backgroundColor": "#000"
+      },
+      "styles": "#sw-example-app--my-first-block {\n    color: red;\n    font-size: 12px;\n}\n",
+      "template": "<div class=\"sw-example-app--my-first-block\">\n  <div>\n    <h2>\n      Lorem ipsum dolor\\n\n    </h2>\n    <p>\n      Lorem ipsum dolor sit amet ...\n    </p>\n  </div><img src=\"preview.png\" alt=\"Preview image\" /></div>\n"
+    },
+    {
+      "name": "my-second-block",
+      "label": {
+        "de-DE": "Zweiter Block einer App",
+        "en-GB": "Second block from app"
+      },
+      "slots": {
+        "left": {
+          "type": "form",
+          "default": {
+            "config": {
+              "displayMode": {
+                "source": "static",
+                "value": "cover"
+              }
+            }
+          },
+          "position": 0
+        },
+        "right": {
+          "type": "youtube-video",
+          "default": {
+            "config": {
+              "displayMode": {
+                "source": "static",
+                "value": "contain"
+              }
+            }
+          },
+          "position": 2
+        },
+        "middle": {
+          "type": "image",
+          "default": {
+            "config": {
+              "displayMode": {
+                "source": "static",
+                "value": "auto"
+              },
+              "backgroundColor": {
+                "source": "static",
+                "value": "red"
+              }
+            }
+          },
+          "position": 1
+        }
+      },
+      "category": "text-image",
+      "defaultConfig": {
+        "marginTop": "20px",
+        "marginLeft": "20px",
+        "sizingMode": "boxed",
+        "marginRight": "20px",
+        "marginBottom": "20px",
+        "backgroundColor": "#000"
+      },
+      "styles": "#sw-example-app--my-second-block {\n    color: blue;\n    font-size: 24px;\n}\n",
+      "template": "<div class=\"sw-example-app--my-second-block\">\n    <div>\n        <img src=\"preview2.png\" alt=\"Preview image 2\" /></div>\n\n    </div>\n"
+    }
+  ]
+}

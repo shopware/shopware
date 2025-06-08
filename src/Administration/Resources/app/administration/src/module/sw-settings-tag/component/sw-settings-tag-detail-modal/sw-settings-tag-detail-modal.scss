@@ -1,0 +1,24 @@
+.sw-settings-tag-detail-modal {
+    &.sw-modal.sw-modal--full {
+        .sw-modal__dialog {
+            max-width: 1200px;
+        }
+
+        &.is--auto-height {
+            .sw-modal__dialog {
+                height: auto;
+            }
+        }
+    }
+
+    .sw-tabs {
+        display: grid;
+        height: 100%;
+        grid-template-rows: auto 1fr;
+        padding-bottom: 0;
+
+        &__custom-content {
+            display: grid;
+        }
+    }
+}

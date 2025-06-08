@@ -1,0 +1,9 @@
+{
+  "name": "InheritanceWithConfig",
+  "author": "shopware AG",
+  "views": [
+    "@Storefront",
+    "@InheritanceWithConfig",
+    "@Plugins"
+  ]
+}

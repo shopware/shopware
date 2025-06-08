@@ -1,0 +1,59 @@
+@import "~scss/variables";
+
+$sw-tree-item-color-background: $color-gray-50;
+
+.sw-landing-page-tree {
+    height: 100%;
+
+    .sw-landing-page-tree__add-button {
+        margin: 20px 36px;
+    }
+
+    .sw-tree {
+        .sw-tree__content {
+            max-height: unset;
+            min-height: unset;
+            height: calc(100% - 75px);
+        }
+    }
+
+    .sw-field--checkbox {
+        margin-bottom: 0;
+    }
+
+    .tree-link {
+        cursor: pointer;
+        color: inherit;
+        text-decoration: inherit;
+    }
+}
+
+.sw-landing-page-tree__inner.sw-tree {
+    background: $color-white;
+    width: 100%;
+    height: 100%;
+    border: none;
+
+    .sw-tree-item {
+        .sw-tree-item__element {
+            grid-template-columns: 30px 24px 0 auto 50px;
+        }
+
+        &.is--active > .sw-tree-item__element {
+            background: none;
+
+            .sw-tree-item__icon,
+            .sw-tree-item__content {
+                text-decoration: underline;
+            }
+
+            &:hover {
+                background: $sw-tree-item-color-background;
+
+                .sw-tree-item__content {
+                    background: $sw-tree-item-color-background;
+                }
+            }
+        }
+    }
+}

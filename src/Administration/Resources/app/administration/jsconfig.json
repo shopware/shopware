@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "module": "esnext",
+        "target": "es6",
+        "checkJs": true,
+        "allowUmdGlobalAccess": true,
+        "esModuleInterop": true,
+        "baseUrl": "./",
+        "paths": {
+            "vue$": ["./node_modules/vue/dist/vue.esm.js"],
+            "src/*": ["./src/*"],
+            "module/*": ["./src/module/*"],
+            "scss/*": ["./src/app/assets/scss/*"],
+            "assets/*": ["./static/*"],
+            "Shopware": ["./src/core/shopware"],
+        }
+    },
+    "include": ["src/**/*", "types/**/*"],
+    "exclude": ["node_modules", "test/**/*", "**/fixtures/*.js"]
+}

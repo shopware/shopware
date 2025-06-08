@@ -1,0 +1,44 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+.sw-media-breadcrumbs {
+    display: grid;
+    grid-auto-flow: column;
+    justify-content: start;
+    align-items: center;
+    margin-bottom: 16px;
+
+    a {
+        cursor: pointer;
+    }
+
+    .sw-media-breadcrumbs__entry {
+        font-size: $font-size-m;
+        display: flex;
+        align-items: center;
+        margin-top: 5px;
+
+        @include truncate;
+    }
+
+    .sw-media-breadcrumbs__parent-folder {
+        color: $color-gray-300;
+    }
+
+    .sw-media-breadcrumbs__arrow-separator {
+        color: $color-darkgray-200;
+
+        &.mt-icon {
+            width: 22px;
+            height: 22px;
+            padding-top: 7px;
+            padding-right: 7px;
+            padding-bottom: 6px;
+            padding-left: 10px;
+        }
+    }
+
+    &.is--small .sw-media-breadcrumbs__entry {
+        font-size: $font-size-xs;
+    }
+}

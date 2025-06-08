@@ -1,0 +1,3 @@
+{% do services.writer.upsert('product', [
+    { 'id':  hook.productId, 'active': true }
+]) %}

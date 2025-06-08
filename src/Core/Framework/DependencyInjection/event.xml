@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+
+        <service id="Shopware\Core\Framework\Event\BusinessEventRegistry" public="true">
+        </service>
+
+        <!--Event Listener -->
+        <service id="Shopware\Core\Framework\Event\NestedEventDispatcher" decorates="event_dispatcher">
+            <argument type="service" id="Shopware\Core\Framework\Event\NestedEventDispatcher.inner"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Event\BusinessEventCollector" public="true">
+
+            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventRegistry"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Event\Command\DebugDumpBusinessEventsCommand">
+            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Extensions\ExtensionDispatcher">
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+    </services>
+</container>

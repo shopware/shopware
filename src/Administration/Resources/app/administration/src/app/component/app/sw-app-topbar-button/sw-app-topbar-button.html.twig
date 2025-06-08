@@ -1,0 +1,18 @@
+{% block sw_app_topbar_button %}
+<div class="sw-app-topbar-button">
+    <mt-button
+        v-for="button in topBarButtons"
+        :key="button.label"
+        size="default"
+        variant="secondary"
+        @click="runAction(button)"
+    >
+        <mt-icon
+            v-if="button.icon"
+            :name="button.icon"
+            size="14px"
+        />
+        {{  button.label }}
+    </mt-button>
+</div>
+{% endblock %}

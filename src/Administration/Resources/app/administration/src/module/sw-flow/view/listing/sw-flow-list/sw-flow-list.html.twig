@@ -1,0 +1,171 @@
+{% block sw_flow_list %}
+<div class="sw-flow-list">
+    {% block sw_flow_list_search_bar %}{% endblock %}
+
+    {% block sw_flow_list_smart_bar_header %}{% endblock %}
+
+    {% block sw_flow_list_smart_bar_actions %}{% endblock %}
+
+    {% block sw_flow_list_content %}
+    <mt-card
+        class="sw-flow-list-card"
+        position-identifier="sw-flow-list-card"
+    >
+        <sw-entity-listing
+            class="sw-flow-list__grid"
+            show-selection
+            :show-settings="false"
+            :allow-column-edit="false"
+            :allow-view="acl.can('flow.viewer')"
+            :allow-edit="acl.can('flow.editor')"
+            :allow-delete="acl.can('flow.deleter')"
+            :columns="flowColumns"
+            :sort-by="sortBy"
+            :sort-direction="sortDirection"
+            :repository="flowRepository"
+            :items="flows"
+            :is-loading="isLoading"
+            :full-page="false"
+            :plain-appearance="true"
+            @column-sort="onSortColumn"
+            @page-change="onPageChange"
+            @update-records="updateRecords"
+            @selection-change="selectionChange"
+        >
+            {% block sw_flow_list_grid_columns %}
+
+            {% block sw_flow_list_grid_columns_active %}
+            <template #column-active="{ item }">
+                {% block sw_flow_list_columns_active_label %}
+                <mt-icon
+                    size="12px"
+                    :color="item.active ? `#37d046` : `#de294c`"
+                    :name="item.active ? `regular-checkmark-xs` : `regular-times-s`"
+                />
+                {% endblock %}
+            </template>
+            {% endblock %}
+
+            {% block sw_flow_list_grid_columns_event_name %}
+            <template #column-eventName="{ item }">
+                <div v-if="isValidTrigger(item.eventName)">
+                    <strong>
+                        {{ getTranslatedEventName(item.eventName) }}
+                    </strong>
+                    <p>{{ item.eventName }}</p>
+                </div>
+                <div v-else>
+                    <p>{{ $tc('sw-flow.list.unknownTrigger') }}</p>
+                </div>
+            </template>
+            {% endblock %}
+            {% endblock %}
+
+            {% block sw_flow_list_grid_actions %}
+            <template #actions="{ item }">
+
+                {% block sw_flow_list_grid_actions_duplicate %}
+                <sw-context-menu-item
+                    class="sw-flow-list__item-duplicate"
+                    :disabled="!acl.can('flow.creator')"
+                    @click="onDuplicateFlow(item)"
+                >
+                    {{ $tc('global.default.duplicate') }}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                {% block sw_flow_list_grid_actions_edit %}
+                <sw-context-menu-item
+                    class="sw-flow-list__item-edit"
+                    :disabled="!acl.can('flow.editor') && !acl.can('flow.viewer')"
+                    @click="onEditFlow(item)"
+                >
+                    {{ detailPageLinkText }}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                {% block sw_flow_list_grid_actions_custom %}
+                {% endblock %}
+
+                {% block sw_flow_list_grid_actions_delete %}
+                <sw-context-menu-item
+                    class="sw-context-menu-item--danger sw-flow-list__item-delete"
+                    :disabled="!acl.can('flow.deleter')"
+                    @click="onDeleteFlow(item)"
+                >
+                    {{ $tc('global.default.delete') }}
+                </sw-context-menu-item>
+                {% endblock %}
+            </template>
+            {% endblock %}
+
+            {% block sw_flow_list_grid_action_modal %}
+            <template #action-modals="{ item }">
+                <sw-modal
+                    v-if="currentFlow.id === item.id && isDeleting"
+                    variant="small"
+                    :title="$tc('global.default.warning')"
+                    @modal-close="onCloseDeleteModal"
+                >
+                    {% block sw_flow_list_grid_action_modal_confirm_delete_text %}
+                    <mt-banner variant="attention">
+                        {{ deleteWarningMessage() }}
+                    </mt-banner>
+                    {% endblock %}
+
+                    <template #modal-footer>
+                        {% block sw_flow_list_grid_action_modal_buttons %}
+                        <mt-button
+                            size="small"
+                            variant="secondary"
+                            @click="onCloseDeleteModal"
+                        >
+                            {{ $tc('global.default.cancel') }}
+                        </mt-button>
+                        <mt-button
+                            size="small"
+                            variant="critical"
+                            @click="onConfirmDelete(item)"
+                        >
+                            {{ $tc('global.default.delete') }}
+                        </mt-button>
+                        {% endblock %}
+                    </template>
+                </sw-modal>
+            </template>
+            {% endblock %}
+
+            {% block sw_flow_list_grid_bulk_modal_delete_confirm_text %}
+            <template #bulk-modal-delete-confirm-text="{ selectionCount }">
+                <mt-banner variant="attention">
+                    {{ bulkDeleteWarningMessage(selectionCount) }}
+                </mt-banner>
+            </template>
+            {% endblock %}
+        </sw-entity-listing>
+
+        {% block sw_flow_list_empty_state %}
+        <sw-empty-state
+            v-if="!total && !isLoading"
+            class="sw-flow-list__empty-state"
+            :absolute="false"
+            :title="$tc('sw-flow.list.emptyStateTitle')"
+            :subline="$tc('sw-flow.list.emptyStateSubTitle')"
+        >
+            {% block sw_flow_list_empty_state_icon %}
+            <template #icon>
+                <img
+                    :alt="$tc('sw-flow.list.emptyStateTitle')"
+                    :src="assetFilter('/administration/administration/static/img/empty-states/settings-empty-state.svg')"
+                >
+            </template>
+            {% endblock %}
+        </sw-empty-state>
+        {% endblock %}
+
+        {% block sw_flow_list_modal_content_custom %}
+        {% endblock %}
+    </mt-card>
+    {% endblock %}
+</div>
+{% endblock %}

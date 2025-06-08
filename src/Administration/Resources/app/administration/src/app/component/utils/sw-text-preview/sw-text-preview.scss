@@ -1,0 +1,16 @@
+@import "~scss/variables";
+
+.sw-text-preview__expand-button::before {
+    height: $font-size-s * 1.25;
+    width: 50px;
+    display: inline-block;
+    position: absolute;
+    left: -56px;
+    content: "";
+    background: $color-white;
+    background: linear-gradient(90deg, transparent 0%, $color-white 100%);
+}
+
+.sw-text-preview__expand-button {
+    margin-left: 0.5rem;
+}

@@ -1,0 +1,22 @@
+@import "~scss/variables";
+
+.sw-search-preferences-modal {
+    &.sw-modal .sw-modal__body {
+        padding: 0;
+    }
+
+    &.sw-modal .sw-modal__footer {
+        justify-content: space-between;
+    }
+
+    &__description {
+        padding: 20px 32px;
+        font-size: $font-size-xs;
+    }
+
+    &__description span {
+        cursor: pointer;
+        color: rgb(24, 158, 255);
+        text-decoration: underline;
+    }
+}

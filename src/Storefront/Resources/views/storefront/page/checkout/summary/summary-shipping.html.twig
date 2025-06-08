@@ -1,0 +1,22 @@
+{% block page_checkout_summary_shippings %}
+    {% for delivery in summary.deliveries %}
+        {% block page_checkout_summary_shipping %}
+            {% block page_checkout_summary_shipping_label %}
+                <dt class="col-7 checkout-aside-summary-label">
+                    {{ 'checkout.summaryShipping'|trans|sw_sanitize }}
+                </dt>
+            {% endblock %}
+
+            {% block page_checkout_summary_shipping_value %}
+                <dd class="col-5 checkout-aside-summary-value">
+                    {% set deliveryPrice = delivery.shippingCosts.totalPrice ?? 0 %}
+                    {% if deliveryPrice < 0 %}
+                        &minus;
+                    {% endif %}
+
+                    {{ deliveryPrice|abs|currency }}
+                </dd>
+            {% endblock %}
+        {% endblock %}
+    {% endfor %}
+{% endblock %}

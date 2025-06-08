@@ -1,0 +1,41 @@
+{% block sw_flow_grant_download_access_modal %}
+<sw-modal
+    class="sw-flow-grant-download-access-modal"
+    :title="$tc('sw-flow.modals.downloadAccess.titleSetDownloadAccess')"
+    :closable="false"
+    @modal-close="onClose"
+>
+    <div class="sw-flow-grant-download-access-modal__content">
+        <sw-single-select
+            v-model:value="value"
+            name="sw-field--value"
+            class="sw-flow-grant-download-access-modal__value-field"
+            required
+            :label="$tc('sw-flow.modals.downloadAccess.labelValueField')"
+            :placeholder="$tc('sw-flow.modals.downloadAccess.placeholderValueField')"
+            :error="valueError"
+            :options="valueOptions"
+        />
+    </div>
+
+    <template #modal-footer>
+        <mt-button
+            class="sw-flow-grant-download-access-modal__cancel-button"
+            size="small"
+            variant="secondary"
+            @click="onClose"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+
+        <mt-button
+            class="sw-flow-grant-download-access-modal__save-button"
+            variant="primary"
+            size="small"
+            @click="onSave"
+        >
+            {{ $tc('sw-flow.modals.buttonSaveAction') }}
+        </mt-button>
+    </template>
+</sw-modal>
+{% endblock %}

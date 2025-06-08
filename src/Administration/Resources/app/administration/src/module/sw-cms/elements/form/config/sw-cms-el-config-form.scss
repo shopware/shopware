@@ -1,0 +1,23 @@
+@import "~scss/variables";
+
+.sw-cms-el-config-form__tab-options {
+    span.sw-label {
+        margin: 8px 6px 0 0;
+    }
+
+    .is--last ul li:first-child span.sw-label {
+        cursor: not-allowed;
+
+        &:hover {
+            border-color: $color-gray-300;
+
+            .sw-label__caption {
+                width: 100%;
+            }
+        }
+
+        & button {
+            display: none !important;
+        }
+    }
+}

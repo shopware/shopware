@@ -1,0 +1,18 @@
+@import "~scss/mixins";
+
+.sw-settings-listing-index {
+    &__sorting-options-card div.sw-card__content {
+        padding: 0;
+    }
+
+    .sw-settings-listing-index__sorting-options-empty-state {
+        position: static;
+    }
+
+    .sw-data-grid__cell-content span.is--truncate {
+        @include truncate;
+
+        display: block;
+        max-width: 300px;
+    }
+}

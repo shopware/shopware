@@ -1,0 +1,105 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "Product": {
+                "type": "object",
+                "description": "Represents a product along with detailed information required to display a variant selection.",
+                "properties": {
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["product"]
+                    },
+                    "seoCategory": {
+                        "$ref": "#/components/schemas/Category"
+                    },
+                    "variantListingConfig": {
+                        "oneOf": [
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "displayParent": {
+                                        "type": "boolean"
+                                    }
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "calculatedPrice": {
+                        "$ref": "#/components/schemas/CalculatedPrice"
+                    },
+                    "calculatedPrices": {
+                        "type": "array",
+                        "items": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/components/schemas/CalculatedPrice"
+                                }
+                            ]
+                        }
+                    },
+                    "calculatedCheapestPrice": {
+                        "type": "object",
+                        "properties": {
+                            "unitPrice": { "type": "number" },
+                            "quantity": { "type": "number" },
+                            "totalPrice": { "type": "number" },
+                            "referencePrice": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ReferencePrice"
+                                    },
+                                    { "type": "null" }
+                                ]
+                            },
+                            "listPrice": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ListPrice"
+                                    },
+                                    { "type": "null" }
+                                ]
+                            },
+                            "regulationPrice": {
+                                "oneOf": [
+                                    {
+                                        "type": "object",
+                                        "properties": { "price": { "type": "number" } },
+                                        "required": ["price"]
+                                    },
+                                    { "type": "null" }
+                                ]
+                            },
+                            "hasRange": { "type": "boolean" },
+                            "variantId": {
+                                "oneOf": [
+                                    {
+                                        "type": "string",
+                                        "format": ""
+                                    },
+                                    { "type": "null" }
+                                ]
+                            },
+                            "apiAlias": {
+                                "type": "string",
+                                "enum": ["calculated_cheapest_price"]
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "apiAlias",
+                    "calculatedPrice",
+                    "calculatedPrices",
+                    "seoCategory",
+                    "translated"
+                ]
+            }
+        }
+    }
+}

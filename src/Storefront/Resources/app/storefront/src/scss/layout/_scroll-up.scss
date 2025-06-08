@@ -1,0 +1,23 @@
+/*
+Scroll up
+==============================================
+Shows a scroll up button at the bottom right of the page.
+*/
+
+.scroll-up-button {
+    bottom: $spacer-lg;
+    cursor: pointer;
+    opacity: 0;
+    position: fixed;
+    right: $spacer-lg;
+    transform: scale(0);
+    transition: 0.45s cubic-bezier(0.3, 0, 0.15, 1);
+    visibility: hidden;
+    z-index: $scroll-up-zindex;
+
+    &.is-visible {
+        opacity: 1;
+        transform: scale(1);
+        visibility: visible;
+    }
+}

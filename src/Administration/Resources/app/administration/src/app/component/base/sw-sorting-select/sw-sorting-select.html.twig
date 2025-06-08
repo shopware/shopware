@@ -1,0 +1,11 @@
+{% block sw_sorting_select %}
+<div class="sw-cms-list__actions-sorting">
+    <mt-select
+        name="sortType"
+        :label="$tc('sw-cms.sorting.labelSort')"
+        :model-value="sortingConditionConcatenation"
+        :options="sortingConditionOptions"
+        @update:model-value="onSortingChanged"
+    />
+</div>
+{% endblock %}

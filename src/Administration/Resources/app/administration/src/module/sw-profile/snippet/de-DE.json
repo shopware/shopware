@@ -1,0 +1,155 @@
+{
+  "sw-profile": {
+    "general": {
+      "mainMenuItemGeneral": "Profile",
+      "description": "Verwaltung Deines Profils.",
+      "headlineProfile": "Dein Profil"
+    },
+    "index": {
+      "buttonSaveLabel": "Speichern",
+      "titleInfoCard": "Profil-Informationen",
+      "titleImageCard": "Profilbild",
+      "titlePasswordCard": "Passwort",
+      "labelFirstNameField": "Vorname",
+      "labelLastNameField": "Nachname",
+      "labelUsernameField": "Benutzername",
+      "labelEmailField": "E-Mail-Adresse",
+      "labelTimezoneField": "Zeitzone",
+      "labelOldPassword": "Altes Passwort",
+      "placeholderOldPassword": "Altes Passwort eingeben ...",
+      "labelNewPassword": "Neues Passwort",
+      "placeholderNewPassword": "Neues Passwort eingeben ...",
+      "labelNewPasswordConfirm": "Passwort bestätigen",
+      "placeholderNewPasswordConfirm": "Neues Passwort erneut eingeben ...",
+      "notificationPasswordErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein.",
+      "notificationNewPasswordIsSameAsOldErrorMessage": "Dein neues Passwort stimmt mit dem alten überein. Bitte überlege dir ein neues Passwort.",
+      "notificationInvalidEmailErrorMessage": "Bitte gib eine gültige E-Mail-Adresse ein.",
+      "notificationSaveSuccessMessage": "Deine Profilinformationen wurden erfolgreich gespeichert.",
+      "notificationSaveErrorMessage": "Deine Profilinformationen konnten nicht gespeichert werden.",
+      "labelUploadAvatar": "Lade ein Profilbild hoch",
+      "labelUseAsAvatar": "Als Profilbild nutzen",
+      "placeholderNewPasswordConfirm": "Wiederhole Dein neues Passwort ...",
+      "placeholderNewPassword": "Gib ein neues Passwort ein ...",
+      "placeholderOldPassword": "Gib Dein altes Passwort ein ..."
+    },
+    "tabGeneral": {
+      "title": "Allgemein"
+    },
+    "tabSearchPreferences": {
+      "title": "Such-Einstellungen",
+      "alert_elasticsearch": {
+        "title": "Elasticsearch ist nun aktiviert",
+        "text": "Sie haben die elasticsearch für den Admin-Bereich aktiviert, diese Felder sind durchsuchbar und können nicht deaktiviert werden. Sie können aber die Entitäten, die durchsuchbar sind, deaktivieren"
+      },
+      "cardSearchableElements": {
+        "title": "Durchsuchbare Elemente",
+        "description": "Lege die durchsuchbaren Inhalte für Module und Einträge fest.",
+        "buttonSelect": "Alle auswählen",
+        "buttonDeselect": "Alle abwählen",
+        "buttonReset": "Standard wiederherstellen"
+      },
+      "modules": {
+        "order": {
+          "countryName": "Land",
+          "city": "Stadt",
+          "street": "Straße",
+          "company": "Firma",
+          "zipcode": "Postleitzahl",
+          "lastName": "Nachname",
+          "firstName": "Vorname",
+          "phoneNumber": "Telefonnummer",
+          "additionalAddressLine1": "Adresszusatz 1",
+          "additionalAddressLine2": "Adresszusatz 2",
+          "trackingCodes": "Sendungsnummer(n)",
+          "amountTotal": "Gesamtsumme",
+          "orderNumber": "Bestellnummer",
+          "email": "E-Mail-Adresse",
+          "tagsName": "Tags",
+          "customerNumber": "Kundennummer",
+          "documentNumber": "Die Dokumentnummer",
+          "promotionCode": "Angewandter Aktionscode"
+        },
+        "customer": {
+          "tagsName": "Tags",
+          "email": "E-Mail-Adresse",
+          "company": "Firma",
+          "firstName": "Vorname",
+          "lastName": "Nachname",
+          "customerNumber": "Kundennummer",
+          "countryName": "Land",
+          "city": "Stadt",
+          "street": "Straße",
+          "zipcode": "Postleitzahl",
+          "phoneNumber": "Telefonnummer",
+          "additionalAddressLine1": "Adresszusatz 1",
+          "additionalAddressLine2": "Adresszusatz 2"
+        },
+        "product": {
+          "ean": "GTIN/EAN",
+          "name": "Name",
+          "tagsName": "Tags",
+          "productNumber": "Produktnummer",
+          "manufacturerNumber": "Herstellernummer",
+          "customSearchKeywords": "SEO keywords"
+        },
+        "media": {
+          "alt": "Alt Text",
+          "tagsName": "Tags",
+          "title": "Titel",
+          "fileName": "Name",
+          "mediaFolderName": "Ordner",
+          "path": "Pfad"
+        },
+        "landing_page": {
+          "name": "Name",
+          "tagsName": "Tags"
+        },
+        "category": {
+          "name": "Name",
+          "tagsName": "Tags"
+        },
+        "shipping_method": {
+          "name": "Name"
+        },
+        "payment_method": {
+          "name": "Name"
+        },
+        "customer_group": {
+          "name": "Name"
+        },
+        "sales_channel": {
+          "name": "Name"
+        },
+        "property": {
+          "name": "Name"
+        },
+        "property_group": {
+          "name": "Name"
+        },
+        "promotion": {
+          "name": "Name",
+          "code": "Code"
+        },
+        "product_stream": {
+          "name": "Name"
+        },
+        "newsletter_recipient": {
+          "email": "E-Mail-Adresse"
+        },
+        "product_manufacturer": {
+          "name": "Name"
+        },
+        "cms_page": {
+          "name": "Name"
+        }
+      }
+    }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "user": {
+        "update_profile": "Eigenes Profil ändern"
+      }
+    }
+  }
+}

@@ -1,0 +1,39 @@
+@import "~scss/variables";
+
+.sw-property-option-list {
+    .sw-empty-state {
+        position: static;
+    }
+
+    .media-column .sw-grid__cell-content {
+        padding: 0;
+    }
+
+    &.sw-card .sw-card__content {
+        padding: 0;
+    }
+
+    .sw-property-option-list__toolbar {
+        padding: 25px 35px;
+        background-color: $color-gray-100;
+        border-bottom: 1px solid $color-gray-300;
+
+        .sw-property-option-list__delete-button {
+            border-color: $color-crimson-500;
+
+            .mt-icon {
+                color: $color-crimson-500;
+            }
+
+            &.mt-button--disabled {
+                opacity: 0.2;
+            }
+        }
+    }
+
+    .sw-tooltip--wrapper {
+        .sw-property-option-list__add-button {
+            width: 100%;
+        }
+    }
+}

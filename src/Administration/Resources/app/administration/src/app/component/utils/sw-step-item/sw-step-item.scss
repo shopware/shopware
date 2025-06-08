@@ -1,0 +1,94 @@
+@use "sass:math";
+@import "~scss/variables";
+
+.sw-step-item {
+    height: 32px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    position: relative;
+
+    &::before {
+        content: "";
+        width: 1px;
+        height: 20px;
+        background-color: $color-gray-100;
+        border: 1px solid $color-gray-100;
+        position: absolute;
+        left: 16px - math.div(3px, 2);
+        top: -20px;
+    }
+
+    &:first-child {
+        margin-top: 0;
+
+        &::before {
+            display: none;
+        }
+    }
+
+    .sw-step-item__bubble {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: $color-gray-100;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sw-step-item__description {
+        padding-left: 10px;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semi-bold;
+        color: $color-gray-500;
+        line-height: $font-size-xs;
+    }
+
+    &.sw-step-item--disabled {
+        .sw-step-item__bubble {
+            background-color: $color-gray-100;
+        }
+
+        .sw-step-item__icon {
+            color: $color-gray-300;
+        }
+    }
+
+    &.sw-step-item--info {
+        .sw-step-item__bubble {
+            background-color: $color-shopware-brand-50;
+        }
+
+        .sw-step-item__icon {
+            color: $color-shopware-brand-500;
+        }
+    }
+
+    &.sw-step-item--error {
+        .sw-step-item__bubble {
+            background-color: $color-crimson-50;
+        }
+
+        .sw-step-item__icon {
+            color: $color-crimson-500;
+        }
+    }
+
+    &.sw-step-item--success {
+        .sw-step-item__bubble {
+            background-color: $color-emerald-50;
+        }
+
+        .sw-step-item__icon {
+            color: $color-emerald-500;
+        }
+    }
+
+    &.sw-step-item--active {
+        .sw-step-item__description {
+            color: $color-darkgray-200;
+        }
+    }
+}

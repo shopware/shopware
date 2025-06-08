@@ -1,0 +1,401 @@
+{% block sw_product_detail_prices %}
+<div v-if="isLoading">
+    <sw-skeleton />
+    <sw-skeleton />
+</div>
+
+<sw-container
+    v-else
+    rows="auto"
+    columns="100%"
+    class="sw-product-detail-context-prices"
+>
+
+    {% block sw_product_detail_prices_price_card %}
+    <sw-container
+        v-if="priceRuleGroupsExists"
+        columns="100%"
+    >
+        <mt-card
+            v-for="(priceGroup, key, index) in priceRuleGroups"
+            :key="priceGroup.ruleId"
+            class="context-price"
+            position-identifier="sw-product-detail-context-prices-context-price"
+            :class="getPriceRuleGroupClass(index)"
+            :title="priceGroup.rule ? priceGroup.rule.name : $tc('sw-product.prices.cardTitlePriceRule')"
+            :large="true"
+        >
+
+            <template #grid>
+            {% block sw_product_detail_prices_price_card_toolbar %}
+                <div class="sw-product-detail-context-prices__toolbar">
+                    <sw-container
+                        columns="1fr minmax(50px, max-content) minmax(50px, max-content)"
+                        gap="0 10px"
+                    >
+
+                    {% block sw_product_detail_prices_price_card_toolbar_rule_selection %}
+                        <sw-select-rule-create
+                            v-if="rules.entity"
+                            id="rule"
+                            :rule-id="priceGroup.ruleId"
+                            :placeholder="$tc('sw-product.advancedPrices.selectRule')"
+                            :disabled="!acl.can('product.editor')"
+                            class="sw-product-detail-context-prices__toolbar-selection"
+                            size="small"
+                            rule-aware-group-key="productPrices"
+                            :restricted-rule-ids="Object.keys(priceRuleGroups)"
+                            :restricted-rule-ids-tooltip-label="$tc('sw-product.advancedPrices.ruleAlreadyUsed')"
+                            @save-rule="onRuleChange($event, priceGroup.ruleId)"
+                        />
+                    {% endblock %}
+
+                    {% block sw_product_detail_prices_price_card_toolbar_rule_delete %}
+                        <mt-button
+                            v-tooltip="{
+                                message: $tc('sw-privileges.tooltip.warning'),
+                                disabled: acl.can('product.editor'),
+                                showOnDisabledElements: true
+                            }"
+                            size="small"
+                            :disabled="!acl.can('product.editor')"
+                            variant="secondary"
+                            @click="onPriceGroupDelete(priceGroup.ruleId)"
+                        >
+                            {{ $tc('sw-product.prices.buttonPriceRuleDelete') }}
+                        </mt-button>
+                    {% endblock %}
+
+                    {% block sw_product_detail_prices_price_card_toolbar_add_price_rule %}
+                        <mt-button
+                            v-if="canAddPriceRule"
+                            v-tooltip="{
+                                message: $tc('sw-privileges.tooltip.warning'),
+                                disabled: acl.can('product.editor'),
+                                showOnDisabledElements: true
+                            }"
+                            class="sw-product-detail-context-prices__toolbar-duplicate"
+                            size="small"
+                            :disabled="priceGroup.ruleId === null || !acl.can('product.editor')"
+                            variant="secondary"
+                            @click="onPriceGroupDuplicate(priceGroup)"
+                        >
+                            {{ $tc('sw-product.prices.buttonPriceRuleDuplicate') }}
+                        </mt-button>
+                    {% endblock %}
+
+                    </sw-container>
+                </div>
+            {% endblock %}
+
+            {% block sw_product_detail_prices_price_card_price_group_grid %}
+                <sw-data-grid
+                    v-if="priceGroup.ruleId"
+                    :data-source="priceGroup.prices"
+                    :columns="pricesColumns"
+                    show-settings
+                    :show-selection="false"
+                    :compact-mode="true"
+                >
+                {% block sw_product_detail_prices_price_card_price_group_grid_settings %}
+                    <template #additionalSettings>
+                    {% block sw_product_detail_prices_price_card_price_group_grid_settings_list_prices %}
+
+                        <mt-switch
+                            :model-value="showListPrices[priceGroup.ruleId] !== false"
+                            remove-top-margin
+                            :label="$tc('sw-product.prices.settingShowListPrices')"
+                            @update:model-value="onChangeShowListPrices($event, priceGroup.ruleId)"
+                        />
+                    {% endblock %}
+                    </template>
+                {% endblock %}
+
+                {% block sw_product_detail_prices_price_card_price_group_grid_type %}
+                    <template
+                        #column-type="{ item, itemIndex, compact }"
+                    >
+                        <div class="sw-product-detail-context-prices__type-label">
+                            <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+                            <label>{{ $tc('sw-product.advancedPrices.advancedListPricePriceLabel') }}</label>
+                            <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+                            <label v-if="showListPrices[priceGroup.ruleId] !== false">
+                                {{ $tc('sw-product.advancedPrices.advancedListPriceLabel') }}
+                            </label>
+                            <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+                            <label v-if="showListPrices[priceGroup.ruleId] !== false">
+                                {{ $tc('sw-product.advancedPrices.labelRegulationPrice') }}
+                            </label>
+                        </div>
+                    </template>
+                {% endblock %}
+
+                {% block sw_product_detail_prices_price_card_price_group_grid_quantity_start %}
+                    <template
+                        #column-quantityStart="{ item, itemIndex, compact }"
+                    >
+                    {% block sw_product_detail_prices_price_card_price_group_grid_quantity_start_field %}
+                        <mt-number-field
+                            v-model="item.quantityStart"
+                            v-tooltip="getStartQuantityTooltip(itemIndex, item.quantityStart)"
+                            :name="`${item.ruleId}-${item.quantityStart}-quantityStart`"
+                            validation="required"
+                            :min="priceGroup.prices[itemIndex - 1] ? priceGroup.prices[itemIndex - 1].quantityEnd + 1 : 1"
+                            :max="item.quantityEnd ? item.quantityEnd : null"
+                            :size="compact ? 'small' : 'default'"
+                            :disabled="(itemIndex === 0 && item.quantityStart === 1) || !acl.can('product.editor')"
+                        />
+                    {% endblock %}
+                    </template>
+                {% endblock %}
+
+                {% block sw_product_detail_prices_price_card_price_group_grid_quantity_end %}
+                    <template
+                        #column-quantityEnd="{ item, itemIndex, compact }"
+                    >
+                    {% block sw_product_detail_prices_price_card_price_group_grid_quantity_end_field %}
+                        <mt-number-field
+                            v-model="item.quantityEnd"
+                            :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
+                            placeholder="∞"
+                            :name="`${item.ruleId}-${item.quantityStart}-quantityEnd`"
+                            :min="item.quantityStart"
+                            :max="priceGroup.prices[itemIndex + 1] ? priceGroup.prices[itemIndex + 1].quantityStart - 1 : null"
+                            :size="compact ? 'small' : 'default'"
+                            :disabled="!acl.can('product.editor')"
+                            @update:model-value="onQuantityEndChange(item, priceGroup)"
+                        />
+                    {% endblock %}
+                    </template>
+                {% endblock %}
+
+                {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list %}
+                    <template
+                        v-for="currency in currencies"
+                        :key="currency.id"
+                        #[`column-price-${currency.isoCode}`]="{ item, column, compact }"
+                    >
+                        <template v-if="showListPrices[priceGroup.ruleId] === false">
+                            <div
+                                class="product-detail-context-prices__price-field-wrapper"
+                            >
+                            {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list_inherit_field %}
+                                <sw-inheritance-switch
+                                    v-if="!currency.isSystemDefault"
+                                    class="sw-product-detail-context-prices__inherited-icon"
+                                    :is-inherited="isPriceFieldInherited(item, currency)"
+                                    :disabled="!acl.can('product.editor')"
+                                    @inheritance-restore="onInheritanceRestore(item, currency)"
+                                    @inheritance-remove="onInheritanceRemove(item, currency)"
+                                />
+                            {% endblock %}
+
+                            {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list_price_field %}
+                                <sw-price-field
+                                    :value="item.price"
+                                    :default-price="findDefaultPriceOfRule(item)"
+                                    :tax-rate="productTaxRate"
+                                    :label="false"
+                                    :compact="compact"
+                                    :name="`${item.ruleId}-${currency.isoCode}-${item.quantityStart}`"
+                                    :currency="currency"
+                                    :disabled="!acl.can('product.editor')"
+                                />
+                            {% endblock %}
+                            </div>
+                        </template>
+
+                        <template v-if="showListPrices[priceGroup.ruleId] !== false">
+                            <div
+                                :key="`else-${currency}`"
+                                class="product-detail-context-prices__price-field-wrapper"
+                            >
+                                <sw-inheritance-switch
+                                    v-if="!currency.isSystemDefault"
+                                    class="sw-product-detail-context-prices__inherited-icon"
+                                    :is-inherited="isPriceFieldInherited(item, currency)"
+                                    :disabled="!acl.can('product.editor')"
+                                    @inheritance-restore="onInheritanceRestore(item, currency)"
+                                    @inheritance-remove="onInheritanceRemove(item, currency)"
+                                />
+                                <sw-list-price-field
+                                    :price="item.price"
+                                    :default-price="findDefaultPriceOfRule(item)"
+                                    :vertical="true"
+                                    :tax-rate="productTaxRate"
+                                    :label="false"
+                                    :compact="compact"
+                                    :disabled="!acl.can('product.editor')"
+                                    :currency="currency"
+                                    hide-purchase-prices
+                                />
+                            </div>
+                        </template>
+                    </template>
+                {% endblock %}
+
+                {% block sw_product_detail_prices_price_card_price_group_grid_actions %}
+                    <template
+                        #actions="{ item }"
+                    >
+
+                    {% block sw_product_detail_prices_price_card_price_group_grid_actions_delete %}
+                        <sw-context-menu-item
+                            variant="danger"
+                            class="product-detail-context-prices__context-delete"
+                            :disabled="!acl.can('product.editor')"
+                            @click="onPriceRuleDelete(item)"
+                        >
+                            {{ $tc('sw-product.prices.contextMenuDelete') }}
+                        </sw-context-menu-item>
+                    {% endblock %}
+
+                    </template>
+                {% endblock %}
+
+                </sw-data-grid>
+            {% endblock %}
+
+            {% block sw_product_detail_prices_price_card_price_group_empty_state %}
+                <div
+                    v-else
+                    class="sw-product-detail-context-prices__empty-state"
+                >
+
+                {% block sw_product_detail_prices_price_card_price_group_empty_state_warning %}
+                    <p>{{ $tc('sw-product.advancedPrices.newRuleWarning') }}</p>
+                {% endblock %}
+
+                </div>
+            {% endblock %}
+            </template>
+
+        </mt-card>
+
+        {% block sw_product_detail_prices_price_card_price_group_add_price_rule %}
+        <sw-container
+            justify="center"
+            columns="250x"
+        >
+            {% block sw_product_detail_prices_price_card_price_group_add_price_rule_button %}
+            <mt-button
+                v-if="canAddPriceRule"
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('product.editor'),
+                    showOnDisabledElements: true
+                }"
+                class="sw-product-detail-context-prices__add-new-rule"
+                ghost
+                :disabled="emptyPriceRuleExists || !acl.can('product.editor')"
+                size="small"
+                variant="secondary"
+                @click="onAddNewPriceGroup(null)"
+            >
+                {{ $tc('sw-product.prices.buttonAddAdditionalPriceRuleGroup') }}
+            </mt-button>
+            {% endblock %}
+        </sw-container>
+        {% endblock %}
+
+    </sw-container>
+
+    <mt-card
+        v-else
+        class="sw-product-detail-context-prices__empty-state-card"
+        position-identifier="sw-product-detail-context-prices-empty-state-card"
+    >
+        {% block sw_product_detail_prices_price_empty_state %}
+        <div class="sw-product-detail-context-prices__empty-state">
+
+            {% block sw_product_detail_prices_empty_state_image %}
+            <img
+                :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
+                alt=""
+            >
+            {% endblock %}
+
+            {% block sw_product_detail_prices_price_empty_state_text %}
+            <template v-if="isChild">
+                {% block sw_product_detail_prices_price_empty_state_text_child %}
+                <template v-if="isInherited">
+                    {% block sw_product_detail_prices_price_empty_state_text_inherited %}
+                    <p>{{ $tc('sw-product.advancedPrices.advancedPricesInherited') }}</p>
+                    {% block sw_product_detail_prices_price_empty_state_text_link %}
+                    <router-link
+                        v-if="isInherited"
+                        :to="{ name: 'sw.product.detail.prices', params: { id: product.parentId } }"
+                        class="sw-product-detail-context-prices__parent-prices-link"
+                    >
+                        {{ $tc('sw-product.advancedPrices.linkAdvancedPricesOfParent') }}
+                        <mt-icon
+                            name="regular-long-arrow-right"
+                            size="16px"
+                        />
+                    </router-link>
+                    {% endblock %}
+                    {% endblock %}
+                </template>
+
+                <template v-else>
+                    {% block sw_product_detail_prices_price_empty_state_text_not_inherited %}
+                    <p>{{ $tc('sw-product.advancedPrices.advancedPricesNotInherited') }}</p>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+            </template>
+
+            <template v-else>
+                {% block sw_product_detail_prices_price_empty_state_text_empty %}
+                <p>{{ $tc('sw-product.advancedPrices.advancedPricesNotExisting') }}</p>
+                {% endblock %}
+            </template>
+            {% endblock %}
+
+            {% block sw_product_detail_prices_price_empty_state__inherit_switch %}
+            <template v-if="isChild">
+                <div
+                    class="sw-product-detail-context-prices__inherit-toggle-wrapper"
+                    :class="{ 'is--inherited': isInherited }"
+                >
+
+                    <mt-switch
+                        v-model="isInherited"
+                        class="sw-product-detail-context-prices__inherit-switch"
+                        :disabled="!acl.can('product.editor')"
+                    />
+                    <sw-inheritance-switch
+                        class="sw-product-detail-context-prices__inheritance-icon"
+                        :is-inherited="isInherited"
+                        :disabled="!acl.can('product.editor')"
+                        @inheritance-restore="restoreInheritance"
+                        @inheritance-remove="removeInheritance"
+                    />
+                    <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+                    <label class="sw-product-detail-context-prices__inheritance-label">
+                        {{ $tc('sw-product.advancedPrices.inheritSwitchLabel') }}
+                    </label>
+                </div>
+            </template>
+            {% endblock %}
+
+            {% block sw_product_detail_prices_price_empty_state_select_rule %}
+            <sw-select-rule-create
+                v-if="rules.entity"
+                id="rule"
+                class="sw-product-detail-context-prices__empty-state-select-rule"
+                :placeholder="$tc('sw-product.advancedPrices.selectRule')"
+                :disabled="isInherited || !acl.can('product.editor')"
+                rule-aware-group-key="productPrices"
+                :restricted-rule-ids="Object.keys(priceRuleGroups)"
+                :restricted-rule-ids-tooltip-label="$tc('sw-product.advancedPrices.ruleAlreadyUsed')"
+                @save-rule="onAddNewPriceGroup($event)"
+            />
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </mt-card>
+
+    {% endblock %}
+</sw-container>
+{% endblock %}

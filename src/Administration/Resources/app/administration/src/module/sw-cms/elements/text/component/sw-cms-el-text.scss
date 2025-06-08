@@ -1,0 +1,55 @@
+@import "~scss/variables";
+
+.sw-cms-el-text {
+    height: 100%;
+    position: relative;
+    width: 100%;
+    word-break: break-word;
+
+    .sw-text-editor,
+    .sw-text-editor__box,
+    .sw-text-editor__content {
+        height: 100%;
+    }
+
+    .sw-cms-el-text__mapping-preview {
+        min-height: 60px;
+    }
+
+    .content-editor__toolbar {
+        transform: translateY(-100%);
+        position: absolute;
+        top: 1px;
+        left: 0;
+        background: $color-gray-100;
+        border: 1px solid $color-gray-300;
+
+        button {
+            padding: 6px 8px;
+            color: $color-darkgray-200;
+            background: none;
+            border: 0 none;
+            text-align: center;
+            line-height: 26px;
+            cursor: pointer;
+            outline: none;
+            -moz-appearance: none;
+            -webkit-appearance: none;
+
+            &:hover {
+                color: $color-shopware-brand-500;
+            }
+        }
+    }
+
+    &.has--focus {
+        .content-editor,
+        .content-editor:hover {
+            border: 1px solid $color-gray-300;
+        }
+    }
+
+    .sw-text-editor.is--disabled .sw-text-editor__content {
+        background-color: $color-white;
+    }
+}

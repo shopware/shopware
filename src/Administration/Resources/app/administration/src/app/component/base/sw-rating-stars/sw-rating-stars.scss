@@ -1,0 +1,37 @@
+@import "~scss/variables";
+
+.sw-rating-stars {
+    position: relative;
+    height: 22px;
+    margin: 2px;
+
+    &__star {
+        margin-right: 1px;
+
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+
+    &__value {
+        position: absolute;
+        left: 0;
+        top: 0;
+        font-size: 0;
+
+        .sw-rating-stars__star {
+            color: $color-module-yellow-700;
+        }
+    }
+
+    &__placeholder {
+        position: absolute;
+        left: 0;
+        top: 0;
+        font-size: 0;
+
+        .sw-rating-stars__star {
+            color: $color-gray-300;
+        }
+    }
+}

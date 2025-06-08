@@ -1,0 +1,35 @@
+@import "~scss/variables";
+
+.sw-settings-listing-default-sales-channel {
+    &__description {
+        font-size: $font-size-xs;
+        margin-bottom: 25px;
+    }
+
+    .sw-settings-listing-default-sales-channel__options-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__quick-link {
+        display: flex;
+        justify-content: flex-end;
+        color: $color-shopware-brand-500;
+        font-size: $font-size-xs;
+        cursor: pointer;
+    }
+
+    &__link-icon {
+        margin-left: 4px;
+    }
+
+    &__visibility-modal,
+    &__visibility-modal .sw-grid .sw-grid__header .sw-grid-column {
+        font-size: $font-size-xs;
+    }
+
+    .sw-field--switch {
+        margin: 0;
+    }
+}

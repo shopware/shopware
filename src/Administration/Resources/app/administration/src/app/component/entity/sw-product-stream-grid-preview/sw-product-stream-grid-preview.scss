@@ -1,0 +1,11 @@
+@import "~scss/variables";
+
+.sw-product-stream-grid-preview {
+    &__toolbar {
+        z-index: 10;
+        height: 83px;
+        padding: 25px 35px;
+        background-color: $color-gray-100;
+        border-top: 1px solid $color-gray-300;
+    }
+}

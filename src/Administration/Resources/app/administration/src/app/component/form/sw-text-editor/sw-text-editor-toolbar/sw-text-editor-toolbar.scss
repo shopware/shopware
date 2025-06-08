@@ -1,0 +1,89 @@
+@import "~scss/variables";
+
+$sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
+
+.sw-text-editor-toolbar {
+    padding: 0 6px;
+    background: linear-gradient(-180deg, $color-menu-start 0%, $color-menu-end 100%);
+    border-radius: 4px;
+    color: $color-gray-300;
+    display: grid;
+    grid-auto-flow: column dense;
+    grid-auto-columns: min-content;
+    height: 36px;
+    justify-items: center;
+    position: absolute;
+    user-select: none;
+    z-index: 250;
+
+    &::before {
+        content: "";
+        position: absolute;
+        bottom: -5px;
+        left: var(--left);
+        right: var(--right);
+        height: 8px;
+        width: 8px;
+        transform: rotate(45deg);
+        background: $color-menu-end;
+        border-top: 1px solid $color-menu-end;
+        border-left: 1px solid $color-menu-end;
+    }
+
+    &.is--boxedEdit {
+        width: 100%;
+        top: 0;
+        left: 0;
+        position: initial;
+        background: $color-gray-100;
+        border-bottom: 1px solid $color-gray-300;
+        color: $sw-text-editor-toolbar-item-color-boxed;
+        display: grid;
+        grid-template-columns: auto;
+
+        &::before {
+            content: none;
+        }
+
+        .sw-text-editor-buttons {
+            &.is--middle {
+                border-left: 1px solid $color-gray-300;
+            }
+
+            &.is--right {
+                border-left: 1px solid $color-gray-300;
+            }
+        }
+    }
+
+    .sw-text-editor-buttons {
+        display: grid;
+        grid-auto-flow: column dense;
+
+        &.is--left {
+            justify-self: start;
+        }
+
+        &.is--middle {
+            border-left: 1px solid $color-darkgray-200;
+            padding-left: 1px;
+        }
+
+        &.is--right {
+            border-left: 1px solid $color-darkgray-200;
+            padding-left: 1px;
+            justify-self: end;
+        }
+    }
+
+    .mt-colorpicker .mt-field__addition,
+    .mt-colorpicker__previewWrapper {
+        width: 18px;
+        height: 18px;
+    }
+
+    .mt-colorpicker .mt-block-field__block {
+        min-height: auto;
+        padding-top: 4px;
+    }
+}

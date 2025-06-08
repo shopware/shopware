@@ -1,0 +1,27 @@
+---
+title: Unify config files
+issue: NEXT-38616
+---
+
+# Core
+
+- Added support for `LOCK_DSN` environment variable in `config/packages/framework.yaml` to configure the DSN for the lock store.
+
+___
+
+# Upgrade Information
+
+## Search server now provides OpenSearch/Elasticsearch shards and replicas
+
+Previously we had an default configuration of three shards and three replicas. With 6.7 we removed this default configuration and now the search server is responsible for providing the correct configuration.
+This allows that the indices automatically scale based on your nodes available in the cluster.
+
+You can revert to the old behavior by setting the following configuration in your `config/packages/shopware.yml`:
+
+```yaml
+elasticsearch:
+    index_settings:
+        number_of_shards: 3
+        number_of_replicas: 3
+```
+

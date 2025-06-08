@@ -1,0 +1,39 @@
+{% block sw_cms_block %}
+<div
+    class="sw-cms-block"
+    :class="customBlockClass"
+    :style="blockStyles"
+>
+    <sw-cms-visibility-toggle
+        v-if="isVisible"
+        :text="toggleButtonText"
+        :is-collapsed="isCollapsed"
+        :class="expandedClass"
+        @toggle="toggleVisibility"
+    />
+    {% block sw_cms_block_content %}
+    <div
+        v-if="!isCollapsed || !isVisible"
+        class="sw-cms-block__content"
+        :class="expandedClass"
+        :style="blockPadding"
+    >
+        <slot>
+        {% block sw_cms_block_slot_default %}{% endblock %}
+        </slot>
+    </div>
+    {% endblock %}
+
+    {% block sw_cms_block_overlay %}
+    <div
+        v-if="!disabled"
+        class="sw-cms-block__config-overlay"
+        :class="overlayClasses"
+        role="button"
+        tabindex="0"
+        @click="onBlockOverlayClick"
+        @keydown.enter="onBlockOverlayClick"
+    ></div>
+    {% endblock %}
+</div>
+{% endblock %}

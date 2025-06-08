@@ -1,0 +1,50 @@
+{% block sw_inherit_wrapper %}
+<div
+    class="sw-inherit-wrapper"
+    :class="{ 'is--inherited': isInherited, 'is--required': required, 'has--parent' : hasParent }"
+>
+    {% block sw_inherit_wrapper_toggle %}
+    <template v-if="label">
+        {% block sw_inherit_wrapper_toggle_wrapper %}
+        <div class="sw-inherit-wrapper__toggle-wrapper">
+            {% block sw_inherit_wrapper_toggle_wrapper_field %}
+            <sw-inheritance-switch
+                v-if="isInheritField"
+                :disabled="disabled"
+                class="sw-inherit-wrapper__inheritance-icon"
+                :is-inherited="isInherited"
+                @inheritance-restore="restoreInheritance"
+                @inheritance-remove="removeInheritance"
+            />
+            {% endblock %}
+
+            {% block sw_inherit_wrapper_toggle_wrapper_label %}
+            <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+            <label
+                class="sw-inherit-wrapper__inheritance-label"
+                :class="labelClasses"
+            >
+                {{ label }}
+            </label>
+            {% endblock %}
+
+            {% block sw_inherit_wrapper_toggle_wrapper_help_text %}
+            <sw-help-text
+                v-if="helpText"
+                class="sw-inherit-wrapper__help-text"
+                :text="helpText"
+            />
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_inherit_wrapper_content %}
+    <slot
+        name="content"
+        v-bind="{ currentValue, updateCurrentValue, isInherited, isInheritField, toggleInheritance, restoreInheritance, removeInheritance, error, label }"
+    ></slot>
+    {% endblock %}
+</div>
+{% endblock %}

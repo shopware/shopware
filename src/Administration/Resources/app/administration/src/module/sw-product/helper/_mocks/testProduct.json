@@ -1,0 +1,482 @@
+{
+  "versionId": "0fa91ce3e96a4bc2be4bd9ce752c3425",
+  "parentId": null,
+  "parentVersionId": null,
+  "manufacturerId": "f6d9d05d098b43e5953c0b53adc3e82e",
+  "productManufacturerVersionId": null,
+  "unitId": null,
+  "taxId": "491353c6f1914d66b302be55b7e1ec40",
+  "coverId": "05bf95338f3f4c5ab73bbd16b7ac8792",
+  "productMediaVersionId": null,
+  "deliveryTimeId": null,
+  "featureSetId": null,
+  "canonicalProductId": null,
+  "cmsPageId": null,
+  "cmsPageVersionId": null,
+  "price": [
+    {
+      "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+      "net": 693.26,
+      "gross": 693.26,
+      "linked": true,
+      "listPrice": null,
+      "percentage": null,
+      "extensions": []
+    }
+  ],
+  "productNumber": "fdb84d0397414e03b2ed6f6821e3d945",
+  "stock": 22,
+  "restockTime": null,
+  "autoIncrement": 526,
+  "active": true,
+  "availableStock": 12,
+  "available": true,
+  "isCloseout": false,
+  "variation": [],
+  "displayGroup": "fdb55e7465aa9ff925150f47ebe97d72",
+  "configuratorGroupConfig": null,
+  "mainVariantId": null,
+  "variantRestrictions": null,
+  "manufacturerNumber": null,
+  "ean": null,
+  "purchaseSteps": 1,
+  "maxPurchase": null,
+  "minPurchase": 1,
+  "purchaseUnit": null,
+  "referenceUnit": null,
+  "shippingFree": false,
+  "purchasePrices": [
+    {
+      "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+      "net": 657.58,
+      "gross": 657.58,
+      "linked": true,
+      "listPrice": null,
+      "percentage": null,
+      "extensions": []
+    }
+  ],
+  "markAsTopseller": null,
+  "weight": null,
+  "width": 609,
+  "height": 667,
+  "length": null,
+  "releaseDate": null,
+  "ratingAverage": null,
+  "categoryTree": [
+    "16d0753c761b4965b3c7927cf8dede80",
+    "b2a974dbd323470d8a98f98fe0d2f0c7",
+    "09beddbef6174abda2fcb326b4b3460a",
+    "1722a0ea8fdc44b6aa8bad46a6954c7b",
+    "a0a508f2b36442dfa283b4a377c013f9",
+    "abf786914a4f4baa87089d128173ae39"
+  ],
+  "propertyIds": [
+    "1ff4117949484cdeaa7c9716ce61c121",
+    "20cd941a2b64436d8b2c3fef8ddf0cce",
+    "5d2d94b123f446bfb796acc006295d07",
+    "bbcd7cfa4df14103ac3bd0360b6c1743",
+    "bef03f54234240a688ebe5c8b17e843c"
+  ],
+  "optionIds": null,
+  "streamIds": null,
+  "tagIds": null,
+  "categoryIds": [
+    "abf786914a4f4baa87089d128173ae39"
+  ],
+  "childCount": 0,
+  "customFieldSetSelectionActive": null,
+  "sales": 0,
+  "metaDescription": null,
+  "name": "Intelligent Wooden Prawn Leather",
+  "keywords": null,
+  "description": "Sint excepturi quia blanditiis aut. Minus neque dolorem ullam molestiae. Eum impedit cupiditate recusandae nihil impedit quidem. Natus est rem aliquam reprehenderit.",
+  "metaTitle": null,
+  "packUnit": null,
+  "packUnitPlural": null,
+  "customFields": null,
+  "slotConfig": null,
+  "customSearchKeywords": null,
+  "cheapestPrice": {
+    "hasRange": false,
+    "variantId": "0cf18788d25546a3a8dc856329aff57b",
+    "parentId": "0cf18788d25546a3a8dc856329aff57b",
+    "ruleId": null,
+    "purchase": null,
+    "reference": null,
+    "unitId": null,
+    "price": [
+      {
+        "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+        "net": 693.26,
+        "gross": 693.26,
+        "linked": true,
+        "listPrice": null,
+        "percentage": null,
+        "extensions": []
+      }
+    ],
+    "extensions": []
+  },
+  "createdAt": "2021-11-10T14:07:40.285+00:00",
+  "updatedAt": "2021-11-10T14:14:08.262+00:00",
+  "translated": {
+    "metaDescription": null,
+    "name": "Intelligent Wooden Prawn Leather",
+    "keywords": null,
+    "description": "Sint excepturi quia blanditiis aut. Minus neque dolorem ullam molestiae. Eum impedit cupiditate recusandae nihil impedit quidem. Natus est rem aliquam reprehenderit.",
+    "metaTitle": null,
+    "packUnit": null,
+    "packUnitPlural": null,
+    "customFields": {},
+    "slotConfig": null,
+    "customSearchKeywords": null
+  },
+  "apiAlias": null,
+  "id": "0cf18788d25546a3a8dc856329aff57b",
+  "children": [],
+  "tax": {
+    "taxRate": 0,
+    "name": "Reduced rate 2",
+    "position": 3,
+    "customFields": null,
+    "createdAt": "2021-11-10T14:06:11.143+00:00",
+    "updatedAt": null,
+    "apiAlias": null,
+    "id": "491353c6f1914d66b302be55b7e1ec40",
+    "products": [],
+    "rules": [],
+    "shippingMethods": []
+  },
+  "prices": [
+    {
+      "versionId": "0fa91ce3e96a4bc2be4bd9ce752c3425",
+      "productId": "0cf18788d25546a3a8dc856329aff57b",
+      "productVersionId": null,
+      "ruleId": "4f7184bfc7ed49a493de1cda9c3686e9",
+      "price": [
+        {
+          "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+          "net": 15.193697478991597,
+          "gross": 1808.05,
+          "linked": false,
+          "listPrice": null,
+          "percentage": null,
+          "extensions": []
+        }
+      ],
+      "quantityStart": 1,
+      "quantityEnd": 10,
+      "customFields": null,
+      "createdAt": "2021-11-10T14:07:40.275+00:00",
+      "updatedAt": null,
+      "apiAlias": null,
+      "id": "1294e092fcc846b8b20d72f6be124623"
+    },
+    {
+      "versionId": "0fa91ce3e96a4bc2be4bd9ce752c3425",
+      "productId": "0cf18788d25546a3a8dc856329aff57b",
+      "productVersionId": null,
+      "ruleId": "4f7184bfc7ed49a493de1cda9c3686e9",
+      "price": [
+        {
+          "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+          "net": 9.116218487394958,
+          "gross": 1084.83,
+          "linked": false,
+          "listPrice": null,
+          "percentage": null,
+          "extensions": []
+        }
+      ],
+      "quantityStart": 11,
+      "quantityEnd": null,
+      "customFields": null,
+      "createdAt": "2021-11-10T14:07:40.276+00:00",
+      "updatedAt": null,
+      "apiAlias": null,
+      "id": "8035c63d069143fea37f7e5a530bb777"
+    },
+    {
+      "versionId": "0fa91ce3e96a4bc2be4bd9ce752c3425",
+      "productId": "0cf18788d25546a3a8dc856329aff57b",
+      "productVersionId": null,
+      "ruleId": "89c670f00b0548b8ad069581311b8e88",
+      "price": [
+        {
+          "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+          "net": 10.660252100840337,
+          "gross": 1268.57,
+          "linked": false,
+          "listPrice": null,
+          "percentage": null,
+          "extensions": []
+        }
+      ],
+      "quantityStart": 1,
+      "quantityEnd": 10,
+      "customFields": null,
+      "createdAt": "2021-11-10T14:07:40.278+00:00",
+      "updatedAt": null,
+      "apiAlias": null,
+      "id": "ab82e178b608422a9fdeabebab579ec2"
+    },
+    {
+      "versionId": "0fa91ce3e96a4bc2be4bd9ce752c3425",
+      "productId": "0cf18788d25546a3a8dc856329aff57b",
+      "productVersionId": null,
+      "ruleId": "89c670f00b0548b8ad069581311b8e88",
+      "price": [
+        {
+          "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+          "net": 7.675378151260504,
+          "gross": 913.37,
+          "linked": false,
+          "listPrice": null,
+          "percentage": null,
+          "extensions": []
+        }
+      ],
+      "quantityStart": 11,
+      "quantityEnd": null,
+      "customFields": null,
+      "createdAt": "2021-11-10T14:07:40.279+00:00",
+      "updatedAt": null,
+      "apiAlias": null,
+      "id": "b16715398dd242fd94e2dc2807e32041"
+    }
+  ],
+  "media": [],
+  "crossSellings": [],
+  "crossSellingAssignedProducts": [],
+  "configuratorSettings": [
+    {
+      "extensions": {},
+      "_isNew": true,
+      "optionId": "f8081c78bb7b4c72bdd8dda79520f315",
+      "option": {
+        "groupId": "0f22a7b43c79434a8a848694f2062298",
+        "name": "28,5",
+        "position": 1,
+        "colorHexCode": null,
+        "mediaId": null,
+        "customFields": null,
+        "createdAt": "2021-11-10T14:07:16.118+00:00",
+        "updatedAt": null,
+        "translated": {
+          "name": "28,5",
+          "position": 1,
+          "customFields": {}
+        },
+        "apiAlias": null,
+        "id": "f8081c78bb7b4c72bdd8dda79520f315",
+        "group": {
+          "name": "shirt-size",
+          "description": null,
+          "displayType": "text",
+          "sortingType": "alphanumeric",
+          "filterable": true,
+          "visibleOnProductDetailPage": true,
+          "position": 1,
+          "customFields": null,
+          "createdAt": "2021-11-10T14:07:16.151+00:00",
+          "updatedAt": null,
+          "translated": {
+            "name": "shirt-size",
+            "description": null,
+            "position": 1,
+            "customFields": {}
+          },
+          "apiAlias": null,
+          "id": "0f22a7b43c79434a8a848694f2062298",
+          "options": [],
+          "translations": []
+        },
+        "translations": [],
+        "productConfiguratorSettings": [],
+        "productProperties": [],
+        "productOptions": []
+      },
+      "price": [
+        {
+          "currencyId": "e7d006b51e2d4f9c80de6be68206aba7",
+          "gross": 0,
+          "linked": true,
+          "net": 0
+        },
+        {
+          "currencyId": "4f0b5be0f0a842218e3a899c66c19691",
+          "gross": 0,
+          "linked": true,
+          "net": 0
+        },
+        {
+          "currencyId": "492a0955a83241c8b859b1c6c371c269",
+          "gross": 0,
+          "linked": true,
+          "net": 0
+        },
+        {
+          "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+          "gross": 10,
+          "linked": true,
+          "net": 10
+        },
+        {
+          "currencyId": "42eb2cf984014b8db46309d593e59e7f",
+          "gross": 0,
+          "linked": true,
+          "net": 0
+        },
+        {
+          "currencyId": "c5ec1aad7cb54973bde4207dbe739aa7",
+          "gross": 0,
+          "linked": true,
+          "net": 0
+        },
+        {
+          "currencyId": "be219239630f4732b9f14d9d54b355cd",
+          "gross": 0,
+          "linked": true,
+          "net": 0
+        },
+        {
+          "currencyId": "97623a923ef24f5bafa0aa3343209b38",
+          "gross": 0,
+          "linked": true,
+          "net": 0
+        },
+        {
+          "currencyId": "058a99a092604b61a29a41064bb7500d",
+          "gross": 0,
+          "linked": true,
+          "net": 0
+        }
+      ]
+    },
+    {
+      "extensions": {},
+      "_isNew": true,
+      "optionId": "9eb83cc0627d43f2bba77b119ed847e9",
+      "option": {
+        "groupId": "0f22a7b43c79434a8a848694f2062298",
+        "name": "28",
+        "position": 1,
+        "colorHexCode": null,
+        "mediaId": null,
+        "customFields": null,
+        "createdAt": "2021-11-10T14:07:16.088+00:00",
+        "updatedAt": null,
+        "translated": {
+          "name": "28",
+          "position": 1,
+          "customFields": {}
+        },
+        "apiAlias": null,
+        "id": "9eb83cc0627d43f2bba77b119ed847e9",
+        "group": {
+          "name": "shirt-size",
+          "description": null,
+          "displayType": "text",
+          "sortingType": "alphanumeric",
+          "filterable": true,
+          "visibleOnProductDetailPage": true,
+          "position": 1,
+          "customFields": null,
+          "createdAt": "2021-11-10T14:07:16.151+00:00",
+          "updatedAt": null,
+          "translated": {
+            "name": "shirt-size",
+            "description": null,
+            "position": 1,
+            "customFields": {}
+          },
+          "apiAlias": null,
+          "id": "0f22a7b43c79434a8a848694f2062298",
+          "options": [],
+          "translations": []
+        },
+        "translations": [],
+        "productConfiguratorSettings": [],
+        "productProperties": [],
+        "productOptions": []
+      },
+      "price": [
+        {
+          "currencyId": "e7d006b51e2d4f9c80de6be68206aba7",
+          "gross": 0,
+          "linked": true,
+          "net": 0
+        },
+        {
+          "currencyId": "4f0b5be0f0a842218e3a899c66c19691",
+          "gross": 0,
+          "linked": true,
+          "net": 0
+        },
+        {
+          "currencyId": "492a0955a83241c8b859b1c6c371c269",
+          "gross": 0,
+          "linked": true,
+          "net": 0
+        },
+        {
+          "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+          "gross": -10,
+          "linked": true,
+          "net": -10
+        },
+        {
+          "currencyId": "42eb2cf984014b8db46309d593e59e7f",
+          "gross": 0,
+          "linked": true,
+          "net": 0
+        },
+        {
+          "currencyId": "c5ec1aad7cb54973bde4207dbe739aa7",
+          "gross": 0,
+          "linked": true,
+          "net": 0
+        },
+        {
+          "currencyId": "be219239630f4732b9f14d9d54b355cd",
+          "gross": 0,
+          "linked": true,
+          "net": 0
+        },
+        {
+          "currencyId": "97623a923ef24f5bafa0aa3343209b38",
+          "gross": 0,
+          "linked": true,
+          "net": 0
+        },
+        {
+          "currencyId": "058a99a092604b61a29a41064bb7500d",
+          "gross": 0,
+          "linked": true,
+          "net": 0
+        }
+      ]
+    }
+  ],
+  "variantListingConfig": {
+    "displayParent": false,
+    "mainVariantId": null,
+    "configuratorGroupConfig": null
+  },
+  "visibilities": [],
+  "searchKeywords": [],
+  "productReviews": [],
+  "mainCategories": [],
+  "seoUrls": [],
+  "orderLineItems": [],
+  "wishlists": [],
+  "options": [],
+  "properties": [],
+  "categories": [],
+  "streams": [],
+  "categoriesRo": [],
+  "tags": [],
+  "customFieldSets": [],
+  "translations": []
+}

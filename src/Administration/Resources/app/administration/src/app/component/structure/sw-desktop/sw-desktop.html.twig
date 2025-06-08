@@ -1,0 +1,34 @@
+{% block sw_desktop %}
+<div
+    class="sw-desktop"
+    :class="desktopClasses"
+>
+    <div
+        v-if="isStaging"
+        class="sw-staging-bar"
+    >
+        {{ $tc('global.sw-desktop.stagingBarText') }}
+    </div>
+
+    {% block sw_desktop_sidebar %}
+    <sw-admin-menu v-if="!noNavigation" />
+    {% endblock %}
+
+    {% block sw_desktop_content %}
+    <div class="sw-desktop__content">
+        {% block sw_desktop_content_view %}
+        <sw-error-boundary>
+            <router-view />
+        </sw-error-boundary>
+        {% endblock %}
+    </div>
+    <sw-app-app-url-changed-modal
+        v-if="urlDiff !== null"
+        :url-diff="urlDiff"
+        @modal-close="closeModal"
+    />
+    {% endblock %}
+
+    <sw-sidebar-renderer />
+</div>
+{% endblock %}

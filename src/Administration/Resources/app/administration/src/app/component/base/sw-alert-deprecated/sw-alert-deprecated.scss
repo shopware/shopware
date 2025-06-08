@@ -1,0 +1,255 @@
+@import "~scss/variables";
+
+$sw-alert-box-shadow: 1px 2px 5px rgba(0, 0, 0, 10%);
+$sw-alert-size-close: 40px;
+
+.sw-alert {
+    border: 1px solid $color-gray-300;
+    border-radius: $border-radius-default;
+    color: $color-darkgray-200;
+    background-color: $color-white;
+    text-align: left;
+    position: relative;
+    margin: 0 auto 20px;
+    font-size: $font-size-s;
+
+    &__body {
+        padding: 24px 60px 24px 24px;
+        line-height: 1.5625;
+
+        &--icon {
+            padding: 24px 60px;
+        }
+
+        &--closable {
+            padding-right: $sw-alert-size-close;
+        }
+    }
+
+    &__icon {
+        color: $color-gray-300;
+        position: absolute;
+        display: block;
+        left: 26px;
+        top: 28px;
+    }
+
+    &__close {
+        width: $sw-alert-size-close;
+        height: $sw-alert-size-close;
+        line-height: $sw-alert-size-close;
+        position: absolute;
+        display: block;
+        top: 12px;
+        right: 6px;
+        padding: 0;
+        margin: 0;
+        text-align: center;
+        background: none;
+        border: 0 none;
+        outline: none;
+        cursor: pointer;
+
+        .mt-icon {
+            width: 16px;
+            height: 16px;
+            padding: 3px;
+        }
+    }
+
+    &__title {
+        margin-bottom: 3px;
+        display: block;
+        font-weight: bold;
+        overflow-wrap: break-word;
+    }
+
+    &__actions {
+        border-top: 1px solid $color-gray-300;
+        display: flex;
+        flex-wrap: wrap;
+
+        .mt-button {
+            border: 0;
+            height: 40px;
+            background: none;
+            border-radius: 0;
+            flex-basis: 0;
+            flex-grow: 1;
+            max-width: 100%;
+            font-weight: $font-weight-medium;
+
+            &:not(:last-child) {
+                border-right: 1px solid $color-gray-300;
+            }
+
+            &:hover {
+                background-color: $color-white;
+            }
+        }
+    }
+
+    &--notification {
+        box-shadow: $sw-alert-box-shadow;
+        border: 1px solid $color-gray-300;
+        border-left: 4px solid $color-gray-300;
+        background-color: $color-gray-100;
+
+        .sw-alert__actions {
+            border-color: $color-gray-300;
+
+            .mt-button {
+                color: $color-shopware-brand-500;
+                border-color: $color-gray-300;
+
+                &:hover {
+                    background-color: $color-gray-100;
+                }
+            }
+        }
+    }
+
+    &--warning {
+        border-color: $color-pumpkin-spice-500;
+        background-color: $color-pumpkin-spice-50;
+        color: $color-pumpkin-spice-900;
+
+        &.sw-alert--notification {
+            background-color: $color-white;
+            border-color: $color-gray-300;
+            border-left-color: $color-pumpkin-spice-500;
+            color: $color-darkgray-200;
+        }
+
+        .sw-alert__icon,
+        .sw-alert__close {
+            color: $color-pumpkin-spice-900;
+        }
+    }
+
+    .sw-alert__message {
+        overflow-wrap: break-word;
+    }
+
+    &--error {
+        border-color: $color-crimson-500;
+        background-color: $color-crimson-50;
+
+        &.sw-alert--notification {
+            background-color: $color-white;
+            border-color: $color-gray-300;
+            border-left-color: $color-crimson-500;
+        }
+
+        .sw-alert__icon,
+        .sw-alert__close {
+            color: $color-crimson-500;
+        }
+
+        .sw-alert__title {
+            color: $color-crimson-900;
+        }
+
+        .sw-alert__message {
+            color: $color-crimson-900;
+        }
+    }
+
+    &--success {
+        border-color: $color-emerald-500;
+        background-color: $color-emerald-50;
+
+        &.sw-alert--notification {
+            background-color: $color-white;
+            border-color: $color-gray-300;
+            border-left-color: $color-emerald-500;
+        }
+
+        .sw-alert__icon,
+        .sw-alert__close {
+            color: $color-emerald-500;
+        }
+
+        .sw-alert__title {
+            color: $color-emerald-900;
+        }
+
+        .sw-alert__message {
+            color: $color-emerald-900;
+        }
+    }
+
+    &--info {
+        border-color: $color-shopware-brand-500;
+        background-color: $color-shopware-brand-50;
+
+        &.sw-alert--notification {
+            background-color: $color-white;
+            border-color: $color-gray-300;
+            border-left-color: $color-shopware-brand-500;
+        }
+
+        .sw-alert__icon,
+        .sw-alert__close {
+            color: $color-shopware-brand-500;
+        }
+
+        .sw-alert__title {
+            color: $color-shopware-brand-500;
+        }
+
+        .sw-alert__message {
+            color: $color-shopware-brand-500;
+        }
+    }
+
+    &--system {
+        color: $color-white;
+        background: $color-menu-start;
+        border: 1px solid $color-darkgray-200;
+        box-shadow: none;
+
+        .sw-alert__actions {
+            border-color: $color-darkgray-50;
+
+            .mt-button {
+                color: $color-gray-300;
+                border-color: $color-darkgray-50;
+
+                &:hover {
+                    background-color: lighten($color-menu-start, 6%);
+                }
+
+                &:active {
+                    background-color: lighten($color-menu-start, 8%);
+                }
+            }
+        }
+
+        .sw-alert__icon,
+        .sw-alert__close,
+        .sw-alert__title,
+        .sw-alert__message {
+            color: $color-white;
+        }
+    }
+
+    &--neutral {
+        border-color: $color-gray-300;
+        background-color: $color-white;
+
+        &.sw-alert--notification {
+            background-color: $color-white;
+            border-color: $color-gray-300;
+            border-left-color: $color-gray-300;
+        }
+
+        .sw-alert__icon {
+            color: $color-darkgray-200;
+        }
+    }
+
+    ul {
+        padding: 8px 0 8px 20px;
+    }
+}

@@ -1,0 +1,68 @@
+@import "~scss/variables";
+
+$sw-error-background-stack: $color-gray-100;
+$sw-error-radius-stack: $border-radius-default;
+$sw-error-color: $color-darkgray-200;
+$sw-error-font-size-large: $font-size-m;
+
+.sw-error {
+    display: grid;
+    height: 100%;
+    align-items: center;
+    justify-items: center;
+    color: $sw-error-color;
+
+    .sw-error__container {
+        display: grid;
+        align-items: center;
+        grid-template-columns: 400px 1fr;
+        grid-column-gap: 20px;
+        max-width: 900px;
+    }
+
+    .sw-error__illustration {
+        text-align: center;
+        width: 100%;
+        height: 100%;
+
+        img {
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .sw-error__status-code {
+        font-size: 64px;
+    }
+
+    .sw-error__message {
+        margin-bottom: 20px;
+        font-size: $sw-error-font-size-large;
+    }
+
+    .sw-error__stack {
+        font-family: monospace;
+        white-space: pre;
+        display: block;
+        margin-bottom: 20px;
+        max-width: 450px;
+        padding: 20px;
+        overflow: auto;
+        background: $sw-error-background-stack;
+        border: 1px solid darken($sw-error-background-stack, 30%);
+        border-radius: $sw-error-radius-stack;
+    }
+
+    @media screen and (max-width: 900px) {
+        .sw-error__container {
+            grid-template-rows: 300px 1fr;
+            grid-template-columns: none;
+            grid-row-gap: 20px;
+            max-height: 700px;
+        }
+
+        .sw-error__content {
+            text-align: center;
+        }
+    }
+}

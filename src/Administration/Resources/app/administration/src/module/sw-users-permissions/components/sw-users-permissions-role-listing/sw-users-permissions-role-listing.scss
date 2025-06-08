@@ -1,0 +1,25 @@
+@import "~scss/variables";
+
+.sw-users-permissions-role-listing {
+    &.sw-card .sw-card__content {
+        padding: 0;
+    }
+
+    &__add-role-button {
+        text-align: center;
+    }
+
+    &__toolbar {
+        padding: 25px 35px;
+        background-color: $color-gray-100;
+        border-bottom: 1px solid $color-gray-300;
+    }
+
+    .sw-empty-state {
+        min-height: 250px;
+        background-color: $color-white;
+        border: 1px solid $color-gray-300;
+        border-top: 0;
+        border-radius: 0 $border-radius-default $border-radius-default 0;
+    }
+}

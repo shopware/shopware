@@ -1,0 +1,24 @@
+{% block sw_card_search_bar %}
+<div class="sw-card-filter">
+    {% block sw_card_filter_bar_container %}
+    <div :class="hasFilterClass">
+        {% block sw_card_filter_bar_container_field %}
+        <sw-simple-search-field
+            v-model:value="term"
+            size="small"
+            variant="form"
+            :placeholder="placeholder"
+            :delay="delay"
+            @search-term-change="onSearchTermChange"
+        />
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_card_filter_bar_container_field_filter %}
+    <div class="sw-card-filter-filter">
+        <slot name="filter"></slot>
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

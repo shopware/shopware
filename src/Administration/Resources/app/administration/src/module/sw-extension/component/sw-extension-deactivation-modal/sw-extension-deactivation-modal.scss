@@ -1,0 +1,18 @@
+@import "~scss/variables";
+
+.sw-extension-deactivation-modal {
+    font-size: $font-size-xs;
+    line-height: 22px;
+
+    .sw-extension-deactivation-modal__description {
+        margin-block-end: 1em;
+    }
+
+    .sw-extension-deactivation-modal__bold-paragraph {
+        font-weight: $font-weight-semi-bold;
+    }
+
+    .sw-extension-deactivation-modal__hint-paragraph {
+        color: $color-gray-300;
+    }
+}

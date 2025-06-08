@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Product</title>
+        <title lang="de-DE">Produkt</title>
+
+        <input-field type="bool">
+            <name>allowBuyInListing</name>
+            <label>Display buy buttons in listings</label>
+            <label lang="de-DE">Kaufen-Buttons in Produktlistings anzeigen</label>
+            <helpText>In product listings, buy buttons are displayed beneath every product. Deactivate to display detail buttons only.</helpText>
+            <helpText lang="de-DE">In Produktlisten wird der Kaufen-Button unter jedem Produkt angezeigt. Deaktivieren, um nur den Detail-Button anzuzeigen.</helpText>
+        </input-field>
+
+        <input-field type="bool">
+            <name>autoplayVideoInListing</name>
+            <label>Autoplay videos in product listings</label>
+            <label lang="de-DE">Videos in Produkt-Listings</label>
+            <helpText>Videos in product listings that are configured as product media covers are played automatically. Deactivate to display the first frame of video only.</helpText>
+            <helpText lang="de-DE">Videos in Produkt-Listings, die als Cover von Produktmedien konfiguriert sind, werden automatisch abgespielt. Wenn deaktiviert, wird nur der erste Frame des Videos angezeigt.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>hideCloseoutProductsWhenOutOfStock</name>
+            <label>Hide products after clearance</label>
+            <label lang="de-DE">Produkte nach Abverkaufende ausblenden</label>
+            <helpText>Products marked as on "clearance sale" are hidden, as soon as their stock depletes back to 0.</helpText>
+            <helpText lang="de-DE">Produkte die mit "Abverkauf" markiert sind, werden nicht mehr angezeigt, sobald ihr Lagerbestand 0 erreicht.</helpText>
+        </input-field>
+
+        <input-field type="bool">
+            <name>showReview</name>
+            <label>Show reviews</label>
+            <label lang="de-DE">Bewertungen anzeigen</label>
+            <helpText>Activate to show reviews</helpText>
+            <helpText lang="de-DE">Aktivieren um Bewertungen anzuzeigen</helpText>
+        </input-field>
+
+        <input-field type="int">
+            <name>reviewsPerPage</name>
+            <defaultValue>10</defaultValue>
+            <label>Number of reviews per page</label>
+            <label lang="de-DE">Anzahl der Bewertungen pro Seite</label>
+            <helpText>The number of reviews displayed on a product page in the storefront.</helpText>
+            <helpText lang="de-DE">Die Anzahl der Bewertungen die auf einer Produktseite in der Storefront angezeigt werden.</helpText>
+            <min>1</min>
+        </input-field>
+
+        <input-field type="bool">
+            <name>disableEmptyFilterOptions</name>
+            <label>Disable filter options without results</label>
+            <label lang="de-DE">Filteroptionen ohne Ergebnisse deaktivieren</label>
+            <helpText>Filter options are deactivated and cannot be clicked if they provide no results</helpText>
+            <helpText lang="de-DE">Filteroptionen sind deaktiviert und können nicht angeklickt werden, wenn sie keine Ergebnisse liefern</helpText>
+        </input-field>
+
+        <input-field type="int">
+            <name>markAsNew</name>
+            <label>Mark products as 'new', for ? days</label>
+            <label lang="de-DE">Markiert Produkte als 'neu' markieren, für ? Tage</label>
+            <helpText>Products are marked as new, if their release date does not date back past the set number of days.</helpText>
+            <helpText lang="de-DE">Produkte werden als neu markiert, wenn ihr Erscheinungsdatum nicht länger als die angegebene Anzahl an Tagen zurückliegt.</helpText>
+        </input-field>
+
+        <input-field type="int">
+            <name>productsPerPage</name>
+            <label>Number of products per page</label>
+            <label lang="de-DE">Anzahl der Produkte pro Seite</label>
+            <helpText>The number of products displayed on a search page or in a product list per page in the storefront.</helpText>
+            <helpText lang="de-DE">Die Anzahl der Produkte die auf einer Suchseite oder in einer Produktliste je Seite in der Storefront angezeigt werden.</helpText>
+            <min>1</min>
+        </input-field>
+    </card>
+</config>

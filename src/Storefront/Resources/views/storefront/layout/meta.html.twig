@@ -1,0 +1,226 @@
+{# @sw-package framework #}
+
+{% block layout_head_inner %}
+    {% set metaInformation = page.metaInformation %}
+    {% set basicConfig = config('core.basicInformation') %}
+    {% set maxLength = config('seo.descriptionMaxLength') %}
+    {% set metaDescription = metaInformation.metaDescription|striptags|trim|u.truncate(maxLength ?? 255, '…') %}
+    {% set metaTitle = metaInformation.metaTitle|striptags|trim %}
+    {% set metaKeywords = metaInformation.metaKeywords|striptags|trim %}
+    {% set metaAuthor = (metaInformation.author != '') ? metaInformation.author : config('core.basicInformation.metaAuthor') %}
+
+    <head>
+        {% block layout_head_meta_tags %}
+            {% block layout_head_meta_tags_charset %}
+                <meta charset="utf-8">
+            {% endblock %}
+
+            {% block layout_head_meta_tags_viewport %}
+                <meta name="viewport"
+                      content="width=device-width, initial-scale=1, shrink-to-fit=no">
+            {% endblock %}
+
+            {% block layout_head_meta_tags_general %}
+                <meta name="author"
+                      content="{% block layout_head_meta_tags_general_author %}{{ metaAuthor|striptags }}{% endblock %}">
+                <meta name="robots"
+                      content="{% block layout_head_meta_tags_robots %}{{ metaInformation.robots }}{% endblock %}">
+                <meta name="revisit-after"
+                      content="{% block layout_head_meta_tags_general_revisit %}{{ metaInformation.revisit|striptags }}{% endblock %}">
+                <meta name="keywords"
+                      content="{% block layout_head_meta_tags_keywords %}{{ metaKeywords }}{% endblock %}">
+                <meta name="description"
+                      content="{% block layout_head_meta_tags_description %}{{ metaDescription }}{% endblock %}">
+            {% endblock %}
+
+            {% block layout_head_meta_tags_opengraph %}
+                {% if not page.isErrorPage() is defined or page.isErrorPage() === false %}
+                    <meta property="og:url"
+                          content="{% block layout_head_meta_tags_url_og %}{{ (page.metaInformation.canonical is defined) ? page.metaInformation.canonical : app.request.uri }}{% endblock %}">
+                    <meta property="og:type"
+                          content="{% block layout_head_meta_tags_type_og %}website{% endblock %}">
+                    <meta property="og:site_name"
+                          content="{% block layout_head_meta_tags_sitename_og %}{{ basicConfig.shopName }}{% endblock %}">
+                    <meta property="og:title"
+                          content="{% block layout_head_meta_tags_title_og %}{{ metaTitle }}{% endblock %}">
+                    <meta property="og:description"
+                          content="{% block layout_head_meta_tags_description_og %}{{ metaDescription }}{% endblock %}">
+                    <meta property="og:image"
+                          content="{% block layout_head_meta_tags_image_og %}{{ theme_config('sw-logo-desktop') }}{% endblock %}">
+
+                    <meta name="twitter:card"
+                          content="{% block layout_head_meta_tags_card_twitter %}summary{% endblock %}">
+                    <meta name="twitter:site"
+                          content="{% block layout_head_meta_tags_sitename_twitter %}{{ basicConfig.shopName }}{% endblock %}">
+                    <meta name="twitter:title"
+                          content="{% block layout_head_meta_tags_title_twitter %}{{ metaTitle }}{% endblock %}">
+                    <meta name="twitter:description"
+                          content="{% block layout_head_meta_tags_description_twitter %}{{ metaDescription }}{% endblock %}">
+                    <meta name="twitter:image"
+                          content="{% block layout_head_meta_tags_image_twitter %}{{ theme_config('sw-logo-desktop') }}{% endblock %}">
+                {% endif %}
+            {% endblock %}
+
+            {% block layout_head_meta_tags_schema_webpage %}
+                <meta itemprop="copyrightHolder"
+                      content="{% block layout_head_meta_tags_copyright_holder %}{{ basicConfig.shopName }}{% endblock %}">
+                <meta itemprop="copyrightYear"
+                      content="{% block layout_head_meta_tags_copyright_year %}{{ metaInformation.copyrightYear|striptags }}{% endblock %}">
+                <meta itemprop="isFamilyFriendly"
+                      content="{% block layout_head_meta_tags_family_friendly %}{% if basicConfig.familyFriendly %}true{% else %}false{% endif %}{% endblock %}">
+                <meta itemprop="image"
+                      content="{% block layout_head_meta_tags_image_meta %}{{ theme_config('sw-logo-desktop') }}{% endblock %}">
+            {% endblock %}
+
+            {% block layout_head_meta_tags_theme %}
+                {% if theme_config('sw-background-color') %}
+                <meta name="theme-color"
+                      content="{{ theme_config('sw-background-color') }}">
+                {% endif %}
+            {% endblock %}
+
+            {% block layout_head_meta_tags_hreflangs %}
+                {% for link in hrefLang %}
+                    <link rel="alternate" hreflang="{{ link.locale }}" href="{{ link.url }}">
+                {% endfor %}
+            {% endblock %}
+        {% endblock %}
+
+        {% block layout_head_favicon %}
+            <link rel="shortcut icon"
+                  href="{{ theme_config('sw-logo-favicon') }}">
+        {% endblock %}
+
+        {% block layout_head_apple %}
+            {% if theme_config('sw-logo-share') %}
+            <link rel="apple-touch-icon"
+                  href="{{ theme_config('sw-logo-share') }}">
+            {% endif %}
+        {% endblock %}
+
+        {% block layout_head_canonical %}
+            {% if page.metaInformation.canonical %}
+                <link rel="canonical" href="{{ page.metaInformation.canonical }}">
+            {% endif %}
+        {% endblock %}
+
+        {% block layout_head_title %}
+            <title itemprop="name">
+                {% block layout_head_title_inner %}{{- metaTitle -}}{% endblock %}
+            </title>
+        {% endblock %}
+
+        {% block layout_head_stylesheet %}
+            {% if isHMRMode %}
+                {# CSS will be loaded from the JS automatically #}
+            {% else %}
+                {% set assets = theme_config('assets.css') %}
+                {% for file in assets %}
+                    <link rel="stylesheet"
+                      href="{{ asset(file, 'theme') }}">
+                {% endfor %}
+            {% endif %}
+        {% endblock %}
+
+        {% block layout_head_javascript_feature %}
+            {% sw_include '@Storefront/storefront/component/feature.html.twig' %}
+        {% endblock %}
+
+        {# Block for tracking scripts which are required to be included in the `head` section of the document #}
+        {% block layout_head_javascript_tracking %}
+            {% sw_include '@Storefront/storefront/component/analytics.html.twig' %}
+        {% endblock %}
+
+        {% block layout_head_javascript_recaptcha %}
+            {% sw_include '@Storefront/storefront/component/recaptcha.html.twig' %}
+        {% endblock %}
+
+        {% block layout_head_javascript_token %}
+        {% endblock %}
+
+        {% if config('core.basicInformation.useDefaultCookieConsent') %}
+            {% block layout_head_javascript_cookie_state %}
+                <script>
+                    window.useDefaultCookieConsent = true;
+                </script>
+            {% endblock %}
+        {% endif %}
+
+        {% block layout_head_javascript_router %}
+            {# Register all routes that will be needed in JavaScript to the window.router object #}
+            <script>
+                window.activeNavigationId = '{{ shopware.navigation.id }}';
+                window.activeRoute = '{{ activeRoute }}';
+                window.activeRouteParameters = '{{ app.request.attributes.get('_route_params')|json_encode|raw }}';
+                window.router = {
+                    'frontend.cart.offcanvas': '{{ path('frontend.cart.offcanvas') }}',
+                    'frontend.cookie.offcanvas': '{{ path('frontend.cookie.offcanvas') }}',
+                    'frontend.checkout.finish.page': '{{ path('frontend.checkout.finish.page') }}',
+                    'frontend.checkout.info': '{{ path('frontend.checkout.info') }}',
+                    'frontend.menu.offcanvas': '{{ path('frontend.menu.offcanvas') }}',
+                    'frontend.cms.page': '{{ path('frontend.cms.page') }}',
+                    'frontend.cms.navigation.page': '{{ path('frontend.cms.navigation.page') }}',
+                    'frontend.country.country-data': '{{ path('frontend.country.country.data') }}',
+                    'frontend.app-system.generate-token': '{{ path('frontend.app-system.generate-token', { name: 'Placeholder' }) }}',
+                    'frontend.gateway.context': '{{ path('frontend.gateway.context') }}',
+                    };
+                window.salesChannelId = '{{ context.salesChannelId }}';
+            </script>
+        {% endblock %}
+
+        {% block layout_head_javascript_breakpoints %}
+            {# Register the available viewport breakpoints as window.breakpoints object #}
+            <script>
+                {% set breakpoint = {
+                    xs: theme_config('breakpoint.xs'),
+                    sm: theme_config('breakpoint.sm'),
+                    md: theme_config('breakpoint.md'),
+                    lg: theme_config('breakpoint.lg'),
+                    xl: theme_config('breakpoint.xl'),
+                    xxl: theme_config('breakpoint.xxl')
+                } %}
+
+                window.breakpoints = {{ breakpoint|json_encode()|raw }};
+            </script>
+        {% endblock %}
+
+        {% if config('core.cart.wishlistEnabled') %}
+            {% block layout_head_javascript_wishlist_state %}
+                <script>
+                    window.customerLoggedInState = {{ context.customer is not null and not context.customer.guest ? 1 : 0 }};
+
+                    window.wishlistEnabled = {{ config('core.cart.wishlistEnabled') }};
+                </script>
+            {% endblock %}
+        {% endif %}
+
+        {# jQuery is removed from the default Storefront since tag:v6.5.0 - This block should be used to add jQuery as a `<script>` if needed. #}
+        {% block layout_head_javascript_jquery %}
+        {% endblock %}
+
+        {% block layout_head_form_validation_messages %}
+            {% sw_include '@Storefront/storefront/utilities/form-validation-config.html.twig' %}
+        {% endblock %}
+
+        {% block layout_head_javascript_hmr_mode %}
+            {% if isHMRMode %}
+                {% block layout_head_javascript_hmr_dev %}
+                    {# Entry point for dev-server #}
+                    <script type="text/javascript" src="/_webpack_hot_proxy_/storefront/hot-reloading.js" defer></script>
+                    {% for script in theme_scripts() %}
+                        <script type="text/javascript" src="{{ script|replace({'js/': '/_webpack_hot_proxy_/'}) }}" defer></script>
+                    {% endfor %}
+                {% endblock %}
+            {% else %}
+                {% block layout_head_javascript_prod %}
+                    <script>
+                        window.themeJsPublicPath = '{{ asset('js/', 'theme') }}';
+                    </script>
+                    {% for script in theme_scripts() %}
+                        <script type="text/javascript" src="{{ asset(script, 'theme') }}" defer></script>
+                    {% endfor %}
+                {% endblock %}
+            {% endif %}
+        {% endblock %}
+    </head>
+{% endblock %}

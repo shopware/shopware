@@ -1,0 +1,65 @@
+{% block sw_flow_sequence_selector %}
+<div class="sw-flow-sequence-selector">
+    {% block sw_flow_sequence_selector_title %}
+    <div class="sw-flow-sequence-selector__title">
+        <slot name="title">
+            <h4>{{ title }}</h4>
+        </slot>
+    </div>
+    {% endblock %}
+
+    {% block sw_flow_sequence_selector_help_text %}
+    <div class="sw-flow-sequence-selector__help-text">
+        <slot name="helpText">
+            <p v-html="helpText"></p>
+        </slot>
+    </div>
+    {% endblock %}
+
+    {% block sw_flow_sequence_selector_actions %}
+    <div class="sw-flow-sequence-selector__actions">
+        {% block sw_flow_sequence_selector_if_condition %}
+        <mt-button
+            class="sw-flow-sequence-selector__add-condition"
+            :disabled="disabled"
+            variant="secondary"
+            @click="addIfCondition"
+        >
+            <template #iconFront>
+                {% block sw_flow_sequence_selector_then_action_icon_rule %}
+                <mt-icon
+                    size="16"
+                    name="regular-rule-s"
+                />
+                {% endblock %}
+            </template>
+
+            {{ $tc('sw-flow.detail.sequence.selectorIfCondition') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_flow_sequence_selector_then_action %}
+        <mt-button
+            class="sw-flow-sequence-selector__add-action"
+            :disabled="disabled"
+            variant="secondary"
+            @click="addThenAction"
+        >
+            <template #iconFront>
+                {% block sw_flow_sequence_selector_then_action_icon_file %}
+                <mt-icon
+                    size="16"
+                    name="regular-file-edit-s"
+                />
+                {% endblock %}
+            </template>
+
+            {{ $tc('sw-flow.detail.sequence.selectorThenAction') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_flow_sequence_selector_extension_options %}{% endblock %}
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

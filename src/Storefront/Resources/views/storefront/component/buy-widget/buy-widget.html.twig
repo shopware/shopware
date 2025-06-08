@@ -1,0 +1,220 @@
+{% block buy_widget %}
+    <div class="product-detail-buy{% if elementId %}-{{ elementId }}{% endif %} js-magnifier-zoom-image-container">
+        {% block buy_widget_rich_snippets %}
+            {% block buy_widget_rich_snippets_brand %}
+                {% if product.manufacturer %}
+                    <div itemprop="brand" itemtype="https://schema.org/Brand" itemscope>
+                        <meta itemprop="name" content="{{ product.manufacturer.translated.name }}">
+                    </div>
+                {% endif %}
+            {% endblock %}
+
+            {% block buy_widget_rich_snippets_gtin13 %}
+                {% if product.ean %}
+                    <meta itemprop="gtin13"
+                          content="{{ product.ean }}">
+                {% endif %}
+            {% endblock %}
+
+            {% block buy_widget_rich_snippets_mpn %}
+                {% if product.manufacturerNumber %}
+                    <meta itemprop="mpn"
+                          content="{{ product.manufacturerNumber }}">
+                {% endif %}
+            {% endblock %}
+
+            {% block buy_widget_rich_snippets_weight %}
+                {% if product.weight %}
+                    <meta itemprop="weight"
+                          content="{{ product.weight }} kg">
+                {% endif %}
+            {% endblock %}
+
+            {% block buy_widget_rich_snippets_height %}
+                {% if product.height %}
+                    <meta itemprop="height"
+                          content="{{ product.height }} mm">
+                {% endif %}
+            {% endblock %}
+
+            {% block buy_widget_rich_snippets_width %}
+                {% if product.width %}
+                    <meta itemprop="width"
+                          content="{{ product.width }} mm">
+                {% endif %}
+            {% endblock %}
+
+            {% block buy_widget_rich_snippets_depth %}
+                {% if product.length %}
+                    <meta itemprop="depth"
+                          content="{{ product.length }} mm">
+                {% endif %}
+            {% endblock %}
+
+            {% block buy_widget_rich_snippets_release_date %}
+                {% if product.releaseDate %}
+                    <meta itemprop="releaseDate"
+                          content="{{ product.releaseDate|format_date(pattern='Y-MM-dd') }}">
+                {% endif %}
+            {% endblock %}
+        {% endblock %}
+
+        {% block buy_widget_buy_container %}
+            <div itemprop="offers"
+                 itemscope
+                 itemtype="{% if product.calculatedPrices|length > 1 %}https://schema.org/AggregateOffer{% else %}https://schema.org/Offer{% endif %}">
+                {% block buy_widget_data %}
+                    {% block buy_widget_data_rich_snippet_url %}
+                        <meta itemprop="url"
+                              content="{{ seoUrl('frontend.detail.page', { productId: product.id }) }}">
+                    {% endblock %}
+
+                    {% block buy_widget_data_rich_snippet_price_range %}
+                        {% if product.calculatedPrices|length > 1 %}
+                            {% set lowestPrice = false %}
+                            {% set highestPrice = false %}
+
+                            {% for price in product.calculatedPrices %}
+                                {% if not lowestPrice or price.unitPrice < lowestPrice %}
+                                    {% set lowestPrice = price.unitPrice %}
+                                {% endif %}
+                                {% if not highestPrice or price.unitPrice > highestPrice %}
+                                    {% set highestPrice = price.unitPrice %}
+                                {% endif %}
+                            {% endfor %}
+
+                            <meta itemprop="lowPrice" content="{{ lowestPrice }}">
+                            <meta itemprop="highPrice" content="{{ highestPrice }}">
+                            <meta itemprop="offerCount" content="{{ product.calculatedPrices|length }}">
+                        {% endif %}
+                    {% endblock %}
+
+                    {% block buy_widget_data_rich_snippet_price_currency %}
+                        <meta itemprop="priceCurrency"
+                              content="{{ context.currency.translated.shortName }}">
+                    {% endblock %}
+
+                    {% block buy_widget_price %}
+                        <div class="product-detail-price-container">
+                            {% sw_include '@Storefront/storefront/component/buy-widget/buy-widget-price.html.twig' %}
+                        </div>
+                    {% endblock %}
+
+                    {% block buy_widget_tax %}
+                        <div class="product-detail-tax-container">
+                            {% if context.taxState == 'gross' %}
+                                {% set taxText = 'general.grossTaxInformation'|trans|sw_sanitize %}
+                            {% else %}
+                                {% set taxText = 'general.netTaxInformation'|trans|sw_sanitize %}
+                            {% endif %}
+
+                            <p class="product-detail-tax">
+                                {% block buy_widget_tax_link %}
+                                    {% set cmsPath = path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) %}
+
+                                    <button class="btn btn-link-inline product-detail-tax-link"
+                                            type="button"
+                                            data-ajax-modal="true"
+                                            data-url="{{ cmsPath }}">
+                                        {{ taxText }}
+                                    </button>
+                                {% endblock %}
+                            </p>
+                        </div>
+                    {% endblock %}
+
+                    {% block buy_widget_reviews %}
+                        {% if product.ratingAverage > 0 and totalReviews > 0 and config('core.listing.showReview') %}
+
+                            {% if remoteClickOptions is not defined %}
+                                {% set remoteClickOptions = {
+                                    selector: '#review-tab-' ~ product.id,
+                                    scrollToElement: true,
+                                    excludedViewports: ['XS']
+                                } %}
+                            {% endif %}
+
+                            {% if reviewTabHref is not defined %}
+                                {% set reviewTabHref = '#review-tab-' ~ product.id ~ '-pane' %}
+                            {% endif %}
+
+                            {% set reviewTabContent = 'review-tab-' ~ product.id ~ '-pane' %}
+
+                            <div class="product-detail-reviews">
+
+                                {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
+                                    points: product.ratingAverage,
+                                    style: 'text-primary'
+                                } %}
+                                <a
+                                    class="product-detail-reviews-link"
+                                    data-off-canvas-tabs="true"
+                                    data-remote-click="true"
+                                    data-remote-click-options="{{ remoteClickOptions|json_encode }}"
+                                    href="{{ reviewTabHref }}"
+                                    aria-controls="{{ reviewTabContent }}"
+                                >
+                                    {{ totalReviews }}
+                                    {{ 'detail.reviewLinkText'|trans({'%count%': totalReviews})|sw_sanitize }}
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% endblock %}
+
+                    {% block buy_widget_delivery_informations %}
+                        <div class="product-detail-delivery-information">
+                            {% sw_include '@Storefront/storefront/component/delivery-information.html.twig' %}
+                        </div>
+                    {% endblock %}
+                {% endblock %}
+
+                {% block buy_widget_configurator_include %}
+                    {% if product.parentId and configuratorSettings|length > 0 %}
+                        <div class="product-detail-configurator-container">
+                            {% sw_include '@Storefront/storefront/component/buy-widget/configurator.html.twig' %}
+                        </div>
+                    {% endif %}
+                {% endblock %}
+
+                {% block buy_widget_buy_form %}
+                    {% if product.active %}
+                        <div class="product-detail-form-container">
+                            {% sw_include '@Storefront/storefront/component/buy-widget/buy-widget-form.html.twig' %}
+                        </div>
+                    {% endif %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% if config('core.cart.wishlistEnabled') %}
+            {% block buy_widget_wishlist %}
+                {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
+                    showText: true,
+                    size: 'sm',
+                    productId: product.id
+                } %}
+            {% endblock %}
+        {% endif %}
+
+        {% block buy_widget_ordernumber_container %}
+            {% if product.productNumber %}
+                <div class="product-detail-ordernumber-container">
+                    {% block buy_widget_ordernumber_label %}
+                        <span class="product-detail-ordernumber-label">
+                            {{ 'detail.productNumberLabel'|trans|sw_sanitize }}
+                        </span>
+                    {% endblock %}
+
+                    {% block buy_widget_ordernumber %}
+                        <meta itemprop="productID"
+                              content="{{ product.id }}">
+                        <span class="product-detail-ordernumber"
+                              itemprop="sku">
+                            {{ product.productNumber }}
+                        </span>
+                    {% endblock %}
+                </div>
+            {% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}

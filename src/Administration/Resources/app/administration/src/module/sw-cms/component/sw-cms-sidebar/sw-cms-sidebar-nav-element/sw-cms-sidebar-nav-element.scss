@@ -1,0 +1,39 @@
+@import "~scss/variables";
+
+.sw-cms-sidebar__navigator-element {
+    display: grid;
+    grid-template-columns: 1fr 28px 28px;
+    align-items: center;
+    align-content: center;
+    padding: 8px 4px 8px 14px;
+    margin: 8px 0;
+    border: 1px solid $color-gray-300;
+    background: $color-gray-100;
+    color: $color-darkgray-200;
+    border-radius: 4px;
+    cursor: move;
+
+    &.is--drag-element {
+        border: 1px solid $color-shopware-brand-500;
+        box-shadow: 0 0 4px 0 rgba($color-shopware-brand-500, 0.4);
+
+        .navigator-element__action-duplicate,
+        .navigator-element__action-delete {
+            display: none;
+        }
+    }
+
+    &.is--dragging {
+        background: none;
+    }
+
+    .navigator-element__action-duplicate,
+    .navigator-element__action-delete {
+        line-height: 12px;
+        cursor: pointer;
+
+        &:hover {
+            color: $color-shopware-brand-500;
+        }
+    }
+}

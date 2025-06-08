@@ -1,0 +1,112 @@
+{#
+
+Notice for plugins and theme developer:     Do not extend this template!
+
+This template will be rendered over the `block` function.
+Templates which are rendered over the `block` function can not be extended.
+Instead of extending this template, simply extend the `base.html.twig` (or the document specific template) and override the block you want.
+All blocks of this template are available in the template which renders this template over the `block` function.
+
+#}
+
+{% block position %}
+    {% if config.displayLineItems %}
+        {% set class = '' %}
+        {% if level > 0 %}
+            {% set class = " nested level-" ~ level %}
+        {% endif %}
+
+        <tr class="line-item{{ class }}{% if first %} first{% endif %}" tabindex="0">
+            {% block document_line_item_table_rows %}
+                {% block document_line_item_table_row_position %}
+                    {% if config.displayLineItemPosition %}
+                        <td>{% block document_line_item_table_column_position %}{{ prefix ~ position }}{% endblock %}</td>
+                    {% endif %}
+                {% endblock %}
+
+                {% block document_line_item_table_row_product_number %}
+                    {% if lineItem.payload.productNumber %}
+                        <td class="line-item-product-number">{% block document_line_item_table_column_product_number %}{{ lineItem.payload.productNumber }}{% endblock %}</td>
+                    {% else %}
+                        <td>{% block document_line_item_table_column_product_number_empty %}{% endblock %}</td>
+                    {% endif %}
+                {% endblock %}
+
+                {% block document_line_item_table_row_label %}
+                    <td class="line-item-breakable">
+                    {% block document_line_item_table_column_label %}
+                        {% if level > 0 %}
+                            {% for i in 1..level %}
+                                <span class="wrapper-wrapper">
+                                    <span class="label-wrapper level-{{ i }}"></span>
+                                </span>
+                            {% endfor %}
+                        {% endif %}
+
+                        <span class="line-item-label level-{{ level }}">{{ lineItem.label }}</span>
+                        {% if lineItem.payload.options|length >= 1 %}
+                            <br/>
+                            {% for option in lineItem.payload.options %}
+                                {{ option.group }}: {{ option.option }}
+                                {% if lineItem.payload.options|last != option %}
+                                    {{ " | " }}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+
+                        {% if lineItem.payload.features|length >=1  %}
+                            <br/>
+                            {% for feature in lineItem.payload.features %}
+                                {% if feature.type == 'referencePrice' %}
+                                    {{ feature.value.purchaseUnit|sw_sanitize }} {{ feature.value.unitName|sw_sanitize }}
+                                    ({{ feature.value.price|currency(currencyIsoCode, languageId) }}{{ "general.star"|trans }} / {{ feature.value.referenceUnit|sw_sanitize }} {{ feature.value.unitName|sw_sanitize }})
+                                    {% if lineItem.payload.features|last != feature %}
+                                        {{ " | " }}
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endblock %}
+                    </td>
+                {% endblock %}
+
+                {% block document_line_item_table_row_quantity %}
+                    <td class="align-right">{% block document_line_item_table_column_quantity %}{{ lineItem.quantity }}{% endblock %}</td>
+                {% endblock %}
+
+                {% block document_line_item_table_prices %}
+                    {% if config.displayPrices %}
+                        {% block document_line_item_table_row_tax_rate %}
+                            <td class="align-right">{% block document_line_item_table_column_tax_rate %}{% for tax in lineItem.price.taxRules %}{{ tax.taxRate }} % {% if loop.last %}{% else %}<br>{% endif %}{% endfor %}{% endblock %}</td>
+                        {% endblock %}
+                        {% block document_line_item_row_table_unit_price %}
+                            <td class="align-right">
+                                {% block document_line_item_column_table_unit_price %}
+                                    {% set unitPrice = lineItem.unitPrice %}
+                                    {% if config.fileType == constant('Shopware\\Core\\Checkout\\Document\\Service\\HtmlRenderer::FILE_EXTENSION') %}
+                                        {% if unitPrice < 0 %}&minus;{% endif %}{{ unitPrice|abs|currency(currencyIsoCode, languageId) }}
+                                    {% else %}
+                                        {{ unitPrice|currency(currencyIsoCode, languageId) }}
+                                    {% endif %}
+
+                                {% endblock %}
+                            </td>
+                        {% endblock %}
+                        {% block document_line_item_table_row_total_price %}
+                            <td class="align-right">
+                                {% block document_line_item_table_column_total_price %}
+                                    {% set totalPrice = lineItem.totalPrice %}
+                                    {% if config.fileType == constant('Shopware\\Core\\Checkout\\Document\\Service\\HtmlRenderer::FILE_EXTENSION') %}
+                                        {% if totalPrice < 0 %}&minus;{% endif %}{{ totalPrice|abs|currency(currencyIsoCode, languageId) }}
+                                    {% else %}
+                                        {{ totalPrice|currency(currencyIsoCode, languageId) }}
+                                    {% endif %}
+                                {% endblock %}
+                            </td>
+                        {% endblock %}
+                    {% endif %}
+                {% endblock %}
+            {% endblock %}
+        </tr>
+    {% endif %}
+{% endblock %}

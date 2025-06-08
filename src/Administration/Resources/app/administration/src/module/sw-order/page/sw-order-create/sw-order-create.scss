@@ -1,0 +1,200 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+$sw-field: ".sw-field";
+$sw-order-user-card: ".sw-order-user-card";
+$sw-highlight-text: ".sw-highlight-text";
+$font-weight-semi-bold: 600;
+$select-result-customer-item-last-width: 40px;
+$select-result-customer-item-gutter: 10px;
+
+.sw-order-create {
+    &__card {
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    .sw-card__content {
+        overflow: hidden;
+    }
+}
+
+.sw-order-create-details-header {
+    &__customer-result-item {
+        &.has-many-childrens {
+            display: flex;
+            white-space: nowrap;
+            justify-content: space-between;
+
+            #{$sw-highlight-text} {
+                @include reset-truncate;
+
+                display: inline-block;
+                width: auto;
+            }
+        }
+
+        .text-truncate {
+            @include truncate;
+
+            min-width: $select-result-customer-item-last-width;
+            max-width: $select-result-customer-item-last-width;
+            color: $color-gray-500;
+            margin-left: 5px;
+        }
+
+        #{$sw-highlight-text} {
+            @include truncate;
+
+            display: inline-block;
+            width: 100%;
+        }
+    }
+
+    #{$sw-order-user-card}__container {
+        margin: 0 0 8px;
+    }
+
+    #{$sw-order-user-card}__info-summary {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-end;
+        margin-left: 64px;
+    }
+}
+
+.sw-order-create-details-body {
+    &__item {
+        &:not(:first-child) {
+            margin: 24px 0 0;
+        }
+
+        #{$sw-field}__label {
+            font-weight: $font-weight-semi-bold;
+        }
+    }
+
+    &__item-label {
+        display: flex;
+        margin: 0 0 8px;
+        color: $color-darkgray-200;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semi-bold;
+        line-height: 16px;
+    }
+
+    &__item-label-button {
+        @extend %customize-mt-button;
+    }
+
+    &__address-identical-text {
+        font-size: $font-size-xs;
+    }
+
+    &__address-identical-button {
+        @extend %customize-mt-button;
+
+        width: 100%;
+        margin: 12px 0 0;
+    }
+
+    .sw-field {
+        &.sw-block-field.sw-field--textarea {
+            textarea {
+                resize: none;
+            }
+        }
+    }
+}
+
+.sw-order-create-details-footer {
+    &__item {
+        &:not(:first-child) {
+            margin: 16px 0 0;
+        }
+
+        #{$sw-field}__label {
+            font-weight: $font-weight-semi-bold;
+        }
+    }
+}
+
+.sw-order-create-summary {
+    grid-template-areas: "empty summary";
+
+    .sw-order-create-summary__data {
+        grid-area: summary;
+        font-size: $font-size-xs;
+        padding-right: 38px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+
+        dt,
+        dd {
+            padding: 0;
+            line-height: 40px;
+            border-bottom: 1px solid $color-gray-300;
+            color: $color-darkgray-200;
+            font-size: $font-size-xs;
+            font-weight: normal;
+            text-align: right;
+        }
+
+        dd {
+            padding-right: 40px;
+
+            .sw-order-saveable-field {
+                transform: translateY(-50%);
+                position: relative;
+                left: 80px;
+                top: 50%;
+            }
+        }
+    }
+
+    .sw-order-create-summary__switch-promotions {
+        margin-top: 0;
+    }
+}
+
+.sw-select-result {
+    $this: &;
+
+    &.sw-order-create-details-header__customer-result {
+        @include transition;
+
+        border-bottom: 1px solid $color-gray-500;
+
+        #{$this}__result-item-text {
+            width: 100%;
+        }
+
+        .mt-icon {
+            @include hidden;
+        }
+
+        .text-gray-500 {
+            color: $color-gray-500;
+        }
+    }
+}
+
+%customize-mt-button {
+    &.mt-button {
+        outline: none;
+        border: 0;
+        padding: 0 5px;
+        background: transparent;
+        color: rgb(24, 158, 255);
+        font-size: $font-size-xxs;
+        line-height: 12px;
+        cursor: pointer;
+
+        &:hover:not(.mt-button--disabled),
+        &:hover:hover:not([disabled]) {
+            background: transparent;
+        }
+    }
+}

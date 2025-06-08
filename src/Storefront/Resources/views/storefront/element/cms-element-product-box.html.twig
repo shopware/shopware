@@ -1,0 +1,21 @@
+{% block element_product_box %}
+    {% set config = element.fieldConfig.elements %}
+
+    <div class="cms-element-{{ element.type }}{% if config.verticalAlign.value %} has-vertical-alignment{% endif %}">
+        {% block element_product_slider_alignment %}
+            {% if config.verticalAlign.value %}
+                <div class="cms-element-alignment{% if config.verticalAlign.value == "center" %} align-self-center{% elseif config.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
+            {% endif %}
+                {% block element_product_box_inner %}
+                    {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
+                        'product': element.data.product,
+                        'layout': element.translated.config.boxLayout.value,
+                        'displayMode': element.translated.config.displayMode.value
+                    } %}
+                {% endblock %}
+            {% if config.verticalAlign.value %}
+                </div>
+            {% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}

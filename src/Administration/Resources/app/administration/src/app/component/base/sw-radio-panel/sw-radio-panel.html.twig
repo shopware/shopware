@@ -1,0 +1,56 @@
+{% block sw_radio_panel %}
+<!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+<label class="sw-radio-panel">
+    {% block sw_radio_panel_input %}
+    <input
+        :id="id"
+        type="radio"
+        :name="name"
+        :required="required"
+        :disabled="disabled"
+        :value="value"
+        :checked="checked"
+        @change="toggle"
+    >
+    {% endblock %}
+
+    {% block sw_radio_panel_body %}
+    <span class="sw-radio-panel__body">
+        {% block sw_radio_panel_body_radio %}
+        <span class="sw-radio-panel__radio"></span>
+        {% endblock %}
+
+        {% block sw_radio_panel_body_slot %}
+        <slot>
+            {% block sw_radio_panel_body_image %}
+            <span class="sw-radio-panel__image">
+                <mt-icon
+                    :name="icon"
+                    size="30px"
+                />
+            </span>
+            {% endblock %}
+            {% block sw_radio_panel_body_title %}
+            <!-- eslint-disable-next-line vuejs-accessibility/role-has-required-aria-props -->
+            <span
+                class="sw-radio-panel__title"
+                :class="{ 'is--truncate': truncate }"
+                role="heading"
+            >
+                {{ title }}
+            </span>
+            {% endblock %}
+            {% block sw_radio_panel_body_description %}
+            <span
+                class="sw-radio-panel__description"
+                :class="{ 'is--truncate': truncate }"
+            >
+                {{ description }}
+            </span>
+            {% endblock %}
+        </slot>
+        {% endblock %}
+    </span>
+    {% endblock %}
+</label>
+{% endblock %}

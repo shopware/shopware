@@ -1,0 +1,50 @@
+{% block sw_data_grid_inline_edit %}
+<div
+    class="sw-data-grid-inline-edit"
+    :class="classes"
+>
+    {% block sw_data_grid_inline_edit_type_string %}
+
+    <mt-text-field
+        v-if="column.inlineEdit === 'string'"
+        key="string"
+        v-model="currentValue"
+        name="sw-field--currentValue"
+        :size="inputFieldSize"
+        @update:model-value="emitInput"
+    />
+    {% endblock %}
+
+    {% block sw_data_grid_inline_edit_type_number %}
+    <mt-number-field
+        v-else-if="column.inlineEdit === 'number'"
+        key="number"
+        v-model="currentValue"
+        name="sw-field--currentValue"
+        :size="inputFieldSize"
+        :number-align-end="true"
+        @update:model-value="emitInput"
+    />
+    {% endblock %}
+
+    {% block sw_data_grid_inline_edit_type_boolean %}
+    <mt-checkbox
+        v-else-if="column.inlineEdit === 'boolean'"
+        key="boolean"
+        v-model:checked="currentValue"
+        name="sw-field--currentValue"
+        @update:checked="emitInput"
+    />
+    {% endblock %}
+
+    {% block sw_data_grid_inline_edit_type_unknown %}
+    <span
+        v-else
+        key="unknown"
+        class="sw-data-grid-inline-edit__placeholder"
+    >
+        Unknown type {{ column.inlineEdit }}
+    </span>
+    {% endblock %}
+</div>
+{% endblock %}

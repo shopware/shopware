@@ -1,0 +1,58 @@
+@import "~scss/variables";
+
+.sw-inherit-wrapper {
+    .sw-inherit-wrapper__toggle-wrapper {
+        display: flex;
+        align-items: center;
+        line-height: 16px;
+        font-size: $font-size-xs;
+        margin-bottom: 8px;
+        color: var(--color-text-primary-default);
+
+        label {
+            &.has--error {
+                color: $color-crimson-500;
+            }
+
+            flex-grow: 1;
+        }
+
+        .sw-inherit-wrapper__inheritance-icon {
+            margin-right: 8px;
+        }
+    }
+
+    &.is--inherited {
+        .sw-inherit-wrapper__toggle-wrapper {
+            color: $color-module-purple-900;
+        }
+    }
+
+    &.is--required .sw-inherit-wrapper__toggle-wrapper label::after {
+        content: "*";
+        color: $color-shopware-brand-500;
+    }
+
+    .sw-card__title {
+        .sw-inheritance-switch {
+            display: inline-block;
+            position: relative;
+            top: -1px;
+            margin-right: 4px;
+        }
+
+        &.sw-card__title__inherited {
+            color: $color-module-purple-900;
+        }
+    }
+
+    .sw-card__inherited .sw-card__content {
+        border-color: $color-module-purple-900;
+    }
+
+    .sw-card__toolbar {
+        border-top-color: $color-module-purple-900;
+        border-left-color: $color-module-purple-900;
+        border-right-color: $color-module-purple-900;
+    }
+}

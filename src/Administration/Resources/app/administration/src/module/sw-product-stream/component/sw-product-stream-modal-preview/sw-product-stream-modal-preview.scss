@@ -1,0 +1,94 @@
+@import "~scss/variables";
+
+$sw-product-stream-modal-color-error: $color-crimson-500;
+$sw-product-stream-modal-color-success: $color-emerald-500;
+
+.sw-product-stream-modal-preview {
+    .sw-modal__dialog {
+        .sw-grid__header {
+            padding-left: 15px;
+        }
+
+        .sw-modal__body {
+            height: 900px;
+            padding: 0;
+            display: flex;
+
+            .sw-grid-row {
+                padding-left: 15px;
+            }
+        }
+    }
+
+    .sw-product-stream-modal-preview__content {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: [search-field] 80px [product-grid] auto;
+        position: relative;
+        width: 100%;
+
+        .sw-data-grid.sw-data-grid--full-page {
+            position: relative;
+        }
+    }
+
+    .sw-product-stream-modal-preview__content-header {
+        grid-template-columns: auto minmax(100px, 350px);
+        grid-row: search-field;
+        border-bottom: 1px solid $color-gray-300;
+    }
+
+    .sw-product-stream-modal-preview__search-field-label {
+        width: 100%;
+        height: 100%;
+        background: $color-gray-100;
+        -webkit-border-radius: 0;
+        -moz-border-radius: 0;
+        border-radius: 0;
+        margin: 0;
+        border: 0;
+
+        .sw-product-stream-modal-preview__search-field {
+            margin: 0;
+            margin-top: 7px;
+        }
+    }
+
+    .sw-product-stream-modal-preview__sales-channel-field-label {
+        width: 100%;
+        height: 100%;
+        background: $color-gray-100;
+        margin: 0;
+        padding: 14px 22px 14px 0;
+        border: 0;
+
+        &:hover {
+            background: $color-gray-100;
+        }
+
+        .sw-product-stream-modal-preview__sales-channel-field {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            margin: 0;
+
+            .sw-field__label {
+                margin: 0;
+                line-height: 46px;
+                padding-right: 10px;
+            }
+        }
+    }
+
+    .sw-product-stream-modal-preview__grid {
+        overflow: scroll;
+        grid-row: product-grid;
+    }
+
+    .is--inactive {
+        color: $sw-product-stream-modal-color-error;
+    }
+
+    .is--active {
+        color: $sw-product-stream-modal-color-success;
+    }
+}

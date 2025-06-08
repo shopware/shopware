@@ -1,0 +1,95 @@
+@import "~scss/variables";
+
+$sw-settings-user-detail-change-password: $color-shopware-brand-500;
+$sw-field-help-font-size: $font-size-xs;
+$sw-field-help-line-height: 22px;
+$sw-field-help-color: $color-darkgray-200;
+
+.sw-settings-user-detail {
+    .sw-settings-user-detail__grid {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto;
+        grid-template-areas:
+            "FirstName LastName"
+            "EMail ProfilePicture"
+            "Username ProfilePicture"
+            "Password IsAdmin"
+            "ChangePassword none"
+            "Language Timezone"
+            "JobTitle AclRoles";
+        grid-column-gap: 32px;
+    }
+
+    .sw-settings-user-detail__grid-firstName {
+        grid-area: FirstName;
+    }
+
+    .sw-settings-user-detail__grid-lastName {
+        grid-area: LastName;
+    }
+
+    .sw-settings-user-detail__grid-eMail {
+        grid-area: EMail;
+    }
+
+    .sw-settings-user-detail__grid-username {
+        grid-area: Username;
+    }
+
+    .sw-settings-user-detail__grid-password {
+        grid-area: Password;
+
+        .sw-settings-user-detail__new-password {
+            margin-top: 22px;
+            margin-bottom: 0;
+        }
+    }
+
+    .sw-settings-user-detail__grid-language {
+        grid-area: Language;
+    }
+
+    .sw-settings-user-detail__grid-profile-picture {
+        grid-area: ProfilePicture;
+    }
+
+    .sw-settings-user-detail__grid-change-password {
+        grid-area: ChangePassword;
+        color: $sw-settings-user-detail-change-password;
+        margin-left: auto;
+        cursor: pointer;
+    }
+
+    .sw-settings-user-detail__grid-jobTitle {
+        grid-area: JobTitle;
+    }
+
+    .sw-settings-user-detail__grid-aclRoles {
+        grid-area: AclRoles;
+    }
+
+    .sw-settings-user-detail__grid-is-admin {
+        grid-area: IsAdmin;
+    }
+
+    &__grid-timezone {
+        grid-area: Timezone;
+        margin-top: 0;
+    }
+
+    .sw-settings-user-detail__detail {
+        .sw-field.sw-field__checkbox {
+            align-self: center;
+            margin: 0;
+        }
+
+        .sw-field__help {
+            font-size: $sw-field-help-font-size;
+            color: lighten($sw-field-help-color, 20);
+            line-height: $sw-field-help-line-height;
+            padding-top: 7px;
+        }
+    }
+}

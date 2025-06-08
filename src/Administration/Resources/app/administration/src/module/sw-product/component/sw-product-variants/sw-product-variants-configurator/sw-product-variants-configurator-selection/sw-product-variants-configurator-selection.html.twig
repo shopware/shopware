@@ -1,0 +1,22 @@
+{% block sw_property_search_field %}
+<div class="sw-property-search__toolbar sw-product-variants-configurator-selection__toolbar">
+    <slot name="toolbar">
+        <div class="sw-property-search__search-field-container">
+            <slot name="toolbar-search-field">
+                {% block sw_product_variants_configurator_selection_search_field %}
+                <sw-simple-search-field
+                    ref="searchField"
+                    v-model:value="searchTerm"
+                    size="small"
+                    variant="form"
+                    class="sw-property-search__search-field sw-product-variants-configurator-selection-search__search-field"
+                    :placeholder="$tc('sw-property-search.placeholderSearch')"
+                    :delay="600"
+                    @search-term-change="onSearchOptions"
+                />
+                {% endblock %}
+            </slot>
+        </div>
+    </slot>
+</div>
+{% endblock %}

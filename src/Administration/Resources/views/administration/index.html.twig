@@ -1,0 +1,72 @@
+{% extends '@Administration/administration/layout/base.html.twig' %}
+
+{% block administration_head_scripts %}
+    <script nonce="{{ cspNonce }}" type="text/javascript">
+        window._features_ = {{ features|json_encode|raw }};
+
+        window.__sw__ = {
+            assetPath: '{{ asset('', 'asset') }}',
+        };
+    </script>
+{% endblock %}
+
+{% block administration_content %}
+    <div id="app"></div>
+
+    {% block administration_templates %}{% endblock %}
+
+    {{ vite_entry_script_tags('administration', { attr: { nonce: cspNonce } }) }}
+
+    {% block administration_login_scripts %}{% endblock %}
+
+    <script nonce="{{ cspNonce }}">
+        {#
+        root-level domain configuration
+
+        host:               shopware.next
+        port:               80
+        scheme:             http
+        schemeAndHttpHost:  http://shopware.next
+        uri:                http://shopware.next/admin
+        basePath:
+        pathInfo:           /admin
+
+        -----------------------------------------------
+
+        sub-folder domain configuration
+
+        host:               localhost
+        port:               80
+        scheme:             http
+        schemeAndHttpHost:  http://localhost
+        uri:                http://localhost/next/web/admin
+        basePath:           /next/web
+        pathInfo:           /admin
+        #}
+        window.startApplication = () => {
+            Shopware.Application.start({
+                apiContext: {
+                    host: '{{ app.request.host }}',
+                    port: {{ app.request.port }},
+                    scheme: '{{ app.request.scheme }}',
+                    schemeAndHttpHost: '{{ app.request.schemeAndHttpHost }}',
+                    uri: '{{ app.request.uri }}',
+                    basePath: '{{ app.request.basePath }}',
+                    pathInfo: '{{ app.request.pathInfo }}',
+                    liveVersionId: '{{ liveVersionId }}',
+                    systemLanguageId: '{{ systemLanguageId }}',
+                    apiVersion: {{ apiVersion }},
+                    assetPath: '{{ asset('', 'asset') }}'
+                },
+                appContext: {
+                    features: window._features_,
+                    firstRunWizard: {{ firstRunWizard ? 'true' : 'false' }},
+                    systemCurrencyId: '{{ systemCurrencyId }}',
+                    systemCurrencyISOCode: '{{ systemCurrencyISOCode }}',
+                    adminEsEnable: {{ adminEsEnable ? 'true' : 'false' }},
+                    storefrontEsEnable: {{ storefrontEsEnable ? 'true' : 'false' }},
+                }
+            });
+        };
+    </script>
+{% endblock %}

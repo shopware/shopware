@@ -1,0 +1,69 @@
+/* stylelint-disable max-nesting-depth */
+@import "~scss/variables";
+
+.sw-mail-template-detail {
+    .sw-card {
+        .sw-single-select,
+        .sw-multi-select {
+            margin-bottom: 20px;
+        }
+    }
+
+    .sw-mail-template-detail__available-variables-sidebar-container {
+        height: 100%;
+    }
+
+    .sw-tree {
+        .sw-tree__content {
+            max-height: 100%;
+        }
+
+        .icon--regular-circle-xxs {
+            display: none;
+        }
+
+        .sw-mail-template-detail__copy_icon {
+            display: none;
+        }
+
+        .icon--regular-folder {
+            display: none;
+        }
+
+        .icon--regular-folder-open {
+            display: none;
+        }
+
+        .sw-tree-item__children {
+            .sw-mail-template-detail__copy_icon {
+                max-width: 15px;
+                display: block;
+
+                :hover {
+                    color: $color-shopware-brand-500;
+                }
+
+                :active {
+                    color: $color-shopware-brand-800;
+                }
+            }
+        }
+    }
+
+    .sw-mail-template-detail__test-mail-sidebar {
+        .sw-mail-template-detail__test-mail-sidebar-container {
+            padding: 20px;
+            border-top: 1px solid $color-gray-300;
+
+            label {
+                font-weight: bold;
+            }
+        }
+    }
+
+    .sw-mail-template-detail__attachments-info-grid {
+        position: relative;
+        margin-top: 20px;
+        border: 1px solid $color-gray-300;
+    }
+}

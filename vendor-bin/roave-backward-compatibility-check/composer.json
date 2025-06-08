@@ -1,0 +1,34 @@
+{
+    "bin": [
+        "bin/bc-check"
+    ],
+    "autoload": {
+        "psr-4": {
+            "Shopware\\RoaveBackwardCompatibility\\": "src/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "ocramius/package-versions": true,
+            "cweagans/composer-patches": true,
+            "bamarni/composer-bin-plugin": true,
+            "phpstan/extension-installer": true
+        },
+        "platform": {
+            "php": "8.3.9"
+        }
+    },
+    "require": {
+        "roave/backward-compatibility-check": "^8.0",
+        "cweagans/composer-patches": "^1.7"
+    },
+    "extra": {
+        "patches": {
+            "roave/backward-compatibility-check": {
+                "Skip experimental annotations": "patches/skip-experimental.patch",
+                "Add exclude errors": "patches/add-exclude-errors.patch",
+                "Add exclude files": "patches/add-exclude-files.patch"
+            }
+        }
+    }
+}

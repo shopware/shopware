@@ -1,0 +1,14 @@
+@import "~scss/variables";
+
+.sw-text-editor-link-menu {
+    &__entity-single-select {
+        .sw-entity-single-select__selection {
+            display: flex;
+            align-items: center;
+        }
+
+        .sw-entity-single-select__selection-text {
+            max-width: 80%;
+        }
+    }
+}

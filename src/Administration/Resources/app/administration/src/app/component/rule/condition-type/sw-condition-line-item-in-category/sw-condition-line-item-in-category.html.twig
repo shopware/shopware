@@ -1,0 +1,67 @@
+{% block sw_condition_value_content %}
+<div class="sw-condition-line-item-in-category sw-condition__condition-value">
+    {% block sw_condition_line_item_in_category_field_operator %}
+    <sw-condition-operator-select
+        v-bind="{ operators, condition }"
+        :plural="matchesAll"
+        :disabled="disabled || undefined"
+    />
+    {% endblock %}
+
+    {% block sw_condition_line_item_in_category_field_identifiers %}
+    <sw-entity-multi-select
+        v-if="!isEmpty"
+        size="medium"
+        :disabled="disabled || undefined"
+        entity="category"
+        :entity-collection="categories"
+        description-position="bottom"
+        @update:entity-collection="setCategoryIds"
+    >
+        <template #result-item="{ item, index, isSelected, addItem, displayLabelProperty, isSelectionDisabled, descriptionPosition, highlightSearchTerm, searchTerm }">
+            {% block sw_condition_line_item_in_category_field_result_item %}
+            <sw-select-result
+                :selected="isSelected(item)"
+                v-bind="{ item, index }"
+                :disabled="isSelectionDisabled(item)"
+                :description-position="descriptionPosition"
+                @item-select="addItem"
+            >
+                {% block sw_condition_line_item_in_category_field_result_item_content %}
+                <span class="sw-condition-line-item-in-category__result-item">
+                    <sw-highlight-text
+                        v-if="highlightSearchTerm"
+                        :text="displayLabelProperty(item)"
+                        :search-term="searchTerm"
+                    />
+                    <template v-else>
+                        {{ displayLabelProperty(item) }}
+                    </template>
+
+                    <sw-help-text
+                        v-if="item.productAssignmentType === 'product_stream'"
+                        class="sw-condition-line-item-in-category__help-text"
+                        :text="$tc('global.sw-condition.condition.categoryWithProductStreamTooltip')"
+                    />
+                </span>
+                {% endblock %}
+
+                <template #description>
+                    {% block sw_condition_line_item_in_category_field_description %}
+                    <slot
+                        name="result-description-property"
+                        v-bind="{ item }"
+                    >
+                        {% block sw_condition_line_item_in_category_field_description_default %}
+                        {{ getCategoryBreadcrumb(item) }}
+                        {% endblock %}
+                    </slot>
+                    {% endblock %}
+                </template>
+            </sw-select-result>
+            {% endblock %}
+        </template>
+    </sw-entity-multi-select>
+    {% endblock %}
+</div>
+{% endblock %}

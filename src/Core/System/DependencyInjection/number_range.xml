@@ -1,0 +1,97 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Shopware\Core\System\NumberRange\NumberRangeDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\System\NumberRange\Aggregate\NumberRangeState\NumberRangeStateDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\System\NumberRange\Aggregate\NumberRangeTypeTranslation\NumberRangeTypeTranslationDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\System\NumberRange\Aggregate\NumberRangeTranslation\NumberRangeTranslationDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <!-- Value Generator -->
+        <service id="Shopware\Core\System\NumberRange\Command\MigrateIncrementStorageCommand">
+            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageRegistry"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="shopware.value_generator_connector" storage="mysql"/>
+        </service>
+
+        <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage">
+            <factory service="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageRegistry"
+                     method="getStorage"/>
+        </service>
+
+        <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementRedisStorage">
+            <argument type="service" id="shopware.number_range.redis"/>
+            <argument type="service" id="lock.factory"/>
+            <argument type="service" id="number_range.repository"/>
+
+            <tag name="shopware.value_generator_connector" storage="redis"/>
+        </service>
+
+        <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageRegistry">
+            <argument type="tagged_iterator" tag="shopware.value_generator_connector" index-by="storage"/>
+            <argument>%shopware.number_range.increment_storage%</argument>
+        </service>
+
+        <service id="shopware.number_range.redis" class="Redis">
+            <factory service="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider" method="getConnection"/>
+            <argument>%shopware.number_range.config.connection%</argument>
+        </service>
+
+        <service class="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGenerator"
+                 id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"
+                 public="true">
+            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry" />
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry">
+            <argument type="tagged_iterator" tag="shopware.value_generator_pattern"/>
+        </service>
+
+        <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternIncrement">
+            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage" />
+            <tag name="shopware.value_generator_pattern"/>
+        </service>
+
+        <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternDate">
+            <tag name="shopware.value_generator_pattern"/>
+        </service>
+
+        <service id="Shopware\Core\System\NumberRange\Api\NumberRangeController" public="true">
+            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface" />
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+    </services>
+</container>

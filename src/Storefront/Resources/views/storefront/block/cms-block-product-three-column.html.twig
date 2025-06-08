@@ -1,0 +1,37 @@
+{% block block_product_three_column %}
+    {% set columns = 3 %}
+    {% set productElementTypes = ['product-box', 'product-slider', 'buy-box'] %}
+
+    {% block block_product_three_column_left %}
+        {% set element = block.slots.getSlot('left') %}
+        {% if element.type not in productElementTypes or element.data.products or element.data.product %}
+            <div class="col-md-4" data-cms-element-id="{{ element.id }}">
+                {% block block_product_three_column_left_inner %}
+                    {% sw_include '@Storefront/storefront/element/cms-element-' ~ element.type ~ '.html.twig' ignore missing %}
+                {% endblock %}
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block block_product_three_column_center %}
+        {% set element = block.slots.getSlot('center') %}
+        {% if element.type not in productElementTypes or element.data.products or element.data.product %}
+            <div class="col-md-4" data-cms-element-id="{{ element.id }}">
+                {% block block_product_three_column_center_inner %}
+                    {% sw_include '@Storefront/storefront/element/cms-element-' ~ element.type ~ '.html.twig' ignore missing %}
+                {% endblock %}
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block block_product_three_column_right %}
+        {% set element = block.slots.getSlot('right') %}
+        {% if element.type not in productElementTypes or element.data.products or element.data.product %}
+            <div class="col-md-4" data-cms-element-id="{{ element.id }}">
+                {% block block_product_three_column_right_inner %}
+                    {% sw_include '@Storefront/storefront/element/cms-element-' ~ element.type ~ '.html.twig' ignore missing %}
+                {% endblock %}
+            </div>
+        {% endif %}
+    {% endblock %}
+{% endblock %}

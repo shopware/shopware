@@ -1,0 +1,35 @@
+@import "~scss/variables";
+
+.sw-cms-el-config-image-gallery {
+    .sw-cms-el-config-image-gallery__setting-option {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+        gap: 0 32px;
+
+        .sw-cms-el-config-image-gallery__setting-display-mode {
+            grid-column: 1 / -1;
+        }
+    }
+
+    &__mapping-preview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 0.2fr));
+        grid-gap: 10px;
+    }
+
+    &__preview-image {
+        height: 100%;
+        width: 100%;
+        border-radius: $border-radius-default;
+        border: 2px solid lighten($color-gray-300, 5%);
+
+        img {
+            border-radius: $border-radius-default;
+            max-height: 100%;
+            max-width: 100%;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+}

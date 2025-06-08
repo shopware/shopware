@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="88" height="88" viewBox="0 0 88 88">
+  <defs>
+    <circle id="marketing-mask-a" cx="44" cy="44" r="44"/>
+  </defs>
+  <g fill="none" fill-rule="evenodd">
+    <mask id="marketing-mask-b" fill="#fff">
+      <use xlink:href="#marketing-mask-a"/>
+    </mask>
+    <use fill="#FFF0F8" fill-rule="nonzero" xlink:href="#marketing-mask-a"/>
+    <polygon fill="#FFAAD4" fill-rule="nonzero" points="87 56 87 44 75 44 75 56" mask="url(#marketing-mask-b)" transform="matrix(-1 0 0 1 162 0)"/>
+    <path fill="#FFAAD4" fill-rule="nonzero" d="M75.5,39 L92,39 L92,60 L75.5,60 C72.4624339,60 70,57.581259 70,54.5975907 L70,44.4024093 C70,41.418741 72.4624339,39 75.5,39 Z" mask="url(#marketing-mask-b)" transform="matrix(-1 0 0 1 162 0)"/>
+    <path fill="#FFAAD4" fill-rule="nonzero" d="M27,39.372549 L68.8338711,24.280868 C71.6864513,23.3300079 74.769749,24.8716567 75.7206091,27.724237 C75.9056593,28.2793878 76,28.8607412 76,29.4459215 L76,67.5555556 C76,70.5624392 73.5624392,73 70.5555556,73 C69.9703753,73 69.3890218,72.9056593 68.8338711,72.7206091 L27,60.5098039 L27,39.372549 Z" mask="url(#marketing-mask-b)" transform="matrix(-1 0 0 1 103 0)"/>
+    <polygon fill="#FFAAD4" fill-rule="nonzero" points="32 41.667 32 54.944 70 67 70 29" mask="url(#marketing-mask-b)" transform="matrix(-1 0 0 1 102 0)"/>
+    <path fill="#FFAAD4" fill-rule="nonzero" d="M54,57 L54,63.9856807 C54,67.5114236 56.2721027,70.6416004 59.6406355,71.7565382 L65.1420554,73.5774322 C69.4642158,75.0080076 74.1359535,72.6885866 75.5766736,68.3968605 C75.8597683,67.5535567 76.0027333,66.6701194 75.9999604,65.7812034 L75.9980936,65.182746 L70.4985933,62.4692591 L70.5004601,65.7981176 C70.5013844,66.0944229 70.4537294,66.388902 70.3593645,66.6700033 C69.8791245,68.1005786 68.3218786,68.8737189 66.8811584,68.3968605 L61.3797385,66.5759665 C60.2568943,66.2043206 59.4995267,65.1609283 59.4995267,63.9856807 L59.4995267,59.730401 L54,57 Z" mask="url(#marketing-mask-b)" transform="matrix(-1 0 0 1 130 0)"/>
+  </g>
+</svg>

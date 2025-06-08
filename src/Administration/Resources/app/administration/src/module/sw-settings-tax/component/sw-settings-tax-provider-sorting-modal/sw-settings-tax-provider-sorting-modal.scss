@@ -1,0 +1,72 @@
+@import "~scss/variables";
+
+.sw-modal {
+    .sw-modal__body {
+        &.sw-settings-tax-provider-sorting-modal__subtitle {
+            display: flex;
+            flex: none;
+            overflow-y: hidden;
+            border-bottom: 1px solid $color-gray-300;
+        }
+    }
+}
+
+.sw-settings-tax-provider-sorting-modal__tax-provider-list {
+    display: grid;
+    grid-template-rows: auto;
+    grid-row-gap: 16px;
+
+    &-item {
+        display: grid;
+        padding: 12px 24px 12px 12px;
+        grid-template-columns: 30px auto;
+        grid-column-gap: 8px;
+        border: 1px solid $color-gray-300;
+        border-radius: 4px;
+        align-items: center;
+
+        &.is--disabled {
+            color: $color-gray-500;
+            background-color: $color-gray-100;
+        }
+
+        &__name {
+            font-weight: $font-weight-semi-bold;
+            font-size: $font-size-xs;
+        }
+
+        &__action {
+            padding: 4px;
+        }
+
+        &__icon {
+            position: relative;
+            width: 34px;
+            height: 24px;
+        }
+    }
+
+    &.sw-sortable-list__empty-state {
+        position: relative;
+    }
+}
+
+.sw-sortable-list__item {
+    &.is--dragging {
+        border-radius: 4px;
+
+        > .sw-settings-tax-provider-sorting-modal__tax-provider-list-item {
+            padding: 11px 24px 11px 12px;
+        }
+    }
+
+    &.is--drag-element {
+        background-color: $color-white;
+        border-radius: 4px;
+
+        &,
+        &.is--valid-drag {
+            box-shadow: 0 1px 3px 0 $color-gray-300;
+        }
+    }
+}

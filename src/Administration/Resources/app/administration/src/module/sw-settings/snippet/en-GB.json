@@ -1,0 +1,32 @@
+{
+  "sw-settings": {
+    "general": {
+      "mainMenuItemGeneral": "Settings"
+    },
+    "index": {
+      "title": "Settings",
+      "tabShop": "Shop",
+      "tabSystem": "System",
+      "tabGeneral": "General",
+      "tabLocalization": "Localisation",
+      "tabCustomer": "Customer",
+      "tabCommerce": "Commerce",
+      "tabContent": "Content",
+      "tabAutomation": "Automation",
+      "tabPlugins": "Extensions"
+    },
+    "system-config": {
+      "labelSalesChannelSelect": "Sales Channel",
+      "inherited": "Inherited",
+      "compileNotice": "This configuration holds fields that can be used in a theme. Please compile the theme for these changes to be visible.",
+      "scssHelpText": "SCSS variable name: "
+    }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "system": {
+        "system_config": "Basic configuration"
+      }
+    }
+  }
+}

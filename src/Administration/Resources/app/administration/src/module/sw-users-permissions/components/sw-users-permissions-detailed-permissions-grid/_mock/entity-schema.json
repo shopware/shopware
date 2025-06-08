@@ -1,0 +1,5472 @@
+{
+  "currency": {
+    "entity": "currency",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "factor": {
+        "type": "float",
+        "flags": {
+          "required": true
+        }
+      },
+      "symbol": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "isoCode": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "shortName": {
+        "type": "string",
+        "flags": {
+          "required": true,
+          "search_ranking": 250,
+          "translatable": true
+        }
+      },
+      "name": {
+        "type": "string",
+        "flags": {
+          "required": true,
+          "search_ranking": 500,
+          "translatable": true
+        }
+      },
+      "decimalPrecision": {
+        "type": "int",
+        "flags": {
+          "required": true
+        }
+      },
+      "position": {
+        "type": "int",
+        "flags": []
+      },
+      "isSystemDefault": {
+        "type": "boolean",
+        "flags": {
+          "runtime": true
+        }
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "translatable": true
+        }
+      },
+      "translations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "currency_translation",
+        "flags": {
+          "cascade_delete": true,
+          "required": true
+        },
+        "localField": "id",
+        "referenceField": "currencyId"
+      },
+      "salesChannelDefaultAssignments": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "sales_channel",
+        "flags": {
+          "restrict_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "currencyId"
+      },
+      "orders": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "order",
+        "flags": {
+          "restrict_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "currencyId"
+      },
+      "salesChannels": {
+        "type": "association",
+        "relation": "many_to_many",
+        "entity": "sales_channel",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        }
+      },
+      "salesChannelDomains": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "sales_channel_domain",
+        "flags": {
+          "restrict_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "currencyId"
+      },
+      "promotionDiscountPrices": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "promotion_discount_prices",
+        "flags": {
+          "cascade_delete": true
+        },
+        "localField": "id",
+        "referenceField": "currencyId"
+      },
+      "productExports": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_export",
+        "flags": {
+          "restrict_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "currencyId"
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      },
+      "translated": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "computed": true,
+          "runtime": true
+        }
+      }
+    }
+  },
+  "document": {
+    "entity": "document",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "documentTypeId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "fileType": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "referencedDocumentId": {
+        "type": "uuid",
+        "flags": []
+      },
+      "orderId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "documentMediaFileId": {
+        "type": "uuid",
+        "flags": []
+      },
+      "orderVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "config": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "required": true
+        }
+      },
+      "sent": {
+        "type": "boolean",
+        "flags": []
+      },
+      "static": {
+        "type": "boolean",
+        "flags": []
+      },
+      "deepLinkCode": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "documentType": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "document_type",
+        "flags": {
+          "search_ranking": 0.25
+        },
+        "localField": "documentTypeId",
+        "referenceField": "id"
+      },
+      "order": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "order",
+        "flags": [],
+        "localField": "orderId",
+        "referenceField": "id"
+      },
+      "referencedDocument": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "document",
+        "flags": [],
+        "localField": "referencedDocumentId",
+        "referenceField": "id"
+      },
+      "dependentDocuments": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "document",
+        "flags": [],
+        "localField": "id",
+        "referenceField": "referencedDocumentId"
+      },
+      "documentMediaFile": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "media",
+        "flags": [],
+        "localField": "documentMediaFileId",
+        "referenceField": "id"
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      }
+    }
+  },
+  "language": {
+    "entity": "language",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "parentId": {
+        "type": "uuid",
+        "flags": []
+      },
+      "localeId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "translationCodeId": {
+        "type": "uuid",
+        "flags": []
+      },
+      "name": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "parent": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "language",
+        "flags": [],
+        "localField": "parentId",
+        "referenceField": "id"
+      },
+      "locale": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "locale",
+        "flags": [],
+        "localField": "localeId",
+        "referenceField": "id"
+      },
+      "translationCode": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "locale",
+        "flags": [],
+        "localField": "translationCodeId",
+        "referenceField": "id"
+      },
+      "children": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "language",
+        "flags": {
+          "cascade_delete": true
+        },
+        "localField": "id",
+        "referenceField": "parentId"
+      },
+      "salesChannels": {
+        "type": "association",
+        "relation": "many_to_many",
+        "entity": "sales_channel",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        }
+      },
+      "salesChannelDefaultAssignments": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "sales_channel",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "salesChannelDomains": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "sales_channel_domain",
+        "flags": {
+          "restrict_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "customers": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "customer",
+        "flags": {
+          "restrict_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "newsletterRecipients": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "newsletter_recipient",
+        "flags": {
+          "restrict_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "orders": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "order",
+        "flags": {
+          "restrict_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "categoryTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "category_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "countryStateTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "country_state_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "countryTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "country_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "currencyTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "currency_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "customerGroupTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "customer_group_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "localeTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "locale_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "mediaTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "media_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "paymentMethodTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "payment_method_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "productManufacturerTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_manufacturer_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "productTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "shippingMethodTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "shipping_method_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "unitTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "unit_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "propertyGroupTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "property_group_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "propertyGroupOptionTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "property_group_option_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "salesChannelTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "sales_channel_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "salesChannelTypeTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "sales_channel_type_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "salutationTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "salutation_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "pluginTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "plugin_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "productStreamTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_stream_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "stateMachineTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "state_machine_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "stateMachineStateTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "state_machine_state_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "cmsPageTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "cms_page_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "cmsSlotTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "cms_slot_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "mailTemplateTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "mail_template_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "mailHeaderFooterTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "mail_header_footer_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "documentTypeTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "document_type_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "numberRangeTypeTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "number_range_type_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "deliveryTimeTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "delivery_time_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "productSearchKeywords": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_search_keyword",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "productKeywordDictionaries": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_keyword_dictionary",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "mailTemplateTypeTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "mail_template_type_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "promotionTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "promotion_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "numberRangeTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "number_range_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "productReviews": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_review",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "seoUrlTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "seo_url",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "taxRuleTypeTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "tax_rule_type_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "productCrossSellingTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_cross_selling_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "importExportProfileTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "import_export_profile_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "productSortingTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_sorting_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "productFeatureSetTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_feature_set_translation",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      },
+      "themeTranslations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "theme_translation",
+        "flags": {
+          "cascade_delete": true,
+          "extension": true
+        },
+        "localField": "id",
+        "referenceField": "languageId"
+      }
+    }
+  },
+  "locale": {
+    "entity": "locale",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "code": {
+        "type": "string",
+        "flags": {
+          "required": true,
+          "search_ranking": 250
+        }
+      },
+      "name": {
+        "type": "string",
+        "flags": {
+          "required": true,
+          "search_ranking": 500,
+          "translatable": true
+        }
+      },
+      "territory": {
+        "type": "string",
+        "flags": {
+          "required": true,
+          "translatable": true
+        }
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "translatable": true
+        }
+      },
+      "languages": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "language",
+        "flags": {
+          "cascade_delete": true
+        },
+        "localField": "id",
+        "referenceField": "localeId"
+      },
+      "translations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "locale_translation",
+        "flags": {
+          "cascade_delete": true,
+          "required": true
+        },
+        "localField": "id",
+        "referenceField": "localeId"
+      },
+      "users": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "user",
+        "flags": {
+          "restrict_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "localeId"
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      },
+      "translated": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "computed": true,
+          "runtime": true
+        }
+      }
+    }
+  },
+  "locale_translation": {
+    "entity": "locale_translation",
+    "properties": {
+      "name": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "territory": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      },
+      "localeId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "languageId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "locale": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "locale",
+        "flags": [],
+        "localField": "localeId",
+        "referenceField": "id"
+      },
+      "language": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "language",
+        "flags": [],
+        "localField": "languageId",
+        "referenceField": "id"
+      }
+    }
+  },
+  "order": {
+    "entity": "order",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "versionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "autoIncrement": {
+        "type": "int",
+        "flags": {
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "orderNumber": {
+        "type": "string",
+        "flags": {
+          "search_ranking": 500
+        }
+      },
+      "billingAddressId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "billingAddressVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "currencyId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "languageId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "salesChannelId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "orderDateTime": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "orderDate": {
+        "type": "date",
+        "flags": {
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "price": {
+        "type": "json_object",
+        "properties": {
+          "netPrice": {
+            "type": "float",
+            "flags": {
+              "required": true
+            }
+          },
+          "totalPrice": {
+            "type": "float",
+            "flags": {
+              "required": true
+            }
+          },
+          "calculatedTaxes": {
+            "type": "json_object",
+            "properties": [],
+            "flags": {
+              "required": true
+            }
+          },
+          "taxRules": {
+            "type": "json_object",
+            "properties": [],
+            "flags": {
+              "required": true
+            }
+          },
+          "positionPrice": {
+            "type": "float",
+            "flags": {
+              "required": true
+            }
+          },
+          "taxStatus": {
+            "type": "string",
+            "flags": {
+              "required": true
+            }
+          }
+        },
+        "flags": []
+      },
+      "amountTotal": {
+        "type": "float",
+        "flags": {
+          "write_protected": [
+            []
+          ],
+          "search_ranking": 250
+        }
+      },
+      "amountNet": {
+        "type": "float",
+        "flags": {
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "positionPrice": {
+        "type": "float",
+        "flags": {
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "taxStatus": {
+        "type": "string",
+        "flags": {
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "shippingCosts": {
+        "type": "json_object",
+        "properties": {
+          "unitPrice": {
+            "type": "float",
+            "flags": {
+              "required": true
+            }
+          },
+          "totalPrice": {
+            "type": "float",
+            "flags": {
+              "required": true
+            }
+          },
+          "quantity": {
+            "type": "int",
+            "flags": {
+              "required": true
+            }
+          },
+          "calculatedTaxes": {
+            "type": "json_object",
+            "properties": [],
+            "flags": {
+              "required": true
+            }
+          },
+          "taxRules": {
+            "type": "json_object",
+            "properties": [],
+            "flags": {
+              "required": true
+            }
+          },
+          "referencePrice": {
+            "type": "json_object",
+            "properties": [],
+            "flags": []
+          },
+          "listPrice": {
+            "type": "json_object",
+            "properties": {
+              "price": {
+                "type": "float",
+                "flags": []
+              },
+              "discount": {
+                "type": "float",
+                "flags": []
+              },
+              "percentage": {
+                "type": "float",
+                "flags": []
+              }
+            },
+            "flags": []
+          }
+        },
+        "flags": []
+      },
+      "shippingTotal": {
+        "type": "float",
+        "flags": {
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "currencyFactor": {
+        "type": "float",
+        "flags": {
+          "required": true
+        }
+      },
+      "deepLinkCode": {
+        "type": "string",
+        "flags": []
+      },
+      "affiliateCode": {
+        "type": "string",
+        "flags": []
+      },
+      "campaignCode": {
+        "type": "string",
+        "flags": []
+      },
+      "customerComment": {
+        "type": "text",
+        "flags": []
+      },
+      "stateId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "stateMachineState": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "state_machine_state",
+        "flags": [],
+        "localField": "stateId",
+        "referenceField": "id"
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "orderCustomer": {
+        "type": "association",
+        "relation": "one_to_one",
+        "entity": "order_customer",
+        "flags": {
+          "cascade_delete": true,
+          "search_ranking": 0.5
+        },
+        "localField": "id",
+        "referenceField": "orderId"
+      },
+      "currency": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "currency",
+        "flags": [],
+        "localField": "currencyId",
+        "referenceField": "id"
+      },
+      "language": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "language",
+        "flags": [],
+        "localField": "languageId",
+        "referenceField": "id"
+      },
+      "salesChannel": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "sales_channel",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "salesChannelId",
+        "referenceField": "id"
+      },
+      "addresses": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "order_address",
+        "flags": {
+          "cascade_delete": true,
+          "search_ranking": 0.25
+        },
+        "localField": "id",
+        "referenceField": "orderId"
+      },
+      "deliveries": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "order_delivery",
+        "flags": {
+          "cascade_delete": true,
+          "search_ranking": 0.25
+        },
+        "localField": "id",
+        "referenceField": "orderId"
+      },
+      "lineItems": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "order_line_item",
+        "flags": {
+          "cascade_delete": true
+        },
+        "localField": "id",
+        "referenceField": "orderId"
+      },
+      "transactions": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "order_transaction",
+        "flags": {
+          "cascade_delete": true
+        },
+        "localField": "id",
+        "referenceField": "orderId"
+      },
+      "documents": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "document",
+        "flags": [],
+        "localField": "id",
+        "referenceField": "orderId"
+      },
+      "tags": {
+        "type": "association",
+        "relation": "many_to_many",
+        "entity": "tag",
+        "flags": {
+          "search_ranking": 0.25
+        }
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      }
+    }
+  },
+  "order_address": {
+    "entity": "order_address",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "versionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "countryId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "countryStateId": {
+        "type": "uuid",
+        "flags": []
+      },
+      "orderId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "orderVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "salutationId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "firstName": {
+        "type": "string",
+        "flags": {
+          "required": true,
+          "search_ranking": 80
+        }
+      },
+      "lastName": {
+        "type": "string",
+        "flags": {
+          "required": true,
+          "search_ranking": 500
+        }
+      },
+      "street": {
+        "type": "string",
+        "flags": {
+          "required": true,
+          "search_ranking": 250
+        }
+      },
+      "zipcode": {
+        "type": "string",
+        "flags": {
+          "required": true,
+          "search_ranking": 500
+        }
+      },
+      "city": {
+        "type": "string",
+        "flags": {
+          "required": true,
+          "search_ranking": 250
+        }
+      },
+      "company": {
+        "type": "string",
+        "flags": {
+          "search_ranking": 500
+        }
+      },
+      "department": {
+        "type": "string",
+        "flags": []
+      },
+      "title": {
+        "type": "string",
+        "flags": []
+      },
+      "vatId": {
+        "type": "string",
+        "flags": []
+      },
+      "phoneNumber": {
+        "type": "string",
+        "flags": []
+      },
+      "additionalAddressLine1": {
+        "type": "string",
+        "flags": {
+          "search_ranking": 250
+        }
+      },
+      "additionalAddressLine2": {
+        "type": "string",
+        "flags": {
+          "search_ranking": 250
+        }
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "country": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "country",
+        "flags": [],
+        "localField": "countryId",
+        "referenceField": "id"
+      },
+      "countryState": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "country_state",
+        "flags": [],
+        "localField": "countryStateId",
+        "referenceField": "id"
+      },
+      "order": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "order",
+        "flags": {
+          "restrict_delete": true
+        },
+        "localField": "orderId",
+        "referenceField": "id"
+      },
+      "salutation": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "salutation",
+        "flags": [],
+        "localField": "salutationId",
+        "referenceField": "id"
+      },
+      "orderDeliveries": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "order_delivery",
+        "flags": {
+          "restrict_delete": true
+        },
+        "localField": "id",
+        "referenceField": "shippingOrderAddressId"
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      }
+    }
+  },
+  "order_customer": {
+    "entity": "order_customer",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "versionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "customerId": {
+        "type": "uuid",
+        "flags": []
+      },
+      "orderId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "orderVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "email": {
+        "type": "string",
+        "flags": {
+          "required": true,
+          "search_ranking": 500
+        }
+      },
+      "salutationId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "firstName": {
+        "type": "string",
+        "flags": {
+          "required": true,
+          "search_ranking": 80
+        }
+      },
+      "lastName": {
+        "type": "string",
+        "flags": {
+          "required": true,
+          "search_ranking": 500
+        }
+      },
+      "company": {
+        "type": "string",
+        "flags": {
+          "search_ranking": 250
+        }
+      },
+      "title": {
+        "type": "string",
+        "flags": []
+      },
+      "customerNumber": {
+        "type": "string",
+        "flags": {
+          "search_ranking": 500
+        }
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "order": {
+        "type": "association",
+        "relation": "one_to_one",
+        "entity": "order",
+        "flags": [],
+        "localField": "orderId",
+        "referenceField": "id"
+      },
+      "customer": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "customer",
+        "flags": {
+          "search_ranking": 0.5,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "customerId",
+        "referenceField": "id"
+      },
+      "salutation": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "salutation",
+        "flags": [],
+        "localField": "salutationId",
+        "referenceField": "id"
+      },
+      "remoteAddress": {
+        "type": "Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\RemoteAddressField",
+        "flags": []
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      }
+    }
+  },
+  "order_delivery": {
+    "entity": "order_delivery",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "versionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "orderId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "orderVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "shippingOrderAddressId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "shippingOrderAddressVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "shippingMethodId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "stateId": {
+        "type": "uuid",
+        "flags": {
+          "write_protected": [
+            [
+              "system"
+            ]
+          ],
+          "required": true
+        }
+      },
+      "stateMachineState": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "state_machine_state",
+        "flags": [],
+        "localField": "stateId",
+        "referenceField": "id"
+      },
+      "trackingCodes": {
+        "type": "json_list",
+        "flags": {
+          "required": true,
+          "search_ranking": 500
+        }
+      },
+      "shippingDateEarliest": {
+        "type": "date",
+        "flags": {
+          "required": true,
+          "search_ranking": 250
+        }
+      },
+      "shippingDateLatest": {
+        "type": "date",
+        "flags": {
+          "required": true,
+          "search_ranking": 250
+        }
+      },
+      "shippingCosts": {
+        "type": "json_object",
+        "properties": {
+          "unitPrice": {
+            "type": "float",
+            "flags": {
+              "required": true
+            }
+          },
+          "totalPrice": {
+            "type": "float",
+            "flags": {
+              "required": true
+            }
+          },
+          "quantity": {
+            "type": "int",
+            "flags": {
+              "required": true
+            }
+          },
+          "calculatedTaxes": {
+            "type": "json_object",
+            "properties": [],
+            "flags": {
+              "required": true
+            }
+          },
+          "taxRules": {
+            "type": "json_object",
+            "properties": [],
+            "flags": {
+              "required": true
+            }
+          },
+          "referencePrice": {
+            "type": "json_object",
+            "properties": [],
+            "flags": []
+          },
+          "listPrice": {
+            "type": "json_object",
+            "properties": {
+              "price": {
+                "type": "float",
+                "flags": []
+              },
+              "discount": {
+                "type": "float",
+                "flags": []
+              },
+              "percentage": {
+                "type": "float",
+                "flags": []
+              }
+            },
+            "flags": []
+          }
+        },
+        "flags": []
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "order": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "order",
+        "flags": [],
+        "localField": "orderId",
+        "referenceField": "id"
+      },
+      "shippingOrderAddress": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "order_address",
+        "flags": {
+          "search_ranking": 0.25
+        },
+        "localField": "shippingOrderAddressId",
+        "referenceField": "id"
+      },
+      "shippingMethod": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "shipping_method",
+        "flags": {
+          "search_ranking": 0.25
+        },
+        "localField": "shippingMethodId",
+        "referenceField": "id"
+      },
+      "positions": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "order_delivery_position",
+        "flags": {
+          "cascade_delete": true,
+          "search_ranking": 0.25
+        },
+        "localField": "id",
+        "referenceField": "orderDeliveryId"
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      }
+    }
+  },
+  "order_delivery_position": {
+    "entity": "order_delivery_position",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "versionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "orderDeliveryId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "orderDeliveryVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "orderLineItemId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "orderLineItemVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "price": {
+        "type": "json_object",
+        "properties": {
+          "unitPrice": {
+            "type": "float",
+            "flags": {
+              "required": true
+            }
+          },
+          "totalPrice": {
+            "type": "float",
+            "flags": {
+              "required": true
+            }
+          },
+          "quantity": {
+            "type": "int",
+            "flags": {
+              "required": true
+            }
+          },
+          "calculatedTaxes": {
+            "type": "json_object",
+            "properties": [],
+            "flags": {
+              "required": true
+            }
+          },
+          "taxRules": {
+            "type": "json_object",
+            "properties": [],
+            "flags": {
+              "required": true
+            }
+          },
+          "referencePrice": {
+            "type": "json_object",
+            "properties": [],
+            "flags": []
+          },
+          "listPrice": {
+            "type": "json_object",
+            "properties": {
+              "price": {
+                "type": "float",
+                "flags": []
+              },
+              "discount": {
+                "type": "float",
+                "flags": []
+              },
+              "percentage": {
+                "type": "float",
+                "flags": []
+              }
+            },
+            "flags": []
+          }
+        },
+        "flags": []
+      },
+      "unitPrice": {
+        "type": "float",
+        "flags": {
+          "computed": true
+        }
+      },
+      "totalPrice": {
+        "type": "float",
+        "flags": {
+          "computed": true
+        }
+      },
+      "quantity": {
+        "type": "int",
+        "flags": {
+          "computed": true
+        }
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "orderDelivery": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "order_delivery",
+        "flags": [],
+        "localField": "orderDeliveryId",
+        "referenceField": "id"
+      },
+      "orderLineItem": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "order_line_item",
+        "flags": [],
+        "localField": "orderLineItemId",
+        "referenceField": "id"
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      }
+    }
+  },
+  "order_line_item": {
+    "entity": "order_line_item",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "versionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "orderId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "orderVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "productId": {
+        "type": "uuid",
+        "flags": []
+      },
+      "productVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "parentId": {
+        "type": "uuid",
+        "flags": []
+      },
+      "parentVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "coverId": {
+        "type": "uuid",
+        "flags": []
+      },
+      "cover": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "media",
+        "flags": [],
+        "localField": "coverId",
+        "referenceField": "id"
+      },
+      "identifier": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "referencedId": {
+        "type": "string",
+        "flags": []
+      },
+      "quantity": {
+        "type": "int",
+        "flags": {
+          "required": true
+        }
+      },
+      "label": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "payload": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "good": {
+        "type": "boolean",
+        "flags": []
+      },
+      "removable": {
+        "type": "boolean",
+        "flags": []
+      },
+      "stackable": {
+        "type": "boolean",
+        "flags": []
+      },
+      "position": {
+        "type": "int",
+        "flags": {
+          "required": true
+        }
+      },
+      "price": {
+        "type": "json_object",
+        "properties": {
+          "unitPrice": {
+            "type": "float",
+            "flags": {
+              "required": true
+            }
+          },
+          "totalPrice": {
+            "type": "float",
+            "flags": {
+              "required": true
+            }
+          },
+          "quantity": {
+            "type": "int",
+            "flags": {
+              "required": true
+            }
+          },
+          "calculatedTaxes": {
+            "type": "json_object",
+            "properties": [],
+            "flags": {
+              "required": true
+            }
+          },
+          "taxRules": {
+            "type": "json_object",
+            "properties": [],
+            "flags": {
+              "required": true
+            }
+          },
+          "referencePrice": {
+            "type": "json_object",
+            "properties": [],
+            "flags": []
+          },
+          "listPrice": {
+            "type": "json_object",
+            "properties": {
+              "price": {
+                "type": "float",
+                "flags": []
+              },
+              "discount": {
+                "type": "float",
+                "flags": []
+              },
+              "percentage": {
+                "type": "float",
+                "flags": []
+              }
+            },
+            "flags": []
+          }
+        },
+        "flags": {
+          "required": true
+        }
+      },
+      "priceDefinition": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "unitPrice": {
+        "type": "float",
+        "flags": {
+          "computed": true
+        }
+      },
+      "totalPrice": {
+        "type": "float",
+        "flags": {
+          "computed": true
+        }
+      },
+      "description": {
+        "type": "string",
+        "flags": []
+      },
+      "type": {
+        "type": "string",
+        "flags": []
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "order": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "order",
+        "flags": [],
+        "localField": "orderId",
+        "referenceField": "id"
+      },
+      "product": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product",
+        "flags": [],
+        "localField": "productId",
+        "referenceField": "id"
+      },
+      "orderDeliveryPositions": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "order_delivery_position",
+        "flags": {
+          "cascade_delete": true,
+          "write_protected": [
+            []
+          ]
+        },
+        "localField": "id",
+        "referenceField": "orderLineItemId"
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      }
+    }
+  },
+  "order_tag": {
+    "entity": "order_tag",
+    "properties": {
+      "orderId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "orderVersionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "tagId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "order": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "order",
+        "flags": [],
+        "localField": "orderId",
+        "referenceField": "id"
+      },
+      "tag": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "tag",
+        "flags": [],
+        "localField": "tagId",
+        "referenceField": "id"
+      }
+    }
+  },
+  "order_transaction": {
+    "entity": "order_transaction",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "versionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "orderId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "orderVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "paymentMethodId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "amount": {
+        "type": "json_object",
+        "properties": {
+          "unitPrice": {
+            "type": "float",
+            "flags": {
+              "required": true
+            }
+          },
+          "totalPrice": {
+            "type": "float",
+            "flags": {
+              "required": true
+            }
+          },
+          "quantity": {
+            "type": "int",
+            "flags": {
+              "required": true
+            }
+          },
+          "calculatedTaxes": {
+            "type": "json_object",
+            "properties": [],
+            "flags": {
+              "required": true
+            }
+          },
+          "taxRules": {
+            "type": "json_object",
+            "properties": [],
+            "flags": {
+              "required": true
+            }
+          },
+          "referencePrice": {
+            "type": "json_object",
+            "properties": [],
+            "flags": []
+          },
+          "listPrice": {
+            "type": "json_object",
+            "properties": {
+              "price": {
+                "type": "float",
+                "flags": []
+              },
+              "discount": {
+                "type": "float",
+                "flags": []
+              },
+              "percentage": {
+                "type": "float",
+                "flags": []
+              }
+            },
+            "flags": []
+          }
+        },
+        "flags": {
+          "required": true
+        }
+      },
+      "stateId": {
+        "type": "uuid",
+        "flags": {
+          "write_protected": [
+            [
+              "system"
+            ]
+          ],
+          "required": true
+        }
+      },
+      "stateMachineState": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "state_machine_state",
+        "flags": [],
+        "localField": "stateId",
+        "referenceField": "id"
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "order": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "order",
+        "flags": [],
+        "localField": "orderId",
+        "referenceField": "id"
+      },
+      "paymentMethod": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "payment_method",
+        "flags": [],
+        "localField": "paymentMethodId",
+        "referenceField": "id"
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      }
+    }
+  },
+  "product": {
+    "entity": "product",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "versionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "parentId": {
+        "type": "uuid",
+        "flags": []
+      },
+      "parentVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "manufacturerId": {
+        "type": "uuid",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "productManufacturerVersionId": {
+        "type": "uuid",
+        "flags": {
+          "inherited": true,
+          "required": true
+        }
+      },
+      "unitId": {
+        "type": "uuid",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "taxId": {
+        "type": "uuid",
+        "flags": {
+          "inherited": true,
+          "required": true
+        }
+      },
+      "coverId": {
+        "type": "uuid",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "productMediaVersionId": {
+        "type": "uuid",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "deliveryTimeId": {
+        "type": "uuid",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "price": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "inherited": true,
+          "required": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        }
+      },
+      "productNumber": {
+        "type": "string",
+        "flags": {
+          "search_ranking": 500,
+          "required": true
+        }
+      },
+      "stock": {
+        "type": "int",
+        "flags": {
+          "required": true
+        }
+      },
+      "restockTime": {
+        "type": "int",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "autoIncrement": {
+        "type": "int",
+        "flags": {
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "active": {
+        "type": "boolean",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "availableStock": {
+        "type": "int",
+        "flags": {
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "available": {
+        "type": "boolean",
+        "flags": {
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "isCloseout": {
+        "type": "boolean",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "displayGroup": {
+        "type": "string",
+        "flags": {
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "configuratorGroupConfig": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "inherited": true
+        }
+      },
+      "mainVariantId": {
+        "type": "uuid",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "variantRestrictions": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        }
+      },
+      "manufacturerNumber": {
+        "type": "string",
+        "flags": {
+          "inherited": true,
+          "search_ranking": 250
+        }
+      },
+      "ean": {
+        "type": "string",
+        "flags": {
+          "inherited": true,
+          "search_ranking": 250
+        }
+      },
+      "purchaseSteps": {
+        "type": "int",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "maxPurchase": {
+        "type": "int",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "minPurchase": {
+        "type": "int",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "purchaseUnit": {
+        "type": "float",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "referenceUnit": {
+        "type": "float",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "shippingFree": {
+        "type": "boolean",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "purchasePrice": {
+        "type": "float",
+        "flags": {
+          "inherited": true,
+          "deprecated": {
+            "deprecated_since": "v3",
+            "will_be_removed_in": "v4",
+            "replaced_by": null
+          }
+        }
+      },
+      "markAsTopseller": {
+        "type": "boolean",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "weight": {
+        "type": "float",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "width": {
+        "type": "float",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "height": {
+        "type": "float",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "length": {
+        "type": "float",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "releaseDate": {
+        "type": "date",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "ratingAverage": {
+        "type": "float",
+        "flags": {
+          "write_protected": [
+            []
+          ],
+          "inherited": true
+        }
+      },
+      "categoryTree": {
+        "type": "json_list",
+        "flags": {
+          "inherited": true,
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "propertyIds": {
+        "type": "json_list",
+        "flags": {
+          "write_protected": [
+            []
+          ],
+          "inherited": true
+        }
+      },
+      "optionIds": {
+        "type": "json_list",
+        "flags": {
+          "write_protected": [
+            []
+          ],
+          "inherited": true
+        }
+      },
+      "tagIds": {
+        "type": "json_list",
+        "flags": {
+          "write_protected": [
+            []
+          ],
+          "inherited": true
+        }
+      },
+      "listingPrices": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "write_protected": [
+            []
+          ],
+          "inherited": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        }
+      },
+      "childCount": {
+        "type": "int",
+        "flags": {
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "blacklistIds": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "inherited": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        }
+      },
+      "whitelistIds": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "inherited": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        }
+      },
+      "customFieldSetSelectionActive": {
+        "type": "boolean",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "metaDescription": {
+        "type": "string",
+        "flags": {
+          "inherited": true,
+          "translatable": true
+        }
+      },
+      "name": {
+        "type": "string",
+        "flags": {
+          "required": true,
+          "inherited": true,
+          "search_ranking": 500,
+          "translatable": true
+        }
+      },
+      "keywords": {
+        "type": "text",
+        "flags": {
+          "inherited": true,
+          "translatable": true
+        }
+      },
+      "description": {
+        "type": "text",
+        "flags": {
+          "allow_html": true,
+          "inherited": true,
+          "translatable": true
+        }
+      },
+      "metaTitle": {
+        "type": "string",
+        "flags": {
+          "inherited": true,
+          "translatable": true
+        }
+      },
+      "packUnit": {
+        "type": "string",
+        "flags": {
+          "inherited": true,
+          "translatable": true
+        }
+      },
+      "packUnitPlural": {
+        "type": "string",
+        "flags": {
+          "inherited": true,
+          "translatable": true
+        }
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "inherited": true,
+          "translatable": true
+        }
+      },
+      "parent": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product",
+        "flags": [],
+        "localField": "parentId",
+        "referenceField": "id"
+      },
+      "children": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product",
+        "flags": {
+          "cascade_delete": true
+        },
+        "localField": "id",
+        "referenceField": "parentId"
+      },
+      "deliveryTime": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "delivery_time",
+        "flags": {
+          "inherited": true
+        },
+        "localField": "deliveryTimeId",
+        "referenceField": "id"
+      },
+      "tax": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "tax",
+        "flags": {
+          "inherited": true
+        },
+        "localField": "taxId",
+        "referenceField": "id"
+      },
+      "manufacturer": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product_manufacturer",
+        "flags": {
+          "inherited": true
+        },
+        "localField": "manufacturerId",
+        "referenceField": "id"
+      },
+      "unit": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "unit",
+        "flags": {
+          "inherited": true
+        },
+        "localField": "unitId",
+        "referenceField": "id"
+      },
+      "cover": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product_media",
+        "flags": {
+          "inherited": true
+        },
+        "localField": "coverId",
+        "referenceField": "id"
+      },
+      "prices": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_price",
+        "flags": {
+          "cascade_delete": true,
+          "inherited": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "productId"
+      },
+      "media": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_media",
+        "flags": {
+          "cascade_delete": true,
+          "inherited": true
+        },
+        "localField": "id",
+        "referenceField": "productId"
+      },
+      "crossSellings": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_cross_selling",
+        "flags": {
+          "cascade_delete": true,
+          "inherited": true
+        },
+        "localField": "id",
+        "referenceField": "productId"
+      },
+      "crossSellingAssignedProducts": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_cross_selling_assigned_products",
+        "flags": {
+          "cascade_delete": true
+        },
+        "localField": "id",
+        "referenceField": "productId"
+      },
+      "configuratorSettings": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_configurator_setting",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "productId"
+      },
+      "visibilities": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_visibility",
+        "flags": {
+          "cascade_delete": true,
+          "inherited": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "productId"
+      },
+      "searchKeywords": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_search_keyword",
+        "flags": {
+          "cascade_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "productId"
+      },
+      "productReviews": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_review",
+        "flags": {
+          "cascade_delete": true
+        },
+        "localField": "id",
+        "referenceField": "productId"
+      },
+      "mainCategories": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "main_category",
+        "flags": {
+          "cascade_delete": true
+        },
+        "localField": "id",
+        "referenceField": "productId"
+      },
+      "seoUrls": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "seo_url",
+        "flags": [],
+        "localField": "id",
+        "referenceField": "foreignKey"
+      },
+      "orderLineItems": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "order_line_item",
+        "flags": {
+          "set_null_on_delete": true,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "productId"
+      },
+      "options": {
+        "type": "association",
+        "relation": "many_to_many",
+        "entity": "property_group_option",
+        "flags": {
+          "cascade_delete": true
+        }
+      },
+      "properties": {
+        "type": "association",
+        "relation": "many_to_many",
+        "entity": "property_group_option",
+        "flags": {
+          "cascade_delete": true,
+          "inherited": true
+        }
+      },
+      "categories": {
+        "type": "association",
+        "relation": "many_to_many",
+        "entity": "category",
+        "flags": {
+          "cascade_delete": true,
+          "inherited": true,
+          "search_ranking": 0.25
+        }
+      },
+      "categoriesRo": {
+        "type": "association",
+        "relation": "many_to_many",
+        "entity": "category",
+        "flags": {
+          "cascade_delete": true,
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "tags": {
+        "type": "association",
+        "relation": "many_to_many",
+        "entity": "tag",
+        "flags": {
+          "cascade_delete": true,
+          "inherited": true,
+          "search_ranking": 0.25
+        }
+      },
+      "translations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_translation",
+        "flags": {
+          "cascade_delete": true,
+          "inherited": true,
+          "required": true
+        },
+        "localField": "id",
+        "referenceField": "productId"
+      },
+      "customFieldSets": {
+        "type": "association",
+        "relation": "many_to_many",
+        "entity": "custom_field_set",
+        "flags": {
+          "cascade_delete": true,
+          "inherited": true
+        }
+      },
+      "variation": {
+        "type": "json_list",
+        "flags": {
+          "runtime": true
+        }
+      },
+      "featureSetId": {
+        "type": "uuid",
+        "flags": {
+          "inherited": true
+        }
+      },
+      "featureSet": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product_feature_set",
+        "flags": {
+          "inherited": true
+        },
+        "localField": "featureSetId",
+        "referenceField": "id"
+      },
+      "purchasePrices": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "inherited": true
+        }
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      },
+      "translated": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "computed": true,
+          "runtime": true
+        }
+      }
+    }
+  },
+  "product_category": {
+    "entity": "product_category",
+    "properties": {
+      "productId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "productVersionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "categoryId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "categoryVersionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "product": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product",
+        "flags": [],
+        "localField": "productId",
+        "referenceField": "id"
+      },
+      "category": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "category",
+        "flags": [],
+        "localField": "categoryId",
+        "referenceField": "id"
+      }
+    }
+  },
+  "product_category_tree": {
+    "entity": "product_category_tree",
+    "properties": {
+      "productId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "productVersionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "categoryId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "categoryVersionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "product": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product",
+        "flags": [],
+        "localField": "productId",
+        "referenceField": "id"
+      },
+      "category": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "category",
+        "flags": [],
+        "localField": "categoryId",
+        "referenceField": "id"
+      }
+    }
+  },
+  "product_configurator_setting": {
+    "entity": "product_configurator_setting",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "versionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "productId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "productVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "mediaId": {
+        "type": "uuid",
+        "flags": []
+      },
+      "optionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "price": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "position": {
+        "type": "int",
+        "flags": []
+      },
+      "product": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product",
+        "flags": [],
+        "localField": "productId",
+        "referenceField": "id"
+      },
+      "media": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "media",
+        "flags": [],
+        "localField": "mediaId",
+        "referenceField": "id"
+      },
+      "option": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "property_group_option",
+        "flags": [],
+        "localField": "optionId",
+        "referenceField": "id"
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      }
+    }
+  },
+  "product_cross_selling": {
+    "entity": "product_cross_selling",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "name": {
+        "type": "string",
+        "flags": {
+          "required": true,
+          "translatable": true
+        }
+      },
+      "position": {
+        "type": "int",
+        "flags": {
+          "required": true
+        }
+      },
+      "sortBy": {
+        "type": "string",
+        "flags": []
+      },
+      "sortDirection": {
+        "type": "string",
+        "flags": []
+      },
+      "type": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "active": {
+        "type": "boolean",
+        "flags": []
+      },
+      "limit": {
+        "type": "int",
+        "flags": []
+      },
+      "productId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "productVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "product": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product",
+        "flags": {
+          "reversed_inherited": "crossSellings"
+        },
+        "localField": "productId",
+        "referenceField": "id"
+      },
+      "productStreamId": {
+        "type": "uuid",
+        "flags": []
+      },
+      "productStream": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product_stream",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "productStreamId",
+        "referenceField": "id"
+      },
+      "assignedProducts": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_cross_selling_assigned_products",
+        "flags": {
+          "cascade_delete": true
+        },
+        "localField": "id",
+        "referenceField": "crossSellingId"
+      },
+      "translations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_cross_selling_translation",
+        "flags": {
+          "cascade_delete": true
+        },
+        "localField": "id",
+        "referenceField": "productCrossSellingId"
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      },
+      "translated": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "computed": true,
+          "runtime": true
+        }
+      }
+    }
+  },
+  "product_cross_selling_assigned_products": {
+    "entity": "product_cross_selling_assigned_products",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "crossSellingId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "productId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "productVersionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "product": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product",
+        "flags": [],
+        "localField": "productId",
+        "referenceField": "id"
+      },
+      "crossSelling": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product_cross_selling",
+        "flags": [],
+        "localField": "crossSellingId",
+        "referenceField": "id"
+      },
+      "position": {
+        "type": "int",
+        "flags": []
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      }
+    }
+  },
+  "product_cross_selling_translation": {
+    "entity": "product_cross_selling_translation",
+    "properties": {
+      "name": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      },
+      "productCrossSellingId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "languageId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "productCrossSelling": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product_cross_selling",
+        "flags": [],
+        "localField": "productCrossSellingId",
+        "referenceField": "id"
+      },
+      "language": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "language",
+        "flags": [],
+        "localField": "languageId",
+        "referenceField": "id"
+      }
+    }
+  },
+  "product_custom_field_set": {
+    "entity": "product_custom_field_set",
+    "properties": {
+      "productId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "customFieldSetId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "productVersionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "product": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product",
+        "flags": [],
+        "localField": "productId",
+        "referenceField": "id"
+      },
+      "customFieldSet": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "custom_field_set",
+        "flags": [],
+        "localField": "customFieldSetId",
+        "referenceField": "id"
+      }
+    }
+  },
+  "product_export": {
+    "entity": "product_export",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "productStreamId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "storefrontSalesChannelId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "salesChannelId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "salesChannelDomainId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "currencyId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "fileName": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "accessKey": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "encoding": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "fileFormat": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "includeVariants": {
+        "type": "boolean",
+        "flags": []
+      },
+      "generateByCronjob": {
+        "type": "boolean",
+        "flags": {
+          "required": true
+        }
+      },
+      "generatedAt": {
+        "type": "date",
+        "flags": []
+      },
+      "interval": {
+        "type": "int",
+        "flags": {
+          "required": true
+        }
+      },
+      "headerTemplate": {
+        "type": "text",
+        "flags": {
+          "allow_html": true
+        }
+      },
+      "bodyTemplate": {
+        "type": "text",
+        "flags": {
+          "allow_html": true
+        }
+      },
+      "footerTemplate": {
+        "type": "text",
+        "flags": {
+          "allow_html": true
+        }
+      },
+      "pausedSchedule": {
+        "type": "boolean",
+        "flags": []
+      },
+      "productStream": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product_stream",
+        "flags": [],
+        "localField": "productStreamId",
+        "referenceField": "id"
+      },
+      "storefrontSalesChannel": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "sales_channel",
+        "flags": [],
+        "localField": "storefrontSalesChannelId",
+        "referenceField": "id"
+      },
+      "salesChannel": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "sales_channel",
+        "flags": [],
+        "localField": "salesChannelId",
+        "referenceField": "id"
+      },
+      "salesChannelDomain": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "sales_channel_domain",
+        "flags": [],
+        "localField": "salesChannelDomainId",
+        "referenceField": "id"
+      },
+      "currency": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "currency",
+        "flags": [],
+        "localField": "currencyId",
+        "referenceField": "id"
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      }
+    }
+  },
+  "product_feature_set": {
+    "entity": "product_feature_set",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "name": {
+        "type": "string",
+        "flags": {
+          "translatable": true
+        }
+      },
+      "description": {
+        "type": "string",
+        "flags": {
+          "translatable": true
+        }
+      },
+      "features": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "products": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product",
+        "flags": {
+          "set_null_on_delete": true,
+          "reversed_inherited": "featureSet"
+        },
+        "localField": "id",
+        "referenceField": "featureSetId"
+      },
+      "translations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_feature_set_translation",
+        "flags": {
+          "cascade_delete": true
+        },
+        "localField": "id",
+        "referenceField": "productFeatureSetId"
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      },
+      "translated": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "computed": true,
+          "runtime": true
+        }
+      }
+    }
+  },
+  "product_feature_set_translation": {
+    "entity": "product_feature_set_translation",
+    "properties": {
+      "name": {
+        "type": "string",
+        "flags": []
+      },
+      "description": {
+        "type": "string",
+        "flags": []
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      },
+      "productFeatureSetId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "languageId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "productFeatureSet": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product_feature_set",
+        "flags": [],
+        "localField": "productFeatureSetId",
+        "referenceField": "id"
+      },
+      "language": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "language",
+        "flags": [],
+        "localField": "languageId",
+        "referenceField": "id"
+      }
+    }
+  },
+  "product_keyword_dictionary": {
+    "entity": "product_keyword_dictionary",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "languageId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "keyword": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "reversed": {
+        "type": "string",
+        "flags": {
+          "computed": true
+        }
+      },
+      "language": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "language",
+        "flags": [],
+        "localField": "languageId",
+        "referenceField": "id"
+      }
+    }
+  },
+  "product_manufacturer": {
+    "entity": "product_manufacturer",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "versionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "mediaId": {
+        "type": "uuid",
+        "flags": []
+      },
+      "link": {
+        "type": "string",
+        "flags": []
+      },
+      "name": {
+        "type": "string",
+        "flags": {
+          "required": true,
+          "search_ranking": 500,
+          "translatable": true
+        }
+      },
+      "description": {
+        "type": "text",
+        "flags": {
+          "allow_html": true,
+          "translatable": true
+        }
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "translatable": true
+        }
+      },
+      "media": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "media",
+        "flags": [],
+        "localField": "mediaId",
+        "referenceField": "id"
+      },
+      "products": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product",
+        "flags": {
+          "restrict_delete": true,
+          "reversed_inherited": "manufacturer"
+        },
+        "localField": "id",
+        "referenceField": "manufacturerId"
+      },
+      "translations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_manufacturer_translation",
+        "flags": {
+          "cascade_delete": true,
+          "required": true
+        },
+        "localField": "id",
+        "referenceField": "productManufacturerId"
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      },
+      "translated": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "computed": true,
+          "runtime": true
+        }
+      }
+    }
+  },
+  "product_manufacturer_translation": {
+    "entity": "product_manufacturer_translation",
+    "properties": {
+      "name": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "description": {
+        "type": "text",
+        "flags": {
+          "allow_html": true
+        }
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      },
+      "productManufacturerId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "languageId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "productManufacturer": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product_manufacturer",
+        "flags": [],
+        "localField": "productManufacturerId",
+        "referenceField": "id"
+      },
+      "language": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "language",
+        "flags": [],
+        "localField": "languageId",
+        "referenceField": "id"
+      },
+      "productManufacturerVersionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      }
+    }
+  },
+  "product_media": {
+    "entity": "product_media",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "versionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "productId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "productVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "mediaId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "position": {
+        "type": "int",
+        "flags": []
+      },
+      "product": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product",
+        "flags": {
+          "reversed_inherited": "media"
+        },
+        "localField": "productId",
+        "referenceField": "id"
+      },
+      "media": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "media",
+        "flags": [],
+        "localField": "mediaId",
+        "referenceField": "id"
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      }
+    }
+  },
+  "product_option": {
+    "entity": "product_option",
+    "properties": {
+      "productId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "productVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "optionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "product": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product",
+        "flags": [],
+        "localField": "productId",
+        "referenceField": "id"
+      },
+      "option": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "property_group_option",
+        "flags": [],
+        "localField": "optionId",
+        "referenceField": "id"
+      }
+    }
+  },
+  "product_price": {
+    "entity": "product_price",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "versionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "productId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "productVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "ruleId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "price": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "required": true
+        }
+      },
+      "quantityStart": {
+        "type": "int",
+        "flags": {
+          "required": true
+        }
+      },
+      "quantityEnd": {
+        "type": "int",
+        "flags": []
+      },
+      "product": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product",
+        "flags": {
+          "reversed_inherited": "prices"
+        },
+        "localField": "productId",
+        "referenceField": "id"
+      },
+      "rule": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "rule",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "ruleId",
+        "referenceField": "id"
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      }
+    }
+  },
+  "product_property": {
+    "entity": "product_property",
+    "properties": {
+      "productId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "productVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "optionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "product": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product",
+        "flags": [],
+        "localField": "productId",
+        "referenceField": "id"
+      },
+      "option": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "property_group_option",
+        "flags": [],
+        "localField": "optionId",
+        "referenceField": "id"
+      }
+    }
+  },
+  "product_review": {
+    "entity": "product_review",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "productId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "productVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "customerId": {
+        "type": "uuid",
+        "flags": []
+      },
+      "salesChannelId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "languageId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "externalUser": {
+        "type": "string",
+        "flags": {
+          "search_ranking": 250,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        }
+      },
+      "externalEmail": {
+        "type": "string",
+        "flags": {
+          "search_ranking": 250,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        }
+      },
+      "title": {
+        "type": "string",
+        "flags": {
+          "required": true,
+          "search_ranking": 80
+        }
+      },
+      "content": {
+        "type": "text",
+        "flags": {
+          "required": true,
+          "search_ranking": 80,
+          "allow_html": true
+        }
+      },
+      "points": {
+        "type": "float",
+        "flags": []
+      },
+      "status": {
+        "type": "boolean",
+        "flags": []
+      },
+      "comment": {
+        "type": "text",
+        "flags": []
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "product": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product",
+        "flags": {
+          "search_ranking": 0.25
+        },
+        "localField": "productId",
+        "referenceField": "id"
+      },
+      "customer": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "customer",
+        "flags": {
+          "search_ranking": 250,
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "customerId",
+        "referenceField": "id"
+      },
+      "salesChannel": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "sales_channel",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "salesChannelId",
+        "referenceField": "id"
+      },
+      "language": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "language",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "languageId",
+        "referenceField": "id"
+      }
+    }
+  },
+  "product_search_keyword": {
+    "entity": "product_search_keyword",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "versionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "languageId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "productId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "productVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "keyword": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "ranking": {
+        "type": "float",
+        "flags": {
+          "required": true
+        }
+      },
+      "product": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product",
+        "flags": [],
+        "localField": "productId",
+        "referenceField": "id"
+      },
+      "language": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "language",
+        "flags": [],
+        "localField": "languageId",
+        "referenceField": "id"
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      }
+    }
+  },
+  "product_sorting": {
+    "entity": "product_sorting",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "locked": {
+        "type": "boolean",
+        "flags": {
+          "computed": true
+        }
+      },
+      "key": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "priority": {
+        "type": "int",
+        "flags": {
+          "required": true
+        }
+      },
+      "active": {
+        "type": "boolean",
+        "flags": {
+          "required": true
+        }
+      },
+      "fields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "required": true
+        }
+      },
+      "label": {
+        "type": "string",
+        "flags": {
+          "required": true,
+          "translatable": true
+        }
+      },
+      "translations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_sorting_translation",
+        "flags": {
+          "cascade_delete": true,
+          "inherited": true,
+          "required": true
+        },
+        "localField": "id",
+        "referenceField": "productSortingId"
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      },
+      "translated": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "computed": true,
+          "runtime": true
+        }
+      }
+    }
+  },
+  "product_sorting_translation": {
+    "entity": "product_sorting_translation",
+    "properties": {
+      "label": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      },
+      "productSortingId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "languageId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "productSorting": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product_sorting",
+        "flags": [],
+        "localField": "productSortingId",
+        "referenceField": "id"
+      },
+      "language": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "language",
+        "flags": [],
+        "localField": "languageId",
+        "referenceField": "id"
+      }
+    }
+  },
+  "product_stream": {
+    "entity": "product_stream",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "apiFilter": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "invalid": {
+        "type": "boolean",
+        "flags": {
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "name": {
+        "type": "string",
+        "flags": {
+          "required": true,
+          "search_ranking": 500,
+          "translatable": true
+        }
+      },
+      "description": {
+        "type": "text",
+        "flags": {
+          "translatable": true
+        }
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "translatable": true
+        }
+      },
+      "translations": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_stream_translation",
+        "flags": {
+          "cascade_delete": true,
+          "required": true
+        },
+        "localField": "id",
+        "referenceField": "productStreamId"
+      },
+      "filters": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_stream_filter",
+        "flags": {
+          "cascade_delete": true
+        },
+        "localField": "id",
+        "referenceField": "productStreamId"
+      },
+      "productCrossSellings": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_cross_selling",
+        "flags": {
+          "cascade_delete": true
+        },
+        "localField": "id",
+        "referenceField": "productStreamId"
+      },
+      "productExports": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_export",
+        "flags": [],
+        "localField": "id",
+        "referenceField": "productStreamId"
+      },
+      "categories": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "category",
+        "flags": [],
+        "localField": "id",
+        "referenceField": "productStreamId"
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      },
+      "translated": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "computed": true,
+          "runtime": true
+        }
+      }
+    }
+  },
+  "product_stream_filter": {
+    "entity": "product_stream_filter",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "productStreamId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "parentId": {
+        "type": "uuid",
+        "flags": []
+      },
+      "type": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "field": {
+        "type": "string",
+        "flags": []
+      },
+      "operator": {
+        "type": "string",
+        "flags": []
+      },
+      "value": {
+        "type": "text",
+        "flags": []
+      },
+      "parameters": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "position": {
+        "type": "int",
+        "flags": []
+      },
+      "productStream": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product_stream",
+        "flags": [],
+        "localField": "productStreamId",
+        "referenceField": "id"
+      },
+      "parent": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product_stream_filter",
+        "flags": [],
+        "localField": "parentId",
+        "referenceField": "id"
+      },
+      "queries": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "product_stream_filter",
+        "flags": {
+          "cascade_delete": true
+        },
+        "localField": "id",
+        "referenceField": "parentId"
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      }
+    }
+  },
+  "product_stream_translation": {
+    "entity": "product_stream_translation",
+    "properties": {
+      "name": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "description": {
+        "type": "text",
+        "flags": []
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      },
+      "productStreamId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "languageId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "productStream": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product_stream",
+        "flags": [],
+        "localField": "productStreamId",
+        "referenceField": "id"
+      },
+      "language": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "language",
+        "flags": [],
+        "localField": "languageId",
+        "referenceField": "id"
+      }
+    }
+  },
+  "product_tag": {
+    "entity": "product_tag",
+    "properties": {
+      "productId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "productVersionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "tagId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "product": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product",
+        "flags": [],
+        "localField": "productId",
+        "referenceField": "id"
+      },
+      "tag": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "tag",
+        "flags": [],
+        "localField": "tagId",
+        "referenceField": "id"
+      }
+    }
+  },
+  "product_translation": {
+    "entity": "product_translation",
+    "properties": {
+      "metaDescription": {
+        "type": "string",
+        "flags": []
+      },
+      "name": {
+        "type": "string",
+        "flags": {
+          "required": true
+        }
+      },
+      "keywords": {
+        "type": "text",
+        "flags": []
+      },
+      "description": {
+        "type": "text",
+        "flags": {
+          "allow_html": true
+        }
+      },
+      "metaTitle": {
+        "type": "string",
+        "flags": []
+      },
+      "packUnit": {
+        "type": "string",
+        "flags": []
+      },
+      "packUnitPlural": {
+        "type": "string",
+        "flags": []
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": []
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      },
+      "productId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "languageId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "product": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product",
+        "flags": [],
+        "localField": "productId",
+        "referenceField": "id"
+      },
+      "language": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "language",
+        "flags": [],
+        "localField": "languageId",
+        "referenceField": "id"
+      },
+      "productVersionId": {
+        "type": "uuid",
+        "flags": {
+          "primary_key": true,
+          "required": true
+        }
+      }
+    }
+  },
+  "product_visibility": {
+    "entity": "product_visibility",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "required": true,
+          "primary_key": true
+        }
+      },
+      "productId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "productVersionId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "salesChannelId": {
+        "type": "uuid",
+        "flags": {
+          "required": true
+        }
+      },
+      "visibility": {
+        "type": "int",
+        "flags": {
+          "required": true
+        }
+      },
+      "salesChannel": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "sales_channel",
+        "flags": [],
+        "localField": "salesChannelId",
+        "referenceField": "id"
+      },
+      "product": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "product",
+        "flags": [],
+        "localField": "productId",
+        "referenceField": "id"
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": []
+      }
+    }
+  }
+}

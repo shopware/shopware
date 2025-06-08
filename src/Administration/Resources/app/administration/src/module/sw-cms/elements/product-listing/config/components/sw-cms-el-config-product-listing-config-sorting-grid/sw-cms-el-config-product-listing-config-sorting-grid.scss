@@ -1,0 +1,18 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+.sw-cms-el-config-product-listing-config-sorting-grid {
+    &__select {
+        margin: 20px 0;
+    }
+
+    &__grid {
+        border-top: 1px solid $color-gray-300;
+        margin: 0 -30px -55px;
+    }
+
+    &__criteria {
+        display: block;
+        max-width: 550px;
+    }
+}

@@ -1,0 +1,34 @@
+/*
+Breadcrumb
+==============================================
+Custom skin styling for bootstrap breadcrumb component.
+
+https://getbootstrap.com/docs/5.2/components/breadcrumb
+*/
+
+.breadcrumb {
+    .breadcrumb-placeholder {
+        margin: 0 $spacer-sm;
+    }
+
+    svg {
+        height: $font-size-base;
+        width: auto;
+        top: 3px;
+    }
+
+    a {
+        color: $body-color;
+        font-size: $font-size-base;
+
+        &:hover {
+            color: $sw-color-brand-primary;
+            text-decoration: none;
+        }
+
+        &.is-active {
+            color: $sw-color-brand-primary;
+            font-weight: $font-weight-bolder;
+        }
+    }
+}

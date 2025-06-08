@@ -1,0 +1,36 @@
+@import "~scss/variables";
+
+.sw-customer-detail__customer-registration-alert {
+    max-width: $content-width;
+    margin: 0 auto;
+}
+
+.sw-customer-detail__customer-registration-alert-actions {
+    margin-left: auto;
+
+    .mt-button:not(:last-child) {
+        margin-right: 8px;
+    }
+}
+
+.sw-customer-detail {
+    .smart-bar__header {
+        display: flex;
+        align-items: center;
+    }
+
+    .smart-bar__actions {
+        span {
+            display: flex;
+        }
+
+        .sw-tooltip--wrapper {
+            margin-left: 8px;
+        }
+    }
+
+    &__created-by-admin-label {
+        margin: 0 10px;
+        text-align: center;
+    }
+}

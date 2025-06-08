@@ -1,0 +1,17 @@
+{
+  "sales-channel-theme": {
+    "title": "Theme assignment",
+    "changeTheme": "Change theme",
+    "changeThemeEmpty": "Assign theme",
+    "createTheme": "Create new theme",
+    "editContent": "Edit theme",
+    "defaultTitle": "No theme assigned",
+    "defaultAuthor": "Author",
+    "modal": {
+      "modalTitleChange": "Change theme",
+      "textChangeTheme": "Do you really want to change the theme? This may alter the visualisation of your shop.",
+      "buttonChange": "Change theme",
+      "buttonCancel": "Cancel"
+    }
+  }
+}

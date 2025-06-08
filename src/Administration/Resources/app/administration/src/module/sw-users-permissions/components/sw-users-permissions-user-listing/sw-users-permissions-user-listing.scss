@@ -1,0 +1,17 @@
+@import "~scss/variables";
+
+.sw-users-permissions-user-listing {
+    &.sw-card .sw-card__content {
+        padding: 0;
+    }
+
+    &__add-user-button {
+        text-align: center;
+    }
+
+    &__toolbar {
+        padding: 25px 35px;
+        background-color: $color-gray-100;
+        border-bottom: 1px solid $color-gray-300;
+    }
+}

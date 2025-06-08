@@ -1,0 +1,52 @@
+{% block sw_checkbox_field %}
+{% block sw_switch_field %}
+<div
+    class="sw-field--switch"
+    :class="swSwitchFieldClasses"
+>
+    <div class="sw-field--switch__content">
+        <div class="sw-field--switch__input">
+            <!-- eslint-disable vue/no-duplicate-attributes, vue/no-parsing-error -->
+            <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+            <input
+                :id="formFieldName || identification"
+                type="checkbox"
+                :name="formFieldName || identification"
+                :checked="inputState"
+                :disabled="disabled || undefined"
+                :aria-label="ariaLabel && $tc(ariaLabel)"
+                @change="onChange"
+            >
+            <!-- eslint-enable vue/no-duplicate-attributes, vue/no-parsing-error -->
+            <div class="sw-field__switch-state">
+                <div class="sw-field__switch-state-knob"></div>
+            </div>
+        </div>
+        <!-- eslint-disable vue/no-duplicate-attributes, vue/no-parsing-error -->
+        <sw-base-field
+            v-bind="{
+                ...attrsWithoutClass,
+                ...inheritanceAttrs
+            }"
+            :is-inheritance-field="inheritanceAttrs.isInheritanceField"
+            :is-inherited="inheritanceAttrs.isInherited"
+            :name="formFieldName || identification"
+            :disabled="disabled || undefined"
+            :label="label"
+            @inheritance-restore="onInheritanceRestore($event)"
+            @inheritance-remove="$emit('inheritance-remove', $event)"
+        >
+            <template #label>
+                <slot name="label"></slot>
+            </template>
+
+            <template #hint>
+                <slot name="hint"></slot>
+            </template>
+        </sw-base-field>
+
+    </div>
+    <sw-field-error :error="error" />
+</div>
+    {% endblock %}
+{% endblock %}

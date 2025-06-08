@@ -1,0 +1,13 @@
+<!-- @deprecated tag:v6.5.0 - Will be removed. See src/Administration/Resources/app/administration/src/app/component/base/sw-icon/legacy-icon-mapping.js for replacement -->
+
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <g fill="none" fill-rule="evenodd">
+    <path fill="#F1FAE6" fill-rule="nonzero" stroke="#49A314" d="M4,2.5 C3.72385763,2.5 3.5,2.72385763 3.5,3 L3.5,13 C3.5,13.2761424 3.72385763,13.5 4,13.5 L12,13.5 C12.2761424,13.5 12.5,13.2761424 12.5,13 L12.5,5 C12.5,3.61928813 11.3807119,2.5 10,2.5 L4,2.5 Z"/>
+    <path fill="#FFF" stroke="#49A314" d="M9.5,2.5 L9.5,5 C9.5,5.27614237 9.72385763,5.5 10,5.5 L12.5,5.5 L12.5,5 C12.5,3.61928813 11.3807119,2.5 10,2.5 L9.5,2.5 Z"/>
+    <rect width="8" height="1" x="4" y="10" fill="#49A314"/>
+    <rect width="8" height="1" x="4" y="7" fill="#49A314"/>
+    <rect width="3" height="1" x="4" y="4" fill="#49A314"/>
+    <rect width="1" height="6" x="9" y="7" fill="#49A314"/>
+    <rect width="1" height="8" x="6" y="5" fill="#49A314"/>
+  </g>
+</svg>

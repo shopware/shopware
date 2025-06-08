@@ -1,0 +1,29 @@
+.is-act-checkoutregisterpage {
+    .checkout {
+        padding-top: 70px;
+
+        .checkout-container {
+            @extend .row;
+        }
+
+        .checkout-main {
+            @extend .col-lg-8;
+            margin-bottom: $spacer-lg;
+        }
+
+        .checkout-aside {
+            @extend .col-md-4;
+            @extend .d-lg-block;
+        }
+    }
+}
+
+@include media-breakpoint-up(lg) {
+    .is-act-checkoutregisterpage {
+        .checkout {
+            .checkout-main {
+                margin-bottom: 0;
+            }
+        }
+    }
+}

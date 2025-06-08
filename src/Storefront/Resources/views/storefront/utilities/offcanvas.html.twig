@@ -1,0 +1,39 @@
+{#
+    This template uses Bootstraps OffCanvas markup.
+
+    @sw-package framework
+    @see https://getbootstrap.com/docs/5.2/components/offcanvas
+#}
+
+{% set isAjaxOffcanvas = false %}
+
+{% block utilities_offcanvas_meta %}
+    {# only including this for robots to have appropriate meta tags and when offcanvas is loaded via ajax #}
+    {% if not app.request.xmlHttpRequest and isAjaxOffcanvas %}
+        {% sw_include '@Storefront/storefront/layout/meta.html.twig' %}
+    {% endif %}
+{% endblock %}
+
+{% block utilities_offcanvas %}
+    {% block utilities_offcanvas_header %}
+        <div class="offcanvas-header">
+            {% block utilities_offcanvas_close %}
+                <button class="btn btn-secondary offcanvas-close js-offcanvas-close">
+                    {% block utilities_offcanvas_close_icon %}
+                        {% sw_icon 'x' style { size: 'sm' } %}
+                    {% endblock %}
+
+                    {% block utilities_offcanvas_close_text %}
+                        {{ 'general.offcanvasCloseMenu'|trans|sw_sanitize }}
+                    {% endblock %}
+                </button>
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {% block utilities_offcanvas_content_container %}
+        <div class="offcanvas-body">
+            {% block utilities_offcanvas_content %}{% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

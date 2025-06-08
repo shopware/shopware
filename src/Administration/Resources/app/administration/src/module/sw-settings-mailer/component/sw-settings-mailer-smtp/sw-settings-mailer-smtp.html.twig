@@ -1,0 +1,128 @@
+{% block sw_settings_mailer_smtp %}
+<div class="sw-settings-mailer-smtp">
+    {% block sw_settings_mailer_smtp_host %}
+
+    <mt-text-field
+        v-model="mailerSettings['core.mailerSettings.host']"
+        :label="$tc('sw-settings-mailer.card-smtp.host')"
+        :placeholder="$tc('sw-settings-mailer.card-smtp.host-placeholder')"
+        :error="hostError"
+        required
+        @update:model-value="$emit('host-changed')"
+    />
+    {% endblock %}
+
+    {% block sw_settings_mailer_smtp_port %}
+    <mt-number-field
+        v-model="mailerSettings['core.mailerSettings.port']"
+        :max="65536"
+        :label="$tc('sw-settings-mailer.card-smtp.port')"
+        :placeholder="$tc('sw-settings-mailer.card-smtp.port-placeholder')"
+        :error="portError"
+        required
+        @update:model-value="$emit('port-changed')"
+    />
+    {% endblock %}
+
+    {% block sw_settings_mailer_smtp_username %}
+
+    <mt-text-field
+        v-if="!isOauth"
+        v-model="mailerSettings['core.mailerSettings.username']"
+        :label="$tc('sw-settings-mailer.card-smtp.username')"
+        :placeholder="$tc('sw-settings-mailer.card-smtp.username-placeholder')"
+    />
+    {% endblock %}
+
+    {% block sw_settings_mailer_smtp_password %}
+    <mt-password-field
+        v-if="!isOauth"
+        v-model="mailerSettings['core.mailerSettings.password']"
+        :label="$tc('sw-settings-mailer.card-smtp.password')"
+        :placeholder="$tc('sw-settings-mailer.card-smtp.password-placeholder')"
+    />
+    {% endblock %}
+
+    {% block sw_settings_mailer_smtp_oauth_url %}
+
+    <mt-text-field
+        v-if="isOauth"
+        v-model="mailerSettings['core.mailerSettings.oauthUrl']"
+        :label="$tc('sw-settings-mailer.card-smtp.oauth-url')"
+        :placeholder="$tc('sw-settings-mailer.card-smtp.oauth-url-placeholder')"
+        required
+    />
+    {% endblock %}
+
+    {% block sw_settings_mailer_smtp_oauth_scope %}
+
+    <mt-text-field
+        v-if="isOauth"
+        v-model="mailerSettings['core.mailerSettings.oauthScope']"
+        :label="$tc('sw-settings-mailer.card-smtp.oauth-scope')"
+        :placeholder="$tc('sw-settings-mailer.card-smtp.oauth-scope-placeholder')"
+        required
+    />
+    {% endblock %}
+
+    {% block sw_settings_mailer_smtp_client_id %}
+
+    <mt-text-field
+        v-if="isOauth"
+        v-model="mailerSettings['core.mailerSettings.clientId']"
+        :label="$tc('sw-settings-mailer.card-smtp.oauth-client-id')"
+        :placeholder="$tc('sw-settings-mailer.card-smtp.oauth-client-id-placeholder')"
+        required
+    />
+    {% endblock %}
+
+    {% block sw_settings_mailer_smtp_client_secret %}
+    <mt-password-field
+        v-if="isOauth"
+        v-model="mailerSettings['core.mailerSettings.clientSecret']"
+        :label="$tc('sw-settings-mailer.card-smtp.oauth-client-secret')"
+        :placeholder="$tc('sw-settings-mailer.card-smtp.oauth-client-secret-placeholder')"
+        required
+    />
+    {% endblock %}
+
+    {% block sw_settings_mailer_smtp_encryption %}
+    <sw-single-select
+        v-model:value="mailerSettings['core.mailerSettings.encryption']"
+        :label="$tc('sw-settings-mailer.card-smtp.encryption')"
+        :placeholder="$tc('sw-settings-mailer.card-smtp.encryption-placeholder')"
+        :options="encryptionOptions"
+        show-clearable-button
+    />
+    {% endblock %}
+
+    {% block sw_settings_mailer_smtp_sender_address %}
+
+    <mt-text-field
+        v-model="mailerSettings['core.mailerSettings.senderAddress']"
+        :label="$tc('sw-settings-mailer.card-smtp.sender-address')"
+        :placeholder="$tc('sw-settings-mailer.card-smtp.sender-address-placeholder')"
+        validation="email"
+    />
+    {% endblock %}
+
+    {% block sw_settings_mailer_smtp_delivery_address %}
+
+    <mt-text-field
+        v-model="mailerSettings['core.mailerSettings.deliveryAddress']"
+        :label="$tc('sw-settings-mailer.card-smtp.delivery-address')"
+        :placeholder="$tc('sw-settings-mailer.card-smtp.delivery-address-placeholder')"
+        :help-text="$tc('sw-settings-mailer.card-smtp.delivery-address-helptext')"
+        validation="email"
+    />
+    {% endblock %}
+
+    {% block sw_settings_mailer_smtp_disable_delivery %}
+
+    <mt-switch
+        v-model="mailerSettings['core.mailerSettings.disableDelivery']"
+        :label="$tc('sw-settings-mailer.card-smtp.disable-delivery')"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

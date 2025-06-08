@@ -1,0 +1,40 @@
+{% block sw_order_state_change_modal_attach_documents %}
+<div class="sw-order-state-change-modal-attach-document">
+
+    {% block sw_order_state_change_modal_attach_documents_documents_grid %}
+    <sw-order-document-card
+        ref="attachDocuments"
+        class="sw-order-detail-base__documents-grid"
+        :order="order"
+        :is-loading="isLoading"
+        attach-view
+    />
+    {% endblock %}
+
+    {% block sw_order_state_change_modal_attach_documents_button_wrapper %}
+    <div class="sw-order-state-change-modal-attach-documents__button-wrapper">
+        <div>
+            {% block sw_order_state_change_modal_attach_documents_send_mail_switch %}
+
+            <mt-switch
+                v-model="sendMail"
+                class="sw-order-state-change-modal-attach-documents__switch"
+                :label="$tc('sw-order.stateCard.labelSendMailSwitch')"
+            />
+            {% endblock %}
+        </div>
+
+        {% block sw_order_state_change_modal_attach_documents_button %}
+        <mt-button
+            class="sw-order-state-change-modal-attach-documents__button"
+            variant="primary"
+            size="small"
+            @click="onConfirm"
+        >
+            {{ $tc('sw-order.stateCard.labelSelectStateButton') }}
+        </mt-button>
+        {% endblock %}
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

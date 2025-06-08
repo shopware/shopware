@@ -1,0 +1,18 @@
+@import "~scss/variables";
+
+.sw-order-create-promotion-modal {
+    font-size: $font-size-xs;
+    color: $color-darkgray-200;
+
+    &.sw-modal--default .sw-modal__dialog {
+        min-height: 190px;
+    }
+
+    &__promotion {
+        padding-top: 22px;
+
+        &-name {
+            text-transform: uppercase;
+        }
+    }
+}

@@ -1,0 +1,114 @@
+{% block sw_filter_panel %}
+<div class="sw-filter-panel">
+    {% block sw_filter_panel_item %}
+    <div
+        v-for="filter in listFilters"
+        :id="filter.name"
+        :key="filter.name"
+        class="sw-filter-panel__item"
+    >
+        <div v-if="false"></div>
+
+        {% block sw_filter_panel_extension_point %}{% endblock %}
+
+        <sw-boolean-filter
+            v-else-if="showFilter(filter, 'boolean-filter')"
+            :filter="filter"
+            :active="!!activeFilters[filter.name]"
+            @filter-update="updateFilter"
+            @filter-reset="resetFilter"
+        />
+
+        <sw-existence-filter
+            v-else-if="showFilter(filter, 'existence-filter')"
+            :filter="filter"
+            :active="!!activeFilters[filter.name]"
+            @filter-update="updateFilter"
+            @filter-reset="resetFilter"
+        />
+
+        <sw-multi-select-filter
+            v-else-if="showFilter(filter, 'multi-select-filter')"
+            :filter="filter"
+            :active="!!activeFilters[filter.name]"
+            @filter-update="updateFilter"
+            @filter-reset="resetFilter"
+        >
+            {% block sw_multi_select_filter_content_path_label %}
+            <template
+                v-if="filter.displayPath"
+                #selection-label-property="{ item, index }"
+            >
+                <sw-highlight-text
+                    :key="item.id"
+                    v-tooltip="{
+                        message: getBreadcrumb(item),
+                        width: 300
+                    }"
+                    selected=""
+                    :text="getLabelName(item)"
+                />
+            </template>
+            {% endblock %}
+
+            {% block sw_multi_select_filter_content_path_result_item %}
+            <template
+                v-if="filter.displayPath"
+                #result-item="{ item, index }"
+            >
+                <sw-select-result
+                    v-bind="{ item, index }"
+                >
+                    {% block sw_multi_select_filter_content_path_result_label %}
+                    <span class="sw-select-result__result-item-text">
+                        <sw-highlight-text
+                            :key="item.id"
+                            v-tooltip="{
+                                message: getBreadcrumb(item),
+                                width: 300
+                            }"
+                            selected=""
+                            :text="getLabelName(item)"
+                        />
+                    </span>
+                    {% endblock %}
+                </sw-select-result>
+            </template>
+            {% endblock %}
+        </sw-multi-select-filter>
+
+        <sw-date-filter
+            v-else-if="showFilter(filter, 'date-filter')"
+            :filter="filter"
+            :active="!!activeFilters[filter.name]"
+            :config="filter.config"
+            @filter-update="updateFilter"
+            @filter-reset="resetFilter"
+        />
+
+        <sw-string-filter
+            v-else-if="showFilter(filter, 'string-filter')"
+            :filter="filter"
+            :active="!!activeFilters[filter.name]"
+            :criteria-filter-type="filter.criteriaFilterType"
+            @filter-update="updateFilter"
+            @filter-reset="resetFilter"
+        />
+
+        <sw-number-filter
+            v-else-if="showFilter(filter, 'number-filter')"
+            :filter="filter"
+            :active="!!activeFilters[filter.name]"
+            :step="filter.step"
+            :digits="filter.digits"
+            :number-type="filter.numberType"
+            :min="filter.min"
+            :max="filter.max"
+            allow-empty
+            @filter-update="updateFilter"
+            @filter-reset="resetFilter"
+        />
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

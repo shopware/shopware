@@ -1,0 +1,30 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_head %}
+    {% sw_include '@Storefront/storefront/page/product-detail/meta.html.twig' %}
+{% endblock %}
+
+{% block base_main_inner %}
+    <div class="container-main">
+        {% block page_content %}
+            {% block cms_breadcrumb %}
+                <div class="cms-breadcrumb container">
+                    {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
+                        context: context,
+                        themeIconConfig: themeIconConfig,
+                        category: page.product.seoCategory
+                    } only %}
+                </div>
+            {% endblock %}
+
+            {% block cms_content %}
+                {% set cmsPageClasses = ('cms-page ' ~ page.cmsPage.cssClass|striptags)|trim %}
+                <div class="{{ cmsPageClasses }}" itemscope itemtype="https://schema.org/Product">
+                    {% block page_content_blocks %}
+                        {% sw_include '@Storefront/storefront/page/content/detail.html.twig' with {cmsPage: page.cmsPage} %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        {% endblock %}
+    </div>
+{% endblock %}

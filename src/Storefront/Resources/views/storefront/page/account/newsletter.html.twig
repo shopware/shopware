@@ -1,0 +1,55 @@
+{% block page_account_overview_newsletter_content_inner %}
+    {% block page_account_overview_newsletter_content_success %}
+        {% if newsletterAccountPagelet.messages|length > 0 %}
+            <div class="newsletter-alerts">
+                {% for message in newsletterAccountPagelet.messages %}
+                    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with { type: message.type, content: message.text } %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    {% set formAutoSubmitOptions = {
+        useAjax: true,
+        ajaxContainerSelector: '.js-newsletter-wrapper'
+    } %}
+
+    {% block page_account_overview_newsletter_content_form %}
+        <form name="newsletterRegister"
+              method="post"
+              action="{{ path('frontend.account.newsletter') }}"
+              data-form-auto-submit="true"
+              data-form-auto-submit-options="{{ formAutoSubmitOptions|json_encode }}">
+            {% block page_account_overview_newsletter_content_form_check_control %}
+                <div class="form-check">
+                    {% block page_account_overview_newsletter_content_form_input %}
+                        {% set subscribe = constant('Shopware\\Core\\Content\\Newsletter\\SalesChannel\\NewsletterSubscribeRoute::OPTION_SUBSCRIBE') %}
+                        {% set direct = constant('Shopware\\Core\\Content\\Newsletter\\SalesChannel\\NewsletterSubscribeRoute::OPTION_DIRECT') %}
+                        {% set statusDirect = constant('Shopware\\Core\\Content\\Newsletter\\SalesChannel\\NewsletterSubscribeRoute::STATUS_DIRECT') %}
+                        {% set statusOptIn = constant('Shopware\\Core\\Content\\Newsletter\\SalesChannel\\NewsletterSubscribeRoute::STATUS_OPT_IN') %}
+                        {% set statusNotSet = constant('Shopware\\Core\\Content\\Newsletter\\SalesChannel\\NewsletterSubscribeRoute::STATUS_NOT_SET') %}
+                        {% set status = false %}
+                        {% if newsletterAccountPagelet.newsletterStatus == statusDirect or newsletterAccountPagelet.newsletterStatus == statusOptIn or newsletterAccountPagelet.newsletterStatus == statusNotSet %}
+                            {% set status = true %}
+                        {% endif %}
+                        <input type="checkbox"
+                               class="form-check-input"
+                               id="newsletterRegister"
+                               name="option"
+                               autocomplete="off"
+                               value="subscribe"
+                               data-focus-id="newsletterRegister"
+                               {% if status %}checked="checked"{% endif %}>
+                    {% endblock %}
+
+                    {% block page_account_overview_newsletter_content_form_label %}
+                        <label class="form-check-label custom-control-label"
+                               for="newsletterRegister">
+                            {{ 'account.newsletterSettings'|trans({'%shopname%': config('core.basicInformation.shopName')})|sw_sanitize }}
+                        </label>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </form>
+    {% endblock %}
+{% endblock %}

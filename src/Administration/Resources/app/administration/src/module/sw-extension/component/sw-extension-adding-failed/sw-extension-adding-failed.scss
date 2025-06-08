@@ -1,0 +1,35 @@
+@import "~scss/variables";
+
+.sw-extension-adding-failed {
+    text-align: center;
+
+    .sw-circle-icon {
+        margin: 16px auto;
+    }
+
+    h3 {
+        font-size: $font-size-m;
+        margin-bottom: 0.5em;
+    }
+
+    p {
+        font-size: $font-size-xs;
+        line-height: 1.5;
+        color: $color-gray-500;
+        margin-bottom: 8px;
+    }
+
+    a {
+        color: $color-shopware-brand-500;
+        text-decoration: underline;
+    }
+
+    &__text-licence-cancellation {
+        font-weight: $font-weight-semi-bold;
+        color: $color-darkgray-200;
+    }
+
+    .mt-button {
+        margin-top: 16px;
+    }
+}

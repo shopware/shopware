@@ -1,0 +1,24 @@
+.sw-bulk-edit-order {
+    .sw-field .sw-field__label label {
+        flex-grow: 0;
+        margin-right: 10px;
+    }
+
+    .sw-card .sw-card__content {
+        padding: 0;
+    }
+
+    .sw-text-editor {
+        &.is--boxed .sw-text-editor__content {
+            height: 105px;
+        }
+
+        .sw-text-editor-buttons.is--middle {
+            display: none;
+        }
+    }
+
+    .sw-bulk-edit-order-base__documents-warning-container {
+        padding: 24px 32px 0 24px;
+    }
+}

@@ -1,0 +1,9 @@
+@import "~scss/variables";
+
+.sw-settings-country-state {
+    &__add-country-state-button {
+        color: red;
+        width: 100%;
+        height: 100%;
+    }
+}

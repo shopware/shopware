@@ -1,0 +1,79 @@
+{% block sw_flow_set_order_state_modal %}
+<sw-modal
+    class="sw-flow-set-order-state-modal"
+    :title="$tc('sw-flow.modals.status.titleSetStatus')"
+    :closable="false"
+    @modal-close="onClose"
+>
+    {% block sw_flow_set_order_state_modal_content %}
+    {% block sw_flow_set_order_state_modal_payment_status %}
+    <mt-select
+        v-model="config.order_transaction"
+        name="sw-field--config-order_transaction"
+        class="sw-flow-set-order-state-modal__payment-status"
+        :options="paymentOptions"
+        :label="$tc('sw-flow.modals.status.labelPaymentStatus')"
+        :placeholder="$tc('sw-flow.modals.status.placeholderPaymentStatus')"
+    />
+    {% endblock %}
+
+    {% block sw_flow_set_order_state_modal_delivery_status %}
+    <mt-select
+        v-model="config.order_delivery"
+        name="sw-field--config-order_delivery"
+        class="sw-flow-set-order-state-modal__delivery-status"
+        :options="deliveryOptions"
+        :label="$tc('sw-flow.modals.status.labelDeliveryStatus')"
+        :placeholder="$tc('sw-flow.modals.status.placeholderDeliveryStatus')"
+    />
+    {% endblock %}
+
+    {% block sw_flow_set_order_state_modal_order_status %}
+    <mt-select
+        v-model="config.order"
+        name="sw-field--config-order"
+        class="sw-flow-set-order-state-modal__order-status"
+        :options="orderOptions"
+        :label="$tc('sw-flow.modals.status.labelOrderStatus')"
+        :placeholder="$tc('sw-flow.modals.status.placeholderOrderStatus')"
+    />
+    {% endblock %}
+
+    {% block sw_flow_set_order_state_modal_force_transition %}
+    <mt-checkbox
+        v-model:checked="config.force_transition"
+        name="sw-field--config-force_transition"
+        class="sw-flow-set-order-state-modal__force-transition"
+        :label="$tc('sw-flow.modals.status.forceTransition')"
+        :help-text="$tc('sw-flow.modals.status.forceTransitionHelpText')"
+    />
+    {% endblock %}
+    {% endblock %}
+
+    {% block sw_flow_set_order_state_modal_footer %}
+    <template #modal-footer>
+        {% block sw_flow_set_order_state_modal_footer_cancel_button %}
+        <mt-button
+            class="sw-flow-set-order-state-modal__cancel-button"
+            size="small"
+            variant="secondary"
+            @click="onClose"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_flow_set_order_state_modal_footer_save_button %}
+        <mt-button
+            class="sw-flow-set-order-state-modal__save-button"
+            variant="primary"
+            size="small"
+            @click="onAddAction"
+        >
+            {{ sequence.id ? $tc('sw-flow.modals.buttonSaveAction') : $tc('sw-flow.modals.buttonAddAction') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

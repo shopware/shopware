@@ -1,0 +1,84 @@
+{% block sw_system_config %}
+<div class="sw-system-config">
+    <div
+        v-if="salesChannelSwitchable && config.length > 1"
+        class="sw-system-config__global-sales-channel-switch"
+    >
+        <sw-sales-channel-switch
+            :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
+            @change-sales-channel-id="onSalesChannelChanged"
+        />
+    </div>
+    {% block sw_system_config_content_card %}
+    <mt-card
+        v-for="card, index in config"
+        :key="index"
+        position-identifier="sw-system-config-content"
+        :class="`sw-system-config__card--${index}`"
+        :is-loading="isLoading"
+        :title="getInlineSnippet(card.title)"
+    >
+        <slot name="title">
+            <sw-ai-copilot-badge v-if="card.aiBadge" />
+        </slot>
+
+        <slot
+            name="beforeElements"
+            v-bind="{ card, config: actualConfigData[currentSalesChannelId] }"
+        ></slot>
+        <template
+            v-if="salesChannelSwitchable && config.length === 1"
+            #toolbar
+        >
+            <sw-sales-channel-switch
+                :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
+                @change-sales-channel-id="onSalesChannelChanged"
+            />
+        </template>
+        <template v-if="hasCssFields">
+            {% block sw_system_config_content_compile_notice %}
+            <mt-banner variant="attention">
+                {{ $tc('sw-settings.system-config.compileNotice') }}
+            </mt-banner>
+
+            {% endblock %}
+        </template>
+        <template v-if="!isLoading">
+            <template v-for="element in card.elements">
+                <slot
+                    name="card-element"
+                    v-bind="{ element: getElementBind(element), config: actualConfigData[currentSalesChannelId], card }"
+                >
+                    {% block sw_system_config_content_card_field %}
+                    <sw-inherit-wrapper
+                        v-model:value="actualConfigData[currentSalesChannelId][element.name]"
+                        v-bind="getInheritWrapperBind(element)"
+                        :has-parent="isNotDefaultSalesChannel"
+                        :inherited-value="getInheritedValue(element)"
+                        :class="'sw-system-config--field-' + kebabCase(getElementBind(element).name)"
+                    >
+                        <template #content="props">
+                            <sw-form-field-renderer
+                                v-bind="getElementBind(element, props)"
+                                :key="props.isInheritField + props.isInherited"
+                                :disabled="props.isInherited"
+                                :value="props.currentValue"
+                                :error="getFieldError(element.name)"
+                                @update:value="props.updateCurrentValue"
+                            />
+                        </template>
+                    </sw-inherit-wrapper>
+                    {% endblock %}
+                </slot>
+            </template>
+            <slot name="card-element-last"></slot>
+        </template>
+        <slot
+            name="afterElements"
+            v-bind="{ card, config: actualConfigData[currentSalesChannelId], index, isNotDefaultSalesChannel, inheritance: actualConfigData.null }"
+        >
+        </slot>
+    </mt-card>
+    {% endblock %}
+</div>
+{% endblock %}

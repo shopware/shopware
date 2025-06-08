@@ -1,0 +1,65 @@
+{
+    "document": {
+        "invoiceNumber": "Invoice %invoiceNumber%",
+        "invoiceHeadline": "Invoice %invoiceNumber%",
+        "stornoHeadline": "Cancellation %stornoNumber% for Invoice %invoiceNumber%",
+        "stornoNumber": "Cancellation no. %stornoNumber%",
+        "stornoDate": "Cancellation Date %date%",
+        "deliveryNoteNumber": "Delivery note %deliveryNoteNumber%",
+        "deliveryNoteHeadline": "Delivery note %deliveryNoteNumber% for Order %orderNumber%",
+        "creditNoteNumber": "Credit note %creditNoteNumber%",
+        "creditNoteHeadline": "Credit note %creditNoteNumber% for Invoice no. %invoiceNumber%",
+        "customerNumber": "Customer no. %customerNumber%",
+        "date": "Date %date%",
+        "comment": "Comment: %comment%",
+        "orderDate": "Order date %orderDate%",
+        "deliveryDate": "Delivery date: %deliveryDate%",
+        "page": "Page %pageNumber%",
+        "orderNumber": "Order no. %orderNumber%",
+        "taxNumber": "Tax no: %taxNumber%",
+        "vatId": "VAT Reg.No: %vatId%",
+        "taxOffice": "Tax office: %taxOffice%",
+        "bankAccount": "Bank account",
+        "bankIban": "IBAN: %bankIban%",
+        "bankBic": "BIC: %bankBic%",
+        "placeOfJurisdiction": "<strong>Place of jurisdiction:</strong> %placeOfJurisdiction%",
+        "serviceDateNotice": "Service date equivalent to invoice date",
+        "placeOfFulfillment": "<strong>Place of fulfillment:</strong> %placeOfFulfillment%",
+        "intraCommunity": "Intra-community delivery (EU)",
+        "shippingAddress": "Shipping address",
+        "phoneNumber": "Phone %phoneNumber%",
+        "email": "Email address: %email%",
+        "ceo": "CEO",
+        "lineItems": {
+            "header": {
+                "position": "Pos.",
+                "label": "Product / service",
+                "tax": "VAT",
+                "quantity": "Quantity",
+                "unitPrice": "Unit price",
+                "productNumber": "Prod. no.",
+                "total": "Total"
+            },
+            "tax": "plus %taxRate%% VAT:",
+            "taxLabeled": "plus %taxRate%% %label%:",
+            "total": "Total:",
+            "roundedTotal": "Rounded total:",
+            "totalNet": "Net total:",
+            "shippingCosts": "Shipping costs",
+            "inclVAT": "Incl. VAT",
+            "exclVAT": "Excl. VAT"
+        },
+        "paymentShippingInfo": {
+            "paymentMethod": "<strong>Payment method:</strong> %paymentMethod%",
+            "shippingMethod": "<strong>Shipping method:</strong> %shippingMethod%",
+            "additionalInfo": "Delivered goods remain our property until full payment has been made."
+        }
+    },
+    "filter": {
+        "sortByNameAscending": "Name, A-Z",
+        "sortByNameDescending": "Name, Z-A",
+        "sortByPriceAscending": "Price, ascending",
+        "sortByPriceDescending": "Price, descending",
+        "sortByScore": "Top results"
+    }
+}

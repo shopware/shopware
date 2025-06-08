@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../../../../../src/Core/System/CustomEntity/Xml/entity-1.0.xsd">
+    <entity name="ce_invalid_ref_in_columns">
+        <fields>
+            <string name="test_string" store-api-aware="true"/>
+        </fields>
+    </entity>
+</entities>

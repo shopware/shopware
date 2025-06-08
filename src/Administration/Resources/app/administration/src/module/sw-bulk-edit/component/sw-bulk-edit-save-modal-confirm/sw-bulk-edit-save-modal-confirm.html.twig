@@ -1,0 +1,43 @@
+{% block sw_bulk_edit_save_modal_confirm %}
+<div class="sw-bulk-edit-save-modal-confirm">
+    <p class="sw-bulk-edit-save-modal__help-text">
+        {{ $tc('sw-bulk-edit.modal.confirm.description', { itemCount: itemTotal }, itemTotal) }}
+    </p>
+
+    {% block sw_bulk_edit_save_modal_confirm_trigger_flows %}
+    <div
+        v-if="triggeredFlows.length > 0"
+        class="sw-bulk-edit-save-modal-confirm__trigger-flows"
+    >
+        {% block sw_bulk_edit_save_modal_confirm_trigger_flows_switch %}
+
+        <mt-switch
+            v-if="!bulkEditData?.statusMails?.isChanged"
+            v-model="isFlowTriggered"
+            name="sw-bulk-edit-save-modal-confirm-trigger-flows-switch"
+            class="sw-bulk-edit-save-modal-confirm__trigger-flows-switch"
+            :label="$tc('sw-bulk-edit.modal.confirm.switchLabel')"
+            :help-text="$tc('sw-bulk-edit.modal.confirm.switchHelpText')"
+        />
+        {% endblock %}
+
+        {% block sw_bulk_edit_save_modal_confirm_trigger_flows_alert %}
+        <mt-banner
+            v-show="isFlowTriggered"
+            class="sw-bulk-edit-save-modal-confirm__trigger-flows-alert"
+        >
+            <p>{{ $tc('sw-bulk-edit.modal.confirm.alertTitle') }}</p>
+            <span>{{ triggeredFlows.join(', ') }}</span>
+        </mt-banner>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    <mt-banner
+        variant="attention"
+        class="sw-bulk-edit-save-modal__warning"
+    >
+        {{ $tc('sw-bulk-edit.modal.warningText') }}
+    </mt-banner>
+</div>
+{% endblock %}

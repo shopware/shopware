@@ -1,0 +1,111 @@
+{% block sw_users_permissions_additional_permissions %}
+<mt-card
+    class="sw-users-permissions-additional-permissions"
+    position-identifier="sw-users-permissions-additional-permissions"
+    :title="$tc('sw-users-permissions.roles.additional-permissions.title')"
+>
+    {% block sw_users_permissions_additional_permissions_additional_privileges %}
+    <template
+        v-for="privilege in additionalPermissions"
+        :key="`head-${privilege.key}`"
+    >
+        {% block sw_users_permissions_additional_permissions_additional_privileges_headline %}
+        <h4
+            :class="'sw-users-permissions-additional-permissions_' + privilege.key"
+        >
+            {% block sw_users_permissions_additional_permissions_additional_privileges_headline_content %}
+            <strong>
+                {{ $tc('sw-privileges.additional_permissions.' + privilege.key + '.label') }}
+            </strong>
+            {% endblock %}
+        </h4>
+        {% endblock %}
+
+        {% block sw_users_permissions_additional_permissions_additional_privileges_switches %}
+        <div
+            class="sw-users-permissions-additional-permissions__switches"
+        >
+            {% block sw_users_permissions_additional_permissions_additional_privileges_switches_content %}
+            <template
+                v-for="(value, roleName) in privilege.roles"
+                :key="roleName"
+            >
+                {% block sw_users_permissions_additional_permissions_additional_privileges_switches_content_switch %}
+
+                <mt-switch
+                    :disabled="disabled"
+                    :class="'sw_users_permissions_additional_permissions_' + privilege.key + '_' + roleName"
+                    :model-value="isPrivilegeSelected(privilege.key + '.' + roleName)"
+                    :label="$tc('sw-privileges.additional_permissions.' + privilege.key + '.' + roleName)"
+                    :bordered="true"
+                    @update:model-value="onSelectPrivilege(privilege.key + '.' + roleName, $event)"
+                />
+                {% endblock %}
+            </template>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_users_permissions_additional_permissions_app_privileges %}
+    <template
+        v-for="privilege in appPermissions"
+        :key="privilege.key"
+    >
+        {% block sw_users_permissions_additional_permissions_app_privileges_headline %}
+        <h4
+            class="sw-users-permissions-additional-permissions-app"
+        >
+            {% block sw_users_permissions_additional_permissions_app_privileges_headline_content %}
+            <strong>
+                {{ $tc('sw-privileges.additional_permissions.app.label') }}
+            </strong>
+            {% endblock %}
+        </h4>
+        {% endblock %}
+
+        {% block sw_users_permissions_additional_permissions_app_privileges_switches %}
+        <div
+            class="sw-users-permissions-additional-permissions__switches"
+        >
+            {% block sw_users_permissions_additional_permissions_app_privileges_switches_content %}
+            <template
+                v-for="(key, roleName) in privilege.roles"
+                :key="roleName"
+            >
+                {% block sw_users_permissions_additional_permissions_app_privileges_switches_content_switch %}
+
+                <mt-switch
+                    v-if="roleName === 'all'"
+                    :disabled="disabled"
+                    class="sw_users_permissions_additional_permissions_app_all"
+                    :model-value="isPrivilegeSelected('app.' + roleName)"
+                    :label="$tc('sw-privileges.additional_permissions.app.all')"
+                    :bordered="true"
+                    @update:model-value="changeAllAppPermissionsForKey('app.' + roleName, $event)"
+                />
+
+                <mt-switch
+                    v-else
+                    v-tooltip="{
+                        message: $tc('sw-privileges.additional_permissions.app.disabledCheckboxMessage'),
+                        disabled: !isPrivilegeSelected('app.all') || disabled,
+                        showOnDisabledElements: false
+                    }"
+                    :disabled="isPrivilegeSelected('app.all') || disabled"
+                    :class="'sw_users_permissions_additional_permissions_app_' + roleName"
+                    :model-value="isPrivilegeSelected('app.' + roleName)"
+                    :label="roleName"
+                    :bordered="true"
+                    @update:model-value="onSelectPrivilege('app.' + roleName, $event)"
+                />
+                {% endblock %}
+            </template>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</mt-card>
+{% endblock %}

@@ -1,0 +1,61 @@
+{
+    "name": "shopware/storefront",
+    "description": "Storefront for Shopware",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Shopware\\Storefront\\": ""
+        },
+        "exclude-from-classmap": [
+            "*/Test/"
+        ]
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "support": {
+        "issues": "https://github.com/shopware/shopware/issues",
+        "forum": "https://forum.shopware.com",
+        "wiki": "https://developer.shopware.com",
+        "docs": "https://developer.shopware.com",
+        "chat": "https://slack.shopware.com"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "6.7.x-dev",
+            "dev-trunk": "6.7.x-dev"
+        }
+    },
+    "require": {
+        "php": "~8.2.0 || ~8.3.0 || ~8.4.0",
+        "cocur/slugify": "^4.3.0",
+        "doctrine/dbal": "^4.2",
+        "meyfa/php-svg": "^0.14.0",
+        "scssphp/scssphp": "v1.12.0",
+        "shopware/core": "*",
+        "symfony/cache": "~7.2.0",
+        "symfony/cache-contracts": "~3.5.0",
+        "symfony/console": "~7.2.0",
+        "symfony/config": "~7.2.0",
+        "symfony/dependency-injection": "~7.2.0",
+        "symfony/event-dispatcher": "~7.2.0",
+        "symfony/event-dispatcher-contracts": "~3.5.0",
+        "symfony/framework-bundle": "~7.2.0",
+        "symfony/http-foundation": "~7.2.0",
+        "symfony/http-kernel": "~7.2.0",
+        "symfony/messenger": "~7.2.0",
+        "symfony/routing": "~7.2.0",
+        "symfony/service-contracts": "~3.5.0",
+        "symfony/validator": "~7.2.0",
+        "symfony/security-core": "~7.2.0",
+        "symfony/mime": "~7.2.0",
+        "twig/intl-extra": "^3.10.0",
+        "twig/string-extra": "^3.10.0",
+        "twig/twig": "^3.19.0"
+    },
+    "require-dev": {
+        "symfony/css-selector": "~7.2.0",
+        "phpunit/phpunit": "^11.5.17"
+    }
+}

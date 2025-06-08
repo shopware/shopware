@@ -1,0 +1,42 @@
+{% block sw_contextual_field %}
+<sw-block-field
+    class="sw-contextual-field"
+    v-bind="$attrs"
+>
+    <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+
+        <div
+            v-if="hasPrefix"
+            class="sw-field__addition is--prefix"
+        >
+            <slot
+                name="sw-contextual-field-prefix"
+                v-bind="{ disabled, identification }"
+            ></slot>
+        </div>
+
+        <slot
+            name="sw-field-input"
+            v-bind="{ identification, error, disabled, size, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }"
+        ></slot>
+
+        <div
+            v-if="hasSuffix"
+            class="sw-field__addition"
+        >
+            <slot
+                name="sw-contextual-field-suffix"
+                v-bind="{ disabled, identification }"
+            ></slot>
+        </div>
+    </template>
+
+    <template #hint>
+        <slot name="hint"></slot>
+    </template>
+
+    <template #label>
+        <slot name="label"></slot>
+    </template>
+</sw-block-field>
+{% endblock %}

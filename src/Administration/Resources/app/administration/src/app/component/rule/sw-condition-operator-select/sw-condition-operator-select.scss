@@ -1,0 +1,17 @@
+@import "~scss/variables";
+
+.sw-condition-operator-select {
+    position: relative;
+    flex-shrink: 0;
+    min-width: 128px;
+    height: 100%;
+    background-color: $color-white;
+
+    .sw-condition-operator-select__select {
+        height: 100%;
+    }
+
+    &.is--disabled {
+        background-color: transparent;
+    }
+}

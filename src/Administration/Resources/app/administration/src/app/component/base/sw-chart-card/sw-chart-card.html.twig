@@ -1,0 +1,68 @@
+{% block sw_chart_card %}
+<mt-card
+    :subtitle="cardSubtitle"
+    :position-identifier="positionIdentifier"
+>
+    {% block sw_chart_card_title %}
+    <template #title>
+        <div class="sw-card__title">
+            {% block sw_chart_card_title_slot %}
+            <slot name="header-title">
+                {{ cardTitle }}
+            </slot>
+            {% endblock %}
+
+            {% block sw_chart_card_title_help_text %}
+            <mt-icon
+                v-if="helpText"
+                v-tooltip="helpText"
+                class="sw-chart-card__title-help-text"
+                name="solid-question-circle"
+                size="20"
+            />
+            {% endblock %}
+        </div>
+    </template>
+    {% endblock %}
+
+    {% block sw_chart_card_header %}
+    <template #headerRight>
+        <div class="sw-chart-card__header-right">
+            {% block sw_chart_card_header_slot_link %}
+            <slot name="header-link"></slot>
+            {% endblock %}
+
+            {% block sw_chart_card_header_link_arrow %}
+            <span v-if="hasHeaderLink">&rarr;</span>
+            {% endblock %}
+
+            {% block sw_chart_card_header_range_select %}
+            <sw-select-field-deprecated
+                v-model:value="selectedRange"
+                name="sw-field--selectedRange"
+                size="small"
+                @update:value="dispatchRangeUpdate"
+            >
+                {% block sw_chart_card_header_range_select_options %}
+                <option
+                    v-for="(range, index) in availableRanges"
+                    :key="range"
+                    :value="range"
+                >
+                    <slot
+                        name="range-option"
+                        v-bind="{ index, range }"
+                    ></slot>
+                </option>
+                {% endblock %}
+            </sw-select-field-deprecated>
+            {% endblock %}
+        </div>
+    </template>
+    {% endblock %}
+
+    {% block sw_chart_card_inner_chart %}
+    <sw-chart v-bind="$attrs" />
+    {% endblock %}
+</mt-card>
+{% endblock %}

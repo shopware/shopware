@@ -1,0 +1,1 @@
+{% block frontend_index_innerblock %}{% set internvars = {'internparameter' : 'notvisible'} %}{% set vars = {'parameter' : 'valuefromindex'} %}{% sw_include '@Storefront/storefront/frontend/innerblockwithvarsonlynot.html.twig' with vars %}{% sw_include '@Storefront/storefront/frontend/innerblockwithvarsonly.html.twig' with vars only %}{% endblock %}

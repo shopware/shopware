@@ -1,0 +1,74 @@
+@import "~scss/variables";
+
+.sw-license-violation-confirm-delete {
+    z-index: 1300;
+}
+
+.sw-license-violation {
+    z-index: 1200;
+
+    .sw-modal__body {
+        font-size: $font-size-xs;
+    }
+
+    .sw-license-violation__text {
+        display: block;
+        line-height: 1.5;
+    }
+
+    .sw-license-violation__table {
+        border-collapse: collapse;
+        margin: 25px 0 0;
+
+        tr {
+            border-bottom: 1px solid $color-gray-300;
+        }
+
+        > :last-child {
+            border-bottom: 0;
+        }
+
+        th,
+        td {
+            text-align: left;
+            vertical-align: top;
+            padding: 20px 10px;
+        }
+    }
+
+    .sw-license-violation__table-name {
+        display: flex;
+
+        img {
+            max-width: 40px;
+            margin-right: 10px;
+        }
+
+        strong {
+            transform: translateY(-4px);
+        }
+    }
+
+    td.sw-license-violation__table-actions {
+        text-align: right;
+
+        div.sw-license-violation__table-actions-wrap {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+    }
+
+    .sw-license-violation__table-action-remove {
+        margin-right: 8px;
+    }
+
+    .sw-modal__footer {
+        grid-auto-columns: auto;
+
+        .sw-field--checkbox {
+            margin-bottom: 0;
+            margin-right: 20px;
+        }
+    }
+}

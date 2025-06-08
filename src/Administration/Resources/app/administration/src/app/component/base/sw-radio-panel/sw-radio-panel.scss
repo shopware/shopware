@@ -1,0 +1,100 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+.sw-radio-panel {
+    background: $color-white;
+    display: block;
+    position: relative;
+    max-width: 300px;
+
+    .sw-radio-panel__image {
+        width: 80px;
+        height: 80px;
+        background-color: $color-shopware-brand-50;
+        color: $color-shopware-brand-100;
+        border-radius: 50%;
+        margin: 0 auto 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sw-radio-panel__title {
+        display: block;
+        font-size: $font-size-m;
+        font-weight: normal;
+        margin: 0 0 12px;
+        color: $color-darkgray-200;
+        transition: all 0.2s ease-in-out;
+
+        &.is--truncate {
+            @include truncate;
+
+            display: block;
+        }
+    }
+
+    .sw-radio-panel__description {
+        display: block;
+        font-size: $font-size-xs;
+
+        &.is--truncate {
+            @include truncate;
+
+            display: block;
+        }
+    }
+
+    .sw-radio-panel__body {
+        display: block;
+        padding: 30px;
+        height: 100%;
+        border: 1px solid $color-gray-300;
+        border-radius: $border-radius-default;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .sw-radio-panel__radio {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 15px;
+        height: 15px;
+        background-color: $color-gray-100;
+        border: 2px solid $color-gray-300;
+        border-radius: 50%;
+        transition: all 0.2s ease-in-out;
+    }
+
+    input[type="radio"] {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        visibility: hidden;
+
+        &:checked + .sw-radio-panel__body {
+            border-color: $color-shopware-brand-500;
+
+            .sw-radio-panel__title {
+                color: $color-shopware-brand-500;
+            }
+
+            .sw-radio-panel__radio {
+                border: 5px solid $color-shopware-brand-500;
+                background-color: $color-white;
+            }
+        }
+    }
+
+    &:hover {
+        .sw-radio-panel__title {
+            color: $color-shopware-brand-500;
+        }
+
+        .sw-radio-panel__body {
+            border-color: $color-shopware-brand-500;
+        }
+    }
+}

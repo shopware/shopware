@@ -1,0 +1,95 @@
+name: Nightly
+
+on:
+  schedule:
+    - cron: "0 1 * * *" # every day at 01:00
+  workflow_dispatch:
+
+jobs:
+  redis:
+    name: Redis
+    runs-on: ubuntu-24.04
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        redis:
+          - redis:alpine
+          - eqalpha/keydb:latest
+          - valkey/valkey:8.0
+    services:
+      redis:
+        image: ${{ matrix.redis }}
+        ports:
+          - "6379:6379"
+    env:
+      REDIS_URL: redis://localhost:6379
+      COMPOSER_ROOT_VERSION: 6.7.9999999-dev
+
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+      - name: Run PHPUnit
+        run: |
+          ./vendor/bin/phpunit --group=redis --testsuite migration,unit,integration,devops
+
+  admin:
+    uses: ./.github/workflows/admin.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+  integration:
+    uses: ./.github/workflows/integration.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+    with:
+      nightly: true
+  visual-tests:
+    uses: ./.github/workflows/visual-tests.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+    with:
+      nightly: true
+  php:
+    uses: ./.github/workflows/php.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+  storefront:
+    uses: ./.github/workflows/storefront.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+  downstream:
+    uses: ./.github/workflows/downstream.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+    with:
+      nightly: true
+  prepare-release: # This will only execute dry-runs and push current trunk to the many-repos
+    uses: ./.github/workflows/05-prepare-release.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+
+  nightly-6-6-x:
+    runs-on: ubuntu-24.04
+    if: github.repository == 'shopware/shopware' && github.ref == 'refs/heads/trunk'
+    permissions:
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        branch:
+          - "6.6.x"
+          - "6.7.0.0"
+    steps:
+      - name: Delay
+        run: sleep 20m
+      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
+        id: sts
+        with:
+          scope: shopware
+          identity: ShopwareNightly
+      - env:
+          GH_TOKEN: ${{ steps.sts.outputs.token }}
+        run: gh workflow run "${{ github.workflow }}" --repo "${{ github.repository }}" --ref "${{ matrix.branch }}"

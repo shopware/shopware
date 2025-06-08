@@ -1,0 +1,149 @@
+{
+  "sw-mail-template": {
+    "general": {
+      "mainMenuItemList": "Übersicht",
+      "mainMenuItemGeneral": "E-Mail-Templates",
+      "placeholderSearchBar": "Durchsuche E-Mail-Templates ...",
+      "notificationTestMailSalesChannelErrorMessage": "Bitte wähle einen Verkaufskanal aus",
+      "notificationTestMailErrorMessage": "Beim Versand der Test-Mail ist ein Fehler aufgetreten.",
+      "notificationTestMailSuccessMessage": "Die Test-Mail ist erfolgreich versandt worden.",
+      "notificationSyntaxValidationErrorMessage": "Ungültiges Template, überprüfe die Syntax: {errorMsg}",
+      "notificationGeneralSyntaxValidationErrorMessage": "Ungültiges Template, überprüfe die Syntax.",
+      "missingMailTemplateTypeErrorMessage": "Ein erforderliche E-Mail-Template-Typ fehlt oder ist nicht verfügbar."
+    },
+    "list": {
+      "textMailTemplateOverview": "E-Mail-Templates",
+      "titleMailTemplateList": "Templates",
+      "titleMailFooterList": "Fußzeilen",
+      "buttonAddMailTemplate": "E-Mail-Template hinzufügen",
+      "columnMailType": "Typ",
+      "columnDescription": "Beschreibung",
+      "columnSalesChannels": "Verkaufskanal",
+      "contextMenuDelete": "Löschen",
+      "contextMenuEdit": "Bearbeiten",
+      "contextMenuDuplicate": "Duplizieren",
+      "textDeleteConfirm": "Möchtest Du das E-Mail-Template \"{subject}\" wirklich löschen?",
+      "buttonDelete": "Löschen",
+      "titleSidebarItemRefresh": "Aktualisieren",
+      "errorMediaItemDuplicated": "Medium bereits verwendet",
+      "columnFilename": "Dateiname",
+      "emptyStateTitle": "Noch keine E-Mail-Templates",
+      "emptyStateSubTitle": "Füge E-Mail-Templates über den \"Hinzufügen\"-Button hinzu."
+    },
+    "detail": {
+      "basic": {
+        "titleCard": "Information",
+        "labelMailType": "Typ",
+        "labelDescription": "Beschreibung",
+        "labelSalesChannels": "Verkaufskanal",
+        "placeholderMailType": "Wähle einen Typ ...",
+        "placeholderDescription": "Gib eine Beschreibung ein ...",
+        "placeholderSalesChannels": "Wähle Verkaufskanäle aus ..."
+      },
+      "options": {
+        "titleCard": "Optionen",
+        "labelSenderMail": "Absender-Mail",
+        "labelSenderName": "Absender",
+        "labelSubject": "Betreff",
+        "placeholderSenderMail": "shop{'@'}beispiel.com ...",
+        "placeholderSenderName": "Shopnamen eingeben ...",
+        "placeholderSubject": "Betreff eingeben ..."
+      },
+      "mailText": {
+        "titleCard": "Mail-Text",
+        "labelContentPlain": "Text",
+        "labelContentHtml": "HTML",
+        "placeholderPlain": "Text-Inhalt eingeben ...",
+        "placeholderHtml": "HTML-Inhalt eingeben ..."
+      },
+      "media": {
+        "titleCard": "Anhänge",
+        "buttonDelete": "Löschen"
+      },
+      "sidebar": {
+        "labelContextMenuAddToMailTemplate": "Als Anhang hinzufügen",
+        "placeholderTestMail": "E-Mail-Adresse eingeben ...",
+        "buttonTestMail": "Senden",
+        "labelTestMail": "Empfänger-Adresse",
+        "titleTestMail": "Test-Mail senden",
+        "titleShowPreview": "Vorschau anzeigen",
+        "titleShowAvailableVariables": "Variablen",
+        "copyTooltip": "In die Zwischenablage kopieren.",
+        "languageNotAssignedToSalesChannel": "Die aktuelle Sprache ist nicht dem gewählten Verkaufskanal zugewiesen."
+      },
+      "previewModalTitle": "Vorschau",
+      "buttonSave": "Speichern",
+      "textHeadline": "Neues E-Mail-Template",
+      "textHeadlineEdit": "E-Mail-Template bearbeiten",
+      "titleResult": "E-Mail-Templates",
+      "messageSaveSuccess": "Das E-Mail-Template \"{subject}\" wurde erfolgreich gespeichert.",
+      "messageSaveError": "Das E-Mail-Template \"{subject}\" konnte nicht gespeichert werden.",
+      "textErrorMessage": "Fehlermeldung"
+    }
+  },
+  "sw-mail-header-footer": {
+    "general": {
+      "mainMenuItemList": "Kopf- und Fußzeilen",
+      "placeholderSearchBar": "E-Mail-Kopf- und Fußzeilen durchsuchen ...",
+      "mainMenuItemGeneral": "Kopf- & Fußzeilen"
+    },
+    "list": {
+      "textMailHeaderFooterOverview": "Kopf- und Fußzeilen",
+      "buttonAddMailHeaderFooter": "Kopf- und Fußzeile hinzufügen",
+      "columnName": "Name",
+      "columnDescription": "Beschreibung",
+      "columnSalesChannels": "Verkaufskanal",
+      "contextMenuDelete": "Löschen",
+      "contextMenuEdit": "Bearbeiten",
+      "contextMenuDuplicate": "Duplizieren",
+      "textDeleteConfirm": "Möchtest Du die Kopf- und Fußzeile \"{name}\" wirklich löschen?",
+      "buttonDelete": "Löschen",
+      "titleSidebarItemRefresh": "Aktualisieren",
+      "messageDeleteError": "Die Kopf- und Fußzeile \"{name}\" kann nicht gelöscht werden, solange Verkaufskanäle konfiguriert sind.",
+      "emptyStateTitle": "Noch keine Kopf- und Fußzeile",
+      "emptyStateSubTitle": "Füge Kopf- und Fußzeile über den \"Hinzufügen\"-Button."
+    },
+    "detail": {
+      "basic": {
+        "titleCard": "Informationen",
+        "labelName": "Name",
+        "labelDescription": "Beschreibung",
+        "labelSalesChannels": "Verkaufskanäle",
+        "placeholderName": "Namen eingeben ...",
+        "placeholderDescription": "Beschreibung eingeben ...",
+        "placeholderSalesChannels": "Wähle zutreffende Verkaufskanäle ..."
+      },
+      "header": {
+        "titleCard": "Mail-Kopfzeile",
+        "labelPlain": "Text",
+        "labelHtml": "HTML",
+        "placeholderPlain": "Kopfzeile als Text eingeben ...",
+        "placeholderHtml": "Kopfzeile als HTML eingeben ..."
+      },
+      "footer": {
+        "titleCard": "Mail-Fußzeile",
+        "labelPlain": "Text",
+        "labelHtml": "HTML",
+        "placeholderPlain": "Fußzeile als Text eingeben ...",
+        "placeholderHtml": "Fußzeile als HTML eingeben ..."
+      },
+      "buttonSave": "Speichern",
+      "textHeadline": "Neue E-Mail-Kopf- und Fußzeile",
+      "titleResult": "E-Mail-Kopf- und Fußzeile",
+      "messageSaveSuccess": "Die E-Mail-Kopf- und Fußzeile \"{name}\" wurde erfolgreich gespeichert.",
+      "messageSaveError": "Die E-Mail-Kopf- und Fußzeile \"{name}\" konnte nicht gespeichert werden."
+    },
+    "modal": {
+      "title": "Mehrere Zuweisungen",
+      "mainContent": "Für die folgenden Verkaufskanäle existiert bereits ein Kopf- und Fußzeilen-Template. Wenn Du dieses Template speicherst, wird die Zuweisung des bisherigen Templates überschrieben.",
+      "affectedList": "Die folgenden Verkaufskanäle sind betroffen:"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "mail_templates": {
+        "label": "E-Mail-Templates"
+      }
+    }
+  }
+}

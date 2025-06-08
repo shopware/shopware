@@ -1,0 +1,25 @@
+@import "~scss/variables";
+
+$sw-settings-snippets-sidebar-border: $color-gray-300;
+
+.sw-settings-snippet-filter-switch {
+    .sw-settings-snippet-filter-switch__field {
+        padding-left: 20px;
+
+        &.border-top {
+            border-top: 1px solid $sw-settings-snippets-sidebar-border;
+        }
+
+        &.border-bottom {
+            border-bottom: 1px solid $sw-settings-snippets-sidebar-border;
+        }
+
+        &.sw-settings-snippet-filter-switch--small {
+            padding-top: 0;
+        }
+
+        &.sw-settings-snippet-filter-switch--large {
+            padding-top: 30px;
+        }
+    }
+}

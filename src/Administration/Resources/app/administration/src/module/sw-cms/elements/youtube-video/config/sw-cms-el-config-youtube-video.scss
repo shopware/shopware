@@ -1,0 +1,23 @@
+.sw-cms-el-config-youtube-video {
+    .sw-cms-el-config-youtube-video__video-id {
+        margin-bottom: 20px;
+    }
+
+    &__switches {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 32px 32px;
+        grid-column-gap: 32px;
+        margin-bottom: 32px;
+
+        .sw-field--switch {
+            margin-top: 0;
+        }
+    }
+
+    &__start-and-end {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-column-gap: 32px;
+    }
+}

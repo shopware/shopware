@@ -1,0 +1,49 @@
+@import "~scss/variables";
+
+$sw-settings-document-list-font-size-default: $font-size-s;
+
+.sw-settings-document-list {
+    .is--default {
+        color: $color-emerald-500;
+    }
+
+    .sw-list {
+        list-style: none;
+    }
+
+    .sw-settings-document-list__collapse-title {
+        font-size: $sw-settings-document-list-font-size-default;
+        font-weight: normal;
+        margin: 0 25px;
+    }
+
+    .sw-settings-document-list__collapse-header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        cursor: pointer;
+        padding-bottom: 16px;
+        color: #607182;
+        border-bottom: 1px solid $color-gray-300;
+
+        .sw-settings-document-list__collapse-indicator {
+            margin-right: 25px;
+        }
+    }
+
+    .sw-settings-document-list__filterField.sw-field--switch {
+        grid-template-columns: 24px 1fr;
+        margin: 16px 0 0 16px;
+
+        &.sw-field label {
+            font-size: $sw-settings-document-list-font-size-default;
+        }
+    }
+
+    .sw-document-list__label-wrapper {
+        display: flex;
+
+        .sw-label {
+            margin: 0;
+        }
+    }
+}

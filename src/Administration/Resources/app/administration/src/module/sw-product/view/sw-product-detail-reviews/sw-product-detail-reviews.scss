@@ -1,0 +1,11 @@
+@import "~scss/variables";
+
+.sw-product-detail-reviews {
+    &__stars {
+        font-size: 0;
+
+        .icon--default-review-star-full {
+            color: $color-module-yellow-400;
+        }
+    }
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<routes xmlns="http://symfony.com/schema/routing"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://symfony.com/schema/routing
+        https://symfony.com/schema/routing/routing-1.0.xsd">
+
+    <import resource="../../Cart/**/*Controller.php" type="attribute" />
+    <import resource="../../Payment/**/*Controller.php" type="attribute" />
+    <import resource="../../Cart/SalesChannel/**/*Controller.php" type="attribute" />
+    <import resource="../../Customer/SalesChannel/**/*Controller.php" type="attribute" />
+    <import resource="../../Document/**/*Controller.php" type="attribute" />
+    <import resource="../../Promotion/**/*Controller.php" type="attribute" />
+    <import resource="../../Order/Api/**/*Controller.php" type="attribute" />
+    <import resource="../../Customer/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="../../Payment/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="../../Shipping/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="../../Customer/Api/**/*Controller.php" type="attribute" />
+    <import resource="../../Customer/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="../../Order/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="../../Cart/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="../../Document/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="../../Gateway/SalesChannel/**/*Route.php" type="attribute" />
+</routes>

@@ -1,0 +1,23 @@
+{% block component_line_item_tax_price %}
+    {% block component_line_item_tax_price_label %}
+        <div class="line-item-tax-price-label">
+            {% if context.taxState == 'gross' %}
+                {{ 'checkout.cartHeaderTaxIncludeVat'|trans|sw_sanitize }}
+            {% else %}
+                {{ 'checkout.cartHeaderTaxExcludeVat'|trans|sw_sanitize }}
+            {% endif %}
+        </div>
+    {% endblock %}
+
+    {% block component_line_item_tax_price_inner %}
+        {% for calculatedTax in lineItem.price.calculatedTaxes %}
+            {% set calculatedTaxValue = calculatedTax.tax ?? 0 %}
+            {% if calculatedTaxValue < 0 %}
+                &minus;
+            {% endif %}
+
+            {{ calculatedTaxValue|abs|currency }}
+            <br>
+        {% endfor %}
+    {% endblock %}
+{% endblock %}

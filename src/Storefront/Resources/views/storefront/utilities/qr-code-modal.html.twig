@@ -1,0 +1,94 @@
+{# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
+{% block spatial_ar_qr_code_modal %}
+    {% block spatial_ar_qr_code_modal_show_qr %}
+        <div class="modal ar-qr-modal"
+             tabindex="-1"
+             role="dialog"
+             aria-modal="true"
+             aria-hidden="true"
+             aria-labelledby="ar-qr-modal-title">
+            <div class="modal-dialog">
+                <div class="modal-content ar-qr-modal-content">
+                    <div class="modal-header ar-qr-modal-header">
+                        {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
+                        {% block spatial_ar_qr_code_modal_show_qr_header %}
+                            <h3 id="ar-qr-modal-title" class="modal-title text-center w-100">{{ 'spatial.ar.scanQrCode'|trans|striptags }}</h3>
+                            <button type="button" class="btn-close close" data-bs-dismiss="modal" aria-label="{{ 'global.default.close'|trans|striptags }}"></button>
+                        {% endblock %}
+                    </div>
+                    <div class="modal-body ar-qr-modal-body">
+                        {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
+                        {% block spatial_ar_qr_code_modal_show_qr_body %}
+                            <div class="text-center ar-qr-modal-body-text">
+                                <span>{{ 'spatial.ar.pointToQrCode'|trans|striptags }}</span>
+                            </div>
+                            <div class="text-center">
+                                <div class="ar-qr-modal-body-qr-code" data-page-qrcode-generator {% if qrCodeOptions %} data-page-qrcode-generator-options="{{ qrCodeOptions|json_encode|escape('html_attr') }}"{% endif %}></div>
+                            </div>
+                        {% endblock %}
+                    </div>
+                    <div class="modal-footer ar-qr-modal-footer">
+                        {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
+                        {% block spatial_ar_qr_code_modal_show_qr_footer %}
+                            <div class="text-center ar-qr-modal-footer-headline">
+                                <span>{{ 'spatial.ar.whyDoISeeThis'|trans|striptags }}</span>
+                            </div>
+                            <div class="text-center">
+                                <span id="ar-qr-modal-error-reason">{{ 'spatial.ar.errors.unknownARError.reason'|trans|striptags }}</span>
+                                <span id="ar-qr-modal-error-solution">{{ 'spatial.ar.errors.unknownARError.solution'|trans|striptags }}</span>
+                            </div>
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+    {% block spatial_ar_qr_code_modal_open_ar_session %}
+        <div class="modal is-fullscreen ar-qr-modal-open-session"
+             tabindex="-1"
+             role="dialog"
+             aria-modal="true"
+             aria-hidden="true"
+             aria-labelledby="ar-qr-session-modal-title">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header p-2">
+                        {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
+                        {% block spatial_ar_qr_code_modal_open_ar_session_header %}
+                            <h5 id="ar-qr-session-modal-title" class="modal-title">{{ 'spatial.ar.augmentedRealityView'|trans|striptags }}</h5>
+                            <button type="button" class="btn-close close m-1" data-bs-dismiss="modal" aria-label="{{ 'global.default.close'|trans|striptags }}"></button>
+                        {% endblock %}
+                    </div>
+                    <div class="modal-body">
+                        {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
+                        {% block spatial_ar_qr_code_modal_open_ar_session_body %}
+                            <div class="ar-splash-screen text-center m-3 position-relative">
+                                <div class="floor-splash-icon text-center my-3 mx-auto position-absolute mt-2">
+                                    {% sw_icon 'floor-ar-splash' style {
+                                        size: 'fluid'
+                                    } %}
+                                </div>
+                                <div class="cube-splash-icon text-center my-3 mx-auto position-absolute">
+                                    {% sw_icon 'cube-3d-shade' style {
+                                        size: 'fluid',
+                                        color: '#000'
+                                    } %}
+                                </div>
+                                <button class="ar-btn-open-session btn btn-primary mx-auto position-absolute mb-2"
+                                    {% if qrCodeOptions.params.autostartAr %}data-modal-open-ar-session-autostart="{{ qrCodeOptions.params.autostartAr }}"{% endif %}>
+                                    <div class="ar-btn-icon-with-label">
+                                        {% sw_icon 'augmented' style {
+                                            size: 'sm'
+                                        } %}
+                                        <span id="ar-btn-open-session-text">{{ 'spatial.ar.openArView'|trans|striptags }}</span>
+                                    </div>
+                                </button>
+                            </div>
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+{% endblock %}

@@ -1,0 +1,21 @@
+/*
+Mixin for multiline text truncate
+==================================================
+@sw-package framework
+*/
+@mixin truncate-multiline($line-height: 1.2em, $line-count: 2, $bg-color: white) {
+    overflow: hidden;
+    line-height: $line-height;
+    height: $line-height * $line-count;
+    text-align: justify;
+    margin-right: -1em;
+    padding-right: 1em;
+    max-width: 95%;
+    /* stylelint-disable */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: $line-count;
+    /* stylelint-enable */
+    line-clamp: $line-count;
+    text-overflow: ellipsis;
+}

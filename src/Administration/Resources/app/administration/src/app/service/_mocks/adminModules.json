@@ -1,0 +1,126 @@
+[
+  {
+    "name": "first-module",
+    "type": "core",
+    "icon": "default-icon",
+    "routes": {
+      "index": {
+        "path": "index",
+        "component": "sw-index"
+      }
+    },
+    "navigation": [
+      {
+        "id": "sw.second.top.level",
+        "path": "first.module.index",
+        "label": "second top level entry",
+        "icon": "default-icon",
+        "position": 20
+      },
+      {
+        "id": "sw.second.level.last",
+        "path": "first-module-index",
+        "label": "last child of second top level entry",
+        "position": 40,
+        "parent": "sw.second.top.level"
+      },
+      {
+        "id": "sw.second.level.first",
+        "path": "first-module-index",
+        "label": "first child of second top level entry",
+        "position": 10,
+        "parent": "sw.second.top.level"
+      },
+      {
+        "id": "sw.third.level.first",
+        "path": "first-module-index",
+        "label": "first child of third top level entry",
+        "position": 10,
+        "parent": "sw.second.level.last"
+      },
+      {
+        "id": "sw.fourth.level.first",
+        "path": "first-module-index",
+        "label": "first child of fourth top level entry. Should not be rendered",
+        "position": 10,
+        "parent": "sw.third.level.first"
+      },
+      {
+        "id": "sw.fifth.level.first",
+        "path": "first-module-index",
+        "label": "first child of fifth top level entry. Should not be rendered",
+        "position": 10,
+        "parent": "sw.fourth.level.first"
+      }
+    ]
+  },
+  {
+    "name": "second-module",
+    "type": "core",
+    "icon": "default-icon",
+    "routes": {
+      "index": {
+        "path": "index",
+        "component": "sw-index"
+      }
+    },
+    "navigation": [
+      {
+        "id": "sw.first.top.level",
+        "label": "first top level entry",
+        "icon": "default-icon"
+      },
+      {
+        "id": "sw.second.level.second",
+        "path": "second.module.index",
+        "label": "second child of second top level entry",
+        "position": 20,
+        "parent": "sw.second.top.level"
+      }
+    ]
+  },
+  {
+    "name": "no-navigation",
+    "routes": {
+      "index": {
+        "path": "index",
+        "component": "sw-index"
+      }
+    }
+  },
+  {
+    "name": "children-with-privilege",
+    "type": "core",
+    "icon": "default-icon",
+    "routes": {
+      "index": {
+        "path": "index",
+        "component": "sw-index"
+      }
+    },
+    "navigation": [
+      {
+        "id": "children.with.privilege",
+        "label": "children menu entry",
+        "icon": "default-icon",
+        "position": 150
+      },
+      {
+        "id": "children.with.privilege.first",
+        "path": "children.with.privilege.index",
+        "label": "Entry with privilege",
+        "position": 10,
+        "parent": "children.with.privilege",
+        "privilege": "shouldReturnFalse"
+      },
+      {
+        "id": "children.with.privilege.second",
+        "path": "children.with.privilege.index",
+        "label": "Entry without privilege",
+        "position": 20,
+        "parent": "children.with.privilege",
+        "privilege": "shouldReturnTrue"
+      }
+    ]
+  }
+]

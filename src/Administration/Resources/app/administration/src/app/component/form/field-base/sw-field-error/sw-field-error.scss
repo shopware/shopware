@@ -1,0 +1,11 @@
+@import "~scss/variables";
+
+.sw-field__error {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+    font-size: $font-size-xxs;
+    line-height: 1.25;
+    color: $color-crimson-500;
+}

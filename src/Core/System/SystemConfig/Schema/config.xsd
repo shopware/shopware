@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="config">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="card" type="card" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+        <xs:unique name="uniqueInputFieldName">
+            <xs:selector xpath="card/input-field/name"/>
+            <xs:field xpath="."/>
+        </xs:unique>
+    </xs:element>
+    <xs:complexType name="card">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="title" type="translatableString" maxOccurs="unbounded"/>
+            <xs:element name="name" type="xs:string" minOccurs="0"/>
+            <xs:element name="ai-badge" type="xs:boolean" minOccurs="0"/>
+            <xs:element name="input-field" type="input-field" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="component" type="component" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="flag" type="xs:string" minOccurs="0"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="component">
+        <xs:sequence>
+            <xs:element name="name" type="name"/>
+            <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="input-field">
+        <xs:sequence>
+            <xs:element name="name" type="name"/>
+            <xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="type" type="type" default="text"/>
+    </xs:complexType>
+    <xs:simpleType name="type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="text"/>
+            <xs:enumeration value="textarea"/>
+            <xs:enumeration value="text-editor"/>
+            <xs:enumeration value="url"/>
+            <xs:enumeration value="password"/>
+            <xs:enumeration value="int"/>
+            <xs:enumeration value="float"/>
+            <xs:enumeration value="bool"/>
+            <xs:enumeration value="checkbox"/>
+            <xs:enumeration value="datetime"/>
+            <xs:enumeration value="date"/>
+            <xs:enumeration value="time"/>
+            <xs:enumeration value="colorpicker"/>
+            <xs:enumeration value="single-select"/>
+            <xs:enumeration value="multi-select"/>
+            <xs:enumeration value="price"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="translatableString">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="lang" type="languageCode" default="en-GB"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:simpleType name="languageCode">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[a-z]{2}-[A-Z]{2}"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="option-collection">
+        <xs:sequence>
+            <xs:element name="option" type="option" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="option">
+        <xs:sequence>
+            <xs:element name="id" type="xs:string"/>
+            <xs:element name="name" type="translatableString" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="name">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[a-zA-Z][a-zA-Z0-9]*"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

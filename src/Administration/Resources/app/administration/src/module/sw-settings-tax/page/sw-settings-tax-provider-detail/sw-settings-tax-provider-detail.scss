@@ -1,0 +1,11 @@
+@import "~scss/variables";
+
+.sw-settings-tax-tax-provider-detail {
+    .sw-settings-tax-tax-provider-detail-info {
+        max-width: $content-width;
+
+        @media screen and (max-width: 1360px) {
+            max-width: 770px;
+        }
+    }
+}

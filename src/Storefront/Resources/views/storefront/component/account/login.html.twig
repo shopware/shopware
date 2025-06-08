@@ -1,0 +1,106 @@
+{% block component_account_login %}
+    <div class="card login-card mb-3">
+        <div class="card-body">
+            {% block component_account_login_header %}
+                {% if cardTitle %}
+                    <h2 class="card-title">
+                        {{ cardTitle }}
+                    </h2>
+                {% endif %}
+            {% endblock %}
+
+            {% block component_account_login_form %}
+                <form class="login-form"
+                      action="{{ path('frontend.account.login') }}"
+                      method="post"
+                      data-form-handler="true">
+                    {% block component_account_login_form_redirect %}
+                        <input type="hidden"
+                               name="redirectTo"
+                               value="{{ redirectTo }}">
+
+                        <input type="hidden"
+                               name="redirectParameters"
+                               value="{{ redirectParameters }}">
+                    {% endblock %}
+
+                    {% block component_account_login_form_description %}
+                        <p class="login-form-description">
+                            {{ 'account.loginFormDescription'|trans|sw_sanitize }}
+                        </p>
+                    {% endblock %}
+
+                    {% block component_account_login_form_error %}
+                        {% if loginError %}
+                            {% if errorSnippet != null %}
+                                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                    type: 'danger',
+                                    content: errorSnippet|trans|sw_sanitize
+                                } %}
+                            {% elseif waitTime != null %}
+                                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                    type: 'info',
+                                    content: 'account.loginThrottled'|trans({'%seconds%': waitTime})|sw_sanitize
+                                } %}
+                            {% else %}
+                                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                    type: 'danger',
+                                    content: 'account.loginBadCredentials'|trans|sw_sanitize
+                                } %}
+                            {% endif %}
+                        {% endif %}
+                    {% endblock %}
+
+                    {% block component_account_login_form_fields %}
+                        <div class="row g-2">
+                            {% block component_account_login_form_mail %}
+                                {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                    type: 'email',
+                                    label: 'account.loginMailLabel'|trans|sw_sanitize,
+                                    id: 'loginMail',
+                                    name: 'username',
+                                    autocomplete: 'username webauthn',
+                                    error: loginError,
+                                    validationRules: 'required,email',
+                                    additionalClass: 'col-sm-6 col-lg-12',
+                                } %}
+                            {% endblock %}
+
+                            {% block component_account_login_form_password %}
+                                {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                    type: 'password',
+                                    label: 'account.loginPasswordLabel'|trans|sw_sanitize,
+                                    id: 'loginPassword',
+                                    name: 'password',
+                                    autocomplete: 'current-password',
+                                    error: loginError,
+                                    validationRules: 'required',
+                                    additionalClass: 'col-sm-6 col-lg-12',
+                                } %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block component_account_login_password_recover %}
+                        <div class="login-password-recover mb-3">
+                            {% block component_account_login_password_recover_link %}
+                                <a href="{{ seoUrl('frontend.account.recover.page') }}">
+                                    {{ 'account.loginPasswordRecover'|trans }}
+                                </a>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block component_account_login_submit %}
+                        <div class="login-submit">
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                {{ 'account.loginSubmit'|trans|sw_sanitize }}
+                            </button>
+                        </div>
+                    {% endblock %}
+                </form>
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

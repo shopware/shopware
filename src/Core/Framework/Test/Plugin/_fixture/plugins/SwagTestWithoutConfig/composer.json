@@ -1,0 +1,27 @@
+{
+    "name": "swag/test-without-config",
+    "description": "Test description",
+    "version": "1.0.0",
+    "type": "shopware-platform-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "shopware AG"
+        }
+    ],
+    "require": {
+        "shopware/core": ">=6.0"
+    },
+    "extra": {
+        "shopware-plugin-class": "SwagTestWithoutConfig\\SwagTestWithoutConfig",
+        "label": {
+            "de-DE": "Deutscher Pluginname",
+            "en-GB": "English plugin name"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+           "SwagTestWithoutConfig\\": "src"
+        }
+    }
+}

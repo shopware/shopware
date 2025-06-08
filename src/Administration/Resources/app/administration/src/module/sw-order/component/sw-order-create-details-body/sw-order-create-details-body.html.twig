@@ -1,0 +1,110 @@
+{% block sw_order_create_details_body %}
+<sw-container
+    class="sw-order-create-details-body"
+    columns="minmax(min-content, 1fr) minmax(min-content, 1fr)"
+    gap="0 32px"
+>
+    <div>
+        {% block sw_order_create_details_body_email %}
+
+        <mt-text-field
+            v-model="email"
+            disabled
+            size="small"
+            class="sw-order-create-details-body__item"
+            :label="$tc('sw-order.createBase.detailsBody.labelEmail')"
+            :placeholder="$tc('sw-order.createBase.detailsBody.placeholderEmail')"
+        />
+        {% endblock %}
+
+        {% block sw_order_create_details_body_billing_address %}
+        <div
+            v-if="isCustomerActive"
+            class="sw-order-create-details-body__item is-billing"
+        >
+            <p class="sw-order-create-details-body__item-label">
+                {{ $tc('sw-order.createBase.detailsBody.labelBillingAddress') }}
+                <mt-button
+                    class="sw-order-create-details-body__item-label-button"
+                    variant="secondary"
+                    @click="onEditBillingAddress"
+                >
+                    {{ $tc('sw-order.detailBase.buttonEditAddress') }}
+                </mt-button>
+            </p>
+            <sw-address :address="billingAddress" />
+        </div>
+        <mt-textarea
+            v-else
+            disabled
+            class="sw-order-create-details-body__item"
+            :label="$tc('sw-order.createBase.detailsBody.labelBillingAddress')"
+            :placeholder="$tc('sw-order.createBase.detailsBody.placeholder')"
+        />
+        {% endblock %}
+    </div>
+
+    <div>
+        {% block sw_order_create_details_body_phone_number %}
+
+        <mt-text-field
+            v-model="phoneNumber"
+            disabled
+            size="small"
+            class="sw-order-create-details-body__item"
+            :label="$tc('sw-order.createBase.detailsBody.labelPhoneNumber')"
+            :placeholder="$tc('sw-order.createBase.detailsBody.placeholderPhoneNumber')"
+        />
+        {% endblock %}
+
+        {% block sw_order_create_details_body_shipping_address %}
+        <div
+            v-if="isCustomerActive"
+            class="sw-order-create-details-body__item is-shipping"
+        >
+            <template v-if="isAddressIdentical">
+                {% block sw_order_create_details_body_shipping_address_identical %}
+                <p class="sw-order-create-details-body__item-label">
+                    {{ $tc('sw-order.createBase.detailsBody.labelShippingAddress') }}
+                    <mt-button
+                        class="sw-order-create-details-body__item-label-button"
+                        variant="secondary"
+                        @click="onEditShippingAddress"
+                    >
+                        {{ $tc('sw-order.detailBase.buttonEditAddress') }}
+                    </mt-button>
+                </p>
+                <div class="sw-order-create-details-body__address-identical">
+                    <span class="sw-order-create-details-body__address-identical-text">
+                        {{ $tc('sw-order.createBase.detailsBody.textIdentical') }}
+                    </span>
+                </div>
+                {% endblock %}
+            </template>
+            <template v-else>
+                {% block sw_order_create_details_body_shipping_address_content %}
+                <p class="sw-order-create-details-body__item-label">
+                    {{ $tc('sw-order.createBase.detailsBody.labelShippingAddress') }}
+                    <mt-button
+                        class="sw-order-create-details-body__item-label-button"
+                        variant="secondary"
+                        @click="onEditShippingAddress"
+                    >
+                        {{ $tc('sw-order.detailBase.buttonEditAddress') }}
+                    </mt-button>
+                </p>
+                <sw-address :address="shippingAddress" />
+                {% endblock %}
+            </template>
+        </div>
+        <mt-textarea
+            v-else
+            disabled
+            class="sw-order-create-details-body__item"
+            :label="$tc('sw-order.createBase.detailsBody.labelShippingAddress')"
+            :placeholder="$tc('sw-order.createBase.detailsBody.placeholder')"
+        />
+        {% endblock %}
+    </div>
+</sw-container>
+{% endblock %}

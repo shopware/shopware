@@ -1,0 +1,122 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/script/{hook}": {
+            "get": {
+                "tags": ["API", "Script", "App"],
+                "summary": "Access point for different api logics which are provided by apps over script hooks",
+                "operationId": "getScriptStoreApiRoute",
+                "parameters": [
+                    {
+                        "name": "hook",
+                        "in": "path",
+                        "description": "Dynamic hook which used to build the hook name",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns different structures of results based on the called script.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "type": "object",
+                                            "additionalProperties": true
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                }
+                            },
+                            "application/vnd.api+json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "type": "object",
+                                            "additionalProperties": true
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No data by default"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": ["API", "Script", "App"],
+                "summary": "Access point for different api logics which are provided by apps over script hooks",
+                "operationId": "postScriptStoreApiRoute",
+                "parameters": [
+                    {
+                        "name": "hook",
+                        "in": "path",
+                        "description": "Dynamic hook which used to build the hook name",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns different structures of results based on the called script.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "type": "object",
+                                            "additionalProperties": true
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                }
+                            },
+                            "application/vnd.api+json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "type": "object",
+                                            "additionalProperties": true
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No data by default"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

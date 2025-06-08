@@ -1,0 +1,29 @@
+.sw-cms-el-config-vimeo-video {
+    .sw-cms-el-config-vimeo-video__video-id,
+    .sw-cms-el-config-vimeo-video__color {
+        margin-bottom: 16px;
+
+        .sw-field--default {
+            margin: 0;
+        }
+    }
+
+    &__player-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-column-gap: 32px;
+        grid-template-rows: 32px 32px;
+        margin-bottom: 24px;
+    }
+
+    &__artist-information {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-column-gap: 32px;
+        grid-template-rows: 32px 32px;
+    }
+
+    .sw-field--switch {
+        margin-top: 0;
+    }
+}

@@ -1,0 +1,41 @@
+
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# New mt-loader component #}
+{% block sw_loader %}
+<mt-loader
+    v-if="useMeteorComponent"
+    v-bind="$attrs"
+>
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data"
+    >
+        <slot
+            :name="name"
+            v-bind="data"
+        >
+        </slot>
+    </template>
+    <slot></slot>
+</mt-loader>
+{% endblock %}
+
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# Deprecated component #}
+{% block sw_loader_deprecated %}
+<sw-loader-deprecated
+    v-else
+    v-bind="$attrs"
+>
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data"
+    >
+        <slot
+            :name="name"
+            v-bind="data || {}"
+        >
+        </slot>
+    </template>
+</sw-loader-deprecated>
+{% endblock %}

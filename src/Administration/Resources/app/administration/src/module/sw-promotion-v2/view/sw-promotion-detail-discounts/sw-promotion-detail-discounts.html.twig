@@ -1,0 +1,41 @@
+{% block sw_promotion_detail_discounts %}
+<div class="sw-promotion-detail-discounts">
+    {% block sw_promotion_detail_discounts_card_add %}
+    <div
+        class="promotion-detail-discounts__action_add"
+        position-identifier="sw-promotion-detail-discounts"
+    >
+        {% block sw_promotion_detail_discounts_actions_add %}
+        <mt-button
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('promotion.editor'),
+                showOnDisabledElements: true
+            }"
+            :is-loading="isLoading"
+            ghost
+            :disabled="(promotion && promotion.hasOrders) || !acl.can('promotion.editor')"
+            variant="secondary"
+            @click="onAddDiscount"
+        >
+            {{ $tc('sw-promotion.detail.main.discounts.buttonAddDiscount') }}
+        </mt-button>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_promotion_detail_discounts_items %}
+    <ul class="sw-promotion-detail-discounts__discount-list">
+        {% block sw_promotion_detail_discounts_item_form %}
+        <sw-promotion-discount-component
+            v-for="discount in discounts"
+            :key="discount.id"
+            :promotion="promotion"
+            :discount="discount"
+            @discount-delete="deleteDiscount"
+        />
+        {% endblock %}
+    </ul>
+    {% endblock %}
+</div>
+{% endblock %}

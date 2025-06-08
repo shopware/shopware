@@ -1,0 +1,19 @@
+{
+  "sw.product.detail.base": {
+    "product": [
+      "taxId",
+      "price",
+      "stock",
+      "manufacturerId",
+      "name",
+      "downloads"
+    ]
+  },
+  "sw.product.detail.cross.selling": {
+    "product_cross_selling": [
+      "name",
+      "type",
+      "position"
+    ]
+  }
+}

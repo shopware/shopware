@@ -1,0 +1,23 @@
+.sw-cms-preview-image-bubble-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    justify-content: stretch;
+    justify-items: center;
+    grid-gap: 20px;
+    padding: 15px;
+
+    .sw-cms-preview-image-bubble-row__image {
+        height: 80px;
+        width: 80px;
+        border-radius: 50%;
+        background-clip: padding-box;
+        overflow: hidden;
+    }
+
+    img {
+        display: block;
+        object-fit: cover;
+        width: 100%;
+        height: 100%;
+    }
+}

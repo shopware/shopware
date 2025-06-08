@@ -1,0 +1,135 @@
+@import "~scss/variables";
+
+$sw-select-focus-transition: all ease-in-out 0.2s;
+
+.sw-select {
+    position: relative;
+
+    .sw-block-field__block {
+        transition: $sw-select-focus-transition;
+        background-color: $color-white;
+        position: relative;
+        overflow: visible;
+    }
+
+    .sw-select__selection {
+        position: relative;
+        padding: 0 8px;
+        border: none;
+        font-size: $font-size-xs;
+        line-height: 22px;
+        color: $color-darkgray-200;
+        outline: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+    }
+
+    .sw-select__selection-indicators {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        top: 50%;
+        right: 16px;
+        transform: translate(0, -50%);
+        z-index: 1;
+    }
+
+    .sw-select__selection-indicators .sw-loader {
+        position: static;
+        width: 16px;
+        height: 16px;
+        margin: 0;
+
+        .sw-loader__container {
+            transform: none;
+            left: 0;
+            top: 0;
+        }
+    }
+
+    .sw-select__select-indicator-hitbox {
+        background-color: transparent;
+        border: 0 solid transparent;
+        color: $color-darkgray-200;
+        padding: 0 4px;
+        cursor: pointer;
+
+        .sw-select__select-indicator {
+            display: block;
+        }
+
+        &:focus {
+            .sw-select__select-indicator-clear {
+                opacity: 1;
+                pointer-events: all;
+                cursor: pointer;
+            }
+        }
+    }
+
+    .sw-select__select-indicator {
+        flex-shrink: 0;
+        cursor: pointer;
+
+        &.sw-select__select-indicator-expand {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        &.sw-select__select-indicator-expand--rotated {
+            transition: transform 0.3s ease-in-out;
+            transform: rotate(180deg);
+        }
+    }
+
+    .sw-select__select-indicator-clear {
+        width: 16px;
+        height: 16px;
+        padding: 3px;
+        transition: 0.1s opacity ease;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    &:hover .sw-select__select-indicator-clear,
+    &.has--focus .sw-select__select-indicator-clear {
+        opacity: 1;
+        pointer-events: all;
+        cursor: pointer;
+    }
+
+    &.sw-field--medium .sw-select__selection {
+        padding: 4px 6px 0;
+    }
+
+    &.sw-field--small .sw-block-field__block {
+        height: auto;
+    }
+
+    &.is--disabled {
+        .sw-block-field__block {
+            background-color: $color-gray-100;
+        }
+
+        .sw-label {
+            background-color: $color-gray-100;
+        }
+
+        input {
+            background-color: $color-gray-100;
+        }
+    }
+}
+
+// Vue.js transitions
+.sw-select-result-list-fade-down-enter-active,
+.sw-select-result-list-fade-down-leave-active {
+    transition: $sw-select-focus-transition;
+    transform: translateY(0);
+}
+
+.sw-select-result-list-fade-down-enter,
+.sw-select-result-list-fade-down-leave-to {
+    transform: translateY(-10px);
+    opacity: 0;
+}

@@ -1,0 +1,107 @@
+@import "~scss/variables";
+
+.sw-theme-list-item {
+    display: grid;
+    grid-auto-rows: 120px 40px;
+    padding: 10px 10px 0 10px;
+    background: $color-white;
+    border: 1px solid $color-gray-300;
+    border-radius: 4px;
+    position: relative;
+
+    &.is--disabled {
+        &:hover {
+            border: 1px solid $color-gray-300;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+    }
+
+    &:hover {
+        border-color: $color-shopware-brand-500;
+        box-shadow: 0 0 4px 0 rgba($color-shopware-brand-500, 0.4);
+        cursor: pointer;
+
+        .sw-theme-list-item__options {
+            visibility: visible;
+        }
+    }
+
+    .sw-theme-list-item__image {
+        background: center center no-repeat $color-white;
+        background-size: 90% 90%;
+        border: 1px solid $color-gray-300;
+        border-radius: 4px;
+        height: 120px;
+
+        &.is--empty {
+            background: unset;
+            color: $color-gray-500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+    }
+
+    .sw-theme-list-item__info {
+        display: grid;
+        grid-template-columns: 8px 1fr 18px;
+        grid-column-gap: 8px;
+        align-items: center;
+        align-content: center;
+    }
+
+    .sw-theme-list-item__locked{
+        color: $color-gray-300;
+    }
+
+    .sw-theme-list-item__status {
+        width: 8px;
+        height: 8px;
+        border-radius: 100%;
+        margin-top: 1px;
+        background: $color-gray-300;
+
+        &.is--active {
+            background: $color-module-green-900;
+        }
+    }
+
+    .sw-theme-list-item__title {
+        color: $color-darkgray-200;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        font-size: 14px;
+    }
+
+    .sw-theme-list-item__options {
+        visibility: hidden;
+        position: absolute;
+        right: 16px;
+        top: 16px;
+
+        .sw-context-button__button {
+            height: 16px;
+            padding: 0 2px;
+            line-height: 13px;
+            background: $color-white;
+            border: 1px solid $color-gray-300;
+            border-radius: 4px;
+
+            &:hover, &.is--active {
+                background-color: $color-gray-300;
+            }
+
+            &.is--active {
+                visibility: visible;
+            }
+
+            .sw-icon {
+                height: 100%;
+            }
+        }
+
+    }
+}

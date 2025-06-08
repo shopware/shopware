@@ -1,0 +1,84 @@
+{% block sw_settings_custom_field_set_detail_base %}
+<mt-card
+    class="sw-settings-custom-field-set-detail-base"
+    position-identifier="sw-custom-field-detail-base"
+    :title="$tc('sw-settings-custom-field.set.detail.titleCardInformation')"
+>
+    <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/attributes-order -->
+    {% block sw_settings_custom_field_set_detail_base_technical_name %}
+
+    <mt-text-field
+        v-model="set.name"
+        name="sw-field--set-name"
+        class="sw-settings-custom-field-set-detail-base__technical-name"
+        :label="$tc(`sw-settings-custom-field.set.detail.labelTechnicalName`)"
+        :help-text="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
+        :disabled="!set._isNew || !acl.can('custom_field.editor') || undefined"
+        :error="technicalNameError"
+        required
+        @update:model-value="onTechnicalNameChange"
+    />
+    {% endblock %}
+
+    <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks, vue/attributes-order -->
+    {% block sw_settings_custom_field_set_detail_base_position %}
+    <mt-number-field
+        v-model="set.position"
+        name="sw-field--set-position"
+        class="sw-settings-custom-field-set-detail-base__base-postion"
+        :disabled="!acl.can('custom_field.editor') || undefined"
+        :label="$tc(`sw-settings-custom-field.set.detail.labelPosition`)"
+    />
+    {% endblock %}
+
+    {% block sw_settings_custom_field_set_detail_base_translated %}
+
+    <mt-switch
+        v-if="set.config"
+        v-model="set.config.translated"
+        name="sw-field--set-config-translated"
+        class="sw-settings-custom-field-set-detail-base__base-translation"
+        :disabled="!acl.can('custom_field.editor') || undefined"
+        :label="$tc('sw-settings-custom-field.set.detail.labelCheckboxTranslated')"
+    />
+    {% endblock %}
+
+    {% block sw_settings_custom_field_set_detail_base_labels %}
+    <sw-custom-field-translated-labels
+        v-if="set.config"
+        v-model:config="set.config"
+        :disabled="!acl.can('custom_field.editor') || undefined"
+        :property-names="propertyNames"
+        :locales="locales"
+    />
+    {% endblock %}
+
+    {% block sw_settings_custom_field_set_detail_base_multi_select %}
+    <sw-multi-select
+        id="entities"
+        class="sw-settings-custom-field-set-detail-base__label-entities"
+        :disabled="!acl.can('custom_field.editor') || undefined"
+        :label="$tc('sw-settings-custom-field.set.detail.labelEntities')"
+        :options="relationEntityNames"
+        value-property="entityName"
+        label-property="entityName"
+        :value="selectedRelationEntityNames"
+        :search-function="searchRelationEntityNames"
+        @item-add="onAddRelation"
+        @item-remove="onRemoveRelation"
+    >
+        <template #result-label-property="{ item }">
+            {{ $tc(`global.entities.${item.entityName}`, 2) }}
+        </template>
+
+        <template #selection-label-property="{ item }">
+            {{ $tc(`global.entities.${item.entityName}`, 2) }}
+        </template>
+
+    </sw-multi-select>
+    {% endblock %}
+
+    {% block sw_settings_custom_field_set_detail_base_entities %}
+    {% endblock %}
+</mt-card>
+{% endblock %}

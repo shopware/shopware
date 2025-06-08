@@ -1,0 +1,32 @@
+@import "~scss/variables";
+
+.sw-cms-preview-product-listing {
+    padding: 15px;
+    display: grid;
+    justify-items: start;
+    justify-content: stretch;
+    align-items: start;
+    align-content: stretch;
+    grid-template-columns: 60px 1fr 1fr;
+    grid-gap: 10px;
+    height: 100%;
+
+    .sw-cms-preview-product-listing__filter-panel {
+        width: 100%;
+        padding: 5px;
+        background: $color-gray-100;
+        border: 1px solid $color-gray-300;
+        border-radius: 3px;
+    }
+
+    .sw-cms-preview-product-listing__filter {
+        height: 12px;
+        margin-bottom: 8px;
+        background: $color-gray-300;
+        border-radius: 3px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+}

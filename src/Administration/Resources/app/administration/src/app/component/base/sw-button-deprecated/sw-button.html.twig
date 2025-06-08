@@ -1,0 +1,88 @@
+{# @deprecated tag:v6.8.0 - Will be removed, use mt-button instead. #}
+{% block sw_button %}
+{% block sw_button_router_link %}
+<router-link
+    v-if="routerLink && !disabled"
+    v-slot="{ href, navigate }"
+    :to="routerLink"
+    custom
+>
+    <a
+        :href="href"
+        class="sw-button"
+        :class="buttonClasses"
+        v-bind="$attrs"
+        @click="navigate($event)"
+    >
+        {% block sw_button_router_link_content %}
+        <span class="sw-button__content">
+            <slot>
+                {% block sw_button_router_link_slot_default %}{% endblock %}
+            </slot>
+        </span>
+                {% endblock %}
+    </a>
+</router-link>
+
+<span
+    v-else-if="routerLink && disabled"
+    class="sw-button"
+    :class="buttonClasses"
+    v-bind="$attrs"
+>
+    {% block sw_button_router_link_content %}
+    <span class="sw-button__content">
+        <slot>
+        {% block sw_button_router_link_slot_default %}{% endblock %}
+        </slot>
+    </span>
+    {% endblock %}
+</span>
+    {% endblock %}
+
+{% block sw_button_link %}
+<a
+    v-else-if="link"
+    :href="!disabled ? link : ''"
+    target="_blank"
+    rel="noopener"
+    class="sw-button"
+    :class="buttonClasses"
+    v-bind="$attrs"
+>
+    {% block sw_button_link_content %}
+    <span class="sw-button__content">
+        <slot>
+        {% block sw_button_link_slot_default %}{% endblock %}
+        </slot>
+    </span>
+            {% endblock %}
+</a>
+    {% endblock %}
+
+{% block sw_button_button %}
+<button
+    v-else
+    class="sw-button"
+    :class="buttonClasses"
+    :disabled="disabled || isLoading"
+    v-bind="filteredAttributes"
+>
+    {% block sw_button_button_content %}
+    <sw-loader
+        v-if="isLoading"
+        class="sw-button_loader"
+        size="20px"
+    />
+    <span
+        class="sw-button__content"
+        :class="contentVisibilityClass"
+    >
+        <slot>
+        {% block sw_button_button_slot_default %}{% endblock %}
+        </slot>
+    </span>
+            {% endblock %}
+</button>
+    {% endblock %}
+{% endblock %}

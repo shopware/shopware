@@ -1,0 +1,59 @@
+{% block sw_order_saveable_field %}
+<sw-container
+    v-if="isEditing"
+    columns="1fr 20px 20px"
+    gap="0px 10px"
+    align="center"
+    class="sw-order-saveable-field"
+>
+    {% block sw_order_saveable_field_input %}
+    {% block  sw_order_saveable_field_input_field%}
+    <component
+        :is="component"
+        ref="edit-field"
+        :placeholder="placeholder"
+        v-bind="computedAttrs"
+    />
+    {% endblock %}
+    {% endblock %}
+    {% block sw_order_saveable_field_actions %}
+    {% block sw_order_saveable_field_cancel_button %}
+    <mt-button
+        size="x-small"
+        variant="secondary"
+        aria-label="global.default.cancel"
+        square
+        @click="onCancelButtonClicked"
+    >
+        <mt-icon
+            name="regular-times-xxs"
+        />
+    </mt-button>
+    {%  endblock %}
+    {%  block sw_order_saveable_field_save_button %}
+    <mt-button
+        size="x-small"
+        variant="primary"
+        aria-label="global.default.save"
+        square
+        @click="onSaveButtonClicked"
+    >
+        <mt-icon
+            name="regular-checkmark-xxs"
+        />
+    </mt-button>
+    {% endblock %}
+    {% endblock %}
+</sw-container>
+<div
+    v-else
+    role="button"
+    tabindex="0"
+    @click="onClick"
+    @keydown.enter="onClick"
+>
+    {% block sw_order_saveable_field_content %}
+    <slot></slot>
+    {% endblock %}
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+@import "~scss/variables";
+
+.sw-import-export-edit-profile-modal {
+    .sw-import-export-edit-profile-modal-mapping,
+    .sw-import-export-edit-profile-modal-identifiers {
+        margin-left: -30px;
+        margin-right: -30px;
+    }
+
+    &__text {
+        margin: 0 0 24px;
+    }
+
+    .sw-tabs .sw-tabs__custom-content {
+        padding-bottom: 0;
+    }
+
+    .sw-modal__footer {
+        border-top: 1px solid $color-gray-300;
+    }
+
+    h3 {
+        margin-top: 48px;
+    }
+
+    .sw-import-export-edit-profile-indicators__select {
+        margin-bottom: 0;
+    }
+}
+
+.sw-import-export-edit-profile-modal__violation-modal {
+    ul {
+        margin-left: 31px;
+        margin-top: 18px;
+    }
+}

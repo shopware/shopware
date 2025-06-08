@@ -1,0 +1,30 @@
+.sw-media-grid {
+    /*
+    Fix for preventing the browser to select content when in drag'n'drop.
+    */
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Chrome/Safari/Opera */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently not supported by any browser */
+
+    .sw-media-grid__content {
+        display: grid;
+    }
+
+    .sw-media-grid__presentation--small-preview {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    .sw-media-grid__presentation--medium-preview {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+
+    .sw-media-grid__presentation--large-preview {
+        grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+    }
+
+    .sw-media-grid__presentation--list-preview {
+        grid-template-columns: 1fr;
+    }
+}

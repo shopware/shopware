@@ -1,0 +1,39 @@
+@import "~scss/variables";
+
+.sw-container {
+    display: grid;
+    width: 100%;
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-weight: normal;
+    }
+
+    h1 {
+        font-size: $font-size-xl;
+    }
+
+    h2 {
+        font-size: 22px;
+    }
+
+    h3 {
+        font-size: $font-size-l;
+    }
+
+    h4,
+    h5,
+    h6 {
+        font-size: $font-size-m;
+    }
+
+    p {
+        font-size: $font-size-xs;
+        line-height: $line-height-sm;
+        color: $color-darkgray-200;
+    }
+}

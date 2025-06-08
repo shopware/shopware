@@ -1,0 +1,11 @@
+@import "~scss/variables";
+
+.sw-extension-uninstall-modal {
+    font-size: $font-size-xs;
+    line-height: 22px;
+
+    .sw-extension-removal-modal__bold-paragraph {
+        margin-block-start: 1em;
+        font-weight: $font-weight-semi-bold;
+    }
+}

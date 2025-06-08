@@ -1,0 +1,44 @@
+@import "~scss/variables";
+
+.sw-product-layout-assignment {
+    display: grid;
+    grid-template-columns: min-content 1fr;
+    gap: 32px;
+
+    &__figure {
+        width: 250px;
+    }
+
+    &__heading {
+        margin: 0 0 16px;
+        font-size: $font-size-xs;
+
+        * {
+            word-break: break-all;
+        }
+
+        &.is--disabled {
+            * {
+                color: $color-gray-500;
+            }
+        }
+    }
+
+    &__title {
+        font-weight: $font-weight-semi-bold;
+    }
+
+    &__subtitle {
+        font-weight: $font-weight-regular;
+    }
+
+    &__buttons {
+        font-size: 0;
+    }
+
+    &__button {
+        &:not(:first-child) {
+            margin-left: 8px;
+        }
+    }
+}

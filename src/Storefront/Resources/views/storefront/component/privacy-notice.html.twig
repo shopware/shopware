@@ -1,0 +1,44 @@
+{% block component_privacy_notice %}
+    <fieldset class="form-text privacy-notice">
+        {% block component_privacy_title %}
+            <legend class="form-text privacy-notice-title">
+                <strong>{{ 'general.privacyTitle'|trans|sw_sanitize }}</strong>
+            </legend>
+            <br>
+        {% endblock %}
+
+        {% block component_privacy_dpi %}
+            {% set cmsPath = 'frontend.cms.page' %}
+            {% set privacyNoticeSnippet = 'general.privacyNoticeTextModal' %}
+            {% if config('core.loginRegistration.requireDataProtectionCheckbox') == 1 %}
+
+                {% set dataProtectionLabel = privacyNoticeSnippet|trans({
+                    '%privacyModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.privacyPage') }) ~ '">',
+                    '%privacyModalTagClose%': '</button>',
+                    '%tosModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.tosPage') }) ~ '">',
+                    '%tosModalTagClose%': '</button>',
+                })|raw %}
+
+                {% sw_include '@Storefront/storefront/component/form/form-checkbox.html.twig' with {
+                    label: dataProtectionLabel,
+                    id: 'acceptedDataProtection',
+                    name: 'acceptedDataProtection',
+                    validationRules: 'required',
+                } %}
+            {% else %}
+                <div class="data-protection-information">
+                    {% block component_privacy_label %}
+                        <div>
+                            {{ privacyNoticeSnippet|trans({
+                                '%privacyModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.privacyPage') }) ~ '">',
+                                '%privacyModalTagClose%': '</button>',
+                                '%tosModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.tosPage') }) ~ '">',
+                                '%tosModalTagClose%': '</button>',
+                            })|raw }}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endif %}
+        {% endblock %}
+    </fieldset>
+{% endblock %}

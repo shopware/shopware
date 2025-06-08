@@ -1,0 +1,30 @@
+{% block sw_customer_address_form_options %}
+<div class="sw-customer-address-form__options">
+    {% block sw_customer_address_form_options_default_shipping_address %}
+    <mt-checkbox
+        v-model:checked="isDefaultShippingAddressId"
+        name="sw-field--isDefaultShippingAddressId"
+        :label="$tc('sw-customer.detailAddresses.contextMenuDefaultShippingAddress')"
+        @update:checked="onChangeDefaultShippingAddress"
+    />
+    {% endblock %}
+
+    {% block sw_customer_address_form_options_default_billing_address %}
+    <mt-checkbox
+        v-model:checked="isDefaultBillingAddressId"
+        name="sw-field--isDefaultBillingAddressId"
+        class="sw-customer-address-form__set-default-billing-address-action"
+        :label="$tc('sw-customer.detailAddresses.contextMenuDefaultBillingAddress')"
+        @update:checked="onChangeDefaultBillingAddress"
+    />
+    {% endblock %}
+
+    {% block sw_customer_address_form_options_custom_field_sets %}
+    <sw-custom-field-set-renderer
+        :entity="address"
+        variant="tabs"
+        :sets="customFieldSets"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

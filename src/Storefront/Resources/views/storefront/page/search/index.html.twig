@@ -1,0 +1,22 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_content %}
+    {% block page_search %}
+        <div class="cms-page search-page">
+            {% block page_search_headline %}
+                <h1 class="search-headline text-center mb-4">
+                    {% block page_search_headline_text %}
+                        {% if page.searchTerm %}
+                            {{ 'search.headline'|trans({
+                                '%count%': page.listing.total,
+                                '%searchTerm%': page.searchTerm,
+                            }) }}
+                        {% endif %}
+                    {% endblock %}
+                </h1>
+            {% endblock %}
+
+            {% sw_include '@Storefront/storefront/page/search/search-pagelet.html.twig' with { page: page } %}
+        </div>
+    {% endblock %}
+{% endblock %}

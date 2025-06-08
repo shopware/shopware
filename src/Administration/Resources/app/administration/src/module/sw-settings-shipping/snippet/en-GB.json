@@ -1,0 +1,130 @@
+{
+    "sw-settings-shipping": {
+        "general": {
+            "mainMenuItemGeneral": "Shipping",
+            "placeholderSearchBar": "Search all shipping methods...",
+            "descriptionTextModule": "Manage shipping methods here."
+        },
+        "list": {
+            "textHeadline": "Shipping",
+            "buttonAddShippingMethod": "Add shipping method",
+            "buttonDelete": "Delete",
+            "columnName": "Name",
+            "columnDescription": "Description",
+            "columnActive": "Active",
+            "columnPosition": "Position",
+            "contextMenuEdit": "Edit",
+            "contextMenuDelete": "Delete",
+            "contextMenuDuplicate": "Duplicate",
+            "messageEmpty": "No shipping methods yet",
+            "textDeleteConfirm": "Are you sure you really want to delete the shipping method \"{name}\"?",
+            "titleSidebarItemRefresh": "Refresh",
+            "messageSaveSuccess": "Shipping method \"{name}\" has been saved.",
+            "messageSaveError": "Shipping method \"{name}\" could not be saved.",
+            "messageDeleteError": "Shipping method \"{name}\" could not be deleted.",
+            "messageDeleteSuccess": "Shipping method \"{name}\" has been deleted.",
+            "columnTaxType": "Tax calculation",
+            "columnTaxRate": "Tax Rate",
+            "placeholderTaxType": "Select tax type"
+        },
+        "detail": {
+            "textHeadline": "New shipping method",
+            "titleCard": "Settings",
+            "messageSaveSuccess": "Shipping rate \"{name}\" has been saved.",
+            "messageSaveError": "Shipping method \"{name}\" could not be saved.",
+            "labelName": "Name",
+            "labelTechnicalName": "Technical name",
+            "labelActive": "Active",
+            "labelPosition": "Position",
+            "labelDeliveryTime": "Delivery time",
+            "placeholderDeliveryTime": "Search delivery times...",
+            "placeholderName": "Enter name...",
+            "placeholderTechnicalName": "Enter technical name...",
+            "placeholderPosition": "Enter position...",
+            "placeholderDescription": "Enter description...",
+            "labelDescription": "Description",
+            "buttonSave": "Save",
+            "labelSetRules": "Select rules",
+            "labelBasicInfo": "Basic information",
+            "topRule": "Availability",
+            "placeholderTopRule": "Search or create availability rule...",
+            "labelLogoUpload": "Upload logo",
+            "labelTrackingUrl": "Tracking URL",
+            "placeholderTrackingUrl": "Enter URL...",
+            "helpTextTrackingUrl": "Enter the tracking URL of the shipping provider and insert \"%s\" as a placeholder where the actual tracking code would be. The tracking code is automatically inserted from the individual orders.",
+            "helpTextTechnicalName": "The technical name is used to uniquely identify the shipping method. A subsequent change to the technical name can cause shipping integrations that rely on it to no longer work.",
+            "tax": {
+                "fieldName": "Tax calculation",
+                "labelTaxType": "Type",
+                "labelTaxRate": "Rate",
+                "placeholderTaxType": "Select tax type...",
+                "placeholderTaxRate": "Select tax rate...",
+                "helpText": "Select from different modes of calculating taxes on shipping costs:<ul style='margin-left: 15px'><li>Auto - Calculation based on all tax rates present in a shopping cart</li><li>Highest - Calculation based on the highest tax rate present in a shopping cart </li><li>Fixed - Calculation based on a manually selected tax rate</li></ul>"
+            }
+        },
+        "constants": {
+            "weight": "Weight",
+            "price": "Price",
+            "lineItemCount": "Product quantity"
+        },
+        "priceMatrix": {
+            "titleCard": "Price matrix",
+            "noRestriction": "Unrestricted",
+            "addNewRule": "Add new rule",
+            "addNewShippingPrice": "Add pricing level",
+            "duplicateMatrixContextLabel": "Duplicate price matrix",
+            "deleteMatrixContextLabel": "Delete price matrix",
+            "contextMenuDeletePrice": "Delete pricing level",
+            "selectProperty": "Select cart property...",
+            "useRules": "Build a rule",
+            "emptyText": "Create a price matrix based on predefined cart properties and/or custom built rules. Please choose:",
+            "chooseCustomRule": "Choose a custom rule",
+            "calculationLineItemCount": "Product quantity",
+            "calculationPrice": "Cart price",
+            "calculationWeight": "Weight",
+            "calculationVolume": "Volume",
+            "columnQuantityStart": "Quantity from...",
+            "columnQuantityEnd": "to...",
+            "columnWeightStart": "Weight from...",
+            "columnWeightEnd": "to...",
+            "columnPriceStart": "Cart price from...",
+            "columnPriceEnd": "to...",
+            "columnVolumeStart": "Volume from...",
+            "columnVolumeEnd": "to...",
+            "columnPrice": "Price",
+            "columnCalculationRule": "Rule",
+            "buttonAddAdditionalPriceMatrix": "Add price matrix",
+            "any": "∞",
+            "buttonDelete": "Delete",
+            "textDeleteConfirm": "Are you sure you really want to delete the price matrix \"{name}\"? | Are you sure you really want to delete these price matrices?",
+            "deletionNotPossibleMessage": "At least one price tier needed. Try deleting the entire pricing rule instead.",
+            "labelGrossNet": "(gross / net)",
+            "ruleAlreadyUsedOrRestricted": "This rule is already in use or contains conditions that can't be applied to advanced pricing.",
+            "ruleAlreadyUsedInMatrix": "This rule is already in use in this price matrix.",
+            "textOr": "or",
+            "chooseOrCreateRule": "Choose or create a rule",
+            "unrestrictedRuleAlreadyExistsMessage": "There is already an unrestricted price matrix.",
+            "newMatrixAlreadyExists": "There is already a new price matrix without a rule assigned.",
+            "newMatrixAlertMessage": "A rule has to be assigned to save this price matrix.",
+            "buttonLoadAllPrices": "Load all prices"
+        },
+        "sidebar": {
+            "labelUseAsLogo": "Use as logo"
+        },
+        "shippingPriceModal": {
+            "modalTitle": "Add shipping price rule"
+        },
+        "shippingCostOptions": {
+            "auto": "Auto",
+            "highest": "Highest",
+            "fixed": "Fixed"
+        }
+    },
+    "sw-privileges": {
+      "permissions": {
+        "shipping": {
+          "label": "Shipping"
+        }
+      }
+    }
+}

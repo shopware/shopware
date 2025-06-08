@@ -1,0 +1,27 @@
+{
+    "name": "swag/test-cms-aware-and-admin-ui",
+    "description": "Test description",
+    "version": "1.0.0",
+    "type": "shopware-platform-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "shopware AG"
+        }
+    ],
+    "require": {
+        "shopware/core": ">=6.0"
+    },
+    "extra": {
+        "shopware-plugin-class": "SwagTestCmsAwareAndAdminUi\\SwagTestCmsAwareAndAdminUi",
+        "label": {
+            "de-DE": "Deutscher Pluginname",
+            "en-GB": "English plugin name"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+           "SwagTestCmsAwareAndAdminUi\\": "src"
+        }
+    }
+}

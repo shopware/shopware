@@ -1,0 +1,169 @@
+{% extends '@WebProfiler/Profiler/layout.html.twig' %}
+
+{% block toolbar %}
+    {% set time = collector.time ? '%0.0f'|format(collector.time) : 'n/a' %}
+    {% set icon %}
+        {{ include('@Elasticsearch/Collector/icon.svg') }}
+        <span class="sf-toolbar-value">{{ time }}</span>
+        <span class="sf-toolbar-label">ms</span>
+    {% endset %}
+
+    {% set text %}
+        {% if collector.enabled %}
+            <div class="sf-toolbar-info-piece">
+                <b>Request Time</b>
+                <span>{{ time }} ms</span>
+            </div>
+            <div class="sf-toolbar-info-piece">
+                <b>Requests</b>
+                <span class="sf-toolbar-status">{{ collector.requestAmount }}</span>
+            </div>
+            <div class="sf-toolbar-info-piece">
+                <b>Name</b>
+                <span class="sf-toolbar-status">{{ collector.clusterInfo.cluster_name }}</span>
+            </div>
+            <div class="sf-toolbar-info-piece">
+                <b>Status</b>
+                <span class="sf-toolbar-status">{{ collector.clusterInfo.status }}</span>
+            </div>
+            <div class="sf-toolbar-info-piece">
+                <b>Node(s)</b>
+                <span class="sf-toolbar-status">{{ collector.clusterInfo.number_of_nodes }}</span>
+            </div>
+        {% else %}
+            <div class="sf-toolbar-info-piece">
+                <b>Elasticsearch</b>
+                <span class="sf-toolbar-status sf-toolbar-status-red">disabled</span>
+            </div>
+        {% endif %}
+    {% endset %}
+
+    {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { link: profiler_url }) }}
+{% endblock %}
+
+{% block menu %}
+    <span class="label {{ 0 == collector.requestAmount ? 'disabled' }}">
+        <span class="icon">{{ include('@Elasticsearch/Collector/icon.svg') }}</span>
+        <strong>Elasticsearch</strong>
+    </span>
+{% endblock %}
+
+{% block panel %}
+    {% if collector.enabled %}
+        <h2>Query Metrics</h2>
+
+        <div class="metrics">
+            <div class="metric">
+                <span class="value">{{ '%0.2f'|format(collector.time) }} <span class="unit">ms</span></span>
+                <span class="label">Query Time</span>
+            </div>
+            <div class="metric">
+                <span class="value">{{ collector.clusterInfo.number_of_nodes }}</span>
+                <span class="label">Node(s)</span>
+            </div>
+            <div class="metric">
+                <span class="value">{{ collector.indices|length }}</span>
+                <span class="label">Indices</span>
+            </div>
+        </div>
+
+        <h2>Queries</h2>
+
+        {% if collector.requestAmount == 0 %}
+            <div class="empty">
+                <p>No queries were performed.</p>
+            </div>
+        {% else %}
+            <table class="queries-table">
+                <thead>
+                <tr>
+                    <th class="nowrap" data-sort-direction="-1" style="cursor: pointer;">#<span class="text-muted">&#9650;</span></th>
+                    <th class="nowrap" style="cursor: pointer;">Execution Time<span></span></th>
+                    <th style="width: 100%">Info</th>
+                </tr>
+                </thead>
+                <tbody id="queries">
+                {% for key, query in collector.requests %}
+                    <tr id="queryNo-{{ key }}">
+                        <td class="nowrap">{{ loop.index }}</td>
+                        <td class="nowrap">{{ '%0.2f'|format(query.time * 1000) }}&nbsp;ms</td>
+                        <td>
+                            <strong>Request:</strong>
+                            <div>
+                                <pre>{{ query.request|json_encode }}</pre>
+                            </div>
+                            <div class="font-normal text-small">
+                                <strong>Item count</strong>: {{ query.response.hits.total.value }}<br />
+
+                                <a href="#" class="sf-toggle link-inverse" data-toggle-selector="#formatted-query-{{ key }}" data-toggle-alt-content="Hide formatted request">View formatted request</a>
+                                <a href="#" class="sf-toggle link-inverse" data-toggle-selector="#formatted-query-{{ key }}-response" data-toggle-alt-content="Hide formatted response">View formatted response</a>
+
+                                {% if query.backtrace is defined %}
+                                    &nbsp;
+                                    <a href="#" class="sf-toggle link-inverse" data-toggle-selector="#swag-query-backtrace-{{ key }}" data-toggle-alt-content="Hide query backtrace">View query backtrace</a>
+                                {% endif %}
+                            </div>
+
+                            <div id="formatted-query-{{ key }}" class="sql-runnable hidden">
+                                <code>
+                                    <pre>POST {{ query.url }}
+    Accept: application/json
+    Content-Type: application/json
+
+    {% if query.request.body is defined %}
+    {{ query.request.body|json_encode(constant('JSON_PRETTY_PRINT')) }}
+    {% endif %}
+                                    </pre>
+                                </code>
+                            </div>
+
+                            <div id="formatted-query-{{ key }}-response" class="sql-runnable hidden">
+                                <code>
+                                    <pre>{{ query.response|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+                                </code>
+                            </div>
+
+                            {% if query.backtrace is defined %}
+                                <div id="swag-query-backtrace-{{ key }}" class="sql-runnable hidden">
+                                    <code><pre>{{ query.backtrace }}</pre></code>
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <h2>Cluster Status</h2>
+
+            <pre>{{ collector.clusterInfo|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+
+            <h2>Indices</h2>
+
+            <table class="indices-table">
+                <thead>
+                <tr>
+                    <th class="nowrap" data-sort-direction="-1" style="cursor: pointer;">Name<span class="text-muted">&#9650;</span></th>
+                    <th class="nowrap" style="cursor: pointer;">Status<span></span></th>
+                    <th class="nowrap" style="cursor: pointer;">Replication (pri, rep)<span></span></th>
+                    <th class="nowrap" style="cursor: pointer;">Doc Count<span></span></th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for index in collector.indices %}
+                        <tr>
+                            <td>{{ index.index }}</td>
+                            <td>{{ index.status }}</td>
+                            <td>{{ index.pri }}, {{ index.rep }}</td>
+                            <td>{{ index['docs.count'] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    {% else %}
+        <div class="empty">
+            <p>Elasticsearch was not enabled in this request.</p>
+        </div>
+    {% endif %}
+{% endblock %}

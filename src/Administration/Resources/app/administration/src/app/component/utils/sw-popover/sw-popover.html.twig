@@ -1,0 +1,32 @@
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# New mt-popover component #}
+{% block sw_popover %}
+<mt-floating-ui
+    v-if="useMeteorComponent"
+    v-bind="$attrs"
+    :is-opened="isOpened"
+>
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data"
+    >
+        <slot
+            :name="name"
+            v-bind="data"
+        >
+        </slot>
+    </template>
+    <slot></slot>
+</mt-floating-ui>
+{% endblock %}
+
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# Deprecated component #}
+{% block sw_popover_deprecated %}
+<sw-popover-deprecated
+    v-else
+    v-bind="$attrs"
+>
+    <slot></slot>
+</sw-popover-deprecated>
+{% endblock %}

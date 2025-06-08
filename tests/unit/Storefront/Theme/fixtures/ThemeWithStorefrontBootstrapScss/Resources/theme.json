@@ -1,0 +1,21 @@
+{
+  "name": "BootstrapOnlyTheme",
+  "author": "shopware AG",
+  "views": [
+    "@MockStorefront",
+    "@Plugins",
+    "@BootstrapOnlyTheme"
+  ],
+  "style": [
+    "app/storefront/src/scss/overrides.scss",
+    "@StorefrontBootstrap",
+    "app/storefront/src/scss/base.scss"
+  ],
+  "script": [
+    "@MockStorefront",
+    "app/storefront/dist/storefront/js/bootstrap-only-theme.js"
+  ],
+  "asset": [
+    "app/storefront/src/assets"
+  ]
+}

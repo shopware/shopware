@@ -1,0 +1,98 @@
+{
+  "sw-settings-listing": {
+    "general": {
+      "mainMenuItemGeneral": "Products",
+      "textHeadline": "Products",
+      "description": "Manage the display of products here.",
+      "buttonSave": "Save",
+      "messageSaveSuccess": "Configuration saved.",
+      "messageSaveError": "Configuration could not be saved due to: \"{message}\"",
+      "labelDefaultSorting": "Default sorting",
+      "labelDefaultSearchResultSorting": "Default search result sorting",
+      "placeholderDefaultSorting": "Select a default sorting...",
+      "placeholderDefaultSearchResultSorting": "Select a default search result sorting...",
+      "productSortingCriteriaGrid": {
+        "header": {
+          "name": "Name",
+          "order": "Order",
+          "priority": "Priority"
+        },
+        "options": {
+          "criteriaAlreadyUsed": "The sorting criterion \"{criteriaName}\" is already in use.",
+          "customFieldCriteriaNotNull": "Please choose a valid custom field.",
+          "label": {
+            "product": {
+              "name": "Product name",
+              "ratingAverage": "Product rating",
+              "productNumber": "Product number",
+              "releaseDate": "Release date",
+              "stock": "Product stock",
+              "listingPrices": "Product listing price",
+              "cheapestPrice": "Cheapest product price",
+              "price": "Default price",
+              "sales": "Units sold"
+            },
+            "customField": "Custom field",
+            "_score": "_score"
+          }
+        }
+      }
+    },
+    "index": {
+      "defaultSalesChannel": {
+        "title": "Default Sales Channel",
+        "description": "Select default Sales Channels that are automatically assigned to newly created products.",
+        "linkAdvancedVisibility": "Set visibility for selected Sales Channels"
+      },
+      "productSorting": {
+        "title": "Sorting options",
+        "addButton": "Add option",
+        "messageDeleteError": "There was an error while deleting the sorting option",
+        "emptyState": {
+          "title": "No options found",
+          "subline": "Create options"
+        },
+        "grid": {
+          "header": {
+            "name": "Name",
+            "criteria": "Criteria",
+            "priority": "Priority"
+          }
+        }
+      },
+      "deleteModal": {
+        "title": "Delete sorting option",
+        "description": "Are you sure you want to delete this sorting option?"
+      }
+    },
+    "create": {
+      "smartBarTitle": "Create product sorting"
+    },
+    "base": {
+      "smartBarTitle": "Edit product sorting",
+      "general": {
+        "title": "General",
+        "labelName": "Name",
+        "placeholderName": "Enter name...",
+        "labelTechnicalName": "Technical name",
+        "placeholderTechnicalName": "Enter technical name...",
+        "helpTextTechnicalName": "The technical name is used to reference the sorting option. It is unique and required for all sorting options.",
+        "labelActive": "Active"
+      },
+      "notification": {
+        "saveSuccess": "Sorting option \"{sortingOptionName}\" saved.",
+        "saveError": "The sorting option \"{sortingOptionName}\" could not be saved.",
+        "saveErrorAlreadyExists": "The sorting option \"{sortingOptionName}\" already exists."
+      },
+      "criteria": {
+        "title": "Sorting criteria",
+        "selectPlaceholder": "Search and add criteria...",
+        "emptyStateSubline": "No criteria defined for this sorting option yet."
+      },
+      "delete": {
+        "modalTitle": "Delete criterion",
+        "modalDescription": "Are you sure you want to delete this criterion?"
+      }
+    }
+  }
+}

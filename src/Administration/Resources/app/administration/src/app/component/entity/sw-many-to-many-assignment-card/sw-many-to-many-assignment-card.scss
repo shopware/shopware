@@ -1,0 +1,17 @@
+@import "~scss/variables";
+
+.sw-many-to-many-assignment-card {
+    .sw-many-to-many-assignment-card__select-container {
+        padding: 32px 32px 0;
+    }
+
+    .sw-many-to-many-assignment-card__grid {
+        border-top: 1px solid $color-gray-300;
+        border-radius: 0 0 $border-radius-default $border-radius-default;
+    }
+
+    .sw-many-to-many-assignment-card__empty-state {
+        text-align: center;
+        padding: 22px;
+    }
+}

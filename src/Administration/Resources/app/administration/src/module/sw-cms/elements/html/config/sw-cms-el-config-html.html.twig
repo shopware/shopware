@@ -1,0 +1,14 @@
+{% block sw_cms_el_config_html %}
+<div class="sw-cms-el-config-html">
+    <sw-code-editor
+        :value="element.config.content.value"
+        :set-focus="true"
+        @update:value="onInput"
+        @blur="onBlur"
+    />
+
+    <mt-banner variant="attention">
+        {{ $tc('sw-cms.elements.html.config.warning') }}
+    </mt-banner>
+</div>
+{% endblock %}

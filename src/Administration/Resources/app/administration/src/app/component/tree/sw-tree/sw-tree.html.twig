@@ -1,0 +1,166 @@
+{% block sw_tree %}
+<div
+    class="sw-tree"
+    role="tree"
+    :aria-label="$tc(`${translationContext}.general.treeHeadline`)"
+>
+    {% block sw_tree_search %}
+    <slot name="search">
+        <div
+            v-if="searchable"
+            class="sw-tree__search"
+        >
+
+            <mt-text-field
+                v-model="currentTreeSearch"
+                name="treeSearch"
+                :placeholder="$tc('sw-tree.general.placeholderSearch')"
+                size="small"
+                @update:model-value="searchItems"
+            >
+                <template #prefix>
+                    <mt-icon name="regular-search" />
+                </template>
+            </mt-text-field>
+        </div>
+    </slot>
+    {% endblock %}
+
+    {% block sw_tree_actions_headline %}
+    <slot name="headline">
+        <div
+            v-if="checkedElementsCount > 0"
+            class="sw-tree-actions__headline"
+        >
+            <span> {{ $tc(`${translationContext}.general.treeHeadSelected`, { count: checkedElementsCount }) }}:</span>
+            <mt-button
+                class="sw-tree-actions__delete_categories"
+                :disabled="!allowDeleteCategories || undefined"
+                variant="critical"
+                size="small"
+                @click="onDeleteElements(null)"
+            >
+                {{ $tc('global.default.delete') }}
+            </mt-button>
+        </div>
+
+        <div
+            v-else
+            class="sw-tree-actions__headline"
+        >
+            <span>{{ $tc(`${translationContext}.general.treeHeadline`) }}</span>
+        </div>
+    </slot>
+    {% endblock %}
+
+    {% block sw_tree_content %}
+    <div class="sw-tree__content">
+        <div class="tree-items">
+
+            {% block sw_tree_items %}
+            <sw-tree-input-field
+                v-if="hasNoItems && allowCreateCategories"
+                :disabled="disableContextMenu"
+                @new-item-create="onCreateNewItem"
+            />
+            <slot
+                v-else
+                name="items"
+                :tree-items="treeItems"
+                :dragged-item="draggedItem"
+                :new-element-id="newElementId"
+                :check-item="checkItem"
+                :translation-context="translationContext"
+                :on-change-route="onChangeRoute"
+                :sortable="sortable"
+                :disable-context-menu="disableContextMenu"
+                :selected-items-path-ids="selectedItemsPathIds"
+                :checked-item-ids="checkedItemIds"
+            >
+                {% block sw_tree_slot_items %}
+                <sw-tree-item
+                    v-for="item in treeItems"
+                    :key="item.id"
+                    :item="item"
+                    :translation-context="translationContext"
+                    :dragged-item="draggedItem"
+                    :active-parent-ids="selectedItemsPathIds"
+                    :active-item-ids="checkedItemIds"
+                    @check-item="checkItem"
+                />
+                {% endblock %}
+
+            </slot>
+            {% endblock %}
+
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block sw_tree_delete_modal %}
+    <sw-modal
+        v-if="showDeleteModal"
+        :title="$tc('global.default.warning')"
+        variant="small"
+        @modal-close="onCloseDeleteModal"
+    >
+        {% block sw_tree_delete_modal_confirm_delete_text %}
+        <div v-if="toDeleteItem">
+            <p
+                v-if="toDeleteItem.childCount > 0"
+                class="sw_tree__confirm-delete-text"
+            >
+                {{ $tc(`${translationContext}.modal.textDeleteConfirm`, { name: toDeleteItem.data.name || toDeleteItem.data.translated.name }) }}<br>
+                <b>{{ $tc(`${translationContext}.modal.textDeleteChildrenConfirm`) }}</b>
+            </p>
+            <p
+                v-else
+                class="sw_tree__confirm-delete-text"
+            >
+                {{ $tc(`${translationContext}.modal.textDeleteConfirm`, { name: toDeleteItem.data.name || toDeleteItem.data.translated.name }) }}
+            </p>
+        </div>
+        <div v-else>
+            <p
+                v-if="checkedElementsChildCount > 0"
+                class="sw_tree__confirm-delete-text"
+            >
+                {{ $tc(`${translationContext}.modal.textDeleteMultipleConfirm`, { count: checkedElementsCount }) }}<br>
+                <b>{{ $tc(`${translationContext}.modal.textDeleteChildrenConfirm`) }}</b>
+            </p>
+            <p
+                v-else
+                class="sw_tree__confirm-delete-text"
+            >
+                {{ $tc(`${translationContext}.modal.textDeleteMultipleConfirm`, { count: checkedElementsCount }) }}
+            </p>
+        </div>
+        {% endblock %}
+
+        {% block sw_tree_delete_modal_footer %}
+        <template #modal-footer>
+            {% block sw_tree_delete_modal_cancel %}
+            <mt-button
+                size="small"
+                variant="secondary"
+                @click="onCloseDeleteModal"
+            >
+                {{ $tc('global.default.cancel') }}
+            </mt-button>
+            {% endblock %}
+
+            {% block sw_tree_delete_modal_confirm %}
+            <mt-button
+                variant="critical"
+                size="small"
+                @click="onConfirmDelete()"
+            >
+                {{ $tc('global.default.delete') }}
+            </mt-button>
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </sw-modal>
+    {% endblock %}
+</div>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% block sw_settings_rule_add_assignment_listing %}
+<mt-card
+    class="sw-settings-rule-add-assignment-listing__card"
+    position-identifier="sw-settings-rule-add-assignment-listing"
+>
+    <template #toolbar>
+        {% block sw_settings_rule_add_assignment_listing_toolbar %}
+        <sw-card-filter
+            :placeholder="$tc('global.sw-simple-search-field.defaultPlaceholder')"
+            @sw-card-filter-term-change="doSearch"
+        />
+        {% endblock %}
+    </template>
+
+    {% block sw_settings_rule_add_assignment_listing_grid %}
+    <sw-data-grid
+        class="sw-settings-rule-add-assignment-listing__grid"
+        :is-loading="loading"
+        :data-source="items"
+        :columns="entityContext.addContext.gridColumns"
+        :is-record-selectable="isNotAssigned"
+        :show-actions="false"
+        @select-item="onSelectItem"
+    >
+        <template
+            #selection-content="{
+                item,
+                isSelected,
+                isRecordSelectable,
+                selectItem,
+                itemIdentifierProperty,
+            }"
+        >
+            {% block sw_settings_rule_add_assignment_listing_checkbox %}
+            <div class="sw-data-grid__cell-content">
+                <mt-checkbox
+                    :disabled="!isRecordSelectable(item)"
+                    :checked="isSelected(item[itemIdentifierProperty]) || !isNotAssigned(item)"
+                    @update:checked="selectItem($event, item)"
+                />
+            </div>
+            {% endblock %}
+        </template>
+
+        <template #column-name="{ item }">
+            {% block sw_settings_rule_add_assignment_listing_name %}
+            <sw-product-variant-info
+                v-if="item.variation"
+                :variations="item.variation"
+            >
+                {{ item.translated.name }}
+            </sw-product-variant-info>
+            <span v-else>
+                {{ item.translated.name }}
+            </span>
+            {% endblock %}
+        </template>
+
+        <template #column-active="{ item }">
+            {% block sw_settings_rule_add_assignment_listing_active_flag %}
+            <mt-icon
+                v-if="item.active"
+                name="regular-checkmark-xs"
+                size="16px"
+                class="is--active"
+            />
+            <mt-icon
+                v-else
+                name="regular-times-s"
+                size="16px"
+                class="is--inactive"
+            />
+            {% endblock %}
+        </template>
+
+        <template #column-taxType="{ item }">
+            {% block sw_settings_rule_add_assignment_listing_tax_type %}
+            {{ shippingTaxTypeLabel(item.taxType) }}
+            {% endblock %}
+        </template>
+
+        <template #pagination>
+            {% block sw_settings_rule_add_assignment_listing_pagination %}
+            <sw-pagination
+                :limit="limit"
+                :page="page"
+                :total="total"
+                @page-change="paginate"
+            />
+            {% endblock %}
+        </template>
+    </sw-data-grid>
+    {% endblock %}
+</mt-card>
+{% endblock %}

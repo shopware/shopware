@@ -1,0 +1,30 @@
+@import "~scss/variables";
+
+.sw-extension-domains-modal {
+    color: $color-darkgray-200;
+
+    &__description {
+        font-size: $font-size-xs;
+        padding: 12px 0 29px;
+    }
+
+    &__list-title {
+        font-size: $font-size-xs;
+        margin-bottom: 20px;
+    }
+
+    &__list {
+        list-style: none;
+        margin: 0 -30px;
+    }
+
+    &__list-item {
+        border-bottom: 1px solid $color-gray-300;
+        padding: 10px 30px;
+        font-size: $font-size-xs;
+
+        &:first-child {
+            border-top: 1px solid $color-gray-300;
+        }
+    }
+}

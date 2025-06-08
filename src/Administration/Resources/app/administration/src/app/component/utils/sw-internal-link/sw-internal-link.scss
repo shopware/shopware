@@ -1,0 +1,23 @@
+@import "~scss/variables";
+
+.sw-internal-link {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    text-decoration: underline;
+    color: var(--color-text-brand-default);
+    font-size: $font-size-xs;
+
+    &:hover,
+    &:focus {
+        color: var(--color-text-brand-hover);
+    }
+
+    &--inline {
+        display: inline;
+    }
+
+    &--disabled {
+        color: $color-gray-500;
+    }
+}

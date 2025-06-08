@@ -1,0 +1,13 @@
+.sw-cms-block-image-three-cover {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+    grid-gap: 0;
+
+    .sw-cms-el-text {
+        padding: 30px;
+    }
+
+    .sw-cms-el-image.is--cover {
+        min-height: 400px;
+    }
+}

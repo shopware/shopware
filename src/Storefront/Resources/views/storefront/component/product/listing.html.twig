@@ -1,0 +1,104 @@
+{% set paginationConfig = { page: searchResult.page } %}
+
+{% if disableEmptyFilter is not defined %}
+    {% set disableEmptyFilter = config('core.listing.disableEmptyFilterOptions') %}
+{% endif %}
+
+{% set listingPagination = {
+    sidebar: sidebar,
+    params: params,
+    dataUrl: dataUrl,
+    filterUrl: filterUrl,
+    disableEmptyFilter: disableEmptyFilter,
+    ariaLiveUpdates: ariaLiveUpdates,
+    snippets: {
+        resetAllButtonText: 'listing.filterPanelResetAll'|trans|sw_sanitize,
+        resetAllFiltersAriaLabel: 'listing.filterResetAllAriaLabel'|trans|sw_sanitize,
+        removeFilterAriaLabel: 'listing.filterRemoveAriaLabel'|trans|sw_sanitize
+    }
+} %}
+
+{% block product_listing %}
+    <div class="cms-element-product-listing-wrapper"
+         data-listing-pagination="true"
+         data-listing-pagination-options="{{ paginationConfig|json_encode }}"
+         data-listing="true"
+         data-listing-options="{{ listingPagination|json_encode }}">
+        {% block element_product_listing_wrapper_content %}
+            <div class="cms-element-product-listing">
+                {% if searchResult.total > 0 %}
+                    {% block element_product_listing_pagination_nav_actions %}
+                        <div class="cms-element-product-listing-actions row justify-content-between">
+                            <div class="col-md-auto">
+                                {% block element_product_listing_pagination_nav_top %}
+                                    {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
+                                        entities: searchResult,
+                                        fallbackUrl: paginationFallbackUrl,
+                                        paginationLocation: 'top',
+                                    } %}
+                                {% endblock %}
+                            </div>
+
+                            <div class="col-md-auto">
+                                {% block element_product_listing_sorting %}
+                                    {% sw_include '@Storefront/storefront/component/sorting.html.twig' with {
+                                        current: searchResult.sorting,
+                                        sortings: searchResult.availableSortings
+                                    } %}
+                                {% endblock %}
+                            </div>
+                        </div>
+                    {% endblock %}
+                {% endif %}
+
+                {% block element_product_listing_row %}
+                    {% if searchResult.total > searchResult.limit %}
+                        {% set ariaLiveText = 'listing.filterPanelAriaLivePaginated'|trans({
+                            '%count%': searchResult.elements|length,
+                            '%total%': searchResult.total}
+                        )|sw_sanitize %}
+                    {% else %}
+                        {% set ariaLiveText = 'listing.filterPanelAriaLive'|trans({'%count%': searchResult.total})|sw_sanitize %}
+                    {% endif %}
+
+                    <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="{{- ariaLiveText -}}"{% if searchResult.total > 0 %} role="list"{% endif %}>
+                        {% if searchResult.total > 0 %}
+                            {% block element_product_listing_col %}
+                                {% for product in searchResult %}
+                                    <div class="cms-listing-col {{ listingColumns }}" role="listitem">
+                                        {% block element_product_listing_box %}
+                                            {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
+                                                layout: boxLayout,
+                                                displayMode: displayMode
+                                            } %}
+                                        {% endblock %}
+                                    </div>
+                                {% endfor %}
+                            {% endblock %}
+                        {% else %}
+                            {% block element_product_listing_col_empty %}
+                                <div class="cms-listing-col col-12">
+                                    {% block element_product_listing_col_empty_alert %}
+                                        {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                            type: 'info',
+                                            content: 'listing.emptyResultMessage'|trans|sw_sanitize
+                                        } %}
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        {% endif %}
+                    </div>
+                {% endblock %}
+
+                {% if searchResult.total > searchResult.limit %}
+                    {% block element_product_listing_pagination_nav_bottom %}
+                        {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
+                            entities: searchResult,
+                            paginationLocation: 'bottom',
+                        } %}
+                    {% endblock %}
+                {% endif %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

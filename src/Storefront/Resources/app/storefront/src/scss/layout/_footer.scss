@@ -1,0 +1,119 @@
+/*
+Footer
+==================================================
+Contains custom styles for the footer located at the bottom of the page.
+*/
+
+.footer-column-content-inner {
+    padding-bottom: $spacer;
+}
+
+.footer-column-headline {
+    padding: $spacer-sm 0;
+    display: flex;
+    justify-content: space-between;
+
+    // control icon visibility via collapse show state
+    .icon-footer-minus {
+        display: none;
+    }
+
+    .icon-footer-plus > svg,
+    .icon-footer-minus > svg {
+        top: 0.25em;
+    }
+
+    .footer-column-toggle[aria-expanded='true'] {
+        .icon-footer-plus {
+            display: none;
+        }
+
+        .icon-footer-minus {
+            display: inline-flex;
+        }
+    }
+}
+
+.footer-column-toggle {
+    padding: 0;
+    --#{$prefix}btn-line-height: 1.375;
+}
+
+.footer-link-item {
+    padding: $spacer-sm 0;
+}
+
+.footer-bottom {
+    padding: $spacer;
+
+    > .container {
+        padding: 0;
+    }
+}
+
+.footer-vat,
+.footer-copyright,
+.footer-service-menu-list {
+    text-align: center;
+}
+
+.footer-service-menu-list {
+    padding: $spacer 0;
+
+    &:empty {
+        padding: 0;
+        margin: 0;
+    }
+}
+
+.footer-service-menu-item {
+    display: inline-block;
+}
+
+.footer-service-menu-link {
+    padding: 5px 0;
+    display: inline-block;
+}
+
+.footer-logos {
+    padding: $spacer;
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.footer-logo {
+    margin-right: $spacer-lg;
+    margin-bottom: $spacer-sm;
+
+    &:last-child {
+        margin-right: 0;
+    }
+}
+
+.footer-logo-image {
+    max-height: 35px;
+    max-width: 100px;
+}
+
+@include media-breakpoint-up(md) {
+    .footer-columns {
+        padding-bottom: 20px;
+    }
+
+    .footer-column-headline {
+        padding: $spacer-xl 0 $spacer-sm 0;
+    }
+
+    .footer-column-toggle {
+        display: none;
+    }
+
+    // show collapse content on larger screens
+    .footer-column-content.collapse {
+        display: block;
+    }
+}

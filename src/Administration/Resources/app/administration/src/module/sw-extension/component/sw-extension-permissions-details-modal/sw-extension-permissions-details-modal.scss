@@ -1,0 +1,50 @@
+@import "~scss/variables";
+
+.sw-modal.sw-extension-permissions-details-modal {
+    .sw-modal__body {
+        padding: 0;
+        overflow: auto;
+    }
+}
+
+.sw-extension-permissions-details-modal__table {
+    font-size: $font-size-xs;
+    border-spacing: unset;
+    border-collapse: collapse;
+
+    .sw-extension-permissions-details-modal__operations {
+        border-bottom: 1px solid $color-gray-300;
+        box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 10%);
+        display: block;
+        top: 0;
+        position: sticky;
+        background: #fff;
+    }
+
+    tr {
+        padding: 16px 36px;
+
+        &:not(:last-child) {
+            border-bottom: 1px solid $color-gray-300;
+        }
+
+        &.sw-extension-permissions-details-modal__category {
+            display: grid;
+            font-weight: $font-weight-semi-bold;
+            background: $color-gray-100;
+        }
+
+        &.sw-extension-permissions-details-modal__grid-columns {
+            display: grid;
+            grid-template-columns: 284px repeat(4, 86px);
+        }
+
+        .sw-extension-permissions-details-modal__operation {
+            text-align: center;
+        }
+
+        .sw-extension-permissions-details-modal__operation-header {
+            text-align: center;
+        }
+    }
+}

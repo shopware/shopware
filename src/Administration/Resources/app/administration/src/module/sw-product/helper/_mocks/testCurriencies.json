@@ -1,0 +1,357 @@
+[
+  {
+    "factor": 1,
+    "symbol": "€",
+    "isoCode": "EUR",
+    "shortName": "EUR",
+    "name": "Euro",
+    "position": 1,
+    "isSystemDefault": true,
+    "customFields": null,
+    "itemRounding": {
+      "decimals": 2,
+      "interval": 0.01,
+      "roundForNet": true,
+      "extensions": []
+    },
+    "totalRounding": {
+      "decimals": 2,
+      "interval": 0.01,
+      "roundForNet": true,
+      "extensions": []
+    },
+    "taxFreeFrom": 0,
+    "createdAt": "2021-11-10T14:05:56.029+00:00",
+    "updatedAt": null,
+    "apiAlias": null,
+    "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+    "translations": [],
+    "salesChannelDefaultAssignments": [],
+    "orders": [],
+    "salesChannels": [],
+    "salesChannelDomains": [],
+    "promotionDiscountPrices": [],
+    "productExports": [],
+    "countryRoundings": []
+  },
+  {
+    "factor": 1.1,
+    "symbol": "Fr",
+    "isoCode": "CHF",
+    "shortName": "CHF",
+    "name": "Swiss francs",
+    "position": 1,
+    "isSystemDefault": false,
+    "customFields": null,
+    "itemRounding": {
+      "decimals": 2,
+      "interval": 0.01,
+      "roundForNet": true,
+      "extensions": []
+    },
+    "totalRounding": {
+      "decimals": 2,
+      "interval": 0.01,
+      "roundForNet": true,
+      "extensions": []
+    },
+    "taxFreeFrom": 0,
+    "createdAt": "2021-11-10T14:06:04.307+00:00",
+    "updatedAt": null,
+    "translated": {
+      "shortName": "CHF",
+      "name": "Swiss francs",
+      "customFields": {}
+    },
+    "apiAlias": null,
+    "id": "e7d006b51e2d4f9c80de6be68206aba7",
+    "translations": [],
+    "salesChannelDefaultAssignments": [],
+    "orders": [],
+    "salesChannels": [],
+    "salesChannelDomains": [],
+    "promotionDiscountPrices": [],
+    "productExports": [],
+    "countryRoundings": []
+  },
+  {
+    "factor": 26.735,
+    "symbol": "Kč",
+    "isoCode": "CZK",
+    "shortName": "CZK",
+    "name": "Czech koruna",
+    "position": 1,
+    "isSystemDefault": false,
+    "customFields": null,
+    "itemRounding": {
+      "decimals": 2,
+      "interval": 0.01,
+      "roundForNet": true,
+      "extensions": []
+    },
+    "totalRounding": {
+      "decimals": 2,
+      "interval": 0.01,
+      "roundForNet": true,
+      "extensions": []
+    },
+    "taxFreeFrom": 0,
+    "createdAt": "2021-11-10T14:06:12.320+00:00",
+    "updatedAt": null,
+    "translated": {
+      "shortName": "CZK",
+      "name": "Czech koruna",
+      "customFields": {}
+    },
+    "apiAlias": null,
+    "id": "4f0b5be0f0a842218e3a899c66c19691",
+    "translations": [],
+    "salesChannelDefaultAssignments": [],
+    "orders": [],
+    "salesChannels": [],
+    "salesChannelDomains": [],
+    "promotionDiscountPrices": [],
+    "productExports": [],
+    "countryRoundings": []
+  },
+  {
+    "factor": 7.47,
+    "symbol": "kr",
+    "isoCode": "DKK",
+    "shortName": "DKK",
+    "name": "Danish krone",
+    "position": 1,
+    "isSystemDefault": false,
+    "customFields": null,
+    "itemRounding": {
+      "decimals": 2,
+      "interval": 0.01,
+      "roundForNet": true,
+      "extensions": []
+    },
+    "totalRounding": {
+      "decimals": 2,
+      "interval": 0.01,
+      "roundForNet": true,
+      "extensions": []
+    },
+    "taxFreeFrom": 0,
+    "createdAt": "2021-11-10T14:06:04.325+00:00",
+    "updatedAt": null,
+    "translated": {
+      "shortName": "DKK",
+      "name": "Danish krone",
+      "customFields": {}
+    },
+    "apiAlias": null,
+    "id": "492a0955a83241c8b859b1c6c371c269",
+    "translations": [],
+    "salesChannelDefaultAssignments": [],
+    "orders": [],
+    "salesChannels": [],
+    "salesChannelDomains": [],
+    "promotionDiscountPrices": [],
+    "productExports": [],
+    "countryRoundings": []
+  },
+  {
+    "factor": 0.89157,
+    "symbol": "£",
+    "isoCode": "GBP",
+    "shortName": "GBP",
+    "name": "Pound",
+    "position": 1,
+    "isSystemDefault": false,
+    "customFields": null,
+    "itemRounding": {
+      "decimals": 2,
+      "interval": 0.01,
+      "roundForNet": true,
+      "extensions": []
+    },
+    "totalRounding": {
+      "decimals": 2,
+      "interval": 0.01,
+      "roundForNet": true,
+      "extensions": []
+    },
+    "taxFreeFrom": 0,
+    "createdAt": "2021-11-10T14:05:56.047+00:00",
+    "updatedAt": null,
+    "translated": {
+      "shortName": "GBP",
+      "name": "Pound",
+      "customFields": {}
+    },
+    "apiAlias": null,
+    "id": "42eb2cf984014b8db46309d593e59e7f",
+    "translations": [],
+    "salesChannelDefaultAssignments": [],
+    "orders": [],
+    "salesChannels": [],
+    "salesChannelDomains": [],
+    "promotionDiscountPrices": [],
+    "productExports": [],
+    "countryRoundings": []
+  },
+  {
+    "factor": 0.099,
+    "symbol": "nkr",
+    "isoCode": "NOK",
+    "shortName": "NOK",
+    "name": "Norwegian krone",
+    "position": 1,
+    "isSystemDefault": false,
+    "customFields": null,
+    "itemRounding": {
+      "decimals": 2,
+      "interval": 0.01,
+      "roundForNet": true,
+      "extensions": []
+    },
+    "totalRounding": {
+      "decimals": 2,
+      "interval": 0.01,
+      "roundForNet": true,
+      "extensions": []
+    },
+    "taxFreeFrom": 0,
+    "createdAt": "2021-11-10T14:06:04.333+00:00",
+    "updatedAt": null,
+    "translated": {
+      "shortName": "NOK",
+      "name": "Norwegian krone",
+      "customFields": {}
+    },
+    "apiAlias": null,
+    "id": "c5ec1aad7cb54973bde4207dbe739aa7",
+    "translations": [],
+    "salesChannelDefaultAssignments": [],
+    "orders": [],
+    "salesChannels": [],
+    "salesChannelDomains": [],
+    "promotionDiscountPrices": [],
+    "productExports": [],
+    "countryRoundings": []
+  },
+  {
+    "factor": 4.33,
+    "symbol": "zł",
+    "isoCode": "PLN",
+    "shortName": "PLN",
+    "name": "Złoty",
+    "position": 1,
+    "isSystemDefault": false,
+    "customFields": null,
+    "itemRounding": {
+      "decimals": 2,
+      "interval": 0.01,
+      "roundForNet": true,
+      "extensions": []
+    },
+    "totalRounding": {
+      "decimals": 2,
+      "interval": 0.01,
+      "roundForNet": true,
+      "extensions": []
+    },
+    "taxFreeFrom": 0,
+    "createdAt": "2021-11-10T14:06:04.293+00:00",
+    "updatedAt": null,
+    "translated": {
+      "shortName": "PLN",
+      "name": "Złoty",
+      "customFields": {}
+    },
+    "apiAlias": null,
+    "id": "be219239630f4732b9f14d9d54b355cd",
+    "translations": [],
+    "salesChannelDefaultAssignments": [],
+    "orders": [],
+    "salesChannels": [],
+    "salesChannelDomains": [],
+    "promotionDiscountPrices": [],
+    "productExports": [],
+    "countryRoundings": []
+  },
+  {
+    "factor": 10.51,
+    "symbol": "kr",
+    "isoCode": "SEK",
+    "shortName": "SEK",
+    "name": "Swedish krona",
+    "position": 1,
+    "isSystemDefault": false,
+    "customFields": null,
+    "itemRounding": {
+      "decimals": 2,
+      "interval": 0.01,
+      "roundForNet": true,
+      "extensions": []
+    },
+    "totalRounding": {
+      "decimals": 2,
+      "interval": 0.01,
+      "roundForNet": true,
+      "extensions": []
+    },
+    "taxFreeFrom": 0,
+    "createdAt": "2021-11-10T14:06:04.317+00:00",
+    "updatedAt": null,
+    "translated": {
+      "shortName": "SEK",
+      "name": "Swedish krona",
+      "customFields": {}
+    },
+    "apiAlias": null,
+    "id": "97623a923ef24f5bafa0aa3343209b38",
+    "translations": [],
+    "salesChannelDefaultAssignments": [],
+    "orders": [],
+    "salesChannels": [],
+    "salesChannelDomains": [],
+    "promotionDiscountPrices": [],
+    "productExports": [],
+    "countryRoundings": []
+  },
+  {
+    "factor": 1.17085,
+    "symbol": "$",
+    "isoCode": "USD",
+    "shortName": "USD",
+    "name": "US-Dollar",
+    "position": 1,
+    "isSystemDefault": false,
+    "customFields": null,
+    "itemRounding": {
+      "decimals": 2,
+      "interval": 0.01,
+      "roundForNet": true,
+      "extensions": []
+    },
+    "totalRounding": {
+      "decimals": 2,
+      "interval": 0.01,
+      "roundForNet": true,
+      "extensions": []
+    },
+    "taxFreeFrom": 0,
+    "createdAt": "2021-11-10T14:05:56.039+00:00",
+    "updatedAt": null,
+    "translated": {
+      "shortName": "USD",
+      "name": "US-Dollar",
+      "customFields": {}
+    },
+    "apiAlias": null,
+    "id": "058a99a092604b61a29a41064bb7500d",
+    "translations": [],
+    "salesChannelDefaultAssignments": [],
+    "orders": [],
+    "salesChannels": [],
+    "salesChannelDomains": [],
+    "promotionDiscountPrices": [],
+    "productExports": [],
+    "countryRoundings": []
+  }
+]

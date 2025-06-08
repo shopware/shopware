@@ -1,0 +1,12 @@
+.sw-order-create-initial-modal {
+    .sw-modal__body {
+        height: 700px;
+    }
+
+    .sw-order-line-items-grid-sales-channel {
+        .sw-empty-state {
+            max-height: 540px;
+            min-height: 320px;
+        }
+    }
+}

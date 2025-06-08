@@ -1,0 +1,31 @@
+.account-address {
+    .address-action-create .icon {
+        margin-top: 2px;
+        margin-right: $spacer-sm;
+    }
+
+    .btn > .icon {
+        vertical-align: top;
+    }
+
+    .account-address-back {
+        &:hover,
+        &:focus {
+            span.icon {
+                color: $white;
+            }
+        }
+    }
+}
+
+.address-manager-select-address {
+    min-height: 200px;
+}
+
+.address-manager-modal-address-form .icon {
+    color: currentColor;
+
+    svg {
+        top: 0.25em;
+    }
+}

@@ -1,0 +1,146 @@
+{% block sw_order_create %}
+<sw-page class="sw-order-create">
+    {% block sw_order_create_smart_bar_header %}
+    <template #smart-bar-header>
+        {% block sw_order_create_smart_bar_header_title %}
+        <h2 v-if="!showInitialModal">
+            {% block sw_order_create_smart_bar_header_title_text %}
+            {{ $tc('sw-order.create.textNewOrder') }}
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_order_create_smart_bar_actions %}
+    <template #smart-bar-actions>
+        {% block sw_order_create_smart_bar_actions_slot %}
+        <template v-if="!showInitialModal">
+            {% block sw_order_create_smart_bar_actions_cancel %}
+            <mt-button
+                variant="secondary"
+                size="default"
+                @click="onCancelOrder"
+            >
+                {{ $tc('global.default.cancel') }}
+            </mt-button>
+            {% endblock %}
+            {% block sw_order_create_smart_bar_actions_add %}
+            <sw-button-process
+                variant="primary"
+                :disabled="isLoading"
+                :is-loading="isLoading"
+                :process-success="isSaveSuccessful"
+                @update:process-success="saveFinish"
+                @click.prevent="onSaveOrder"
+            >
+                {{ $tc('sw-order.create.buttonSaveOrder') }}
+            </sw-button-process>
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_order_create_language_switch %}
+    <template #language-switch>
+        <sw-language-switch
+            disabled
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_order_create_content %}
+    <template #content>
+        {% block sw_order_create_content_view %}
+        <sw-card-view>
+            {% block sw_order_create_content_tabs %}
+            <sw-tabs
+                v-if="!showInitialModal"
+                class="sw-order-create__tabs"
+                position-identifier="sw-order-create"
+            >
+                {% block sw_order_create_content_tabs_general %}
+                <sw-tabs-item
+                    class="sw-order-create__tab-general"
+                    :route="{ name: 'sw.order.create.general' }"
+                    :title="$tc('sw-order.detail.tabGeneral')"
+                >
+                    {{ $tc('sw-order.detail.tabGeneral') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_order_create_content_tabs_details %}
+                <sw-tabs-item
+                    class="sw-order-create__tab-details"
+                    :route="{ name: 'sw.order.create.details' }"
+                    :title="$tc('sw-order.detail.tabDetails')"
+                >
+                    {{ $tc('sw-order.detail.tabDetails') }}
+                </sw-tabs-item>
+                {% endblock %}
+            </sw-tabs>
+            {% endblock %}
+
+            {% block sw_order_create_content_view %}
+            <router-view
+                v-slot="{ Component }"
+            >
+                <component
+                    :is="Component"
+                    @error="showError"
+                />
+            </router-view>
+            {% endblock %}
+        </sw-card-view>
+        {% endblock %}
+
+        {% block sw_order_create_invalid_promotion_modal %}
+        <sw-order-create-invalid-promotion-modal
+            v-if="showInvalidCodeModal"
+            @confirm="removeInvalidCode"
+            @close="closeInvalidCodeModal"
+        />
+        {% endblock %}
+
+        {% block sw_order_create_remind_payment_modal %}
+        <sw-modal
+            v-if="showRemindPaymentModal"
+            class="sw-order-create__remind-payment-modal"
+            :title="$tc('sw-order.create.remindPaymentModal.title')"
+            :is-loading="remindPaymentModalLoading"
+            @modal-close="onRemindPaymentModalClose"
+        >
+            {% block sw_order_create_remind_payment_modal_content %}
+            <p>{{ $tc('sw-order.create.remindPaymentModal.text', {paymentMethodName: paymentMethodName }, 0) }}</p>
+            {% endblock %}
+
+            <template #modal-footer>
+                {% block sw_order_create_remind_payment_modal_footer %}
+                <mt-button
+                    class="sw-order-create__remind-payment-modal-decline"
+                    size="small"
+                    variant="secondary"
+                    @click="onRemindPaymentModalClose"
+                >
+                    {{ $tc('global.default.no') }}
+                </mt-button>
+
+                <mt-button
+                    class="sw-order-create__remind-payment-modal-remind"
+                    variant="primary"
+                    size="small"
+                    @click="onRemindCustomer"
+                >
+                    {{ $tc('sw-order.create.remindPaymentModal.primaryAction') }}
+                </mt-button>
+                {% endblock %}
+
+            </template>
+        </sw-modal>
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

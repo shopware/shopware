@@ -1,0 +1,119 @@
+{% block component_filter_panel %}
+    {% block component_filter_panel_header %}
+        <div class="filter-panel-offcanvas-header">
+            <h2 data-id="off-canvas-headline" class="filter-panel-offcanvas-only filter-panel-offcanvas-title">
+                {{ 'listing.filterTitleText'|trans }}
+            </h2>
+
+            <button type="button" class="btn-close filter-panel-offcanvas-only filter-panel-offcanvas-close js-offcanvas-close" aria-label="{{ 'listing.filterClose'|trans|striptags }}">
+            </button>
+        </div>
+    {% endblock %}
+
+    {# @var listing \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult #}
+    {% block component_filter_panel_element %}
+        <div class="filter-panel{% if sidebar %} is--sidebar{% endif %}" aria-label="{{ 'listing.filterTitleText'|trans|sw_sanitize }}">
+            {% block component_filter_panel_items_container %}
+                <div class="filter-panel-items-container" role="list">
+                    {% block component_filter_panel_items %}
+                        {% block component_filter_panel_item_manufacturer %}
+                            {# @var manufacturers \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult #}
+                            {% set manufacturers = listing.aggregations.get('manufacturer') %}
+                            {% if not manufacturers.entities is empty %}
+                                {% set manufacturersSorted = manufacturers.entities|sort((a, b) => a.translated.name|lower <=> b.translated.name|lower) %}
+
+                                {% sw_include '@Storefront/storefront/component/listing/filter/filter-multi-select.html.twig' with {
+                                    elements: manufacturersSorted,
+                                    sidebar: sidebar,
+                                    name: 'manufacturer',
+                                    displayName: 'listing.filterManufacturerDisplayName'|trans|sw_sanitize,
+                                    ariaLabel: 'listing.filterByManufacturerAriaLabel'|trans|sw_sanitize
+                                } %}
+                            {% endif %}
+                        {% endblock %}
+
+                        {% block component_filter_panel_item_properties %}
+                            {# @var properties \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult #}
+                            {% set properties = listing.aggregations.get('properties') %}
+
+                            {% if not properties.entities is empty %}
+                                {% for property in properties.entities %}
+                                    {% sw_include '@Storefront/storefront/component/listing/filter/filter-property-select.html.twig' with {
+                                        elements: property.options,
+                                        sidebar: sidebar,
+                                        name: 'properties',
+                                        displayName: property.translated.name,
+                                        displayType: property.displayType,
+                                        pluginSelector: 'filter-property-select',
+                                        propertyName: property.translated.name,
+                                        ariaLabel: 'listing.filterByAriaLabel'|trans({'%name%': property.translated.name})|sw_sanitize
+                                    } %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endblock %}
+
+                        {% block component_filter_panel_item_price %}
+                            {% set price = listing.aggregations.get('price') %}
+
+                            {% if price.min !== null and price.max !== null %}
+                                {% sw_include '@Storefront/storefront/component/listing/filter/filter-range.html.twig' with {
+                                    sidebar: sidebar,
+                                    name: 'price',
+                                    minKey: 'min-price',
+                                    maxKey: 'max-price',
+                                    lowerBound: 0,
+                                    displayName: 'listing.filterPriceDisplayName'|trans|sw_sanitize,
+                                    minInputValue: 0,
+                                    maxInputValue: price.max,
+                                    ariaLabel: 'listing.filterByPriceAriaLabel'|trans|sw_sanitize
+                                } %}
+                            {% endif %}
+                        {% endblock %}
+
+                        {% block component_filter_panel_item_rating_select %}
+                            {% set rating = listing.aggregations.get('rating') %}
+
+                            {% if rating.max > 0 %}
+                                {% sw_include '@Storefront/storefront/component/listing/filter/filter-rating-select.html.twig' with {
+                                    sidebar: sidebar,
+                                    name: 'rating',
+                                    pluginSelector: 'filter-rating-select',
+                                    displayName: 'listing.filterRatingDisplayName'|trans|sw_sanitize,
+                                    ariaLabel: 'listing.filterByRatingAriaLabel'|trans|sw_sanitize
+                                } %}
+                            {% endif %}
+                        {% endblock %}
+
+                        {% block component_filter_panel_item_shipping_free %}
+                            {% set shippingFree = listing.aggregations.get('shipping-free') %}
+
+                            {% if shippingFree.max > 0 %}
+                                {% sw_include '@Storefront/storefront/component/listing/filter/filter-boolean.html.twig' with {
+                                    name: 'shipping-free',
+                                    displayName: 'listing.filterFreeShippingDisplayName'|trans|sw_sanitize,
+                                    altText: 'listing.filterFreeShippingAltText'|trans|sw_sanitize,
+                                    altTextActive: 'listing.filterFreeShippingAltTextActive'|trans|sw_sanitize,
+                                } %}
+                            {% endif %}
+                        {% endblock %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block component_filter_panel_active_container %}
+                <div class="filter-panel-active-container d-flex flex-wrap gap-2">
+                    {% block component_filter_panel_active_container_inner %}{% endblock %}
+                </div>
+            {% endblock %}
+
+            {# Aria live region to tell the screen reader how many product results are shown after a filter was selected or deselected. #}
+            {% block component_filter_panel_aria_live %}
+                {% if ariaLiveUpdates %}
+                    <div class="filter-panel-aria-live visually-hidden" aria-live="polite" aria-atomic="true">
+                        {# The live region content is generated by the `ListingPlugin` #}
+                    </div>
+                {% endif %}
+            {% endblock %}
+        </div>
+     {% endblock %}
+{% endblock %}

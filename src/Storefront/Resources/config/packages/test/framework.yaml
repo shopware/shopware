@@ -1,0 +1,7 @@
+framework:
+    test: true
+    session:
+        cookie_samesite: lax
+        storage_factory_id: session.storage.factory.mock_file
+    profiler:
+        collect: false

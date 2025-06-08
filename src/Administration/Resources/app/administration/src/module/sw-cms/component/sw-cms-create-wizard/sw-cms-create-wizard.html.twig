@@ -1,0 +1,181 @@
+{% block sw_cms_create_wizard %}
+<div class="sw-cms-create-wizard">
+    <div class="sw-cms-create-wizard__inner">
+
+        {% block sw_cms_create_wizard_first_step %}
+        <div
+            v-if="step === 1"
+            class="sw-cms-create-wizard__step-1"
+        >
+            <h2 class="sw-cms-create-wizard__title">
+                {{ $tc('sw-cms.createWizard.choosePageTypeTitle') }}
+            </h2>
+
+            {% block sw_cms_create_wizard_page_type %}
+            <div class="sw-cms-create-wizard__page-type-selection">
+                {% block sw_cms_create_wizard_page_type_options %}
+                <div
+                    v-for="pageType in visiblePageTypes"
+                    :key="pageType.name"
+                    class="sw-cms-create-wizard__page-type"
+                    :class="pageType.class"
+                    role="button"
+                    tabindex="0"
+                    @click="onPageTypeSelect(pageType.name)"
+                    @keyup.enter="onPageTypeSelect(pageType.name)"
+                >
+                    <mt-icon
+                        :name="pageType.icon"
+                        size="24"
+                    />
+                    <p>{{ $tc(pageType.title) }}</p>
+                </div>
+                {% endblock %}
+            </div>
+            {% endblock %}
+
+            {% block sw_cms_create_wizard_first_step_abort %}
+            <router-link
+                class="sw-cms-create-wizard__back"
+                :to="{ name: 'sw.cms.index' }"
+            >
+                <mt-icon
+                    name="regular-times-s"
+                    size="16px"
+                /> {{ $tc('global.default.cancel') }}
+            </router-link>
+            {% endblock %}
+
+            {% block sw_cms_create_wizard_first_step_helptext %}
+            <p class="sw-cms-create-wizard__step1-helptext">
+                {{ $tc('sw-cms.createWizard.choosePageTypeHelpText') }}
+            </p>
+            {% endblock %}
+
+        </div>
+        {% endblock %}
+
+        {% block sw_cms_create_wizard_second_step %}
+        <div
+            v-if="step === 2"
+            class="sw-cms-create-wizard__step-2"
+        >
+            <h2 class="sw-cms-create-wizard__title">
+                {{ $tc('sw-cms.createWizard.chooseSectionTitle') }}
+            </h2>
+
+            {% block sw_cms_create_wizard_section %}
+            <div class="sw-cms-create-wizard__section-selection">
+                <sw-cms-stage-section-selection @section-select="onSectionSelect" />
+            </div>
+            {% endblock %}
+
+            {% block sw_cms_create_wizard_second_step_back %}
+            <div
+                class="sw-cms-create-wizard__back"
+                role="button"
+                tabindex="0"
+                @click="goToStep('pageType')"
+                @keydown.enter="goToStep('pageType')"
+            >
+                <mt-icon
+                    name="regular-long-arrow-left"
+                    size="16px"
+                /> {{ $tc('sw-cms.createWizard.stepBack') }}
+            </div>
+            {% endblock %}
+
+            {% block sw_cms_create_wizard_second_step_helptext %}
+            <p class="sw-cms-create-wizard__step2-helptext">
+                {{ $tc('sw-cms.createWizard.chooseSectionHelpText') }}
+            </p>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_cms_create_wizard_third_step %}
+        <div
+            v-if="step === 3"
+            class="sw-cms-create-wizard__step-3"
+        >
+            <h2 class="sw-cms-create-wizard__title">
+                {{ $tc('sw-cms.createWizard.chooseNameTitle') }}
+            </h2>
+
+            <div class="sw-cms-create-wizard__name-select">
+                {% block sw_cms_create_wizard_page_preview %}
+                <div class="sw-cms-create-wizard__page-preview">
+                    <div
+                        class="sw-cms-create-wizard__preview_image"
+                        :style="pagePreviewStyle"
+                    ></div>
+                    <div class="sw-cms-create-wizard__preview_info">
+                        <mt-icon
+                            :name="currentPageType?.icon"
+                            size="16"
+                        />
+                        <p>{{ $tc((currentPageType?.title ?? "")) }}</p>
+                    </div>
+                </div>
+                {% endblock %}
+
+                {% block sw_cms_create_wizard_page_completion %}
+                <div class="sw-cms-create-wizard__page-completion">
+
+                    {% block sw_cms_create_wizard_page_name %}
+
+                    <mt-text-field
+                        v-model="page.name"
+                        class="sw-cms-create-wizard__page-completion-name"
+                        :label="$tc('sw-cms.detail.label.pageName')"
+                        :placeholder="$tc('sw-cms.detail.label.pageNamePlaceholder')"
+                        @keypress.enter="onCompletePageCreation"
+                    />
+                    {% endblock %}
+
+                    <sw-single-select
+                        v-if="isCustomEntityType"
+                        v-model:value="page.entity"
+                        class="sw-cms-create-wizard__page-completion-custom-entity"
+                        :label="$tc('sw-cms.detail.label.pageEntity')"
+                        :placeholder="$tc('sw-cms.detail.label.pageEntityPlaceholder')"
+                        :options="customEntities"
+                        require
+                    />
+
+                    {% block sw_cms_create_wizard_page_completion_buttons %}
+                    <div class="sw-cms-create-wizard__page-completion-buttons">
+                        {% block sw_cms_create_wizard_page_completion_save_button %}
+                        <mt-button
+                            variant="primary"
+                            :disabled="!isCompletable"
+                            @click="onCompletePageCreation"
+                        >
+                            {{ $tc('sw-cms.createWizard.createLayout') }}
+                        </mt-button>
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+            </div>
+
+            {% block sw_cms_create_wizard_third_step_back %}
+            <div
+                class="sw-cms-create-wizard__back"
+                role="button"
+                tabindex="0"
+                @click="goToStep('sectionType')"
+                @keydown.enter="goToStep('sectionType')"
+            >
+                <mt-icon
+                    name="regular-long-arrow-left"
+                    size="16px"
+                /> {{ $tc('sw-cms.createWizard.stepBack') }}
+            </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </div>
+</div>
+{% endblock %}

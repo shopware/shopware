@@ -1,0 +1,12 @@
+@import "~scss/variables";
+
+.sw-promotion-v2-settings-discount-type {
+    .sw-promotion-v2-settings-discount-type__advanced-prices {
+        display: block;
+        font-size: $font-size-xs;
+        cursor: pointer;
+        text-align: right;
+        margin-bottom: 15px;
+        color: $color-shopware-brand-500;
+    }
+}

@@ -1,0 +1,19 @@
+.sw-cms-el-preview-youtube-video {
+    position: relative;
+    display: flex;
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+
+    &__img {
+        width: 100%;
+        height: 100%;
+    }
+
+    &__icon {
+        $icon-height: 35px;
+
+        height: $icon-height;
+        position: absolute;
+    }
+}

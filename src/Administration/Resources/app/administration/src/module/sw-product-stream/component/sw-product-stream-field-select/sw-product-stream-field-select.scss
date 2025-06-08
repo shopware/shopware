@@ -1,0 +1,32 @@
+@import "~scss/variables";
+
+.sw-arrow-field.sw-product-stream-field-select {
+    flex-basis: 0;
+    flex-grow: 1;
+    background-color: $color-gray-900;
+
+    .sw-single-select.sw-block-field {
+        &.has--focus .sw-block-field__block {
+            box-shadow: none;
+        }
+
+        .sw-block-field__block {
+            border: 0 none;
+            background: none;
+        }
+
+        .sw-single-select__selection-text,
+        .sw-single-select__selection-input {
+            background: none;
+            color: $color-white;
+        }
+    }
+
+    .sw-block-field.sw-field--medium {
+        margin-bottom: 0;
+    }
+
+    &.has--error {
+        background-color: $color-crimson-500;
+    }
+}

@@ -1,0 +1,135 @@
+{% block sw_text_editor_toolbar_button %}
+<div
+    class="sw-text-editor-toolbar-button"
+    :class="'sw-text-editor-toolbar-button__type-' + buttonConfig.type"
+>
+
+    {% block sw_text_editor_toolbar_button_icon %}
+    <template v-if="buttonConfig.icon">
+        <div
+            v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }"
+            class="sw-text-editor-toolbar-button__icon"
+            :class="classes"
+            role="button"
+            tabindex="0"
+            @click="buttonHandler($event, buttonConfig)"
+            @keydown.enter="buttonHandler($event, buttonConfig)"
+        >
+            <mt-icon
+                :name="buttonConfig.icon"
+                size="12"
+            />
+            <mt-icon
+                v-if="buttonConfig.children"
+                name="regular-chevron-down"
+                size="8"
+            />
+        </div>
+    </template>
+    {% endblock %}
+
+    {% block sw_text_editor_toolbar_button_name %}
+    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+    <div
+        v-else-if="buttonConfig.name"
+        v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }"
+        :class="classes"
+        role="button"
+        tabindex="0"
+        @click="buttonHandler($event, buttonConfig)"
+    >
+        {{ buttonConfig.name }}
+    </div>
+    {% endblock %}
+
+    {% block sw_text_editor_toolbar_button_color %}
+    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+    <div
+        v-else-if="buttonConfig.type === 'foreColor'"
+        v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }"
+        :class="classes"
+        role="button"
+        tabindex="0"
+        @click="buttonHandler($event, buttonConfig)"
+    >
+        <mt-colorpicker
+            v-model="buttonConfig.value"
+            :disabled="disabled"
+            compact
+            :alpha="false"
+            @update:model-value="handleButtonClick(buttonConfig)"
+        />
+    </div>
+    {% endblock %}
+
+    {% block sw_text_editor_toolbar_button_child %}
+    <div
+        v-if="buttonConfig.children && buttonConfig.expanded"
+        class="sw-text-editor-toolbar-button__children"
+        :class="getDropdownClasses(buttonConfig)"
+    >
+        <div class="sw-text-editor-toolbar-button__children-inner-container">
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+            <div
+                v-for="(child, childIndex) in buttonConfig.children"
+                :key="childIndex"
+                v-tooltip.right="getTooltipConfig(buttonConfig, child)"
+                :class="childActive(child)"
+                class="sw-text-editor-toolbar-button__children-child"
+                @click="handleButtonClick(child)"
+            >
+                {% block sw_text_editor_toolbar_button_child_item %}
+                <div>
+                    <mt-icon
+                        v-if="child.icon"
+                        :name="child.icon"
+                    />
+                    <div
+                        v-else
+                        class="sw-text-editor-toolbar-button__children-child-content"
+                    >
+                        {{ child.name }}
+                    </div>
+                </div>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block sw_text_editor_toolbar_button_link_menu %}
+    <div
+        v-else-if="buttonConfig.type === 'link' && buttonConfig.expanded"
+        ref="flyoutLinkMenu"
+        class="sw-text-editor-toolbar-button__children"
+    >
+        <sw-text-editor-link-menu
+            :button-config="buttonConfig"
+            @button-click="handleButtonClick"
+            @mounted="positionLinkMenu"
+        />
+    </div>
+    {% endblock %}
+
+    {% block sw_text_editor_toolbar_button_table %}
+    <div
+        v-else-if="buttonConfig.type === 'table' && buttonConfig.expanded"
+        ref="flyoutMenu"
+        class="sw-text-editor-toolbar-button__children sw-text-editor-toolbar-button__table-menu"
+        :class="flyoutClasses"
+    >
+        {% block sw_text_editor_toolbar_button_table_menu_content %}
+        <sw-text-editor-toolbar-table-button
+            :button-config="buttonConfig"
+            @mounted="onChildMounted"
+            @table-create="handleButtonClick(buttonConfig)"
+        />
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_text_editor_toolbar_button_slot %}
+    <slot name="buttonSlot"></slot>
+    {% endblock %}
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+/*
+Language flags
+==================================================
+Displays a country flag the size of 14px x 11px used for language selections purposes.
+
+inspired by: https://github.com/dhanishgajjar/css-flags
+
+en-GB: we need to use svg for en-GB, cause it's smaller than the CSS-Version
+*/
+.language-flag {
+    display: inline-block;
+    height: 12px;
+    width: 16px;
+    border: 1px solid $gray-500;
+    margin-top: 1px;
+    text-indent: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    background-size: 100%;
+
+    &.country-de {
+        background-image: linear-gradient(to bottom, #000 33%, #f00 33%, #f00 66%, #fc0 66%);
+    }
+
+    &.country-gb {
+        background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGlkPSJmbGFnLWljb24tY3NzLWdiIiB2aWV3Qm94PSIwIDAgNjQwIDQ4MCI+CiAgPHBhdGggZmlsbD0iIzAxMjE2OSIgZD0iTTAgMGg2NDB2NDgwSDB6Ii8+CiAgPHBhdGggZmlsbD0iI0ZGRiIgZD0iTTc1IDBsMjQ0IDE4MUw1NjIgMGg3OHY2Mkw0MDAgMjQxbDI0MCAxNzh2NjFoLTgwTDMyMCAzMDEgODEgNDgwSDB2LTYwbDIzOS0xNzhMMCA2NFYwaDc1eiIvPgogIDxwYXRoIGZpbGw9IiNDODEwMkUiIGQ9Ik00MjQgMjgxbDIxNiAxNTl2NDBMMzY5IDI4MWg1NXptLTE4NCAyMGw2IDM1TDU0IDQ4MEgwbDI0MC0xNzl6TTY0MCAwdjNMMzkxIDE5MWwyLTQ0TDU5MCAwaDUwek0wIDBsMjM5IDE3NmgtNjBMMCA0MlYweiIvPgogIDxwYXRoIGZpbGw9IiNGRkYiIGQ9Ik0yNDEgMHY0ODBoMTYwVjBIMjQxek0wIDE2MHYxNjBoNjQwVjE2MEgweiIvPgogIDxwYXRoIGZpbGw9IiNDODEwMkUiIGQ9Ik0wIDE5M3Y5Nmg2NDB2LTk2SDB6TTI3MyAwdjQ4MGg5NlYwaC05NnoiLz4KPC9zdmc+Cg==');
+    }
+}

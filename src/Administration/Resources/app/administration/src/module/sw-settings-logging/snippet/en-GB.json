@@ -1,0 +1,43 @@
+{
+  "sw-settings-logging": {
+    "general": {
+      "mainMenuItemGeneral": "Event logs",
+      "placeholderSearchBar": "Search logs..."
+    },
+    "list": {
+      "title": "Logs",
+      "columnDate": "Date",
+      "columnMessage": "Message",
+      "columnLevel": "Priority",
+      "columnContent": "Contents",
+      "actionShowInfo": "View details...",
+      "levelDebug": "Debug",
+      "levelInfo": "Info",
+      "levelNotice": "Notice",
+      "levelWarning": "Warning",
+      "levelError": "Error",
+      "levelCritical": "Critical",
+      "levelAlert": "Alert",
+      "levelEmergency": "Emergency",
+      "titleSidebarItemRefresh": "Refresh"
+    },
+    "entryInfo": {
+      "title": "Log information",
+      "tabRaw": "Raw",
+      "actionClose": "Close"
+    },
+    "mailInfo": {
+      "tabHTML": "HTML",
+      "tabPlain": "Plain",
+      "recipientsTitle": "Recipients",
+      "contentsTitle": "Contents"
+    }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "system": {
+        "logging": "Event logs"
+      }
+    }
+  }
+}

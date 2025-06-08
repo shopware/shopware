@@ -1,0 +1,16 @@
+<div style="font-family:arial; font-size:12px;">
+    <p>
+        The following Message was sent to you via the contact form.<br/>
+        <br/>
+        Contact name: {{ contactFormData.firstName }} {{ contactFormData.lastName }}
+        <br/>
+        Contact email address: {{ contactFormData.email }}
+        <br/>
+        Phone: {{ contactFormData.phone }}<br/>
+        <br/>
+        Subject: {{ contactFormData.subject }}<br/>
+        <br/>
+        Message:<br/>
+        {{ contactFormData.comment|nl2br }}<br/>
+    </p>
+</div>

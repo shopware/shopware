@@ -1,0 +1,292 @@
+{% block sw_flow_sequence_action %}
+<div
+    class="sw-flow-sequence-action"
+    :class="actionClasses"
+>
+    {% block sw_flow_sequence_action_card %}
+    <div class="sw-flow-sequence-action__card">
+        {% block sw_flow_sequence_action_header %}
+        <div class="sw-flow-sequence-action__header">
+            {% block sw_flow_sequence_action_title %}
+            <div class="sw-flow-sequence-action__title-description">
+                <h3 class="sw-flow-sequence-action__title">
+                    {{ $tc('sw-flow.detail.sequence.actionTitle') }}
+                </h3>
+
+                <p class="sw-flow-sequence-action__description">
+                    {{ $tc('sw-flow.detail.sequence.actionDescription') }}
+                </p>
+            </div>
+            {% endblock %}
+
+            {% block sw_flow_sequence_action_context_menu %}
+            <sw-context-button
+                class="sw-flow-sequence-action__context-button"
+                :class="actionClasses"
+                :disabled="disabled"
+            >
+                {% block sw_flow_sequence_action_remove_action_container %}
+                <sw-context-menu-item
+                    variant="danger"
+                    class="sw-flow-sequence-action__delete-action-container"
+                    @click="removeActionContainer"
+                >
+                    {{ $tc('sw-flow.detail.sequence.contextButton.deleteActionContainer') }}
+                </sw-context-menu-item>
+                {% endblock %}
+            </sw-context-button>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_flow_sequence_action_content %}
+        <div class="sw-flow-sequence-action__content">
+            {% block sw_flow_sequence_action_actions %}
+            <div class="sw-flow-sequence-action__actions">
+                {% block sw_flow_sequence_action_actions_empty %}
+                <div
+                    v-if="sequenceData.length === 1 && !sequence.actionName"
+                    class="sw-flow-sequence-action__actions-empty"
+                >
+                    <mt-icon
+                        size="12px"
+                        name="regular-minus-xs"
+                    />
+                    <span class="sw-flow-sequence-action__no-action">
+                        {{ $tc('sw-flow.detail.sequence.noActions') }}
+                    </span>
+                </div>
+                {% endblock %}
+
+                {% block sw_flow_sequence_action_actions_list %}
+                <ul
+                    v-else
+                    class="sw-flow-sequence-action__action-list"
+                >
+                    {% block sw_flow_sequence_action_actions_transition_group %}
+                    <transition-group
+                        name="list"
+                        tag="div"
+                    >
+                        {% block sw_flow_sequence_action_actions_item %}
+                        <li
+                            v-for="(item, key) in sequenceData"
+                            :key="item.id"
+                            v-tooltip="{
+                                message: $tc('sw-flow.actions.tooltipActionDisabled'),
+                                disabled: !item.disabled
+                            }"
+                            class="sw-flow-sequence-action__action-item"
+                            :class="{'sw-flow-sequence-action__disabled': item.disabled}"
+                            role="button"
+                            tabindex="0"
+                            @click="(event) => onEditAction(item, event.target, key)"
+                            @keydown.enter="(event) => onEditAction(item, event.target, key)"
+                        >
+                            <sw-flow-sequence-action-error
+                                v-if="!isValidAction(item.actionName)"
+                                :sequence="item"
+                            >
+                                <template #content>
+                                    <div class="sw-flow-sequence-action__error-action">
+                                        <div class="sw-flow-sequence-action__error-action-title">
+                                            <mt-icon
+                                                name="regular-question-circle-s"
+                                                size="14px"
+                                                class="mt-icon-action"
+                                            />
+
+                                            {{ $tc('sw-flow.actions.unknownLabel') }}
+                                        </div>
+
+                                        <p>
+                                            {{ $tc('sw-flow.actions.warningText') }}
+                                        </p>
+                                    </div>
+                                </template>
+                            </sw-flow-sequence-action-error>
+
+                            <div v-else>
+                                {% block sw_flow_sequence_action_actions_item_header %}
+                                <div class="sw-flow-sequence-action__action-header">
+                                    <div class="sw-flow-sequence-action__action-icon">
+                                        <mt-icon
+                                            v-if="!item.iconRaw"
+                                            :name="`${item.icon}`"
+                                            size="12px"
+                                            class="mt-icon-action"
+                                        />
+
+                                        <img
+                                            v-else
+                                            class="sw-flow-sequence-action__icon-raw mt-icon"
+                                            :src="`data:image/png;base64, ${item.iconRaw}`"
+                                            alt=""
+                                        >
+                                    </div>
+
+                                    {% block sw_flow_sequence_action_actions_item_name %}
+                                    <div class="sw-flow-sequence-action__action-name">
+                                        <h3>{{ item.label }}</h3>
+                                    </div>
+                                    {% endblock %}
+
+                                    {% block sw_flow_sequence_action_actions_item_context_button %}
+                                    <sw-context-button
+                                        ref="contextButton"
+                                        class="sw-flow-sequence-action__context-button"
+                                        :disabled="disabled || item.disabled"
+                                    >
+                                        {% block sw_flow_sequence_action_actions_item_button_edit %}
+                                        <sw-context-menu-item
+                                            v-if="isNotStopFlow(item)"
+                                            class="sw-flow-sequence-action__edit-action"
+                                            @click="(event) => onEditAction(item, event.target, key)"
+                                        >
+                                            {{ $tc('sw-flow.actions.contextButton.editAction') }}
+                                        </sw-context-menu-item>
+                                        {% endblock %}
+
+                                        {% block sw_flow_sequence_action_actions_item_button_delete %}
+                                        <sw-context-menu-item
+                                            variant="danger"
+                                            class="sw-flow-sequence-action__delete-action"
+                                            @click="removeAction(item.id)"
+                                        >
+                                            {{ $tc('sw-flow.actions.contextButton.deleteAction') }}
+                                        </sw-context-menu-item>
+                                        {% endblock %}
+
+                                        {% block sw_flow_sequence_action_actions_item_button_move_up %}
+                                        <sw-context-menu-item
+                                            v-if="showMoveOption(item, 'up')"
+                                            class="sw-flow-sequence-action__move-up"
+                                            @click="moveAction(item, 'up', key)"
+                                        >
+                                            {{ $tc('sw-flow.actions.contextButton.moveUpAction') }}
+                                        </sw-context-menu-item>
+                                        {% endblock %}
+
+                                        {% block sw_flow_sequence_action_actions_item_button_move_down %}
+                                        <sw-context-menu-item
+                                            v-if="showMoveOption(item, 'down')"
+                                            class="sw-flow-sequence-action__move-down"
+                                            @click="moveAction(item, 'down', key)"
+                                        >
+                                            {{ $tc('sw-flow.actions.contextButton.moveDownAction') }}
+                                        </sw-context-menu-item>
+                                        {% endblock %}
+                                    </sw-context-button>
+                                    {% endblock %}
+                                </div>
+                                {% endblock %}
+                            </div>
+
+                            {% block sw_flow_sequence_action_actions_item_description %}
+                            <div
+                                class="sw-flow-sequence-action__action-description"
+                                v-html="getActionDescriptions(item)"
+                            >
+                            </div>
+                            {% endblock %}
+
+                            {% block sw_flow_sequence_action_item_custom %}
+                            {% endblock %}
+
+                        </li>
+                        {% endblock %}
+                    </transition-group>
+                    {% endblock %}
+                </ul>
+                {% endblock %}
+            </div>
+            {% endblock %}
+
+            {% block sw_flow_sequence_action_add_select %}
+            <div
+                v-if="showAddAction && !disabled"
+                class="sw-flow-sequence-action__select"
+            >
+                {% block sw_flow_sequence_action_list %}
+                <sw-grouped-single-select
+                    class="sw-flow-sequence-action__selection-action"
+                    size="small"
+                    value=""
+                    :placeholder="$tc('sw-flow.actions.placeholderSelectAction')"
+                    :options="actionOptions"
+                    :groups="groups"
+                    :popover-classes="['sw-flow-sequence-action__popover']"
+                    :error="fieldError"
+                    :disabled="isUnknownTrigger"
+                    @update:value="openDynamicModal"
+                >
+                    <template #result-item="{ item, index, labelProperty, highlightSearchTerm, isSelected, setValue, getKey }">
+                        <sw-select-result
+                            v-tooltip="{
+                                message: $tc('sw-flow.actions.tooltipActionDisabled'),
+                                disabled: !item.disabled
+                            }"
+                            :selected="isSelected(item)"
+                            v-bind="{ item, index }"
+                            :class="[stopFlowStyle(item.value), {'sw-flow-sequence-action__disabled': item.disabled}]"
+                            @item-select="setValue"
+                        >
+                            {% block sw_flow_sequence_action_select_results_list_result_label %}
+                            <mt-icon
+                                v-if="!item.iconRaw"
+                                :name="`${item.icon}`"
+                                size="12px"
+                                class="mt-icon-action"
+                            />
+
+                            <img
+                                v-else
+                                class="sw-flow-sequence-action__icon-raw"
+                                :src="`data:image/png;base64, ${item.iconRaw}`"
+                                alt=""
+                            >
+
+                            <sw-highlight-text
+                                v-if="highlightSearchTerm"
+                                :text="getKey(item, labelProperty)"
+                            />
+
+                            <template v-else>
+                                {{ getKey(item, labelProperty) }}
+                            </template>
+                            {% endblock %}
+                        </sw-select-result>
+                    </template>
+                </sw-grouped-single-select>
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    <div
+        v-if="errorArrow"
+        class="sw-flow-sequence-action__true-arrow"
+    >
+        <div class="sw-flow-sequence-action__true-line"></div>
+        <div class="sw-flow-sequence-action__oval"></div>
+        <mt-icon
+            name="regular-chevron-right-s"
+            size="16px"
+        />
+
+    </div>
+
+    {% block sw_flow_sequence_action_modal %}
+    <sw-flow-sequence-modal
+        :sequence="currentSequence"
+        :action="selectedAction"
+        :modal-name="modalName"
+        @process-finish="onSaveActionSuccess"
+        @modal-close="onCloseModal"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

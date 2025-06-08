@@ -1,0 +1,73 @@
+{% block sw_promotion_rule_select_v2 %}
+<div class="sw-promotion-v2-rule-select">
+
+    {% block sw_promotion_rule_select_v2_selection %}
+    <sw-entity-many-to-many-select
+        v-bind="$attrs"
+        ref="ruleSelect"
+        class="sw-promotion-v2-rule-select"
+        :entity-collection="collection"
+        :local-mode="localMode"
+        advanced-selection-component="sw-advanced-selection-rule"
+        :advanced-selection-parameters="advanceSelectionParameters"
+        @update:entity-collection="onChange"
+    >
+
+        <template #before-item-list>
+
+            {% block sw_promotion_rule_select_v2_selection_before_list %}
+            <li
+                class="sw-select-result sw-promotion-v2-rule-select__add-new-rule"
+                role="button"
+                tabindex="0"
+                @click="showRuleModal = true"
+                @keydown.enter="showRuleModal = true"
+            >
+                {{ $tc('sw-promotion-v2.ruleSelect.labelAddNewRule') }}
+            </li>
+            {% endblock %}
+
+        </template>
+
+        <template
+            #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }"
+        >
+            <sw-select-result
+                v-tooltip="tooltipConfig(item)"
+                :selected="isSelected(item)"
+                :disabled="isRuleRestricted(item)"
+                v-bind="{ item, index }"
+                @item-select="addItem"
+            >
+                {% block sw_entity_many_to_many_select_base_results_list_result_label %}
+                <slot
+                    name="result-label-property"
+                    v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey }"
+                >
+                    <sw-highlight-text
+                        v-if="highlightSearchTerm"
+                        :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                        :search-term="searchTerm"
+                    />
+                    <template v-else>
+                        {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                    </template>
+                </slot>
+                {% endblock %}
+            </sw-select-result>
+        </template>
+    </sw-entity-many-to-many-select>
+    {% endblock %}
+
+    {% block sw_promotion_rule_select_v2_create_modal %}
+    <sw-rule-modal
+        v-if="showRuleModal"
+        class="sw-promotion-v2-rule-select__create-modal"
+        :rule-aware-group-key="ruleAwareGroupKey"
+        @save="onSaveRule"
+        @modal-close="showRuleModal = false"
+    />
+    {% endblock %}
+
+</div>
+{% endblock %}

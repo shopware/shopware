@@ -1,0 +1,144 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ProductListingResult": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/EntitySearchResult"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "currentFilters": {
+                                "type": "object",
+                                "description": "Contains the state of the filters. These can be used to create listing filters.",
+                                "properties": {
+                                    "navigationId": {
+                                        "type": "string"
+                                    },
+                                    "manufacturer": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        }
+                                    },
+                                    "price": {
+                                        "type": "object",
+                                        "properties": {
+                                            "min": {
+                                                "type": "integer",
+                                                "default": 0
+                                            },
+                                            "max": {
+                                                "type": "integer",
+                                                "default": 0
+                                            }
+                                        },
+                                        "required": ["min", "max"]
+                                    },
+                                    "rating": {
+                                        "oneOf": [
+                                            {
+                                                "type": "integer"
+                                            },
+                                            {
+                                                "type": "null"
+                                            }
+                                        ]
+                                    },
+                                    "shipping-free": {
+                                        "type": "boolean",
+                                        "default": false
+                                    },
+                                    "properties": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        }
+                                    },
+                                    "search": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "manufacturer",
+                                    "navigationId",
+                                    "price",
+                                    "properties",
+                                    "rating",
+                                    "shipping-free"
+                                ]
+                            },
+                            "availableSortings": {
+                                "type": "array",
+                                "description": "Contains the available sorting. These can be used to show a sorting select-box in the product listing.",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "label": {
+                                            "type": "string"
+                                        },
+                                        "translated": {
+                                            "type": "object",
+                                            "properties": {
+                                                "label": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": ["label"]
+                                        },
+                                        "key": {
+                                            "type": "string"
+                                        },
+                                        "priority": {
+                                            "type": "number"
+                                        },
+                                        "apiAlias": {
+                                            "type": "string",
+                                            "enum": ["product_sorting"]
+                                        }
+                                    },
+                                    "required": [
+                                        "label",
+                                        "translated",
+                                        "key",
+                                        "priority",
+                                        "apiAlias"
+                                    ]
+                                }
+                            },
+                            "sorting": {
+                                "type": "string"
+                            },
+                            "elements": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/Product"
+                                }
+                            },
+                            "entity": {
+                                "type": "string",
+                                "enum": ["product"]
+                            },
+                            "apiAlias": {
+                                "type": "string",
+                                "enum": ["product_listing"]
+                            }
+                        },
+                        "required": [
+                            "elements",
+                            "availableSortings",
+                            "currentFilters",
+                            "apiAlias"
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{% block sw_order_document_settings_modal_form_first_row %}
+<sw-container
+    columns="1fr 1fr 1fr"
+    gap="0 14px"
+>
+    {% block sw_order_document_settings_modal_form_cancellation_document_number %}
+    <mt-text-field
+        v-model="documentNumber"
+        :label="$tc('sw-order.documentModal.labelDocumentStornoNumber')"
+    />
+    {% endblock %}
+
+    {% block sw_order_document_settings_modal_form_document_select_invoice %}
+    <mt-select
+        v-model="documentConfig.custom.invoiceNumber"
+        class="sw-order-document-settings-storno-modal__invoice-select"
+        :label="$tc('sw-order.documentModal.labelInvoiceNumber')"
+        :placeholder="$tc('sw-order.documentModal.selectInvoiceNumber')"
+        :options="invoiceOptions"
+    />
+    {% endblock %}
+
+    {% block sw_order_document_settings_modal_form_cancellation_document_date %}
+    <mt-datepicker
+        v-model="documentConfig.documentDate"
+        date-type="date"
+        required
+        hide-hint
+        :label="$tc('sw-order.documentModal.labelDocumentDate')"
+        :placeholder="$tc('sw-datepicker.date.placeholder')"
+    />
+    {% endblock %}
+</sw-container>
+{% endblock %}

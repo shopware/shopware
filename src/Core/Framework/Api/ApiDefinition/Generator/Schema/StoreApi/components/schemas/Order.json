@@ -1,0 +1,20 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "Order": {
+                "required": [
+                    "documents",
+                    "orderDate",
+                    "stateMachineState",
+                    "price"
+                ],
+                "properties": {
+                    "price": { "$ref": "#/components/schemas/CalculatedPrice" }
+                }
+            }
+        }
+    }
+}

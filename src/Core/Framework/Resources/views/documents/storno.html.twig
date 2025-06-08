@@ -1,0 +1,36 @@
+{#
+
+Notice for plugins and theme developer:
+
+This template can be extended over sw_extends.
+The blocks from the templates in the /includes folder can be overwritten directly in this template
+
+#}
+
+{% sw_extends '@Framework/documents/base.html.twig' %}
+
+{% block document_title_tag %}{% trans with {'%stornoNumber%': config.custom.stornoNumber, '%invoiceNumber%': config.custom.invoiceNumber} %}document.stornoHeadline{% endtrans %}{% endblock %}
+
+{% block document_headline %}
+    <h1 class="headline" tabindex="0">
+        {% trans with {'%stornoNumber%': config.custom.stornoNumber, '%invoiceNumber%': config.custom.invoiceNumber} %}document.stornoHeadline{% endtrans %}
+    </h1>
+{% endblock %}
+
+ {% block document_side_info_contents %}
+     {{ parent() }}
+
+     {% block document_side_info_date %}{% endblock %}
+
+     {% block document_side_info_cancellation_number %}
+         <tr><td>{% trans with {'%stornoNumber%': config.custom.stornoNumber} %}document.stornoNumber{% endtrans %}</td></tr>
+     {% endblock %}
+
+     {% block document_side_info_cancellation_date %}
+         <tr>
+             <td>
+                 {{ 'document.stornoDate'|trans({'%date%': config.documentDate|format_date('medium', locale=locale)})|sw_sanitize }}
+             </td>
+         </tr>
+     {% endblock %}
+ {% endblock %}

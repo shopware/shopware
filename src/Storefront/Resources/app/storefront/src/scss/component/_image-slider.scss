@@ -1,0 +1,88 @@
+/*
+Image slider
+==============================================
+Styling for image slider component.
+Displays images in a reusable slider component.
+based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyuan/tiny-slider)
+*/
+.image-slider {
+    &.has-nav-outside .image-slider-item-container {
+        padding: 0 25px;
+    }
+}
+
+.image-slider-container {
+    position: relative;
+    height: 100%;
+
+    .image-slider-image {
+        display: block;
+        width: 100%;
+    }
+
+    .image-slider-item {
+        display: grid;
+        max-width: 100%;
+        position: relative;
+
+        &.is-not-first {
+            display: none;
+        }
+
+        &.is-cover {
+            height: 100%;
+
+            .image-slider-image {
+                object-fit: cover;
+                height: 100%;
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+            }
+        }
+    }
+
+    .image-slider-link {
+        display: block;
+    }
+}
+
+.js-slider-initialized .image-slider-item.is-not-first {
+    display: block;
+}
+
+.image-slider-controls-prev {
+    &.is-nav-prev-inside {
+        left: 0;
+    }
+
+    &.is-nav-prev-outside {
+        left: 0;
+    }
+}
+
+.image-slider-controls-next {
+    &.is-nav-next-inside {
+        right: 0;
+    }
+
+    &.is-nav-next-outside {
+        right: 0;
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .image-slider-controls-prev {
+        &.is-nav-prev-outside {
+            left: -5px;
+        }
+    }
+
+    .image-slider-controls-next {
+        &.is-nav-next-outside {
+            right: -5px;
+        }
+    }
+}

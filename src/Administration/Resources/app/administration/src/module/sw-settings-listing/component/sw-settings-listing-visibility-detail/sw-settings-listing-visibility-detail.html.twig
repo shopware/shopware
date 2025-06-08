@@ -1,0 +1,91 @@
+{% block sw_product_visibility_detail %}
+<sw-grid
+    class="sw-settings-listing-visibility-detail"
+    table
+    :items="items"
+    :selectable="false"
+>
+    {% block sw_settings_listing_visibility_detail_columns %}
+    <template #columns="{ item }">
+        {% block sw_settings_listing_visibility_detail_columns_sales_channel %}
+        <sw-grid-column
+            :label="$tc('sw-product.visibility.columnSalesChannel')"
+            flex="0.5fr"
+            align="left"
+        >
+            {% block sw_settings_listing_visibility_detail_columns_sales_channel_label %}
+            <span
+                v-tooltip="{ message: item.name, disabled: item.name.length < 10 }"
+                class="sw-product-visibility-detail__name"
+            >
+                {{ truncateFilter(item.name, 30) }}
+            </span>
+            {% endblock %}
+        </sw-grid-column>
+        {% endblock %}
+
+        {% block sw_settings_listing_visibility_detail_columns_all %}
+        <sw-grid-column
+            :label="$tc('sw-product.visibility.columnAll')"
+            flex="0.3fr"
+            align="left"
+        >
+            <sw-radio-field
+                :disabled="disabled"
+                :value="item.visibility"
+                :name="'visibility' + item.id"
+                :options="[{ value: 30 }]"
+                @update:value="changeVisibilityValue($event, item)"
+            />
+        </sw-grid-column>
+        {% endblock %}
+
+        {% block sw_settings_listing_visibility_detail_columns_search_only %}
+        <sw-grid-column
+            :label="$tc('sw-product.visibility.columnSearchOnly')"
+            flex="0.7fr"
+            align="left"
+        >
+            <sw-radio-field
+                :disabled="disabled"
+                :value="item.visibility"
+                :name="'visibility' + item.id"
+                :options="[{ value: 20 }]"
+                @update:value="changeVisibilityValue($event, item)"
+            />
+        </sw-grid-column>
+        {% endblock %}
+
+        {% block sw_settings_listing_visibility_detail_columns_link_only %}
+        <sw-grid-column
+            :label="$tc('sw-product.visibility.columnLinkOnly')"
+            flex="1fr"
+            align="left"
+        >
+            <sw-radio-field
+                type="radio"
+                :disabled="disabled"
+                :value="item.visibility"
+                :name="'visibility' + item.id"
+                :options="[{ value: 10 }]"
+                @update:value="changeVisibilityValue($event, item)"
+            />
+        </sw-grid-column>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_listing_visibility_detail_pagination %}
+    <template #pagination>
+        <sw-pagination
+            :page="page"
+            :limit="limit"
+            :total="total"
+            :total-visible="10"
+            :steps="[10]"
+            @page-change="onPageChange"
+        />
+    </template>
+    {% endblock %}
+</sw-grid>
+{% endblock %}

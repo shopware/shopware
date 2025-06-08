@@ -1,0 +1,31 @@
+@import "~scss/variables";
+
+.sw-external-link {
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-text-brand-default);
+    font-size: $font-size-xs;
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover,
+    &:focus {
+        color: var(--color-text-brand-hover);
+    }
+
+    &__icon {
+        margin-left: 4px;
+    }
+
+    &--small {
+        font-size: $font-size-xxs;
+
+        .sw-external-link__icon {
+            margin-left: 2px;
+        }
+    }
+}
+
+a[target="_blank"].sw-external-link:not(.mt-external-link, .mt-internal-link, .mt-button)::after {
+    content: none;
+}

@@ -1,0 +1,28 @@
+@import "~scss/variables";
+
+.sw-cms-el-preview-gallery {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    grid-gap: 4px;
+
+    .sw-cms-el-preview-gallery-preview {
+        display: grid;
+        grid-auto-rows: 16px;
+        grid-gap: 4px;
+
+        img {
+            border: 1px solid $color-gray-300;
+            border-radius: 2px;
+            display: block;
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+            padding: 2px;
+        }
+    }
+
+    .sw-cms-el-preview-gallery__slider img {
+        height: 102px;
+        object-fit: cover;
+    }
+}

@@ -1,0 +1,49 @@
+{% block sw_condition_value_content %}
+<div class="sw-condition-goods-count">
+    {% block sw_condition_goods_count_field_operator %}
+    <sw-condition-operator-select
+        v-bind="{ operators, condition }"
+        :disabled="disabled || undefined"
+    />
+    {% endblock %}
+
+    <div class="sw-condition-goods-count__value">
+        {% block sw_condition_goods_count_field_count %}
+        <mt-number-field
+            v-model="count"
+            name="sw-field--count"
+            class="sw-contidion-goods-count__numfield"
+            size="medium"
+            number-type="int"
+            :step="1"
+            :disabled="disabled || undefined"
+        />
+        {% endblock %}
+
+        {% block sw_condition_goods_count_filter_button %}
+        <div class="sw-condition-goods-count__filter">
+            <mt-button
+                v-tooltip="{ message: $tc('sw-settings-rule.conditionFilter.infoText') }"
+                :disabled="disabled || undefined"
+                variant="secondary"
+                @click="showFilterModal = true"
+            >
+                <mt-icon
+                    name="regular-filter-s"
+                    size="16px"
+                />
+            </mt-button>
+        </div>
+        {% endblock %}
+    </div>
+
+    {% block sw_condition_goods_count_condition_modal %}
+    <sw-condition-modal
+        v-if="showFilterModal"
+        :disabled="disabled || undefined"
+        v-bind="{ condition, conditionDataProviderService }"
+        @modal-close="showFilterModal = false"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

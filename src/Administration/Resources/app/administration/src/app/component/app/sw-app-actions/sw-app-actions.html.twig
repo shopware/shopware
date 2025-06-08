@@ -1,0 +1,133 @@
+{% block sw_app_actions %}
+<div
+    class="sw-app-actions"
+    :class="{'sw-app-actions__empty': !areActionsAvailable}"
+>
+    <template v-if="areActionsAvailable">
+        <sw-context-button class="sw-app-actions__action-button">
+            <template #button>
+                <mt-button variant="secondary">
+                    <mt-icon
+                        name="solid-ellipsis-h-s"
+                        size="16"
+                    />
+                </mt-button>
+            </template>
+
+            <sw-app-action-button
+                v-for="action in actions"
+                :key="action.id"
+                :action="action"
+                @run-app-action="runAction"
+            />
+        </sw-context-button>
+
+        {% block sw_app_action_modal %}
+        <sw-modal
+            v-if="isOpenModal"
+            class="sw-modal-app-action-button"
+            :class="{ 'is-expanded' : isExpanded}"
+            :variant="size"
+            @modal-close="onCloseModal"
+        >
+            {% block sw_app_action_modal_header %}
+            <template #modal-header>
+                {% block sw_app_action_modal_slot_header %}
+                {% block sw_app_action_modal_close %}
+                <div
+                    id="modal-app-action-button"
+                    class="sw-modal__title"
+                >
+                    <img
+                        v-if="action.icon"
+                        class="sw-app-action-button__icon"
+                        :src="`data:image/png;base64, ${action.icon}`"
+                        alt=""
+                    >
+                    <span>{{ action.app }}</span>
+                </div>
+                {% endblock %}
+
+                {% block sw_app_action_modal_close_button %}
+                <button
+                    class="sw-modal__close"
+                    :title="$tc('global.sw-modal.labelClose')"
+                    :aria-label="$tc('global.sw-modal.labelClose')"
+                    @click.prevent="onCloseModal"
+                >
+                    {% block sw_app_action_modal_close_icon %}
+                    <mt-icon
+                        name="regular-times-s"
+                        size="16px"
+                    />
+                    {% endblock %}
+                </button>
+                {% endblock %}
+                {% endblock %}
+            </template>
+            {% endblock %}
+
+            {% block sw_app_action_modal_iframe %}
+            <!-- eslint-disable-next-line vuejs-accessibility/iframe-has-title -->
+            <iframe
+                id="app-action-button-iframe"
+                ref="innerFrame"
+                class="sw-app-action-button-iframe"
+                referrerpolicy="origin-when-cross-origin"
+                :src="iframeUrl"
+            ></iframe>
+            {% endblock %}
+        </sw-modal>
+        {% endblock %}
+
+        {% block sw_app_action_modal_confirm %}
+        <sw-modal
+            v-if="isOpenConfirmModal"
+            class="sw-app-action-button-modal-confirm"
+            :title="$tc('sw-app.component.sw-app-actions.closeWindow')"
+            variant="small"
+            @modal-close="onCloseModalConfirm"
+        >
+            <p>{{ $tc('sw-app.component.sw-app-actions.iframeModalConfirmMessage', { title: action.app }, 0) }}</p>
+            <p>{{ $tc('sw-app.component.sw-app-actions.iframeModalConfirmMessageDescription') }}</p>
+
+            {% block sw_app_action_modal_confirm_footer %}
+            <template #modal-footer>
+                {% block sw_app_action_modal_confirm_checkbox %}
+                <mt-checkbox
+                    :checked="!isShowModalConfirm"
+                    :label="$tc('sw-app.component.sw-app-actions.dontAskMeAgain')"
+                    @update:checked="onChangeCheckboxShow()"
+                />
+                {% endblock %}
+
+                {% block sw_app_action_modal_confirm_footer_buttons %}
+                <div class="footer-buttons">
+                    {% block sw_app_action_modal_confirm_footer_cancel %}
+                    <mt-button
+                        size="small"
+                        variant="secondary"
+                        @click="onCloseModalConfirm"
+                    >
+                        {{ $tc('global.default.cancel') }}
+                    </mt-button>
+                    {% endblock %}
+
+                    {% block sw_app_action_modal_confirm_footer_continue %}
+                    <mt-button
+                        variant="primary"
+                        size="small"
+                        @click="onConfirmClose"
+                    >
+                        {{ $tc('global.default.close') }}
+                    </mt-button>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+            </template>
+            {% endblock %}
+        </sw-modal>
+        {% endblock %}
+    </template>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+@import "~scss/variables";
+
+.sw-category-entry-point-card {
+    &__navigation-list {
+        margin: 12px 0 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    &__navigation-entry {
+        color: $color-shopware-brand-500;
+        text-decoration: none;
+        line-height: $line-height-md;
+    }
+}

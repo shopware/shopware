@@ -1,0 +1,17 @@
+@import "~scss/variables";
+
+.sw-snippet-field {
+    position: relative;
+
+    .sw-block-field input {
+        padding-right: 32px;
+    }
+
+    .sw-snippet-field__icon {
+        position: absolute;
+        bottom: 16px;
+        right: 16px;
+        color: $color-shopware-brand-500;
+        cursor: pointer;
+    }
+}

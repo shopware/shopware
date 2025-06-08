@@ -1,0 +1,31 @@
+@import "~scss/variables";
+
+$sw-property-list-color-error: $color-crimson-500;
+$sw-property-list-color-success: $color-emerald-500;
+
+.sw-property-list {
+    .sw-data-grid__cell:not(.sw-data-grid__cell--header) {
+        .is--inactive {
+            color: $sw-property-list-color-error;
+
+            &.mt-icon {
+                width: 16px;
+                height: 16px;
+                padding: 3px;
+            }
+        }
+
+        .is--active {
+            color: $sw-property-list-color-success;
+
+            &.mt-icon {
+                width: 16px;
+                height: 16px;
+                padding-top: 4px;
+                padding-right: 2px;
+                padding-bottom: 3px;
+                padding-left: 2px;
+            }
+        }
+    }
+}

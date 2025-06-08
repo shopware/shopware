@@ -1,0 +1,37 @@
+@import "~scss/variables";
+
+.sw-cms-el-preview-category-navigation {
+    width: 100%;
+    background: $color-white;
+    font-size: 22px;
+    color: $color-darkgray-200;
+    font-weight: $font-weight-semi-bold;
+
+    .sw-cms-el-category-placeholder-listing div {
+        margin: 10px 0;
+        height: 0.4em;
+        border-radius: 25px;
+        background-color: $color-gray-100;
+
+        &.sw-cms-el-category-navigation__placeholder--subcategory {
+            margin: 7px 20px;
+
+            &:last-of-type {
+                margin-right: 10px;
+            }
+        }
+    }
+
+    hr {
+        max-width: 100%;
+        margin: 10px auto;
+        height: 1px;
+        border: 0 none;
+        background-color: $color-gray-300;
+    }
+
+    p {
+        font-size: $font-size-xs;
+        margin: auto 10px auto 0;
+    }
+}

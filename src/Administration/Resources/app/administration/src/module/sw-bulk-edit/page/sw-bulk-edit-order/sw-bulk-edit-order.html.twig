@@ -1,0 +1,159 @@
+{% block sw_bulk_edit_order %}
+<sw-page class="sw-bulk-edit-order">
+    {% block sw_bulk_edit_order_search_bar %}
+    <template #search-bar>
+
+        <sw-search-bar />
+
+    </template>
+    {% endblock %}
+
+    {% block sw_bulk_edit_order_smart_bar_header %}
+    <template #smart-bar-header>
+
+        <h2>{{ $tc('sw-bulk-edit.order.textTitle', { orderTotal: selectedIds.length }, selectedIds.length) }}</h2>
+
+    </template>
+    {% endblock %}
+
+    {% block sw_bulk_edit_order_content_smart_bar_actions %}
+    <template #smart-bar-actions>
+
+        {% block sw_bulk_edit_order_actions_save %}
+        <sw-button-process
+            class="sw-bulk-edit-order__save-action"
+            variant="primary"
+            :is-loading="isLoading"
+            :process-success="false"
+            :disabled="isLoading || !hasChanges || undefined"
+            @click="openModal"
+        >
+            {{ $tc('sw-bulk-edit.applyChanges') }}
+        </sw-button-process>
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+
+    {% block sw_bulk_edit_order_content %}
+    <template #content>
+
+        <sw-card-view
+            v-if="selectedIds.length > 0 && isLoadedData"
+        >
+            <mt-card
+                v-if="restrictedFields.length"
+                class="sw-bulk-edit-order__restricted-fields"
+                position-identifier="sw-bulk-edit-order-restricted-fields"
+            >
+                <mt-banner
+                    :title="$tc('sw-bulk-edit.order.alertRestrictedFields.title')"
+                    variant="attention"
+                >
+                    <span v-html="$tc('sw-bulk-edit.order.alertRestrictedFields.message')"></span>
+                    <ul>
+                        <li
+                            v-for="(restrictedField, index) in restrictedFields"
+                            :key="index"
+                        >
+                            {{ $tc(`sw-bulk-edit.order.alertRestrictedFields.${restrictedField}`) }}
+                        </li>
+                    </ul>
+                </mt-banner>
+            </mt-card>
+
+            {% block sw_bulk_edit_order_content_order_status_card %}
+            <mt-card
+                class="sw-bulk-edit-order-base__status"
+                position-identifier="sw-bulk-edit-order-status"
+                :title="$tc('sw-bulk-edit.order.status.cardTitle')"
+                :is-loading="isLoading"
+            >
+                {% block sw_bulk_edit_order_content_order_status_section %}
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="statusFormFields"
+                    :bulk-edit-data="bulkEditData"
+                    :entity="order"
+                />
+                {% endblock %}
+            </mt-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_order_content_documents %}
+            <mt-card
+                class="sw-bulk-edit-order-base__documents"
+                position-identifier="sw-bulk-edit-order-documents"
+                :title="$tc('sw-bulk-edit.order.documents.cardTitle')"
+                :is-loading="isLoading"
+            >
+                {% block sw_bulk_edit_order_content_documents_content %}
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="documentsFormFields"
+                    :bulk-edit-data="bulkEditData"
+                    :entity="order"
+                    @change-value="onChangeDocument"
+                />
+                {% endblock %}
+            </mt-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_order_tags_card %}
+            <mt-card
+                class="sw-bulk-edit-order-base__tags"
+                position-identifier="sw-bulk-edit-order-tags"
+                :title="$tc('sw-bulk-edit.order.tags.cardTitle')"
+                :is-loading="isLoading"
+            >
+                {% block sw_bulk_edit_order_tags %}
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="tagsFormFields"
+                    :bulk-edit-data="bulkEditData"
+                    :entity="order"
+                />
+                {% endblock %}
+            </mt-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_order_custom_field_card %}
+            <mt-card
+                class="sw-bulk-edit-order-base__custom_fields"
+                position-identifier="sw-bulk-edit-order-custom-fields"
+                :title="$tc('sw-bulk-edit.order.customFields.cardTitle')"
+                :is-loading="isLoading"
+            >
+                <sw-bulk-edit-custom-fields
+                    class="sw-bulk-edit__custom-fields"
+                    :sets="customFieldSets"
+                    @change.self="onCustomFieldsChange"
+                />
+            </mt-card>
+            {% endblock %}
+        </sw-card-view>
+
+        {% block sw_bulk_edit_order_empty_state %}
+        <sw-empty-state
+            v-if="selectedIds.length <= 0 && !isLoading"
+            :title="$tc('sw-bulk-edit.order.messageEmptyTitle')"
+            :subline="$tc('sw-bulk-edit.order.messageEmptySubline')"
+        />
+        {% endblock %}
+
+        {% block sw_bulk_edit_order_save_modal %}
+        <router-view
+            v-slot="{ Component }"
+        >
+            <component
+                :is="Component"
+                :item-total="selectedIds.length"
+                :is-loading="isLoading"
+                :process-status="processStatus"
+                :bulk-edit-data="bulkEditData"
+                @modal-close="closeModal"
+                @bulk-save="onSave"
+            />
+        </router-view>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

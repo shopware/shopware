@@ -1,0 +1,40 @@
+{% block sw_admin %}
+<sw-skip-link />
+
+<!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
+<div
+    id="app"
+    @mousemove="onUserActivity"
+    @keyup="onUserActivity"
+>
+    <!-- @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM -->
+    <div
+        id="overrideComponents"
+        style="display: none;"
+    >
+        <component
+            :is="overrideComponent"
+            v-for="(overrideComponent, index) in overrideComponents"
+            v-once
+            :key="index"
+        />
+    </div>
+
+    <sw-notifications ref="notifications" />
+    <sw-duplicated-media-v2 v-if="isLoggedIn" />
+    <router-view />
+    <sw-settings-cache-modal v-if="isLoggedIn" />
+    <sw-license-violation />
+    <sw-hidden-iframes />
+    <sw-modals-renderer />
+    <sw-in-app-purchase-checkout v-if="isLoggedIn" />
+    <sw-app-wrong-app-url-modal v-if="isLoggedIn" />
+
+    <sw-media-modal-renderer />
+
+    <mt-toast
+        :toasts="toasts"
+        @remove-toast="onRemoveToast"
+    />
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+{# @internal #}
+{% block sw_snippet_element_salutation %}
+    {% if address.salutation and address.salutation.salutationKey != 'not_specified' %}
+        {% block component_address_salutation %}
+            {{ address.salutation.translated.displayName }}
+        {% endblock %}
+    {% endif %}
+{% endblock %}

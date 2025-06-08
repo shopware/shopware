@@ -1,0 +1,45 @@
+/*
+Notification dot
+==============================================
+Styling for notification dot component.
+*/
+
+.notification-dot {
+    background-color: $gray-300;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+
+    &.notification-dot-primary {
+        background-color: $primary;
+    }
+
+    &.notification-dot-secondary {
+        background-color: $secondary;
+    }
+
+    &.notification-dot-success {
+        background-color: $success;
+    }
+
+    &.notification-dot-danger {
+        background-color: $danger;
+    }
+
+    &.notification-dot-warning {
+        background-color: $warning;
+    }
+
+    &.notification-dot-info {
+        background-color: $info;
+    }
+
+    &.notification-dot-light {
+        background-color: $light;
+    }
+
+    &.notification-dot-dark {
+        background-color: $dark;
+    }
+}

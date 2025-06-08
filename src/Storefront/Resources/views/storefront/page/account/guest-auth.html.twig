@@ -1,0 +1,76 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_content %}
+    {% set actionUrl = path(redirectTo, redirectParameters) %}
+
+    {% block page_account_guest_auth %}
+        <div class="account-guest-auth row justify-content-md-center">
+            {% block page_account_guest_auth_inner %}
+                <div class="col-md-8 col-lg-6">
+                    {% block page_account_guest_auth_form %}
+                        <form method="post"
+                              class="account-guest-auth-form card"
+                              action="{{ actionUrl }}"
+                              data-form-handler="true">
+                            {% block page_account_guest_auth_title %}
+                                <h1 class="card-title">
+                                    {{ 'account.orderGuestLoginTitle'|trans }}
+                                </h1>
+                            {% endblock %}
+
+                            {% block page_account_guest_auth_container %}
+                                <div class="card-body">
+                                    {% block page_account_guest_auth_info %}
+                                        <div class="card-text account-guest-auth-info mb-3">
+                                            {{ 'account.orderGuestLoginDescription'|trans }}
+                                        </div>
+                                    {% endblock %}
+
+                                    <div class="row g-2">
+                                        {% block page_account_guest_auth_mail %}
+                                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                                type: 'email',
+                                                label: 'account.profileCurrentMail'|trans|sw_sanitize,
+                                                id: 'mail',
+                                                name: 'email',
+                                                autocomplete: 'section-personal email',
+                                                violationPath: '/email',
+                                                validationRules: 'required,email',
+                                                additionalClass: 'col-md-8',
+                                            } %}
+                                        {% endblock %}
+
+                                        {% block page_account_guest_auth_zipcode %}
+                                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                                type: 'text',
+                                                label: 'address.zipcodeLabel'|trans|sw_sanitize,
+                                                id: 'zipcode',
+                                                name: 'zipcode',
+                                                autocomplete: 'section-personal zipcode',
+                                                violationPath: '/zipcode',
+                                                validationRules: 'required',
+                                                additionalClass: 'col-md-4',
+                                            } %}
+                                        {% endblock %}
+                                    </div>
+
+                                    {% block page_account_guest_auth_actions %}
+                                        <div class="account-guest-auth-form-actions">
+                                            {% block page_account_guest_auth_action_send %}
+                                                <button type="submit"
+                                                        class="account-guest-auth-submit btn btn-primary"
+                                                        title="{{ 'account.registerSubmit'|trans|striptags }}">
+                                                    {{ 'account.registerSubmit'|trans }}
+                                                </button>
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        </form>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

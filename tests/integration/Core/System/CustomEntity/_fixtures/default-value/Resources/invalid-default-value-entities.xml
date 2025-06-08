@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Entities/Schema/entity-1.0.xsd">
+    <entity name="ce_product_with_defaults">
+        <fields>
+            <float name="invalid" store-api-aware="true" default="string-text-invalid" />
+        </fields>
+    </entity>
+</entities>

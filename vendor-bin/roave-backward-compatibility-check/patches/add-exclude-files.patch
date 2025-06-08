@@ -1,0 +1,68 @@
+--- /dev/null
++++ ../src/Factory/ComposerInstallationReflectorFactory.php
+@@ -5,6 +5,9 @@
+ namespace Roave\BackwardCompatibility\Factory;
+ 
+ use Roave\BackwardCompatibility\LocateSources\LocateSources;
++use Roave\BetterReflection\Identifier\Identifier;
++use Roave\BetterReflection\Identifier\IdentifierType;
++use Roave\BetterReflection\Reflection\Reflection;
+ use Roave\BetterReflection\Reflector\DefaultReflector;
+ use Roave\BetterReflection\Reflector\Reflector;
+ use Roave\BetterReflection\SourceLocator\Exception\InvalidDirectory;
+@@ -28,10 +31,51 @@
+         SourceLocator $dependencies,
+     ): Reflector {
+         return new DefaultReflector(
+-            new MemoizingSourceLocator(new AggregateSourceLocator([
+-                ($this->locateSources)($installationDirectory),
+-                $dependencies,
+-            ])),
++            new FilteredSourceLocator(
++                new MemoizingSourceLocator(new AggregateSourceLocator([
++                    ($this->locateSources)($installationDirectory),
++                    $dependencies,
++                ])),
++            ),
+         );
++    }
++}
++
++class FilteredSourceLocator implements SourceLocator
++{
++    private array $excludePatterns;
++
++    public function __construct(private SourceLocator $sourceLocator)
++    {
++        $excludes = require getcwd() . '/.bc-exclude.php';
++        $this->excludePatterns = $excludes['filePatterns'];
++    }
++
++    public function locateIdentifier(Reflector $reflector, Identifier $identifier): Reflection|null
++    {
++        return $this->sourceLocator->locateIdentifier($reflector, $identifier);
++    }
++
++    public function locateIdentifiersByType(Reflector $reflector, IdentifierType $identifierType): array
++    {
++        return array_filter(
++            $this->sourceLocator->locateIdentifiersByType($reflector, $identifierType),
++            fn(Reflection $reflection) => !$this->isExcluded($reflection->getFileName())
++        );
++    }
++
++    private function isExcluded(?string $file): bool
++    {
++        if (null === $file) {
++            return false;
++        }
++
++        foreach ($this->excludePatterns as $pattern) {
++            if (fnmatch($pattern, $file)) {
++                return true;
++            }
++        }
++
++        return false;
+     }
+ }

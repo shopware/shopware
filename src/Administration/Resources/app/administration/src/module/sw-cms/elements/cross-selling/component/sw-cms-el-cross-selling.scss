@@ -1,0 +1,31 @@
+@import "~scss/variables";
+
+.sw-cms-el-cross-selling {
+    width: 100%;
+
+    &__title {
+        display: inline-block;
+        margin-bottom: 20px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid $color-gray-900;
+        font-size: $font-size-xs;
+    }
+
+    &__content {
+        display: grid;
+        grid-template-columns: 32px 1fr 32px;
+        gap: 0 8px;
+    }
+
+    &__navigation {
+        align-self: center;
+        justify-self: center;
+    }
+
+    &__product-holder {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+        gap: 0 32px;
+    }
+}

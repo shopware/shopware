@@ -1,0 +1,58 @@
+{
+  "name": "my-second-block",
+  "label": {
+    "de-DE": "Zweiter Block einer App",
+    "en-GB": "Second block from app"
+  },
+  "slots": {
+    "left": {
+      "type": "form",
+      "default": {
+        "config": {
+          "displayMode": {
+            "source": "static",
+            "value": "cover"
+          }
+        }
+      },
+      "position": 0
+    },
+    "right": {
+      "type": "youtube-video",
+      "default": {
+        "config": {
+          "displayMode": {
+            "source": "static",
+            "value": "contain"
+          }
+        }
+      },
+      "position": 2
+    },
+    "middle": {
+      "type": "image",
+      "default": {
+        "config": {
+          "displayMode": {
+            "source": "static",
+            "value": "auto"
+          },
+          "backgroundColor": {
+            "source": "static",
+            "value": "red"
+          }
+        }
+      },
+      "position": 1
+    }
+  },
+  "category": "text-image",
+  "defaultConfig": {
+    "marginTop": "20px",
+    "marginLeft": "20px",
+    "sizingMode": "boxed",
+    "marginRight": "20px",
+    "marginBottom": "20px",
+    "backgroundColor": "#000"
+  }
+}

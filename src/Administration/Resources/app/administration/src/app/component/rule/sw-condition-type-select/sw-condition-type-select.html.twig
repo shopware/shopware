@@ -1,0 +1,41 @@
+{% block sw_condition_type_select %}
+<sw-grouped-single-select
+    class="sw-condition-type-select sw-condition-type-select__select"
+    size="medium"
+    label-value="label"
+    :value-property="valueProperty"
+    label-property="translatedLabel"
+    :options="typeOptions"
+    :groups="availableGroups"
+    :placeholder="$tc('global.sw-condition.condition.placeholder')"
+    :value="currentValue"
+    :disabled="disabled || undefined"
+    required
+    show-clearable-button
+    @update:value="changeType"
+    @item-selected="changeItem"
+    @search-term-change="typeSearchTerm = $event"
+>
+    <template
+        #result-item="{item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
+    >
+        <sw-select-result
+            v-tooltip="getTooltipConfig(item)"
+            :disabled="item.disabled || restrictedConditions[item.type] !== undefined || undefined"
+            :class="'sw-select-option--' + item.value"
+            :selected="isSelected(item)"
+            v-bind="{ item, index }"
+            @item-select="setValue"
+        >
+            <sw-highlight-text
+                v-if="highlightSearchTerm && !isSelected(item)"
+                :text="getKey(item, labelProperty)"
+                :search-term="searchTerm"
+            />
+            <template v-else>
+                {{ getKey(item, labelProperty) }}
+            </template>
+        </sw-select-result>
+    </template>
+</sw-grouped-single-select>
+{% endblock %}

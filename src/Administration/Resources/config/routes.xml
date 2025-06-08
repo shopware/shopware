@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<routes xmlns="http://symfony.com/schema/routing"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://symfony.com/schema/routing
+        https://symfony.com/schema/routing/routing-1.0.xsd">
+
+    <import resource="../../Controller/*Controller.php" type="attribute" />
+
+    <when env="dev">
+        <import resource="@PentatrionViteBundle/Resources/config/routing.yaml" prefix="/build" />
+
+        <route id="_profiler_vite" path="/_profiler/vite">
+            <default key="_controller">Pentatrion\ViteBundle\Controller\ProfilerController::info</default>
+        </route>
+    </when>
+</routes>

@@ -1,0 +1,110 @@
+{% block sw_property_detail %}
+<sw-page class="sw-property-detail">
+
+    {% block sw_property_detail_smart_bar_header %}
+    <template #smart-bar-header>
+
+        {% block sw_property_detail_smart_bar_header_title %}
+        <h2>{{ placeholder(propertyGroup, 'name', $tc('sw-property.detail.textHeadline')) }}</h2>
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+
+    {% block sw_property_detail_smart_bar_actions %}
+    <template #smart-bar-actions>
+        {% block sw_property_detail_smart_bar_actions_cancel %}
+        <mt-button
+            v-tooltip.bottom="tooltipCancel"
+            class="sw-property-detail__back-action"
+            :disabled="isLoading || undefined"
+            variant="secondary"
+            size="default"
+            @click="onCancel"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_property_detail_smart_bar_actions_save %}
+        <sw-button-process
+            v-tooltip="tooltipSave"
+            class="sw-property-detail__save-action"
+            :is-loading="isLoading || undefined"
+            :process-success="isSaveSuccessful"
+            :disabled="isLoading || !acl.can('property.editor') || undefined"
+            variant="primary"
+            @update:process-success="saveFinish"
+            @click.prevent="onSave"
+        >
+            {{ $tc('sw-property.detail.buttonSave') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_property_detail_language_switch %}
+    <template #language-switch>
+        <sw-language-switch
+            :save-changes-function="saveOnLanguageChange"
+            :abort-change-function="abortOnLanguageChange"
+            :save-permission="acl.can('property.editor')"
+            @on-change="onChangeLanguage"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_property_detail_content %}
+    <template #content>
+        <sw-card-view>
+            <template v-if="isLoading">
+                <sw-skeleton variant="detail-bold" />
+                <sw-skeleton />
+            </template>
+
+            {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
+            <div v-show="!isLoading">
+
+                {% block sw_property_detail_content_language_info %}
+                <sw-language-info
+                    :entity-description="placeholder(propertyGroup, 'name', $tc('sw-property.detail.textHeadline'))"
+                />
+                {% endblock %}
+
+                {% block sw_property_detail_content_detail_base %}
+                <sw-property-detail-base
+                    v-if="propertyGroup"
+                    :property-group="propertyGroup"
+                    :allow-edit="acl.can('property.editor')"
+                />
+                {% endblock %}
+
+                {% block sw_property_detail_content_option_list %}
+                <sw-property-option-list
+                    v-if="propertyGroup"
+                    ref="optionListing"
+                    :is-loading="isLoading || undefined"
+                    :option-repository="optionRepository"
+                    :property-group="propertyGroup"
+                />
+                {% endblock %}
+
+                {% block sw_property_detail_custom_field_sets %}
+                <mt-card
+                    v-if="showCustomFields"
+                    position-identifier="sw-property-detail"
+                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                >
+                    <sw-custom-field-set-renderer
+                        :entity="propertyGroup"
+                        :disabled="!acl.can('property.editor') || undefined"
+                        :sets="customFieldSets"
+                    />
+                </mt-card>
+                {% endblock %}
+            </div>
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

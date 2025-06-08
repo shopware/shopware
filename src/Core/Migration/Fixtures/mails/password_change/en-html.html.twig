@@ -1,0 +1,13 @@
+<div style="font-family:arial; font-size:12px;">
+    <p>
+        {{ customer.salutation.translated.letterName }} {{ customer.firstName }} {{ customer.lastName }},<br/>
+        <br/>
+        there has been a request to reset you Password in the Shop {{ salesChannel.translated.name }}
+        Please confirm the link below to specify a new password.<br/>
+        <br/>
+        <a href="{{ resetUrl }}">Reset password</a><br/>
+        <br/>
+        This link is valid for the next 2 hours. After that you have to request a new confirmation link.<br/>
+        If you do not want to reset your password, please ignore this email. No changes will be made.
+    </p>
+</div>

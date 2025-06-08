@@ -1,0 +1,16 @@
+@import "~scss/variables";
+
+.sw-flow-event-change-confirm-modal {
+    &.sw-modal .sw-modal__header {
+        justify-content: start;
+    }
+
+    .icon--regular-exclamation-triangle {
+        color: $color-pumpkin-spice-900;
+    }
+
+    &__title {
+        margin-bottom: 0;
+        margin-left: 16px;
+    }
+}

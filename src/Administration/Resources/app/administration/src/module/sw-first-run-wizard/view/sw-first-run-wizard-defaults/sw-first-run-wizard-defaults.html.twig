@@ -1,0 +1,13 @@
+{% block sw_first_run_wizard_defaults %}
+<div class="sw-first-run-wizard-defaults">
+
+    {% block sw_first_run_wizard_defaults_sales_channel_card %}
+    <sw-settings-listing-default-sales-channel
+        ref="defaultSalesChannelCard"
+        :is-loading="isLoading"
+        @vue:mounted="() => defaultSalesChannelCardLoaded = true"
+    />
+    {% endblock %}
+
+</div>
+{% endblock %}

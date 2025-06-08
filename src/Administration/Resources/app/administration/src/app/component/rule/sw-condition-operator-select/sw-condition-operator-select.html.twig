@@ -1,0 +1,15 @@
+{% block sw_condition_type_select %}
+<sw-single-select
+    class="sw-condition-operator-select sw-condition-operator-select__select"
+    size="medium"
+    label-value="label"
+    value-property="identifier"
+    :options="translatedOperators"
+    :placeholder="$tc('global.sw-condition.operator.placeholder')"
+    :value="operator"
+    :disabled="disabled || undefined"
+    required
+    show-clearable-button
+    @update:value="changeOperator"
+/>
+{% endblock %}

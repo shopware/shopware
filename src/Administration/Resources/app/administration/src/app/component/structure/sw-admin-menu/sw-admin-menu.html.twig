@@ -1,0 +1,221 @@
+{% block sw_admin_menu %}
+<!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+<aside
+    class="sw-admin-menu"
+    :class="adminMenuClasses"
+    :aria-expanded="isExpanded ? 'true' : 'false'"
+    @mouseleave="onMenuLeave"
+>
+
+    {% block sw_admin_menu_header %}
+    <div class="sw-admin-menu__header">
+
+        {% block sw_admin_menu_header_logo %}
+        <div
+            class="sw-admin-menu__header-logo"
+            role="img"
+        ></div>
+        {% endblock %}
+
+        {% block sw_admin_menu_header_version %}
+        <sw-version class="collapsible-text" />
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_admin_menu_body_container %}
+    <div class="sw-admin-menu__body-container">
+
+        {% block sw_admin_menu_body %}
+        <div
+            ref="swAdminMenuBody"
+            class="sw-admin-menu__body"
+            :style="scrollbarOffsetStyle"
+        >
+            {% block sw_admin_menu_navigation_main %}
+            <nav
+                class="sw-admin-menu__navigation"
+                aria-labelledby="mainmenulabel"
+            >
+                <h2
+                    id="mainmenulabel"
+                    class="visually-hidden"
+                >
+                    {{ $tc('global.sw-admin-menu.navigation.label') }}
+                </h2>
+
+                {% block sw_admin_menu_navigation_main_list %}
+                <ul class="sw-admin-menu__navigation-list">
+                    <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_admin_menu_navigation_main_items %}
+                    <sw-admin-menu-item
+                        v-for="(entry, index) in mainMenuEntries"
+                        :key="`${entry.id || entry.path}-${entry.children.length}`"
+                        :tabindex="0"
+                        :class="{ 'is--entry-expanded': currentExpandedMenuEntries.includes(entry) }"
+                        :sidebar-expanded="isExpanded"
+                        :entry="entry"
+                        @menu-item-click="onMenuItemClick"
+                        @menu-item-enter="onMenuItemEnter"
+                        @sub-menu-item-enter="onSubMenuItemEnter"
+                    />
+                    {% endblock %}
+                </ul>
+                {% endblock %}
+            </nav>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_admin_menu_footer %}
+    <div class="sw-admin-menu__footer">
+
+        {% block sw_admin_menu_toggle_sidebar %}
+        <button
+            class="sw-admin-menu__toggle"
+            @click="onToggleSidebar"
+        >
+
+            {% block sw_admin_menu_toggle_sidebar_icon %}
+            <mt-icon
+                :name="sidebarCollapseIcon"
+                size="16px"
+            />
+            {% endblock %}
+
+            {% block sw_admin_menu_toggle_sidebar_text %}
+            <span class="collapsible-text">{{ $tc('global.sw-admin-menu.linkMinimizeMenu') }}</span>
+            {% endblock %}
+
+        </button>
+        {% endblock %}
+
+        {% block sw_admin_menu_user_actions_toggle %}
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+        <div
+            class="sw-admin-menu__user-actions-toggle"
+            :class="{'is--active': isUserActionsActive}"
+            @click="onToggleUserActions"
+            @mouseenter="openUserActions"
+        >
+
+            <sw-loader
+                v-if="isUserLoading"
+                size="32px"
+            />
+
+            {% block sw_admin_menu_user_actions_avatar %}
+            <sw-avatar
+                class="sw-admin-menu__avatar"
+                :image-url="avatarUrl"
+                :source-context="currentUser"
+                :first-name="firstName"
+                :last-name="lastName"
+            />
+            {% endblock %}
+
+            {% block sw_admin_menu_user_actions_custom_fields %}
+            <div class="sw-admin-menu__user-custom-fields collapsible-text">
+                <div class="sw-admin-menu__user-name">
+                    {{ userName }}
+                </div>
+                <div class="sw-admin-menu__user-type">
+                    {{ userTitle }}
+                </div>
+
+                {% block sw_admin_menu_user_actions_toggle_icon %}
+                <mt-icon
+                    :name="userActionsToggleIcon"
+                    class="sw-admin-menu__user-actions-indicator"
+                />
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_admin_menu_user_actions %}
+        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+        <div
+            class="sw-admin-menu__user-actions"
+            :class="{'is--active': isUserActionsActive}"
+            @mouseleave="closeUserActions"
+        >
+
+            {% block sw_admin_menu_user_actions_label %}
+            <div
+                v-if="!isExpanded"
+                class="sw-admin-menu__user-actions-label"
+            >
+                {{ userName }}
+            </div>
+            {% endblock %}
+
+            {% block sw_admin_menu_user_actions_list %}
+            <ul class="sw-admin-menu__navigation-list">
+
+                {% block sw_admin_menu_user_actions_items %}
+
+                {% block sw_admin_menu_user_actions_items_logout_user %}
+                <li class="sw-admin-menu__navigation-list-item">
+                    <mt-link
+                        as="a"
+                        to="#"
+                        class="sw-admin-menu__navigation-link sw-admin-menu__logout-action"
+                        @click.prevent="onLogoutUser"
+                    >
+                        <mt-icon
+                            class="sw-admin-menu__navigation-link-icon"
+                            name="regular-sign-out"
+                            size="16px"
+                        />
+                        {{ $tc('global.sw-admin-menu.linkLogout') }}
+                    </mt-link>
+                </li>
+                {% endblock %}
+                {% endblock %}
+            </ul>
+            {% endblock %}
+
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_admin_menu_flyout_transition %}
+    <transition name="flyout">
+        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+        <ul
+            v-if="flyoutEntries.length"
+            class="sw-admin-menu_flyout-holder"
+            :style="flyoutStyle"
+            @mouseenter="onFlyoutEnter"
+            @mouseleave="onFlyoutLeave"
+        >
+            <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
+            <template
+                v-for="entry in flyoutEntries"
+                :key="`${entry.id || entry.path}-separator-${entry.children.length}`"
+            >
+
+                <li
+                    v-if="isFirstPluginInMenuEntries(entry, flyoutEntries)"
+                    :style="{ 'border-color': flyoutColor }"
+                    class="sw-admin-menu__separator"
+                >
+                    <span class="sw-admin-menu__separator-line"></span>
+                </li>
+
+                <sw-admin-menu-item
+                    :entry="entry"
+                    :border-color="flyoutColor"
+                    :display-icon="false"
+                />
+            </template>
+        </ul>
+    </transition>
+    {% endblock %}
+</aside>
+{% endblock %}

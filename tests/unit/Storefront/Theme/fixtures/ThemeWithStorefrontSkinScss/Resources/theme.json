@@ -1,0 +1,21 @@
+{
+  "name": "SkinTheme",
+  "author": "shopware AG",
+  "views": [
+    "@MockStorefront",
+    "@Plugins",
+    "@TestTheme"
+  ],
+  "style": [
+    "app/storefront/src/scss/overrides.scss",
+    "@MockStorefront",
+    "app/storefront/src/scss/base.scss"
+  ],
+  "script": [
+    "@MockStorefront",
+    "app/storefront/dist/storefront/js/skin-theme.js"
+  ],
+  "asset": [
+    "app/storefront/src/assets"
+  ]
+}

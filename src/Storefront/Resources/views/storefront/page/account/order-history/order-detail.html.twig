@@ -1,0 +1,275 @@
+{% block page_account_order_item_detail_overview %}
+    {% set showTaxPrice = config('core.cart.columnTaxInsteadUnitPrice') %}
+    {# @deprecated tag:v6.8.0 - Will listening to core.cart.columnTaxInsteadUnitPrice instead #}
+    {% if not feature('v6.8.0.0') %}
+        {% set showTaxPrice = false %}
+    {% endif %}
+    {% set showSubtotal = config('core.cart.showSubtotal') %}
+
+    <div class="order-item-detail">
+        <div class="collapse"
+             id="order{{ order.orderNumber }}">
+            <div class="order-detail-content">
+                {% block page_account_order_documents_table %}
+                    <div class="order-detail-content-body">
+                        {% sw_include '@Storefront/storefront/page/account/order-history/order-detail-document.html.twig' %}
+                    </div>
+                {% endblock %}
+
+                {% block page_account_order_item_detail_table_header %}
+                    {% set subtotalColumnSize = 2 %}
+                    {% set infoColumnSize = 8 %}
+                    {% if showSubtotal %}
+                        {% set infoColumnSize = infoColumnSize - subtotalColumnSize %}
+                    {% endif %}
+
+                    <div class="order-detail-content-header" aria-hidden="true">
+                        <div class="row">
+                            {% block page_account_order_item_detail_table_header_name %}
+                                <div class="col-{{ infoColumnSize }} order-detail-content-header-cell order-header-name">
+                                    {{ 'account.orderItemColumnName'|trans|sw_sanitize }}
+                                </div>
+                            {% endblock %}
+
+                            {% block page_account_order_item_detail_table_header_quantity %}
+                                <div class="col-2 order-detail-content-header-cell order-header-quantity">
+                                    {{ 'account.orderItemColumnQuantity'|trans|sw_sanitize }}
+                                </div>
+                            {% endblock %}
+
+                            {% if showTaxPrice %}
+                                {% block component_checkout_cart_header_tax_price %}
+                                    <div class="col-2 order-detail-content-header-cell order-header-tax-price">
+                                        {% if context.salesChannel.taxCalculationType == 'horizontal' %}
+                                            {% if context.taxState == 'gross' %}
+                                                {{ 'checkout.cartHeaderTaxIncludeVat'|trans|sw_sanitize }}
+                                            {% else %}
+                                                {{ 'checkout.cartHeaderTaxExcludeVat'|trans|sw_sanitize }}
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                {% endblock %}
+                            {% else %}
+                                {# @deprecated tag:v6.8.0 - Will only be rendered, if the "core.cart.columnTaxInsteadUnitPrice" config is false #}
+                                {% block page_account_order_item_detail_table_header_price %}
+                                    <div class="col-2 order-detail-content-header-cell order-header-price">
+                                        {{ 'account.orderItemColumnPrice'|trans|sw_sanitize }}
+                                    </div>
+                                {% endblock %}
+                            {% endif %}
+
+                            {% block page_account_order_item_detail_table_header_total %}
+                                {% if showSubtotal %}
+                                    <div class="col-{{ subtotalColumnSize }} order-detail-content-header-cell order-header-total">
+                                        {{ 'account.orderItemColumnTotal'|trans|sw_sanitize }}
+                                    </div>
+                                {% endif %}
+                            {% endblock %}
+                        </div>
+                    </div>
+                {% endblock %}
+
+                {% block page_account_order_item_detail_table_body %}
+                    <div class="order-detail-content-body">
+                        {% sw_include '@Storefront/storefront/page/account/order-history/order-detail-list.html.twig' with {
+                            showTaxPrice: showTaxPrice,
+                            showSubtotal: showSubtotal
+                        } %}
+                    </div>
+                {% endblock %}
+
+                {% if order.customerComment %}
+                    {% block page_account_order_item_detail_table_body_customer_comment %}
+                        <div class="order-detail-content-body">
+                            <div class="row order-detail-content-row">
+                                {% block page_account_order_customer_comment_header %}
+                                    <div class="col-12 card-title">
+                                        {{ 'checkout.customerCommentHeader'|trans|sw_sanitize }}
+                                    </div>
+                                {% endblock %}
+
+                                {% block page_account_order_customer_comment_content %}
+                                    <div class="col-12 card-content">{{ order.customerComment|sw_sanitize|nl2br }}</div>
+                                {% endblock %}
+                            </div>
+                        </div>
+                    {% endblock %}
+                {% endif %}
+
+                {% block page_account_order_item_detail_table_footer %}
+                    <div class="order-detail-content-footer">
+                        {% block page_account_order_item_detail_table_labels_summary %}
+                            <div class="order-item-detail-footer">
+                                <div class="row g-0">
+                                    <div class="col-12 col-md-7 col-xl-6">
+                                        <dl class="row g-0 order-item-detail-labels" aria-label="{{ 'account.orderInfoAriaLabel'|trans|striptags }}">
+                                            {% block page_account_order_item_detail_date %}
+                                                {% block page_account_order_item_detail_date_label %}
+                                                    <dt class="col-6 col-md-5">{{ 'account.orderItemDate'|trans|sw_sanitize }}</dt>
+                                                {% endblock %}
+
+                                                {% block page_account_order_item_detail_date_value %}
+                                                    <dd class="col-6 col-md-7 order-item-detail-labels-value">{{ order.orderDateTime|format_date('medium', locale=app.request.locale) }}</dd>
+                                                {% endblock %}
+                                            {% endblock %}
+
+                                            {% block page_account_order_item_detail_number %}
+                                                {% block page_account_order_item_detail_number_label %}
+                                                    <dt class="col-6 col-md-5">{{ 'account.orderItemNumber'|trans|sw_sanitize }}</dt>
+                                                {% endblock %}
+
+                                                {% block page_account_order_item_detail_number_value %}
+                                                    <dd class="col-6 col-md-7 order-item-detail-labels-value">{{ order.orderNumber }}</dd>
+                                                {% endblock %}
+                                            {% endblock %}
+
+                                            {% block page_account_order_item_detail_payment_method %}
+                                                {# @deprecated tag:v6.8.0 - If condition `order.transactions|length > 0` will be removed. If condition `order.primaryOrderTransaction` will remain in use. #}
+                                                {% if order.transactions|length > 0 or order.primaryOrderTransaction %}
+                                                    {% block page_account_order_item_detail_payment_method_label %}
+                                                        <dt class="col-6 col-md-5">{{ 'account.orderItemPaymentMethod'|trans|sw_sanitize }}</dt>
+                                                    {% endblock %}
+
+                                                    {% block page_account_order_item_detail_payment_method_value %}
+                                                        {% if feature('v6.8.0.0') %}
+                                                            <dd class="col-6 col-md-7 order-item-detail-labels-value">
+                                                                {{ order.primaryOrderTransaction.paymentMethod.translated.name }}
+                                                            </dd>
+                                                        {% else %}
+                                                            <dd class="col-6 col-md-7 order-item-detail-labels-value">
+                                                                {{ order.transactions|last.paymentMethod.translated.name }}
+                                                            </dd>
+                                                        {% endif %}
+                                                    {% endblock %}
+                                                {% endif %}
+                                            {% endblock %}
+
+                                            {% block page_account_order_item_detail_shipping_method %}
+                                                {# @deprecated tag:v6.8.0 - If condition `order.deliveries|length > 0` will be removed. If condition `order.primaryOrderDelivery` will remain in use. #}
+                                                {% if order.deliveries|length > 0 or order.primaryOrderDelivery %}
+                                                    {% block page_account_order_item_detail_shipping_method_label %}
+                                                        <dt class="col-6 col-md-5">{{ 'account.orderItemShippingMethod'|trans|sw_sanitize }}</dt>
+                                                    {% endblock %}
+
+                                                    {% block page_account_order_item_detail_shipping_method_value %}
+                                                        {% if feature('v6.8.0.0') %}
+                                                            <dd class="col-6 col-md-7 order-item-detail-labels-value">
+                                                                {{ order.primaryOrderDelivery.shippingMethod.translated.name }}
+                                                            </dd>
+                                                        {% else %}
+                                                            <dd class="col-6 col-md-7 order-item-detail-labels-value">
+                                                                {{ order.deliveries|first.shippingMethod.translated.name }}
+                                                            </dd>
+                                                        {% endif %}
+                                                    {% endblock %}
+                                                {% endif %}
+                                            {% endblock %}
+
+                                            {% block page_account_order_item_detail_tracking_code %}
+                                                {% if order.deliveries|length > 0 %}
+                                                    {% block page_account_order_item_detail_tracking_code_label %}
+                                                        <dt class="col-6 col-md-5">{{ 'account.orderItemTracking'|trans|sw_sanitize }}</dt>
+                                                    {% endblock %}
+
+                                                    {% block page_account_order_item_detail_tracking_code_label_value %}
+                                                        <dd class="col-6 col-md-7">
+                                                            {% for delivery in order.deliveries %}
+                                                                {% set trackingCodes = delivery.trackingCodes %}
+                                                                {% set trackingUrl = delivery.shippingMethod.translated.trackingUrl %}
+
+                                                                {% if trackingCodes|length > 0 %}
+
+                                                                    {% set trackingCodesOutput = [] %}
+
+                                                                    {% for trackingCode in trackingCodes %}
+                                                                        {% if trackingUrl %}
+                                                                            {% set trackingCodesOutput = trackingCodesOutput|merge(
+                                                                                ['<a href="' ~ trackingUrl|format(trackingCode) ~ '" target="_blank" rel="noopener">' ~ trackingCode ~ '</a>']
+                                                                            ) %}
+                                                                        {% else %}
+                                                                            {% set trackingCodesOutput = trackingCodesOutput|merge(
+                                                                                ['<span>' ~ trackingCode ~ '</span>']
+                                                                            ) %}
+                                                                        {% endif %}
+                                                                    {% endfor %}
+
+                                                                    {{- trackingCodesOutput|join(', ')|raw -}}
+                                                                {% else %}
+                                                                    {{ 'account.orderTrackingNotAvailable'|trans|sw_sanitize }}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </dd>
+                                                    {% endblock %}
+                                                {% endif %}
+                                            {% endblock %}
+                                        </dl>
+                                    </div>
+
+                                    <div class="col-12 col-md-5 col-xl-6">
+                                        {% block page_account_order_item_detail_summary %}
+                                            <dl class="row g-0 order-item-detail-summary" aria-label="{{ 'account.orderSummaryAriaLabel'|trans|striptags }}">
+                                                {% block page_account_order_item_detail_shipping_costs %}
+                                                    {% if order.deliveries|length > 0 %}
+                                                        {% block page_account_order_item_detail_shipping_costs_label %}
+                                                            <dt class="col-6 col-md-8">{{ 'account.orderItemShippingcosts'|trans|sw_sanitize }}</dt>
+                                                        {% endblock %}
+
+                                                        {% block page_account_order_item_detail_shipping_costs_value %}
+                                                            <dd class="col-6 col-md-4">{{ order.shippingTotal|currency(order.currency.isoCode) }}</dd>
+                                                        {% endblock %}
+                                                    {% endif %}
+                                                {% endblock %}
+
+                                                {% block page_account_order_item_detail_vat %}
+                                                    {% if order.taxStatus !== constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_FREE') %}
+                                                        {% for calculatedTax in order.price.calculatedTaxes %}
+                                                            {% block page_account_order_item_detail_vat_label %}
+                                                                <dt class="col-6 col-md-8">
+                                                                    {{ 'checkout.summaryTax'|trans({
+                                                                        '%rate%':  calculatedTax.taxRate
+                                                                    })|sw_sanitize }}
+                                                                </dt>
+                                                            {% endblock %}
+
+                                                            {% block page_account_order_item_detail_vat_value %}
+                                                                <dd class="col-6 col-md-4">
+                                                                    {{ calculatedTax.tax|currency(order.currency.isoCode) }}
+                                                                </dd>
+                                                            {% endblock %}
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                {% endblock %}
+
+                                                {% block page_account_order_item_detail_amount %}
+                                                    {% block page_account_order_item_detail_amount_label %}
+                                                        <dt class="col-6 col-md-8">
+                                                            {% if order.taxStatus === constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_FREE') %}
+                                                                {{ 'account.orderItemNetTotal'|trans|sw_sanitize }}
+                                                            {% else %}
+                                                                {{ 'account.orderItemTotal'|trans|sw_sanitize }}
+                                                            {% endif %}
+                                                        </dt>
+                                                    {% endblock %}
+
+                                                    {% block page_account_order_item_detail_amount_value %}
+                                                        <dd class="col-6 col-md-4 order-item-total">
+                                                            {% if order.taxStatus === constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_FREE') %}
+                                                                {{ order.amountNet|currency(order.currency.isoCode) }}
+                                                            {% else %}
+                                                                {{ order.amountTotal|currency(order.currency.isoCode) }}
+                                                            {% endif %}
+                                                        </dd>
+                                                    {% endblock %}
+                                                {% endblock %}
+                                            </dl>
+                                        {% endblock %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

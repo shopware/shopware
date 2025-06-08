@@ -1,0 +1,29 @@
+{% block sw_product_clone_modal %}
+<sw-modal
+    v-if="cloningVariants"
+    :title="$tc('sw-product.general.cloneTitle')"
+    :closable="false"
+    variant="small"
+    class="clone-variant__modal"
+>
+    {% block sw_product_clone_modal_description %}
+    <div class="clone-variant__description">
+        {{ $tc('sw-product.general.cloneNotice') }}
+    </div>
+    {% endblock %}
+
+    {% block sw_product_clone_modal_progress_bar %}
+    <mt-progress-bar
+        class="clone-variant-progress-bar"
+        :max-value="cloneMaxProgress"
+        :model-value="cloneProgress"
+    />
+    {% endblock %}
+
+    {% block sw_product_clone_modal_progress_bar_description %}
+    <div class="clone-variant-progress-bar__description">
+        {{ cloneProgress }} {{ $tc('sw-product.variations.progressTypeOf') }} {{ cloneMaxProgress }} {{ $tc('sw-product.general.cloneSuffix') }}
+    </div>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

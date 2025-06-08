@@ -1,0 +1,44 @@
+@import "~scss/variables";
+
+$sw-product-variants-price-field-lock-color-default: $color-darkgray-200;
+$sw-product-variants-field-lock-color-locked: $color-shopware-brand-500;
+$sw-product-variants-field-suffix-font-size: 20px;
+$sw-product-variants-field-suffix-font-weight: $font-weight-regular;
+
+.sw-product-variants-price-field {
+    display: grid;
+    grid-template-columns: 1fr 30px 1fr;
+
+    .sw-product-variants-price-field__lock {
+        height: 32px;
+        background: none;
+        border: none;
+        color: $sw-product-variants-price-field-lock-color-default;
+        outline: none;
+        cursor: pointer;
+
+        &.is--locked {
+            color: $sw-product-variants-field-lock-color-locked;
+        }
+    }
+
+    .sw-field .sw-product-variants-price-field__input input {
+        padding: 2px 8px;
+    }
+
+    &.is--readonly {
+        .sw-field .sw-product-variants-price-field__input input {
+            cursor: default;
+
+            &:focus {
+                border: 1px solid #d8dde6;
+                box-shadow: 0 0 0 #b1deff;
+            }
+        }
+
+        .sw-product-variants-price-field__lock {
+            cursor: default;
+            pointer-events: none;
+        }
+    }
+}

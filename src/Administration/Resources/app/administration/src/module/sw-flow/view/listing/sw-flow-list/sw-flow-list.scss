@@ -1,0 +1,15 @@
+@import "~scss/variables";
+
+.sw-flow-list-card {
+    overflow: hidden;
+
+    .sw-card__content {
+        padding: 0;
+    }
+}
+
+.sw-flow-list {
+    .sw-flow-list__empty-state {
+        min-height: 550px;
+    }
+}

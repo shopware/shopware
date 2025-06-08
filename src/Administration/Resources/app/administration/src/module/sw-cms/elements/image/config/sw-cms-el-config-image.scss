@@ -1,0 +1,28 @@
+.sw-cms-el-config-image {
+    .sw-media-upload-v2 {
+        margin-bottom: 22px;
+
+        .sw-media-upload-v2__header {
+            display: none;
+        }
+    }
+
+    .sw-cms-el-config-image__mapping-preview {
+        display: grid;
+        width: 100%;
+        height: 200px;
+        justify-items: center;
+        align-items: start;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            overflow: hidden;
+        }
+
+        .sw-cms-el-config-image__preview-info {
+            width: 100%;
+        }
+    }
+}

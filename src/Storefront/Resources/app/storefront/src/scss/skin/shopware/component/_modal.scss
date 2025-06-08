@@ -1,0 +1,21 @@
+/*
+Modal
+==============================================
+Custom skin styling for bootstrap modal component.
+
+https://getbootstrap.com/docs/5.2/components/modal
+*/
+
+.modal-content {
+    box-shadow: var(--#{$prefix}modal-box-shadow);
+
+    .modal-title {
+        margin: 0;
+        line-height: $modal-title-line-height;
+    }
+}
+
+.js-pseudo-modal-back-btn .icon {
+    color: currentColor;
+    margin-right: $spacer-sm;
+}

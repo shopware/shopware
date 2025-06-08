@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="88" height="88" viewBox="0 0 88 88">
+  <defs>
+    <circle id="access-denied-dv-a" cx="44" cy="44" r="44"/>
+  </defs>
+  <g fill="none" fill-rule="evenodd">
+    <mask id="access-denied-dv-b" fill="#fff">
+      <use xlink:href="#access-denied-dv-a"/>
+    </mask>
+    <use fill="#F0F2F5" fill-rule="nonzero" xlink:href="#access-denied-dv-a"/>
+    <path fill="#D1D9E0" d="M58,39.5 C58,32.0441559 51.9558441,26 44.5,26 C37.1477093,26 31.1681655,31.8774286 31.0034854,39.1901692 L31,39.5 L31,48 L23,48 L23,39.5 C23,27.6258779 32.6258779,18 44.5,18 C56.2553809,18 65.8072576,27.4343229 65.9971196,39.1444582 L66,39.5 L66,48 L69,48 C70.1045695,48 71,48.8954305 71,50 L71,80 C71,85.5228475 66.5228475,90 61,90 L27,90 C21.4771525,90 17,85.5228475 17,80 L17,50 C17,48.8954305 17.8954305,48 19,48 L58,48 L58,39.5 Z M44,61 C39.581722,61 36,64.581722 36,69 C36,73.418278 39.581722,77 44,77 C48.418278,77 52,73.418278 52,69 C52,64.581722 48.418278,61 44,61 Z" mask="url(#access-denied-dv-b)"/>
+  </g>
+</svg>

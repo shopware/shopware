@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`module/sw-users-permissions/components/sw-users-permissions-configuration should be a Vue.js component 1`] = `
+<sw-system-config-stub
+  class="sw-users-permissions-configuration is--disabled"
+  domain="core.userPermission"
+/>
+`;

@@ -1,0 +1,19 @@
+@import "~scss/variables";
+
+.sw-cms-el-preview-text {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-size: $font-size-xs;
+        line-height: $line-height-sm;
+        margin: 0 0 6px;
+    }
+
+    p {
+        font-size: $font-size-xxs;
+        line-height: 15px;
+    }
+}

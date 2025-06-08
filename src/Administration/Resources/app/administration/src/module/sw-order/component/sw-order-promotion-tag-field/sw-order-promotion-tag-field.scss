@@ -1,0 +1,20 @@
+@import "~scss/variables";
+
+$color-label-danger: $color-crimson-500;
+$color-background-danger: $color-crimson-50;
+
+.sw-order-promotion-tag-field {
+    .sw-tagged-field__tag-list {
+        background: white;
+
+        &--disabled {
+            background: $color-gray-100;
+        }
+    }
+
+    .sw-label {
+        &.sw-label--danger {
+            border-color: $color-label-danger;
+        }
+    }
+}

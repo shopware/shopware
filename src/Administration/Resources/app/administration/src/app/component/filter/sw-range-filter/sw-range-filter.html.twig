@@ -1,0 +1,31 @@
+{% block sw_range_filter %}
+<sw-base-filter
+    v-bind="$attrs"
+    class="sw-range-filter"
+>
+    {% block sw_range_filter_content %}
+    <sw-container
+        :class="{ 'sw-container--has-divider': isShowDivider }"
+    >
+        <slot></slot>
+
+        <slot name="from-field">
+            {% block sw_range_filter_from_field %}{% endblock %}
+        </slot>
+
+        <slot name="divider">
+            {% block sw_range_filter_divider %}
+            <span
+                v-if="isShowDivider"
+                class="sw-range-filter__divider"
+            ></span>
+            {% endblock %}
+        </slot>
+
+        <slot name="to-field">
+            {% block sw_range_filter_to_field %}{% endblock %}
+        </slot>
+    </sw-container>
+    {% endblock %}
+</sw-base-filter>
+{% endblock %}

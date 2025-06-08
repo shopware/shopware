@@ -1,0 +1,89 @@
+{% block sw_product_layout_assignment %}
+<div class="sw-product-layout-assignment">
+    {% block sw_product_layout_assignment_firgure %}
+    <div
+        class="sw-product-layout-assignment__figure"
+        role="button"
+        tabindex="0"
+        @click="openLayoutModal"
+        @keydown.enter="openLayoutModal"
+    >
+        {% block sw_product_layout_assignment_firgure_content %}
+        <sw-cms-list-item
+            active
+            :disabled="!acl.can('product.editor') || undefined"
+            :page="cmsPage"
+        />
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_product_layout_assignment_description %}
+    <div>
+        {% block sw_product_layout_assignment_heading %}
+        <div
+            class="sw-product-layout-assignment__heading"
+            :class="{ 'is--disabled': !cmsPage }"
+        >
+            {% block sw_product_layout_assignment_heading_title %}
+            <p class="sw-product-layout-assignment__title">
+                {{ cmsPage ? cmsPage.name : $tc('sw-product.layoutAssignment.title') }}
+            </p>
+            {% endblock %}
+
+            {% block sw_product_layout_assignment_heading_subtitle %}
+            <span class="sw-product-layout-assignment__subtitle">
+                {{ $tc('sw-product.layoutAssignment.subtitle') }}
+            </span>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_product_layout_assignment_buttons %}
+        <div class="sw-product-layout-assignment__buttons">
+            {% block sw_product_layout_assignment_button_add %}
+            <mt-button
+                class="sw-product-layout-assignment__button"
+                size="small"
+                :disabled="!acl.can('product.editor') || undefined"
+                variant="secondary"
+                @click="openLayoutModal"
+            >
+                {{ cmsPage ? $tc('sw-product.layoutAssignment.textChangeLayout') : $tc('sw-product.layoutAssignment.textAssignLayout') }}
+            </mt-button>
+            {% endblock %}
+
+            {% block sw_product_layout_assignment_button_edit %}
+            <mt-button
+                class="sw-product-layout-assignment__button"
+                size="small"
+                :disabled="!acl.can('product.editor') || undefined"
+                variant="secondary"
+                @click="openInPageBuilder"
+            >
+                {{ cmsPage ? $tc('sw-product.layoutAssignment.textEditInDesigner') : $tc('sw-product.layoutAssignment.textCreateNewLayout') }}
+            </mt-button>
+            {% endblock %}
+
+            {% block sw_product_layout_assignment_button_delete %}
+            <mt-button
+                v-if="cmsPage"
+                class="sw-product-layout-assignment__button"
+                square
+                size="small"
+                :disabled="!acl.can('product.editor') || undefined"
+                variant="secondary"
+                @click="onLayoutReset"
+            >
+                <mt-icon
+                    name="regular-trash"
+                    size="16px"
+                />
+            </mt-button>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

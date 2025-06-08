@@ -1,0 +1,191 @@
+{% block sw_import_export_edit_profile_modal %}
+<div class="sw-import-export-edit-profile-modal">
+    <sw-modal
+        v-if="show && profile"
+        class="sw-import-export-edit-profile-modal"
+        :title="modalTitle"
+        variant="full"
+        @modal-close="$emit('profile-close')"
+    >
+
+        {% block sw_import_export_edit_profile_modal_alert %}
+        <mt-banner
+            v-if="profile.systemDefault"
+            variant="info"
+        >
+            {{ $tc('sw-import-export.profile.systemDefaultInfoText') }}
+        </mt-banner>
+        {% endblock %}
+
+        {% block sw_import_export_edit_profile_modal_tabs %}
+        <sw-tabs
+            position-identifier="sw-import-export-edit-profile-modal"
+            :small="false"
+            default-item="general"
+        >
+
+            <template #default="{ active }">
+
+                {% block sw_import_export_edit_profile_modal_tabs_general %}
+                <sw-tabs-item
+                    :title="$tc('sw-import-export.profile.generalTab')"
+                    :active-tab="active"
+                    name="general"
+                >
+                    {{ $tc('sw-import-export.profile.generalTab') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_import_export_edit_profile_modal_tabs_field_mappings %}
+                <sw-tabs-item
+                    :title="$tc('sw-import-export.profile.mappingsTab')"
+                    :active-tab="active"
+                    name="mappings"
+                >
+                    {{ $tc('sw-import-export.profile.mappingsTab') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_import_export_edit_profile_modal_tabs_field_advanced %}
+                <sw-tabs-item
+                    v-if="profile.type !== 'export' && profile.config.updateEntities !== false"
+                    :title="$tc('sw-import-export.profile.advancedTab')"
+                    :active-tab="active"
+                    name="advanced"
+                >
+                    {{ $tc('sw-import-export.profile.advancedTab') }}
+                </sw-tabs-item>
+                {% endblock %}
+            </template>
+
+            <template #content="{ active }">
+                <template v-if="active === 'general'">
+                    <sw-import-export-edit-profile-general :profile="profile" />
+
+                    <sw-import-export-edit-profile-field-indicators :profile="profile" />
+                    {% block sw_import_export_edit_profile_modal_tabs_general_import_settings %}
+                    <sw-import-export-edit-profile-import-settings :profile="profile" />
+                    {% endblock %}
+                </template>
+
+                <template v-if="active === 'mappings'">
+                    {% block sw_import_export_edit_profile_modal_tabs_mappings %}
+
+                    {% block sw_import_export_edit_profile_modal_tabs_mappings_text %}
+                    <p class="sw-import-export-edit-profile-modal__text">
+                        {{ $tc('sw-import-export.profile.mappingDescription') }}
+                    </p>
+                    {% endblock %}
+
+                    {% block sw_import_export_edit_profile_modal_tabs_mappings_mapping %}
+                    <sw-import-export-edit-profile-modal-mapping
+                        :profile="profile"
+                        :system-required-fields="systemRequiredFields"
+                        @update-mapping="updateMapping"
+                    />
+                    {% endblock %}
+                    {% endblock %}
+                </template>
+
+                <template v-if="active === 'advanced' && profile.type !== 'export' && profile.config.updateEntities !== false">
+                    {% block sw_import_export_edit_profile_modal_tabs_advanced %}
+
+                    {% block sw_import_export_edit_profile_modal_tabs_advanced_text %}
+                    <p class="sw-import-export-edit-profile-modal__text">
+                        {{ $tc('sw-import-export.profile.advancedDescription') }}
+                    </p>
+                    {% endblock %}
+
+                    {% block sw_import_export_edit_profile_modal_tabs_advanced_identifiers %}
+                    <sw-import-export-edit-profile-modal-identifiers
+                        :profile="profile"
+                    />
+                    {% endblock %}
+                    {% endblock %}
+                </template>
+
+                <template v-if="active === 'fieldIndicators'">
+                    <p class="sw-import-export-edit-profile-modal__text">
+                        {{ $tc('sw-import-export.profile.csvDescriptionBlock') }}
+                    </p>
+                </template>
+            </template>
+        </sw-tabs>
+        {% endblock %}
+
+        {% block sw_import_export_edit_profile_modal_footer %}
+        <template #modal-footer>
+            <mt-button
+                size="small"
+                variant="secondary"
+                @click="$emit('profile-close')"
+            >
+                {{ $tc('global.default.cancel') }}
+            </mt-button>
+            <template v-if="profile.systemDefault">
+                <mt-button
+                    class="sw-import-export-edit-profile-modal__save-action"
+                    size="small"
+                    variant="primary"
+                    @click="$emit('profile-close')"
+                >
+                    {{ $tc('sw-import-export.profile.closeProfileLabel') }}
+                </mt-button>
+            </template>
+            <template v-else>
+                <mt-button
+                    class="sw-import-export-edit-profile-modal__save-action"
+                    size="small"
+                    :disabled="!profile.sourceEntity
+                        || profile.sourceEntity.length <= 0
+                        || !profile.type"
+                    variant="primary"
+                    @click="saveProfile"
+                >
+                    {{ saveLabelSnippet }}
+                </mt-button>
+            </template>
+        </template>
+        {% endblock %}
+    </sw-modal>
+
+    {% block sw_import_export_edit_profile_violation_modal %}
+    <sw-modal
+        v-if="showValidationError"
+        :title="$tc('global.default.error')"
+        class="sw-import-export-edit-profile-modal__violation-modal"
+        @modal-close="resetViolations"
+    >
+
+        {% block sw_import_export_edit_profile_violation_modal_message %}
+        <p>{{ $tc('sw-import-export.profile.violationMessage') }}</p>
+        {% endblock %}
+
+        {% block sw_import_export_edit_profile_violation_modal_required_fields %}
+        <ul>
+            {% block sw_import_export_edit_profile_violation_modal_required_field %}
+            <li
+                v-for="requiredField in missingRequiredFields"
+                :key="requiredField"
+            >
+                {{ requiredField }}
+            </li>
+            {% endblock %}
+        </ul>
+        {% endblock %}
+
+        {% block sw_import_export_edit_profile_violation_modal_footer %}
+        <template #modal-footer>
+            <mt-button
+                size="small"
+                variant="secondary"
+                @click="resetViolations"
+            >
+                {{ $tc('sw-import-export.profile.closeViolation') }}
+            </mt-button>
+        </template>
+        {% endblock %}
+    </sw-modal>
+    {% endblock %}
+</div>
+{% endblock %}

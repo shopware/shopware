@@ -1,0 +1,29 @@
+{% block component_payment_form %}
+    {% set formAjaxSubmitOptions = {
+        changeTriggerSelectors: ['.payment-method-input']
+    } %}
+
+    {% block component_payment_form_element %}
+        <form id="changePaymentForm"
+              name="changePaymentForm"
+              action="{{ actionPath }}"
+              data-form-auto-submit="true"
+              data-form-auto-submit-options="{{ formAjaxSubmitOptions|json_encode }}"
+              method="post">
+            {% block component_payment_form_redirect %}
+                <input type="hidden" name="redirectTo" value="{{ redirect }}">
+                <input type="hidden" name="redirectParameters" value="{{ redirectParameters }}">
+            {% endblock %}
+
+            {% block component_payment_form_list %}
+                <div class="payment-methods">
+                    {% for payment in page.paymentMethods %}
+                        {% block component_payment_form_method %}
+                            {% sw_include '@Storefront/storefront/component/payment/payment-method.html.twig' %}
+                        {% endblock %}
+                    {% endfor %}
+                </div>
+            {% endblock %}
+        </form>
+    {% endblock %}
+{% endblock %}

@@ -1,0 +1,294 @@
+{% block sw_search_bar_item %}
+<!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+<li
+    class="sw-search-bar-item sw-search-bar-item--v2"
+    :class="componentClasses"
+    @mouseenter="onMouseEnter($event)"
+>
+
+    {% block sw_search_bar_item_icon %}
+    <mt-icon
+        v-if="iconName"
+        :name="iconName"
+        :color="iconColor"
+        size="16px"
+    />
+    {% endblock %}
+
+    {% block sw_search_bar_item_customer %}
+    <router-link
+        v-if="type === 'customer'"
+        ref="routerLink"
+        v-slot="{ href, navigate }"
+        :to="{ name: 'sw.customer.detail.base', params: { id: item.id } }"
+        custom
+    >
+        <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
+        <a
+            :href="href"
+            class="sw-search-bar-item__link"
+            @click="onClickSearchResult('customer', item.id) && navigate($event)"
+        >
+            {% block sw_search_bar_item_customer_label %}
+            <span
+                class="sw-search-bar-item__label"
+            >
+                {% block sw_search_bar_item_customer_label_name %}
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="`${item.firstName} ${item.lastName}`"
+                />
+                {% endblock %}
+
+                {% block sw_search_bar_item_customer_label_number %}
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="item.customerNumber"
+                />
+                {% endblock %}
+            </span>
+            {% endblock %}
+        </a>
+    </router-link>
+    {% endblock %}
+
+    {% block sw_search_bar_item_product %}
+    <router-link
+        v-else-if="type === 'product'"
+        ref="routerLink"
+        v-slot="{ href, navigate }"
+        :to="{ name: 'sw.product.detail.base', params: { id: item.id } }"
+        custom
+    >
+        <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
+        <a
+            :href="href"
+            class="sw-search-bar-item__link"
+            @click="onClickSearchResult('product', item.id) && navigate($event)"
+        >
+            {% block sw_search_bar_item_product_label %}
+            <span
+                class="sw-search-bar-item__label"
+            >
+                {% block sw_search_bar_item_product_label_name %}
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="productDisplayName"
+                />
+                {% endblock %}
+
+                {% block sw_search_bar_item_product_label_number %}
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="item.productNumber"
+                />
+                {% endblock %}
+            </span>
+            {% endblock %}
+        </a>
+    </router-link>
+    {% endblock %}
+
+    {% block sw_search_bar_item_category %}
+    <router-link
+        v-else-if="type === 'category'"
+        ref="routerLink"
+        v-slot="{ href, navigate }"
+        class="sw-search-bar-item__link"
+        :to="{ name: 'sw.category.detail', params: { id: item.id } }"
+        custom
+    >
+        <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
+        <a
+            :href="href"
+            class="sw-search-bar-item__link"
+            @click="onClickSearchResult('category', item.id) && navigate($event)"
+        >
+            {% block sw_search_bar_item_category_label %}
+            <span class="sw-search-bar-item__label">
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="item.name"
+                />
+            </span>
+            {% endblock %}
+        </a>
+    </router-link>
+    {% endblock %}
+
+    {% block sw_search_bar_item_order %}
+    <router-link
+        v-else-if="type === 'order'"
+        ref="routerLink"
+        v-slot="{ href, navigate }"
+        class="sw-search-bar-item__link"
+        :to="{ name: 'sw.order.detail', params: { id: item.id } }"
+        custom
+    >
+        <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
+        <a
+            :href="href"
+            class="sw-search-bar-item__link"
+            @click="onClickSearchResult('order', item.id) && navigate($event)"
+        >
+            {% block sw_search_bar_item_order_label %}
+            <span
+                class="sw-search-bar-item__label"
+            >
+                {% block sw_search_bar_item_order_label_name %}
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="`${item.orderCustomer.firstName} ${item.orderCustomer.lastName}`"
+                />
+                {% endblock %}
+
+                {% block sw_search_bar_item_order_label_number %}
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="item.orderNumber"
+                />
+                {% endblock %}
+            </span>
+            {% endblock %}
+        </a>
+    </router-link>
+    {% endblock %}
+
+    {% block sw_search_bar_item_media %}
+    <router-link
+        v-else-if="type === 'media'"
+        ref="routerLink"
+        v-slot="{ href, navigate }"
+        class="sw-search-bar-item__link"
+        :to="{ name: 'sw.media.index', params: { folderId: item.mediaFolderId }, query: { term: item.fileName } }"
+        custom
+    >
+        <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
+        <a
+            :href="href"
+            class="sw-search-bar-item__link"
+            @click="onClickSearchResult('media', item.id) && navigate($event)"
+        >
+            {% block sw_search_bar_item_media_label %}
+            <span class="sw-search-bar-item__label">
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="mediaNameFilter(item)"
+                />
+            </span>
+            {% endblock %}
+        </a>
+    </router-link>
+    {% endblock %}
+
+    {% block sw_search_bar_item_cms_page %}
+    <router-link
+        v-else-if="type === 'cms_page'"
+        ref="routerLink"
+        v-slot="{ href, navigate }"
+        class="sw-search-bar-item__link"
+        :to="{ name: 'sw.cms.detail', params: { id: item.id } }"
+        custom
+    >
+        <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
+        <a
+            :href="href"
+            class="sw-search-bar-item__link"
+            @click="onClickSearchResult('cms_page', item.id) && navigate($event)"
+        >
+            {% block sw_search_bar_item_cms_page_label %}
+            <span class="sw-search-bar-item__label">
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="item.name"
+                />
+            </span>
+            {% endblock %}
+        </a>
+    </router-link>
+    {% endblock %}
+
+    {% block sw_search_bar_item_landing_page %}
+    <router-link
+        v-else-if="type === 'landing_page'"
+        ref="routerLink"
+        v-slot="{ href, navigate }"
+        class="sw-search-bar-item__link"
+        :to="{ name: 'sw.category.landingPageDetail.base', params: { id: item.id } }"
+        custom
+    >
+        <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
+        <a
+            :href="href"
+            class="sw-search-bar-item__link"
+            @click="onClickSearchResult('landing_page', item.id) && navigate($event)"
+        >
+            {% block sw_search_bar_item_cms_landing_page_label %}
+            <span class="sw-search-bar-item__label">
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="item.name"
+                />
+            </span>
+            {% endblock %}
+        </a>
+    </router-link>
+    {% endblock %}
+
+    {% block sw_search_bar_item_module %}
+    <router-link
+        v-else-if="['frequently_used', 'module'].includes(type)"
+        ref="routerLink"
+        class="sw-search-bar-item__link"
+        :to="routeName"
+    >
+        {% block sw_search_bar_item_module_label %}
+        <span
+            class="sw-search-bar-item__label"
+        >
+            {% block sw_search_bar_item_module_label_module %}
+            <sw-highlight-text
+                :search-term="searchTerm"
+                :text="moduleName"
+            />
+            {% endblock %}
+
+            {% block sw_search_bar_item_module_label_shortcut %}
+            <sw-shortcut-overview-item
+                v-if="shortcut"
+                title=""
+                :content="shortcut"
+            />
+            {% endblock %}
+
+            {% block sw_search_bar_item_module_label_action %}
+            <sw-highlight-text
+                :text="$tc(`global.sw-search-bar-item.${item.action ? 'typeLabelAction': 'typeLabelModule'}`)"
+            />
+            {% endblock %}
+        </span>
+        {% endblock %}
+    </router-link>
+    {% endblock %}
+
+    {% block sw_search_bar_item_other_entity %}
+    <router-link
+        v-else-if="detailRoute && displayValue.length > 0"
+        ref="routerLink"
+        class="sw-search-bar-item__link"
+        :to="{ name: detailRoute, params: { id: item.id } }"
+    >
+
+        {% block sw_search_bar_item_other_entity_label %}
+        <span class="sw-search-bar-item__label">
+            <sw-highlight-text
+                :search-term="searchTerm"
+                :text="displayValue"
+            />
+        </span>
+        {% endblock %}
+
+    </router-link>
+    {% endblock %}
+</li>
+{% endblock %}

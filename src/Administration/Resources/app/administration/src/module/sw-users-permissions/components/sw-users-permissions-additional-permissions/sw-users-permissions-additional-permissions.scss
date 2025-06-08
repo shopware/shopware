@@ -1,0 +1,19 @@
+.sw-users-permissions-additional-permissions {
+    .sw-users-permissions-additional-permissions__switches {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .sw-field--switch {
+        width: calc(50% - 15px);
+        margin-top: 0;
+
+        &:nth-child(even) {
+            margin-left: 15px;
+        }
+
+        &:nth-child(odd) {
+            margin-right: 15px;
+        }
+    }
+}

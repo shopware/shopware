@@ -1,0 +1,65 @@
+{
+  "sw-settings-customer-group": {
+    "general": {
+      "mainMenuItemGeneral": "Customer groups",
+      "buttonCreate": "Add customer group",
+      "buttonSave": "Save",
+      "placeholderSearchBar": "Search customer groups..."
+    },
+    "list": {
+      "columnName": "Name",
+      "columnDisplayGross": "Tax display"
+    },
+    "detail": {
+      "cardTitle": "Customer group",
+      "fieldNameLabel": "Name",
+      "fieldDisplayGrossLabel": "Tax display",
+      "fieldDisplayGrossValues": "Gross | Net",
+      "placeholderName": "Enter a name...",
+      "placeholderNewCustomerGroup": "New customer group",
+      "notificationErrorMessage": "An error occured while saving your customer group.",
+      "registrationForm": "Custom signup form"
+    },
+    "registration": {
+      "formTitle": "Signup form",
+      "placeholderTitle": "Enter a title...",
+      "placeholderIntroduction": "Enter an introduction...",
+      "placeholderSeoMetaDescription": "Enter a SEO meta description...",
+      "title": "Title",
+      "introduction": "Introduction",
+      "onlyCompaniesCanRegister": "Company signup form",
+      "onlyCompaniesCanRegisterHelpText": "Adds fields for company name, VAT Reg.No. and department.",
+      "seoMetaDescription": "SEO meta description",
+      "linkUrlsTitle": "URLs",
+      "linkUrlDescription": "Click the button on the right to generate URLs linking to request forms to every Sales Channel.",
+      "linkUrlButton": "Generate URLs",
+      "technicalUrl": "Technical URL",
+      "technicalUrlHelpText": "Technical URLs can be used as \"customisable link\" within the category module and will provide an automatic language mapping.",
+      "availabilitySalesChannel": "Available Sales Channels",
+      "infoText": "Shop users can sign up through this custom form, but will be assigned to the customer group only after you accepted the request in the customer module. You can customise this form with the fields below.",
+      "seoUrlLabel": "{salesChannelName} URL ({languageName})",
+      "domainBanner": "SEO URLs are listed for each domain configured per SalesChannel."
+    },
+    "modal": {
+      "seoUrl": {
+        "title": "URL settings",
+        "salesChannel": "Sales Channel",
+        "urlSuffix": "URL suffix",
+        "exampleUrl": "Example URL",
+        "generate": "Generate"
+      }
+    },
+    "notification": {
+      "errorMessageCannotDeleteCustomerGroup": "There are still Sales Channels and/or customers assigned to this customer group, therefore it cannot be deleted.",
+      "errorUnableToCreateSeoUrls": "The URLs could not be generated",
+      "successfulGeneratedSeoUrls": "The URLs were generated"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "customer_groups": {
+        "label": "Customer groups"
+      }
+    }
+  }
+}

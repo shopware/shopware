@@ -1,0 +1,13 @@
+Shopware Plugin Service
+=======================
+
+-------------------- ------------------------------------------ ---------------------- --------- ----------------- --------------------- ----------- -------- ------------- ----------------------
+Plugin               Label                                      Composer name          Version   Upgrade version   Author                Installed   Active   Upgradeable   Required by composer
+-------------------- ------------------------------------------ ---------------------- --------- ----------------- --------------------- ----------- -------- ------------- ----------------------
+Plugin List Plugin   plp                                        plugin/list            2.5.3     3.0.1             Fabian Blechschmidt   Yes         Yes      Yes           No
+Shopware Next        swn                                                               5.5.3     6.0.0             Shopware AG           Yes         No       Yes           No
+Shopware Test        I've had issues in the past with ridi...   shopware/test-plugin   0.7.12    1.0.0             Shopware AG           Yes         No       Yes           Yes
+Somevendor Payment                                                                     1.0.7                                             No          No                     Yes
+-------------------- ------------------------------------------ ---------------------- --------- ----------------- --------------------- ----------- -------- ------------- ----------------------
+
+4 plugins, 3 installed, 1 active , 3 upgradeable

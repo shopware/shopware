@@ -1,0 +1,63 @@
+[
+  {
+    "name": "testAppA",
+    "label": {
+      "de-DE": "test App A deutsch",
+      "en-GB": "test App A english"
+    },
+    "modules": [
+      {
+        "name": "standardModule",
+        "label": {
+          "de-DE": "Standardmodul",
+          "en-GB": "Standard module"
+        },
+        "parent": "sw-catalogue",
+        "position": "50",
+        "source": "https:\/\/shopware.apps\/module1"
+      },
+      {
+        "name": "noPosition",
+        "label": {
+          "de-DE": "Modul ohne Position",
+          "en-GB": "Module without position"
+        },
+        "parent": "sw.second.top.level",
+        "source": "https:\/\/shopware.apps\/"
+      }
+    ],
+    "mainModule": {
+         "source": "https://shopware.apps/login"
+    }
+  },
+  {
+    "name": "testAppB",
+    "label": {
+      "de-DE": "test App B deutsch",
+      "en-GB": "test App B english"
+    },
+    "modules": [
+      {
+        "name": "default",
+        "label": {
+          "de-DE": "Standard Modul",
+          "en-GB": "Default module"
+        },
+        "parent": "app-testAppB-structure",
+        "source": "https:\/\/shopware.apps\/",
+        "position": 50
+      },
+      {
+        "name": "structure",
+        "label": {
+          "de-DE": "Struktur Modul",
+          "en-GB": "Structure module"
+        },
+        "parent": "sw.first.top.level",
+        "position": 50,
+        "source": null
+      }
+    ],
+    "mainModule": null
+  }
+]

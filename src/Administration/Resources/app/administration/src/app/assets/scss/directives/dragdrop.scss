@@ -1,0 +1,59 @@
+@import "~scss/variables";
+
+.is--drag-element {
+    position: absolute;
+    pointer-events: none;
+    touch-action: none;
+    user-focus: none;
+    user-select: none;
+    z-index: $z-index-dragdrop;
+    box-shadow: 0 0 4px 0 $color-shopware-brand-500;
+    overflow: hidden;
+    cursor: grab;
+
+    & > * {
+        user-focus: none;
+        user-select: none;
+        user-input: none;
+        user-modify: none;
+        pointer-events: none;
+        touch-action: none;
+        -webkit-user-drag: none;
+    }
+
+    &.is--valid-drag {
+        box-shadow: 0 0 4px 0 $color-emerald-500;
+    }
+
+    &.is--invalid-drag {
+        box-shadow: 0 0 4px 0 $color-crimson-500;
+    }
+}
+
+.is--draggable {
+    user-focus: none;
+    user-select: none;
+    cursor: grab;
+
+    img {
+        user-focus: none;
+        user-select: none;
+        user-input: none;
+        user-modify: none;
+        pointer-events: none;
+        touch-action: none;
+        -webkit-user-drag: none;
+    }
+}
+
+.is--dragging {
+    background: $color-gray-100;
+    border: 1px dashed $color-gray-300;
+    box-shadow: none;
+    color: $color-gray-100;
+    cursor: grab;
+
+    & > * {
+        opacity: 0;
+    }
+}

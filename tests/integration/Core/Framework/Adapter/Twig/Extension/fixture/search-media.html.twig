@@ -1,0 +1,3 @@
+{% set media = searchMedia(ids, context) %}
+{# @var item \Shopware\Core\Content\Media\MediaEntity #}
+{% for item in media %}{{ item.fileName }}/{% endfor %}

@@ -1,0 +1,35 @@
+@import "~scss/variables";
+
+.sw-order-send-document-modal {
+    &__info-container {
+        margin-bottom: 25px;
+
+        .sw-description-list {
+            dt,
+            dd {
+                padding: 0;
+            }
+        }
+    }
+
+    &__email-content-label {
+        line-height: $font-size-s;
+        font-size: $font-size-xs;
+        color: $color-darkgray-200;
+    }
+
+    &__email-content {
+        margin-top: 8px;
+        padding: 15px;
+        border: 1px solid $color-gray-300;
+        border-radius: $border-radius-default;
+        overflow: scroll;
+        background: $color-gray-100;
+        line-height: 22px;
+        min-height: 125px;
+        max-height: 300px;
+        resize: vertical;
+        cursor: default !important;
+        height: 137px;
+    }
+}

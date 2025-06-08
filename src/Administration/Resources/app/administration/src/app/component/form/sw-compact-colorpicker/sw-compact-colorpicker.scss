@@ -1,0 +1,47 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+.sw-field.sw-field--compact-colorpicker {
+    margin-bottom: 0;
+
+    .picker_wrapper {
+        z-index: 99;
+
+        &.popup_left {
+            top: 24px;
+            right: -50%;
+        }
+
+        &.popup_right {
+            left: -50%;
+            margin: 0;
+            top: 24px;
+
+            &::before {
+                left: 15px;
+            }
+
+            &::after {
+                left: 15px;
+            }
+        }
+    }
+
+    .sw-colorpicker__previewWrapper {
+        position: initial;
+        border: 1px solid $color-gray-300;
+        border-radius: 2px;
+        height: 16px;
+        width: 16px;
+    }
+
+    .sw-colorpicker__previewColor {
+        height: 14px;
+        width: 14px;
+    }
+}
+
+.sw-colorpicker__set-color-button {
+    width: 100%;
+    margin-top: 10px;
+}

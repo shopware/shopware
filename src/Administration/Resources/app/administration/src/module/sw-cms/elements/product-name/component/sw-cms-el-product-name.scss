@@ -1,0 +1,11 @@
+@import "~scss/variables";
+
+.sw-cms-el-product-name {
+    &__skeleton {
+        background-color: $color-gray-100;
+        height: 20px;
+        border-radius: $border-radius-pill;
+        margin-bottom: 16px;
+        max-width: 100%;
+    }
+}

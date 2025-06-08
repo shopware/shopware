@@ -1,0 +1,58 @@
+@import "~scss/variables";
+
+.sw-users-permissions-permissions-grid {
+    &.sw-card .sw-card__content {
+        padding: 0;
+    }
+
+    .sw-users-permissions-permissions-grid__grid {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sw-users-permissions-permissions-grid__entry {
+        display: flex;
+        justify-content: flex-end;
+        border-bottom: 1px solid $color-gray-300;
+        padding-left: 20px;
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .sw-users-permissions-permissions-grid__parent {
+        background-color: $color-gray-50;
+
+        .sw-users-permissions-permissions-grid__title {
+            font-weight: $font-weight-semi-bold;
+            padding-left: 10px;
+        }
+    }
+
+    .sw-users-permissions-permissions-grid__entry-header {
+        font-weight: bold;
+    }
+
+    .sw-users-permissions-permissions-grid__title,
+    .sw-users-permissions-permissions-grid__all,
+    .sw-users-permissions-permissions-grid__checkbox-wrapper, {
+        min-width: 100px;
+        min-height: 60px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+
+        .sw-field--checkbox {
+            margin-bottom: 0;
+        }
+    }
+
+    .sw-users-permissions-permissions-grid__title {
+        margin-right: auto;
+        width: auto;
+        justify-content: left;
+        padding-left: 36px;
+    }
+}

@@ -1,0 +1,177 @@
+{% block sw_settings_list %}
+{% block sw_settings_rule_index %}
+<sw-page class="sw-settings-rule-list">
+
+    {% block sw_settings_rule_list_search_bar %}
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="rule"
+            :placeholder="$tc('sw-settings-rule.general.placeholderSearchBar')"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_rule_list_smart_bar_header %}
+    <template #smart-bar-header>
+        {% block sw_settings_rule_list_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_rule_list_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <mt-icon
+                name="regular-chevron-right-xs"
+                size="12px"
+            /> {{ $tc('sw-settings-rule.list.textHeadline') }}
+            {% endblock %}
+
+            {% block sw_settings_rule_list_smart_bar_header_title_amount %}
+            <span
+                v-if="!isLoading"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ total }})
+            </span>
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_rule_list_smart_bar_actions %}
+    <template #smart-bar-actions>
+        {% block sw_settings_rule_list_smart_bar_actions_add %}
+        <mt-button
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('rule.creator'),
+                showOnDisabledElements: true
+            }"
+            :disabled="!acl.can('rule.creator') || undefined"
+            variant="primary"
+            size="default"
+            @click="$router.push({ name: 'sw.settings.rule.create' })"
+        >
+            {{ $tc('sw-settings-rule.list.buttonAddRule') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    <template #language-switch>
+        <sw-language-switch
+            @on-change="onChangeLanguage"
+        />
+    </template>
+
+    {% block sw_settings_rule_list_content %}
+    <template #content>
+        {% block sw_settings_rule_list_content_card %}
+        <div class="sw-settings-rule-list__content">
+            {% block sw_settings_rule_list_grid %}
+            <sw-entity-listing
+                v-if="isLoading || rules"
+                ref="swRuleGrid"
+                identifier="sw-settings-rule-list"
+                class="sw-rule-list-grid"
+                :items="rules"
+                :columns="getRuleColumns()"
+                :repository="ruleRepository"
+                :is-loading="isLoading"
+                :full-page="true"
+                :show-selection="acl.can('rule.deleter') || undefined"
+                :allow-edit="acl.can('rule.editor') || undefined"
+                :allow-delete="acl.can('rule.deleter') || undefined"
+                detail-route="sw.settings.rule.detail"
+                :disable-data-fetching="true"
+                :sort-by="sortBy"
+                :sort-direction="sortDirection"
+                @column-sort="onSortColumn"
+                @page-change="onPageChange"
+                @inline-edit-save="onInlineEditSave"
+                @items-delete-finish="getList"
+            >
+
+                {% block sw_settings_rule_list_grid_column_tags %}
+                <template #column-tags="{ item }">
+                    <span class="sw-data-grid__cell-value">
+                        <sw-label
+                            v-for="tag in item.tags"
+                            :key="tag.id"
+                        >
+                            {{ tag.name }}
+                        </sw-label>
+                    </span>
+                </template>
+                {% endblock %}
+
+                <template #column-invalid="{item}">
+                    <template v-if="item.invalid">
+                        {{ $tc('sw-settings-rule.list.invalid') }}
+                    </template>
+                    <template v-else>
+                        {{ $tc('sw-settings-rule.list.valid') }}
+                    </template>
+                </template>
+
+                <template #column-updatedAt="{item}">
+                    {{ dateFilter(item.updatedAt) }}
+                </template>
+
+                <template #column-createdAt="{item}">
+                    {{ dateFilter(item.createdAt) }}
+                </template>
+
+                {% block sw_settings_rule_list_grid_columns_actions %}
+                <template #more-actions="{ item }">
+                    {% block sw_settings_rule_list_grid_columns_actions_duplicate %}
+                    <sw-context-menu-item
+                        :disabled="!acl.can('rule.creator')"
+                        @click="onDuplicate(item)"
+                    >
+                        {{ $tc('sw-settings-rule.list.contextMenuDuplicate') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+            </sw-entity-listing>
+            {% endblock %}
+
+            {% block sw_settings_rule_list_empty_message %}
+            <sw-empty-state
+                v-else-if="!isLoading && !total"
+                :title="$tc('sw-settings-rule.list.messageEmpty')"
+            />
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </template>
+
+    {% block sw_settings_rule_list_sidebar %}
+    <template #sidebar>
+        <sw-sidebar>
+            {% block sw_settings_rule_list_sidebar_refresh %}
+            <sw-sidebar-item
+                icon="regular-undo"
+                :title="$tc('sw-settings-rule.list.titleSidebarItemRefresh')"
+                @click="onRefresh"
+            />
+            {% endblock %}
+
+            {% block sw_settings_rule_list_sidebar_filter %}
+            <sw-sidebar-filter-panel
+                entity="rule"
+                :store-key="storeKey"
+                :active-filter-number="activeFilterNumber"
+                :filters="listFilters"
+                :defaults="defaultFilters"
+                @criteria-changed="updateCriteria"
+            />
+        {% endblock %}
+        </sw-sidebar>
+    </template>
+    {% endblock %}
+    {% endblock %}
+</sw-page>
+    {% endblock %}
+{% endblock %}

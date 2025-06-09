@@ -60,6 +60,7 @@ class ResizeObserverMock {
     }
 
     unobserve() {}
+
     disconnect() {}
 }
 
@@ -145,7 +146,9 @@ describe('module/sw-cms/elements/cross-selling/component', () => {
         wrapper.vm.resizeObserver.triggerResize();
 
         // Wait for any async operations
-        await new Promise(resolve => setTimeout(resolve, 20));
+        await new Promise(resolve => {
+            setTimeout(resolve, 20);
+        });
 
         // Verify the method was called
         expect(spy).toHaveBeenCalled();

@@ -83,10 +83,11 @@
                             name: 'title',
                             value: data.get('title'),
                             violationPath: '/title',
-                            validationRules: 'required',
+                            validationRules: 'required,minLength',
                             minlength: '5',
                             maxlength: '255',
                             additionalClass: 'col-12 product-detail-review-form-title',
+                            description: 'detail.reviewTitleMinLengthHint'|trans|sw_sanitize
                         } %}
                     {% endblock %}
                 </div>
@@ -99,9 +100,10 @@
                     name: 'content',
                     value: data.get('content'),
                     violationPath: '/content',
-                    validationRules: 'required',
+                    validationRules: 'required,minLength',
                     minlength: '40',
                     additionalClass: 'col-12 product-detail-review-form-content',
+                    description: 'detail.reviewTextMinLengthHint'|trans|sw_sanitize
                 } %}
             {% endblock %}
 

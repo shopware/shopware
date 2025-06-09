@@ -56,6 +56,18 @@ function getEntityMapping(entityName, entityNameMapping) {
                     );
                 }
             }
+
+            if (schema.properties[cleanVal]?.type === 'json_object') {
+                lastEntityName = dubbedVal;
+                if (typeof mappingTypesCache[lastEntityName] === 'undefined') {
+                    mappingTypesCache[lastEntityName] = {};
+                    mappingTypesCache[lastEntityName] = handlePropertyMappings(
+                        schema.properties[cleanVal].properties,
+                        mappingTypesCache[lastEntityName],
+                    );
+                }
+            }
+
             lastVal = dubbedVal;
         });
     }

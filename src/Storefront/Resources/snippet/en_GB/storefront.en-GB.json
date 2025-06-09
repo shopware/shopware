@@ -705,7 +705,9 @@
     "reviewRatingAltText": "Review with rating of %points% out of %maxPoints% stars",
     "reviewNotPublicYetAlert": "Your review has not been approved yet",
     "unavailable": "Unavailable",
-    "unavailableTooltip": "This option is currently unavailable."
+    "unavailableTooltip": "This option is currently unavailable.",
+    "reviewTitleMinLengthHint": "Please enter at least 5 characters.",
+    "reviewTextMinLengthHint": "Please enter at least 40 characters."
   },
   "spatial": {
     "ar": {

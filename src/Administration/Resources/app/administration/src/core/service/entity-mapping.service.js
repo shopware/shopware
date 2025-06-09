@@ -72,6 +72,10 @@ function getEntityMapping(entityName, entityNameMapping) {
         });
     }
 
+    if (lastVal === lastEntityName) {
+        return {};
+    }
+
     if (!mappingTypesCache[lastEntityName]) {
         return {};
     }

@@ -1,6 +1,47 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.5
+*  [#10112 - Silence and log exceptions of In-App purchases](./changelog/release-6-6-10-5/2025-05-30-silence-and-log-exceptions-of-in-app-purchases.md)
+*  [#10254 - Pass through extensions from IdSearchResult to EntitySearchResult in ProductListingLoader](./changelog/release-6-6-10-5/2025-06-02-bypass-extensions-from-id-result-to-search-result.md) @OliverSkroblin
+*  [#10259 - Translated custom field value accessor](./changelog/release-6-6-10-5/2025-06-02-translated-custom-field-value-accessor.md) @OliverSkroblin
+*  [#10285 - Unwrap messages when routing](./changelog/release-6-6-10-5/2025-05-29-unwrap-messages-when-routing.md)
+*  [#10300 - Fix StoreAPI criteria endpoints schema](./changelog/release-6-6-10-5/2025-05-22-fix-store-api-criteria-endpoints-schema.md) @akf-bw
+*  [#8321 - Fix nested line items](./changelog/release-6-6-10-5/2025-04-07-fix-nested-line-items.md)
+*  [#8739 - Imitate customer active sales channel check](./changelog/release-6-6-10-5/2025-04-22-fix-imitate-customer-active-sales-channel-check.md) @MelvinAchterhuis
+*  [#8763 - Add recalculated custom line-items to delivery](./changelog/release-6-6-10-5/2025-05-28-add-recalculated-custom-line-items-to-delivery.md)
+*  [#9031 - ci: reenable 6.6.0.0 update (fixes #9031)[6.6.x]  (#9248)](https://github.com/shopware/shopware/issues/9031)
+*  [#9117 - Allow enriching seoUrls for search results's extensions](./changelog/release-6-6-10-5/2025-04-28-inclue-seourls-for-suggestsearch-and-search-entities.md)
+*  [#9179 - Elasticsearch index's mapping should be updated post update](./changelog/release-6-6-10-5/2025-05-08-elasticsearch-index-s-mapping-should-be-updated-post-update.md)
+*  [#9198 - Fix StructEncoder custom field visibility](./changelog/release-6-6-10-5/2025-04-08-fix-struct-encoder-custom-field-visibility.md) @akf-bw
+*  [#9236 - Add AllowHtml Attribute support](./changelog/release-6-6-10-5/2025-01-02-add-allow-html-entity-attribute.md) @raffaelecarelle
+*  [#9333 - Added locking mechanism to CartOrderRoute](./changelog/release-6-6-10-5/2025-05-07-added-cart-order-lock.md)
+*  [#9356 - Fixed accessibility issue of collapse button of orders](./changelog/release-6-6-10-5/2025-05-12-fixed-accessibility-issue-of-collapse-button-of-orders.md) @aragon999
+*  [#9388 - Fix search result order](./changelog/release-6-6-10-5/2025-05-13-fix-search-result-order.md)
+*  [#9460 - Transmit correct shipping costs to Google Analytics](./changelog/release-6-6-10-5/2025-05-15-transmit-correct-shipping-costs-to-google-analytics.md) @aragon999
+*  [#9517 - Provide context token to current request](./changelog/release-6-6-10-5/2025-05-15-provide-context-token-to-current-request.md)
+*  [#9532 - Refactored snippet set list](./changelog/release-6-6-10-5/2025-05-20-refactored-snippet-set-list.md)
+*  [#9572 - Fix theme settings getting lost when navigating quickly](./changelog/release-6-6-10-5/2025-05-20-added-reset-parameter-to-update-theme.md) @amenk
+*  [#9615 - Changed manufacturer wrapper from `<a>` to `<div>` when link is missing](./changelog/release-6-6-10-5/2025-05-21-refactor-manufacturer-wrapper-on-product-detail-page.md)
+*  [#9712 - Display Promotion rule correctly as line item rule in Administration](./changelog/release-6-6-10-5/2025-05-20-display-promotion-rule-as-line-item-rule.md)
+*  [#9729 - Fix search term custom find weird icons](./changelog/release-6-6-10-5/2025-05-22-fix-search-term-custom-find-weird-icons.md) @Le Nguyen
+*  [#9844 - Fix incorrect overwrite of deepLinkCode on order recalculation](./changelog/release-6-6-10-5/2025-05-20-fix-deeplinkcode-overwrite.md)
+*  [#9851 - feat: implement event on Sitemap Generation, closes #9851 [6.6.x]  (#9968)](https://github.com/shopware/shopware/issues/9851)
+*  [#10190 - Fix essential characteristics create template with more than 2 values does not work](./changelog/release-6-6-10-5/2025-06-09-fix-essential-characteristics-create-template-with-more-than-2-values-does-not-work.md)
+*  [#5413 - Fix sorting of countries in Storefront](./changelog/release-6-6-10-5/2025-05-27-fix-sorting-of-countries.md)
+*  [#5899 - Elasticsearch list/price percentage ratio dynamic product groups not working](./changelog/release-6-6-10-5/2025-05-21-elasticsearch-list-price-percentage-ratio-dynamic-product-groups-not-working.md)
+*  [#7447 - Variant indicator missing in product listing](./changelog/release-6-6-10-5/2025-03-12-variant-indicator-missing-in-product-listing.md)
+*  [#8285 - Fixed promotion deletion cart error](./changelog/release-6-6-10-5/2025-05-05-fixed-promotion-deletion-cart-error.md)
+*  [#8790 - Fix inline media upload preview image option is broken](./changelog/release-6-6-10-5/2025-05-23-fix-inline-media-upload-preview-image-option-is-broken.md)
+*  [#8828 - Fix category search results not scrollable](./changelog/release-6-6-10-5/2025-05-05-fix-category-search-results-not-scrollable.md)
+*  [#8922 - Fix allowFullscreen attribute in CmsGdprVideoElement](./changelog/release-6-6-10-5/2025-04-30-allowfullscreen-video-element.md)
+*  [#9384 - Fix search result order in preview search in mysql](./changelog/release-6-6-10-5/2025-05-15-fix-search-result-order-in-preview-search-in-mysql.md)
+*  [#9612 - Remove overwrite of CreatedByField with non-live version](./changelog/release-6-6-10-5/2025-05-21-remove-write-of-createdbyfield-for-nonlive-versions.md)
+*  [#9715 - Set Limit when loading options in property group detail page](./changelog/release-6-6-10-5/2025-05-22-set-limit-when-loading-options-in-property-group-detail-page.md)
+*  [#9855 - Elasticsearch custom fields dynamic product groups not working](./changelog/release-6-6-10-5/2025-05-27-elasticsearch-custom-fields-dynamic-product-groups-not-working.md)
+*  [#7768 - Reduce downtime while theme change](./changelog/release-6-6-10-5/2025-05-19-reduce-downtime-while-theme-change.md)
+*  [#9851 - Add Event to modify SalesChannelContext](./changelog/release-6-6-10-5/2025-05-24-add-event-to-modify-saleschannelcontext.md) @wrongspot
+
 ## 6.6.10.4
 *  [#4450 - OffCanvasSingleton does not remove hard-coded offcanvas from DOM](./changelog/release-6-6-10-4/2025-04-04-offcanvassingleton-does-not-remove-hard-coded-offcanvas-from-dom.md)
 *  [#4654 - Fix HTML quirks mode in the Storefront](./changelog/release-6-6-10-4/2025-03-25-Fix-html-quirks-mode.md)

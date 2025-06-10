@@ -1,3 +1,9 @@
+# 6.6.10.5
+## StorefrontSubscriber now adds context token to the current request
+The `\Shopware\Storefront\Framework\Routing\StorefrontSubscriber::startSession()` method has been updated to provide the context token to the current request if it differs from the main request.
+This is especially necessary if a reverse proxy like Varnish or Fastly is used.
+Due to loading of the header and footer via ESI, it would otherwise cause the sub requests for those to have a different contexts than the main request.
+
 # 6.6.10.4
 ## Pinning promotions in administration
 When an _existing_ order is changed in administration, the promotions are pinned.

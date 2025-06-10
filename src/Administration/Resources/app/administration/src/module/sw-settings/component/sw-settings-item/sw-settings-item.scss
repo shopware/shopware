@@ -28,7 +28,8 @@ $sw-settings-item-hover-text-color: $color-shopware-brand-500;
             margin-right: 12px;
             margin-left: 8px;
 
-            img, svg {
+            img,
+            svg {
                 /* Make the following with and height style important to prevent overwrites from third party styles */
                 max-width: 16px !important;
                 max-height: 16px !important;

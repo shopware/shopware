@@ -383,10 +383,11 @@ class ZugferdDocument
             throw DocumentException::generationError(\sprintf('Type "%s" not supported', $type));
         }
 
+        $taxStatus = $order->getTaxStatus() !== '' ? $order->getTaxStatus() : CartPrice::TAX_STATE_NET;
         $calculatedTaxes = $calculator->calculateTaxes(
             new PriceCollection($this->mappedPrices[$type]),
             $order->getTaxCalculationType() ?? SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
-            $order->getTaxStatus() ?? CartPrice::TAX_STATE_NET,
+            $taxStatus,
             $order->getItemRounding() ?? new CashRoundingConfig(2, 0.01, true)
         );
 

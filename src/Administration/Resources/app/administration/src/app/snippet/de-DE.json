@@ -46,7 +46,8 @@
       "bulkEdit": "Mehrfachänderung",
       "back": "Zurück",
       "discard": "Verwerfen",
-      "submit": "Absenden"
+      "submit": "Absenden",
+      "attention": "Warnung"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",

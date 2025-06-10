@@ -705,7 +705,9 @@
     "reviewRatingAltText": "Bewertung mit %points% von %maxPoints% Sternen",
     "reviewNotPublicYetAlert": "Ihre Bewertung wurde noch nicht freigeschaltet",
     "unavailable": "Nicht verfügbar",
-    "unavailableTooltip": "Diese Option ist zurzeit nicht verfügbar."
+    "unavailableTooltip": "Diese Option ist zurzeit nicht verfügbar.",
+    "reviewTitleMinLengthHint": "Bitte geben Sie mindestens 5 Zeichen ein.",
+    "reviewTextMinLengthHint": "Bitte geben Sie mindestens 40 Zeichen ein."
   },
   "spatial": {
     "ar": {

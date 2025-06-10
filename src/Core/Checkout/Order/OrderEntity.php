@@ -318,6 +318,8 @@ class OrderEntity extends Entity
 
     protected ?string $source = null;
 
+    protected ?string $taxCalculationType = null;
+
     public function getCurrencyId(): string
     {
         return $this->currencyId;
@@ -671,6 +673,16 @@ class OrderEntity extends Entity
     public function setSource(?string $source): void
     {
         $this->source = $source;
+    }
+
+    public function getTaxCalculationType(): ?string
+    {
+        return $this->taxCalculationType;
+    }
+
+    public function setTaxCalculationType(?string $taxCalculationType): void
+    {
+        $this->taxCalculationType = $taxCalculationType;
     }
 
     /**

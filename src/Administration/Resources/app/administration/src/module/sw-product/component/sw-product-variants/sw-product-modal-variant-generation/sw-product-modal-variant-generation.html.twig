@@ -283,6 +283,7 @@
             :disabled="isGenerateButtonDisabled"
             class="sw-product-variant-generation__generate-action"
             :variant="buttonVariant"
+            :is-loading="isLoading"
             size="small"
             @click="generateVariants()"
         >

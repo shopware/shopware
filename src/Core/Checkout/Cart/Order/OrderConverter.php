@@ -200,6 +200,7 @@ class OrderConverter
         }
 
         $data['ruleIds'] = $context->getRuleIds();
+        $data['taxCalculationType'] = $context->getTaxCalculationType();
 
         $event = new CartConvertedEvent($cart, $data, $context, $conversionContext);
         $this->eventDispatcher->dispatch($event);

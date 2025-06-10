@@ -4,6 +4,7 @@
 
 import './store';
 import template from './sw-seo-url.html.twig';
+import './sw-seo-url.scss';
 
 const Criteria = Shopware.Data.Criteria;
 const EntityCollection = Shopware.Data.EntityCollection;

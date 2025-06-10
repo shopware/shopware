@@ -304,4 +304,70 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
             'global.entities.order_transaction',
         ]);
     });
+
+    it('should add last transaction entry when there are multiple transactions and last transaction is not in history', async () => {
+        const multipleTransactionOrder = {
+            ...orderProp,
+            transactions: getCollection('order_transaction', [
+                {
+                    id: '2',
+                    stateMachineState: {
+                        technicalName: 'open',
+                        translated: {
+                            name: 'Open',
+                        },
+                    },
+                    getEntityName: () => 'order_transaction',
+                },
+                {
+                    id: '3',
+                    stateMachineState: {
+                        technicalName: 'paid',
+                        translated: {
+                            name: 'Paid',
+                        },
+                    },
+                    getEntityName: () => 'order_transaction',
+                },
+            ]),
+        };
+
+        // State history that doesn't include the last transaction (id: '3')
+        const historyWithoutLastTransaction = [
+            {
+                entityName: 'order_transaction',
+                fromStateMachineState: {
+                    technicalName: 'open',
+                    translated: {
+                        name: 'Open',
+                    },
+                },
+                toStateMachineState: {
+                    technicalName: 'in_progress',
+                    translated: {
+                        name: 'In progress',
+                    },
+                },
+                user: {
+                    username: 'admin',
+                },
+                createdAt: '2022-10-12T10:01:33.815+00:00',
+                referencedId: '2', // Only includes first transaction
+            },
+        ];
+
+        const wrapper = await createWrapper({}, multipleTransactionOrder, historyWithoutLastTransaction);
+        await flushPromises();
+
+        const transactionEntries = wrapper.vm.dataSource.filter((entry) => entry.entity === 'order_transaction');
+        // Should have multiple transaction entries including the last one
+        expect(transactionEntries.length).toBeGreaterThan(1);
+        expect(wrapper.vm.hasMultipleTransactions).toBe(true);
+
+        // Verify that the last transaction was added
+        const lastTransactionEntry = wrapper.vm.dataSource.find(
+            (entry) => entry.entity === 'order_transaction' && entry.referencedId === '3',
+        );
+        expect(lastTransactionEntry).toBeDefined();
+    });
 });

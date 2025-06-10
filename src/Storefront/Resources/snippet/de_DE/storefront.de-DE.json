@@ -712,35 +712,35 @@
   "spatial": {
     "ar": {
       "scanQrCode": "QR-Code scannen",
-      "pointToQrCode": "Richten Sie die Kamera Ihres Mobilgeräts auf den QR-Code, um das Produkt in Augmented Reality anzuzeigen.",
-      "moveTheDeviceToStart": "Bewegen Sie das Gerät, um zu beginnen",
-      "tapToPlaceTheObject": "Tippen Sie, um das Objekt zu platzieren",
+      "pointToQrCode": "Richte die Kamera des Mobilgeräts auf den QR-Code, um das Produkt in Augmented Reality anzuzeigen.",
+      "moveTheDeviceToStart": "Bewege das Gerät, um zu beginnen",
+      "tapToPlaceTheObject": "Tippe, um das Objekt zu platzieren",
       "openAugmentedRealityView": "Augmented-Reality-Ansicht öffnen",
       "augmentedRealityView": "Augmented-Reality-Ansicht",
       "openArView": "AR-Ansicht öffnen",
-      "launchingArView": "Starte AR-Ansicht...",
+      "launchingArView": "Starte AR-Ansicht ...",
       "openArViewDescription": "Augmented-Reality-Ansicht öffnen",
       "whyDoISeeThis": "Warum sehe ich diese Meldung?",
       "errors": {
         "desktopNotSupported": {
           "reason": "Augmented Reality wird auf Desktop-Geräten nicht unterstützt.",
-          "solution": "Bitte verwenden Sie ein Mobilgerät, um AR zu starten."
+          "solution": "Bitte öffne diese Seite auf Deinem Mobilgerät, um AR zu starten."
         },
         "notSafariOnIOS": {
-          "reason": "Augmented Reality wird nur in Safari auf iOS unterstützt.",
-          "solution": "Bitte verwenden Sie Safari auf iOS, um AR zu starten."
+          "reason": "Augmented Reality wird auf iOS nur in Safari unterstützt.",
+          "solution": "Bitte verwende Safari um AR zu nutzen."
         },
         "IOSVersionMismatch": {
           "reason": "Augmented Reality wird auf iOS-Versionen unter 12.0 nicht unterstützt.",
-          "solution": "Bitte verwenden Sie eine neuere iOS-Version, um AR zu starten."
+          "solution": "Bitte verwende eine neuere iOS-Version, um AR zu starten."
         },
         "unknownIOSError": {
           "reason": "Ein unbekannter Fehler ist während des Starts von AR auf iOS aufgetreten.",
-          "solution": "Bitte versuchen Sie es erneut oder wenden Sie sich an unseren Support."
+          "solution": "Bitte versuche es erneut oder wende Dich an unseren Support."
         },
         "unknownARError": {
           "reason": "Ein unbekannter Fehler ist während des Starts von AR aufgetreten.",
-          "solution": "Bitte versuchen Sie es erneut oder wenden Sie sich an unseren Support."
+          "solution": "Bitte versuche es erneut oder wende Dich an unseren Support."
         }
       }
     }

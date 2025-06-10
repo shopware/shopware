@@ -34,7 +34,7 @@ final class ProductPriceCalculationExtension extends Extension
          *
          * @param Entity[]
          */
-        iterable $products,
+        public iterable $products,
 
         /**
          * @public

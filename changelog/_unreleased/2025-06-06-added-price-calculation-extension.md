@@ -7,4 +7,4 @@ author_github: OliverSkroblin
 
 # Core
 
-* Added `ProductPriceCalculationExtension` which allows to decorate the product price calculator via events
+* Added `ProductPriceCalculationExtension` to `ProductPriceCalculator` which allows to decorate the product price calculator via events

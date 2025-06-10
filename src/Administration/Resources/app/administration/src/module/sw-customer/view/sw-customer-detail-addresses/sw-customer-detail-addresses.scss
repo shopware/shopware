@@ -7,6 +7,11 @@
         margin-bottom: 0;
         width: 16px;
     }
+
+    .mt-card__toolbar {
+        display: grid;
+        grid-template-columns: 1fr auto;
+    }
 }
 
 .sw-customer-detail-addresses__confirm-delete-address {

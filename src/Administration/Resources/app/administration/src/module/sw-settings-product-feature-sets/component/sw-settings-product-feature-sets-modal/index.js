@@ -35,7 +35,6 @@ export default {
             showPropertyGroups: false,
             showProductInfo: false,
             nextButtonDisabled: true,
-            addButtonDisabled: true,
             showNextButton: true,
             valuesLoading: false,
             customFields: [],
@@ -90,6 +89,7 @@ export default {
                     name: 'weight',
                 },
             ],
+            isApplyingSelections: false,
         };
     },
 
@@ -193,6 +193,15 @@ export default {
         propertyGroupTotal() {
             return this.propertyGroups.total || 0;
         },
+
+        addButtonDisabled() {
+            if (this.referencePriceSelected) {
+                return false;
+            }
+
+            const currentSelection = this.getCurrentSelection();
+            return Object.keys(currentSelection).length < 1;
+        },
     },
 
     created() {
@@ -259,6 +268,8 @@ export default {
             return this.getList(this.customFieldsRepository, this.customFieldCriteria, (items) => {
                 this.customFields = items;
                 this.valuesLoading = false;
+
+                this.applySelectionsToActiveGrid();
             });
         },
 
@@ -266,6 +277,8 @@ export default {
             return this.getList(this.propertyGroupsRepository, this.propertyGroupCriteria, (items) => {
                 this.propertyGroups = items;
                 this.valuesLoading = false;
+
+                this.applySelectionsToActiveGrid();
             });
         },
 
@@ -294,8 +307,6 @@ export default {
 
         onChangeOption() {
             this.checkIfReferencePriceIsSelected();
-
-            this.addButtonDisabled = !this.referencePriceSelected;
 
             if (this.nextButtonDisabled) {
                 this.nextButtonDisabled = false;
@@ -348,37 +359,67 @@ export default {
             });
         },
 
-        setFeatureSelection(features, count) {
-            // Return early if we do not need to take pagination/preselection into account
-            if (!(this.showCustomField || this.showPropertyGroups)) {
-                if (count < 1) {
-                    this.addButtonDisabled = true;
-
-                    return;
-                }
-
-                this.selectedFeatures.set(1, features);
-                this.addButtonDisabled = false;
-
+        setFeatureSelection(features) {
+            if (this.isApplyingSelections) {
                 return;
             }
 
-            const criteria = this.showCustomField ? this.customFieldCriteria : this.propertyGroupCriteria;
-            const page = criteria.page;
-            const preSelected = this.selectedFeatures.get(page);
+            let selectionKey = 1;
+            const isPaginatedGridActive = this.showCustomField || this.showPropertyGroups;
 
-            // Apply the current selection, if there wasn't anything selected on this page before
-            if (!preSelected || Object.keys(preSelected).length < 1) {
-                this.selectedFeatures.set(page, features);
-                this.addButtonDisabled = false;
+            if (isPaginatedGridActive) {
+                const criteria = this.showCustomField ? this.customFieldCriteria : this.propertyGroupCriteria;
+                selectionKey = criteria.page || 1;
+            }
 
+            this.selectedFeatures.set(selectionKey, { ...features });
+        },
+
+        applySelectionsToActiveGrid() {
+            if (this.isApplyingSelections) {
                 return;
             }
 
-            const grid = this.showCustomField ? this.$refs.customFieldGrid : this.$refs.propertyGroupGrid;
+            let gridComponentRef;
+            let selectionKey;
+            let currentGridDataSource;
 
-            // Mark all preselected items as selected
-            Object.keys(preSelected).forEach((key) => grid.selectItem(true, preSelected[key]));
+            if (this.showCustomField) {
+                gridComponentRef = this.$refs.customFieldGrid;
+                selectionKey = this.customFieldCriteria.page || 1;
+                currentGridDataSource = this.customFields;
+            }
+
+            if (this.showPropertyGroups) {
+                gridComponentRef = this.$refs.propertyGroupGrid;
+                selectionKey = this.propertyGroupCriteria.page || 1;
+                currentGridDataSource = this.propertyGroups;
+            }
+
+            if (!gridComponentRef) {
+                return;
+            }
+
+            if (!currentGridDataSource || currentGridDataSource.length === 0) {
+                return;
+            }
+
+            const selectionsForThisContext = this.selectedFeatures.get(selectionKey);
+
+            this.isApplyingSelections = true;
+
+            try {
+                currentGridDataSource.forEach((itemInGrid) => {
+                    const shouldBeSelected = selectionsForThisContext && selectionsForThisContext[itemInGrid.id];
+                    if (!shouldBeSelected) {
+                        return;
+                    }
+
+                    gridComponentRef.selectItem(true, itemInGrid);
+                });
+            } finally {
+                this.isApplyingSelections = false;
+            }
         },
 
         getPropertyGroupColumns() {
@@ -434,6 +475,21 @@ export default {
             const fallback = Shopware.Context.app.fallbackLocale;
 
             return field.config.label[language] || field.config.label[fallback];
+        },
+
+        getCurrentSelection() {
+            if (this.showCustomField || this.showPropertyGroups) {
+                const criteria = this.showCustomField ? this.customFieldCriteria : this.propertyGroupCriteria;
+                const selectionKey = criteria.page || 1;
+
+                return this.selectedFeatures.get(selectionKey) || {};
+            }
+
+            if (this.showProductInfo || (this.selectedFeatureType && !this.showNextButton && !this.referencePriceSelected)) {
+                return this.selectedFeatures.get(1) || {};
+            }
+
+            return {};
         },
     },
 };

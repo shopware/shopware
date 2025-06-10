@@ -89,7 +89,7 @@
                                 {% endblock %}
 
                                 {% block page_account_order_customer_comment_content %}
-                                    <div class="col-12">{{ order.customerComment|sw_sanitize|nl2br }}</div>
+                                    <div class="col-12 card-content">{{ order.customerComment|sw_sanitize|nl2br }}</div>
                                 {% endblock %}
                             </div>
                         </div>
@@ -252,7 +252,7 @@
                                                     {% endblock %}
 
                                                     {% block page_account_order_item_detail_amount_value %}
-                                                        <dd class="col-6 col-md-4">
+                                                        <dd class="col-6 col-md-4 order-item-total">
                                                             {% if order.taxStatus === constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_FREE') %}
                                                                 {{ order.amountNet|currency(order.currency.isoCode) }}
                                                             {% else %}

@@ -50,7 +50,7 @@ Module.register('sw-settings-shipping', {
                 privilege: 'shipping.viewer',
             },
             props: {
-                default: (route) => ({ shippingMethodId: route.params.id }),
+                default: (route) => ({ shippingMethodId: route.params.id?.toLowerCase() }),
             },
         },
         create: {

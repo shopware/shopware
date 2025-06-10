@@ -1374,7 +1374,6 @@ class OrderConverterTest extends TestCase
             'affiliateCode' => null,
             'campaignCode' => null,
             'source' => null,
-            'createdById' => null,
             'itemRounding' => [
                 'decimals' => 2,
                 'extensions' => [],

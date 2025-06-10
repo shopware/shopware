@@ -107,6 +107,16 @@ class AuthControllerTest extends TestCase
         static::assertSame('account.orderGuestLoginWrongCredentials', $this->controller->flashBag['danger'][0]);
     }
 
+    public function testGuestCustomerOnLoginPageShouldBeLoggedOut(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $context->getCustomer()?->setGuest(true);
+
+        $this->controller->loginPage(new Request(), new RequestDataBag(), $context);
+
+        static::assertArrayHasKey('frontend.account.logout.page', $this->controller->redirected);
+    }
+
     public function testGenerateAccountRecoveryThrowsConstraintException(): void
     {
         $request = new Request();

@@ -3,7 +3,6 @@ import './sw-condition-time-range.scss';
 
 const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
-const defaultTimeValue = '12:00';
 
 /**
  * @sw-package fundamentals@after-sales
@@ -25,12 +24,8 @@ export default {
         fromTime: {
             get() {
                 this.ensureValueExist();
-                if (!this.condition.value.fromTime) {
-                    // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-                    this.condition.value.fromTime = defaultTimeValue;
-                }
 
-                return this.condition.value.fromTime;
+                return this.condition.value.fromTime || null;
             },
             set(fromTime) {
                 this.ensureValueExist();
@@ -40,12 +35,8 @@ export default {
         toTime: {
             get() {
                 this.ensureValueExist();
-                if (!this.condition.value.toTime) {
-                    // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-                    this.condition.value.toTime = defaultTimeValue;
-                }
 
-                return this.condition.value.toTime;
+                return this.condition.value.toTime || null;
             },
             set(toTime) {
                 this.ensureValueExist();

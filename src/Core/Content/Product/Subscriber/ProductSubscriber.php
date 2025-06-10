@@ -123,11 +123,9 @@ class ProductSubscriber implements EventSubscriberInterface
         $lengthUnitHeader = $this->requestStack->getCurrentRequest()?->headers->get(PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT);
         $weightUnitHeader = $this->requestStack->getCurrentRequest()?->headers->get(PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT);
 
-        foreach ($event->getCommands() as $command) {
-            if ($command->getEntityName() !== ProductDefinition::ENTITY_NAME) {
-                continue;
-            }
+        $commands = $event->getCommandsForEntity(ProductDefinition::ENTITY_NAME);
 
+        foreach ($commands as $command) {
             if (!$lengthUnitHeader && !$weightUnitHeader) {
                 continue;
             }

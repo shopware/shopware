@@ -242,14 +242,18 @@ export default Component.wrapComponentConfig({
                     knownTransactionIds.push(entry.referencedId);
                 }
 
-                // @ts-expect-error - the entityName have to be order, order_transaction or order_delivery
+                // @ts-expect-error - the entityName has to be order, order_transaction or order_delivery
                 states[entry.entityName] = entry.toStateMachineState;
                 // @ts-expect-error - states exists
                 entries.push(this.createEntry(states, entry));
             });
 
             const lastTransaction = this.order.transactions?.last();
-            if (!!lastTransaction && !knownTransactionIds.includes(lastTransaction.id)) {
+            if (
+                !!lastTransaction &&
+                !knownTransactionIds.includes(lastTransaction.id) &&
+                (this.order.transactions?.length ?? 0) > 1
+            ) {
                 entries.push(
                     this.createEntry(
                         {

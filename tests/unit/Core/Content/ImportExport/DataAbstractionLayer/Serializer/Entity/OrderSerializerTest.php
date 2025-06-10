@@ -532,6 +532,7 @@ class OrderSerializerTest extends TestCase
                 'transactions' => null,
                 'orderNumber' => '10000',
                 'ruleIds' => [],
+                'taxCalculationType' => null,
                 'addresses' => new OrderAddressCollection([
                     (new OrderAddressEntity())->assign([
                         'id' => 'order-address-id',

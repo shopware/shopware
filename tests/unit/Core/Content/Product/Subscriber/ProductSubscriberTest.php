@@ -579,9 +579,6 @@ class ProductSubscriberTest extends TestCase
         );
 
         $command = $this->createMock(WriteCommand::class);
-        $command->expects($this->once())
-            ->method('getEntityName')
-            ->willReturn(ProductDefinition::ENTITY_NAME);
 
         $command->expects($this->once())
             ->method('getPayload')
@@ -615,7 +612,8 @@ class ProductSubscriberTest extends TestCase
 
         $event = $this->createMock(EntityWriteEvent::class);
         $event->expects($this->once())
-            ->method('getCommands')
+            ->method('getCommandsForEntity')
+            ->with(ProductDefinition::ENTITY_NAME)
             ->willReturn([$command]);
 
         $subscriber->beforeWriteProduct($event);
@@ -644,9 +642,6 @@ class ProductSubscriberTest extends TestCase
         );
 
         $command = $this->createMock(WriteCommand::class);
-        $command->expects($this->once())
-            ->method('getEntityName')
-            ->willReturn(ProductDefinition::ENTITY_NAME);
 
         $command->expects($this->never())->method('getPayload');
         $command->expects($this->never())->method('hasField');
@@ -654,7 +649,8 @@ class ProductSubscriberTest extends TestCase
 
         $event = $this->createMock(EntityWriteEvent::class);
         $event->expects($this->once())
-            ->method('getCommands')
+            ->method('getCommandsForEntity')
+            ->with(ProductDefinition::ENTITY_NAME)
             ->willReturn([$command]);
 
         $subscriber->beforeWriteProduct($event);
@@ -685,19 +681,11 @@ class ProductSubscriberTest extends TestCase
             $requestStack,
         );
 
-        $command = $this->createMock(WriteCommand::class);
-        $command->expects($this->once())
-            ->method('getEntityName')
-            ->willReturn('category'); // Non-product entity
-
-        $command->expects($this->never())->method('getPayload');
-        $command->expects($this->never())->method('hasField');
-        $command->expects($this->never())->method('addPayload');
-
         $event = $this->createMock(EntityWriteEvent::class);
         $event->expects($this->once())
-            ->method('getCommands')
-            ->willReturn([$command]);
+            ->method('getCommandsForEntity')
+            ->with(ProductDefinition::ENTITY_NAME)
+            ->willReturn([]);
 
         $subscriber->beforeWriteProduct($event);
     }
@@ -743,9 +731,6 @@ class ProductSubscriberTest extends TestCase
         );
 
         $command = $this->createMock(WriteCommand::class);
-        $command->expects($this->once())
-            ->method('getEntityName')
-            ->willReturn(ProductDefinition::ENTITY_NAME);
 
         $command->expects($this->once())
             ->method('getPayload')
@@ -766,7 +751,8 @@ class ProductSubscriberTest extends TestCase
 
         $event = $this->createMock(EntityWriteEvent::class);
         $event->expects($this->once())
-            ->method('getCommands')
+            ->method('getCommandsForEntity')
+            ->with(ProductDefinition::ENTITY_NAME)
             ->willReturn([$command]);
 
         $subscriber->beforeWriteProduct($event);
@@ -833,9 +819,6 @@ class ProductSubscriberTest extends TestCase
         );
 
         $command = $this->createMock(WriteCommand::class);
-        $command->expects($this->once())
-            ->method('getEntityName')
-            ->willReturn(ProductDefinition::ENTITY_NAME);
 
         $command->expects($this->never())->method('getPayload');
         $command->expects($this->never())->method('hasField');
@@ -843,7 +826,8 @@ class ProductSubscriberTest extends TestCase
 
         $event = $this->createMock(EntityWriteEvent::class);
         $event->expects($this->once())
-            ->method('getCommands')
+            ->method('getCommandsForEntity')
+            ->with(ProductDefinition::ENTITY_NAME)
             ->willReturn([$command]);
 
         $subscriber->beforeWriteProduct($event);

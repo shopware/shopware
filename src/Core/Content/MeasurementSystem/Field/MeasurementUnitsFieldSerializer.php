@@ -9,6 +9,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\Constraints\Collection;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Type;
 
 #[Package('inventory')]
 class MeasurementUnitsFieldSerializer extends JsonFieldSerializer
@@ -59,8 +63,34 @@ class MeasurementUnitsFieldSerializer extends JsonFieldSerializer
         ];
 
         $system = $decoded['system'] ?? MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM;
-        $units = $decoded['units'] ? array_merge($defaultUnits, $decoded['units']) : $defaultUnits;
+        $units = !empty($decoded['units']) ? array_merge($defaultUnits, $decoded['units']) : $defaultUnits;
 
         return new MeasurementUnits($system, $units);
+    }
+
+    protected function getConstraints(Field $field): array
+    {
+        return [
+            new Type('array'),
+            new NotNull(),
+            new Collection([
+                'allowExtraFields' => true,
+                'allowMissingFields' => false,
+                'fields' => [
+                    'system' => [new NotBlank(), new Type('string')],
+                    'units' => [
+                        new Type('array'),
+                        new Collection([
+                            'allowExtraFields' => true,
+                            'allowMissingFields' => false,
+                            'fields' => [
+                                'length' => [new Type('string'), new NotNull()],
+                                'weight' => [new Type('string'), new NotNull()],
+                            ],
+                        ]),
+                    ],
+                ],
+            ]),
+        ];
     }
 }

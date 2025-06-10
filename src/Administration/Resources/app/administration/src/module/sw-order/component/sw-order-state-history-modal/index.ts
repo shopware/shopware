@@ -249,9 +249,10 @@ export default Component.wrapComponentConfig({
             });
 
             const lastTransaction = this.order.transactions?.last();
-            if (!!lastTransaction
-                && !knownTransactionIds.includes(lastTransaction.id)
-                && (this.order.transactions?.length ?? 0) > 1
+            if (
+                !!lastTransaction &&
+                !knownTransactionIds.includes(lastTransaction.id) &&
+                (this.order.transactions?.length ?? 0) > 1
             ) {
                 entries.push(
                     this.createEntry(

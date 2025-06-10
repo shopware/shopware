@@ -359,14 +359,14 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         const wrapper = await createWrapper({}, multipleTransactionOrder, historyWithoutLastTransaction);
         await flushPromises();
 
-        const transactionEntries = wrapper.vm.dataSource.filter(entry => entry.entity === 'order_transaction');
+        const transactionEntries = wrapper.vm.dataSource.filter((entry) => entry.entity === 'order_transaction');
         // Should have multiple transaction entries including the last one
         expect(transactionEntries.length).toBeGreaterThan(1);
         expect(wrapper.vm.hasMultipleTransactions).toBe(true);
 
         // Verify that the last transaction was added
-        const lastTransactionEntry = wrapper.vm.dataSource.find(entry =>
-            entry.entity === 'order_transaction' && entry.referencedId === '3'
+        const lastTransactionEntry = wrapper.vm.dataSource.find(
+            (entry) => entry.entity === 'order_transaction' && entry.referencedId === '3',
         );
         expect(lastTransactionEntry).toBeDefined();
     });

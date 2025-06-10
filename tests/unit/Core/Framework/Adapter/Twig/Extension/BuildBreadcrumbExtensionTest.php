@@ -71,7 +71,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
             ->getFullBreadcrumb([], new CategoryEntity(), $salesChannelContext);
 
         static::assertArrayHasKey($categoryId, $breadCrumb);
-        static::assertInstanceOf(CategoryEntity::class, $breadCrumb[$categoryId]);
+        static::assertInstanceOf(SalesChannelCategoryEntity::class, $breadCrumb[$categoryId]);
         static::assertArrayNotHasKey($notConsideredCategoryId, $breadCrumb);
     }
 
@@ -98,7 +98,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
             ->getFullBreadcrumbById([], $categoryId, $salesChannelContext);
 
         static::assertArrayHasKey($categoryId, $breadCrumb);
-        static::assertInstanceOf(CategoryEntity::class, $breadCrumb[$categoryId]);
+        static::assertInstanceOf(SalesChannelCategoryEntity::class, $breadCrumb[$categoryId]);
         static::assertArrayNotHasKey($notConsideredCategoryId, $breadCrumb);
     }
 

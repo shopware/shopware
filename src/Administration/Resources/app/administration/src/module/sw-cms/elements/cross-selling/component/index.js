@@ -164,7 +164,7 @@ export default {
             }
 
             const productHolder = this.$refs.productHolder;
-            if (this.currentDeviceView === 'mobile' || (productHolder && productHolder.offsetWidth < 500)) {
+            if (this.currentDeviceView === 'mobile' || productHolder?.offsetWidth < 500) {
                 this.sliderBoxLimit = 1;
                 return;
             }

@@ -69,6 +69,8 @@
             max-height: 16px !important;
             width: 16px !important;
             height: 16px !important;
+            object-fit: contain !important;
+            object-position: center !important;
         }
     }
 }

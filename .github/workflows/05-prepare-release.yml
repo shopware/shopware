@@ -38,7 +38,7 @@ jobs:
 
       - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # 4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: build shopware
         run: |
@@ -50,6 +50,7 @@ jobs:
           include-hidden-files: true
           path: |
             .
+            !.git/config
             .github/
             !var/cache
             !tests/
@@ -63,9 +64,9 @@ jobs:
     if: github.repository == 'shopware/shopware' && github.ref_type == 'tag'
     env:
       GH_TOKEN: ${{ github.token }}
-      CHECK_REPOSITORY: 'shopware/recipes'
-      CHECK_WORKFLOW: 'nightly.yml'
-      CHECK_STATUS: 'success'
+      CHECK_REPOSITORY: "shopware/recipes"
+      CHECK_WORKFLOW: "nightly.yml"
+      CHECK_STATUS: "success"
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
@@ -82,6 +83,9 @@ jobs:
     # we use this image to get an older git version, which does not suffer from a performance regression
     container: node:alpine3.19
     if: github.repository == 'shopware/shopware'
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       matrix:
         package:
@@ -99,6 +103,13 @@ jobs:
       - uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # 4
         with:
           name: context
+
+      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
+        id: sts-shopware-split
+        with:
+          scope: shopware
+          identity: ShopwareSplit
+
       - name: Is protected
         if: github.ref_protected
         run: echo 'is protected'
@@ -153,12 +164,12 @@ jobs:
       - name: Push
         if: github.ref_type == 'tag' || github.ref_protected
         run: |
-          bash .github/bin/split.bash push "${{ matrix.package }}" https://git:${{ secrets.MANYREPO_SYNC_TOKEN }}@github.com/shopware "${{ github.ref_name }}"
+          bash .github/bin/split.bash push "${{ matrix.package }}" https://x-access-token:${{ steps.sts-shopware-split.outputs.token }}@github.com/shopware "${{ github.ref_name }}"
 
       - name: Push temporary branch
         if: github.ref_type != 'tag' && !github.ref_protected && !env.ACT
         run: |
-          bash .github/bin/split.bash push "${{ matrix.package }}" https://git:${{ secrets.MANYREPO_SYNC_TOKEN }}@github.com/shopware "tmp-${{ github.sha }}"
+          bash .github/bin/split.bash push "${{ matrix.package }}" https://x-access-token:${{ steps.sts-shopware-split.outputs.token }}@github.com/shopware "tmp-${{ github.sha }}"
 
   draft-release-notes:
     needs: split

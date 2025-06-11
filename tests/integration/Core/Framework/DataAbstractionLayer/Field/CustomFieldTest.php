@@ -109,26 +109,26 @@ class CustomFieldTest extends TestCase
         static::assertCount(2, $events->getPayloads());
 
         $expected = [$barId, $bazId];
-        static::assertEquals($expected, $events->getIds());
+        static::assertSame($expected, $events->getIds());
 
         $actual = $repo->search(new Criteria([$barId]), Context::createDefaultContext())->first();
         static::assertNotNull($actual);
-        static::assertEquals($barId, $actual->get('id'));
-        static::assertEquals($entities[0]['custom'], $actual->get('custom'));
+        static::assertSame($barId, $actual->get('id'));
+        static::assertSame($entities[0]['custom'], $actual->get('custom'));
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('custom.foo', 'bar'));
         $result = $repo->search($criteria, Context::createDefaultContext());
         $expected = [$barId];
 
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('custom.foo', 'baz'));
         $result = $repo->search($criteria, Context::createDefaultContext());
         $expected = [$bazId];
 
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getIds());
     }
 
     public function testPatchJson(): void
@@ -150,7 +150,7 @@ class CustomFieldTest extends TestCase
 
         $actual = $repo->search(new Criteria([$entity['id']]), Context::createDefaultContext())->first();
         static::assertNotNull($actual);
-        static::assertEquals($entity['custom'], $actual->get('custom'));
+        static::assertSame($entity['custom'], $actual->get('custom'));
 
         $patch = [
             'id' => $entity['id'],
@@ -200,7 +200,7 @@ class CustomFieldTest extends TestCase
 
         $actual = $repo->search(new Criteria([$entity['id']]), Context::createDefaultContext())->first();
         static::assertNotNull($actual);
-        static::assertEquals($entity['custom'], $actual->get('custom'));
+        static::assertSame($entity['custom'], $actual->get('custom'));
 
         $patch = [
             'id' => $entity['id'],
@@ -214,7 +214,7 @@ class CustomFieldTest extends TestCase
 
         $actual = $repo->search(new Criteria([$entity['id']]), Context::createDefaultContext())->first();
         static::assertNotNull($actual);
-        static::assertEquals($patch['custom'], $actual->get('custom'));
+        static::assertSame($patch['custom'], $actual->get('custom'));
     }
 
     public function testPatchEntityAndCustomFields(): void
@@ -234,7 +234,7 @@ class CustomFieldTest extends TestCase
 
         $actual = $repo->search(new Criteria([$entity['id']]), Context::createDefaultContext())->first();
         static::assertNotNull($actual);
-        static::assertEquals($entity['custom'], $actual->get('custom'));
+        static::assertSame($entity['custom'], $actual->get('custom'));
 
         $patch = [
             'id' => $entity['id'],
@@ -255,8 +255,8 @@ class CustomFieldTest extends TestCase
 
         $actual = $repo->search(new Criteria([$entity['id']]), Context::createDefaultContext())->first();
         static::assertNotNull($actual);
-        static::assertEquals($patch['name'], $actual->get('name'));
-        static::assertEquals($patch['custom'], $actual->get('custom'));
+        static::assertSame($patch['name'], $actual->get('name'));
+        static::assertSame($patch['custom'], $actual->get('custom'));
     }
 
     public function testSortingInt(): void
@@ -294,8 +294,8 @@ class CustomFieldTest extends TestCase
         $last = $result->last();
         static::assertNotNull($first);
         static::assertNotNull($last);
-        static::assertEquals(10, $first->get('custom')['int']);
-        static::assertEquals(2, $last->get('custom')['int']);
+        static::assertSame(10, $first->get('custom')['int']);
+        static::assertSame(2, $last->get('custom')['int']);
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('custom.int', FieldSorting::ASCENDING));
@@ -306,8 +306,8 @@ class CustomFieldTest extends TestCase
         $last = $result->last();
         static::assertNotNull($first);
         static::assertNotNull($last);
-        static::assertEquals(2, $first->get('custom')['int']);
-        static::assertEquals(10, $last->get('custom')['int']);
+        static::assertSame(2, $first->get('custom')['int']);
+        static::assertSame(10, $last->get('custom')['int']);
     }
 
     public function testSortingFloat(): void
@@ -347,8 +347,8 @@ class CustomFieldTest extends TestCase
         $last = $result->last();
         static::assertNotNull($first);
         static::assertNotNull($last);
-        static::assertEquals(10.0, $first->get('custom')['float']);
-        static::assertEquals(2.0, $last->get('custom')['float']);
+        static::assertSame(10.0, $first->get('custom')['float']);
+        static::assertSame(2.0, $last->get('custom')['float']);
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('custom.float', FieldSorting::ASCENDING));
@@ -360,8 +360,8 @@ class CustomFieldTest extends TestCase
         $last = $result->last();
         static::assertNotNull($first);
         static::assertNotNull($last);
-        static::assertEquals(2.0, $first->get('custom')['float']);
-        static::assertEquals(10.0, $last->get('custom')['float']);
+        static::assertSame(2.0, $first->get('custom')['float']);
+        static::assertSame(10.0, $last->get('custom')['float']);
     }
 
     public function testSortingDate(): void
@@ -405,8 +405,8 @@ class CustomFieldTest extends TestCase
 
         static::assertNotNull($first);
         static::assertNotNull($last);
-        static::assertEquals($laterDate->format(\DateTime::ATOM), $first->get('custom')['datetime']);
-        static::assertEquals($earlierDate->format(\DateTime::ATOM), $last->get('custom')['datetime']);
+        static::assertSame($laterDate->format(\DateTime::ATOM), $first->get('custom')['datetime']);
+        static::assertSame($earlierDate->format(\DateTime::ATOM), $last->get('custom')['datetime']);
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('custom.datetime', FieldSorting::ASCENDING));
@@ -418,8 +418,8 @@ class CustomFieldTest extends TestCase
         $last = $result->last();
         static::assertNotNull($first);
         static::assertNotNull($last);
-        static::assertEquals($earlierDate->format(\DateTime::ATOM), $first->get('custom')['datetime']);
-        static::assertEquals($laterDate->format(\DateTime::ATOM), $last->get('custom')['datetime']);
+        static::assertSame($earlierDate->format(\DateTime::ATOM), $first->get('custom')['datetime']);
+        static::assertSame($laterDate->format(\DateTime::ATOM), $last->get('custom')['datetime']);
     }
 
     public function testSortingDateTime(): void
@@ -455,10 +455,10 @@ class CustomFieldTest extends TestCase
 
         static::assertCount(4, $result);
 
-        static::assertEquals($dateTimes[3]->format(\DateTime::ATOM), $result[0]->get('custom')['datetime']);
-        static::assertEquals($dateTimes[2]->format(\DateTime::ATOM), $result[1]->get('custom')['datetime']);
-        static::assertEquals($dateTimes[1]->format(\DateTime::ATOM), $result[2]->get('custom')['datetime']);
-        static::assertEquals($dateTimes[0]->format(\DateTime::ATOM), $result[3]->get('custom')['datetime']);
+        static::assertSame($dateTimes[3]->format(\DateTime::ATOM), $result[0]->get('custom')['datetime']);
+        static::assertSame($dateTimes[2]->format(\DateTime::ATOM), $result[1]->get('custom')['datetime']);
+        static::assertSame($dateTimes[1]->format(\DateTime::ATOM), $result[2]->get('custom')['datetime']);
+        static::assertSame($dateTimes[0]->format(\DateTime::ATOM), $result[3]->get('custom')['datetime']);
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('custom.datetime', FieldSorting::ASCENDING));
@@ -466,10 +466,10 @@ class CustomFieldTest extends TestCase
 
         static::assertCount(4, $result);
 
-        static::assertEquals($dateTimes[0]->format(\DateTime::ATOM), $result[0]->get('custom')['datetime']);
-        static::assertEquals($dateTimes[1]->format(\DateTime::ATOM), $result[1]->get('custom')['datetime']);
-        static::assertEquals($dateTimes[2]->format(\DateTime::ATOM), $result[2]->get('custom')['datetime']);
-        static::assertEquals($dateTimes[3]->format(\DateTime::ATOM), $result[3]->get('custom')['datetime']);
+        static::assertSame($dateTimes[0]->format(\DateTime::ATOM), $result[0]->get('custom')['datetime']);
+        static::assertSame($dateTimes[1]->format(\DateTime::ATOM), $result[1]->get('custom')['datetime']);
+        static::assertSame($dateTimes[2]->format(\DateTime::ATOM), $result[2]->get('custom')['datetime']);
+        static::assertSame($dateTimes[3]->format(\DateTime::ATOM), $result[3]->get('custom')['datetime']);
     }
 
     public function testSortingString(): void
@@ -507,8 +507,8 @@ class CustomFieldTest extends TestCase
         $last = $result->last();
         static::assertNotNull($first);
         static::assertNotNull($last);
-        static::assertEquals('ab', $first->get('custom')['foo']);
-        static::assertEquals('a', $last->get('custom')['foo']);
+        static::assertSame('ab', $first->get('custom')['foo']);
+        static::assertSame('a', $last->get('custom')['foo']);
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('custom.foo', FieldSorting::ASCENDING));
@@ -519,8 +519,8 @@ class CustomFieldTest extends TestCase
         $last = $result->last();
         static::assertNotNull($first);
         static::assertNotNull($last);
-        static::assertEquals('a', $first->get('custom')['foo']);
-        static::assertEquals('ab', $last->get('custom')['foo']);
+        static::assertSame('a', $first->get('custom')['foo']);
+        static::assertSame('ab', $last->get('custom')['foo']);
     }
 
     public function testStringEqualsCriteria(): void
@@ -545,13 +545,13 @@ class CustomFieldTest extends TestCase
         $criteriaFalse->addFilter(new EqualsFilter('custom.string', 'a'));
         $result = $repo->search($criteriaFalse, Context::createDefaultContext());
         $expected = [$aId, $upperAId];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getIds());
 
         $criteriaFalse = new Criteria();
         $criteriaFalse->addFilter(new EqualsFilter('custom.string', 'A'));
         $result = $repo->search($criteriaFalse, Context::createDefaultContext());
         $expected = [$aId, $upperAId];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getIds());
     }
 
     public function testBooleanEqualsCriteria(): void
@@ -577,13 +577,13 @@ class CustomFieldTest extends TestCase
         $criteriaFalse->addFilter(new EqualsFilter('custom.bool', false));
         $result = $repo->search($criteriaFalse, Context::createDefaultContext());
         $expected = [$falseId];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getIds());
 
         $criteriaTrue = new Criteria();
         $criteriaTrue->addFilter(new EqualsFilter('custom.bool', true));
         $result = $repo->search($criteriaTrue, Context::createDefaultContext());
         $expected = [$trueId];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getIds());
 
         $criteriaTrue = new Criteria();
         $criteriaTrue->addFilter(new EqualsFilter('custom.bool', null));
@@ -615,19 +615,19 @@ class CustomFieldTest extends TestCase
         $criteriaFalse->addFilter(new EqualsFilter('custom.int', 10));
         $result = $repo->search($criteriaFalse, Context::createDefaultContext());
         $expected = [$intId];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getIds());
 
         $criteriaFalse = new Criteria();
         $criteriaFalse->addFilter(new EqualsFilter('custom.int', 10.0));
         $result = $repo->search($criteriaFalse, Context::createDefaultContext());
         $expected = [$intId];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getIds());
 
         $criteriaFalse = new Criteria();
         $criteriaFalse->addFilter(new EqualsFilter('custom.int', 0));
         $result = $repo->search($criteriaFalse, Context::createDefaultContext());
         $expected = [$zeroIntId];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getIds());
     }
 
     public function testFloatEqualsCriteria(): void
@@ -653,13 +653,13 @@ class CustomFieldTest extends TestCase
         $criteriaFalse->addFilter(new EqualsFilter('custom.float', 0.1));
         $result = $repo->search($criteriaFalse, Context::createDefaultContext());
         $expected = [$dotOneId];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getIds());
 
         $criteriaFalse = new Criteria();
         $criteriaFalse->addFilter(new EqualsFilter('custom.float', 0.099999999999999));
         $result = $repo->search($criteriaFalse, Context::createDefaultContext());
         $expected = [$almostDotOneId];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getIds());
     }
 
     public function testDateTimeEqualsCriteria(): void
@@ -688,19 +688,19 @@ class CustomFieldTest extends TestCase
         $criteriaFalse->addFilter(new EqualsFilter('custom.datetime', '1990-01-01'));
         $result = $repo->search($criteriaFalse, Context::createDefaultContext());
         $expected = $ids;
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getIds());
 
         $criteriaFalse = new Criteria();
         $criteriaFalse->addFilter(new EqualsFilter('custom.datetime', '1990-01-01T00:00:00.000000'));
         $result = $repo->search($criteriaFalse, Context::createDefaultContext());
         $expected = $ids;
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getIds());
 
         $criteriaNow = new Criteria();
         $criteriaNow->addFilter(new EqualsFilter('custom.datetime', $now));
         $result = $repo->search($criteriaNow, Context::createDefaultContext());
         $expected = [$nowId];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getIds());
     }
 
     public function testSetCustomFieldsOnNullColumn(): void
@@ -726,11 +726,11 @@ class CustomFieldTest extends TestCase
         $payload = $event->getPayloads()[0];
         unset($payload['updatedAt']);
 
-        static::assertEquals($expected, $payload);
+        static::assertSame($expected, $payload);
 
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
         static::assertNotNull($first);
-        static::assertEquals($update['custom'], $first->get('custom'));
+        static::assertSame($update['custom'], $first->get('custom'));
     }
 
     public function testSetCustomFieldsOnEmptyArray(): void
@@ -756,11 +756,11 @@ class CustomFieldTest extends TestCase
         $payload = $event->getPayloads()[0];
         unset($payload['updatedAt']);
 
-        static::assertEquals($expected, $payload);
+        static::assertSame($expected, $payload);
 
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
         static::assertNotNull($first);
-        static::assertEquals($update['custom'], $first->get('custom'));
+        static::assertSame($update['custom'], $first->get('custom'));
     }
 
     public function testSetCustomFieldsToNull(): void
@@ -807,7 +807,7 @@ class CustomFieldTest extends TestCase
 
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
         static::assertNotNull($first);
-        static::assertEquals([], $first->get('custom'));
+        static::assertSame([], $first->get('custom'));
     }
 
     public function testInheritance(): void
@@ -829,13 +829,13 @@ class CustomFieldTest extends TestCase
         $parent = $repo->search(new Criteria([$parentId]), $context)->first();
         static::assertInstanceOf(ArrayEntity::class, $parent);
 
-        static::assertEquals('parent', $parent->get('name'));
-        static::assertEquals(['foo' => 'bar'], $parent->get('custom'));
+        static::assertSame('parent', $parent->get('name'));
+        static::assertSame(['foo' => 'bar'], $parent->get('custom'));
 
         $child = $repo->search(new Criteria([$childId]), $context)->first();
         static::assertInstanceOf(ArrayEntity::class, $child);
 
-        static::assertEquals('child', $child->get('name'));
+        static::assertSame('child', $child->get('name'));
         static::assertNull($child->get('custom'));
 
         $criteria = new Criteria();
@@ -843,13 +843,13 @@ class CustomFieldTest extends TestCase
 
         $results = $repo->search($criteria, $context);
         $expected = [$parentId];
-        static::assertEquals(array_combine($expected, $expected), $results->getIds());
+        static::assertSame(array_combine($expected, $expected), $results->getIds());
 
         $parent = $repo->search(new Criteria([$parentId]), $context)->first();
         static::assertInstanceOf(ArrayEntity::class, $parent);
 
-        static::assertEquals('parent', $parent->get('name'));
-        static::assertEquals(['foo' => 'bar'], $parent->get('custom'));
+        static::assertSame('parent', $parent->get('name'));
+        static::assertSame(['foo' => 'bar'], $parent->get('custom'));
 
         $criteria = new Criteria([$childId]);
 
@@ -857,15 +857,15 @@ class CustomFieldTest extends TestCase
         $child = $repo->search($criteria, $context)->first();
         static::assertNotNull($child);
 
-        static::assertEquals('child', $child->get('name'));
-        static::assertEquals(['foo' => 'bar'], $child->get('custom'));
+        static::assertSame('child', $child->get('name'));
+        static::assertSame(['foo' => 'bar'], $child->get('custom'));
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('custom.foo', 'bar'));
 
         $results = $repo->search($criteria, $context);
         $expected = [$parentId, $childId];
-        static::assertEquals(array_combine($expected, $expected), $results->getIds());
+        static::assertSame(array_combine($expected, $expected), $results->getIds());
     }
 
     public function testInheritanceCustomFieldsAreMerged(): void
@@ -887,40 +887,40 @@ class CustomFieldTest extends TestCase
         $parent = $repo->search(new Criteria([$parentId]), $context)->first();
         static::assertInstanceOf(ArrayEntity::class, $parent);
 
-        static::assertEquals('parent', $parent->get('name'));
-        static::assertEquals(['foo' => 'bar'], $parent->get('custom'));
-        static::assertEquals('parent', $parent->get('name'));
-        static::assertEquals(['foo' => 'bar'], $parent->get('custom'));
+        static::assertSame('parent', $parent->get('name'));
+        static::assertSame(['foo' => 'bar'], $parent->get('custom'));
+        static::assertSame('parent', $parent->get('name'));
+        static::assertSame(['foo' => 'bar'], $parent->get('custom'));
 
         $criteria = new Criteria([$childId]);
         $context->setConsiderInheritance(true);
         $child = $repo->search($criteria, $context)->first();
 
         static::assertNotNull($child);
-        static::assertEquals('child', $child->get('name'));
-        static::assertEquals('child', $child->get('name'));
-        static::assertEquals(['foo' => 'bar'], $child->get('custom'));
+        static::assertSame('child', $child->get('name'));
+        static::assertSame('child', $child->get('name'));
+        static::assertSame(['foo' => 'bar'], $child->get('custom'));
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('custom.foo', 'bar'));
         $results = $repo->search($criteria, $context);
         $expected = [$parentId, $childId];
-        static::assertEquals(array_combine($expected, $expected), $results->getIds());
+        static::assertSame(array_combine($expected, $expected), $results->getIds());
 
         $context->setConsiderInheritance(false);
         $child = $repo->search(new Criteria([$childId]), $context)->first();
         static::assertNotNull($child);
 
-        static::assertEquals('child', $child->get('name'));
+        static::assertSame('child', $child->get('name'));
         static::assertNull($child->get('custom'));
-        static::assertEquals('child', $child->get('name'));
+        static::assertSame('child', $child->get('name'));
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('custom.foo', 'bar'));
 
         $results = $repo->search($criteria, $context);
         $expected = [$parentId];
-        static::assertEquals(array_combine($expected, $expected), $results->getIds());
+        static::assertSame(array_combine($expected, $expected), $results->getIds());
     }
 
     public function testCustomFieldAssoc(): void
@@ -937,7 +937,7 @@ class CustomFieldTest extends TestCase
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
 
         static::assertNotEmpty($first);
-        static::assertEquals(['assoc' => ['foo' => 'bar']], $first->get('custom'));
+        static::assertSame(['assoc' => ['foo' => 'bar']], $first->get('custom'));
 
         $patch = [
             'id' => $id,
@@ -948,7 +948,7 @@ class CustomFieldTest extends TestCase
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
 
         static::assertNotEmpty($first);
-        static::assertEquals(['assoc' => ['foo' => 'baz']], $first->get('custom'));
+        static::assertSame(['assoc' => ['foo' => 'baz']], $first->get('custom'));
     }
 
     public function testCustomFieldPrice(): void
@@ -1013,7 +1013,7 @@ class CustomFieldTest extends TestCase
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
 
         static::assertNotEmpty($first);
-        static::assertEquals(['array' => ['foo', 'bar']], $first->get('custom'));
+        static::assertSame(['array' => ['foo', 'bar']], $first->get('custom'));
 
         $patch = [
             'id' => $id,
@@ -1024,7 +1024,7 @@ class CustomFieldTest extends TestCase
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
 
         static::assertNotEmpty($first);
-        static::assertEquals(['array' => ['bar', 'baz']], $first->get('custom'));
+        static::assertSame(['array' => ['bar', 'baz']], $first->get('custom'));
     }
 
     public function testUpdateDecodedCorrectly(): void
@@ -1095,7 +1095,7 @@ class CustomFieldTest extends TestCase
 
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
         $encoded = json_decode(json_encode($first, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals($dateTime->format(\DateTime::ATOM), $encoded['custom']['date']);
+        static::assertSame($dateTime->format(\DateTime::ATOM), $encoded['custom']['date']);
     }
 
     public function testJsonEncodeNestedDateTime(): void
@@ -1115,7 +1115,7 @@ class CustomFieldTest extends TestCase
 
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
         $encoded = json_decode(json_encode($first, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals($dateTime->format(\DateTime::ATOM), $encoded['custom']['json']['date']);
+        static::assertSame($dateTime->format(\DateTime::ATOM), $encoded['custom']['json']['date']);
     }
 
     /**

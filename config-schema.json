@@ -314,6 +314,22 @@
                     "type": "boolean",
                     "title": "Enforce the message size to 256KB, bigger messages will be rejected with an exception",
                     "default": false
+                },
+                "stats": {
+                    "type": ["object", "null"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "title": "Enable the messenger stats collection",
+                            "default": false
+                        },
+                        "time_span": {
+                            "type": "integer",
+                            "title": "The time span in seconds for the messenger stats. Be aware that high values can slow down message processing",
+                            "default": 300
+                        }
+                    }
                 }
             }
         },
@@ -1242,11 +1258,6 @@
                         },
                         "available_theme_provider": {
                             "type": "string"
-                        },
-                        "file_delete_delay": {
-                            "type": "integer",
-                            "description": "Delay in seconds until old theme files will be deleted after a new theme compile",
-                            "default": 900
                         }
                     },
                     "title": "Theme loader configuration"

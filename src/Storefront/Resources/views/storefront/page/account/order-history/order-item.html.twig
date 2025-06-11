@@ -18,8 +18,11 @@
             ] %}
 
             {% set orderState = order.stateMachineState.technicalName %}
-            {% set orderPaymentState = order.transactions.last.stateMachineState.technicalName %}
-
+            {% if feature('v6.8.0.0') %}
+                {% set orderPaymentState = order.primaryOrderTransaction.stateMachineState.technicalName %}
+            {% else %}
+                {% set orderPaymentState = order.transactions.last.stateMachineState.technicalName %}
+            {% endif %}
             {% set isPaymentNeeded = orderPaymentState in states and orderState != ORDER_STATE_CANCELLED %}
 
             <div class="row flex-wrap">
@@ -180,7 +183,8 @@
                 {% block page_account_order_item_order_table_header %}
                     <div class="col-12 row order-table-header-order-table-header" aria-hidden="true">
                         {% block page_account_order_item_order_table_header_cell_shipping_status %}
-                            {% if order.deliveries|length > 0 %}
+                            {# @deprecated tag:v6.8.0 - If condition `order.deliveries|length > 0` will be removed. If condition `order.primaryOrderDelivery` will remain in use. #}
+                            {% if order.deliveries|length > 0 or order.primaryOrderDelivery %}
                                 <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ 'account.orderShippingStatus'|trans|sw_sanitize }}</div>
                             {% endif %}
                         {% endblock %}
@@ -194,7 +198,8 @@
                         {% endblock %}
 
                         {% block page_account_order_item_order_table_header_cell_shipping_method %}
-                            {% if order.deliveries|length > 0 %}
+                            {# @deprecated tag:v6.8.0 - If condition `order.deliveries|length > 0` will be removed. If condition `order.primaryOrderDelivery` will remain in use. #}
+                            {% if order.deliveries|length > 0 or order.primaryOrderDelivery %}
                                 <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ 'account.orderShippingMethod'|trans|sw_sanitize }}</div>
                             {% endif %}
                         {% endblock %}
@@ -210,12 +215,17 @@
                 {% block page_account_order_item_order_table_body %}
                     <div class="col-12 row order-table-header-order-table-body">
                         {% block page_account_order_item_order_table_body_cell_shipping_status %}
-                            {% if order.deliveries|length > 0 %}
+                            {# @deprecated tag:v6.8.0 - If condition `order.deliveries|length > 0` will be removed. If condition `order.primaryOrderDelivery` will remain in use. #}
+                            {% if order.deliveries|length > 0 or order.primaryOrderDelivery %}
                                 <div class="col-12 col-sm order-table-header-order-table-body-cell">
                                     <strong class="order-table-header-label">
                                         {{ 'account.orderShippingStatus'|trans|sw_sanitize }}{{ 'account.colonCharacter'|trans|sw_sanitize }}
                                     </strong>
-                                    <span class="order-table-body-value">{{ order.deliveries|first.stateMachineState.translated.name }}</span>
+                                    {% if feature('v6.8.0.0') %}
+                                        <span class="order-table-body-value">{{ order.primaryOrderDelivery.stateMachineState.translated.name }}</span>
+                                    {% else %}
+                                        <span class="order-table-body-value">{{ order.deliveries|first.stateMachineState.translated.name }}</span>
+                                    {% endif %}
                                 </div>
                             {% endif %}
                         {% endblock %}
@@ -225,7 +235,11 @@
                                 <strong class="order-table-header-label">
                                     {{ 'account.orderPaymentStatus'|trans|sw_sanitize }}{{ 'account.colonCharacter'|trans|sw_sanitize }}
                                 </strong>
-                                <span class="order-table-body-value">{{ order.transactions|last.stateMachineState.translated.name }}</span>
+                                {% if feature('v6.8.0.0') %}
+                                    <span class="order-table-body-value">{{ order.primaryOrderTransaction.stateMachineState.translated.name }}</span>
+                                {% else %}
+                                    <span class="order-table-body-value">{{ order.transactions|last.stateMachineState.translated.name }}</span>
+                                {% endif %}
                             </div>
                         {% endblock %}
 
@@ -234,17 +248,26 @@
                                 <strong class="order-table-header-label">
                                     {{ 'account.orderPaymentMethod'|trans|sw_sanitize }}{{ 'account.colonCharacter'|trans|sw_sanitize }}
                                 </strong>
-                                <span class="order-table-body-value">{{ order.transactions|last.paymentMethod.translated.name }}</span>
+                                {% if feature('v6.8.0.0') %}
+                                    <span class="order-table-body-value">{{ order.primaryOrderTransaction.paymentMethod.translated.name }}</span>
+                                {% else %}
+                                    <span class="order-table-body-value">{{ order.transactions|last.paymentMethod.translated.name }}</span>
+                                {% endif %}
                             </div>
                         {% endblock %}
 
                         {% block page_account_order_item_order_table_body_cell_shipping_method %}
-                            {% if order.deliveries|length > 0 %}
+                            {# @deprecated tag:v6.8.0 - If condition `order.deliveries|length > 0` will be removed. If condition `order.primaryOrderDelivery` will remain in use. #}
+                            {% if order.deliveries|length > 0 or order.primaryOrderDelivery %}
                                 <div class="col-12 col-sm order-table-header-order-table-body-cell">
                                     <strong class="order-table-header-label">
                                         {{ 'account.orderShippingMethod'|trans|sw_sanitize }}{{ 'account.colonCharacter'|trans|sw_sanitize }}
                                     </strong>
-                                    <span class="order-table-body-value">{{ order.deliveries|first.shippingMethod.translated.name }}</span>
+                                    {% if feature('v6.8.0.0') %}
+                                        <span class="order-table-body-value">{{ order.primaryOrderDelivery.shippingMethod.translated.name }}</span>
+                                    {% else %}
+                                        <span class="order-table-body-value">{{ order.deliveries|first.shippingMethod.translated.name }}</span>
+                                    {% endif %}
                                 </div>
                             {% endif %}
                         {% endblock %}
@@ -256,7 +279,7 @@
                                             data-bs-toggle="collapse"
                                             data-bs-target="#order{{ order.orderNumber }}"
                                             aria-expanded="false"
-                                            aria-controls="collapseExample">
+                                            aria-controls="order{{ order.orderNumber }}">
                                         {% block page_account_order_item_order_table_body_cell_toggle_order_details_button_text %}
                                             <span class="order-hide-btn-text">{{ 'account.orderActionHide'|trans|sw_sanitize }}</span>
                                             <span class="order-view-btn-text">{{ 'account.orderActionView'|trans|sw_sanitize }}</span>

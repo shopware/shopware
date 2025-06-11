@@ -55,7 +55,7 @@ class FrwRequestOptionsProviderTest extends TestCase
         $headers = $this->optionsProvider->getAuthenticationHeader($this->context);
 
         static::assertArrayHasKey('X-Shopware-Token', $headers);
-        static::assertEquals($frwUserToken, $headers['X-Shopware-Token']);
+        static::assertSame($frwUserToken, $headers['X-Shopware-Token']);
     }
 
     public function testRemovesEmptyAuthenticationHeaderIfFrwUserTokenIsNotSet(): void

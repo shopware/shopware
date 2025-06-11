@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Checkout\Document\Zugferd;
 
+use horstoeko\zugferd\codelistsenum\ZugferdPaymentMeans;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdProfiles;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentException;
@@ -12,7 +14,9 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -23,7 +27,8 @@ class ZugferdBuilder
      * @internal
      */
     public function __construct(
-        protected EventDispatcherInterface $eventDispatcher
+        protected EventDispatcherInterface $eventDispatcher,
+        protected AmountCalculator $calculator
     ) {
     }
 
@@ -39,7 +44,12 @@ class ZugferdBuilder
             throw DocumentException::generationError('Customer not found');
         }
 
-        $deliveryDate = $order->getDeliveries()?->first()?->getShippingDateLatest();
+        $deliveryDate = $order->getPrimaryOrderDelivery()?->getShippingDateLatest();
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $deliveryDate = $order->getDeliveries()?->first()?->getShippingDateLatest();
+        }
+
         if ($deliveryDate instanceof \DateTimeImmutable) {
             $deliveryDate = \DateTime::createFromImmutable($deliveryDate);
         }
@@ -50,13 +60,26 @@ class ZugferdBuilder
             ->withSellerInformation($config)
             ->withDelivery($order->getDeliveries() ?? new OrderDeliveryCollection())
             ->withTaxes($order->getPrice())
-            ->withGeneralOrderData($deliveryDate, $config->getDocumentDate() ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '');
+            ->withGeneralOrderData($deliveryDate, $config->getDocumentDate() ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '')
+            ->withBuyerReference($order->getOrderNumber() ?? '');
 
         $this->addLineItems($document, $order->getLineItems());
 
+        $transaction = $order->getTransactions()?->last();
+        if ($transaction !== null) {
+            if ($transaction->getStateMachineState()?->getTechnicalName() === 'paid') {
+                $document->withPaidAmount($order->getAmountTotal());
+            }
+
+            $paymentMethod = $transaction->getPaymentMethod();
+            if ($paymentMethod !== null) {
+                $this->addPaymentInfo($document, $config, $paymentMethod);
+            }
+        }
+
         $this->eventDispatcher->dispatch(new ZugferdInvoiceGeneratedEvent($document, $order, $config, $context));
 
-        return $document->getContent($order);
+        return $document->getContent($order, $this->calculator);
     }
 
     protected function addLineItems(ZugferdDocument $document, ?OrderLineItemCollection $lineItems, string $parentPosition = ''): self
@@ -82,5 +105,22 @@ class ZugferdBuilder
         };
 
         $this->eventDispatcher->dispatch(new ZugferdInvoiceItemAddedEvent($document, $lineItem, $parentPosition), 'zugferd-item-added.' . $lineItem->getType());
+    }
+
+    private function addPaymentInfo(ZugferdDocument $document, DocumentConfiguration $config, PaymentMethodEntity $paymentMethod): void
+    {
+        if ($paymentMethod->getTechnicalName() === 'payment_cashpayment') {
+            $document->getBuilder()->addDocumentPaymentMean(
+                typeCode: (string) ZugferdPaymentMeans::UNTDID_4461_10->value,
+                information: $paymentMethod->getName()
+            );
+        } elseif ($paymentMethod->getTechnicalName() === 'payment_invoicepayment' || $paymentMethod->getTechnicalName() === 'payment_prepayment') {
+            $document->getBuilder()->addDocumentPaymentMean(
+                typeCode: (string) ZugferdPaymentMeans::UNTDID_4461_30->value,
+                information: $paymentMethod->getName(),
+                payeeIban: $config->getBankIban(),
+                payeeBic: $config->getBankBic()
+            );
+        }
     }
 }

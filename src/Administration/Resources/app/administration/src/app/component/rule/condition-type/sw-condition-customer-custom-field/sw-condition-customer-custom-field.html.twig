@@ -22,7 +22,15 @@
 
         <template #result-description-property="slotProps">
             {% block sw_condition_customer_custom_field_field_description %}
-            {{ getInlineSnippet(slotProps.item.customFieldSet.config.label) || slotProps.item.customFieldSet.name }}
+            <span
+                v-if="getFieldDescription(slotProps.item).length > 20"
+                :title="getFieldDescription(slotProps.item)"
+            >
+                {{ truncateFilter(getFieldDescription(slotProps.item), 20) }}
+            </span>
+            <template v-else>
+                {{ getFieldDescription(slotProps.item) }}
+            </template>
             {% endblock %}
         </template>
     </sw-entity-single-select>

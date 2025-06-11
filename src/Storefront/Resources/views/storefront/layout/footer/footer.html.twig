@@ -73,8 +73,8 @@
                                         {% if root.category.type == 'folder' %}
                                             {{ root.category.translated.name }}
                                         {% else %}
-                                            <a href="{{ category_url(root.category) }}"
-                                               {% if category_linknewtab(root.category) %}target="_blank"{% endif %}
+                                            <a href="{{ root.category.seoUrl }}"
+                                               {% if root.category.shouldOpenInNewTab %}target="_blank"{% endif %}
                                                title="{{ root.category.translated.name }}">
                                                 {{ root.category.translated.name }}
                                             </a>
@@ -122,8 +122,8 @@
                                                                         <div>{{ name }}</div>
                                                                     {% else %}
                                                                         <a class="footer-link"
-                                                                           href="{{ category_url(category) }}"
-                                                                           {% if category_linknewtab(category) %}target="_blank"{% endif %}
+                                                                           href="{{ category.seoUrl }}"
+                                                                           {% if category.shouldOpenInNewTab %}target="_blank"{% endif %}
                                                                            title="{{ name }}">
                                                                             {{ name }}
                                                                         </a>
@@ -203,8 +203,8 @@
                                 {% block layout_footer_service_menu_item %}
                                     <li class="footer-service-menu-item">
                                         <a class="footer-service-menu-link"
-                                           href="{{ category_url(serviceMenuItem) }}"
-                                           {% if category_linknewtab(serviceMenuItem) %}target="_blank"{% endif %}
+                                           href="{{ serviceMenuItem.seoUrl }}"
+                                           {% if serviceMenuItem.shouldOpenInNewTab %}target="_blank"{% endif %}
                                            title="{{ serviceMenuItem.translated.name }}">
                                             {{ serviceMenuItem.translated.name }}
                                         </a>

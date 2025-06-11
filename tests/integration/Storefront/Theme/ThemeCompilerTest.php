@@ -48,7 +48,6 @@ use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimplePlugin\SimplePlug
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Messenger\MessageBus;
 
 /**
  * @internal
@@ -90,8 +89,8 @@ class ThemeCompilerTest extends TestCase
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
-            new MessageBus(),
-            0,
+            [],
+            false
         );
     }
 
@@ -433,8 +432,8 @@ PHP_EOL;
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
-            new MessageBus(),
-            0,
+            [],
+            false
         );
 
         try {

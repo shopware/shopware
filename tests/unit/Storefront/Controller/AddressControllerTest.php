@@ -140,7 +140,7 @@ class AddressControllerTest extends TestCase
 
         $this->expectException(RoutingException::class);
 
-        $this->controller->checkoutSwitchDefaultAddress($dataBag, Generator::generateSalesChannelContext(), $customer);
+        $this->controller->checkoutSwitchDefaultAddress(new Request(), $dataBag, Generator::generateSalesChannelContext(), $customer);
     }
 
     public function testCheckoutSwitchDefaultShippingAddress(): void
@@ -170,10 +170,11 @@ class AddressControllerTest extends TestCase
             ->expects($this->once())
             ->method('get');
 
-        $response = $this->controller->checkoutSwitchDefaultAddress($dataBag, $context, $customer);
+        $response = $this->controller->checkoutSwitchDefaultAddress(new Request(), $dataBag, $context, $customer);
 
+        static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertSame('url:frontend.account.addressmanager.get', $response->getTargetUrl());
+        static::assertSame('frontend.account.addressmanager.get', $response->getTargetUrl());
     }
 
     public function testCheckoutSwitchDefaultBillingAddress(): void
@@ -203,10 +204,11 @@ class AddressControllerTest extends TestCase
             ->expects($this->once())
             ->method('get');
 
-        $response = $this->controller->checkoutSwitchDefaultAddress($dataBag, $context, $customer);
+        $response = $this->controller->checkoutSwitchDefaultAddress(new Request(), $dataBag, $context, $customer);
 
+        static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertSame('url:frontend.account.addressmanager.get', $response->getTargetUrl());
+        static::assertSame('frontend.account.addressmanager.get', $response->getTargetUrl());
     }
 
     public function testAddressManagerSwitchShippingDataBag(): void
@@ -214,8 +216,8 @@ class AddressControllerTest extends TestCase
         $id = Uuid::randomHex();
         $context = Generator::generateSalesChannelContext();
 
-        $dataBag = new RequestDataBag();
-        $dataBag->set(SalesChannelContextService::SHIPPING_ADDRESS_ID, $id);
+        $request = new Request();
+        $request->request->set(SalesChannelContextService::SHIPPING_ADDRESS_ID, $id);
 
         $this->contextSwitchRoute
             ->expects($this->once())
@@ -231,7 +233,7 @@ class AddressControllerTest extends TestCase
                 $context
             );
 
-        $this->controller->addressManagerSwitch($dataBag, $context);
+        $this->controller->addressManagerSwitch($request, $context);
     }
 
     public function testSwitchDefaultShippingAddress(): void
@@ -255,8 +257,8 @@ class AddressControllerTest extends TestCase
         $id = Uuid::randomHex();
         $context = Generator::generateSalesChannelContext();
 
-        $dataBag = new RequestDataBag();
-        $dataBag->set(SalesChannelContextService::BILLING_ADDRESS_ID, $id);
+        $request = new Request();
+        $request->request->set(SalesChannelContextService::BILLING_ADDRESS_ID, $id);
 
         $this->contextSwitchRoute
             ->expects($this->once())
@@ -272,7 +274,7 @@ class AddressControllerTest extends TestCase
                 $context
             );
 
-        $this->controller->addressManagerSwitch($dataBag, $context);
+        $this->controller->addressManagerSwitch($request, $context);
     }
 
     public function testSwitchDefaultAddressWithInvalidIdThrowsException(): void
@@ -353,7 +355,7 @@ class AddressControllerTest extends TestCase
         static::assertInstanceOf(RedirectResponse::class, $response);
 
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertSame('url:frontend.account.address.page', $response->getTargetUrl());
+        static::assertSame('frontend.account.address.page', $response->getTargetUrl());
     }
 
     public function testSaveAddressWithId(): void
@@ -422,7 +424,7 @@ class AddressControllerTest extends TestCase
         );
 
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertSame('url:frontend.account.address.page', $response->getTargetUrl());
+        static::assertSame('frontend.account.address.page', $response->getTargetUrl());
     }
 
     public function testDeleteAddressWithInvalidIdThrowsException(): void
@@ -446,7 +448,7 @@ class AddressControllerTest extends TestCase
         );
 
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertSame('url:frontend.account.address.page', $response->getTargetUrl());
+        static::assertSame('frontend.account.address.page', $response->getTargetUrl());
     }
 
     public function testAddressManager(): void

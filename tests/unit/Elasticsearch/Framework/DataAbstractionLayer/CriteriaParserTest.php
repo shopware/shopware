@@ -663,6 +663,22 @@ EOT,
             ],
         ];
 
+        yield 'EqualsFilter translated custom field' => [
+            new EqualsFilter('customFields.foo', null),
+            [
+                'bool' => [
+                    'must_not' => [
+                        [
+                            'exists' => ['field' => 'customFields.' . self::SECOND_LANGUAGE . '.foo'],
+                        ],
+                        [
+                            'exists' => ['field' => 'customFields.' . Defaults::LANGUAGE_SYSTEM . '.foo'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
         yield 'MultiFilter with translated custom field' => [
             new MultiFilter('AND', [
                 new EqualsFilter('customFields.foo', 'fooValue'),
@@ -689,6 +705,71 @@ EOT,
                                     'customFields.' . Defaults::LANGUAGE_SYSTEM . '.bar',
                                 ],
                                 'type' => 'best_fields',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'EqualsFilter cheapestPrice.percentage field' => [
+            new EqualsFilter('product.cheapestPrice.percentage', 10),
+            [
+                'script' => [
+                    'script' => [
+                        'inline' => <<<EOT
+String getPercentageKey(def accessors, def doc) {
+    for (accessor in accessors) {
+        def key = accessor['key'];
+        if (!doc.containsKey(key) || doc[key].empty) {
+            continue;
+        }
+
+        return key;
+    }
+
+    return '';
+}
+
+def percentageKey = getPercentageKey(params['accessors'], doc);
+
+if (percentageKey == '') {
+    if (params.containsKey('eq') && params['eq'] === null) {
+        return true;
+    }
+
+    return false;
+}
+
+def percentage = (double) doc[percentageKey].value;
+
+def match = true;
+if (params.containsKey('eq')) {
+    match = match && percentage == params['eq'];
+}
+if (params.containsKey('gte')) {
+    match = match && percentage >= params['gte'];
+}
+if (params.containsKey('gt')) {
+    match = match && percentage > params['gt'];
+}
+if (params.containsKey('lte')) {
+    match = match && percentage <= params['lte'];
+}
+if (params.containsKey('lt')) {
+    match = match && percentage < params['lt'];
+}
+
+return match;
+
+EOT,
+                        'params' => [
+                            'eq' => 10.0,
+                            'accessors' => [
+                                [
+                                    'key' => 'cheapest_price_ruledefault_currencyb7d2554b0ce847cd82f3ac9bd1c0dfca_gross_percentage',
+                                    'factor' => 1,
+                                ],
                             ],
                         ],
                     ],

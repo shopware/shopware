@@ -1,10 +1,12 @@
 {% sw_extends '@Storefront/storefront/page/checkout/confirm/index.html.twig' %}
 
-{% block base_header %}
+{% block base_esi_header %}
     {% sw_include '@Storefront/storefront/page/account/order/header.html.twig' %}
 {% endblock %}
 
 {% set orderState = page.order.stateMachineState.technicalName %}
+{% set showTaxPrice = config('core.cart.columnTaxInsteadUnitPrice') %}
+{% set showSubtotal = config('core.cart.showSubtotal') %}
 
 {% block page_checkout_confirm_header %}
     {% if page.errorCode == 'CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT' %}
@@ -66,8 +68,9 @@
 
 {% block page_checkout_confirm_table_header %}
     {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' with {
-        showTaxPrice: true,
-        showRemoveColumn: false
+        showTaxPrice: showTaxPrice,
+        showRemoveColumn: false,
+        showSubtotal: showSubtotal
     } %}
 {% endblock %}
 
@@ -76,8 +79,9 @@
         {% block page_checkout_confirm_table_item %}
             {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
                 redirectTo: 'frontend.checkout.confirm.page',
-                showTaxPrice: true,
-                showRemoveButton: false
+                showTaxPrice: showTaxPrice,
+                showRemoveButton: false,
+                showSubtotal: showSubtotal
             } %}
         {% endblock %}
     {% endfor %}
@@ -117,7 +121,7 @@
         </form>
 
         {% block page_checkout_aside_cancel_order_modal_toggle %}
-            {% if page.order.stateMachineState.technicalName != 'cancelled' and config('core.cart.enableOrderRefunds') %}
+            {% if orderState != 'cancelled' and config('core.cart.enableOrderRefunds') %}
                 <button type="button"
                         class="btn btn-light btn-block edit-order-cancel-order-modal-toggle-btn mt-3"
                         data-bs-toggle="modal"
@@ -127,12 +131,14 @@
             {% endif %}
         {% endblock %}
 
-        {% if orderState != 'cancelled' %}
-            {% sw_include '@Storefront/storefront/page/account/order/cancel-order-modal.html.twig' %}
-        {% endif %}
+        {% block page_checkout_aside_cancel_order_modal_content %}
+            {% if orderState != 'cancelled' and config('core.cart.enableOrderRefunds') %}
+                {% sw_include '@Storefront/storefront/page/account/order/cancel-order-modal.html.twig' %}
+            {% endif %}
+        {% endblock %}
     </div>
 {% endblock %}
 
-{% block base_footer %}
+{% block base_esi_footer %}
     {% sw_include '@Storefront/storefront/layout/footer/footer-minimal.html.twig' %}
 {% endblock %}

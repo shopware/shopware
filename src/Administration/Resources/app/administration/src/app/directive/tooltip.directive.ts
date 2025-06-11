@@ -443,7 +443,7 @@ function createOrUpdateTooltip(
     },
 ) {
     let message: string = typeof value === 'string' ? value : value.message;
-    message = message ? message.trim() : '';
+    message = message ? message?.trim?.() : '';
 
     const placement = value.position || Object.keys(modifiers)[0];
     const showDelay = value.showDelay;

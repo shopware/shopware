@@ -38,22 +38,22 @@ class MessageQueueStatsSubscriberTest extends TestCase
         $bus->dispatch(new BarMessage());
 
         $stats = $pool->list('message_queue_stats');
-        static::assertEquals(1, $stats[FooMessage::class]['count']);
-        static::assertEquals(3, $stats[BarMessage::class]['count']);
+        static::assertSame(1, $stats[FooMessage::class]['count']);
+        static::assertSame(3, $stats[BarMessage::class]['count']);
 
         $this->runWorker();
 
         $stats = $pool->list('message_queue_stats');
-        static::assertEquals(0, $stats[FooMessage::class]['count']);
-        static::assertEquals(0, $stats[BarMessage::class]['count']);
+        static::assertSame(0, $stats[FooMessage::class]['count']);
+        static::assertSame(0, $stats[BarMessage::class]['count']);
 
         $bus->dispatch(new NoHandlerMessage());
 
         $stats = $pool->list('message_queue_stats');
-        static::assertEquals(1, $stats[NoHandlerMessage::class]['count']);
+        static::assertSame(1, $stats[NoHandlerMessage::class]['count']);
 
         $this->runWorker();
         $stats = $pool->list('message_queue_stats');
-        static::assertEquals(0, $stats[NoHandlerMessage::class]['count']);
+        static::assertSame(0, $stats[NoHandlerMessage::class]['count']);
     }
 }

@@ -29,6 +29,14 @@ export default {
             from: 'swOrderDetailOnSaveAndRecalculate',
             default: null,
         },
+        swOrderDetailOnReloadEntityData: {
+            from: 'swOrderDetailOnReloadEntityData',
+            default: null,
+        },
+        swOrderDetailOnError: {
+            from: 'swOrderDetailOnError',
+            default: null,
+        },
         acl: {
             from: 'acl',
             default: null,
@@ -39,6 +47,9 @@ export default {
         'save-and-recalculate',
         'save-edits',
         'recalculate-and-reload',
+        'save-and-reload',
+        'reload-entity-data',
+        'error',
     ],
 
     mixins: [
@@ -51,9 +62,11 @@ export default {
             required: true,
         },
 
+        /** @deprecated tag:v6.8.0 - will be removed without replacement */
         isSaveSuccessful: {
             type: Boolean,
-            required: true,
+            required: false,
+            default: false,
         },
     },
 
@@ -64,18 +77,29 @@ export default {
     },
 
     computed: {
+        /** @deprecated tag:v6.8.0 - will be removed, use loading.order instead */
         isLoading: () => Store.get('swOrderDetail').isLoading,
+
+        loading: () => Store.get('swOrderDetail').loading,
 
         order: () => Store.get('swOrderDetail').order,
 
         versionContext: () => Store.get('swOrderDetail').versionContext,
 
         delivery() {
-            return this.order.deliveries[0];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.order.deliveries[0];
+            }
+
+            return this.order.primaryOrderDelivery;
         },
 
         deliveryDiscounts() {
-            return array.slice(this.order.deliveries, 1) || [];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return array.slice(this.order.deliveries, 1) || [];
+            }
+
+            return this.order.deliveries.filter((delivery) => delivery.id !== this.order.primaryOrderDeliveryId);
         },
 
         shippingCostsDetail() {
@@ -137,8 +161,10 @@ export default {
         },
 
         onShippingChargeEdited() {
-            this.delivery.shippingCosts.unitPrice = this.shippingCosts;
-            this.delivery.shippingCosts.totalPrice = this.shippingCosts;
+            if (this.shippingCosts >= 0) {
+                this.delivery.shippingCosts.unitPrice = this.shippingCosts;
+                this.delivery.shippingCosts.totalPrice = this.shippingCosts;
+            }
 
             this.saveAndRecalculate();
         },
@@ -148,26 +174,60 @@ export default {
         },
 
         saveAndRecalculate() {
-            this.$emit('save-and-recalculate');
-
             if (this.swOrderDetailOnSaveAndRecalculate) {
                 this.swOrderDetailOnSaveAndRecalculate();
+            } else {
+                this.$emit('save-and-recalculate');
             }
         },
 
         onSaveEdits() {
-            this.$emit('save-edits');
-
             if (this.swOrderDetailOnSaveEdits) {
                 this.swOrderDetailOnSaveEdits();
+            } else {
+                this.$emit('save-edits');
             }
         },
 
         recalculateAndReload() {
-            this.$emit('recalculate-and-reload');
-
             if (this.swOrderDetailOnRecalculateAndReload) {
                 this.swOrderDetailOnRecalculateAndReload();
+            } else {
+                this.$emit('recalculate-and-reload');
+            }
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
+        updateLoading(loadingValue) {
+            Store.get('swOrderDetail').setLoading([
+                'order',
+                loadingValue,
+            ]);
+        },
+
+        reloadEntityData() {
+            if (this.swOrderDetailOnReloadEntityData) {
+                this.swOrderDetailOnReloadEntityData();
+            } else {
+                this.$emit('reload-entity-data');
+            }
+        },
+
+        saveAndReload() {
+            if (this.swOrderDetailOnSaveAndReload) {
+                this.swOrderDetailOnSaveAndReload();
+            } else {
+                this.$emit('save-and-reload');
+            }
+        },
+
+        showError(error) {
+            if (this.swOrderDetailOnError) {
+                this.swOrderDetailOnError(error);
+            } else {
+                this.$emit('error', error);
             }
         },
     },

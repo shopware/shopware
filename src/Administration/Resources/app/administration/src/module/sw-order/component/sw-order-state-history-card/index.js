@@ -2,6 +2,8 @@ import template from './sw-order-state-history-card.html.twig';
 
 /**
  * @sw-package checkout
+ *
+ * @deprecated tag:v6.8.0 - will be removed, no usages found
  */
 
 const { Mixin } = Shopware;
@@ -84,11 +86,20 @@ export default {
                     return this.order.transactions[i];
                 }
             }
-            return this.order.transactions.last();
+
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.order.transactions.last();
+            }
+
+            return this.order.primaryOrderTransaction;
         },
 
         delivery() {
-            return this.order.deliveries[0];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.order.deliveries[0];
+            }
+
+            return this.order.primaryOrderDelivery;
         },
 
         stateMachineHistoryCriteria() {
@@ -111,6 +122,7 @@ export default {
             criteria.addAssociation('fromStateMachineState');
             criteria.addAssociation('toStateMachineState');
             criteria.addAssociation('user');
+            criteria.addAssociation('integration');
             criteria.addSorting({
                 field: 'state_machine_history.createdAt',
                 order: 'ASC',

@@ -46,8 +46,8 @@ class MessageQueueEndpointTest extends TestCase
         }
 
         static::assertArrayHasKey('foo', $mapped);
-        static::assertEquals(1, $mapped['foo']);
+        static::assertSame(1, $mapped['foo']);
         static::assertArrayHasKey('bar', $mapped);
-        static::assertEquals(2, $mapped['bar']);
+        static::assertSame(2, $mapped['bar']);
     }
 }

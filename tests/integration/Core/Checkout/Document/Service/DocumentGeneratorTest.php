@@ -121,7 +121,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame($this->orderId, $document->getOrderId());
 
         static::assertNotNull($document->getDocumentType());
-        static::assertSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
+        static::assertNotSame(Defaults::LIVE_VERSION, $document->getOrderVersionId(), 'Document should refer to a versioned order');
         static::assertSame(DeliveryNoteRenderer::TYPE, $document->getDocumentType()->getTechnicalName());
         static::assertNotNull($document->getDocumentMediaFile());
         static::assertSame(PdfRenderer::FILE_EXTENSION, $document->getDocumentMediaFile()->getFileExtension());
@@ -287,7 +287,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($document->getDocumentMediaFileId());
 
         $savedContent = static::getContainer()->get(MediaService::class)->loadFile($document->getDocumentMediaFileId(), $this->context);
-        static::assertEquals($uploadFileRequest->getContent(), $savedContent);
+        static::assertSame($uploadFileRequest->getContent(), $savedContent);
     }
 
     public static function uploadDataProvider(): \Generator
@@ -333,7 +333,7 @@ class DocumentGeneratorTest extends TestCase
         $comment = 'this is a comment';
         $operation = new DocumentGenerateOperation($this->orderId, PdfRenderer::FILE_EXTENSION, ['documentComment' => $comment]);
 
-        $documentStruct = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
+        $documentStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
 
         static::assertNotNull($documentStruct);
         static::assertTrue(Uuid::isValid($documentStruct->getId()));
@@ -357,8 +357,8 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($config->getDocumentNumber());
 
         static::assertNotNull($document->getDocumentType());
-        static::assertSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
-        static::assertSame(DeliveryNoteRenderer::TYPE, $document->getDocumentType()->getTechnicalName());
+        static::assertNotSame(Defaults::LIVE_VERSION, $document->getOrderVersionId(), 'Document should refer to a versioned order');
+        static::assertSame(InvoiceRenderer::TYPE, $document->getDocumentType()->getTechnicalName());
         static::assertNotNull($document->getDocumentMediaFile());
         static::assertSame(PdfRenderer::FILE_EXTENSION, $document->getDocumentMediaFile()->getFileExtension());
     }
@@ -388,7 +388,7 @@ class DocumentGeneratorTest extends TestCase
         $storno = $this->documentRepository->search(new Criteria([$stornoStruct->getId()]), $this->context)->get($stornoStruct->getId());
 
         static::assertNotNull($storno);
-        static::assertEquals($invoice->getId(), $storno->getReferencedDocumentId());
+        static::assertSame($invoice->getId(), $storno->getReferencedDocumentId());
         static::assertSame($storno->getOrderVersionId(), $invoice->getOrderVersionId());
     }
 
@@ -577,8 +577,8 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame($this->orderId, $document->getOrderId());
 
         // document should refer to a versioned order
-        static::assertNotEquals(Defaults::LIVE_VERSION, $document->getOrderVersionId());
-        static::assertEquals($operation->getOrderVersionId(), $document->getOrderVersionId());
+        static::assertNotSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
+        static::assertSame($operation->getOrderVersionId(), $document->getOrderVersionId());
 
         static::assertNotNull($document->getDocumentType());
         static::assertSame(InvoiceRenderer::TYPE, $document->getDocumentType()->getTechnicalName());
@@ -665,7 +665,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertEmpty($result->getSuccess()->getElements());
         static::assertNotEmpty($result->getErrors());
         static::assertArrayHasKey($this->orderId, $result->getErrors());
-        static::assertEquals('Document number 1001 has already been allocated.', $result->getErrors()[$this->orderId]->getMessage());
+        static::assertSame('Document number 1001 has already been allocated.', $result->getErrors()[$this->orderId]->getMessage());
     }
 
     public function testCreateInvoiceIsExistingNumberPdf(): void
@@ -735,7 +735,7 @@ class DocumentGeneratorTest extends TestCase
         $generatedDocument = $this->documentGenerator->readDocument($invoiceStruct->getId(), $this->context);
 
         static::assertInstanceOf(RenderedDocument::class, $generatedDocument);
-        static::assertEquals(PdfRenderer::FILE_CONTENT_TYPE, $generatedDocument->getContentType());
+        static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $generatedDocument->getContentType());
 
         $document = $this->documentRepository->search(
             new Criteria([$invoiceStruct->getId()]),
@@ -784,7 +784,7 @@ class DocumentGeneratorTest extends TestCase
         $generatedDocument = $this->documentGenerator->readDocument($documentId, $this->context);
 
         static::assertInstanceOf(RenderedDocument::class, $generatedDocument);
-        static::assertEquals(PdfRenderer::FILE_CONTENT_TYPE, $generatedDocument->getContentType());
+        static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $generatedDocument->getContentType());
 
         $document = $this->documentRepository->search(
             new Criteria([$documentId]),
@@ -902,7 +902,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertInstanceOf(RenderedDocument::class, $generatedDocument);
 
         if ($staticFileContent) {
-            static::assertEquals($staticFileContent, $generatedDocument->getContent());
+            static::assertSame($staticFileContent, $generatedDocument->getContent());
         }
 
         $document = $this->documentRepository->search(

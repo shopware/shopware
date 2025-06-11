@@ -92,8 +92,7 @@ class SalesChannelContext extends Struct
         $firstTaxRule = $tax->getRules()->first();
 
         if ($firstTaxRule) {
-            // NEXT-21735 - This is covered randomly
-            // @codeCoverageIgnoreStart
+            // @codeCoverageIgnoreStart - This is covered randomly
             return new TaxRuleCollection([
                 new TaxRule($firstTaxRule->getTaxRate(), 100),
             ]);
@@ -376,6 +375,35 @@ class SalesChannelContext extends Struct
         $result = $callback($this);
 
         $this->context = $before;
+
+        return $result;
+    }
+
+    /**
+     * Executed the callback function with the given permissions set in the SalesChannelContext. If the
+     * permissions are locked, the callback is called with the original permissions of the SalesChannelContext.
+     *
+     * @template TReturn of mixed
+     *
+     * @param array<string, bool> $permissions
+     * @param callable(SalesChannelContext): TReturn $callback
+     *
+     * @return TReturn the return value of the provided callback function
+     */
+    public function withPermissions(array $permissions, callable $callback): mixed
+    {
+        if ($this->permisionsLocked) {
+            return $callback($this);
+        }
+
+        $originalPermissions = $this->getPermissions();
+        $permissions = array_merge($originalPermissions, $permissions);
+
+        $this->setPermissions($permissions);
+
+        $result = $callback($this);
+
+        $this->setPermissions($originalPermissions);
 
         return $result;
     }

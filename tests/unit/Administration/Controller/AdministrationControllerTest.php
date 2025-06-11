@@ -138,7 +138,7 @@ class AdministrationControllerTest extends TestCase
         $response = $controller->index(new Request(), $this->context);
 
         static::assertNotFalse($response->getContent());
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
     public function testCheckCustomerEmailValidWithoutException(): void
@@ -148,7 +148,7 @@ class AdministrationControllerTest extends TestCase
 
         $response = $controller->checkCustomerEmailValid($request, $this->context);
         static::assertNotFalse($response->getContent());
-        static::assertEquals(
+        static::assertSame(
             json_encode(['isValid' => true]),
             $response->getContent()
         );
@@ -161,7 +161,7 @@ class AdministrationControllerTest extends TestCase
 
         $response = $controller->checkCustomerEmailValid($request, $this->context);
         static::assertNotFalse($response->getContent());
-        static::assertEquals(
+        static::assertSame(
             json_encode(['isValid' => true]),
             $response->getContent()
         );
@@ -251,8 +251,8 @@ class AdministrationControllerTest extends TestCase
             ->willThrowException(new UnableToReadFile());
         $response = $controller->pluginIndex('foo');
 
-        static::assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
-        static::assertEquals('Plugin index.html not found', $response->getContent());
+        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        static::assertSame('Plugin index.html not found', $response->getContent());
     }
 
     public function testPluginIndexReturnsUnchangedFileIfNoReplaceableStringIsFound(): void
@@ -266,8 +266,8 @@ class AdministrationControllerTest extends TestCase
             ->willReturn($fileContent);
         $response = $controller->pluginIndex('foo');
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEquals($fileContent, $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame($fileContent, $response->getContent());
     }
 
     public function testPluginIndexReplacesAsset(): void
@@ -287,7 +287,7 @@ class AdministrationControllerTest extends TestCase
 
         $response = $controller->pluginIndex('foo');
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $content = $response->getContent();
         static::assertIsString($content);
@@ -358,7 +358,7 @@ class AdministrationControllerTest extends TestCase
         $controller = $this->createAdministrationController();
         $response = $controller->sanitizeHtml(new Request([], ['html' => '<br/>', 'field' => '']), $this->context);
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertNotFalse($response->getContent());
         static::assertJsonStringEqualsJsonString('{"preview":""}', $response->getContent());
     }
@@ -385,7 +385,7 @@ class AdministrationControllerTest extends TestCase
         $controller = $this->createAdministrationController();
         $response = $controller->sanitizeHtml(new Request([], ['html' => '<p>test</p>', 'field' => 'test_entity.id']), $this->context);
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertNotFalse($response->getContent());
         static::assertJsonStringEqualsJsonString('{"preview":"test"}', $response->getContent());
     }
@@ -400,7 +400,7 @@ class AdministrationControllerTest extends TestCase
         $controller = $this->createAdministrationController();
         $response = $controller->sanitizeHtml(new Request([], ['html' => $html, 'field' => 'test_entity.idAllowHtml']), $this->context);
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertNotFalse($response->getContent());
         static::assertJsonStringEqualsJsonString('{"preview":"' . $html . '"}', $response->getContent());
     }
@@ -420,7 +420,7 @@ class AdministrationControllerTest extends TestCase
             $this->context
         );
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertNotFalse($response->getContent());
         static::assertJsonStringEqualsJsonString('{"preview":"' . $sanitized . '"}', $response->getContent());
     }

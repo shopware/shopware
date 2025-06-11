@@ -1,10 +1,16 @@
 @import "~scss/variables";
 
 .sw-notification-center__context-button {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--border-radius-button);
+    display: flex;
+    justify-content: center;
+    align-items: center;
     cursor: pointer;
 
     &.is--active {
-        color: $color-shopware-brand-500;
+        background: var(--color-interaction-secondary-hover);
     }
 }
 
@@ -16,8 +22,8 @@
     border-radius: 50%;
     background-color: $color-crimson-500;
     position: absolute;
-    top: 0;
-    right: 0;
+    top: 6px;
+    right: 6px;
 }
 
 .sw-notification-center__context-container {

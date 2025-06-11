@@ -87,7 +87,7 @@ runs:
     - name: Setup Shopware
       uses: shopware/setup-shopware@main
       with:
-        mysql-version: "builtin"
+        mysql-version: 'builtin'
         shopware-version: ${{ github.ref }}
         shopware-repository: ${{ github.repository }}
         install: ${{ inputs.install }}
@@ -120,17 +120,29 @@ runs:
 
     - uses: actions/setup-node@v4
       with:
-        node-version: 20
+        node-version: 22
 
     - name: Install dependencies
       shell: bash
       working-directory: ${{ inputs.directory }}
       run: npm ci
 
+    - name: Refresh Package List
+      shell: bash
+      run: sudo apt-get update --allow-releaseinfo-change
+
     - name: Install Playwright Browsers
       shell: bash
       working-directory: ${{ inputs.directory }}
       run: npx playwright install --with-deps chromium
+
+    - name: Download visual testing snapshots
+      if: ${{ contains(inputs.project, 'visual') && !contains(inputs.extra-options, 'update-snapshots') }}
+      uses: dawidd6/action-download-artifact@07ab29fd4a977ae4d2b275087cf67563dfdf0295 # v9
+      with:
+        branch: ${{ github.ref_name }}
+        name: visual-snapshots-${{ hashFiles('.git/HEAD') }}
+        path: .
 
     - name: Run your tests
       shell: bash
@@ -147,4 +159,14 @@ runs:
       with:
         name: ats-${{ inputs.project }}-${{ inputs.shard }}-php${{ inputs.php-version }}-${{ inputs.major && '-major' || '' }}
         path: ${{ inputs.directory }}/test-results/
+        retention-days: 3
+
+    - name: Upload visual testing snapshots
+      if: ${{ contains(inputs.project, 'visual') && contains(inputs.extra-options, 'update-snapshots') }}
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      with:
+        name: visual-snapshots-${{ hashFiles('.git/HEAD') }}
+        path: |
+          .gitignore
+          tests/acceptance/tests/**/*-snapshots/*.png
         retention-days: 3

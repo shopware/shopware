@@ -5,7 +5,7 @@ import './sw-order-detail-details.scss';
  * @sw-package checkout
  */
 
-const { Component, Store } = Shopware;
+const { Component, Store, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
@@ -14,6 +14,10 @@ export default {
     template,
 
     inject: {
+        feature: {
+            from: 'feature',
+            default: null,
+        },
         swOrderDetailOnSaveAndReload: {
             from: 'swOrderDetailOnSaveAndReload',
             default: null,
@@ -63,9 +67,11 @@ export default {
             required: true,
         },
 
+        /** @deprecated tag:v6.8.0 - will be removed without replacement */
         isSaveSuccessful: {
             type: Boolean,
-            required: true,
+            required: false,
+            default: false,
         },
     },
 
@@ -77,6 +83,7 @@ export default {
     },
 
     computed: {
+        /** @deprecated tag:v6.8.0 - will be removed, use loading.order instead */
         isLoading: () => Store.get('swOrderDetail').isLoading,
 
         order: () => Store.get('swOrderDetail').order,
@@ -88,7 +95,11 @@ export default {
         ...mapPropertyErrors('order', ['orderCustomer.email']),
 
         delivery() {
-            return this.order.deliveries.length > 0 && this.order.deliveries[0];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.order.deliveries.length > 0 && this.order.deliveries[0];
+            }
+
+            return this.order.primaryOrderDelivery;
         },
 
         transaction() {
@@ -102,7 +113,12 @@ export default {
                     return this.order.transactions[i];
                 }
             }
-            return this.order.transactions.last();
+
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.order.transactions.last();
+            }
+
+            return this.order.primaryOrderTransaction;
         },
 
         customFieldSetRepository() {
@@ -134,6 +150,7 @@ export default {
             return this.order.price.taxStatus;
         },
 
+        // @deprecated tag:v6.8.0 - Will be removed, will not be used anymore.
         currency() {
             return this.order.currency;
         },
@@ -158,6 +175,7 @@ export default {
             return currentAddress?.customerAddressId || this.shippingAddress.id;
         },
 
+        // @deprecated tag:v6.8.0 - Will be removed, change shipping cost on order general view instead.
         shippingCosts: {
             get() {
                 return this.delivery?.shippingCosts.totalPrice || 0.0;
@@ -174,62 +192,75 @@ export default {
 
     methods: {
         createdComponent() {
-            this.$emit('update-loading', true);
-            if (this.swOrderDetailOnLoadingChange) {
-                this.swOrderDetailOnLoadingChange(true);
-            }
+            this.loadingChange(true);
 
             this.customFieldSetRepository.search(this.customFieldSetCriteria).then((result) => {
                 this.customFieldSets = result;
-                this.$emit('update-loading', false);
-                if (this.swOrderDetailOnLoadingChange) {
-                    this.swOrderDetailOnLoadingChange(false);
-                }
+                this.loadingChange(false);
             });
         },
 
-        onShippingChargeEdited(amount) {
-            this.delivery.shippingCosts.unitPrice = amount;
-            this.delivery.shippingCosts.totalPrice = amount;
+        // @deprecated tag:v6.8.0 - Will be removed, change shipping cost on order general view instead.
+        onShippingChargeEdited: Utils.debounce(function onShippingChargeEdited(amount) {
+            if (amount >= 0) {
+                this.delivery.shippingCosts.unitPrice = amount;
+                this.delivery.shippingCosts.totalPrice = amount;
+            }
 
             this.saveAndRecalculate();
+        }, 800),
+
+        loadingChange(loading) {
+            if (this.swOrderDetailOnLoadingChange) {
+                this.swOrderDetailOnLoadingChange(loading);
+            } else {
+                this.$emit('update-loading', loading);
+            }
         },
 
         saveAndRecalculate() {
-            this.$emit('save-and-recalculate');
             if (this.swOrderDetailOnSaveAndRecalculate) {
                 this.swOrderDetailOnSaveAndRecalculate();
+            } else {
+                this.$emit('save-and-recalculate');
             }
         },
 
         saveAndReload() {
-            this.$emit('save-and-reload');
             if (this.swOrderDetailOnSaveAndReload) {
                 this.swOrderDetailOnSaveAndReload();
+            } else {
+                this.$emit('save-and-reload');
             }
         },
 
         onSaveEdits() {
-            this.$emit('save-edits');
             if (this.swOrderDetailOnSaveEdits) {
                 this.swOrderDetailOnSaveEdits();
+            } else {
+                this.$emit('save-edits');
             }
         },
 
         reloadEntityData() {
-            this.$emit('reload-entity-data');
             if (this.swOrderDetailOnReloadEntityData) {
                 this.swOrderDetailOnReloadEntityData();
+            } else {
+                this.$emit('reload-entity-data');
             }
         },
 
         showError(error) {
-            this.$emit('error', error);
             if (this.swOrderDetailOnError) {
                 this.swOrderDetailOnError(error);
+            } else {
+                this.$emit('error', error);
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         updateLoading(loadingValue) {
             Store.get('swOrderDetail').setLoading([
                 'order',

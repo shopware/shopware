@@ -51,7 +51,7 @@ class RedisCartPersister extends AbstractCartPersister
         }
 
         try {
-            $value = \unserialize($value);
+            $value = @\unserialize($value);
         } catch (\Exception) {
             throw CartException::tokenNotFound($token);
         }
@@ -131,9 +131,11 @@ class RedisCartPersister extends AbstractCartPersister
     private function serializeCart(Cart $cart, SalesChannelContext $context): string
     {
         $errors = $cart->getErrors();
-        $data = $cart->getData();
+        if (!$cart->getBehavior()?->hasPermission(static::PERSIST_CART_ERROR_PERMISSION)) {
+            $cart->setErrors(new ErrorCollection());
+        }
 
-        $cart->setErrors(new ErrorCollection());
+        $data = $cart->getData();
         $cart->setData(null);
 
         $this->cartSerializationCleaner->cleanupCart($cart);

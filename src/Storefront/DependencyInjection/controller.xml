@@ -27,6 +27,9 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader"/>
+
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -100,6 +103,18 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Storefront\Controller\ContextGatewayController">
+            <argument type="service" id="Shopware\Core\Framework\Gateway\Context\SalesChannel\ContextGatewayRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -221,6 +236,8 @@
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoader"/>
             <argument type="service" id="sales_channel_domain.repository"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -264,6 +281,7 @@
 
         <service id="Shopware\Storefront\Controller\DocumentController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

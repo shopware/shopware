@@ -12,19 +12,21 @@
         <template #toolbar>
             {% block sw_settings_rule_detail_assignments_toolbar %}
             <sw-card-filter
-                placeholder=""
+                :placeholder="$t('global.sw-simple-search-field.defaultPlaceholder')"
                 @sw-card-filter-term-change="onFilterEntity(entity, $event)"
             >
-                <template #filter>
+                <template
+                    v-if="entity.allowAdd"
+                    #filter
+                >
                     {% block sw_settings_rule_detail_assignments_add_button %}
                     <mt-button
-                        v-if="entity.allowAdd"
                         v-tooltip="getTooltipConfig(entity)"
                         :disabled="disableAdd(entity) || !acl.can('rule.editor')"
                         ghost
                         size="small"
                         class="sw-settings-rule-detail-assignments__add-button"
-                        variant="secondary"
+                        variant="primary"
                         @click="onOpenAddModal(entity)"
                     >
                         {{ $tc('sw-settings-rule.detail.buttonAddAssignment') }}
@@ -55,6 +57,7 @@
                 :steps="associationSteps"
                 :columns="entity.gridColumns"
                 :full-page="false"
+                :compact-mode="false"
                 @delete-items="(event) => onDeleteItems(entity, event)"
             >
                 <template #link-column="{ item, column, renderColumn }">
@@ -104,7 +107,7 @@
                 </template>
 
                 <template #bulk-modal-delete-confirm-text="{ selectionCount }">
-                    {{ $tc('sw-settings-rule.detail.textModalBulkDelete', selectionCount, { count: selectionCount }) }}
+                    {{ $tc('sw-settings-rule.detail.textModalBulkDelete', { count: selectionCount }, selectionCount) }}
                 </template>
 
                 <template #bulk-modal-delete-items="{ isBulkLoading, deleteItems }">

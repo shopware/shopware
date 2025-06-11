@@ -78,10 +78,10 @@ class SymfonyBearerTokenValidatorTest extends TestCase
 
         $validator->validateAuthorization($request);
 
-        static::assertEquals(self::TOKEN_USER_ID, $request->attributes->get('oauth_user_id'));
-        static::assertEquals(self::TOKEN_USER_ID, $request->attributes->get('oauth_access_token_id'));
-        static::assertEquals('test', $request->attributes->get('oauth_client_id'));
-        static::assertEquals([], $request->attributes->get('oauth_scopes'));
+        static::assertSame(self::TOKEN_USER_ID, $request->attributes->get('oauth_user_id'));
+        static::assertSame(self::TOKEN_USER_ID, $request->attributes->get('oauth_access_token_id'));
+        static::assertSame('test', $request->attributes->get('oauth_client_id'));
+        static::assertSame([], $request->attributes->get('oauth_scopes'));
     }
 
     public function testUserDeleted(): void

@@ -1,7 +1,5 @@
 import template from './sw-card.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -11,8 +9,16 @@ const { Component } = Shopware;
  *
  * @deprecated tag:v6.8.0 - Will be removed, use mt-card instead.
  */
-Component.register('sw-card', {
+export default Shopware.Component.wrapComponentConfig({
     template,
+
+    props: {
+        deprecated: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    },
 
     methods: {
         getSlots() {

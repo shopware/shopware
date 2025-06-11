@@ -38,11 +38,11 @@ class ScriptTwigLoaderTest extends TestCase
     {
         $source = $this->scriptLoader->getSourceContext($this->script->getName());
 
-        static::assertEquals(
+        static::assertSame(
             $this->script->getName(),
             $source->getName()
         );
-        static::assertEquals(
+        static::assertSame(
             $this->script->getScript(),
             $source->getCode()
         );
@@ -85,26 +85,26 @@ class ScriptTwigLoaderTest extends TestCase
     public static function cachingProvider(): \Generator
     {
         yield 'Shared cache for same names' => [
-            new DummyScript('foo.twig', null),
-            new DummyScript('foo.twig', null),
+            'first' => new DummyScript('foo.twig', null),
+            'second' => new DummyScript('foo.twig', null),
             'expected' => true,
         ];
 
         yield 'Different cache for different names' => [
-            new DummyScript('foo.twig', null),
-            new DummyScript('bar.twig', null),
+            'first' => new DummyScript('foo.twig', null),
+            'second' => new DummyScript('bar.twig', null),
             'expected' => false,
         ];
 
         yield 'Different cache for same names with different app ids' => [
-            new DummyScript('foo.twig', 'first-app'),
-            new DummyScript('foo.twig', 'second-app'),
+            'first' => new DummyScript('foo.twig', 'first-app'),
+            'second' => new DummyScript('foo.twig', 'second-app'),
             'expected' => false,
         ];
 
         yield 'Same cache for same names with same app ids' => [
-            new DummyScript('foo.twig', 'first-app'),
-            new DummyScript('foo.twig', 'first-app'),
+            'first' => new DummyScript('foo.twig', 'first-app'),
+            'second' => new DummyScript('foo.twig', 'first-app'),
             'expected' => true,
         ];
     }

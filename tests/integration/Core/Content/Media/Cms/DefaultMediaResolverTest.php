@@ -38,8 +38,8 @@ class DefaultMediaResolverTest extends TestCase
         $media = $this->mediaResolver->getDefaultCmsMediaEntity('bundles/core/assets/default/cms/shopware.jpg');
 
         static::assertInstanceOf(MediaEntity::class, $media);
-        static::assertEquals('shopware', $media->getFileName());
-        static::assertEquals('image/jpeg', $media->getMimeType());
-        static::assertEquals('jpg', $media->getFileExtension());
+        static::assertSame('shopware', $media->getFileName());
+        static::assertSame('image/jpeg', $media->getMimeType());
+        static::assertSame('jpg', $media->getFileExtension());
     }
 }

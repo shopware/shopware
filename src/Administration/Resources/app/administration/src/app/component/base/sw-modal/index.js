@@ -1,7 +1,6 @@
 import template from './sw-modal.html.twig';
 import './sw-modal.scss';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -16,7 +15,7 @@ const utils = Shopware.Utils;
  *     Lorem Ipsum
  * </sw-modal>
  */
-Component.register('sw-modal', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -201,4 +200,4 @@ Component.register('sw-modal', {
             }
         },
     },
-});
+};

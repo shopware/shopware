@@ -185,4 +185,8 @@ export default function initializeContext(): void {
 
         return contextStore.app.windowId;
     });
+
+    Shopware.ExtensionAPI.handle('contextShopId', () => {
+        return contextStore.app.config.shopId;
+    });
 }

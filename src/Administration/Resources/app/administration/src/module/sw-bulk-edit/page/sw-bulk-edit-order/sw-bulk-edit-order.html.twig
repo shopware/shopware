@@ -11,7 +11,7 @@
     {% block sw_bulk_edit_order_smart_bar_header %}
     <template #smart-bar-header>
 
-        <h2>{{ $tc('sw-bulk-edit.order.textTitle', selectedIds.length, { orderTotal: selectedIds.length }) }}</h2>
+        <h2>{{ $tc('sw-bulk-edit.order.textTitle', { orderTotal: selectedIds.length }, selectedIds.length) }}</h2>
 
     </template>
     {% endblock %}

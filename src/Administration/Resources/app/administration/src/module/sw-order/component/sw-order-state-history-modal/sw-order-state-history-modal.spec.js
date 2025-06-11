@@ -62,7 +62,7 @@ const stateHistoryFixture = [
 const orderProp = {
     id: '1',
     orderDateTime: '2022-10-10T10:01:33.815+00:00',
-    transactions: [
+    transactions: getCollection('order_transaction', [
         {
             id: '2',
             stateMachineState: {
@@ -71,9 +71,20 @@ const orderProp = {
                     name: 'Open',
                 },
             },
+            getEntityName: () => 'order_transaction',
         },
-    ],
-    deliveries: [
+        {
+            id: '5',
+            stateMachineState: {
+                technicalName: 'open',
+                translated: {
+                    name: 'Open',
+                },
+            },
+            getEntityName: () => 'order_transaction',
+        },
+    ]),
+    deliveries: getCollection('order_delivery', [
         {
             id: '3',
             stateMachineState: {
@@ -82,33 +93,17 @@ const orderProp = {
                     name: 'Open',
                 },
             },
+            getEntityName: () => 'order_delivery',
         },
-    ],
+    ]),
     stateMachineState: {
         technicalName: 'open',
         translated: {
             name: 'Open',
         },
     },
+    getEntityName: () => 'order',
 };
-
-orderProp.transactions.last = () => ({
-    stateMachineState: {
-        technicalName: 'open',
-        translated: {
-            name: 'Open',
-        },
-    },
-});
-
-orderProp.deliveries.first = () => ({
-    stateMachineState: {
-        technicalName: 'open',
-        translated: {
-            name: 'Open',
-        },
-    },
-});
 
 describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
     let SwOrderStateHistoryModal;
@@ -201,7 +196,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         await flushPromises();
 
         const stateHistoryRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(stateHistoryRows).toHaveLength(3);
+        expect(stateHistoryRows).toHaveLength(4);
 
         const firstRow = stateHistoryRows.at(0);
         expect(firstRow.find('.sw-data-grid__cell--entity').text()).toBe('global.entities.order');
@@ -218,11 +213,18 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         expect(secondRow.find('.sw-data-grid__cell--order').text()).toBe('Open');
 
         const thirdRow = stateHistoryRows.at(2);
-        expect(thirdRow.find('.sw-data-grid__cell--entity').text()).toBe('global.entities.order_transaction');
+        expect(thirdRow.find('.sw-data-grid__cell--entity').text()).toBe('global.entities.order_transaction 1');
         expect(thirdRow.find('.sw-data-grid__cell--user').text()).toBe('admin');
         expect(thirdRow.find('.sw-data-grid__cell--delivery').text()).toBe('Shipped');
         expect(thirdRow.find('.sw-data-grid__cell--transaction').text()).toBe('In progress');
         expect(thirdRow.find('.sw-data-grid__cell--order').text()).toBe('Open');
+
+        const fourthRow = stateHistoryRows.at(3);
+        expect(fourthRow.find('.sw-data-grid__cell--entity').text()).toBe('global.entities.order_transaction 2');
+        expect(fourthRow.find('.sw-data-grid__cell--user').text()).toBe('sw-order.stateHistoryModal.labelSystemUser');
+        expect(fourthRow.find('.sw-data-grid__cell--delivery').text()).toBe('Shipped');
+        expect(fourthRow.find('.sw-data-grid__cell--transaction').text()).toBe('Open');
+        expect(fourthRow.find('.sw-data-grid__cell--order').text()).toBe('Open');
     });
 
     it('should error notification if loading state history failed', async () => {
@@ -263,67 +265,30 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
     });
 
     it('should have multiple transactions', async () => {
-        orderProp.transactions.push(); // add transaction twice
-
-        const wrapper = await createWrapper(
-            {},
-            {
-                ...orderProp,
-                transactions: [
-                    ...orderProp.transactions,
-                    { ...orderProp.transactions[0], id: '4' },
-                ],
-            },
-        );
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm.hasMultipleTransactions).toBe(true);
-    });
-
-    it('should enumerate multiple transactions', async () => {
-        // add second transaction
-        const wrapper = await createWrapper(
-            {},
-            {
-                ...orderProp,
-                transactions: [
-                    ...orderProp.transactions,
-                    { ...orderProp.transactions[0], id: '4' },
-                ],
-            },
-            [
-                ...stateHistoryFixture,
-                { ...stateHistoryFixture[1], referencedId: '4' },
-            ],
-        );
-
-        const spy = jest.spyOn(wrapper.vm, 'enumerateTransaction');
-
-        await flushPromises();
-
-        expect(wrapper.vm.hasMultipleTransactions).toBe(true);
-        expect(spy).toHaveBeenCalledTimes(5);
-
-        const allEntityColumns = await wrapper.findAll('.sw-data-grid__cell--entity > .sw-data-grid__cell-content');
-        expect(allEntityColumns.map((c) => c.text())).toEqual([
-            'global.entities.order',
-            'global.entities.order_delivery',
-            'global.entities.order_transaction 1',
-            'global.entities.order_transaction 2', // New-transaction-started entry
-            'global.entities.order_transaction 2',
-        ]);
-
-        const allUserColumns = await wrapper.findAll('.sw-data-grid__cell--user > .sw-data-grid__cell-content');
-        expect(allUserColumns.map((c) => c.text())).toEqual([
-            'sw-order.stateHistoryModal.labelSystemUser',
-            'admin',
-            'admin',
-            'sw-order.stateHistoryModal.labelSystemUser', // New-transaction-started entry
-            'admin',
-        ]);
     });
 
     it('should not enumerate single transaction', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper(
+            {},
+            {
+                ...orderProp,
+                transactions: getCollection('order_transaction', [
+                    {
+                        id: '2',
+                        stateMachineState: {
+                            technicalName: 'open',
+                            translated: {
+                                name: 'Open',
+                            },
+                        },
+                        getEntityName: () => 'order_transaction',
+                    },
+                ]),
+            },
+        );
 
         const spy = jest.spyOn(wrapper.vm, 'enumerateTransaction');
 
@@ -338,5 +303,71 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
             'global.entities.order_delivery',
             'global.entities.order_transaction',
         ]);
+    });
+
+    it('should add last transaction entry when there are multiple transactions and last transaction is not in history', async () => {
+        const multipleTransactionOrder = {
+            ...orderProp,
+            transactions: getCollection('order_transaction', [
+                {
+                    id: '2',
+                    stateMachineState: {
+                        technicalName: 'open',
+                        translated: {
+                            name: 'Open',
+                        },
+                    },
+                    getEntityName: () => 'order_transaction',
+                },
+                {
+                    id: '3',
+                    stateMachineState: {
+                        technicalName: 'paid',
+                        translated: {
+                            name: 'Paid',
+                        },
+                    },
+                    getEntityName: () => 'order_transaction',
+                },
+            ]),
+        };
+
+        // State history that doesn't include the last transaction (id: '3')
+        const historyWithoutLastTransaction = [
+            {
+                entityName: 'order_transaction',
+                fromStateMachineState: {
+                    technicalName: 'open',
+                    translated: {
+                        name: 'Open',
+                    },
+                },
+                toStateMachineState: {
+                    technicalName: 'in_progress',
+                    translated: {
+                        name: 'In progress',
+                    },
+                },
+                user: {
+                    username: 'admin',
+                },
+                createdAt: '2022-10-12T10:01:33.815+00:00',
+                referencedId: '2', // Only includes first transaction
+            },
+        ];
+
+        const wrapper = await createWrapper({}, multipleTransactionOrder, historyWithoutLastTransaction);
+        await flushPromises();
+
+        const transactionEntries = wrapper.vm.dataSource.filter((entry) => entry.entity === 'order_transaction');
+        // Should have multiple transaction entries including the last one
+        expect(transactionEntries.length).toBeGreaterThan(1);
+        expect(wrapper.vm.hasMultipleTransactions).toBe(true);
+
+        // Verify that the last transaction was added
+        const lastTransactionEntry = wrapper.vm.dataSource.find(
+            (entry) => entry.entity === 'order_transaction' && entry.referencedId === '3',
+        );
+        expect(lastTransactionEntry).toBeDefined();
     });
 });

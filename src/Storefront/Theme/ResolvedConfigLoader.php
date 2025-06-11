@@ -31,7 +31,7 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
 
     public function load(string $themeId, SalesChannelContext $context): array
     {
-        $config = $this->service->getThemeConfiguration($themeId, false, $context->getContext());
+        $config = $this->service->getPlainThemeConfiguration($themeId, $context->getContext());
         $resolvedConfig = [];
         $mediaItems = [];
         if (!\array_key_exists('fields', $config)) {
@@ -39,7 +39,7 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
         }
 
         foreach ($config['fields'] as $key => $data) {
-            if ($data['type'] === 'media' && $data['value'] && Uuid::isValid($data['value'])) {
+            if (isset($data['type']) && $data['type'] === 'media' && $data['value'] && Uuid::isValid($data['value'])) {
                 $mediaItems[$data['value']][] = $key;
             }
             $resolvedConfig[$key] = $data['value'];

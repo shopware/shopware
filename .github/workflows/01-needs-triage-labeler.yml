@@ -1,4 +1,4 @@
-name: Add needs-triage label to new PullRequests and Issues
+name: Add or remove needs-triage label
 
 on:
   pull_request_target:
@@ -7,11 +7,49 @@ on:
     types: [opened]
 
 jobs:
-  label:
+  needs-triage:
     runs-on: ubuntu-24.04
     steps:
-      - uses: srvaroa/labeler@0a20eccb8c94a1ee0bed5f16859aece1c45c3e55 # 1.13.0
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Wait 5 minutes
+        run: sleep 5m
+      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
         with:
-          config_path: .github/labeler-needs-triage.yml
+          script: |
+            console.debug(context.payload);
+            const issue = context.payload.issue || context.payload.pull_request;
+            if (issue && issue.state === "closed") {
+              console.debug("Issue or PR is closed. Skipping label management.");
+              return;
+            }
+            
+            const issue_number = context.payload.number ?? context.payload.issue.number;
+
+            // get labels via api
+            const labels = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number,
+            });
+
+            if (labels.status !== 200) {
+              throw new Error(`Failed to fetch labels for issue #${issue_number}`);
+            }
+
+            // Check if the issue has either a domain/ label or a service/ label
+            const hasRequiredLabel = labels.data.some(label => label.name.startsWith('domain/') || label.name.startsWith('service/'));
+            const hasNeedsTriageLabel = labels.data.some(label => label.name === 'needs-triage');
+            
+            // if no required label and no needs-triage label, add needs-triage
+            if (!hasRequiredLabel && !hasNeedsTriageLabel) {
+              console.debug('add needs-triage label');
+              const addResponse = await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number,
+                labels: ["needs-triage"],
+              });
+
+              if (addResponse.status !== 200) {
+                throw new Error(`Failed to add label needs-triage to issue #${issue_number}`);
+              }
+            }

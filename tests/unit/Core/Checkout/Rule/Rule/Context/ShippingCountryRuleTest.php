@@ -8,14 +8,20 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleException;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
@@ -193,6 +199,63 @@ class ShippingCountryRuleTest extends TestCase
             [''],
             [ShippingCountryRule::OPERATOR_GTE],
             [ShippingCountryRule::OPERATOR_LTE],
+        ];
+    }
+
+    public function testConstraints(): void
+    {
+        $expectedOperators = [
+            Rule::OPERATOR_EQ,
+            Rule::OPERATOR_NEQ,
+            Rule::OPERATOR_EMPTY,
+        ];
+
+        $ruleConstraints = (new ShippingCountryRule())->getConstraints();
+
+        static::assertArrayHasKey('operator', $ruleConstraints, 'Constraint operator not found in Rule');
+        $operators = $ruleConstraints['operator'];
+        static::assertEquals(new NotBlank(), $operators[0]);
+        static::assertEquals(new Choice($expectedOperators), $operators[1]);
+
+        static::assertArrayHasKey('countryIds', $ruleConstraints, 'Constraint countryIds not found in Rule');
+        $countryIds = $ruleConstraints['countryIds'];
+        static::assertEquals(new NotBlank(), $countryIds[0]);
+        static::assertEquals(new ArrayOfUuid(), $countryIds[1]);
+    }
+
+    #[DataProvider('getMatchValues')]
+    public function testRuleMatching(string $operator, bool $isMatching, string $countryId): void
+    {
+        $countryIds = ['kyln123', 'kyln456'];
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+
+        $country = new CountryEntity();
+        $country->setId($countryId);
+        $location = new ShippingLocation($country, null, null);
+        $salesChannelContext->method('getShippingLocation')->willReturn($location);
+        $scope = new CheckoutRuleScope($salesChannelContext);
+        $rule = (new ShippingCountryRule())->assign(['countryIds' => $countryIds, 'operator' => $operator]);
+
+        $match = $rule->match($scope);
+        if ($isMatching) {
+            static::assertTrue($match);
+        } else {
+            static::assertFalse($match);
+        }
+    }
+
+    /**
+     * @return array<string, array{0: string, 1: bool, 2: string}>
+     */
+    public static function getMatchValues(): array
+    {
+        return [
+            'operator_oq / not match / country id' => [Rule::OPERATOR_EQ, false, Uuid::randomHex()],
+            'operator_oq / match / country id' => [Rule::OPERATOR_EQ, true, 'kyln123'],
+            'operator_neq / match / country id' => [Rule::OPERATOR_NEQ, true,  Uuid::randomHex()],
+            'operator_neq / not match / country id' => [Rule::OPERATOR_NEQ, false, 'kyln123'],
+            'operator_empty / not match / country id' => [Rule::OPERATOR_NEQ, false, 'kyln123'],
+            'operator_empty / match / country id' => [Rule::OPERATOR_EMPTY, true, ''],
         ];
     }
 }

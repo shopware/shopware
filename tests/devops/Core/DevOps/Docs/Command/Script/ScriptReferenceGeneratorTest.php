@@ -28,7 +28,7 @@ class ScriptReferenceGeneratorTest extends TestCase
 
         foreach ($generators as $generator) {
             foreach ($generator->generate() as $filename => $content) {
-                static::assertEquals(
+                static::assertSame(
                     $content,
                     file_get_contents($filename),
                     <<<MSG

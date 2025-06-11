@@ -64,7 +64,7 @@ class UserControllerTest extends TestCase
 
         $content = json_decode((string) $response->getContent(), true);
         static::assertArrayHasKey('errors', $content);
-        static::assertEquals('This access token does not have the scope "user-verified" to process this Request', $content['errors'][0]['detail']);
+        static::assertSame('This access token does not have the scope "user-verified" to process this Request', $content['errors'][0]['detail']);
 
         static::getContainer()->get(Connection::class)
             ->executeStatement('DELETE FROM user WHERE email = \'admin@example.com\'');
@@ -112,7 +112,7 @@ class UserControllerTest extends TestCase
             );
 
         $assigned = array_column($assigned, 'id');
-        static::assertEquals(array_values($ids->getList(['role-2'])), $assigned);
+        static::assertSame(array_values($ids->getList(['role-2'])), $assigned);
     }
 
     public function testAddRoleAssignment(): void
@@ -158,7 +158,7 @@ class UserControllerTest extends TestCase
         $assigned = array_column($assigned, 'id');
         $expectedIds = $ids->getList(['role-1', 'role-2']);
         sort($expectedIds);
-        static::assertEquals($expectedIds, $assigned);
+        static::assertSame($expectedIds, $assigned);
     }
 
     public function testDeleteUser(): void
@@ -185,7 +185,7 @@ class UserControllerTest extends TestCase
 
         $content = json_decode((string) $response->getContent(), true);
         static::assertArrayHasKey('errors', $content);
-        static::assertEquals('This access token does not have the scope "user-verified" to process this Request', $content['errors'][0]['detail']);
+        static::assertSame('This access token does not have the scope "user-verified" to process this Request', $content['errors'][0]['detail']);
 
         static::getContainer()->get(Connection::class)
             ->executeStatement('DELETE FROM user WHERE email = \'admin@example.com\'');
@@ -205,13 +205,13 @@ class UserControllerTest extends TestCase
         $this->getBrowser()->request('PATCH', '/api/_info/me', ['firstName' => 'newName']);
         $responsePatch = $this->getBrowser()->getResponse();
 
-        static::assertEquals(Response::HTTP_NO_CONTENT, $responsePatch->getStatusCode(), (string) $responsePatch->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $responsePatch->getStatusCode(), (string) $responsePatch->getContent());
 
         $this->getBrowser()->request('GET', '/api/_info/me');
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-        static::assertEquals('newName', json_decode((string) $response->getContent(), true)['data']['attributes']['firstName']);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame('newName', json_decode((string) $response->getContent(), true)['data']['attributes']['firstName']);
     }
 
     public function testSetOwnProfileNoPermission(): void
@@ -222,9 +222,9 @@ class UserControllerTest extends TestCase
 
         $content = (string) $response->getContent();
 
-        static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $content);
-        static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($content, true)['errors'][0]['code'], $content);
-        static::assertEquals(['user_change_me'], json_decode(json_decode($content, true)['errors'][0]['detail'], true)['missingPrivileges'], $content);
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $content);
+        static::assertSame(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($content, true)['errors'][0]['code'], $content);
+        static::assertSame(['user_change_me'], json_decode(json_decode($content, true)['errors'][0]['detail'], true)['missingPrivileges'], $content);
     }
 
     public function testSetOwnProfilePermissionButNotAllowedField(): void
@@ -235,9 +235,9 @@ class UserControllerTest extends TestCase
 
         $content = (string) $response->getContent();
 
-        static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $content);
-        static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($content, true)['errors'][0]['code'], $content);
-        static::assertEquals(['user:update'], json_decode(json_decode($content, true)['errors'][0]['detail'], true)['missingPrivileges'], $content);
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $content);
+        static::assertSame(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($content, true)['errors'][0]['code'], $content);
+        static::assertSame(['user:update'], json_decode(json_decode($content, true)['errors'][0]['detail'], true)['missingPrivileges'], $content);
     }
 
     public function testPreventChangeOfUSerWithoutPermission(): void

@@ -1,7 +1,7 @@
 import template from './sw-price-field.html.twig';
 import './sw-price-field.scss';
 
-const { Component, Application } = Shopware;
+const { Application } = Shopware;
 const { debounce } = Shopware.Utils;
 
 /**
@@ -17,7 +17,7 @@ const { debounce } = Shopware.Utils;
  *                 :currency="{...}">
  * </sw-price-field>
  */
-Component.register('sw-price-field', {
+export default {
     template,
     inheritAttrs: false,
 
@@ -419,4 +419,4 @@ Component.register('sw-price-field', {
             this.onPriceNetChange(this.priceForCurrency.net);
         }, 300),
     },
-});
+};

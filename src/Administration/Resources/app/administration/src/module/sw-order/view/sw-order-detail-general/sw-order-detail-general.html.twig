@@ -24,6 +24,7 @@
     <mt-card
         class="sw-order-detail-general__line-item-grid-card"
         position-identifier="sw-order-detail-general-line-items"
+        :is-loading="loading.recalculation"
         :title="$tc('sw-order.detailBase.cardTitleLineItems')"
     >
 
@@ -61,9 +62,15 @@
 
                         {% block sw_order_detail_general_line_items_summary_shipping_cost %}
                         <template v-if="delivery">
-                            <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
+                            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+                            <dt
+                                @click="$refs.editShippingCosts.onClick()"
+                            >
+                                {{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}
+                            </dt>
                             <dd>
                                 <sw-order-saveable-field
+                                    ref="editShippingCosts"
                                     v-tooltip="{
                                         showDelay: 300,
                                         message: shippingCostsDetail,
@@ -71,6 +78,8 @@
                                     }"
                                     type="number"
                                     :editable="acl.can('order.editor')"
+                                    :step="1"
+                                    :min="0"
                                     :value="delivery.shippingCosts.totalPrice"
                                     @value-change="onShippingChargeEdited"
                                     @update:value="onShippingChargeUpdated"
@@ -144,6 +153,25 @@
 
     <sw-extension-component-section
         position-identifier="sw-order-detail-base-line-items__after"
+    />
+
+    <mt-card
+        class="sw-order-detail-general__promotions-card"
+        position-identifier="sw-order-detail-general-promotions"
+        :title="$tc('sw-order.detailBase.cardTitlePromotions')"
+    >
+        {# @deprecated tag:v6.8.0 - remove `@loading-change` #}
+        <sw-order-promotion-field
+            class="sw-order-detail-general__promotions"
+            @loading-change="updateLoading"
+            @reload-entity-data="reloadEntityData"
+            @save-and-reload="saveAndReload"
+            @error="showError"
+        />
+    </mt-card>
+
+    <sw-extension-component-section
+        position-identifier="sw-order-detail-base-promotions__after"
     />
     {% endblock %}
 </div>

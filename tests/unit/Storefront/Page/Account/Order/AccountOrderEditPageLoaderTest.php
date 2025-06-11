@@ -137,9 +137,11 @@ class AccountOrderEditPageLoaderTest extends TestCase
 
         $page = $this->pageLoader->load(new Request(), Generator::generateSalesChannelContext());
 
-        static::assertEquals($order, $page->getOrder());
-        static::assertEquals('translated | testshop', $page->getMetaInformation()?->getMetaTitle());
-        static::assertEquals('noindex,follow', $page->getMetaInformation()?->getRobots());
+        static::assertSame($order, $page->getOrder());
+        $metaInformation = $page->getMetaInformation();
+        static::assertNotNull($metaInformation);
+        static::assertSame('translated | testshop', $metaInformation->getMetaTitle());
+        static::assertSame('noindex,follow', $metaInformation->getRobots());
 
         static::assertSame([$remainingPaymentMethod], array_values($page->getPaymentMethods()->getElements()));
 

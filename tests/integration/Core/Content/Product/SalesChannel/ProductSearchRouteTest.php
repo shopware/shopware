@@ -122,32 +122,30 @@ class ProductSearchRouteTest extends TestCase
         static::assertCount(0, $response['elements']);
     }
 
-    public function testMissingSearchTerm(): void
+    public function testMissingSearchTermWithFilter(): void
     {
         $browser = self::$browser;
         $browser->request(
             'POST',
             '/store-api/search',
             [
+                'manufacturer' => self::$ids->get('manufacturer'),
             ]
         );
 
         $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertIsArray($response);
-        static::assertArrayHasKey('errors', $response);
-        static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
 
-        $browser->request(
-            'POST',
-            '/store-api/search-suggest',
-            [
-            ]
-        );
-
-        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($response);
-        static::assertArrayHasKey('errors', $response);
-        static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
+        static::assertArrayHasKey('total', $response);
+        static::assertSame(1, $response['total']);
+
+        static::assertArrayHasKey('apiAlias', $response);
+        static::assertSame('product_listing', $response['apiAlias']);
+
+        static::assertArrayHasKey('elements', $response);
+        static::assertIsArray($response['elements']);
+        static::assertCount(1, $response['elements']);
+        static::assertSame(self::$ids->get('manufacturer'), $response['elements'][0]['manufacturerId']);
     }
 
     /**
@@ -337,7 +335,7 @@ class ProductSearchRouteTest extends TestCase
                 new Criteria()
             );
 
-            static::assertEquals(
+            static::assertSame(
                 $shouldBeFound,
                 $result->getListingResult()->has($ids->get($productNumber)),
                 \sprintf(
@@ -354,7 +352,7 @@ class ProductSearchRouteTest extends TestCase
                 new Criteria()
             );
 
-            static::assertEquals(
+            static::assertSame(
                 $shouldBeFound,
                 $result->getListingResult()->has($ids->get($productNumber)),
                 \sprintf(
@@ -650,7 +648,7 @@ class ProductSearchRouteTest extends TestCase
         sort($expected);
         sort($resultProductName);
 
-        static::assertEquals($expected, $resultProductName);
+        static::assertSame($expected, $resultProductName);
     }
 
     private function createNavigationCategory(IdsCollection $ids): void

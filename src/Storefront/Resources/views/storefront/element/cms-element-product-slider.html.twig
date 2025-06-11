@@ -15,12 +15,11 @@
                     <div class="cms-element-alignment{% if sliderConfig.verticalAlign.value == "center" %} align-self-center{% elseif sliderConfig.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
                 {% endif %}
 
-                {# @todo NEXT-40267 - Re-implement autoplay, when tiny-slider solution has been replaced #}
                 {% set productSliderOptionsSlider  = {
                     controls: sliderConfig.navigationArrows.value in visibleValues,
-                    nav: sliderConfig.navigationArrows.value in visibleValues,
+                    nav: false,
                     mouseDrag: true,
-                    autoplay: false,
+                    autoplay: sliderConfig.rotate.value,
                     autoplayButtonOutput: false,
                     autoplayTimeout: sliderConfig.autoplayTimeout.value,
                     speed: sliderConfig.speed.value,
@@ -40,7 +39,7 @@
 
                 {% block element_product_slider_slider %}
                     <div
-                        class="base-slider product-slider{% if sliderConfig.border.value %} has-border{% endif %}{% if sliderConfig.navigation.value %} has-nav{% endif %}"
+                        class="base-slider product-slider{% if sliderConfig.border.value %} has-border{% endif %}{% if sliderConfig.navigationArrows.value == "outside" %} has-nav-outside{% endif %}{% if sliderConfig.navigation.value %} has-nav{% endif %}"
                         data-product-slider="true"
                         data-product-slider-options="{{ productSliderOptions|json_encode }}"
                         role="region"
@@ -83,14 +82,16 @@
                             {% block element_product_slider_controls %}
                                 {% if productSliderOptions.slider.controls %}
                                     <div class="product-slider-controls-container">
-                                        <div class="base-slider-controls"
-                                             data-product-slider-controls="true"
-                                             role="navigation">
+                                        <div
+                                            class="base-slider-controls"
+                                            data-product-slider-controls="true"
+                                            role="navigation"
+                                        >
                                             {% block element_product_slider_controls_items %}
                                                 {% set positionClassesPrev = '' %}
                                                 {% if sliderConfig.navigationArrows.value is not null %}
-                                                    {% set positionClassesPrev = ' is-arrow-prev-' ~ sliderConfig.navigationArrows.value %}
-                                                    {% set positionClassesNext = ' is-arrow-next-' ~ sliderConfig.navigationArrows.value %}
+                                                    {% set positionClassesPrev = ' is-nav-prev-' ~ sliderConfig.navigationArrows.value %}
+                                                    {% set positionClassesNext = ' is-nav-next-' ~ sliderConfig.navigationArrows.value %}
                                                 {% endif %}
 
                                                 <button

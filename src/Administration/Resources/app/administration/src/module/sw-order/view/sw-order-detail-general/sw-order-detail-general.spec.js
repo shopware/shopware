@@ -89,6 +89,7 @@ async function createWrapper() {
                 },
                 'sw-order-general-info': true,
                 'sw-order-line-items-grid': true,
+                'sw-order-promotion-field': true,
                 'sw-number-field': await wrapTestComponent('sw-number-field', { sync: true }),
                 'sw-order-saveable-field': await wrapTestComponent('sw-order-saveable-field', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
@@ -102,6 +103,7 @@ async function createWrapper() {
                 'sw-extension-component-section': true,
                 'router-link': true,
                 'sw-loader': true,
+                'sw-number-field-deprecated': true,
             },
             mocks: {
                 $tc: (key, value) => {
@@ -127,7 +129,6 @@ async function createWrapper() {
         },
         props: {
             orderId: '1a2b3c',
-            isSaveSuccessful: false,
         },
     });
 }

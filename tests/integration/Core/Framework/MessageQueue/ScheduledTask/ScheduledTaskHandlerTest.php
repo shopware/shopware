@@ -79,9 +79,9 @@ class ScheduledTaskHandlerTest extends TestCase
         $newOriginalNextExecutionString = $newOriginalNextExecution->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $nextExecutionTimeString = $task->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
-        static::assertEquals(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
-        static::assertEquals($newOriginalNextExecutionString, $nextExecutionTimeString);
-        static::assertNotEquals($originalNextExecution->format(\DATE_ATOM), $task->getNextExecutionTime()->format(\DATE_ATOM));
+        static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
+        static::assertSame($newOriginalNextExecutionString, $nextExecutionTimeString);
+        static::assertNotSame($originalNextExecution->format(\DATE_ATOM), $task->getNextExecutionTime()->format(\DATE_ATOM));
     }
 
     /**
@@ -128,12 +128,12 @@ class ScheduledTaskHandlerTest extends TestCase
         /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
 
-        static::assertEquals(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
+        static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
         static::assertGreaterThan(
             $task->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             $nowTime->format(Defaults::STORAGE_DATE_TIME_FORMAT)
         );
-        static::assertNotEquals($originalNextExecution->format(\DATE_ATOM), $task->getNextExecutionTime()->format(\DATE_ATOM));
+        static::assertNotSame($originalNextExecution->format(\DATE_ATOM), $task->getNextExecutionTime()->format(\DATE_ATOM));
     }
 
     public function testHandleOnException(): void
@@ -167,13 +167,13 @@ class ScheduledTaskHandlerTest extends TestCase
         }
 
         static::assertInstanceOf(\RuntimeException::class, $exception);
-        static::assertEquals('This Exception should be thrown', $exception->getMessage());
+        static::assertSame('This Exception should be thrown', $exception->getMessage());
 
         static::assertTrue($handler->wasCalled());
 
         /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
-        static::assertEquals(ScheduledTaskDefinition::STATUS_FAILED, $task->getStatus());
+        static::assertSame(ScheduledTaskDefinition::STATUS_FAILED, $task->getStatus());
     }
 
     public function testHandleOnExceptionWithRescheduleOnFailure(): void
@@ -212,7 +212,7 @@ class ScheduledTaskHandlerTest extends TestCase
 
         /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
-        static::assertEquals(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
+        static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
     }
 
     public function testHandleIgnoresIfTaskIsNotFound(): void
@@ -257,7 +257,7 @@ class ScheduledTaskHandlerTest extends TestCase
 
         /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
-        static::assertEquals($status, $task->getStatus());
+        static::assertSame($status, $task->getStatus());
     }
 
     /**

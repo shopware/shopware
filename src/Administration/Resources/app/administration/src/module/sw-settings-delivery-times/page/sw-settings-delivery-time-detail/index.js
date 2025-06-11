@@ -154,7 +154,7 @@ export default {
             this.loadCustomFieldSets();
 
             this.deliveryTimeRepository
-                .get(this.$route.params.id)
+                .get(this.$route.params.id.toLowerCase())
                 .then((deliveryTime) => {
                     this.deliveryTime = deliveryTime;
                     this.isLoading = false;

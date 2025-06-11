@@ -44,42 +44,23 @@
 
         <sw-skeleton v-if="isLoading" />
 
+        {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
         {% block sw_product_detail_variants_sw_card_empty_state %}
-        <sw-empty-state
-            v-else-if="!propertiesAvailable"
-            class="sw-product-detail-variants__generated-variants-empty-state"
-            :absolute="false"
-            :title="$tc('sw-product.variations.emptyStatePropertyTitle')"
-            :subline="$tc('sw-product.variations.emptyStatePropertyDescription')"
-        >
+        {% endblock %}
 
-            <template #icon>
-                {% block sw_product_properties_empty_state_image %}
-                <img
-                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                    :alt="$tc('sw-product.properties.titleEmptyState')"
-                >
-                {% endblock %}
-            </template>
-
-            <template #actions>
-                {% block sw_product_properties_empty_state_button_property %}
-                <mt-button
-                    v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
-                        disabled: acl.can('product.editor'),
-                        showOnDisabledElements: true
-                    }"
-                    ghost
-                    :disabled="!acl.can('product.editor')"
-                    variant="secondary"
-                    @click="openAddPropertiesModal"
-                >
-                    {{ $tc('sw-product.properties.buttonAddProperties') }}
-                </mt-button>
-                {% endblock %}
-            </template>
-        </sw-empty-state>
+        {% block sw_product_detail_variants_sw_card_generated_variants_overview %}
+        <sw-product-variants-overview
+            v-if="product.id"
+            v-show="variantListHasContent && !isLoading"
+            ref="generatedVariants"
+            :product-states="currentProductStates"
+            :groups="groups"
+            :selected-groups="configSettingGroups"
+            :product-entity="productEntity"
+            @variants-finish-update="updateVariantListHasContent"
+            @generator-open="openModal('variantGeneration')"
+            @delivery-open="openModal('deliveryModal')"
+        />
         {% endblock %}
 
         {% block sw_product_detail_variants_sw_card_empty_state_variant %}
@@ -120,22 +101,6 @@
             </template>
         </sw-empty-state>
         {% endblock %}
-
-        {% block sw_product_detail_variants_sw_card_generated_variants_overview %}
-        <sw-product-variants-overview
-            v-if="product.id"
-            v-show="variantListHasContent && !isLoading"
-            ref="generatedVariants"
-            :product-states="currentProductStates"
-            :groups="groups"
-            :selected-groups="configSettingGroups"
-            :product-entity="productEntity"
-            @variants-finish-update="updateVariantListHasContent"
-            @generator-open="openModal('variantGeneration')"
-            @delivery-open="openModal('deliveryModal')"
-        />
-        {% endblock %}
-
     </mt-card>
     {% endblock %}
 

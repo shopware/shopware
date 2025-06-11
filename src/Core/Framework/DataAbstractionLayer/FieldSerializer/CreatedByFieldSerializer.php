@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedByField;
@@ -39,6 +40,11 @@ class CreatedByFieldSerializer extends FkFieldSerializer
         if ($data->getValue()) {
             yield from parent::encode($field, $existence, $data, $parameters);
 
+            return;
+        }
+
+        // don't rewrite when creating a separate version
+        if ($context->getVersionId() !== Defaults::LIVE_VERSION) {
             return;
         }
 

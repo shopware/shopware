@@ -376,7 +376,7 @@ function tracingInterceptor(client) {
      */
     if (process.env.NODE_ENV !== 'test') {
         client.interceptors.request.use((config) => {
-            const currentRoute = Shopware?.Application?.view?.router?.history?.current?.name;
+            const currentRoute = Shopware?.Application?.view?.router?.currentRoute?.value?.name;
 
             if (currentRoute) {
                 config.headers['shopware-admin-active-route'] = currentRoute;

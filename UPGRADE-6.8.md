@@ -182,6 +182,11 @@ Get the first order delivery with `primaryOrderDelivery` so you should replace m
 
 Get the latest order transaction with `primaryOrderTransaction` so you should replace methods like `transaction.last()`
 
+## Improved fetching of language information for SalesChannelContext
+
+The `\Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory` uses the language repository directly to fetch language information.
+As a consequence the query with the title `base-context-factory::sales-channel` no longer adds the `languages` association.
+
 </details>
 
 # Administration

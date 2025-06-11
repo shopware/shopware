@@ -7,6 +7,7 @@ Defines the loader icon
 .loader {
     @extend .spinner-border;
     @extend .text-primary;
+    --#{$prefix}spinner-border-width: 3px;
 }
 
 /*
@@ -131,34 +132,38 @@ Can be shown before or after the button text or replace it.
         --#{$prefix}spinner-width: 18px;
         --#{$prefix}spinner-height: 18px;
         --#{$prefix}spinner-vertical-align: -0.25em;
-        --#{$prefix}spinner-border-width: 3px;
         color: var(--#{$prefix}btn-color);
     }
 
-    &.is-loading-indicator-before,
-    &.is-loading-indicator-after {
-        position: relative;
-
-        .loader {
-            position: absolute;
-            top: 50%;
-            margin-top: calc((var(--#{$prefix}spinner-height) / 2) * -1);
-        }
-    }
-
     &.is-loading-indicator-before {
-        padding-left: 2.6rem;
-
         .loader {
-            left: var(--#{$prefix}btn-padding-x);
+            margin-right: var(--#{$prefix}btn-padding-x);
         }
     }
 
     &.is-loading-indicator-after {
-        padding-right: 2.6rem;
+        .loader {
+            margin-left: var(--#{$prefix}btn-padding-x);
+        }
+    }
+
+    &.is-loading-indicator-inner {
+        @keyframes slide-in {
+            0% {
+                opacity: 0;
+                margin-bottom: -30px;
+            }
+            100% {
+                opacity: 1;
+                margin-bottom: 0;
+            }
+        }
 
         .loader {
-            right: var(--#{$prefix}btn-padding-x);
+            // Slide in effect
+            animation: 0.15s ease-out 0s 1 slide-in,
+            // Restore original Bootstrap spinning animation
+            var(--#{$prefix}spinner-animation-speed) linear infinite var(--#{$prefix}spinner-animation-name);
         }
     }
 }

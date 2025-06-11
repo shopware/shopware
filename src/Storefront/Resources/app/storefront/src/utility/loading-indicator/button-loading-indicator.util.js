@@ -7,8 +7,8 @@ export default class ButtonLoadingIndicatorUtil extends LoadingIndicatorUtil {
 
     /**
      * Constructor
-     * @param {Element|string} parent
-     * @param position
+     * @param {HTMLButtonElement|HTMLAnchorElement|string} parent
+     * @param {string} position
      */
     constructor(parent, position = 'before') {
         super(parent, position);
@@ -27,8 +27,10 @@ export default class ButtonLoadingIndicatorUtil extends LoadingIndicatorUtil {
             return;
         }
 
+        // If the position is "inner", the loading indicator will replace the button content.
+        // To prevent the button from jumping in width, we set the current width as inline styling first.
         if (this.position === 'inner') {
-            const currentWith = this.parent.offsetWidth;
+            const currentWith = this.parent.getBoundingClientRect().width;
             this.parent.style.width = `${currentWith}px`;
         }
 
@@ -51,6 +53,8 @@ export default class ButtonLoadingIndicatorUtil extends LoadingIndicatorUtil {
             return;
         }
 
+        // Restore the automatic width again after removing the loading indicator.
+        // We do not remove the style attribute, because other expected inline styles can in the template.
         if (this.position === 'inner') {
             this.parent.style.width = 'auto';
         }
@@ -66,6 +70,11 @@ export default class ButtonLoadingIndicatorUtil extends LoadingIndicatorUtil {
         }
     }
 
+    /**
+     * Verify if the given element is valid to apply a button loading indicator.
+     * @return {boolean}
+     * @private
+     */
     _isValidElement() {
         return (this._isButtonElement() || this._isAnchorElement());
     }

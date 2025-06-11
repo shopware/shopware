@@ -1,7 +1,7 @@
 <mt-modal-root
     class="sw-settings-services-grant-permissions-modal"
     :is-open="showGrantPermissionsModal"
-    @change="showGrantPermissionsModal = $event"
+    @change="prepareRevisions"
 >
     <mt-modal
         title="Shopware Services permissions"

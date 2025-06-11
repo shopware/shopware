@@ -220,7 +220,14 @@
             "options": {
                 "symlink": true
             }
+        },
+      {
+        "type": "path",
+        "url": "custom/static-plugins/*",
+        "options": {
+          "symlink": true
         }
+      }
     ],
     "scripts-descriptions": {
         "admin:code-mods": "Run admin code mods",

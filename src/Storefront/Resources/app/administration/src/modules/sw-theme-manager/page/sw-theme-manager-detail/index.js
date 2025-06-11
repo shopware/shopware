@@ -673,6 +673,14 @@ Component.register('sw-theme-manager-detail', {
         },
 
         /**
+         * Get field label with config key appended in parentheses
+         */
+        getFieldLabel(field, fieldName) {
+            const label = this.getSnippet(field.labelSnippetKey, field.label);
+            return `${label} (${fieldName})`;
+        },
+
+        /**
          * @deprecated tag:v6.8.0 - `fallback` will be removed and return `null` instead, since theme config helpTexts will be removed entirely.
          */
         getHelpText(key, fallback = null) {

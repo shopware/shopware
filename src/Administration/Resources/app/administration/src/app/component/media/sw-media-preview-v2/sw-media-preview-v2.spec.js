@@ -247,9 +247,7 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
             },
         });
 
-        expect(wrapper.vm.sourceSet).toBe(
-            'https://example.com/image1.jpg 200w, https://example.com/image2.jpg 400w'
-        );
+        expect(wrapper.vm.sourceSet).toBe('https://example.com/image1.jpg 200w, https://example.com/image2.jpg 400w');
     });
 
     it('should return an empty string if trueSource is a file', async () => {

@@ -153,6 +153,9 @@ Get the first order delivery with `primaryOrderDelivery` so you should replace m
 ## Use `primaryOrderTransaction`
 Get the latest order transaction with `primaryOrderTransaction` so you should replace methods like `transaction.last()`
 
+## Changed URL generation of `MediaUrlGenerator` to properly encode the file path to produce valid URLs
+* For example media files with spaces in their name now should be properly URL-encoded with `%20` by default, without doing URL-encoding only with the return value of the `MediaUrlGenerator`. Make sure to remove extra URL-encoding (e.g. usage of twig filter `encodeUrl`) on media entities to not accidentally double encode the URLs.
+* Changed twig filter `encodeMediaUrl` in `Storefront/Framework/Twig/Extension/UrlEncodingTwigFilter.php` will now return the URL in its already encoded form and is basically the same as `$media->getUrl()` with some extra checks.
 </details>
 
 # Administration

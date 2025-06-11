@@ -16,8 +16,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -42,7 +44,8 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
         private readonly MediaService $mediaService,
         private readonly FileSaver $fileSaver,
         private readonly EntityRepository $mediaFolderRepository,
-        private readonly EntityRepository $mediaRepository
+        private readonly EntityRepository $mediaRepository,
+        private readonly UrlEncodingTwigFilter $encodingTwigFilter
     ) {
     }
 
@@ -61,6 +64,10 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
 
         if (empty($url)) {
             return $deserialized;
+        }
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $url = $this->encodingTwigFilter->encodeUrl($url);
         }
 
         if (!filter_var($url, \FILTER_VALIDATE_URL)) {

@@ -27,8 +27,8 @@ class MediaUrlGenerator extends AbstractMediaUrlGenerator
             if (str_starts_with($value->path, 'http')) {
                 $url = $value->path;
             } else {
-                $url = $this->filesystem->publicUrl($value->path);
-                $url = $this->encodeUrl($url);
+                $encodedPath = $this->encodeFilePath($value->path);
+                $url = $this->filesystem->publicUrl($encodedPath);
             }
 
             if ($value->updatedAt !== null) {
@@ -41,42 +41,18 @@ class MediaUrlGenerator extends AbstractMediaUrlGenerator
         return $urls;
     }
 
-    private function encodeUrl(string $mediaUrl): string
+    private function encodeFilePath(string $filePath): string
     {
         if (!Feature::isActive('v6.8.0.0')) {
-            return $mediaUrl;
+            return $filePath;
         }
 
-        $urlInfo = parse_url($mediaUrl);
-        if (!\is_array($urlInfo)) {
-            return $mediaUrl;
-        }
-
-        $segments = explode('/', $urlInfo['path'] ?? '');
+        $segments = explode('/', $filePath ?? '');
 
         foreach ($segments as $index => $segment) {
             $segments[$index] = rawurlencode($segment);
         }
 
-        $path = implode('/', $segments);
-        if (isset($urlInfo['query'])) {
-            $path .= "?{$urlInfo['query']}";
-        }
-
-        $encodedPath = '';
-
-        if (isset($urlInfo['scheme'])) {
-            $encodedPath = "{$urlInfo['scheme']}://";
-        }
-
-        if (isset($urlInfo['host'])) {
-            $encodedPath .= "{$urlInfo['host']}";
-
-            if (isset($urlInfo['port'])) {
-                $encodedPath .= ":{$urlInfo['port']}";
-            }
-        }
-
-        return $encodedPath . $path;
+        return implode('/', $segments);
     }
 }

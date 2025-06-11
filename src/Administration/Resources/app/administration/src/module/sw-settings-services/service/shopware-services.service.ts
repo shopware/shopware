@@ -18,12 +18,18 @@ import copilot from '../component/sw-settings-services-hero/assets/copilot.svg?n
  */
 export type ServiceDescription = {
     name: string,
+    technicalName: string,
     icon: string,
     description: string,
     active: boolean,
     lastUpdatedAt: Date,
     version: string
     requestedPermissions: string[]
+}
+
+type ServiceConfigurationConfigValues = {
+    'core.service.disabled'?: boolean,
+    'core.service.permissionsGrantedAt'?: string,
 }
 
 /**
@@ -38,13 +44,14 @@ export default class ShopwareServicesService extends ApiService {
         loginService: LoginService,
         private readonly systemConfigService: SystemConfigApiService,
     ) {
-        super(httpClient, loginService, 'services', 'application/json');
+        super(httpClient, loginService, 'service', 'application/json');
         this.name = 'ShopwareServices';
     }
 
     getInstalledServices(): Promise<Array<ServiceDescription>> {
         return Promise.resolve([{
             name: 'Shopware Image Editor',
+            technicalName: 'SwagImageEditor',
             icon: imageEditor,
             description: 'Fast wie Gimp. Kann auch nichts',
             lastUpdatedAt: new Date('2025-05-10'),
@@ -53,6 +60,7 @@ export default class ShopwareServicesService extends ApiService {
             requestedPermissions: [],
         }, {
             name: 'Preview Generator',
+            technicalName: 'SwagPreviewGenerator',
             icon: previewGenerator,
             description: 'Man weiß vorher nie was am Ende dabei rauskommt',
             lastUpdatedAt: new Date('2625-05-10'),
@@ -61,6 +69,7 @@ export default class ShopwareServicesService extends ApiService {
             requestedPermissions: [],
         }, {
             name: 'Copilot',
+            technicalName: 'SwagCopilot',
             icon: copilot,
             description: 'Nervt an jeder Ampel.',
             lastUpdatedAt: new Date('2025-05-10'),
@@ -71,15 +80,19 @@ export default class ShopwareServicesService extends ApiService {
     }
 
     async getServicesContext(): Promise<ServiceConfiguration> {
-        const configValues = await this.systemConfigService.getValues('core.service') as object;
+        const configValues = await this.systemConfigService.getValues('core.service') as ServiceConfigurationConfigValues;
 
-        try {
-            return {
-                disabled: configValues['core.service.disabled'],
-                permissionsGrantedAt: configValues['core.service.permissionsGrantedAt'],
-            };
-        } catch {
-            return {}
-        }
+        return {
+            disabled: configValues['core.service.disabled'],
+            permissionsGrantedAt: configValues['core.service.permissionsGrantedAt'],
+        };
+    }
+
+    activateService(technicalName: string): Promise<void> {
+        return this.httpClient.post(`service/activate/${technicalName}`);
+    }
+
+    deactivateService(technicalName: string): Promise<void> {
+        return this.httpClient.post(`service/deactivate/${technicalName}`);
     }
 }

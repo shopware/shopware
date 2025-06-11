@@ -1,6 +1,6 @@
 import { mapState } from 'pinia';
-import { useShopwareServicesStore } from '../../store/shopware-services.store';
 import useSession from 'src/app/composables/use-session';
+import { useShopwareServicesStore } from '../../store/shopware-services.store';
 import template from './sw-settings-services-index.html.twig';
 import './sw-settings-services-index.scss';
 import grantPermissionsCardBackground from

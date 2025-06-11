@@ -1,4 +1,6 @@
-import Axios from 'axios';
+/**
+ * @sw-package framework
+ */
 import type { SubContainer } from '../../../global.types';
 import ShopwareServicesService from './shopware-services.service';
 import ServiceRegistryClient from './service-registry-client';
@@ -25,7 +27,5 @@ Shopware.Service().register('shopwareServicesService', () => {
  * @private
  */
 Shopware.Service().register('serviceRegistryClient', () => {
-    return new ServiceRegistryClient(Axios.create({
-        baseURL: Shopware.Context.api.serviceRegistryUrl ?? undefined,
-    }))
+    return new ServiceRegistryClient(Shopware.Context.api.serviceRegistryUrl);
 })

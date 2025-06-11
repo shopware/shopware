@@ -2,7 +2,9 @@
   "sw-settings-services": {
     "general": {
       "title": "Shopware Services",
-      "description": "Manage the services that are available in your Shopware instance."
+      "description": "Manage the services that are available in your Shopware instance.",
+      "activate": "Activate",
+      "deactivate": "Deactivate"
     },
     "sw-settings-services-hero": {
       "title": "Future proof your store with Shopware Services",
@@ -21,11 +23,15 @@
       "label-tos-link": "Terms & Conditions"
     },
     "service-card": {
-      "statusActive": "Active",
-      "statusAwaitingPermissions": "Awaits permissions",
-      "statusInactive": "Inactive",
-      "updatedAtLabel": "Last updated: {updatedAt}",
-      "version": "Version: {version}"
+      "status-active": "Active",
+      "status-awaiting-permissions": "Awaits permissions",
+      "status-inactive": "Inactive",
+      "updated-at-label": "Last updated: {updatedAt}",
+      "version": "Version: {version}",
+      "deactivate-modal": {
+        "warning": "Are you sure you want to deactivate “{serviceName}”?",
+        "consequences": "This will result in an immediate loss of access to the Service and all associated processes."
+      }
     },
     "grant-permissions": {
       "title": "Unlock the full potential of Shopware Services",
@@ -43,8 +49,7 @@
       "title": "Deactivate Shopware Services",
       "p-1": "Are you sure you want to deactivate Shopware Services?",
       "p-2": "This will result in losing access to all current and future Shopware Services. We'd like to know what you don't like about Shopware Services. Give us your feedback so we can improve Shopware Services in the future!",
-      "label-feedback-link": "Give feedback",
-      "label-button-deactivate": "Deactivate"
+      "label-feedback-link": "Give feedback"
     },
     "dashboard-banner": {
       "title": "Introducing Shopware Services",

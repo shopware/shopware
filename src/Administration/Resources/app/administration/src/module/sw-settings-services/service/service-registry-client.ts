@@ -1,8 +1,10 @@
 /**
  * @sw-package framework
  */
-import type { AxiosInstance } from 'axios';
 
+/**
+ * @private
+ */
 export type ServicesRevision = {
     revision: string,
     links: {
@@ -24,42 +26,35 @@ export type RevisionData = {
  * @private
  */
 export default class {
+    private readonly registryUrl: string;
 
-
-    constructor(
-        private readonly httpClient: AxiosInstance,
-    ) {
+    constructor(registryUrl: string) {
+        this.registryUrl = registryUrl;
     }
 
-    getCurrentRevision(locale: string | null): Promise<RevisionData> {
-        const headers = locale ? { 'Accept-Language': locale} : {};
-
-        // return this.httpClient.get<RevisionResponse>('/api/revisions', {
-        //     headers: {
-        //         'Accept-Language': locale,
-        //     },
-        // });
-
-        return Promise.resolve({
-            "latest-revision": "2025-06-25",
-            "available-revisions": [
-                {
-                    "revision": "2025-06-25",
-                    "links": {
-                        "feedback-url": "https://www.shopware.com/en/foo",
-                        "docs-url": "https://www.shopware.com/de/foo",
-                        "tos-url": "https://www.shopware.com/de/foo",
-                    },
+    async getCurrentRevision(locale: string): Promise<RevisionData> {
+        const response = await fetch(
+            new URL('/api/service/licensing', this.registryUrl),
+            {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Accept-Language': locale,
                 },
-                {
-                    "revision": "2025-05-25",
-                    "links": {
-                        "feedback-url": "https://www.shopware.com/en/foo",
-                        "docs-url": "https://www.shopware.com/de/foo",
-                        "tos-url": "https://www.shopware.com/de/foo",
-                    },
-                },
-            ],
-        });
+                mode: 'cors',
+            },
+        );
+
+        const content: unknown = await response.json();
+
+        this.assertIsRevisionResponse(content);
+
+        return content.permissions;
+    }
+
+    private assertIsRevisionResponse(content: unknown): asserts content is { permissions: RevisionData } {
+        if (typeof content !== 'object' || content === null || !('permissions' in content)) {
+            throw new Error('Could not fetch Revision data from Service Registry');
+        }
     }
 }

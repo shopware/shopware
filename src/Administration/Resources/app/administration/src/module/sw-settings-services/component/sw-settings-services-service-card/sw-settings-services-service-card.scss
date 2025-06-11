@@ -6,7 +6,7 @@
 
   .sw-settings-services-service-card__header {
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: auto 1fr var(--scale-size-32);
     grid-column-gap: var(--scale-size-16);
     margin-bottom: var(--scale-size-16);
 
@@ -36,4 +36,18 @@
     color: var(--color-text-secondary-default);
     font-size: var(--font-size-2xs);
   }
+
+  .sw-context-button {
+    align-self: start;
+  }
+}
+
+.sw-settings-services-service-card__deactivate-modal-content {
+  & > *:not(:last-child) {
+    margin-block-end: var(--scale-size-24)
+  }
+}
+
+.sw-settings-services-service-card__deactivate-modal-footer {
+  text-align: end;
 }

@@ -26,6 +26,7 @@ test('Product is visible in listing and storefront search when set to "Visible".
 
     await test.step('Verify the product appears in the Home category listing.', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());
+        await StorefrontHome.mainNavigationLink.getByText('Home').click();
         const productLocators = await StorefrontHome.getListingItemByProductName(product.name);
         await ShopCustomer.expects(productLocators.productName).toBeVisible();
     });
@@ -70,6 +71,7 @@ test('Product is visible in storefront search but hidden from listing when set t
 
     await test.step('Verify the product does not appear in the Home category listing.', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());
+        await StorefrontHome.mainNavigationLink.getByText('Home').click();
         const productLocators = await StorefrontHome.getListingItemByProductName(product.name);
         await ShopCustomer.expects(productLocators.productName).not.toBeVisible();
     });
@@ -115,6 +117,7 @@ test('Product is hidden from both listing and storefront search when set to "Hid
 
     await test.step('Verify the product does not appear in the Home category listing.', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());
+        await StorefrontHome.mainNavigationLink.getByText('Home').click();
         const productLocators = await StorefrontHome.getListingItemByProductName(product.name);
         await ShopCustomer.expects(productLocators.productName).not.toBeVisible();
     });
@@ -150,6 +153,7 @@ test('Product is not visible without adding it to the sales channel.', { tag: '@
 
     await test.step('Verify the product does not appear in the Home category listing.', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());
+        await StorefrontHome.mainNavigationLink.getByText('Home').click();
         const productLocators = await StorefrontHome.getListingItemByProductName(product.name);
         await ShopCustomer.expects(productLocators.productName).not.toBeVisible();
     });

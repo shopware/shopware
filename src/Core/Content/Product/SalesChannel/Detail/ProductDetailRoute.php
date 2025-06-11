@@ -191,7 +191,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             ->addSorting(new FieldSorting('product.price'))
             ->setLimit(1);
 
-        $criteria->setTitle('product-detail-route::find-best-variant');
+        $criteria->setTitle('product-detail-route::find-best-variant-by-term');
         $variantId = $this->productRepository->searchIds($criteria, $context);
 
         return $variantId->firstId() ?? $productId;

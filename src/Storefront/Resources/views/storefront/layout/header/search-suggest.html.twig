@@ -89,7 +89,7 @@
                                             {% endblock %}
 
                                             {% block layout_search_suggest_result_variation %}
-                                                {% if product.variation %}
+                                                {% if product.variation and config('core.listing.showVariantOptionInSearchSuggestionResult') %}
                                                     <div class="search-suggest-product-variation">
                                                         {% for variation in product.variation %}
                                                             {{ variation.group }}: {{ variation.option }}

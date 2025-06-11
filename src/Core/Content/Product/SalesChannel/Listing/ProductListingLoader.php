@@ -15,8 +15,7 @@ use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFact
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -79,7 +78,7 @@ class ProductListingLoader
         $ids = $idResult->getIds();
         // no products found, no need to continue
         if (empty($ids)) {
-            return new EntitySearchResult(
+            $result = new EntitySearchResult(
                 ProductDefinition::ENTITY_NAME,
                 0,
                 new ProductCollection(),
@@ -87,6 +86,11 @@ class ProductListingLoader
                 $criteria,
                 $context->getContext()
             );
+
+            $result->addState(...$idResult->getStates());
+            $result->addExtensions($idResult->getExtensions());
+
+            return $result;
         }
 
         $mapping = $this->resolvePreviews($ids, $clone, $context);
@@ -97,6 +101,7 @@ class ProductListingLoader
 
         $result = new EntitySearchResult(ProductDefinition::ENTITY_NAME, $idResult->getTotal(), $productSearchResult->getEntities(), $aggregations, $criteria, $context->getContext());
         $result->addState(...$idResult->getStates());
+        $result->addExtensions($productSearchResult->getExtensions());
 
         return $result;
     }
@@ -126,13 +131,7 @@ class ProductListingLoader
     private function addGrouping(Criteria $criteria): void
     {
         $criteria->addGroupField(new FieldGrouping('displayGroup'));
-
-        $criteria->addFilter(
-            new NotFilter(
-                NotFilter::CONNECTION_AND,
-                [new EqualsFilter('displayGroup', null)]
-            )
-        );
+        $criteria->addFilter(new NotEqualsFilter('displayGroup', null));
     }
 
     /**

@@ -39,7 +39,7 @@ export default {
 
     computed: {
         fallbackLocale() {
-            return this.$root.$i18n.fallbackLocale;
+            return this.$root.$i18n.fallbackLocale.value;
         },
 
         localeCount() {
@@ -72,7 +72,7 @@ export default {
 
         getLabel(label, locale) {
             const snippet = this.getInlineSnippet(label);
-            const language = this.$tc(`locale.${locale.value ?? locale}`);
+            const language = this.$tc(`locale.${locale}`);
 
             return `${snippet} (${language})`;
         },

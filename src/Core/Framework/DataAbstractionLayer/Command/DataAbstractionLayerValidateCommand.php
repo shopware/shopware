@@ -31,23 +31,49 @@ class DataAbstractionLayerValidateCommand extends Command
 
     protected function configure(): void
     {
+        parent::configure();
         $this->addOption(
             'json',
             null,
             InputOption::VALUE_NONE,
             'Output as JSON'
         );
+        $this->addOption(
+            'namespaces',
+            null,
+            InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
+            'Only output errors for these PHP namespaces (comma-separated or repeatable)'
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $asJson = $input->getOption('json');
+        $namespaces = $input->getOption('namespaces') ?? [];
         $io = new ShopwareStyle($input, $output);
         if (!$asJson) {
             $io->title('Data Abstraction Layer Validation');
         }
 
         $errors = $this->validator->validate();
+
+        // Filter errors by namespaces if provided
+        if (!empty($namespaces)) {
+            $errors = array_filter(
+                $errors,
+                function ($_, $class) use ($namespaces) {
+                    foreach ($namespaces as $ns) {
+                        if (str_starts_with((string) $class, (string) $ns)) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                },
+                \ARRAY_FILTER_USE_BOTH
+            );
+        }
+
         $hasErrors = \count($errors) > 0;
         if ($asJson) {
             if ($hasErrors) {

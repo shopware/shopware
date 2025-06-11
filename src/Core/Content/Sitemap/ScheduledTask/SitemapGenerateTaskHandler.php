@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -50,10 +50,7 @@ final class SitemapGenerateTaskHandler extends ScheduledTaskHandler
 
         $criteria = new Criteria();
         $criteria->addAssociation('domains');
-        $criteria->addFilter(new NotFilter(
-            NotFilter::CONNECTION_AND,
-            [new EqualsFilter('domains.id', null)]
-        ));
+        $criteria->addFilter(new NotEqualsFilter('domains.id', null));
 
         $criteria->addAssociation('type');
         $criteria->addFilter(new EqualsFilter('type.id', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));

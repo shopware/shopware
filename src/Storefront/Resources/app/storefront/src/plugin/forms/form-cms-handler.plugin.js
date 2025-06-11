@@ -76,6 +76,9 @@ export default class FormCmsHandler extends Plugin {
     }
 
     _submitForm() {
+        if (this.formSubmittedByCaptcha) {
+            return;
+        }
         this.$emitter.publish('beforeSubmit');
 
         this.sendAjaxFormSubmit();
@@ -84,6 +87,8 @@ export default class FormCmsHandler extends Plugin {
     _handleResponse(res) {
         const response = JSON.parse(res);
         this.$emitter.publish('onFormResponse', res);
+
+        this.el.dispatchEvent(new CustomEvent('removeLoader'));
 
         if (response.length > 0) {
             let changeContent = true;

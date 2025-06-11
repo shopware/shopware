@@ -3,7 +3,7 @@ declare global {
         // eslint-disable-next-line @typescript-eslint/consistent-type-imports
         DIVEClass: typeof import('@shopware-ag/dive').DIVE;
         // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-        ARSystem: import('@shopware-ag/dive/modules/ARSystem').ARSystem;
+        DIVEARPlugin: typeof import('@shopware-ag/dive/ar');
         loadDiveUtil: {
             promise: Promise<void> | null;
         };
@@ -26,20 +26,20 @@ export async function loadDIVE(): Promise<void> {
         return Promise.resolve();
     }
 
-    if (window.ARSystem) {
+    if (window.DIVEARPlugin) {
         return Promise.resolve();
     }
 
     if (!window.loadDiveUtil.promise) {
         window.loadDiveUtil.promise = new Promise((resolve) => {
             const diveModule = import('@shopware-ag/dive');
-            const stateModule = import('@shopware-ag/dive/modules/State');
-            const arSystemModule = import('@shopware-ag/dive/modules/ARSystem');
+            const statePlugin = import('@shopware-ag/dive/state');
+            const arPlugin = import('@shopware-ag/dive/ar');
 
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            Promise.all([diveModule, arSystemModule, stateModule]).then(([diveModule, arSystemModule]) => {
+            Promise.all([diveModule, arPlugin, statePlugin]).then(([diveModule, arPlugin]) => {
                 window.DIVEClass = diveModule.DIVE;
-                window.ARSystem = new arSystemModule.ARSystem();
+                window.DIVEARPlugin = arPlugin;
                 resolve();
             });
         });

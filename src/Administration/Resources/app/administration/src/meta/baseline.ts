@@ -194,7 +194,6 @@ const missingTests = [
     'src/core/service/api/snippet.api.service.js',
     'src/core/service/api/state-machine.api.service.js',
     'src/core/service/api/store-context.api.service.ts',
-    'src/core/service/api/user-config.api.service.js',
     'src/core/service/api/user-input-sanitize.service.js',
     'src/core/service/api/user-recovery.api.service.ts',
     'src/core/service/api/user-validation.api.service.js',

@@ -10,7 +10,7 @@ interface PropertySchema {
     format?: string;
     readOnly?: boolean;
     properties?: Record<string, PropertySchema>;
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 interface EntitySchema {
@@ -29,7 +29,7 @@ const mappingTypesCache: Record<string, PropertyDefinition> = {};
 
 function getEntityMapping(
     entityName?: string,
-    entityNameMapping?: EntityNameMapping
+    entityNameMapping?: EntityNameMapping,
 ): PropertyDefinition {
     let schema: EntitySchema = {
         properties: {},
@@ -40,12 +40,12 @@ function getEntityMapping(
     }
 
     if (entityNameMapping && Object.keys(entityNameMapping).length > 0) {
-        for (const mappedKey of Object.keys(entityNameMapping)) {
+        Object.entries(entityNameMapping).forEach(([mappedKey, mappedValue]) => {
             schema.properties[mappedKey] = {
-                entity: entityNameMapping[mappedKey],
+                entity: mappedValue,
                 type: 'object',
             };
-        }
+        });
     } else {
         return schema.properties;
     }
@@ -58,7 +58,7 @@ function getEntityMapping(
     let lastEntityName = '';
     let lastVal = lastEntityName;
 
-    for (const val of parts) {
+    parts.forEach((val) => {
         const cleanVal = val.replace(/\[.*\]/, '');
         const dubbedVal = val.replace(/\[.*\]/, '[0]');
 
@@ -76,10 +76,7 @@ function getEntityMapping(
 
             if (typeof mappingTypesCache[lastEntityName] === 'undefined') {
                 mappingTypesCache[lastEntityName] = {};
-                mappingTypesCache[lastEntityName] = handlePropertyMappings(
-                    schema.properties,
-                    mappingTypesCache[lastEntityName]
-                );
+                mappingTypesCache[lastEntityName] = handlePropertyMappings(schema.properties);
             }
         }
 
@@ -89,15 +86,12 @@ function getEntityMapping(
 
             if (typeof mappingTypesCache[lastEntityName] === 'undefined' && property.properties) {
                 mappingTypesCache[lastEntityName] = {};
-                mappingTypesCache[lastEntityName] = handlePropertyMappings(
-                    property.properties,
-                    mappingTypesCache[lastEntityName]
-                );
+                mappingTypesCache[lastEntityName] = handlePropertyMappings(property.properties);
             }
         }
 
         lastVal = dubbedVal;
-    }
+    });
 
     if (lastVal === lastEntityName || !mappingTypesCache[lastEntityName]) {
         return {};
@@ -106,34 +100,31 @@ function getEntityMapping(
     return mappingTypesCache[lastEntityName];
 }
 
-function handlePropertyMappings(
-    propertyDefinitions: PropertyDefinition,
-    mapping: PropertyDefinition
-): PropertyDefinition {
+function handlePropertyMappings(propertyDefinitions: PropertyDefinition): PropertyDefinition {
     const blocklist: string[] = [];
     const formatBlocklist: string[] = ['uuid'];
 
     // Deep clone to avoid mutation
-    mapping = JSON.parse(JSON.stringify(propertyDefinitions));
+    const clonedMapping = JSON.parse(JSON.stringify(propertyDefinitions)) as PropertyDefinition;
 
-    for (const property of Object.keys(propertyDefinitions)) {
+    Object.keys(propertyDefinitions).forEach((property) => {
         const propSchema = propertyDefinitions[property];
 
         if (blocklist.includes(property) || propSchema.readOnly === true) {
-            delete mapping[property];
-            continue;
+            delete clonedMapping[property];
+            return;
         }
 
         if (propSchema.format && formatBlocklist.includes(propSchema.format)) {
-            delete mapping[property];
-            continue;
+            delete clonedMapping[property];
+            return;
         }
 
         if (propSchema.type === 'array') {
-            mapping[`${property}[0]`] = mapping[property];
-            delete mapping[property];
+            clonedMapping[property.concat('[0]')] = clonedMapping[property];
+            delete clonedMapping[property];
         }
-    }
+    });
 
-    return mapping;
+    return clonedMapping;
 }

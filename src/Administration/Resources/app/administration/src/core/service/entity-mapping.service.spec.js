@@ -4,16 +4,6 @@
 
 import EntityMappingService from 'src/core/service/entity-mapping.service';
 
-global.Shopware = {
-    EntityDefinition: {
-        getDefinitionRegistry: jest.fn(() => ({
-            get: jest.fn((entity) => {
-                return mockEntitySchemas[entity] || { properties: {} };
-            }),
-        })),
-    },
-};
-
 const mockEntitySchemas = {
     'product': {
         properties: {
@@ -34,6 +24,16 @@ const mockEntitySchemas = {
                 items: { type: 'string' },
             },
         },
+    },
+};
+
+global.Shopware = {
+    EntityDefinition: {
+        getDefinitionRegistry: jest.fn(() => ({
+            get: jest.fn((entity) => {
+                return mockEntitySchemas[entity] || { properties: {} };
+            }),
+        })),
     },
 };
 
@@ -62,7 +62,7 @@ describe('core/service/entity-mapping.service.ts', () => {
             product: 'product',
         });
 
-        expect(Object.keys(result).length).toBe(0);
+        expect(Object.keys(result)).toHaveLength(0);
     });
 
     it('returns only attributes from json object', () => {
@@ -70,7 +70,7 @@ describe('core/service/entity-mapping.service.ts', () => {
             product: 'product',
         });
 
-        expect(Object.keys(result).length).toBe(3);
+        expect(Object.keys(result)).toHaveLength(3);
         expect(result).toHaveProperty('net');
         expect(result.net.type).toBe('float');
         expect(result).toHaveProperty('gross');
@@ -92,8 +92,6 @@ describe('core/service/entity-mapping.service.ts', () => {
         const result = EntityMappingService.getEntityMapping('product.', {
             product: 'product',
         });
-
-        console.log(result);
 
         expect(result).toHaveProperty("tags[0]");
         expect(result['tags[0]'].type).toBe('array');

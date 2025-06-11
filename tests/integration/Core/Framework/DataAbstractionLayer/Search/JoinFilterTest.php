@@ -121,7 +121,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds(new Criteria($ids->prefixed('product-')), Context::createDefaultContext());
 
-        static::assertEquals(\count($products), $result->getTotal());
+        static::assertSame(\count($products), $result->getTotal());
 
         return $ids;
     }
@@ -250,7 +250,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('category.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(2, $result->getTotal());
+        static::assertSame(2, $result->getTotal());
         static::assertTrue($result->has($ids->get('category-1')));
         static::assertTrue($result->has($ids->get('category-2')));
         static::assertFalse($result->has($ids->get('category-3')));
@@ -270,7 +270,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(1, $result->getTotal());
+        static::assertSame(1, $result->getTotal());
         static::assertFalse($result->has($ids->get('product-2')));
         static::assertTrue($result->has($ids->get('product-1')));
     }
@@ -289,7 +289,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(1, $result->getTotal());
+        static::assertSame(1, $result->getTotal());
         static::assertTrue($result->has($ids->get('product-1')));
         static::assertFalse($result->has($ids->get('product-2')));
     }
@@ -310,7 +310,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(1, $result->getTotal());
+        static::assertSame(1, $result->getTotal());
         static::assertTrue($result->has($ids->get('product-1')));
         static::assertFalse($result->has($ids->get('product-2')));
     }
@@ -331,7 +331,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(1, $result->getTotal());
+        static::assertSame(1, $result->getTotal());
         static::assertTrue($result->has($ids->get('product-1')));
         static::assertFalse($result->has($ids->get('product-2')));
     }
@@ -348,7 +348,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('category.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(2, $result->getTotal());
+        static::assertSame(2, $result->getTotal());
         static::assertTrue($result->has($ids->get('category-1')));
         static::assertTrue($result->has($ids->get('category-2')));
         static::assertFalse($result->has($ids->get('category-3')));
@@ -366,7 +366,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('category.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(1, $result->getTotal());
+        static::assertSame(1, $result->getTotal());
         static::assertFalse($result->has($ids->get('category-1')));
         static::assertFalse($result->has($ids->get('category-2')));
         static::assertTrue($result->has($ids->get('category-3')));
@@ -386,7 +386,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(2, $result->getTotal());
+        static::assertSame(2, $result->getTotal());
         static::assertTrue($result->has($ids->get('product-2')));
         static::assertTrue($result->has($ids->get('product-1')));
     }
@@ -405,7 +405,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(2, $result->getTotal());
+        static::assertSame(2, $result->getTotal());
         static::assertTrue($result->has($ids->get('product-2')));
         static::assertTrue($result->has($ids->get('product-1')));
 
@@ -420,7 +420,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(1, $result->getTotal());
+        static::assertSame(1, $result->getTotal());
         static::assertFalse($result->has($ids->get('product-2')));
         static::assertTrue($result->has($ids->get('product-1')));
     }
@@ -439,7 +439,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(1, $result->getTotal());
+        static::assertSame(1, $result->getTotal());
         static::assertFalse($result->has($ids->get('product-2')));
         static::assertTrue($result->has($ids->get('product-1')));
     }
@@ -459,7 +459,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('category.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(2, $result->getTotal());
+        static::assertSame(2, $result->getTotal());
         static::assertTrue($result->has($ids->get('category-1')));
         static::assertTrue($result->has($ids->get('category-2')));
         static::assertFalse($result->has($ids->get('category-3')));
@@ -479,7 +479,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(1, $result->getTotal());
+        static::assertSame(1, $result->getTotal());
         static::assertFalse($result->has($ids->get('product-2')));
         static::assertTrue($result->has($ids->get('product-1')));
     }
@@ -498,7 +498,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(1, $result->getTotal());
+        static::assertSame(1, $result->getTotal());
         static::assertFalse($result->has($ids->get('product-2')));
         static::assertTrue($result->has($ids->get('product-1')));
     }
@@ -518,7 +518,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product_manufacturer.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(1, $result->getTotal());
+        static::assertSame(1, $result->getTotal());
         static::assertTrue($result->has($ids->get('manufacturer-1')));
         static::assertFalse($result->has($ids->get('manufacturer-2')));
 
@@ -534,7 +534,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product_manufacturer.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(2, $result->getTotal());
+        static::assertSame(2, $result->getTotal());
         static::assertTrue($result->has($ids->get('manufacturer-1')));
         static::assertTrue($result->has($ids->get('manufacturer-2')));
     }
@@ -553,7 +553,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(2, $result->getTotal());
+        static::assertSame(2, $result->getTotal());
         static::assertTrue($result->has($ids->get('product-2')));
         static::assertTrue($result->has($ids->get('product-1')));
 
@@ -568,7 +568,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(2, $result->getTotal());
+        static::assertSame(2, $result->getTotal());
         static::assertTrue($result->has($ids->get('product-2')));
         static::assertTrue($result->has($ids->get('product-1')));
     }
@@ -587,7 +587,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(1, $result->getTotal());
+        static::assertSame(1, $result->getTotal());
         static::assertTrue($result->has($ids->get('product-1')));
         static::assertFalse($result->has($ids->get('product-2')));
     }
@@ -606,7 +606,7 @@ class JoinFilterTest extends TestCase
         $result = Context::createDefaultContext()->enableInheritance(fn (Context $context) => static::getContainer()->get('product.repository')
             ->searchIds($criteria, $context));
 
-        static::assertEquals(3, $result->getTotal());
+        static::assertSame(3, $result->getTotal());
         static::assertTrue($result->has($ids->get('product-2')));
         static::assertTrue($result->has($ids->get('product-1')));
         static::assertTrue($result->has($ids->get('product-1-variant')));
@@ -625,7 +625,7 @@ class JoinFilterTest extends TestCase
         $result = Context::createDefaultContext()->enableInheritance(fn (Context $context) => static::getContainer()->get('product.repository')
             ->searchIds($criteria, $context));
 
-        static::assertEquals(3, $result->getTotal());
+        static::assertSame(3, $result->getTotal());
         static::assertFalse($result->has($ids->get('product-2')));
         static::assertTrue($result->has($ids->get('product-1')));
         static::assertTrue($result->has($ids->get('product-1-variant')));
@@ -646,7 +646,7 @@ class JoinFilterTest extends TestCase
         $result = Context::createDefaultContext()->enableInheritance(fn (Context $context) => static::getContainer()->get('product.repository')
             ->searchIds($criteria, $context));
 
-        static::assertEquals(2, $result->getTotal());
+        static::assertSame(2, $result->getTotal());
         static::assertFalse($result->has($ids->get('product-2')));
         static::assertTrue($result->has($ids->get('product-1')));
         static::assertTrue($result->has($ids->get('product-1-variant')));
@@ -665,7 +665,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(2, $result->getTotal());
+        static::assertSame(2, $result->getTotal());
         static::assertTrue($result->has($ids->get('product-2')));
         static::assertTrue($result->has($ids->get('product-1')));
     }
@@ -683,7 +683,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(2, $result->getTotal());
+        static::assertSame(2, $result->getTotal());
         static::assertTrue($result->has($ids->get('product-2')));
         static::assertTrue($result->has($ids->get('product-1')));
     }
@@ -701,7 +701,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(2, $result->getTotal());
+        static::assertSame(2, $result->getTotal());
         static::assertTrue($result->has($ids->get('product-2')));
         static::assertTrue($result->has($ids->get('product-1')));
         static::assertFalse($result->has($ids->get('product-3')));
@@ -718,7 +718,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(2, $result->getTotal());
+        static::assertSame(2, $result->getTotal());
         static::assertTrue($result->has($ids->get('product-3')));
         static::assertTrue($result->has($ids->get('product-1-variant')));
         static::assertFalse($result->has($ids->get('product-1')));
@@ -736,7 +736,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(2, $result->getTotal());
+        static::assertSame(2, $result->getTotal());
         static::assertTrue($result->has($ids->get('product-3')));
         static::assertTrue($result->has($ids->get('product-1-variant')));
         static::assertFalse($result->has($ids->get('product-2')));
@@ -754,7 +754,7 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(2, $result->getTotal());
+        static::assertSame(2, $result->getTotal());
         static::assertFalse($result->has($ids->get('product-2')));
         static::assertFalse($result->has($ids->get('product-1')));
         static::assertTrue($result->has($ids->get('product-3')));

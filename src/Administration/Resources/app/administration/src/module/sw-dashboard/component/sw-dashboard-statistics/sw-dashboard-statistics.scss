@@ -45,7 +45,7 @@ $content-max-width: 960px;
             }
 
             &-number-value {
-                font-size: ($font-size-m * 2.5);
+                font-size: $font-size-3xl;
             }
         }
     }
@@ -56,5 +56,9 @@ $content-max-width: 960px;
 
     &__help-text {
         margin-left: 8px;
+    }
+
+    .sw-block-field__block {
+        height: auto;
     }
 }

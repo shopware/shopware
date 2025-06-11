@@ -45,7 +45,8 @@
       "to": "Bis",
       "bulkEdit": "Mehrfachänderung",
       "back": "Zurück",
-      "discard": "Verwerfen"
+      "discard": "Verwerfen",
+      "submit": "Absenden"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
@@ -826,6 +827,60 @@
       }
     },
     "sw-condition-generic": {
+      "dayOfWeek": {
+        "dayOfWeek": {
+          "options": {
+            "1": "Montag",
+            "2": "Dienstag",
+            "3": "Mittwoch",
+            "4": "Donnerstag",
+            "5": "Freitag",
+            "6": "Samstag",
+            "7": "Sonntag"
+          }
+        }
+      },
+      "cartLineItemOfType": {
+        "lineItemType": {
+          "options": {
+            "product": "Produkt",
+            "promotion": "Rabatt / Aufschlag"
+          }
+        }
+      },
+      "cartTaxDisplay": {
+        "taxDisplay": {
+          "options": {
+            "gross": "Brutto",
+            "net": "Netto"
+          }
+        }
+      },
+      "cartTotalPurchasePrice": {
+        "type": {
+          "options": {
+            "gross": "Brutto",
+            "net": "Netto"
+          }
+        }
+      },
+      "promotionCodeOfType": {
+        "promotionCodeType": {
+          "options": {
+            "global": "Keiner",
+            "fixed": "Festgelegt",
+            "individual": "Individuell"
+          }
+        }
+      },
+      "cartLineItemProductStates": {
+        "productState": {
+          "options": {
+            "is-download": "Digital",
+            "is-physical": "Physisch"
+          }
+        }
+      },
       "units": {
         "dimension": "mm",
         "weight": "kg",
@@ -1447,15 +1502,15 @@
       "sw-app-app-url-changed-modal": {
         "move-shop-permanently": {
           "name": "Migriere Deine Apps zur neuen Domain",
-          "description": "Verbindet Deine Apps mit der neuen Domain. Dadurch werden alle Apps für die alte Domain deaktiviert."
+          "description": "Dies ist in der Regel die richtige Option, wenn du deinen Shop dauerhaft von einer alten zu einer neuen Domain umgezogen hast. Shopware benachrichtigt die App-Server über die neue Domain (d.h. sie registrieren sich neu bei den App-Servern) und die Apps bleiben installiert. Die Shop-ID bleibt unverändert."
         },
         "reinstall-apps": {
           "name": "Installiere Deine Apps neu",
-          "description": "Verbindet Deine Apps mit der neuen und der alten Domain. Für kostenpflichtige Apps können zusätzliche Gebühren anfallen."
+          "description": "Dies ist in der Regel die richtige Option, wenn du eine Kopie deines Shops erstellt hast (z. B. eine Staging- oder Testumgebung eines Produktionsshops) und du die Apps in dieser Kopie verwenden möchtest. Shopware installiert die Apps neu und registriert sich mit der neuen Domain bei den App-Servern. Es wird eine neue Shop-ID generiert."
         },
         "uninstall-apps": {
           "name": "Deinstalliere Deine Apps",
-          "description": "Löscht alle App-Daten der neuen Domain. Die mit der alten Domain verbundenen Apps funktionieren weiterhin."
+          "description": "Dies ist normalerweise die richtige Option, wenn du eine Kopie deines Shops erstellt hast (z.B. eine Staging- oder Testumgebung eines Produktionsshops) und du die Apps in dieser Kopie nicht verwenden möchtest. Shopware löscht die Apps, ohne die App-Server zu benachrichtigen. Es wird eine neue Shop-ID generiert."
         },
         "title": "Domain-Änderung wurde festgestellt",
         "oldLabel": "Alte Domain: ",
@@ -1470,7 +1525,6 @@
         "title": "Fehlerhaft konfigurierte APP_URL",
         "explanationHeader": "Fehler bei der Verbindung mit deinen Erweiterungen.",
         "explanation": "Erweiterungen können keine Verbindung zu deinem Shop aufbauen, aufgrund einer Fehlkonfiguration in deinem System.",
-        "textGetSupport": "Kontaktiere deinen Hoster um Hilfe zu bekommen.",
         "textDetails": "Technische Details: Die Konfiguration der APP_URL ist fehlerhaft.",
         "labelLearnMoreButton": "Lerne mehr",
         "linkToDocsArticle": "https://docs.shopware.com/de/shopware-6-de/tutorials-und-faq/hinweise-zur-app-url"
@@ -1556,6 +1610,10 @@
   },
   "sw-in-app-purchase-checkout": {
     "exsTitle": "Shopware Extension Store aktivieren"
+  },
+  "sidebar": {
+    "ariaLabelButtonClose": "Seitenleiste schließen",
+    "ariaLabelButtonOpen": "Seitenleiste öffnen"
   },
   "help-center": {
     "sidebar": {

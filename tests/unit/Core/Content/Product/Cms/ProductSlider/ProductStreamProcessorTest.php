@@ -20,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -87,10 +87,7 @@ class ProductStreamProcessorTest extends TestCase
         static::assertEquals($this->getFilter(), $filter);
 
         $filter = array_shift($filters);
-        $groupingFilter = new NotFilter(
-            NotFilter::CONNECTION_AND,
-            [new EqualsFilter('displayGroup', null)]
-        );
+        $groupingFilter = new NotEqualsFilter('displayGroup', null);
 
         static::assertEquals($groupingFilter, $filter);
     }
@@ -142,7 +139,7 @@ class ProductStreamProcessorTest extends TestCase
         $slider = $slot->getData();
         static::assertInstanceOf(ProductSliderStruct::class, $slider);
         static::assertSame('product-stream-1', $slider->getStreamId());
-        static::assertEquals($products, $slider->getProducts());
+        static::assertSame($products, $slider->getProducts());
     }
 
     public function testEnrichDoesNothingWithoutEntitySearchResult(): void

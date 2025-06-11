@@ -49,6 +49,7 @@ export default {
             documentConfig: {
                 config: {
                     displayAdditionalNoteDelivery: false,
+                    fileTypes: [],
                 },
             },
             documentConfigSalesChannelOptionsCollection: [],
@@ -93,9 +94,9 @@ export default {
                 },
                 {
                     name: 'itemsPerPage',
-                    type: 'text',
+                    type: 'number',
                     config: {
-                        type: 'text',
+                        type: 'number',
                         label: this.$tc('sw-settings-document.detail.labelItemsPerPage'),
                     },
                 },
@@ -630,6 +631,10 @@ export default {
         },
 
         onAddDocumentType(type) {
+            if (!this.documentConfig.config.fileTypes) {
+                this.documentConfig.config.fileTypes = [];
+            }
+
             this.documentConfig.config.fileTypes.push(type.id);
         },
     },

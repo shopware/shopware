@@ -326,7 +326,9 @@
       "labelErrorStateChange": "Beim Setzen des Status ist ein Fehler aufgetreten:",
       "labelErrorNoAction": "Kein neuer Zustand gewählt.",
       "labelNoTransactionState": "Keine Transaktionen vorhanden",
-      "labelNoDeliveryState": "Keine Lieferungen vorhanden"
+      "labelNoDeliveryState": "Keine Lieferungen vorhanden",
+      "labelLastEditedByIntegration": "Zuletzt geändert von {integrationName} (Integration)",
+      "labelIntegration": "Integration"
     },
     "assignMailTemplateCard": {
       "cardTitle": "E-Mail-Template zuweisen",
@@ -445,6 +447,7 @@
     "stateHistoryModal": {
       "modalTitle": "Statusverlauf",
       "labelSystemUser": "System",
+      "labelIntegration": "Integration",
       "column": {
         "createdAt": "Datum",
         "entity": "Geändert",

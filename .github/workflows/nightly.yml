@@ -9,7 +9,7 @@ jobs:
   redis:
     name: Redis
     runs-on: ubuntu-24.04
-    if: github.repository == 'shopware/shopware'
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
       matrix:
@@ -39,31 +39,37 @@ jobs:
   admin:
     uses: ./.github/workflows/admin.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware'
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
   integration:
     uses: ./.github/workflows/integration.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware'
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+    with:
+      nightly: true
+  visual-tests:
+    uses: ./.github/workflows/visual-tests.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
       nightly: true
   php:
     uses: ./.github/workflows/php.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware'
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
   storefront:
     uses: ./.github/workflows/storefront.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware'
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
   downstream:
     uses: ./.github/workflows/downstream.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware'
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
       nightly: true
   prepare-release: # This will only execute dry-runs and push current trunk to the many-repos
     uses: ./.github/workflows/05-prepare-release.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware'
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
 
   nightly-6-6-x:
     runs-on: ubuntu-24.04

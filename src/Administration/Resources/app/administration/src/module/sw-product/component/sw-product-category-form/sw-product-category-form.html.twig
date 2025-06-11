@@ -56,11 +56,14 @@
                 <mt-switch
                     class="sw-field--product-active no-margin"
                     :error="productActiveError"
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :label="$tc('sw-product.settingsForm.labelActive')"
                     :disabled="props.isInherited || !allowEdit"
                     :model-value="props.currentValue"
                     @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
             </template>
         </sw-inherit-wrapper>
@@ -185,6 +188,7 @@
                 class="sw-product-category-form__search-keyword-field"
                 :value="currentValue ? currentValue : []"
                 :placeholder="$tc('sw-product.categoryForm.placeholderSearchKeywords')"
+                :disabled="isInherited || !allowEdit"
                 @update:value="updateCurrentValue"
             >
                 <template #message-add-data>

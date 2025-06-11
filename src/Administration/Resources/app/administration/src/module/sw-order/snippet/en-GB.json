@@ -326,7 +326,9 @@
       "labelErrorStateChange": "An error occured while updating the status:",
       "labelErrorNoAction": "Status unchanged.",
       "labelNoTransactionState": "No transactions yet",
-      "labelNoDeliveryState": "No deliveries yet"
+      "labelNoDeliveryState": "No deliveries yet",
+      "labelLastEditedByIntegration": "Last edited by {integrationName} (Integration)",
+      "labelIntegration": "Integration"
     },
     "assignMailTemplateCard": {
       "cardTitle": "Assign email template",
@@ -445,6 +447,7 @@
     "stateHistoryModal": {
       "modalTitle": "Status history",
       "labelSystemUser": "System",
+      "labelIntegration": "Integration",
       "column": {
         "createdAt": "Date",
         "entity": "Changed",

@@ -84,6 +84,7 @@
     "indexLinkService": "Service/Hilfe",
     "searchNoResult": "Keine Suchergebnisse gefunden.",
     "wishlist": "Merkzettel",
+    "wishlistAriaLiveTemplate": "Du hast %counter% Produkte auf dem Merkzettel",
     "navigationAriaLabel": "Hauptnavigation",
     "topBarAriaLabel": "Shop-Einstellungen",
     "languageTrigger": "Sprache ändern (%lang% ist die aktuelle Sprache)",
@@ -116,6 +117,7 @@
     "VIOLATION::LAST_NAME_IS_TOO_LONG": "Eingabe zu lang. Bitte geben Sie Ihren Namen in abgekürzter Form ein.",
     "VIOLATION::TITLE_IS_TOO_LONG": "Eingabe zu lang. Bitte geben Sie nur Ihren Haupttitel ein oder verwenden Sie Abkürzungen.",
     "VIOLATION::ZIPCODE_IS_TOO_LONG": "Eingabe zu lang. Bitte geben Sie eine gültige Postleitzahl ein.",
+    "VIOLATION::PASSWORD_IS_TOO_LONG": "Das gewählte Passwort ist zu lang.",
     "message-default": "Leider ist etwas schiefgelaufen",
     "message-404": "Die angeforderte Seite kann nicht gefunden werden.",
     "addToCartError": "Beim Hinzufügen zum Warenkorb ist ein Fehler aufgetreten.",
@@ -464,8 +466,8 @@
     "summaryTotalPrice": "Gesamtsumme",
     "summaryTotalPriceRounded": "Gesamtsumme gerundet",
     "summaryNetPrice": "Gesamtnettosumme",
-    "summaryTax": "zzgl. %rate% % MwSt.",
-    "summaryTaxLabeled": "zzgl. %rate% % %label%",
+    "summaryTax": "zzgl. %rate% % MwSt.:",
+    "summaryTaxLabeled": "zzgl. %rate% % %label%:",
     "summaryOffCanvasLabel": "Warenkorb-Zusammenfassung",
     "proceedLink": "Zur Kasse",
     "addressEqualText": "Entspricht der Lieferadresse",
@@ -703,20 +705,45 @@
     "reviewRatingAltText": "Bewertung mit %points% von %maxPoints% Sternen",
     "reviewNotPublicYetAlert": "Ihre Bewertung wurde noch nicht freigeschaltet",
     "unavailable": "Nicht verfügbar",
-    "unavailableTooltip": "Diese Option ist zurzeit nicht verfügbar."
+    "unavailableTooltip": "Diese Option ist zurzeit nicht verfügbar.",
+    "reviewTitleMinLengthHint": "Bitte geben Sie mindestens 5 Zeichen ein.",
+    "reviewTextMinLengthHint": "Bitte geben Sie mindestens 40 Zeichen ein."
   },
   "spatial": {
-    "scanQrCode": "QR-Code scannen",
-    "pointToQrCode": "Richten Sie das mobile Gerät auf den QR-Code, um das Produkt im Modus \"Augmented Reality\" anzuzeigen",
-    "arSupportInFollowingDevices": "Das \"Augmented-Reality-Erlebnis\" wird von den folgenden Geräten unterstützt:",
-    "arSupportDevices": "iOS11+, Android 8.0+ mit ARCore 1.9 Unterstützung",
-    "arSupportMobileHint": "Es sieht so aus, als werde Ihr Browser nicht unterstützt. Versuchen Sie es mit Safari auf iOS oder Google Chrome auf Android.",
-    "moveTheDeviceToStart": "Bewegen Sie das Gerät, um zu beginnen",
-    "tapToPlaceTheObject": "Tippen Sie, um das Objekt zu platzieren",
-    "openAugmentedRealityView": "Augmented-Reality-Ansicht öffnen",
-    "augmentedRealityView": "Augmented-Reality-Ansicht",
-    "openArView": "AR-Ansicht öffnen",
-    "openArViewDescription": "Augmented-Reality-Ansicht öffnen"
+    "ar": {
+      "scanQrCode": "QR-Code scannen",
+      "pointToQrCode": "Richte die Kamera des Mobilgeräts auf den QR-Code, um das Produkt in Augmented Reality anzuzeigen.",
+      "moveTheDeviceToStart": "Bewege das Gerät, um zu beginnen",
+      "tapToPlaceTheObject": "Tippe, um das Objekt zu platzieren",
+      "openAugmentedRealityView": "Augmented-Reality-Ansicht öffnen",
+      "augmentedRealityView": "Augmented-Reality-Ansicht",
+      "openArView": "AR-Ansicht öffnen",
+      "launchingArView": "Starte AR-Ansicht ...",
+      "openArViewDescription": "Augmented-Reality-Ansicht öffnen",
+      "whyDoISeeThis": "Warum sehe ich diese Meldung?",
+      "errors": {
+        "desktopNotSupported": {
+          "reason": "Augmented Reality wird auf Desktop-Geräten nicht unterstützt.",
+          "solution": "Bitte öffne diese Seite auf Deinem Mobilgerät, um AR zu starten."
+        },
+        "notSafariOnIOS": {
+          "reason": "Augmented Reality wird auf iOS nur in Safari unterstützt.",
+          "solution": "Bitte verwende Safari um AR zu nutzen."
+        },
+        "IOSVersionMismatch": {
+          "reason": "Augmented Reality wird auf iOS-Versionen unter 12.0 nicht unterstützt.",
+          "solution": "Bitte verwende eine neuere iOS-Version, um AR zu starten."
+        },
+        "unknownIOSError": {
+          "reason": "Ein unbekannter Fehler ist während des Starts von AR auf iOS aufgetreten.",
+          "solution": "Bitte versuche es erneut oder wende Dich an unseren Support."
+        },
+        "unknownARError": {
+          "reason": "Ein unbekannter Fehler ist während des Starts von AR aufgetreten.",
+          "solution": "Bitte versuche es erneut oder wende Dich an unseren Support."
+        }
+      }
+    }
   },
   "wishlist": {
     "cartTitle": "Ihr Merkzettel",

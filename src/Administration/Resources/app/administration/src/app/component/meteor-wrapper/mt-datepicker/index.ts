@@ -12,7 +12,7 @@ import template from './mt-datepicker.html.twig';
  * @description Wrapper component for mt-datepicker. Replaces the
  * datepicker with automatic language and formatting for the admin user.
  */
-Shopware.Component.register('mt-datepicker', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     components: {

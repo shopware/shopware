@@ -64,8 +64,7 @@ class ProductStreamIndexerTest extends TestCase
             $this->repository,
             new Serializer([], [new JsonEncoder()]),
             $this->productDefinition,
-            $this->dispatcher,
-            true
+            $this->dispatcher
         );
     }
 
@@ -86,24 +85,6 @@ class ProductStreamIndexerTest extends TestCase
 
         $message = $this->indexer->iterate(['offset' => 10]);
         static::assertInstanceOf(ProductStreamIndexingMessage::class, $message);
-    }
-
-    public function testIterateDisabledDoesNothing(): void
-    {
-        $indexer = new ProductStreamIndexer(
-            $this->connection,
-            $this->iteratorFactory,
-            $this->repository,
-            new Serializer([], [new JsonEncoder()]),
-            $this->productDefinition,
-            $this->dispatcher,
-            false
-        );
-
-        static::assertNull($indexer->iterate(['offset' => 10]));
-
-        $event = $this->createMock(EntityWrittenContainerEvent::class);
-        static::assertNull($indexer->update($event));
     }
 
     public function testUpdateReturnNull(): void
@@ -225,6 +206,6 @@ class ProductStreamIndexerTest extends TestCase
         $this->iteratorFactory->expects($this->once())->method('createIterator')->willReturn(new OffsetQuery($queryBuilder));
 
         $total = $this->indexer->getTotal();
-        static::assertEquals(1, $total);
+        static::assertSame(1, $total);
     }
 }

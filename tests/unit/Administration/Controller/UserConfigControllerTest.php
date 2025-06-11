@@ -92,7 +92,7 @@ class UserConfigControllerTest extends TestCase
 
         static::assertNotFalse($response->getContent());
         static::assertJsonStringEqualsJsonString('{}', $response->getContent());
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
     public function testUpdateConfigPerformsMassUpsertEmptyWhenPostUpdateConfigs(): void
@@ -108,6 +108,6 @@ class UserConfigControllerTest extends TestCase
 
         static::assertNotFalse($response->getContent());
         static::assertJsonStringEqualsJsonString('{}', $response->getContent());
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 }

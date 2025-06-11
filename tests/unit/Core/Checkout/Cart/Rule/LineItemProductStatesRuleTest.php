@@ -62,7 +62,7 @@ class LineItemProductStatesRuleTest extends TestCase
                 State::IS_DOWNLOAD,
             ]);
 
-        static::assertEquals($expected->getData(), $config->getData());
+        static::assertSame($expected->getData(), $config->getData());
     }
 
     /**

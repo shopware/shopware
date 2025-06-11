@@ -20,6 +20,6 @@ class EntityCollectionTypeTest extends TestCase
             'entityClass' => CustomerDefinition::class,
         ];
 
-        static::assertEquals($expected, (new EntityCollectionType(CustomerDefinition::class))->toArray());
+        static::assertSame($expected, (new EntityCollectionType(CustomerDefinition::class))->toArray());
     }
 }

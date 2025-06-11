@@ -82,7 +82,7 @@ class CustomerGroupStorerTest extends TestCase
         $this->repository->expects($this->once())->method('search')->willReturn($result);
         $customerGroup = $storable->getData('customerGroup');
 
-        static::assertEquals($customerGroup, $entity);
+        static::assertSame($customerGroup, $entity);
     }
 
     public function testLazyLoadNullEntity(): void
@@ -96,7 +96,7 @@ class CustomerGroupStorerTest extends TestCase
         $this->repository->expects($this->once())->method('search')->willReturn($result);
         $customerGroup = $storable->getData('customerGroup');
 
-        static::assertEquals($customerGroup, $entity);
+        static::assertSame($customerGroup, $entity);
     }
 
     public function testLazyLoadNullId(): void

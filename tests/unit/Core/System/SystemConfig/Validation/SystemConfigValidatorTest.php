@@ -115,7 +115,7 @@ class SystemConfigValidatorTest extends TestCase
 
         $result = $refMethod->invoke($systemConfigValidation, 'dummy domain', $contextMock);
 
-        static::assertEquals([], $result);
+        static::assertSame([], $result);
     }
 
     public function testGetSystemConfigByDomainWithException(): void
@@ -134,7 +134,7 @@ class SystemConfigValidatorTest extends TestCase
 
         $result = $refMethod->invoke($systemConfigValidation, 'dummy domain', $contextMock);
 
-        static::assertEquals($result, []);
+        static::assertSame($result, []);
     }
 
     /**

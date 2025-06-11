@@ -19,10 +19,12 @@
 
         &.is--placeholder {
             color: var(--color-text-secondary-default);
+            white-space: nowrap;
+            overflow: hidden;
         }
     }
 
-    &.sw-field--medium {
+    &.sw-select.sw-field--medium {
         .sw-select__selection {
             padding: 0 6px;
         }
@@ -32,7 +34,7 @@
         }
     }
 
-    &.sw-field--small {
+    &.sw-select.sw-field--small {
         .sw-select__selection {
             padding: 0 6px;
         }

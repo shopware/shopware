@@ -89,8 +89,8 @@ class CrossSellingRouteTest extends TestCase
 
         $element = $result->first();
         static::assertNotNull($element);
-        static::assertEquals(3, $element->getTotal());
-        static::assertEquals('Test Cross Selling', $element->getCrossSelling()->getName());
+        static::assertSame(3, $element->getTotal());
+        static::assertSame('Test Cross Selling', $element->getCrossSelling()->getName());
 
         $lastPrice = 0;
         foreach ($element->getProducts() as $product) {
@@ -125,8 +125,8 @@ class CrossSellingRouteTest extends TestCase
 
         $element = $result->first();
         static::assertNotNull($element);
-        static::assertEquals(3, $element->getTotal());
-        static::assertEquals('Test Cross Selling', $element->getCrossSelling()->getName());
+        static::assertSame(3, $element->getTotal());
+        static::assertSame('Test Cross Selling', $element->getCrossSelling()->getName());
 
         $lastPrice = 0;
         foreach ($element->getProducts() as $product) {
@@ -165,8 +165,8 @@ class CrossSellingRouteTest extends TestCase
 
         $element = $result->first();
         static::assertNotNull($element);
-        static::assertEquals(3, $element->getTotal());
-        static::assertEquals('Test Cross Selling', $element->getCrossSelling()->getName());
+        static::assertSame(3, $element->getTotal());
+        static::assertSame('Test Cross Selling', $element->getCrossSelling()->getName());
 
         $lastPrice = 0;
         foreach ($element->getProducts() as $product) {
@@ -205,8 +205,8 @@ class CrossSellingRouteTest extends TestCase
 
         $element = $result->first();
         static::assertNotNull($element);
-        static::assertEquals(1, $element->getTotal());
-        static::assertEquals('Test Cross Selling', $element->getCrossSelling()->getName());
+        static::assertSame(1, $element->getTotal());
+        static::assertSame('Test Cross Selling', $element->getCrossSelling()->getName());
 
         $lastPrice = 0;
         foreach ($element->getProducts() as $product) {
@@ -294,7 +294,7 @@ class CrossSellingRouteTest extends TestCase
         static::assertArrayHasKey('crossSelling', $response[0]);
         static::assertArrayHasKey('name', $response[0]['crossSelling']);
         static::assertArrayHasKey('id', $response[0]['crossSelling']);
-        static::assertEquals('Test Cross Selling', $response[0]['crossSelling']['name']);
+        static::assertSame('Test Cross Selling', $response[0]['crossSelling']['name']);
 
         $expected = ['id', 'name', 'apiAlias'];
         sort($expected);
@@ -302,14 +302,14 @@ class CrossSellingRouteTest extends TestCase
         static::assertIsArray($response[0]['crossSelling']);
         $properties = array_keys($response[0]['crossSelling']);
         sort($properties);
-        static::assertEquals($expected, $properties);
+        static::assertSame($expected, $properties);
 
         static::assertArrayHasKey('products', $response[0]);
         static::assertCount(5, $response[0]['products']);
 
         $properties = array_keys($response[0]['products'][0]);
         sort($properties);
-        static::assertEquals($expected, $properties);
+        static::assertSame($expected, $properties);
     }
 
     public function testLoadForProductWithProductCrossSellingAssignedProductsOutOfStock(): void
@@ -378,7 +378,7 @@ class CrossSellingRouteTest extends TestCase
 
         static::assertCount(2, $result);
         foreach ($result as $index => $element) {
-            static::assertEquals($crossSellingIds[$index], $element->getCrossSelling()->getId());
+            static::assertSame($crossSellingIds[$index], $element->getCrossSelling()->getId());
         }
     }
 
@@ -440,7 +440,7 @@ class CrossSellingRouteTest extends TestCase
 
         static::assertCount(2, $result);
         foreach ($result as $index => $element) {
-            static::assertEquals($crossSellingIds[$index], $element->getCrossSelling()->getId());
+            static::assertSame($crossSellingIds[$index], $element->getCrossSelling()->getId());
         }
     }
 
@@ -594,7 +594,9 @@ class CrossSellingRouteTest extends TestCase
         }
 
         $this->productRepository->create($products, $this->salesChannelContext->getContext());
-        $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
+        $lastProduct = end($products);
+        static::assertIsArray($lastProduct);
+        $this->addTaxDataToSalesChannel($this->salesChannelContext, $lastProduct['tax']);
 
         return $products;
     }
@@ -602,8 +604,14 @@ class CrossSellingRouteTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function getProductData(?string $id = null, ?string $manufacturerId = null, ?string $taxId = null, bool $withChild = false, int $stock = 1, bool $isCloseout = false): array
-    {
+    private function getProductData(
+        ?string $id = null,
+        ?string $manufacturerId = null,
+        ?string $taxId = null,
+        bool $withChild = false,
+        int $stock = 1,
+        bool $isCloseout = false
+    ): array {
         $price = random_int(0, 10);
 
         $product = [

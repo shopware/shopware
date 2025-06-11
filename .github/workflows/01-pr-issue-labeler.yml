@@ -1,20 +1,42 @@
 name: Label Issues and PRs
 
 on:
-- pull_request
-- issues
+  pull_request:
+  issues:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 1 * * *"
 
 jobs:
   label:
     runs-on: ubuntu-24.04
+    if: github.event_name == 'issues' || github.event_name == 'pull_request'
     steps:
-    - uses: srvaroa/labeler@0a20eccb8c94a1ee0bed5f16859aece1c45c3e55 # 1.13.0
-      env:
-        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - uses: srvaroa/labeler@0a20eccb8c94a1ee0bed5f16859aece1c45c3e55 # 1.13.0
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+  cleanup-needs-triage:
+    runs-on: ubuntu-24.04
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+      - shell: bash
+        run: npm ci --prefix .github/bin/js/
+      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+        with:
+          script: |
+            const { cleanupNeedsTriage } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
+            await cleanupNeedsTriage({github, core, context}, false)
 
   apply-team-label:
     runs-on: ubuntu-24.04
-    if: github.event_name == 'issues' && ( github.event.action == 'opened' || github.event.action == 'reopened' )
+    if: github.event.act || (github.event_name == 'issues' && ( github.event.action == 'opened' || github.event.action == 'reopened' ))
     env:
       TEAM_LABEL: "domain/customer-support"
     permissions:
@@ -22,16 +44,17 @@ jobs:
       issues: write
     steps:
       - id: sts
+        if: ${{ !github.event.act }}
         continue-on-error: true
         uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
         with:
           scope: shopware
           identity: ReadCollaborators
-      -  uses: tspascoal/get-user-teams-membership@57e9f42acd78f4d0f496b3be4368fc5f62696662 # 3
-         id: actorTeams
-         with:
-            username: ${{ github.actor }}
-            GITHUB_TOKEN: ${{ steps.sts.outputs.token }}
+      - uses: tspascoal/get-user-teams-membership@57e9f42acd78f4d0f496b3be4368fc5f62696662 # 3
+        id: actorTeams
+        with:
+          username: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ github.event.act && secrets.GITHUB_TOKEN || steps.sts.outputs.token }}
       - name: debug
         if: runner.debug
         run: |
@@ -49,9 +72,51 @@ jobs:
               issue_number: issueNumber,
               labels: [teamLabel],
             });
-          
+
             if (response.status !== 200) {
               throw new Error(`Failed to add label ${teamLabel} to issue #${issueNumber}`);
+            }
+
+  apply-contributor-label:
+    runs-on: ubuntu-24.04
+    if: github.event.act || (github.event_name == 'pull_request' && ( github.event.action == 'opened' || github.event.action == 'reopened' ))
+    env:
+      CONTRIBUTOR_LABEL: "external-contribution"
+    permissions:
+      id-token: write
+      issues: write
+    steps:
+      - id: sts
+        if: ${{ !github.event.act }}
+        continue-on-error: true
+        uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
+        with:
+          scope: shopware
+          identity: ReadCollaborators
+      - uses: tspascoal/get-user-teams-membership@57e9f42acd78f4d0f496b3be4368fc5f62696662 # 3
+        id: actorTeams
+        with:
+          username: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ github.event.act && secrets.GITHUB_TOKEN || steps.sts.outputs.token }}
+      - if: runner.debug
+        run: |
+          echo "${{ github.actor }} is member of teams: ${{ steps.actorTeams.outputs.teams }}"
+      - if: ${{ join(steps.actorTeams.outputs.teams, '') == '' }}
+        uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+        with:
+          script: |
+            const pullRequestNumber = context.payload.pull_request.number;
+            const contribLabel = process.env.CONTRIBUTOR_LABEL;
+
+            const response = await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pullRequestNumber,
+              labels: [contribLabel],
+            });
+
+            if (response.status !== 200) {
+              throw new Error(`Failed to add label ${contribLabel} to issue #${pullRequestNumber}`);
             }
 
   move-to-wip:
@@ -78,3 +143,69 @@ jobs:
           script: |
             const { setStatusInProjects } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
             await setStatusInProjects({github, core, context}, { fromStatus: "Done", toStatus: "in progress" })
+
+  mark-stale-issues:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    permissions:
+      contents: read
+      # TODO: Set to write when Dry Run gets disabled
+      issues: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+      - shell: bash
+        run: npm ci --prefix .github/bin/js/
+      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+        env:
+          PROJECT_NUMBER: 27 # Framework Group
+          DRY_RUN: true
+        with:
+          script: |
+            const { markStaleIssues } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
+            await markStaleIssues({github, core, context}, process.env.PROJECT_NUMBER, process.env.DRY_RUN)
+
+  close-stale-issues:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    needs: [mark-stale-issues]
+    permissions:
+      contents: read
+      # TODO: Set to write when Dry Run gets disabled
+      issues: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+      - shell: bash
+        run: npm ci --prefix .github/bin/js/
+      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+        env:
+          DRY_RUN: true
+        with:
+          script: |
+            const { closeStaleIssues } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
+            await closeStaleIssues({github, core, context}, process.env.DRY_RUN)
+
+  priority-sync:
+    runs-on: ubuntu-24.04
+    if: github.event_name == 'issues' && github.event.action == 'labeled' && startsWith(github.event.label.name, 'priority')
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+      - id: sts
+        continue-on-error: true
+        uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
+        with:
+          scope: shopware
+          identity: ManageProjects
+      - shell: bash
+        run: npm ci --prefix .github/bin/js/
+      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+        with:
+          github-token: ${{ steps.sts.outputs.token }}
+          script: |
+            const { syncPriorities } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
+            await syncPriorities({github, core, context})

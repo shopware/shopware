@@ -74,7 +74,6 @@ jobs:
           echo "Alternatively you also can run these in the DevEnv shell"
           exit $status  # Fail the job if ludtwig . failed
 
-
   jest:
     name: "Jest Storefront"
     runs-on: ubuntu-24.04
@@ -119,7 +118,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
       - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # 4
         with:
-          node-version: 20
+          node-version: 22
       - name: install packages
         working-directory: src/Storefront/Resources/app/storefront
         run: |

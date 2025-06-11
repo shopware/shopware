@@ -18,6 +18,9 @@ interface StateMachineHistoryData {
     user?: {
         username: string;
     };
+    integration?: {
+        label: string;
+    };
     entity: string;
     referencedId?: string;
 }
@@ -46,15 +49,16 @@ export default Component.wrapComponentConfig({
             type: Object as PropType<Entity<'order'>>,
             required: true,
         },
+        /** @deprecated tag:v6.8.0 - will be removed without replacment */
         isLoading: {
             type: Boolean,
-            required: true,
+            required: false,
+            default: false,
         },
     },
 
     data(): {
         dataSource: StateMachineHistoryData[];
-        statesLoading: boolean;
         limit: number;
         page: number;
         total: number;
@@ -62,7 +66,6 @@ export default Component.wrapComponentConfig({
     } {
         return {
             dataSource: [],
-            statesLoading: true,
             limit: 10,
             page: 1,
             total: 0,
@@ -103,6 +106,7 @@ export default Component.wrapComponentConfig({
             criteria.addAssociation('fromStateMachineState');
             criteria.addAssociation('toStateMachineState');
             criteria.addAssociation('user');
+            criteria.addAssociation('integration');
             criteria.addSorting({
                 field: 'state_machine_history.createdAt',
                 order: 'ASC',
@@ -143,6 +147,18 @@ export default Component.wrapComponentConfig({
 
         hasMultipleTransactions(): boolean {
             return (this.order?.transactions?.filter((v, idx, a) => a.indexOf(v) === idx)?.length ?? 0) > 1;
+        },
+
+        statesLoading: {
+            get(): boolean {
+                return Shopware.Store.get('swOrderDetail').loading.states;
+            },
+            set(value: boolean): void {
+                Shopware.Store.get('swOrderDetail').setLoading([
+                    'states',
+                    value,
+                ]);
+            },
         },
     },
 
@@ -226,14 +242,18 @@ export default Component.wrapComponentConfig({
                     knownTransactionIds.push(entry.referencedId);
                 }
 
-                // @ts-expect-error - the entityName have to be order, order_transaction or order_delivery
+                // @ts-expect-error - the entityName has to be order, order_transaction or order_delivery
                 states[entry.entityName] = entry.toStateMachineState;
                 // @ts-expect-error - states exists
                 entries.push(this.createEntry(states, entry));
             });
 
             const lastTransaction = this.order.transactions?.last();
-            if (!!lastTransaction && !knownTransactionIds.includes(lastTransaction.id)) {
+            if (
+                !!lastTransaction &&
+                !knownTransactionIds.includes(lastTransaction.id) &&
+                (this.order.transactions?.length ?? 0) > 1
+            ) {
                 entries.push(
                     this.createEntry(
                         {
@@ -259,6 +279,7 @@ export default Component.wrapComponentConfig({
                 delivery: states.order_delivery,
                 createdAt: 'orderDateTime' in entry ? entry.orderDateTime : entry.createdAt,
                 user: 'user' in entry ? entry.user : undefined,
+                integration: 'integration' in entry ? entry.integration : undefined,
                 entity: 'entityName' in entry ? entry.entityName : entry.getEntityName(),
                 referencedId: 'referencedId' in entry ? entry.referencedId : entry.id,
             };
@@ -289,6 +310,18 @@ export default Component.wrapComponentConfig({
             const idx = this.order.transactions?.findIndex((transaction) => transaction.id === item.referencedId) ?? -1;
 
             return String(idx >= 0 ? idx + 1 : '');
+        },
+
+        getStateChangeAuthor(item: StateMachineHistoryData): string {
+            if (item.user) {
+                return item.user.username;
+            }
+            if (item.integration) {
+                const integrationLabel = item.integration.label;
+                return `${integrationLabel} (${this.$t('sw-order.stateHistoryModal.labelIntegration')})`;
+            }
+
+            return this.$t('sw-order.stateHistoryModal.labelSystemUser');
         },
     },
 });

@@ -199,7 +199,7 @@ class ProductControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame('frontend.product.reviews', $this->controller->forwardToRoute);
-        static::assertEquals(
+        static::assertSame(
             [
                 'productId' => $ids->get('productId'),
                 'success' => 1,
@@ -220,7 +220,7 @@ class ProductControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame('frontend.product.reviews', $this->controller->forwardToRoute);
-        static::assertEquals(
+        static::assertSame(
             [
                 'productId' => $ids->get('productId'),
                 'success' => 2,
@@ -303,7 +303,7 @@ class ProductControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame('storefront/component/review/review.html.twig', $this->controller->renderStorefrontView);
-        static::assertEquals(
+        static::assertSame(
             [
                 'reviews' => $reviewResult,
                 'ratingSuccess' => null,

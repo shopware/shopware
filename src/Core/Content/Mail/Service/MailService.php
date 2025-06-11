@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -48,7 +49,8 @@ class MailService extends AbstractMailService
         private readonly EntityRepository $salesChannelRepository,
         private readonly SystemConfigService $systemConfigService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
     ) {
     }
 
@@ -104,7 +106,19 @@ class MailService extends AbstractMailService
             return null;
         }
 
-        $this->mailSender->send($mail);
+        try {
+            $this->mailSender->send($mail);
+        } catch (\Throwable $exception) {
+            $this->mailError(
+                errorMessage: \sprintf('Could not send mail with error message: %s', $exception->getMessage()),
+                context: $context,
+                templateData: $templateData,
+                template: (string) $mail->getHtmlBody(),
+                exception: $exception,
+            );
+
+            return null;
+        }
 
         $this->eventDispatcher->dispatch(new MailSentEvent(
             $data['subject'],
@@ -126,7 +140,6 @@ class MailService extends AbstractMailService
         $definition->add('contentHtml', new NotBlank(), new Type('string'));
         $definition->add('contentPlain', new NotBlank(), new Type('string'));
         $definition->add('subject', new NotBlank(), new Type('string'));
-        $definition->add('senderName', new NotBlank(), new Type('string'));
 
         return $definition;
     }
@@ -162,8 +175,11 @@ class MailService extends AbstractMailService
                 $templateData['order']['deepLinkCode'] = 'home';
             }
         }
-
-        foreach (['subject', 'senderName'] as $renderDataIndex) {
+        $mailOptions = ['subject'];
+        if (\is_string($data['senderName'])) {
+            $mailOptions[] = 'senderName';
+        }
+        foreach ($mailOptions as $renderDataIndex) {
             try {
                 $data[$renderDataIndex] = $this->templateRenderer->render($data[$renderDataIndex], $templateData, $context, false);
             } catch (\Throwable $e) {
@@ -220,6 +236,11 @@ class MailService extends AbstractMailService
             $data['binAttachments'] ?? null
         );
 
+        $mail->getHeaders()->addTextHeader(
+            'Content-Language',
+            $this->languageLocaleProvider->getLocaleForLanguageId($context->getLanguageId())
+        );
+
         if ($testMode) {
             $mail->getHeaders()
                 ->addTextHeader('X-Shopware-Event-Name', $templateData['eventName'] ?? '')
@@ -234,15 +255,21 @@ class MailService extends AbstractMailService
     /**
      * @param array<string, mixed> $templateData
      */
-    private function mailError(string $errorMessage, Context $context, array $templateData, ?string $template = null, ?\Throwable $e = null, Level $level = Level::Error): void
-    {
+    private function mailError(
+        string $errorMessage,
+        Context $context,
+        array $templateData,
+        ?string $template = null,
+        ?\Throwable $exception = null,
+        Level $level = Level::Error
+    ): void {
         $this->eventDispatcher->dispatch(
-            new MailErrorEvent($context, $level, $e, $errorMessage, $template, $templateData)
+            new MailErrorEvent($context, $level, $exception, $errorMessage, $template, $templateData)
         );
 
         $this->logger->log($level, $errorMessage, array_merge([
             'template' => $template,
-            'exception' => (string) $e,
+            'exception' => (string) $exception,
         ], $templateData));
     }
 

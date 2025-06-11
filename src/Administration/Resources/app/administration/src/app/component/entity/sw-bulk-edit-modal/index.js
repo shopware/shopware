@@ -5,12 +5,10 @@
 import template from './sw-bulk-edit-modal.html.twig';
 import './sw-bulk-edit-modal.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-bulk-edit-modal', {
+export default {
     template,
 
     emits: [
@@ -99,8 +97,9 @@ Component.register('sw-bulk-edit-modal', {
 
             if (this.itemCount > 0) {
                 Shopware.Store.get('shopwareApps').selectedIds = Object.keys(this.bulkEditSelection);
+                Shopware.Store.get('swBulkEdit').selectedIds = Object.keys(this.bulkEditSelection);
                 this.$emit('edit-items');
             }
         },
     },
-});
+};

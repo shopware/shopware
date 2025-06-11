@@ -98,8 +98,8 @@
                                 v-model:value="customerGroup.displayGross"
                                 bordered
                                 :label="$tc('sw-settings-customer-group.detail.fieldDisplayGrossLabel')"
-                                :label-option-true="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', 1)"
-                                :label-option-false="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', 0)"
+                                :label-option-true="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', {}, 1)"
+                                :label-option-false="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', {}, 0)"
                                 :disabled="!acl.can('customer_groups.editor') || undefined"
                             />
                             {% endblock %}
@@ -196,6 +196,7 @@
                         class="sw-settings-customer-group-detail__sales-channel"
                         :label="$tc('sw-settings-customer-group.registration.availabilitySalesChannel')"
                         :disabled="!acl.can('customer_groups.editor') || undefined"
+                        :criteria="registrationSalesChannelCriteria"
                     />
                     {% endblock %}
 
@@ -212,22 +213,34 @@
                     />
                     {% endblock %}
 
-                    {% block sw_settings_customer_group_detail_content_registration_url_card_seo_url %}
-                    <div
-                        v-for="seoUrl in seoUrls"
-                        :key="seoUrl.id"
+                    <mt-banner
+                        v-if="customerGroup.registrationSalesChannels?.length > 0"
+                        variant="info"
                     >
-                        {% block sw_settings_customer_group_detail_content_registration_url_card_seo_url_inner %}
-                        <!-- eslint-disable vue/valid-v-model -->
+                        {{ $t('sw-settings-customer-group.registration.domainBanner') }}
+                    </mt-banner>
 
-                        <mt-text-field
-                            :model-value="getSeoUrl(seoUrl)"
-                            :label="$tc('sw-settings-customer-group.registration.seoUrlLabel', { salesChannelName: seoUrl.salesChannel.translated.name}, 0)"
-                            :copyable="true"
-                            :disabled="true"
-                        />
-                        {% endblock %}
-                    </div>
+                    {% block sw_settings_customer_group_detail_content_registration_url_card_seo_url %}
+                    <template v-for="salesChannel in customerGroup.registrationSalesChannels">
+                        <template v-for="domain in salesChannel.domains">
+                            <template v-for="seoUrl in salesChannel.seoUrls">
+                                <template v-if="domain.languageId === seoUrl.languageId">
+                                {% block sw_settings_customer_group_detail_content_registration_url_card_seo_url_inner %}
+                                    <mt-text-field
+                                        :key="`${seoUrl.id}-${domain.id}`"
+                                        :model-value="`${domain.url}/${seoUrl.seoPathInfo}`"
+                                        :label="$tc('sw-settings-customer-group.registration.seoUrlLabel', {
+                                            salesChannelName: salesChannel.translated.name,
+                                            languageName: seoUrl.language.name
+                                        })"
+                                        :copyable="true"
+                                        :disabled="true"
+                                    />
+                                {% endblock %}
+                                </template>
+                            </template>
+                        </template>
+                    </template>
                     {% endblock %}
                 </mt-card>
                 {% endblock %}

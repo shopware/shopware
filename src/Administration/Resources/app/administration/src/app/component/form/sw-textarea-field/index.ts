@@ -1,7 +1,5 @@
 import template from './sw-textarea-field.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -9,7 +7,7 @@ const { Component } = Shopware;
  * @status ready
  * @description Wrapper component for sw-textarea-field and mt-textarea. Autoswitches between the two components.
  */
-Component.register('sw-textarea-field', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {
@@ -29,6 +27,12 @@ Component.register('sw-textarea-field', {
             type: String,
             required: false,
             default: undefined,
+        },
+
+        deprecated: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 

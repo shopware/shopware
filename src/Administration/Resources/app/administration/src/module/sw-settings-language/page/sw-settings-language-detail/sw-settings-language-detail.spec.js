@@ -258,4 +258,24 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
 
         expect(wrapper.find('.sw-field__hint').text()).toContain('textIsoCodeIsInUse');
     });
+
+    it('should load language data again after create new language', async () => {
+        const wrapper = await createWrapper(
+            [
+                'language.editor',
+            ],
+            null,
+            false,
+        );
+        await flushPromises();
+
+        const actionLoadEntitySpy = jest.spyOn(wrapper.vm, 'loadEntityData');
+        expect(actionLoadEntitySpy).not.toHaveBeenCalled();
+
+        await wrapper.setProps({
+            languageId: 'language-id-1',
+        });
+
+        expect(actionLoadEntitySpy).toHaveBeenCalledTimes(1);
+    });
 });

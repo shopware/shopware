@@ -226,7 +226,7 @@ class EntityReader implements EntityReaderInterface
 
             // add sub select for many to many field
             if ($field instanceof ManyToManyAssociationField) {
-                if ($this->isAssociationRestricted($criteria, $field->getPropertyName())) {
+                if ($this->isAssociationRestricted($criteria, $field->getPropertyName()) && !$field->is(Inherited::class)) {
                     continue;
                 }
 
@@ -806,8 +806,13 @@ class EntityReader implements EntityReaderInterface
                 $condition
             );
 
-        $query->andWhere($root . '.' . $localColumn . ' IN (:localIds)');
-        $query->setParameter('localIds', Uuid::fromHexToBytesList($collection->getIds()), ArrayParameterType::BINARY);
+        if (!$association->is(Inherited::class)) {
+            $query->andWhere($root . '.' . $localColumn . ' IN (:localIds)');
+            $query->setParameter('localIds', Uuid::fromHexToBytesList($collection->getIds()), ArrayParameterType::BINARY);
+        } else {
+            $query->andWhere($root . '.' . $referenceColumn . ' IN (:mappingIds)');
+            $query->setParameter('mappingIds', Uuid::fromHexToBytesList($this->collectManyToManyIds($collection, $association)), ArrayParameterType::BINARY);
+        }
 
         $orderBy = '';
         $parts = $query->getOrderByParts();

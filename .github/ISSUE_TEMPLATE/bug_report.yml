@@ -10,6 +10,7 @@ body:
       id: shopware-version
       attributes:
           label: Shopware Version
+          description: Please specify your Shopware version (e.g. 6.4.20.0). If you're using Shopware Cloud, simply type "cloud".
       validations:
           required: true
     - type: dropdown
@@ -18,19 +19,20 @@ body:
           label: Affected area / extension
           description: In which area or extension of the product does the behavior occur?
           options:
-            - Platform(Default)
-            - Extension:Commercial
-            - Extension:B2B-Suite
-            - Extension:CMS-Extensions
-            - Extension:Custom-Products
-            - Extension:DHL-App
-            - Extension:Digital-Sales-Room
-            - Extension:Dynamic-Access
-            - Extension:Language-Pack
-            - Extension:Migration-Tool
-            - Extension:PayPal-Integration
-            - Extension:Publisher
-            - Extension:Social-Shopping
+              - Platform(Default)
+              - Extension:Commercial
+              - Extension:B2B-Suite
+              - Extension:CMS-Extensions
+              - Extension:Custom-Products
+              - Extension:Digital-Sales-Room
+              - Extension:Dynamic-Access
+              - Extension:Language-Pack
+              - Extension:Migration-Tool
+              - Extension:PayPal-Integration
+              - Extension:Publisher
+              - Extension:Sales-Agent
+              - Extension:Recommendations
+              - Extension:Social-Shopping
       validations:
           required: true
     - type: textarea
@@ -54,3 +56,18 @@ body:
           description: Tell us how the bug can be reproduced
       validations:
           required: true
+    - type: checkboxes
+      id: def-of-done
+      attributes:
+        label: Definition of Done
+        description: Please use this checklist to indicate that the deliverable meets Shopware standards.
+        options:
+          - label: An automated test covers the fix.
+          - label: Integration/E2E testing in staging is done.
+          - label: Changelog markdown file created or updated in /changelog/_unreleased directory.
+          - label: Developer documentation written/updated.
+          - label: End user and/or developer documentation written or updated with clarification.
+          - label: Regression test created to ensure bug does not reappear, and automated regression tests pass.
+          - label: Code changes resolve the reported bug without introducing new issues.
+      validations:
+        required: false

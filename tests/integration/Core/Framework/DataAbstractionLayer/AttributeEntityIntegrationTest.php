@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
@@ -93,7 +94,9 @@ class AttributeEntityIntegrationTest extends TestCase
 
         static::assertInstanceOf(AttributeEntityDefinition::class, static::getContainer()->get('attribute_entity_with_hydrator.definition'));
         static::assertSame(EntityCollection::class, static::getContainer()->get('attribute_entity_with_hydrator.definition')->getCollectionClass());
-        static::assertSame(DummyHydrator::class, static::getContainer()->get('attribute_entity_with_hydrator.definition')->getHydratorClass());
+        $definition = static::getContainer()->get('attribute_entity_with_hydrator.definition');
+        static::assertInstanceOf(EntityDefinition::class, $definition);
+        static::assertSame(DummyHydrator::class, $definition->getHydratorClass());
 
         static::assertInstanceOf(AttributeMappingDefinition::class, static::getContainer()->get('attribute_entity_currency.definition'));
         static::assertInstanceOf(AttributeTranslationDefinition::class, static::getContainer()->get('attribute_entity_translation.definition'));
@@ -264,9 +267,9 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertSame(1, $record->int);
         static::assertSame(1.1, $record->float);
         static::assertTrue($record->bool);
-        static::assertEquals(new \DateTimeImmutable('2020-01-01 15:15:15'), $record->datetime);
-        static::assertEquals(new \DateTimeImmutable('2020-01-01 00:00:00'), $record->date);
-        static::assertEquals(new DateInterval('P1D'), $record->dateInterval);
+        static::assertSame((new \DateTimeImmutable('2020-01-01 15:15:15'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $record->datetime?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame((new \DateTimeImmutable('2020-01-01 00:00:00'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $record->date?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame((new DateInterval('P1D'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $record->dateInterval?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         static::assertSame('Europe/Berlin', $record->timeZone);
         static::assertSame(StringEnum::B, $record->enum);
         static::assertSame(['key' => 'value'], $record->json);
@@ -284,9 +287,9 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertSame(1, $record->transInt);
         static::assertSame(1.1, $record->transFloat);
         static::assertTrue($record->transBool);
-        static::assertEquals(new \DateTimeImmutable('2020-01-01 15:15:15'), $record->transDatetime);
-        static::assertEquals(new \DateTimeImmutable('2020-01-01 00:00:00'), $record->transDate);
-        static::assertEquals(new DateInterval('P1D'), $record->transDateInterval);
+        static::assertSame((new \DateTimeImmutable('2020-01-01 15:15:15'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $record->transDatetime?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame((new \DateTimeImmutable('2020-01-01 00:00:00'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $record->transDate?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame((new DateInterval('P1D'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $record->transDateInterval?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         static::assertSame('Europe/Berlin', $record->transTimeZone);
         static::assertSame(['key' => 'value'], $record->transJson);
         static::assertSame('string', $record->differentName);
@@ -306,11 +309,11 @@ class AttributeEntityIntegrationTest extends TestCase
             'int' => 1,
             'float' => 1.1,
             'bool' => true,
-            'datetime' => $record->datetime?->format(\DateTimeInterface::RFC3339_EXTENDED),
+            'datetime' => $record->datetime->format(\DateTimeInterface::RFC3339_EXTENDED),
             'autoIncrement' => 1,
             'enum' => StringEnum::B,
             'json' => ['key' => 'value'],
-            'date' => $record->date?->format(\DateTimeInterface::RFC3339_EXTENDED),
+            'date' => $record->date->format(\DateTimeInterface::RFC3339_EXTENDED),
             'dateInterval' => new DateInterval('P1D'),
             'timeZone' => 'Europe/Berlin',
             'serialized' => new PriceCollection([new Price(Defaults::CURRENCY, 1, 1, true)]),
@@ -320,9 +323,9 @@ class AttributeEntityIntegrationTest extends TestCase
             'transInt' => 1,
             'transFloat' => 1.1,
             'transBool' => true,
-            'transDatetime' => $record->transDatetime?->format(\DateTimeInterface::RFC3339_EXTENDED),
+            'transDatetime' => $record->transDatetime->format(\DateTimeInterface::RFC3339_EXTENDED),
             'transJson' => ['key' => 'value'],
-            'transDate' => $record->transDate?->format(\DateTimeInterface::RFC3339_EXTENDED),
+            'transDate' => $record->transDate->format(\DateTimeInterface::RFC3339_EXTENDED),
             'transDateInterval' => new DateInterval('P1D'),
             'transTimeZone' => 'Europe/Berlin',
             'differentName' => 'string',
@@ -806,10 +809,7 @@ class AttributeEntityIntegrationTest extends TestCase
 
         $record = $search->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
-        static::assertEquals([
-            'foo' => 'bar',
-            'bar' => 'baz',
-        ], $record->getCustomFields());
+        static::assertEquals(['bar' => 'baz', 'foo' => 'bar'], $record->getCustomFields());
         static::assertSame('bar', $record->getCustomFieldsValue('foo'));
         static::assertSame('baz', $record->getCustomFieldsValue('bar'));
     }

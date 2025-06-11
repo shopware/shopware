@@ -140,7 +140,7 @@ class CartServiceTest extends TestCase
             $context
         );
 
-        /** @phpstan-ignore-next-line */
+        /** @phpstan-ignore staticMethod.impossibleType ($isMerged modified by listener) */
         static::assertTrue($isMerged);
     }
 
@@ -300,7 +300,7 @@ class CartServiceTest extends TestCase
         $lineItem = $cart->getLineItems()->get($productId);
 
         static::assertInstanceOf(LineItem::class, $lineItem);
-        static::assertEquals(1, $lineItem->getQuantity());
+        static::assertSame(1, $lineItem->getQuantity());
         static::assertTrue($lineItem->isStackable());
         static::assertTrue($lineItem->isRemovable());
 
@@ -312,10 +312,10 @@ class CartServiceTest extends TestCase
             'removable' => false,
         ]], $context);
 
-        static::assertEquals(20, $lineItem->getQuantity());
+        static::assertSame(20, $lineItem->getQuantity());
         static::assertTrue($lineItem->isStackable());
         static::assertTrue($lineItem->isRemovable());
-        static::assertEquals('bar', $lineItem->getPayloadValue('foo'));
+        static::assertSame('bar', $lineItem->getPayloadValue('foo'));
     }
 
     public function testRemoveLineItems(): void
@@ -371,7 +371,7 @@ class CartServiceTest extends TestCase
 
         $remainingLineItem = $cart->getLineItems()->get($productId3);
         static::assertInstanceOf(LineItem::class, $remainingLineItem);
-        static::assertEquals($productId3, $remainingLineItem->getReferencedId());
+        static::assertSame($productId3, $remainingLineItem->getReferencedId());
     }
 
     public function testZeroPricedItemsCanBeAddedToCart(): void
@@ -408,16 +408,16 @@ class CartServiceTest extends TestCase
         $cart = $cartService->add($cart, $lineItem, $context);
 
         static::assertTrue($cart->has($productId));
-        static::assertEquals(0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(0.0, $cart->getPrice()->getTotalPrice());
 
         $calculatedLineItem = $cart->getLineItems()->get($productId);
         static::assertNotNull($calculatedLineItem);
         static::assertNotNull($calculatedLineItem->getPrice());
-        static::assertEquals(0, $calculatedLineItem->getPrice()->getTotalPrice());
+        static::assertSame(0.0, $calculatedLineItem->getPrice()->getTotalPrice());
 
         $calculatedTaxes = $calculatedLineItem->getPrice()->getCalculatedTaxes();
         static::assertNotNull($calculatedTaxes);
-        static::assertEquals(0, $calculatedTaxes->getAmount());
+        static::assertSame(0.0, $calculatedTaxes->getAmount());
     }
 
     public function testOrderCartSendMail(): void

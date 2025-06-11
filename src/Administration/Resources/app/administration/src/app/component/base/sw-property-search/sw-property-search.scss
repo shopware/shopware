@@ -73,6 +73,10 @@
 
         .sw-grid__pagination {
             background-color: $color-white;
+
+            .mt-icon {
+                margin: 0;
+            }
         }
     }
 
@@ -136,6 +140,12 @@
 
     .sw-property-search__search-field {
         margin-bottom: 0;
+
+        &-container {
+            padding: 30px;
+            border-bottom: 1px solid #d8dde6;
+            background-color: $color-gray-100;
+        }
     }
 
     .sw-property-search__toolbar {

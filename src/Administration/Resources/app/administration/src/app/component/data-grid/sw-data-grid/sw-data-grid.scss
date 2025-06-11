@@ -336,6 +336,10 @@
             .sw-data-grid__cell-content {
                 padding: 10px;
                 color: darken($color-gray-300, 10%);
+
+                .mt-field {
+                    margin-bottom: 0;
+                }
             }
 
             .sw-data-grid__cell-value {
@@ -482,6 +486,12 @@
         .sw-media-preview-v2 {
             width: 32px;
             height: 32px;
+        }
+
+        .is--inline-edit .sw-data-grid__cell-content {
+            .mt-block-field__block {
+                min-height: var(--scale-size-32);
+            }
         }
     }
 

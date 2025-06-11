@@ -45,7 +45,8 @@
       "to": "To",
       "bulkEdit": "Bulk edit",
       "back": "Back",
-      "discard": "Discard"
+      "discard": "Discard",
+      "submit": "Submit"
     },
     "notification": {
       "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",
@@ -826,6 +827,60 @@
       }
     },
     "sw-condition-generic": {
+      "dayOfWeek": {
+        "dayOfWeek": {
+          "options": {
+            "1": "Monday",
+            "2": "Tuesday",
+            "3": "Wednesday",
+            "4": "Thursday",
+            "5": "Friday",
+            "6": "Saturday",
+            "7": "Sunday"
+          }
+        }
+      },
+      "cartLineItemOfType": {
+        "lineItemType": {
+          "options": {
+            "product": "Product",
+            "promotion": "Discount / surcharge"
+          }
+        }
+      },
+      "cartTaxDisplay": {
+        "taxDisplay": {
+          "options": {
+            "gross": "Gross",
+            "net": "Net"
+          }
+        }
+      },
+      "cartTotalPurchasePrice": {
+        "type": {
+          "options": {
+            "gross": "Gross",
+            "net": "Net"
+          }
+        }
+      },
+      "promotionCodeOfType": {
+        "promotionCodeType": {
+          "options": {
+            "global": "None",
+            "fixed": "Fixed",
+            "individual": "Individual"
+          }
+        }
+      },
+      "cartLineItemProductStates": {
+        "productState": {
+          "options": {
+            "is-download": "Digital",
+            "is-physical": "Physical"
+          }
+        }
+      },
       "units": {
         "dimension": "mm",
         "weight": "kg",
@@ -1447,15 +1502,15 @@
       "sw-app-app-url-changed-modal": {
         "move-shop-permanently": {
           "name": "Migrate apps to new domain",
-          "description": "Make your apps use the new domain instead of the old domain. This will assign all apps and app data to your new domain and remove the assignment from the old domain."
+          "description": "This is typically the right option if you have permanently moved your shop from an old to a new domain. Shopware will notify app servers about the new domain (i.e. re-register at the app servers) and apps remain installed. The shop identifier remains unchanged."
         },
         "reinstall-apps": {
           "name": "Copy apps to current domain",
-          "description": "If you want to keep your apps working on both domains, this re-installs all apps on your new domain. Note: App data on your old domain will still be available, non-free apps may require additional charges for each domain."
+          "description": "This is typically the right option if you have made a copy of your shop (e.g. a staging or testing environment of a production shop) and you do want to use the apps in this copy. Shopware will re-install the apps and newly register at the app servers using the new domain. A new shop identifier will be generated."
         },
         "uninstall-apps": {
           "name": "Uninstall apps",
-          "description": "Keeps app data on old domain and uninstalls all apps from the new domain."
+          "description": "This is typically the right option if you have made a copy of your shop (e.g. a staging or testing environment of a production shop) and you don’t want to use the apps in this copy. Shopware will delete the apps without notifying the app servers. A new shop identifier will be generated."
         },
         "title": "Domain change detected",
         "oldLabel": "Old domain: ",
@@ -1470,7 +1525,6 @@
         "title": "Wrongly configured APP_URL",
         "explanationHeader": "Error with the connection to your extensions.",
         "explanation": "Extensions are not able to establish a connection to your shop, due to a wrong configuration in your system.",
-        "textGetSupport": "Try contacting your hoster to get support.",
         "textDetails": "Technical details: Wrong APP_URL configuration.",
         "labelLearnMoreButton": "Learn more",
         "linkToDocsArticle": "https://docs.shopware.com/en/shopware-6-en/tutorials-and-faq/notes-to-the-APP-URL"
@@ -1556,6 +1610,10 @@
   },
   "sw-in-app-purchase-checkout": {
     "exsTitle": "Activate the Shopware Extension Store"
+  },
+  "sidebar": {
+    "ariaLabelButtonClose": "Close sidebar",
+    "ariaLabelButtonOpen": "Open sidebar"
   },
   "help-center": {
     "sidebar": {

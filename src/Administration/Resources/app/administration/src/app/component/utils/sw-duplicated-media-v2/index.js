@@ -1,7 +1,7 @@
 import template from './sw-duplicated-media-v2.html.twig';
 import './sw-duplicated-media-v2.scss';
 
-const { Component, Context, Filter } = Shopware;
+const { Context, Filter } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -14,7 +14,7 @@ const LOCAL_STORAGE_KEY_OPTION = 'sw-duplicate-media-resolve-option';
 const LOCAL_STORAGE_SAVE_SELECTION = 'sw-duplicate-media-resolve-save-selection';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-duplicated-media-v2', {
+export default {
     template,
 
     inject: [
@@ -337,4 +337,4 @@ Component.register('sw-duplicated-media-v2', {
             this.mediaService.keepFile(uploadTask.uploadTag, uploadTask);
         },
     },
-});
+};

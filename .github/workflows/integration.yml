@@ -261,13 +261,6 @@ jobs:
           composer -d src/Storefront config version ${SW_RECOVERY_NEXT_VERSION}
           composer -d src/Elasticsearch config version ${SW_RECOVERY_NEXT_VERSION}
 
-      - name: Build updater
-        working-directory: new-shopware/src/WebInstaller
-        run: |
-          composer config platform.php 8.2
-          composer install
-          composer build-phar
-
       - name: Checkout template
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
         with:
@@ -288,8 +281,9 @@ jobs:
           sed -i -e "s/shopware.store.frw: '1'/shopware.store.frw: '0'"/ config/services.yaml
           bin/console system:install --basic-setup --drop-database --create-database
 
-      - name: Copy WebInstaller
-        run: cp new-shopware/src/WebInstaller/shopware-installer.phar.php old-shopware/public/shopware-installer.phar.php
+      - name: Download latest WebInstaller
+        run: |
+          curl -L https://github.com/shopware/web-installer/releases/latest/download/shopware-installer.phar.php -o old-shopware/public/shopware-installer.phar.php
 
       - name: Start web server
         working-directory: old-shopware
@@ -297,10 +291,15 @@ jobs:
 
       - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # 4
         with:
-          node-version: 20
+          node-version: 22
+
       - name: Install dependencies
         working-directory: new-shopware/tests/acceptance
         run: npm ci
+
+      - name: Refresh Package List
+        run: sudo apt-get update --allow-releaseinfo-change
+
       - name: Install Playwright Browsers
         working-directory: new-shopware/tests/acceptance
         run: npx playwright install --with-deps chromium
@@ -453,6 +452,65 @@ jobs:
           DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
         run: php .github/bin/blue-green-check.php
 
+  update-66-67:
+      name: "PHP update 6.6 -> 6.7"
+      runs-on: ubuntu-24.04
+      if: inputs.nightly == 'true'
+      env:
+          APP_ENV: test
+          APP_URL: http://localhost:8000
+          APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
+          OPENSEARCH_URL: 127.0.0.1:9200
+          BLUE_GREEN_DEPLOYMENT: 1
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+          PREVIOUS_MAJOR_VERSION_BRANCH: "6.6.x"
+
+      services:
+          elasticsearch:
+              image: "opensearchproject/opensearch:1"
+              env:
+                  discovery.type: single-node
+                  plugins.security.disabled: "true"
+              ports:
+                  - "9200:9200"
+
+      steps:
+          - name: Setup previous major version
+            uses: shopware/setup-shopware@main
+            with:
+                install: "false"
+                shopware-version: ${{ env.PREVIOUS_MAJOR_VERSION_BRANCH }}
+                shopware-repository: ${{ github.repository }}
+
+          - name: Start Webserver
+            run: symfony server:start -d
+
+          - name: Install Shopware in previous major version on test DB
+            run: composer init:testdb
+
+          - name: Checkout current major version
+            uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+            with:
+                ref: ${{ github.ref }}
+
+          - name: Update to current major version
+            env:
+                COMPOSER_ROOT_VERSION: "6.7.9999999-dev"
+                DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+            run: |
+                rm -rf vendor-bin
+                rm -rf vendor
+                composer update -o
+                bin/console system:update:finish
+
+          - name: Refresh theme
+            env:
+                DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+            run: bin/console theme:refresh
+
+          - name: Run integration tests
+            run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
+
   # this allows us to specifiy just one required job/check
   # this is not practical with matrix jobs directly, because you've to specify all permutations
   check:
@@ -463,7 +521,9 @@ jobs:
       - win-checkout
       - code-ql
       - acceptance-update
+      - php-security
       - blue-green-66-67
+      - blue-green-67-68
 
     runs-on: Ubuntu-latest
     steps:

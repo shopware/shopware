@@ -55,7 +55,7 @@ class EventTelemetryFlowTest extends TestCase
             'enabled' => true,
         ]);
         static::assertNotEmpty($this->transport->getEmittedMetrics());
-        static::assertEquals(
+        static::assertSame(
             Metric::fromConfigured(new ConfiguredMetric('cache.invalidate.count', 1), $metricConfig),
             $this->transport->getEmittedMetrics()[0]
         );
@@ -86,7 +86,7 @@ class EventTelemetryFlowTest extends TestCase
         // search triggers EntitySearchedEvent, event is configured via attribute
         $userRepository->search($criteria, Context::createDefaultContext())->first();
         static::assertNotEmpty($this->transport->getEmittedMetrics());
-        static::assertEquals(
+        static::assertSame(
             Metric::fromConfigured(new ConfiguredMetric('dal.associations.count', 2), $metricConfig),
             $this->transport->getEmittedMetrics()[0]
         );

@@ -36,10 +36,12 @@
         {% endblock %}
 
         {% block base_esi_header %}
-            {{ render_esi(url('frontend.header')) }}
+            {{ render_esi(url('frontend.header', { headerParameters: headerParameters })) }}
         {% endblock %}
 
+        {# @deprecated tag:v6.8.0 - Block will be removed. The active styling class `.active` is set by navbar.plugin.js. #}
         {% block base_navigation_styling %}
+            {# @deprecated tag:v6.8.0 - File will be removed. The active styling class `.active` is set by navbar.plugin.js. #}
             {% sw_include '@Storefront/storefront/layout/navigation/active-styling.html.twig' %}
         {% endblock %}
 
@@ -74,7 +76,7 @@
         {% endblock %}
 
         {% block base_esi_footer %}
-            {{ render_esi(url('frontend.footer')) }}
+            {{ render_esi(url('frontend.footer', { footerParameters: footerParameters })) }}
         {% endblock %}
 
     {% endblock %}

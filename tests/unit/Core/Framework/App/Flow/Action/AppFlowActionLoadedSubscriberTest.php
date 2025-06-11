@@ -19,7 +19,7 @@ class AppFlowActionLoadedSubscriberTest extends TestCase
 {
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals([
+        static::assertSame([
             'app_flow_action.loaded' => 'unserialize',
         ], AppFlowActionLoadedSubscriber::getSubscribedEvents());
     }
@@ -45,7 +45,7 @@ class AppFlowActionLoadedSubscriberTest extends TestCase
         $subscriber->unserialize($event);
         static::assertNotFalse($fileIcon);
 
-        static::assertEquals(
+        static::assertSame(
             base64_encode($fileIcon),
             $appFlowAction->getIcon()
         );

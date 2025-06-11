@@ -77,6 +77,7 @@ class CartException extends HttpException
     public const INVALID_REQUEST_PARAMETER_CODE = 'FRAMEWORK__INVALID_REQUEST_PARAMETER';
     public const INVALID_PRICE_FIELD_TYPE = 'FRAMEWORK__INVALID_PRICE_FIELD_TYPE';
     public const RULE_OPERATOR_NOT_SUPPORTED = 'CHECKOUT__RULE_OPERATOR_NOT_SUPPORTED';
+    public const CART_LOCKED = 'CHECKOUT__CART_LOCKED';
 
     public static function shippingMethodNotFound(string $id, ?\Throwable $e = null): self
     {
@@ -621,6 +622,16 @@ class CartException extends HttpException
             self::INVALID_PRICE_FIELD_TYPE,
             'The price field does not contain a valid "type" value. Received {{ type }}',
             ['type' => $type]
+        );
+    }
+
+    public static function cartLocked(string $token): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_LOCKED,
+            'Cart with token {{ token }} is locked due to order creation. Please try again later.',
+            ['token' => $token]
         );
     }
 }

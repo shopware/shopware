@@ -19,9 +19,9 @@ class PromotionDiscountPriceEntity extends Entity
 
     protected float $price;
 
-    protected PromotionDiscountEntity $promotionDiscount;
+    protected ?PromotionDiscountEntity $promotionDiscount = null;
 
-    protected CurrencyEntity $currency;
+    protected ?CurrencyEntity $currency = null;
 
     public function getCurrencyId(): string
     {
@@ -53,22 +53,22 @@ class PromotionDiscountPriceEntity extends Entity
         $this->price = $price;
     }
 
-    public function getCurrency(): CurrencyEntity
+    public function getCurrency(): ?CurrencyEntity
     {
         return $this->currency;
     }
 
-    public function setCurrency(CurrencyEntity $currency): void
+    public function setCurrency(?CurrencyEntity $currency): void
     {
         $this->currency = $currency;
     }
 
-    public function getPromotionDiscount(): PromotionDiscountEntity
+    public function getPromotionDiscount(): ?PromotionDiscountEntity
     {
         return $this->promotionDiscount;
     }
 
-    public function setPromotionDiscount(PromotionDiscountEntity $promotionDiscount): void
+    public function setPromotionDiscount(?PromotionDiscountEntity $promotionDiscount): void
     {
         $this->promotionDiscount = $promotionDiscount;
     }

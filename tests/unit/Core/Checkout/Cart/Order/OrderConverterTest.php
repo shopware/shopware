@@ -58,6 +58,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -69,6 +70,7 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
@@ -125,9 +127,15 @@ class OrderConverterTest extends TestCase
                     SalesChannelContextService::CUSTOMER_GROUP_ID => 'customer-group-id',
                     SalesChannelContextService::PERMISSIONS => OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
                     SalesChannelContextService::VERSION_ID => Defaults::LIVE_VERSION,
-                    SalesChannelContextService::SHIPPING_METHOD_ID => 'order-delivery-shipping-method-id',
                     SalesChannelContextService::PAYMENT_METHOD_ID => 'order-transaction-payment-method-id',
                 ];
+
+                if (!Feature::isActive('v6.8.0.0')) {
+                    $expectedOptions = array_merge($expectedOptions, [
+                        SalesChannelContextService::SHIPPING_METHOD_ID => 'order-delivery-shipping-method-id',
+                    ]);
+                }
+
                 static::assertSame($expectedOptions, $options);
 
                 return $this->getSalesChannelContext(true);
@@ -247,6 +255,7 @@ class OrderConverterTest extends TestCase
             $result['orderDateTime'],
             $result['stateId'],
             $result['languageId'],
+            $result['primaryOrderDeliveryId'],
         );
         for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
             unset($result['lineItems'][$i]['id']);
@@ -254,6 +263,7 @@ class OrderConverterTest extends TestCase
 
         for ($i = 0; $i < (is_countable($result['deliveries']) ? \count($result['deliveries']) : 0); ++$i) {
             unset(
+                $result['deliveries'][$i]['id'],
                 $result['deliveries'][$i]['shippingOrderAddress']['id'],
                 $result['deliveries'][$i]['shippingDateEarliest'],
                 $result['deliveries'][$i]['shippingDateLatest'],
@@ -643,6 +653,7 @@ class OrderConverterTest extends TestCase
         $order = $this->getOrder();
         $order->setBillingAddressId('order-billing-address-id');
         $delivery = $order->getDeliveries()?->first();
+        $order->setPrimaryOrderDelivery($delivery);
         static::assertNotNull($delivery);
         $delivery->setShippingOrderAddressId('order-shipping-address-id');
 
@@ -665,6 +676,7 @@ class OrderConverterTest extends TestCase
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(TestDefaults::SALES_CHANNEL);
         $salesChannel->setLanguageId(Defaults::LANGUAGE_SYSTEM);
+        $salesChannel->setTaxCalculationType(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL);
 
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId('payment-method-id');
@@ -1364,7 +1376,6 @@ class OrderConverterTest extends TestCase
             'affiliateCode' => null,
             'campaignCode' => null,
             'source' => null,
-            'createdById' => null,
             'itemRounding' => [
                 'decimals' => 2,
                 'extensions' => [],
@@ -1399,6 +1410,7 @@ class OrderConverterTest extends TestCase
                 'order-rule-id-1',
                 'order-rule-id-2',
             ],
+            'taxCalculationType' => SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
             'addresses' => [
                 [
                     'city' => 'billing-address-city',

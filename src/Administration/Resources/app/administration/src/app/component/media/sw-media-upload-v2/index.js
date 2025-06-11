@@ -186,7 +186,7 @@ export default {
             preview: null,
             isDragActive: false,
             defaultFolderId: null,
-            isUploadUrlFeatureEnabled: Shopware.Store.get('context').app.config?.settings?.enableUrlFeature ?? true,
+            isUploadUrlFeatureEnabled: Shopware.Store.get('context').app.config?.settings?.enableUrlFeature ?? false,
             isLoading: false,
         };
     },

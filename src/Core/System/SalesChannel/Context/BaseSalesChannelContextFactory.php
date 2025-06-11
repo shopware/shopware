@@ -10,10 +10,13 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
@@ -24,7 +27,6 @@ use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCoun
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingEntity;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
-use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\BaseSalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -47,6 +49,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
      * @param EntityRepository<ShippingMethodCollection> $shippingMethodRepository
      * @param EntityRepository<CountryStateCollection> $countryStateRepository
      * @param EntityRepository<CurrencyCountryRoundingCollection> $currencyCountryRepository
+     * @param EntityRepository<EntityCollection<PartialEntity>> $languageRepository
      */
     public function __construct(
         private readonly EntityRepository $salesChannelRepository,
@@ -59,6 +62,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         private readonly EntityRepository $countryStateRepository,
         private readonly EntityRepository $currencyCountryRepository,
         private readonly ContextFactory $contextFactory,
+        private readonly EntityRepository $languageRepository,
     ) {
     }
 
@@ -73,10 +77,13 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         $criteria->setTitle('base-context-factory::sales-channel');
         $criteria->addAssociation('currency');
         $criteria->addAssociation('domains');
-        $criteria->getAssociation('languages')
-            ->addFilter(new EqualsFilter('id', $context->getLanguageId()))
-            ->addAssociation('translationCode')
-            ->addAssociation('locale');
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $criteria->getAssociation('languages')
+                ->addFilter(new EqualsFilter('id', $context->getLanguageId()))
+                ->addAssociation('translationCode')
+                ->addAssociation('locale');
+        }
 
         $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->get($salesChannelId);
         if (!$salesChannel instanceof SalesChannelEntity) {
@@ -152,7 +159,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
             $shippingLocation,
             $itemRounding,
             $totalRounding,
-            $this->getLanguageInfo($salesChannel->getLanguages(), $context->getLanguageId()),
+            $this->getLanguageInfo($context),
         );
     }
 
@@ -279,19 +286,26 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         return [$currency->getItemRounding(), $currency->getTotalRounding()];
     }
 
-    private function getLanguageInfo(?LanguageCollection $languages, string $currentLanguageId): LanguageInfo
+    private function getLanguageInfo(Context $context): LanguageInfo
     {
-        $currentLanguage = $languages?->get($currentLanguageId);
-        if ($currentLanguage === null) {
+        $currentLanguageId = $context->getLanguageId();
+        $criteria = (new Criteria([$currentLanguageId]))->addFields([
+            'name',
+            'translationCode.code',
+            'locale.code',
+        ]);
+
+        $currentLanguage = $this->languageRepository->search($criteria, $context)->getEntities()->get($currentLanguageId);
+        if (!$currentLanguage instanceof PartialEntity) {
             throw SalesChannelException::languageNotFound($currentLanguageId);
         }
 
-        $locale = $currentLanguage->getTranslationCode() ?? $currentLanguage->getLocale();
-        \assert($locale !== null, 'At least the localeId is required, so the fallback should never be null');
+        $locale = $currentLanguage->get('translationCode') ?? $currentLanguage->get('locale');
+        \assert($locale instanceof PartialEntity, 'At least the localeId is required, so the fallback should never be null');
 
         return new LanguageInfo(
-            $currentLanguage->getTranslation('name') ?? $currentLanguage->getName(),
-            $locale->getCode(),
+            $currentLanguage->get('name'),
+            $locale->get('code'),
         );
     }
 }

@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
@@ -56,6 +57,7 @@ class Generator extends TestCase
     final public const CUSTOMER_ADDRESS = '08f1594313494c3e9eb57bb53486fe61';
     final public const CUSTOMER = '42d58aa78cf14851968a786a66bab93a';
     final public const LANGUAGE_INFO_NAME = 'English';
+    final public const LANGUAGE_INFO_LOCALE_ID = '0195c74c6dc97287b95616bfe6aa5fbd';
     final public const LANGUAGE_INFO_LOCALE_CODE = 'en-GB';
 
     /**
@@ -180,7 +182,7 @@ class Generator extends TestCase
 
         $areaRuleIds ??= [];
 
-        $languageInfo ??= new LanguageInfo(self::LANGUAGE_INFO_NAME, self::LANGUAGE_INFO_LOCALE_CODE);
+        $languageInfo ??= self::createLanguageInfo();
 
         $salesChannelContext = new SalesChannelContext(
             $baseContext,
@@ -267,5 +269,15 @@ class Generator extends TestCase
         $cart->addDeliveries(new DeliveryCollection([$delivery]));
 
         return $cart;
+    }
+
+    public static function createLanguageInfo(
+        ?string $id = null,
+        ?string $name = null,
+    ): LanguageInfo {
+        return new LanguageInfo(
+            $id ?? Defaults::LANGUAGE_SYSTEM,
+            $name ?? self::LANGUAGE_INFO_NAME,
+        );
     }
 }

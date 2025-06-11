@@ -43,8 +43,8 @@ class BuildBreadcrumbExtension extends AbstractExtension
     }
 
     /**
-     * @deprecated tag:6.8.0 - Parameter $twigContext will be removed, as it is not needed anymore and the type of `$context` will be changed to `SalesChannelContext`
-     * @deprecated tag:6.8.0 - reason:return-type-change - Will only return `array<string, SalesChannelCategoryEntity>`
+     * @deprecated tag:v6.8.0 - Parameter $twigContext will be removed, as it is not needed anymore and the type of `$context` will be changed to `SalesChannelContext`
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `array<string, SalesChannelCategoryEntity>`
      *
      * @param array<string, mixed> $twigContext
      *
@@ -109,8 +109,8 @@ class BuildBreadcrumbExtension extends AbstractExtension
     }
 
     /**
-     * @deprecated tag:6.8.0 - Parameter $twigContext will be removed, as it is not needed anymore and the type of `$context` will be changed to `SalesChannelContext`
-     * @deprecated tag:6.8.0 - reason:return-type-change - Will only return `array<string, SalesChannelCategoryEntity>`
+     * @deprecated tag:v6.8.0 - Parameter $twigContext will be removed, as it is not needed anymore and the type of `$context` will be changed to `SalesChannelContext`
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `array<string, SalesChannelCategoryEntity>`
      *
      * @param array<string, mixed> $twigContext
      *

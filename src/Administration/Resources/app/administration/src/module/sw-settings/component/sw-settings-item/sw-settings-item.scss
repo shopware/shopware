@@ -28,10 +28,15 @@ $sw-settings-item-hover-text-color: $color-shopware-brand-500;
             margin-right: 12px;
             margin-left: 8px;
 
-            .swag-migration-settings_icon__img {
-                margin: auto;
-                width: 30px;
-                height: 30px;
+            img,
+            svg {
+                /* Make the following with and height style important to prevent overwrites from third party styles */
+                max-width: 16px !important;
+                max-height: 16px !important;
+                width: 16px !important;
+                height: 16px !important;
+                object-fit: contain !important;
+                object-position: center !important;
             }
         }
 

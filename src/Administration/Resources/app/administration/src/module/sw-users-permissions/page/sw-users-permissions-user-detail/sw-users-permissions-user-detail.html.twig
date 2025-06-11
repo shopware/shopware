@@ -143,7 +143,7 @@
                             :disabled="!acl.can('users_and_permissions.editor') || undefined"
                             :label="$tc('sw-users-permissions.users.user-detail.labelPassword')"
                             :error="userPasswordError"
-                            autocomplete="off"
+                            autocomplete="new-password"
                             @update:model-value="setPassword"
                         />
                         {% endblock %}

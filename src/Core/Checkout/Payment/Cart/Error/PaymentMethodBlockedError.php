@@ -11,7 +11,7 @@ class PaymentMethodBlockedError extends Error
     private const KEY = 'payment-method-blocked';
 
     public function __construct(
-        private readonly string $name,
+        protected readonly string $name,
         ?string $reason = null
     ) {
         $this->message = \sprintf(

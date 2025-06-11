@@ -2,32 +2,28 @@
 
 namespace Shopware\Tests\Unit\Storefront\Framework\Health;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
-use Shopware\Core\Kernel;
-use Shopware\Storefront\Framework\SystemCheck\SaleChannelsReadinessCheck;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Routing\Router;
+use Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck;
+use Shopware\Storefront\Framework\SystemCheck\Util\AbstractSalesChannelDomainProvider;
+use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 
 /**
  * @internal
  */
-#[CoversClass(SaleChannelsReadinessCheck::class)]
-class SaleChannelsReadinessCheckTest extends TestCase
+#[CoversClass(SalesChannelsReadinessCheck::class)]
+class SalesChannelsReadinessCheckTest extends TestCase
 {
-    private SaleChannelsReadinessCheck $salesChannelReadinessCheck;
+    private SalesChannelsReadinessCheck $salesChannelReadinessCheck;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->salesChannelReadinessCheck = new SaleChannelsReadinessCheck(
-            $this->createMock(Kernel::class),
-            $this->createMock(Router::class),
-            $this->createMock(Connection::class),
-            $this->createMock(RequestStack::class)
+        $this->salesChannelReadinessCheck = new SalesChannelsReadinessCheck(
+            $this->createMock(SalesChannelDomainUtil::class),
+            $this->createMock(AbstractSalesChannelDomainProvider::class)
         );
     }
 

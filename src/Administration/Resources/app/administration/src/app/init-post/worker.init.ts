@@ -477,17 +477,17 @@ function messageQueueNotification(
         isLoading: true,
     };
 
-    // Create new notification
+    // Create a new notification
     if (entry.size && notificationId === null) {
-        void notification.create(config).then((uuid) => {
-            notificationId = uuid;
+        notificationId = notification.create(config);
 
-            ids[key] = {
-                notificationId,
-                didSendForegroundMessage: false,
-            };
-        });
+        ids[key] = {
+            notificationId,
+            didSendForegroundMessage: false,
+        };
         next();
+
+        return;
     }
 
     // Update existing notification
@@ -506,7 +506,7 @@ function messageQueueNotification(
                 delete foreground.isLoading;
                 foreground.growl = true;
                 foreground.variant = 'positive';
-                void notification.create(foreground);
+                notification.create(foreground);
 
                 ids[key] = {
                     notificationId,
@@ -516,7 +516,7 @@ function messageQueueNotification(
 
             delete ids[key];
         }
-        void notification.update(config);
+        notification.update(config);
     }
     next();
 }

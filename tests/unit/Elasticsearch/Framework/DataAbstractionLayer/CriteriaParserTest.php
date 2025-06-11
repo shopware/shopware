@@ -663,6 +663,22 @@ EOT,
             ],
         ];
 
+        yield 'EqualsFilter translated custom field' => [
+            new EqualsFilter('customFields.foo', null),
+            [
+                'bool' => [
+                    'must_not' => [
+                        [
+                            'exists' => ['field' => 'customFields.' . self::SECOND_LANGUAGE . '.foo'],
+                        ],
+                        [
+                            'exists' => ['field' => 'customFields.' . Defaults::LANGUAGE_SYSTEM . '.foo'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
         yield 'MultiFilter with translated custom field' => [
             new MultiFilter('AND', [
                 new EqualsFilter('customFields.foo', 'fooValue'),

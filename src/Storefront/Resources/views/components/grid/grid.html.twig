@@ -1,0 +1,99 @@
+{% props
+    columns = null,
+    rows = null,
+    gap = 24,
+    align = 'start',
+    alignContent = 'start',
+    justify = 'start',
+    justifyContent = 'start',
+    centered = true,
+    autoColumns = true,
+%}
+
+{% set attributeDefaults = {} %}
+
+{% set gridCVA = cva({
+    base: 'grid-container',
+    variants: {
+        align: {
+            start: 'align-start',
+            end: 'align-end',
+            center: 'align-center',
+            stretch: 'align-stretch',
+        },
+        alignContent: {
+            start: 'align-content-start',
+            end: 'align-content-end',
+            center: 'align-content-center',
+            stretch: 'align-content-stretch',
+            spaceAround: 'align-content-space-around',
+            spaceBetween: 'align-content-space-between',
+            spaceEvenly: 'align-content-space-evenly',
+        },
+        justify: {
+            start: 'justify-start',
+            end: 'justify-end',
+            center: 'justify-center',
+            stretch: 'justify-stretch',
+        },
+        justifyContent: {
+            start: 'justify-content-start',
+            end: 'justify-content-end',
+            center: 'justify-content-center',
+            stretch: 'justify-content-stretch',
+            spaceAround: 'justify-content-space-around',
+            spaceBetween: 'justify-content-space-between',
+            spaceEvenly: 'justify-content-space-evenly',
+        },
+        centered: {
+            true: 'centered',
+        },
+        autoColumns: {
+            true: 'auto-columns',
+        },
+    }
+}) %}
+
+{% set gridStyle = '' %}
+{% set columnSetting = '' %}
+{% set rowSetting = '' %}
+
+{# It is possible to pass a numeric value with the number of columns
+    or a string with the grid-template-columns setting.
+#}
+{% if columns is same as('' ~columns|intval) or columns is of_type('int') %}
+    {% if columns > 1 %}
+        {% for column in 1..columns %}
+            {% set columnSetting = columnSetting ~ '1fr ' %}
+        {% endfor %}
+    {% else %}
+        {% set columnSetting = '1fr' %}
+    {% endif %}
+{% elseif columns is of_type('string') %}
+    {% set columnSetting = columns %}
+{% endif %}
+
+{# It is possible to pass a numeric value with the number of rows
+    or a string with the grid-template-rows setting.
+#}
+{% if rows is same as('' ~ rows|intval) or rows is of_type('int') %}
+    {% if rows > 1 %}
+        {% for row in 1..rows %}
+            {% set rowSetting = rowSetting ~ '1fr ' %}
+        {% endfor %}
+    {% else %}
+        {% set rowSetting = '1fr' %}
+    {% endif %}
+{% elseif rows is of_type('string') %}
+    {% set rowSetting = rows %}
+{% endif %}
+
+{% set gridStyle = columns is not null ? gridStyle ~ 'grid-template-columns: ' ~ columnSetting|trim ~ '; ' : '' %}
+{% set gridStyle = rows is not null ? gridStyle ~ 'grid-template-rows: ' ~ rowSetting|trim ~ '; ' : '' %}
+{% set gridStyle = gap is not null ? gridStyle ~ 'gap: ' ~ gap ~ 'px; ' : '' %}
+
+<div {{ attributes.defaults(attributeDefaults) }} 
+     class="{{ gridCVA.apply({ align, alignContent, justify, justifyContent, centered, autoColumns }, attributes.render('class')) }}"
+     {% if gridStyle %} style="{{ gridStyle|trim }}"{% endif %}>
+     {% block content %}{% endblock %}
+</div>

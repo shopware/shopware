@@ -1,0 +1,34 @@
+{% props
+    start = null,
+    span = null,
+    justify = null,
+    align = null,
+%}
+
+{% set columnCVA = cva({
+    base: 'grid-column',
+    variants: {
+        align: {
+            start: 'align-start',
+            end: 'align-end',
+            center: 'align-center',
+            stretch: 'align-stretch',
+        },
+        justify: {
+            start: 'justify-start',
+            end: 'justify-end',
+            center: 'justify-center',
+            stretch: 'justify-stretch',
+        },
+    },
+}) %}
+
+{% set columnStyle = '' %}
+
+{% if start is not null and span is not null %}
+    {% set columnStyle = columnStyle ~ 'grid-column: ' ~ start ~ ' / span ' ~ span ~ '; ' %}
+{% endif %}
+
+<div class="{{ columnCVA.apply({ align, justify }, attributes.render('class')) }}"{% if columnStyle %} style="{{ columnStyle|trim }}"{% endif %}>
+    {% block content %}{% endblock %}
+</div>

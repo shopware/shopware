@@ -1,17 +1,27 @@
 {% props
     thumbnails = false,
     dotNavigation = false,
+    sliderClasses = 'slider',
+    sliderVariants = {},
+    navigationVariants = {}
 %}
 
+{% set sliderDefaultVariants = sliderVariants|merge({
+    base: sliderClasses,
+}) %}
+
+{% set sliderCVA = cva(sliderDefaultVariants) %}
+{% set navigationCVA = cva(navigationVariants) %}
+
 {% set attributeDefaults = {
-    class: 'slider',
+    width: '100%',
 } %}
 
-<div {{ attributes.defaults(attributeDefaults) }}>
+<div {{ attributes.defaults(attributeDefaults) }} class="{{ sliderCVA.apply({}, attributes.render('class')) }}">
     <h1>I'm a slider</h1>
 
     {% if dotNavigation %}
-        <div class="dot-navigation">
+        <div {{ attributes.nested('navigation') }} class="{{ navigationCVA.apply({}, attributes.nested('navigation').render('class')) }}">
             <h2>Dot Navigation</h2>
         </div>
     {% endif %}

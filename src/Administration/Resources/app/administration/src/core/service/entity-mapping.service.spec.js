@@ -5,9 +5,9 @@
 import EntityMappingService from 'src/core/service/entity-mapping.service';
 
 const mockEntitySchemas = {
-    'product': {
+    product: {
         properties: {
-            id : { type: 'string', format: 'uuid' },
+            id: { type: 'string', format: 'uuid' },
             name: { type: 'string' },
             productNumber: { type: 'string' },
             readOnlyField: { type: 'string', readOnly: true },

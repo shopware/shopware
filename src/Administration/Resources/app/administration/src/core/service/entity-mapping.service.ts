@@ -27,10 +27,7 @@ export default {
 
 const mappingTypesCache: Record<string, PropertyDefinition> = {};
 
-function getEntityMapping(
-    entityName?: string,
-    entityNameMapping?: EntityNameMapping,
-): PropertyDefinition {
+function getEntityMapping(entityName?: string, entityNameMapping?: EntityNameMapping): PropertyDefinition {
     let schema: EntitySchema = {
         properties: {},
     };
@@ -40,12 +37,17 @@ function getEntityMapping(
     }
 
     if (entityNameMapping && Object.keys(entityNameMapping).length > 0) {
-        Object.entries(entityNameMapping).forEach(([mappedKey, mappedValue]) => {
-            schema.properties[mappedKey] = {
-                entity: mappedValue,
-                type: 'object',
-            };
-        });
+        Object.entries(entityNameMapping).forEach(
+            ([
+                mappedKey,
+                mappedValue,
+            ]) => {
+                schema.properties[mappedKey] = {
+                    entity: mappedValue,
+                    type: 'object',
+                };
+            },
+        );
     } else {
         return schema.properties;
     }

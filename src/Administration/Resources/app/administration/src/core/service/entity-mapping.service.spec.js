@@ -93,7 +93,7 @@ describe('core/service/entity-mapping.service.ts', () => {
             product: 'product',
         });
 
-        expect(result).toHaveProperty("tags[0]");
+        expect(Object.keys(result)).toContain('tags[0]');
         expect(result['tags[0]'].type).toBe('array');
     });
 

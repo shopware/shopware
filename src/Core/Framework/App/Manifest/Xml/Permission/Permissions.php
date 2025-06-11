@@ -65,7 +65,7 @@ class Permissions extends XmlElement
      *     'category:read',
      * ]
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function asParsedPrivileges(): array
     {
@@ -105,7 +105,7 @@ class Permissions extends XmlElement
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function generatePrivileges(): array
     {

@@ -144,4 +144,26 @@ class ManifestTest extends TestCase
 
         static::assertSame(['test' => 'test'], $manifest->getSourceConfig());
     }
+
+    public function testDoesNotValidatePermissionsBackwardsCompatible(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test/manifest.xml');
+
+        static::assertFalse($manifest->validatesPermissions());
+    }
+
+    public function testValidatesPermissions(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/manifestValidatesPermissions.xml');
+
+        static::assertTrue($manifest->validatesPermissions());
+    }
+
+    public function testDoesNotValidatePermissions(): void
+    {
+        $manifestXml = str_replace('validates-permissions="true"', 'validates-permissions="false"', (string) file_get_contents(__DIR__ . '/_fixtures/manifestValidatesPermissions.xml'));
+        $manifest = Manifest::createFromXml($manifestXml);
+
+        static::assertFalse($manifest->validatesPermissions());
+    }
 }

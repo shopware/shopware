@@ -479,7 +479,7 @@ class AppLifecycleTest extends TestCase
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $roleId);
+        $permissionPersister->updatePrivileges($permissions, $id, true, $context);
 
         $app = [
             'id' => $id,
@@ -673,7 +673,7 @@ class AppLifecycleTest extends TestCase
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $roleId);
+        $permissionPersister->updatePrivileges($permissions, $id, true, $context);
 
         $app = [
             'id' => $id,
@@ -776,7 +776,7 @@ class AppLifecycleTest extends TestCase
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $roleId);
+        $permissionPersister->updatePrivileges($permissions, $id, true, $context);
 
         $app = [
             'id' => $id,

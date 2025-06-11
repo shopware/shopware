@@ -106,4 +106,13 @@ class ServiceExceptionTest extends TestCase
         static::assertSame(ServiceException::SERVICE_CANNOT_WRITE_APP, $e->getErrorCode());
         static::assertSame('Error writing app zip to file "/some/path"', $e->getMessage());
     }
+
+    public function testInvalidPermissionsRevisionFormat(): void
+    {
+        $e = ServiceException::invalidPermissionsRevisionFormat('foobar');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(ServiceException::INVALID_PERMISSIONS_REVISION_FORMAT, $e->getErrorCode());
+        static::assertSame('The provided permissions revision "foobar" is not in the correct format Y-m-d.', $e->getMessage());
+    }
 }

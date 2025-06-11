@@ -97,6 +97,8 @@ class ExtensionStruct extends Struct
 
     protected ?PermissionCollection $permissions = null;
 
+    protected ?PermissionCollection $requestedPermissions = null;
+
     protected bool $active = false;
 
     /**

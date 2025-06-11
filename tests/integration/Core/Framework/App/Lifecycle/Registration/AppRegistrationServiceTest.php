@@ -285,6 +285,7 @@ class AppRegistrationServiceTest extends TestCase
     {
         $roleId = Uuid::randomHex();
 
+        $context = Context::createDefaultContext();
         $this->appRepository->create([[
             'id' => $id,
             'name' => 'SwagApp',
@@ -306,7 +307,7 @@ class AppRegistrationServiceTest extends TestCase
                 'id' => $roleId,
                 'name' => 'SwagApp',
             ],
-        ]], Context::createDefaultContext());
+        ]], $context);
 
         $permissionPersister = static::getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
@@ -315,7 +316,7 @@ class AppRegistrationServiceTest extends TestCase
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $roleId);
+        $permissionPersister->updatePrivileges($permissions, $id, true, $context);
     }
 
     private function buildAppResponse(Manifest $manifest, string $appSecret, ?string $shopId = null): string

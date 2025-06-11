@@ -42,6 +42,11 @@ describe('core/service/entity-mapping.service.ts', () => {
         jest.clearAllMocks();
     });
 
+    it('returns empty schema if no entityName is provided', () => {
+        const result = EntityMappingService.getEntityMapping();
+        expect(result).toEqual({});
+    });
+
     it('returns empty schema if no entityNameMapping is provided', () => {
         const result = EntityMappingService.getEntityMapping('product');
         expect(result).toEqual({});

@@ -53,6 +53,6 @@ class DomainNotMappedListenerTest extends TestCase
         $listener($event);
 
         $response = $event->getResponse();
-        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response?->getStatusCode());
     }
 }

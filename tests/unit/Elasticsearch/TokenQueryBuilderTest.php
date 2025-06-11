@@ -444,6 +444,10 @@ class TokenQueryBuilderTest extends TestCase
             'boost' => (float) $boost,
         ];
 
+        if (preg_match('/\d{3,}/', (string) $query)) {
+            $fuzziness = 0;
+        }
+
         if ($fuzziness !== null) {
             $payload['fuzziness'] = $fuzziness;
         }

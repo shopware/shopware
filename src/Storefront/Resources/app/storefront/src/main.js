@@ -173,46 +173,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 }, false);
 
-
-import ButtonLoadingIndicator from "./utility/loading-indicator/button-loading-indicator.util";
-
-const primary = document.querySelector('.test-buttons .btn-primary');
-const primaryIndicator = new ButtonLoadingIndicator(primary);
-primary.addEventListener('click', () => primaryIndicator.create());
-
-const removePrimary = document.querySelector('.remove-primary');
-removePrimary.addEventListener('click', (event) => {
-    event.preventDefault();
-    primaryIndicator.remove();
-});
-
-
-const secondary = document.querySelector('.test-buttons .btn-secondary');
-secondary.addEventListener('click', () => new ButtonLoadingIndicator(secondary, 'inner').create());
-
-const outlinePrimary = document.querySelector('.test-buttons .btn-outline-primary');
-outlinePrimary.addEventListener('click', () => new ButtonLoadingIndicator(outlinePrimary).create());
-
-const outlineSec = document.querySelector('.test-buttons .btn-outline-secondary');
-outlineSec.addEventListener('click', () => new ButtonLoadingIndicator(outlineSec).create());
-
-const light = document.querySelector('.test-buttons .btn-light');
-light.addEventListener('click', () => new ButtonLoadingIndicator(light, 'after').create());
-
-const danger = document.querySelector('.test-buttons .btn-danger');
-danger.addEventListener('click', () => new ButtonLoadingIndicator(danger, 'after').create());
-
-const inner = document.querySelector('.test-buttons .btn-inner');
-inner.addEventListener('click', () => new ButtonLoadingIndicator(inner, 'inner').create());
-
-const success = document.querySelector('.test-buttons .btn-success');
-const successIndicator = new ButtonLoadingIndicator(success, 'inner');
-success.addEventListener('click', () => successIndicator.create());
-document.querySelector('.remove-inner').addEventListener('click', (event) => {
-    event.preventDefault();
-    successIndicator.remove();
-});
-
 // Set webpack publicPath at runtime because we don't know the theme seed hash when running webpack
 // https://webpack-v3.jsx.app/guides/public-path/#on-the-fly
 window.__webpack_public_path__ = window.themeJsPublicPath;

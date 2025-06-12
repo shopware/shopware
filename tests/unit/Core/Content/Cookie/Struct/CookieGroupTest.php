@@ -19,7 +19,6 @@ class CookieGroupTest extends TestCase
     {
         $group = new CookieGroup(isRequired: false);
         static::assertFalse($group->isRequired); // Test public property
-        static::assertEmpty($group->getEntries());
         static::assertEmpty($group->entries); // Test public property
     }
 
@@ -42,7 +41,6 @@ class CookieGroupTest extends TestCase
         $entries = [$entry1, $entry2];
 
         $group = new CookieGroup(isRequired: false, entries: $entries);
-        static::assertSame($entries, $group->getEntries());
         static::assertSame($entries, $group->entries); // Test public property
     }
 
@@ -61,18 +59,17 @@ class CookieGroupTest extends TestCase
     public function testSetEntries(): void
     {
         $group = new CookieGroup(isRequired: false);
-        static::assertEmpty($group->getEntries());
+        static::assertEmpty($group->entries);
 
         $entry1 = new CookieEntry();
         $entry2 = new CookieEntry();
         $entries = [$entry1, $entry2];
 
-        $group->setEntries($entries);
-        static::assertSame($entries, $group->getEntries());
+        // Set entries through the public property
+        $group->entries = $entries;
         static::assertSame($entries, $group->entries); // Test public property
 
-        $group->setEntries([]);
-        static::assertEmpty($group->getEntries());
+        $group->entries = [];
         static::assertEmpty($group->entries); // Test public property
     }
 
@@ -83,10 +80,10 @@ class CookieGroupTest extends TestCase
         $entries = [$entry1, $entry2];
 
         $group = new CookieGroup(isRequired: false, entries: $entries);
-        static::assertSame($entries, $group->getEntries());
+        static::assertSame($entries, $group->entries);
 
         $group = new CookieGroup(isRequired: false, entries: []);
-        static::assertEmpty($group->getEntries());
+        static::assertEmpty($group->entries);
     }
 
     public function testGetApiAlias(): void

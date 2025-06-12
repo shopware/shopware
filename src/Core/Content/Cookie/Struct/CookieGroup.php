@@ -14,22 +14,6 @@ class CookieGroup extends CookieStruct
     ) {
     }
 
-    /**
-     * @return list<CookieEntry>
-     */
-    public function getEntries(): array
-    {
-        return $this->entries;
-    }
-
-    /**
-     * @param list<CookieEntry> $entries
-     */
-    public function setEntries(array $entries): void
-    {
-        $this->entries = $entries;
-    }
-
     public function getApiAlias(): string
     {
         return 'cookie_group';

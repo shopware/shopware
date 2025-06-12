@@ -65,124 +65,12 @@ readonly class CookieService
      *
      * @return array<string|int, mixed>
      */
-    public function filterGoogleAnalyticsCookie(SalesChannelContext $context, array $cookieGroups): array
+    public function filterCookieGroups(SalesChannelContext $context, array $cookieGroups): array
     {
-        $salesChannel = $context->getSalesChannel();
+        $cookieGroups = $this->filterGoogleAnalyticsCookie($context, $cookieGroups);
+        $cookieGroups = $this->filterWishlistCookie($context->getSalesChannelId(), $cookieGroups);
 
-        if ($salesChannel->getAnalytics() === null && $salesChannel->getAnalyticsId() !== null) {
-            $criteria = new Criteria([$salesChannel->getAnalyticsId()]);
-            $criteria->setTitle('cookie-controller::load-analytics');
-
-            $salesChannel->setAnalytics(
-                $this->salesChannelAnalyticsRepository->search($criteria, $context->getContext())->getEntities()->first()
-            );
-        }
-
-        if ($salesChannel->getAnalytics()?->isActive() === true) {
-            return $cookieGroups;
-        }
-
-        $filteredGroups = [];
-        foreach ($cookieGroups as $cookieGroup) {
-            if ($cookieGroup['snippet_name'] === 'cookie.groupStatistical') {
-                $cookieGroup = $this->filterCookieGroup('cookie.groupStatisticalGoogleAnalytics', $cookieGroup);
-                if ($cookieGroup !== null) {
-                    $filteredGroups[] = $cookieGroup;
-                }
-
-                continue;
-            } elseif ($cookieGroup['snippet_name'] === 'cookie.groupMarketing') {
-                $cookieGroup = $this->filterCookieGroup('cookie.groupMarketingAdConsent', $cookieGroup);
-                if ($cookieGroup !== null) {
-                    $filteredGroups[] = $cookieGroup;
-                }
-
-                continue;
-            }
-
-            $filteredGroups[] = $cookieGroup;
-        }
-
-        return $filteredGroups;
-    }
-
-    /**
-     * @param array<string|int, mixed> $cookieGroup
-     *
-     * @return ?array<string|int, mixed>
-     */
-    public function filterCookieGroup(string $cookieSnippetName, array $cookieGroup): ?array
-    {
-        $cookieGroup['entries'] = array_filter($cookieGroup['entries'], fn ($item) => $item['snippet_name'] !== $cookieSnippetName);
-        if (\count($cookieGroup['entries']) === 0) {
-            return null;
-        }
-
-        return $cookieGroup;
-    }
-
-    /**
-     * @param array<string|int, mixed> $cookieGroups
-     *
-     * @return array<string|int, mixed>
-     */
-    public function filterWishlistCookie(string $salesChannelId, array $cookieGroups): array
-    {
-        if ($this->systemConfigService->getBool('core.cart.wishlistEnabled', $salesChannelId)) {
-            return $cookieGroups;
-        }
-
-        $filteredGroups = [];
-        foreach ($cookieGroups as $cookieGroup) {
-            if ($cookieGroup['snippet_name'] === 'cookie.groupComfortFeatures') {
-                $cookieGroup = $this->filterCookieGroup('cookie.groupComfortFeaturesWishlist', $cookieGroup);
-                if ($cookieGroup !== null) {
-                    $filteredGroups[] = $cookieGroup;
-                }
-
-                continue;
-            }
-
-            $filteredGroups[] = $cookieGroup;
-        }
-
-        return $filteredGroups;
-    }
-
-    /**
-     * @param array<string|int, mixed> $cookieGroups
-     *
-     * @return array<string|int, mixed>
-     */
-    public function filterGoogleReCaptchaCookie(string $salesChannelId, array $cookieGroups): array
-    {
-        $googleRecaptchaActive = $this->systemConfigService->getBool(
-            'core.basicInformation.activeCaptchasV2.' . GoogleReCaptchaV2::CAPTCHA_NAME . '.isActive',
-            $salesChannelId
-        ) || $this->systemConfigService->getBool(
-            'core.basicInformation.activeCaptchasV2.' . GoogleReCaptchaV3::CAPTCHA_NAME . '.isActive',
-            $salesChannelId
-        );
-
-        if ($googleRecaptchaActive) {
-            return $cookieGroups;
-        }
-
-        $filteredGroups = [];
-        foreach ($cookieGroups as $cookieGroup) {
-            if ($cookieGroup['snippet_name'] === 'cookie.groupRequired') {
-                $cookieGroup = $this->filterCookieGroup('cookie.groupRequiredCaptcha', $cookieGroup);
-                if ($cookieGroup !== null) {
-                    $filteredGroups[] = $cookieGroup;
-                }
-
-                continue;
-            }
-
-            $filteredGroups[] = $cookieGroup;
-        }
-
-        return $filteredGroups;
+        return $this->filterGoogleReCaptchaCookie($context->getSalesChannelId(), $cookieGroups);
     }
 
     /**
@@ -230,6 +118,131 @@ readonly class CookieService
     }
 
     /**
+     * @param array<string|int, mixed> $cookieGroups
+     *
+     * @return array<string|int, mixed>
+     */
+    private function filterGoogleAnalyticsCookie(SalesChannelContext $context, array $cookieGroups): array
+    {
+        $salesChannel = $context->getSalesChannel();
+
+        if ($salesChannel->getAnalytics() === null && $salesChannel->getAnalyticsId() !== null) {
+            $criteria = new Criteria([$salesChannel->getAnalyticsId()]);
+            $criteria->setTitle('cookie-controller::load-analytics');
+
+            $salesChannel->setAnalytics(
+                $this->salesChannelAnalyticsRepository->search($criteria, $context->getContext())->getEntities()->first()
+            );
+        }
+
+        if ($salesChannel->getAnalytics()?->isActive() === true) {
+            return $cookieGroups;
+        }
+
+        $filteredGroups = [];
+        foreach ($cookieGroups as $cookieGroup) {
+            if ($cookieGroup['snippet_name'] === 'cookie.groupStatistical') {
+                $cookieGroup = $this->filterCookieGroup('cookie.groupStatisticalGoogleAnalytics', $cookieGroup);
+                if ($cookieGroup !== null) {
+                    $filteredGroups[] = $cookieGroup;
+                }
+
+                continue;
+            } elseif ($cookieGroup['snippet_name'] === 'cookie.groupMarketing') {
+                $cookieGroup = $this->filterCookieGroup('cookie.groupMarketingAdConsent', $cookieGroup);
+                if ($cookieGroup !== null) {
+                    $filteredGroups[] = $cookieGroup;
+                }
+
+                continue;
+            }
+
+            $filteredGroups[] = $cookieGroup;
+        }
+
+        return $filteredGroups;
+    }
+
+    /**
+     * @param array<string|int, mixed> $cookieGroup
+     *
+     * @return ?array<string|int, mixed>
+     */
+    private function filterCookieGroup(string $cookieSnippetName, array $cookieGroup): ?array
+    {
+        $cookieGroup['entries'] = array_filter($cookieGroup['entries'], fn ($item) => $item['snippet_name'] !== $cookieSnippetName);
+        if (\count($cookieGroup['entries']) === 0) {
+            return null;
+        }
+
+        return $cookieGroup;
+    }
+
+    /**
+     * @param array<string|int, mixed> $cookieGroups
+     *
+     * @return array<string|int, mixed>
+     */
+    private function filterWishlistCookie(string $salesChannelId, array $cookieGroups): array
+    {
+        if ($this->systemConfigService->getBool('core.cart.wishlistEnabled', $salesChannelId)) {
+            return $cookieGroups;
+        }
+
+        $filteredGroups = [];
+        foreach ($cookieGroups as $cookieGroup) {
+            if ($cookieGroup['snippet_name'] === 'cookie.groupComfortFeatures') {
+                $cookieGroup = $this->filterCookieGroup('cookie.groupComfortFeaturesWishlist', $cookieGroup);
+                if ($cookieGroup !== null) {
+                    $filteredGroups[] = $cookieGroup;
+                }
+
+                continue;
+            }
+
+            $filteredGroups[] = $cookieGroup;
+        }
+
+        return $filteredGroups;
+    }
+
+    /**
+     * @param array<string|int, mixed> $cookieGroups
+     *
+     * @return array<string|int, mixed>
+     */
+    private function filterGoogleReCaptchaCookie(string $salesChannelId, array $cookieGroups): array
+    {
+        $googleRecaptchaActive = $this->systemConfigService->getBool(
+            'core.basicInformation.activeCaptchasV2.' . GoogleReCaptchaV2::CAPTCHA_NAME . '.isActive',
+            $salesChannelId
+        ) || $this->systemConfigService->getBool(
+            'core.basicInformation.activeCaptchasV2.' . GoogleReCaptchaV3::CAPTCHA_NAME . '.isActive',
+            $salesChannelId
+        );
+
+        if ($googleRecaptchaActive) {
+            return $cookieGroups;
+        }
+
+        $filteredGroups = [];
+        foreach ($cookieGroups as $cookieGroup) {
+            if ($cookieGroup['snippet_name'] === 'cookie.groupRequired') {
+                $cookieGroup = $this->filterCookieGroup('cookie.groupRequiredCaptcha', $cookieGroup);
+                if ($cookieGroup !== null) {
+                    $filteredGroups[] = $cookieGroup;
+                }
+
+                continue;
+            }
+
+            $filteredGroups[] = $cookieGroup;
+        }
+
+        return $filteredGroups;
+    }
+
+    /**
      * Transforms the provided data into a CookieGroup or CookieEntry struct.
      *
      * @param array<string|int, mixed> $data
@@ -239,19 +252,19 @@ readonly class CookieService
         array $data
     ): CookieStruct {
         if (!empty($data['snippet_name'])) {
-            $cookieStruct->setSnippetName($data['snippet_name']);
+            $cookieStruct->snippetName = $data['snippet_name'];
         }
         if (!empty($data['snippet_description'])) {
-            $cookieStruct->setSnippetDescription($data['snippet_description']);
+            $cookieStruct->snippetDescription = $data['snippet_description'];
         }
         if (!empty($data['cookie'])) {
-            $cookieStruct->setCookie($data['cookie']);
+            $cookieStruct->cookie = $data['cookie'];
         }
         if (!empty($data['value'])) {
-            $cookieStruct->setValue($data['value']);
+            $cookieStruct->value = $data['value'];
         }
         if (!empty($data['expiration'])) {
-            $cookieStruct->setExpiration($data['expiration']);
+            $cookieStruct->expiration = $data['expiration'];
         }
 
         return $cookieStruct;

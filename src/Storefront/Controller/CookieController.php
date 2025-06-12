@@ -83,7 +83,7 @@ class CookieController extends StorefrontController
     {
         foreach ($cookieGroupCollection as $group) {
             $this->setDefaultValuesForCookieStruct($group);
-            foreach ($group->getEntries() as $cookieStruct) {
+            foreach ($group->entries as $cookieStruct) {
                 $this->setDefaultValuesForCookieStruct($cookieStruct);
             }
         }
@@ -99,19 +99,19 @@ class CookieController extends StorefrontController
     private function setDefaultValuesForCookieStruct(CookieStruct $cookieStruct): void
     {
         if ($cookieStruct->isSnippetNameUninitializedOrNull()) {
-            $cookieStruct->setSnippetName('');
+            $cookieStruct->snippetName = '';
         }
         if ($cookieStruct->isSnippetDescriptionUninitializedOrNull()) {
-            $cookieStruct->setSnippetDescription('');
+            $cookieStruct->snippetDescription = '';
         }
         if ($cookieStruct->isCookieUninitializedOrNull()) {
-            $cookieStruct->setCookie('');
+            $cookieStruct->cookie = '';
         }
         if ($cookieStruct->isValueUninitializedOrNull()) {
-            $cookieStruct->setValue('');
+            $cookieStruct->value = '';
         }
         if ($cookieStruct->isExpirationUninitializedOrNull()) {
-            $cookieStruct->setExpiration('');
+            $cookieStruct->expiration = '';
         }
     }
 }

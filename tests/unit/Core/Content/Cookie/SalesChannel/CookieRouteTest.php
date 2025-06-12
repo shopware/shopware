@@ -27,9 +27,8 @@ class CookieRouteTest extends TestCase
 
         $cookieService = $this->createMock(CookieService::class);
         // Service methods should not be called when provider returns empty array
-        $cookieService->expects($this->never())->method('filterGoogleAnalyticsCookie');
-        $cookieService->expects($this->never())->method('filterWishlistCookie');
-        $cookieService->expects($this->never())->method('filterGoogleReCaptchaCookie');
+        $cookieService->expects($this->never())->method('filterCookieGroups');
+        $cookieService->expects($this->never())->method('translateCookieGroups');
         $cookieService->expects($this->never())->method('convertToCookieGroupCollection');
 
         $cookieRoute = new CookieRoute($cookieProvider, $cookieService);
@@ -64,18 +63,8 @@ class CookieRouteTest extends TestCase
 
         // Verify all service methods are called in the correct order with correct parameters
         $cookieService->expects($this->once())
-            ->method('filterGoogleAnalyticsCookie')
+            ->method('filterCookieGroups')
             ->with($salesChannelContext, $mockCookieGroups)
-            ->willReturn($mockCookieGroups);
-
-        $cookieService->expects($this->once())
-            ->method('filterWishlistCookie')
-            ->with($salesChannelContext->getSalesChannelId(), $mockCookieGroups)
-            ->willReturn($mockCookieGroups);
-
-        $cookieService->expects($this->once())
-            ->method('filterGoogleReCaptchaCookie')
-            ->with($salesChannelContext->getSalesChannelId(), $mockCookieGroups)
             ->willReturn($mockCookieGroups);
 
         $cookieService->expects($this->once())
@@ -109,9 +98,7 @@ class CookieRouteTest extends TestCase
 
         $expectedCollection = new CookieGroupCollection();
         $cookieService = $this->createMock(CookieService::class);
-        $cookieService->method('filterGoogleAnalyticsCookie')->willReturnArgument(1);
-        $cookieService->method('filterWishlistCookie')->willReturnArgument(1);
-        $cookieService->method('filterGoogleReCaptchaCookie')->willReturnArgument(1);
+        $cookieService->method('filterCookieGroups')->willReturnArgument(1);
         $cookieService->method('translateCookieGroups')->willReturnArgument(0);
         $cookieService->method('convertToCookieGroupCollection')->willReturn($expectedCollection);
 
@@ -157,9 +144,7 @@ class CookieRouteTest extends TestCase
         $cookieProvider->method('getCookieGroups')->willReturn($mockCookieGroups);
 
         $cookieService = $this->createMock(CookieService::class);
-        $cookieService->method('filterGoogleAnalyticsCookie')->willReturn($mockCookieGroups);
-        $cookieService->method('filterWishlistCookie')->willReturn($mockCookieGroups);
-        $cookieService->method('filterGoogleReCaptchaCookie')->willReturn($mockCookieGroups);
+        $cookieService->method('filterCookieGroups')->willReturn($mockCookieGroups);
 
         // Expect translation to be called
         $cookieService->expects($this->once())
@@ -201,9 +186,7 @@ class CookieRouteTest extends TestCase
         $cookieProvider->method('getCookieGroups')->willReturn($mockCookieGroups);
 
         $cookieService = $this->createMock(CookieService::class);
-        $cookieService->method('filterGoogleAnalyticsCookie')->willReturn($mockCookieGroups);
-        $cookieService->method('filterWishlistCookie')->willReturn($mockCookieGroups);
-        $cookieService->method('filterGoogleReCaptchaCookie')->willReturn($mockCookieGroups);
+        $cookieService->method('filterCookieGroups')->willReturn($mockCookieGroups);
 
         // Expect translation NOT to be called
         $cookieService->expects($this->never())->method('translateCookieGroups');
@@ -236,9 +219,7 @@ class CookieRouteTest extends TestCase
         $cookieProvider->method('getCookieGroups')->willReturn($mockCookieGroups);
 
         $cookieService = $this->createMock(CookieService::class);
-        $cookieService->method('filterGoogleAnalyticsCookie')->willReturn($mockCookieGroups);
-        $cookieService->method('filterWishlistCookie')->willReturn($mockCookieGroups);
-        $cookieService->method('filterGoogleReCaptchaCookie')->willReturn($mockCookieGroups);
+        $cookieService->method('filterCookieGroups')->willReturn($mockCookieGroups);
 
         // Expect translation to be called by default
         $cookieService->expects($this->once())

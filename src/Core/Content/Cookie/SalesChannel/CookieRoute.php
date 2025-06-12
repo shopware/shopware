@@ -39,9 +39,7 @@ class CookieRoute extends AbstractCookieRoute
             return new CookieRouteResponse(new CookieGroupCollection());
         }
 
-        $cookieGroups = $this->cookieService->filterGoogleAnalyticsCookie($salesChannelContext, $cookieGroups);
-        $cookieGroups = $this->cookieService->filterWishlistCookie($salesChannelContext->getSalesChannelId(), $cookieGroups);
-        $cookieGroups = $this->cookieService->filterGoogleReCaptchaCookie($salesChannelContext->getSalesChannelId(), $cookieGroups);
+        $cookieGroups = $this->cookieService->filterCookieGroups($salesChannelContext, $cookieGroups);
 
         if ($translate) {
             $cookieGroups = $this->cookieService->translateCookieGroups($cookieGroups, $salesChannelContext);

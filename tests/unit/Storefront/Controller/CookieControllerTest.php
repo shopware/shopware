@@ -24,8 +24,8 @@ class CookieControllerTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $cookieGroup = new CookieGroup(false, []);
-        $cookieGroup->setSnippetName('test.group');
-        $cookieGroup->setSnippetDescription('Test Group');
+        $cookieGroup->snippetName = 'test.group';
+        $cookieGroup->snippetDescription = 'Test Group';
 
         $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 
@@ -56,8 +56,8 @@ class CookieControllerTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $cookieGroup = new CookieGroup(false, []);
-        $cookieGroup->setSnippetName('test.group');
-        $cookieGroup->setSnippetDescription('Test Group');
+        $cookieGroup->snippetName = 'test.group';
+        $cookieGroup->snippetDescription = 'Test Group';
 
         $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 

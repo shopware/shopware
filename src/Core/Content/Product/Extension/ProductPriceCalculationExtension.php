@@ -32,16 +32,16 @@ final class ProductPriceCalculationExtension extends Extension
          *
          * @description The products which has to be calculated
          *
-         * @param iterable<Entity>
+         * @param iterable<Entity> $products
          */
-        public iterable $products,
+        public readonly iterable $products,
 
         /**
          * @public
          *
          * @description Allows you to access to the current customer/sales-channel context
          */
-        public SalesChannelContext $context
+        public readonly SalesChannelContext $context
     ) {
     }
 }

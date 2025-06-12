@@ -32,10 +32,10 @@
 
         <input-field type="bool">
             <name>showVariantOptionInSearchSuggestionResult</name>
-            <label>Show variant options in search suggestion result</label>
-            <label lang="de-DE">Anzeige von Variantenoptionen in Suchvorschlägen</label>
-            <helpText>Enable to show variant options bellow variant name in search suggestion result</helpText>
-            <helpText lang="de-DE">Aktivieren Sie die Anzeige von Variantenoptionen unter dem Variantennamen in den Suchvorschlägen.</helpText>
+            <label>Show variant options in the search suggestion results</label>
+            <label lang="de-DE">Anzeige von Variantenoptionen in den Suchvorschlägen</label>
+            <helpText>Allow the variant options to be displayed underneath the product name in the search suggestion results.</helpText>
+            <helpText lang="de-DE">Erlauben Sie die Anzeige der Variantenoptionen unterhalb des Produktnamens in den Suchvorschlägen.</helpText>
         </input-field>
 
         <input-field type="bool">

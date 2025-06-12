@@ -54,6 +54,19 @@
                                             {% block layout_search_suggest_result_name %}
                                                 <div class="col search-suggest-product-name">
                                                     {{ product.translated.name }}
+
+                                                    {% block layout_search_suggest_result_variation %}
+                                                        {% if product.variation and config('core.listing.showVariantOptionInSearchSuggestionResult') %}
+                                                            <div class="search-suggest-product-variation">
+                                                                {% for variation in product.variation %}
+                                                                    {{ variation.group }}: {{ variation.option }}
+                                                                    {% if product.variation|last != variation %}
+                                                                        /
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endblock %}
                                                 </div>
                                             {% endblock %}
 
@@ -86,19 +99,6 @@
                                                         <small class="search-suggest-product-list-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}</small>
                                                     {% endif %}
                                                 </div>
-                                            {% endblock %}
-
-                                            {% block layout_search_suggest_result_variation %}
-                                                {% if product.variation and config('core.listing.showVariantOptionInSearchSuggestionResult') %}
-                                                    <div class="search-suggest-product-variation">
-                                                        {% for variation in product.variation %}
-                                                            {{ variation.group }}: {{ variation.option }}
-                                                            {% if product.variation|last != variation %}
-                                                                /
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                    </div>
-                                                {% endif %}
                                             {% endblock %}
                                         </div>
                                     </a>

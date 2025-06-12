@@ -1,7 +1,7 @@
 {# @sw-package framework #}
 
 {# @deprecated tag:v6.8.0 - Use parent.snippetName instead of parent.snippet_name #}
-{% set name = parent.snippet_name ? parent.snippet_name : parent.snippetName ? parent.snippetName : parent.cookie %}
+{% set name = parent.snippet_name ? parent.snippet_name|trans|sw_sanitize : parent.snippetName ? parent.snippetName|trans|sw_sanitize : parent.cookie %}
 {% set identifier = parent.cookie ? parent.cookie : name %}
 
 {% if name is not empty %}
@@ -25,7 +25,7 @@
                 data-cookie-expiration="{{ parent.expiration }}"
             {% endif %}>
         <label for="cookie_{{ identifier }}" class="custom-control-label">
-            {{ name|trans|sw_sanitize }}
+            {{ name }}
         </label>
     </div>
 {% endif %}

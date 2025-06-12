@@ -1,6 +1,6 @@
 import { getLanguageData, getSnippetSetId, test } from '@fixtures/AcceptanceTest';
 
-test ('Shop customers should be able to view products in different languages.', {tag: '@Languages'}, async ({
+test('Shop customers should be able to view products in different languages.', { tag: '@Languages' }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,
@@ -16,15 +16,17 @@ test ('Shop customers should be able to view products in different languages.', 
 
     await TestDataService.clearCaches();
 
-    await StorefrontHome.page.goto(StorefrontHome.url());
+    const productListing = StorefrontHome.productListItems.filter({ has: StorefrontHome.page.getByRole('link', { name: product.name }) });
+    const addToCartButton = productListing.filter({ has: StorefrontHome.page.getByRole('button') });
 
-    const productListing = StorefrontHome.productListItems.filter({ has: StorefrontHome.page.getByRole('link', { name: product.name })});
-    const addToCartButton = productListing.filter({ has: StorefrontHome.page.getByRole('button')});
-
-    await test.step('Customer can view languages menu', async () => {
-        await ShopCustomer.goesTo(StorefrontHome.url());
-        await ShopCustomer.expects(StorefrontHome.languagesDropdown).toContainText('English');
-        await ShopCustomer.expects(addToCartButton).toContainText('Add to shopping cart');
+    await ShopCustomer.expects(async () => {
+        await test.step('Customer can view languages menu', async () => {
+            await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
+            await ShopCustomer.expects(StorefrontHome.languagesDropdown).toContainText('English');
+            await ShopCustomer.expects(addToCartButton).toContainText('Add to shopping cart');
+        });
+    }).toPass({
+        intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
     });
 
     await test.step('Customer can select a different language', async () => {

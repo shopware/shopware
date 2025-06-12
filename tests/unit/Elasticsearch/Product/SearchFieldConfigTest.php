@@ -30,4 +30,23 @@ class SearchFieldConfigTest extends TestCase
         $searchConfig->setRanking(2500.5);
         static::assertSame(2500.5, $searchConfig->getRanking());
     }
+
+    public function testGetFuzziness(): void
+    {
+        $searchConfig = new SearchFieldConfig('fooField', 1000.0, true);
+
+        static::assertSame('auto', $searchConfig->getFuzziness('foo'));
+        static::assertSame('auto', $searchConfig->getFuzziness('f'));
+        static::assertSame(0, $searchConfig->getFuzziness('123'));
+        static::assertSame(0, $searchConfig->getFuzziness('1234'));
+        static::assertSame(0, $searchConfig->getFuzziness('1234.5'));
+
+        $searchConfig = new SearchFieldConfig('fooField', 1000.0, false);
+
+        static::assertSame(1, $searchConfig->getFuzziness('foo'));
+        static::assertSame(1, $searchConfig->getFuzziness('f'));
+        static::assertSame(0, $searchConfig->getFuzziness('123'));
+        static::assertSame(0, $searchConfig->getFuzziness('1234'));
+        static::assertSame(0, $searchConfig->getFuzziness('1234.5'));
+    }
 }

@@ -5,11 +5,15 @@ namespace Shopware\Tests\Unit\Core\Checkout\Document\Zugferd;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument;
@@ -77,7 +81,10 @@ class ZugferdBuilderTest extends TestCase
         $documentConfig = DocumentConfigurationFactory::createConfiguration($config);
         $documentConfig->setCompanyCountry($country);
 
-        $xmlContent = (new ZugferdBuilder($this->createMock(EventDispatcherInterface::class)))->buildDocument($order, $documentConfig, Context::createDefaultContext());
+        $xmlContent = (new ZugferdBuilder(
+            $this->createMock(EventDispatcherInterface::class),
+            new AmountCalculator(new CashRounding(), new PercentageTaxRuleBuilder(), new TaxCalculator())
+        ))->buildDocument($order, $documentConfig, Context::createDefaultContext());
 
         $totalAmount = number_format($this->totalAmount, 2, '.', '');
 

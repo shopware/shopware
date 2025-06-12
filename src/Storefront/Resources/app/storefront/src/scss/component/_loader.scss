@@ -160,10 +160,13 @@ Can be shown before or after the button text or replace it.
         }
 
         .loader {
-            // Slide in effect
-            animation: 0.15s ease-out 0s 1 slide-in,
-            // Restore original Bootstrap spinning animation
-            var(--#{$prefix}spinner-animation-speed) linear infinite var(--#{$prefix}spinner-animation-name);
+            animation:
+                // Slide in effect
+                0.15s ease-out 0s 1 slide-in,
+                // Restore original Bootstrap spinning animation (prettier cannot handle CSS vars in animations)
+                /* stylelint-disable */
+                var(--#{$prefix}spinner-animation-speed) linear infinite var(--#{$prefix}spinner-animation-name);
+                /* stylelint-enable */
         }
     }
 }

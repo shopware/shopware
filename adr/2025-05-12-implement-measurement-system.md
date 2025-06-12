@@ -25,32 +25,41 @@ Consumers can override the returned measurement units by setting preferred units
 
 ### Resolving Sales Channel Domain Measurement System Configuration
 
-We will expose a `MeasurementSystem` DTO in the `SalesChannelContext` (`SalesChannelContext.measurementSystem`), allowing quick look up of current configured product measurements of given context.
+We will expose a `MeasurementUnits` DTO in the `SalesChannelContext` (`SalesChannelContext.measurementSystem`), allowing quick look up of current configured product measurements of given context.
 
 ```php
-class MeasurementSystem extends Struct
+class MeasurementUnits extends Struct
 {
-    public function __construct(public readonly string $name, public array $units)
+    public function __construct(public readonly string $system, public array $units)
     {
     }
 
-    public function addUnit(string $measure, string $unit): string
+    public function addMeasurementType(string $type, string $unit): void
     {
-        $this->units[$measure] = $unit;
+        $this->units[$type] = $unit;
     }
-    
-    public function getUnit(string $measure): string
+
+    public function setUnit(string $type, string $unit): void
     {
-        if (!array_key_exists($measure, $this->units)) {
-            throw new \InvalidArgumentException(sprintf('Measure %s not found in measurement system %s', $measure, $this->name));
+        if (\array_key_exists($type, $this->units)) {
+            throw MeasurementSystemException::unsupportedMeasurementUnit($unit, array_keys($this->units));
         }
 
-        return $this->units[$measure];
+        $this->units[$type] = $unit;
+    }
+    
+    public function getUnit(string $type): string
+    {
+        if (!\array_key_exists($type, $this->units)) {
+            throw MeasurementSystemException::unsupportedMeasurementType($type, array_keys($this->units));
+        }
+
+        return $this->units[$type];
     }
 }
 
 // By default, only weight and length units are supported
-$measurementSystem = new MeasurementSystem('metric', [
+$measurementSystem = new MeasurementUnits('metric', [
     'lengthUnit' => 'mm',
     'weightUnit' => 'kg',
 ]);
@@ -58,14 +67,16 @@ $measurementSystem = new MeasurementSystem('metric', [
 $salesChannelContext->setMeasurementSystem($measurementSystem);
 ```
 
+The `MeasurementUnits` will be initialized in `\Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory::create` based on current sales channel domain
+
 The measurement configuration will be visible in `/store-api/context`:
 
 ```json
 {
   "token": "<context_token>",
   ...,
-  "measurementSystem": {
-    "name": "metric",
+  "measurementUnits": {
+    "system": "metric",
     "units": {
       "length": "mm",
       "weight": "kg",
@@ -84,6 +95,8 @@ Measurement units will be dynamically converted based on the configured measurem
 The `measurementUnits` is a runtime-calculated field based on the product’s measurement values and selected units.
 
 ```php
+namespace Shopware\Core\Content\Product\Subscriber;
+
 class ProductSubscriber implements EventSubscriberInterface 
 {
     public function salesChannelLoaded(SalesChannelEntityLoadedEvent $event): void
@@ -172,7 +185,7 @@ We will also introduce a `MeasurementUnitConverter` to handle unit conversion.
 ```php
 abstract class AbstractMeasurementUnitConverter
 {
-    public function convert(float $value, string $fromUnit = 'mm', string $toUnit = 'in'): ConvertedUnit;
+    public function convert(float $value, string $fromUnit = 'mm', string $toUnit = 'in', float $precision = 3): ConvertedUnit;
 }
 ```
 
@@ -239,7 +252,7 @@ We provide new Twig filters for on-the-fly unit conversion.
 {# Convert to specific units #}
 {{ 100|sw_convert(from: 'kg', to: 'lb') }}  {# Output: 220.462 #}
 {# Convert to with specific rounding (default as 2) #}
-{{ 100|sw_convert(from: 'kg', to: 'lb', decimals: 1) }}  {# Output: 220.5 #}
+{{ 100|sw_convert(from: 'kg', to: 'lb', precision: 1) }}  {# Output: 220.5 #}
 ```
 
 ## Consequences

@@ -12,7 +12,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -25,7 +27,9 @@ use Shopware\Storefront\Framework\SystemCheck\ProductListingReadinessCheck;
 #[CoversClass(ProductListingReadinessCheck::class)]
 class ProductListingReadinessCheckTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use CacheTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     private Connection $connection;

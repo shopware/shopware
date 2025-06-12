@@ -8,7 +8,9 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck;
@@ -24,7 +26,9 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(SalesChannelsReadinessCheck::class)]
 class SalesChannelsReadinessCheckTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use CacheTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     private Connection $connection;

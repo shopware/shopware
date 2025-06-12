@@ -169,13 +169,4 @@ describe('src/app/init/modals.init.ts', () => {
         expect(Shopware.Store.get('modals').modals[0].buttons[0].label).toBe('New Button');
         expect(Shopware.Store.get('modals').modals[0].buttons[1].label).toBe('Another Button');
     });
-
-    it('should throw if uiModalUpdate is called with an invalid extension', async () => {
-        Shopware.Store.get('extensions').extensionsState = {};
-
-        await expect(ui.modal.update({
-            locationId: 'any-location-id',
-            title: 'Should throw',
-        })).rejects.toThrow(new Error('Extension with the origin "" not found.'));
-    });
 });

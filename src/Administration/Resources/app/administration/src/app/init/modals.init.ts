@@ -24,7 +24,7 @@ export default function initializeModal(): void {
         });
     });
 
-    Shopware.ExtensionAPI.handle('uiModalUpdate', async (modalConfig, { _event_ }) => {
+    Shopware.ExtensionAPI.handle('uiModalUpdate', (modalConfig, { _event_ }) => {
         const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
             ext.baseUrl.startsWith(_event_.origin),
         );

@@ -1,0 +1,49 @@
+name: Add the "external-contribution" label to PRs created by community members
+
+on:
+  pull_request_target:
+    types: [ opened, reopened ]
+
+jobs:
+  add-label:
+    runs-on: ubuntu-24.04
+    env:
+      CONTRIBUTOR_LABEL: "external-contribution"
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+        with:
+          script: |
+            const pullRequestNumber = context.payload.pull_request.number;
+            const contribLabel = process.env.CONTRIBUTOR_LABEL;
+            
+            let hasWriteAccess = false;
+            
+            const permissionLevel = await github.rest.repos.getCollaboratorPermissionLevel({
+              ...context.repo,
+              username: context.actor,
+            });
+            
+            if (permissionLevel.status !== 200) {
+              core.info(`Failed to get permission level for "${context.actor}", assuming no write access.`);
+            } else {
+              hasWriteAccess = ['admin', 'write'].includes(permissionLevel?.data?.permission);
+            }
+            
+            if (hasWriteAccess) {
+              core.info(`User "${context.actor}" has write access, skipping label addition.`);
+            } else {
+              await github.rest.issues.addLabels({
+                ...context.repo,
+                issue_number: pullRequestNumber,
+                labels: [contribLabel],
+              }).then(res => {
+                if (res.status !== 200) {
+                  throw new Error(`Failed to add label "${contribLabel}" to pull request #${pullRequestNumber}`);
+                } else {
+                  core.info(`Label "${contribLabel}" added to pull request #${pullRequestNumber}`);
+                }
+              });
+            }

@@ -9,24 +9,12 @@ test('Guest customer is able to add and remove products to the wishlist', { tag:
     AddProductToCartFromWishlist,
     Login,
     StorefrontOffCanvasCart,
+    HomeProducts,
 }) => {
     await TestDataService.setSystemConfig({ 'core.cart.wishlistEnabled': true });
-    const product1 = await TestDataService.createBasicProduct();
-    const product2 = await TestDataService.createBasicProduct();
+    const [product1, product2] = HomeProducts;
     const product1Locators = await StorefrontHome.getListingItemByProductName(product1.name);
     const product2Locators = await StorefrontHome.getListingItemByProductName(product2.name);
-
-    await TestDataService.clearCaches();
-
-    await ShopCustomer.expects(async () => {
-        await test.step('Wait for products to be visible.', async () => {
-            await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
-            await ShopCustomer.expects(product1Locators.productName).toBeVisible();
-            await ShopCustomer.expects(product2Locators.productName).toBeVisible();
-        });
-    }).toPass({
-        intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
-    });
 
     await test.step('Accept all cookies and reload page', async () => {
         await TestDataService.setSystemConfig({ 'core.basicInformation.acceptAllCookies': true });

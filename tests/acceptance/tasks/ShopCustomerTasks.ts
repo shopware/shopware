@@ -19,11 +19,13 @@ import { ConfirmImmediateAccessToDigitalProduct } from './ShopCustomer/Checkout/
  * PageSpeed & Accessibility
  */
 import { ValidateLighthouseScore } from './ShopCustomer/Pagespeed/ValidateLighthouseScore';
+import { VisibleInHome } from './ShopCustomer/Listing/VisibleInHome';
 
 export const test = mergeTests(
     DownloadDigitalProductFromOrderAndExpectContentToBe,
     AddPromotionCodeToCart,
     ConfirmImmediateAccessToDigitalProduct,
     ValidateLighthouseScore,
+    VisibleInHome,
 );
 

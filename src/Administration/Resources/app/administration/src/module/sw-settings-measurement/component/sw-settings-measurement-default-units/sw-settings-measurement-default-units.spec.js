@@ -4,8 +4,6 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from '../../../../core/data/entity-collection.data';
 
-const { Criteria } = Shopware.Data;
-
 const createWrapper = async () => {
     const mockDefaultUnits = new EntityCollection(
         '/measurement-system',
@@ -31,6 +29,7 @@ const createWrapper = async () => {
                     4,
                     null,
                 ),
+                getEntityName: () => 'measurement_display_unit',
             },
             {
                 id: 'imperial',
@@ -78,23 +77,17 @@ const createWrapper = async () => {
                     4,
                     null,
                 ),
+                getEntityName: () => 'measurement_system',
             },
         ],
         2,
         null,
     );
 
-    const measurementSystemCriteria = () => {
-        const criteria = new Criteria(1, null);
-        criteria.addAssociation('units');
-
-        return criteria;
-    };
-
     const repositoryFactory = {
         create: () => ({
-            search: jest.fn().mockResolvedValue(mockDefaultUnits),
-            get: jest.fn().mockResolvedValue(mockDefaultUnits.first()),
+            search: jest.fn().mockResolvedValue({}),
+            get: jest.fn().mockResolvedValue({}),
         }),
     };
 
@@ -109,8 +102,8 @@ const createWrapper = async () => {
                     length: 'mm',
                     weight: 'kg',
                 },
+                measurementSystems: mockDefaultUnits,
                 measurementSystem: mockDefaultUnits.first(),
-                measurementSystemCriteria: measurementSystemCriteria(),
             },
             global: {
                 stubs: {
@@ -120,33 +113,27 @@ const createWrapper = async () => {
                     'sw-container': await wrapTestComponent('sw-container', {
                         sync: true,
                     }),
-                    'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select', {
-                        sync: true,
-                    }),
-                    'sw-select-base': await wrapTestComponent('sw-select-base', { sync: true }),
-                    'sw-select-result-list': await wrapTestComponent('sw-select-result-list', { sync: true }),
-                    'sw-select-result': await wrapTestComponent('sw-select-result', { sync: true }),
-                    'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                    'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
-                    'sw-popover': await wrapTestComponent('sw-popover', { sync: true }),
-                    'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
-                    'sw-help-text': true,
-                    'sw-inheritance-switch': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-field-error': true,
                     'sw-loader': true,
                     'sw-product-variant-info': true,
-                    'sw-single-select': {
-                        props: [
-                            'value',
-                        ],
+                    'mt-select': {
                         template: `
-                            <input
-                                class="sw-single-select__input"
-                                :value="value"
-                                @input="$emit('update:value', $event.target.value)"
-                            />
-                        `,
+                        <select
+                            class="mt-select__input"
+                            :value="modelValue"
+                            @change="$emit('update:modelValue', $event.target.value)"
+                        >
+                            <option
+                                v-for="option in options"
+                                :key="option.value"
+                                :value="option.value"
+                            >
+                                {{ option.label }}
+                            </option>
+                        </select>`,
+                        props: [
+                            'modelValue',
+                            'options',
+                        ],
                     },
                     'sw-highlight-text': true,
                 },
@@ -179,35 +166,24 @@ describe('src/module/sw-settings-measurement/component/sw-settings-measurement-d
         expect(wrapper.find('.sw-settings-measurement-default-units').exists()).toBeTruthy();
         expect(wrapper.find('.sw-settings-measurement-default-units__description').exists()).toBeTruthy();
 
-        const swEntitySingleSelect = wrapper.findAll('.sw-entity-single-select');
-        expect(swEntitySingleSelect).toHaveLength(1);
+        const swSingleSelect = wrapper.findAll('.mt-select__input');
+        expect(swSingleSelect).toHaveLength(3);
 
-        const swSingleSelect = wrapper.findAll('.sw-single-select__input');
-        expect(swSingleSelect).toHaveLength(2);
+        expect(swSingleSelect.at(0).attributes().value).toBe('metric');
 
-        expect(swEntitySingleSelect[0].find('.sw-entity-single-select__selection').text()).toBe('Metric system');
-
-        expect(swSingleSelect[0].element.value).toBe('mm');
-        expect(swSingleSelect[1].element.value).toBe('kg');
+        expect(swSingleSelect.at(1).attributes().value).toBe('mm');
+        expect(swSingleSelect.at(2).attributes().value).toBe('kg');
     });
 
     it('should emit measurement-system-change event when measurement system changes', async () => {
         const wrapper = await createWrapper();
-        const selects = wrapper.findAll('.sw-entity-single-select');
+        const selects = wrapper.findAll('.mt-select__input');
 
-        const selection = selects.at(0).find('.sw-entity-single-select__selection');
-
-        await selection.trigger('click');
-        await flushPromises();
-
-        const typeElement = wrapper.findAll('.sw-select-result');
-        await typeElement.at(0).trigger('click');
+        await selects.at(0).setValue('imperial');
         await flushPromises();
 
         expect(wrapper.emitted('measurement-system-change')).toBeTruthy();
-        expect(wrapper.emitted('measurement-system-change')[0][0].id).toBe('metric');
-        expect(wrapper.emitted('measurement-system-change')[0][0].name).toBe('Metric system');
-        expect(wrapper.emitted('measurement-system-change')[0][0].technicalName).toBe('metric');
+        expect(wrapper.emitted('measurement-system-change')[0][0]).toBe('imperial');
     });
 
     it('should format unit label correctly', async () => {

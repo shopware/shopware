@@ -29,13 +29,34 @@ const createWrapper = async (options = {}) => {
                     [
                         { id: 'mm', type: 'length', measurementSystemId: 'metric', shortName: 'mm', default: true },
                         { id: 'kg', type: 'weight', measurementSystemId: 'metric', shortName: 'kg', default: true },
+                        { id: 'cm', type: 'length', measurementSystemId: 'metric', shortName: 'cm', default: false },
+                        { id: 'g', type: 'weight', measurementSystemId: 'metric', shortName: 'g', default: false },
                     ],
                     2,
                     null,
                 ),
+                getEntityName: () => 'measurement_display_unit',
+            },
+            {
+                id: 'imperial',
+                name: 'Imperial system',
+                technicalName: 'imperial',
+                units: new EntityCollection(
+                    '/measurement-display-unit',
+                    'measurement_display_unit',
+                    null,
+                    {},
+                    [
+                        { id: 'in', type: 'length', measurementSystemId: 'imperial', shortName: 'in', default: true },
+                        { id: 'lb', type: 'weight', measurementSystemId: 'imperial', shortName: 'lb', default: true },
+                    ],
+                    2,
+                    null,
+                ),
+                getEntityName: () => 'measurement_display_unit',
             },
         ],
-        1,
+        2,
         null,
     );
 
@@ -47,6 +68,9 @@ const createWrapper = async (options = {}) => {
     const repositoryFactory = {
         create: () => ({
             search: jest.fn().mockResolvedValue(mockDefaultUnits),
+            create: jest.fn().mockResolvedValue({
+                id: 'new-id',
+            }),
         }),
     };
 
@@ -94,9 +118,20 @@ const createWrapper = async (options = {}) => {
 
 describe('src/module/sw-settings-measurement/page/sw-settings-measurement', () => {
     let wrapper;
+    const addApiError = jest.fn();
+    const resetApiErrors = jest.fn();
 
     beforeEach(async () => {
         wrapper = await createWrapper();
+
+        Shopware.Store.unregister('error');
+        Shopware.Store.register({
+            id: 'error',
+            actions: {
+                addApiError,
+                resetApiErrors,
+            },
+        });
     });
 
     it('should be a Vue component', async () => {
@@ -114,6 +149,24 @@ describe('src/module/sw-settings-measurement/page/sw-settings-measurement', () =
         expect(wrapper.vm.defaultDisplayUnits).toHaveLength(2);
         expect(wrapper.vm.defaultDisplayUnits[0].id).toBe('mm');
         expect(wrapper.vm.defaultDisplayUnits[1].id).toBe('kg');
+    });
+
+    it('should not save when measurement units are missing', async () => {
+        await wrapper.setData({
+            measurementUnits: {
+                system: null,
+                length: null,
+                weight: null,
+            },
+        });
+
+        await flushPromises();
+
+        const saveButton = wrapper.find('.sw-settings-measurement__save-action');
+        await saveButton.trigger('click');
+
+        expect(addApiError).toHaveBeenCalledTimes(3);
+        expect(wrapper.vm.systemConfigApiService.saveValues).not.toHaveBeenCalled();
     });
 
     it('should save measurement system settings successfully', async () => {
@@ -164,36 +217,9 @@ describe('src/module/sw-settings-measurement/page/sw-settings-measurement', () =
     });
 
     it('should update measurement units when system changes', async () => {
-        const mockImperialUnits = new EntityCollection(
-            '/measurement-system',
-            'measurement_system',
-            null,
-            { isShopwareContext: true },
-            [
-                {
-                    id: 'imperial',
-                    name: 'Imperial system',
-                    technicalName: 'imperial',
-                    units: new EntityCollection(
-                        '/measurement-display-unit',
-                        'measurement_display_unit',
-                        null,
-                        {},
-                        [
-                            { id: 'in', type: 'length', measurementSystemId: 'imperial', shortName: 'in', default: true },
-                            { id: 'lb', type: 'weight', measurementSystemId: 'imperial', shortName: 'lb', default: true },
-                        ],
-                        2,
-                        null,
-                    ),
-                },
-            ],
-            1,
-            null,
-        );
+        await wrapper.vm.onChangeMeasurementSystem('imperial');
 
-        await wrapper.vm.onChangeMeasurementSystem(mockImperialUnits.first());
-
+        expect(resetApiErrors).toHaveBeenCalled();
         expect(wrapper.vm.measurementUnits).toEqual({
             system: 'imperial',
             length: 'in',
@@ -225,46 +251,7 @@ describe('src/module/sw-settings-measurement/page/sw-settings-measurement', () =
             ]),
         );
 
-        const imperialUnitsCollection = new EntityCollection(
-            '/measurement-display-unit',
-            '',
-            null,
-            {},
-            [
-                { id: 'in', type: 'length', measurementSystemId: 'imperial', shortName: 'in', default: true, name: 'Inch' },
-                { id: 'ft', type: 'length', measurementSystemId: 'imperial', shortName: 'ft', default: false, name: 'Foot' },
-                { id: 'lb', type: 'weight', measurementSystemId: 'imperial', shortName: 'lb', default: true, name: 'Pound' },
-                {
-                    id: 'oz',
-                    type: 'weight',
-                    measurementSystemId: 'imperial',
-                    shortName: 'oz',
-                    default: false,
-                    name: 'Ounce',
-                },
-            ],
-            4,
-            null,
-        );
-
-        const mockImperialUnits = new EntityCollection(
-            '/measurement-system',
-            'measurement_system',
-            null,
-            {},
-            [
-                {
-                    id: 'imperial',
-                    name: 'Imperial system',
-                    technicalName: 'imperial',
-                    units: imperialUnitsCollection,
-                },
-            ],
-            1,
-            null,
-        );
-
-        await wrapper.vm.onChangeMeasurementSystem(mockImperialUnits.first());
+        await wrapper.vm.onChangeMeasurementSystem('imperial');
 
         expect(wrapper.vm.measurementUnits).toEqual({
             system: 'imperial',
@@ -272,39 +259,7 @@ describe('src/module/sw-settings-measurement/page/sw-settings-measurement', () =
             weight: 'lb',
         });
 
-        const metricUnitsCollection = new EntityCollection(
-            '/measurement-display-unit',
-            'measurement_display_unit',
-            null,
-            { isShopwareContext: true },
-            [
-                { id: 'mm', type: 'length', measurementSystemId: 'metric', shortName: 'mm', default: true },
-                { id: 'cm', type: 'length', measurementSystemId: 'metric', shortName: 'cm', default: false },
-                { id: 'kg', type: 'weight', measurementSystemId: 'metric', shortName: 'kg', default: true },
-                { id: 'g', type: 'weight', measurementSystemId: 'metric', shortName: 'g', default: false },
-            ],
-            4,
-            null,
-        );
-
-        const mockMetricUnits = new EntityCollection(
-            '/measurement-system',
-            'measurement_system',
-            null,
-            { isShopwareContext: true },
-            [
-                {
-                    id: 'metric',
-                    name: 'Metric system',
-                    technicalName: 'metric',
-                    units: metricUnitsCollection,
-                },
-            ],
-            1,
-            null,
-        );
-
-        await wrapper.vm.onChangeMeasurementSystem(mockMetricUnits.first());
+        await wrapper.vm.onChangeMeasurementSystem('metric');
 
         expect(wrapper.vm.measurementUnits).toEqual({
             system: 'metric',

@@ -462,4 +462,136 @@ class CookieServiceTest extends TestCase
 
         static::assertNull($result);
     }
+
+    public function testTranslateCookieGroups(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $cookieGroups = [
+            [
+                'snippet_name' => 'cookie.groupRequired',
+                'snippet_description' => 'cookie.groupRequiredDescription',
+                'entries' => [
+                    [
+                        'snippet_name' => 'cookie.session',
+                        'snippet_description' => 'cookie.sessionDescription',
+                        'cookie' => 'session-cookie',
+                    ],
+                ],
+            ],
+            [
+                'snippet_name' => 'cookie.groupStatistical',
+                'entries' => [
+                    [
+                        'snippet_name' => 'cookie.googleAnalytics',
+                        'cookie' => 'ga-cookie',
+                    ],
+                ],
+            ],
+        ];
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')
+            ->willReturnCallback(function (string $key) {
+                return match ($key) {
+                    'cookie.groupRequired' => 'Required Cookies',
+                    'cookie.groupRequiredDescription' => 'These cookies are required',
+                    'cookie.session' => 'Session Cookie',
+                    'cookie.sessionDescription' => 'Stores session data',
+                    'cookie.groupStatistical' => 'Statistical Cookies',
+                    'cookie.googleAnalytics' => 'Google Analytics',
+                    default => $key,
+                };
+            });
+
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
+        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
+
+        $cookieService = new CookieService($systemConfigService, $repository, $translator);
+        $result = $cookieService->translateCookieGroups($cookieGroups, $salesChannelContext);
+
+        static::assertCount(2, $result);
+
+        // Verify first group translations
+        static::assertSame('Required Cookies', $result[0]['snippet_name']);
+        static::assertSame('These cookies are required', $result[0]['snippet_description']);
+        static::assertCount(1, $result[0]['entries']);
+        static::assertSame('Session Cookie', $result[0]['entries'][0]['snippet_name']);
+        static::assertSame('Stores session data', $result[0]['entries'][0]['snippet_description']);
+        static::assertSame('session-cookie', $result[0]['entries'][0]['cookie']);
+
+        // Verify second group translations
+        static::assertSame('Statistical Cookies', $result[1]['snippet_name']);
+        static::assertCount(1, $result[1]['entries']);
+        static::assertSame('Google Analytics', $result[1]['entries'][0]['snippet_name']);
+        static::assertSame('ga-cookie', $result[1]['entries'][0]['cookie']);
+    }
+
+    public function testTranslateCookieGroupsWithEmptySnippets(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $cookieGroups = [
+            [
+                'snippet_name' => '',
+                'entries' => [
+                    [
+                        'snippet_name' => '',
+                        'cookie' => 'test-cookie',
+                    ],
+                ],
+            ],
+        ];
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        // Translator should not be called for empty snippet names
+        $translator->expects($this->never())->method('trans');
+
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
+        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
+
+        $cookieService = new CookieService($systemConfigService, $repository, $translator);
+        $result = $cookieService->translateCookieGroups($cookieGroups, $salesChannelContext);
+
+        static::assertCount(1, $result);
+        static::assertSame('', $result[0]['snippet_name']);
+        static::assertSame('', $result[0]['entries'][0]['snippet_name']);
+        static::assertSame('test-cookie', $result[0]['entries'][0]['cookie']);
+    }
+
+    public function testTranslateCookieGroupsWithNoEntries(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $cookieGroups = [
+            [
+                'snippet_name' => 'cookie.groupRequired',
+                'snippet_description' => 'cookie.groupRequiredDescription',
+            ],
+        ];
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')
+            ->willReturnCallback(function (string $key) {
+                return match ($key) {
+                    'cookie.groupRequired' => 'Required Cookies',
+                    'cookie.groupRequiredDescription' => 'These cookies are required',
+                    default => $key,
+                };
+            });
+
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
+        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
+
+        $cookieService = new CookieService($systemConfigService, $repository, $translator);
+        $result = $cookieService->translateCookieGroups($cookieGroups, $salesChannelContext);
+
+        static::assertCount(1, $result);
+        static::assertSame('Required Cookies', $result[0]['snippet_name']);
+        static::assertSame('These cookies are required', $result[0]['snippet_description']);
+        static::assertArrayNotHasKey('entries', $result[0]);
+    }
 }

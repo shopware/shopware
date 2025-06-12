@@ -88,6 +88,9 @@ async function createWrapper() {
                     startEventListener: () => {},
                 },
                 searchRankingService: {},
+                customFieldDataProviderService: {
+                    getCustomFieldSets: jest.fn(() => Promise.resolve([])),
+                },
             },
             stubs: {
                 'sw-ignore-class': true,
@@ -149,6 +152,9 @@ async function createWrapper() {
                 'sw-data-grid-inline-edit': true,
                 'router-link': true,
                 'sw-data-grid-skeleton': true,
+                'sw-custom-field-set-renderer': {
+                    template: '<div></div>',
+                },
                 'sw-provide': { template: `<slot/>`, inheritAttrs: false },
             },
         },

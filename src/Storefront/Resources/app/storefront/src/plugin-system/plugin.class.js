@@ -71,21 +71,13 @@ export default class Plugin {
     }
 
     /**
-     * deep merge the passed options and the static defaults
+     * Deep merge the passed options and the static defaults.
      *
      * @param {Object} options
      *
      * @private
      */
     _mergeOptions(options) {
-        if (typeof this.el.getAttribute !== 'function') {
-            return;
-        }
-
-        const dashedPluginName = StringHelper.toDashCase(this._pluginName);
-        const dataAttributeConfig = this.el.getAttribute(`data-${dashedPluginName}-config`);
-        const dataAttributeOptions = this.el.getAttribute(`data-${dashedPluginName}-options`);
-
         // static plugin options
         // previously merged options
         // explicit options when creating a plugin instance with 'new'
@@ -95,24 +87,64 @@ export default class Plugin {
             options,
         ];
 
-        // options which are set via data-plugin-name-config="config name"
-        if (dataAttributeConfig) merge.push(window.PluginConfigManager.get(this._pluginName, dataAttributeConfig));
-        // options which are set via data-plugin-name-options="{json..}"
-        try {
-            if (dataAttributeOptions) merge.push(JSON.parse(dataAttributeOptions));
-        } catch (e) {
-            console.error(this.el);
-            throw new Error(
-                `The data attribute "data-${dashedPluginName}-options" could not be parsed to json: ${e.message}`
-            );
-        }
+        merge.push(this._getConfigFromDataAttribute());
+        merge.push(this._getOptionsFromDataAttribute());
 
         return deepmerge.all(
             merge.filter(config => {
                 return config instanceof Object && !(config instanceof Array);
-            })
-                .map(config => config || {})
+            }).map(config => config || {})
         );
+    }
+
+    /**
+     * Returns the config from the data attribute.
+     *
+     * @returns {Object}
+     * @private
+     */
+    _getConfigFromDataAttribute() {
+        const attributeConfig = {};
+
+        if (typeof this.el.getAttribute !== 'function') {
+            return attributeConfig;
+        }
+
+        const dashedPluginName = StringHelper.toDashCase(this._pluginName);
+        const dataAttributeConfig = this.el.getAttribute(`data-${dashedPluginName}-config`);
+
+        if (dataAttributeConfig) {
+            return window.PluginConfigManager.get(this._pluginName, dataAttributeConfig);
+        }
+
+        return attributeConfig;
+    }
+
+    /**
+     * Returns the options from the data attribute.
+     *
+     * @returns {Object}
+     * @private
+     */
+    _getOptionsFromDataAttribute() {
+        const attributeOptions = {};
+
+        if (typeof this.el.getAttribute !== 'function') {
+            return attributeOptions;
+        }
+
+        const dashedPluginName = StringHelper.toDashCase(this._pluginName);
+        const dataAttributeOptions = this.el.getAttribute(`data-${dashedPluginName}-options`);
+
+        if (dataAttributeOptions) {
+            try {
+                return JSON.parse(dataAttributeOptions);
+            } catch (e) {
+                console.error(`The data attribute "data-${dashedPluginName}-options" could not be parsed to json: ${e.message}`);
+            }
+        }
+
+        return attributeOptions;
     }
 
     /**

@@ -44,7 +44,7 @@ async function createWrapper(userConfig = {}) {
     };
 
     const wrapper = shallowMount(
-        await Shopware.Component.build('sw-sortable-list'),
+        await wrapTestComponent('sw-sortable-list', { sync: true }),
         deepMergeObject(defaultConfig, userConfig),
     );
 

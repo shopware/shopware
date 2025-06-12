@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Theme;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -31,7 +32,14 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
 
     public function load(string $themeId, SalesChannelContext $context): array
     {
-        $config = $this->service->getThemeConfiguration($themeId, false, $context->getContext());
+        if (!Feature::isActive('v6.8.0.0')) {
+            $config = Feature::silent('v6.8.0.0', function () use ($themeId, $context) {
+                return $this->service->getThemeConfiguration($themeId, false, $context->getContext());
+            });
+        } else {
+            $config = $this->service->getPlainThemeConfiguration($themeId, $context->getContext());
+        }
+
         $resolvedConfig = [];
         $mediaItems = [];
         if (!\array_key_exists('fields', $config)) {
@@ -39,7 +47,7 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
         }
 
         foreach ($config['fields'] as $key => $data) {
-            if ($data['type'] === 'media' && $data['value'] && Uuid::isValid($data['value'])) {
+            if (isset($data['type']) && $data['type'] === 'media' && $data['value'] && Uuid::isValid($data['value'])) {
                 $mediaItems[$data['value']][] = $key;
             }
             $resolvedConfig[$key] = $data['value'];

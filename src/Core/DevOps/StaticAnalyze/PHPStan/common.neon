@@ -12,6 +12,36 @@ parameters:
     checkFunctionNameCase: true
     checkInternalClassCaseSensitivity: true
 
+    # Would otherwise flag usage of internal classes from different namespaces
+    featureToggles:
+        internalTag: false
+
+    # For stricter testing those should be set to true at some point
+    reportMaybesInMethodSignatures: false
+    reportWrongPhpDocTypeInVarTag: false
+
+    # For stricter testing those should be set to true at some point
+    strictRules:
+        disallowedLooseComparison: false
+        booleansInConditions: false
+        booleansInLoopConditions: false
+        uselessCast: false
+        requireParentConstructorCall: false
+        disallowedBacktick: false
+        disallowedEmpty: false
+        disallowedImplicitArrayCreation: false
+        disallowedShortTernary: false
+        overwriteVariablesWithLoop: false
+        closureUsesThis: false
+        matchingInheritedMethodNames: false
+        numericOperandsInArithmeticOperators: false
+        strictFunctionCalls: false
+        dynamicCallOnStaticMethod: false
+        switchConditionsMatchingType: false
+        noVariableVariables: false
+        strictArrayFilter: false
+        illegalConstructorMethodCall: false
+
     type_perfect:
         no_mixed_property: true
         no_mixed_caller: true

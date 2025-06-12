@@ -34,10 +34,9 @@
             <argument type="service" id="Psr\Log\LoggerInterface"/>
             <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
             <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
-            <argument type="service" id="messenger.default_bus"/>
-            <argument>%storefront.theme.file_delete_delay%</argument>
             <argument>%storefront.theme.allowed_scss_values%</argument>
             <argument>%storefront.theme.validate_on_compile%</argument>
+            <argument>%shopware.filesystem.theme.config%</argument>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeLifecycleService">
@@ -146,6 +145,21 @@
             <argument type="service" id="sales_channel.repository" />
 
             <tag name="messenger.message_handler" />
+        </service>
+
+        <service id="Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="shopware.filesystem.theme"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+            <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
+
+            <tag name="messenger.message_handler"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigLoader">

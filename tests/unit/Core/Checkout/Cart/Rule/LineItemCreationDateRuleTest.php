@@ -251,7 +251,7 @@ class LineItemCreationDateRuleTest extends TestCase
         $result = $lineItemCreationDateRule->getConfig()->getData();
 
         static::assertIsArray($result['operatorSet']['operators']);
-        static::assertEquals(RuleConfig::OPERATOR_SET_NUMBER, $result['operatorSet']['operators']);
+        static::assertSame(RuleConfig::OPERATOR_SET_NUMBER, $result['operatorSet']['operators']);
     }
 
     private function createLineItemWithCreatedDate(string $createdAt): LineItem

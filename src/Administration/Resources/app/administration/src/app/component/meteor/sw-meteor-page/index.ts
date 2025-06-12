@@ -4,8 +4,6 @@ import type { ModuleManifest } from 'src/core/factory/module.factory';
 import template from './sw-meteor-page.html.twig';
 import './sw-meteor-page.scss';
 
-const { Component } = Shopware;
-
 type ComponentData = {
     module: ModuleManifest | null;
     parentRoute: string | null;
@@ -16,7 +14,7 @@ type ComponentData = {
  *
  * @private
  */
-Component.register('sw-meteor-page', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {

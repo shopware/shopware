@@ -34,7 +34,7 @@ class MediaCreationSubscriberTest extends TestCase
 
     public function testSubscribedEvents(): void
     {
-        static::assertEquals(
+        static::assertSame(
             [
                 EntityWriteEvent::class => 'beforeWrite',
             ],

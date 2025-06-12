@@ -27,5 +27,12 @@ echo \json_encode([
         ],
         'php' => $php,
         'db' => $db,
+        'include' => [
+            [
+                'test' => ['testsuite' => 'migration'],
+                'php' => '8.2',
+                'db' => 'mariadb:11'
+            ],
+        ]
     ]
 ], \JSON_THROW_ON_ERROR);

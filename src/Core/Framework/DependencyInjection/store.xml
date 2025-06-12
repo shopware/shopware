@@ -60,6 +60,7 @@
             <argument type="service" id="shopware.store_client"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
             <argument type="service" id="request_stack"/>
+            <argument type="service" id="cache.object"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient">
@@ -188,6 +189,7 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
             <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
             <argument>%shopware.deployment.runtime_extension_management%</argument>
+
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -245,6 +247,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\JWT\JWTDecoder"/>
             <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase\Services\KeyFetcher"/>
+            <argument type="service" id="logger" />
         </service>
 
         <service id="Shopware\Core\Framework\Store\InAppPurchase\Api\InAppPurchasesController" public="true">
@@ -293,5 +296,9 @@
         </service>
 
         <service id="Shopware\Core\Framework\JWT\JWTDecoder"/>
+
+        <service id="Shopware\Core\Framework\Store\Subscriber\ExtensionChangedSubscriber">
+            <argument type="service" id="cache.object"/>
+        </service>
     </services>
 </container>

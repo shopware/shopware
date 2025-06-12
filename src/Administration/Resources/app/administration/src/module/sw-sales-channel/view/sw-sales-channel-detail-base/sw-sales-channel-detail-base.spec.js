@@ -66,6 +66,10 @@ async function createWrapper() {
                     }),
                 },
             },
+            mocks: {
+                $t: jest.fn().mockImplementation((snippet) => snippet),
+                $router: { resolve: () => ({ href: '/sw/settings/payment/overview' }) },
+            },
         },
         props: {
             salesChannel: {},
@@ -1045,5 +1049,144 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         expect(wrapper.vm.cliCommand).toBe('php bin/console product-export:generate sc-id export-id');
+    });
+
+    it('should build unserved languages alert with correct pluralization for single item', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            {
+                name: 'English',
+            },
+        ];
+
+        const snippet = 'sw-sales-channel.detail.warningUnservedLanguage';
+        const result = wrapper.vm.buildUnservedLanguagesAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                list: 'English',
+            },
+            1,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should build unserved languages alert with correct pluralization for multiple items', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            {
+                name: 'English',
+            },
+            {
+                name: 'German',
+            },
+        ];
+
+        const snippet = 'sw-sales-channel.detail.warningUnservedLanguage';
+        const result = wrapper.vm.buildUnservedLanguagesAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                list: 'English, German',
+            },
+            2,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should build payment alert with correct pluralization for single item', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            { translated: { name: 'PayPal|Invoice' } },
+        ];
+
+        const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
+
+        const result = wrapper.vm.buildDisabledPaymentAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                separatedList: '<span>PayPal&vert;Invoice</span>',
+                paymentSettingsLink: '/sw/settings/payment/overview',
+            },
+            1,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should build payment alert with correct pluralization for multiple items', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            { translated: { name: 'PayPal|Invoice' } },
+            { translated: { name: 'Cash on delivery' } },
+        ];
+
+        const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
+
+        const result = wrapper.vm.buildDisabledPaymentAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                separatedList: '<span>PayPal&vert;Invoice</span>, <span>Cash on delivery</span>',
+                paymentSettingsLink: '/sw/settings/payment/overview',
+            },
+            2,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should build shipping alert with correct pluralization for single item', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            { translated: { name: 'Standard' } },
+        ];
+        collection.first = () => collection[0];
+        collection.last = () => collection[0];
+
+        const snippet = 'sw-sales-channel.detail.warningDisabledShippingMethod';
+        const result = wrapper.vm.buildDisabledShippingAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                name: 'Standard',
+                addition: 'Standard',
+            },
+            1,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should build shipping alert with correct pluralization for multiple items', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            { translated: { name: 'Standard' } },
+            { translated: { name: 'Express' } },
+        ];
+        collection.first = () => collection[0];
+        collection.last = () => collection[1];
+
+        const snippet = 'sw-sales-channel.detail.warningDisabledShippingMethod';
+        const result = wrapper.vm.buildDisabledShippingAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                name: 'Standard',
+                addition: 'Express',
+            },
+            2,
+        );
+
+        expect(result).toBe(snippet);
     });
 });

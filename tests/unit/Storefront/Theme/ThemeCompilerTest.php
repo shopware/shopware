@@ -27,7 +27,6 @@ use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
-use Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage;
 use Shopware\Storefront\Theme\ScssPhpCompiler;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -44,9 +43,6 @@ use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\TestTheme\TestT
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\MessageBus;
-use Symfony\Component\Messenger\Stamp\DelayStamp;
 
 /**
  * @internal
@@ -89,8 +85,6 @@ class ThemeCompilerTest extends TestCase
 
     private MD5ThemePathBuilder $pathBuilder;
 
-    private MessageBus $messageBus;
-
     private ThemeFilesystemResolver&MockObject $themeFilesystemResolver;
 
     /**
@@ -106,7 +100,6 @@ class ThemeCompilerTest extends TestCase
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->scssPhpCompiler = $this->createMock(ScssPhpCompiler::class);
         $this->pathBuilder = new MD5ThemePathBuilder();
-        $this->messageBus = new MessageBus();
         $this->copyBatchInputFactory = $this->createMock(CopyBatchInputFactory::class);
         $this->themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
 
@@ -453,7 +446,7 @@ PHP_EOL,
 
         $expected = $styles . MockThemeCompilerConcatenatedSubscriber::STYLES_CONCAT;
 
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
     }
 
     public function testCompileWithoutAssets(): void
@@ -469,7 +462,7 @@ PHP_EOL,
         $config->setAssetPaths(['bla']);
 
         $pathBuilder = new MD5ThemePathBuilder();
-        static::assertEquals('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
+        static::assertSame('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
 
         try {
             $pathBuilder->getDecorated();
@@ -519,7 +512,7 @@ PHP_EOL,
         $compiler = $this->getThemeCompiler();
 
         $pathBuilder = new MD5ThemePathBuilder();
-        static::assertEquals('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
+        static::assertSame('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
 
         try {
             $pathBuilder->getDecorated();
@@ -558,7 +551,7 @@ PHP_EOL,
         $config->setAssetPaths(['assets']);
 
         $pathBuilder = new MD5ThemePathBuilder();
-        static::assertEquals('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
+        static::assertSame('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
 
         $wasThrown = false;
 
@@ -651,18 +644,7 @@ PHP_EOL,
             ->method('saveSeed')
             ->with(TestDefaults::SALES_CHANNEL, 'test');
 
-        $expectedMessage = new DeleteThemeFilesMessage('current', TestDefaults::SALES_CHANNEL, 'test');
-        $expectedStamps = [new DelayStamp(900000)];
-
-        $expectedEnvelop = new Envelope($expectedMessage, $expectedStamps);
-
-        $this->messageBus = $this->createMock(MessageBus::class);
-        $this->messageBus->expects($this->once())
-            ->method('dispatch')
-            ->with($expectedMessage, $expectedStamps)
-            ->willReturn($expectedEnvelop);
-
-        $compiler = $this->getThemeCompiler(900);
+        $compiler = $this->getThemeCompiler();
 
         $config = new StorefrontPluginConfiguration('test');
         $config->setAssetPaths(['assets']);
@@ -795,7 +777,7 @@ PHP_EOL,
         ];
     }
 
-    protected function getThemeCompiler(int $themeFileDeleteDelay = 0): ThemeCompiler
+    protected function getThemeCompiler(): ThemeCompiler
     {
         return new ThemeCompiler(
             $this->filesystem,
@@ -810,8 +792,8 @@ PHP_EOL,
             $this->logger,
             $this->pathBuilder,
             $this->scssPhpCompiler,
-            $this->messageBus,
-            $themeFileDeleteDelay,
+            [],
+            false
         );
     }
 }

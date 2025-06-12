@@ -136,9 +136,9 @@ class RecalculationService
 
         $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
 
-        $new = $cart->get($lineItem->getId());
-        if ($new) {
-            $this->addProductToDeliveryPosition($new, $recalculatedCart);
+        $recalculatedLineItem = $recalculatedCart->get($lineItem->getId());
+        if ($recalculatedLineItem?->isShippingCostAware()) {
+            $this->addLineItemToDeliveryPosition($recalculatedLineItem, $recalculatedCart);
         }
 
         $conversionContext = $this->getOrderConversionContext()->setIncludeDeliveries(true);
@@ -161,6 +161,11 @@ class RecalculationService
         $cart->add($lineItem);
 
         $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
+
+        $recalculatedLineItem = $recalculatedCart->get($lineItem->getId());
+        if ($recalculatedLineItem?->isShippingCostAware()) {
+            $this->addLineItemToDeliveryPosition($recalculatedLineItem, $recalculatedCart);
+        }
 
         $conversionContext = $this->getOrderConversionContext();
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
@@ -266,8 +271,14 @@ class RecalculationService
         $orderData['id'] = $order->getId();
         $orderData['stateId'] = $order->getStateId();
 
-        if ($order->getDeliveries()?->first()?->getStateId() && isset($orderData['deliveries'][0])) {
-            $orderData['deliveries'][0]['stateId'] = $order->getDeliveries()->first()->getStateId();
+        if ($order->getPrimaryOrderDelivery()?->getStateId() && isset($orderData['deliveries'][0])) {
+            $orderData['deliveries'][0]['stateId'] = $order->getPrimaryOrderDelivery()->getStateId();
+        }
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            if ($order->getDeliveries()?->first()?->getStateId() && isset($orderData['deliveries'][0])) {
+                $orderData['deliveries'][0]['stateId'] = $order->getDeliveries()->first()->getStateId();
+            }
         }
 
         if ($allowLineItemsDeletion) {
@@ -330,12 +341,8 @@ class RecalculationService
         }
     }
 
-    private function addProductToDeliveryPosition(LineItem $item, Cart $cart): void
+    private function addLineItemToDeliveryPosition(LineItem $item, Cart $cart): void
     {
-        if ($cart->getDeliveries()->count() <= 0) {
-            return;
-        }
-
         $delivery = $cart->getDeliveries()->first();
         if (!$delivery) {
             return;
@@ -353,6 +360,7 @@ class RecalculationService
     {
         $criteria = (new Criteria([$orderId]))
             ->addAssociations([
+                'primaryOrderDelivery',
                 'lineItems.downloads',
                 'transactions.stateMachineState',
                 'deliveries.shippingMethod.tax',
@@ -440,6 +448,6 @@ class RecalculationService
             ->setIncludeCustomer(false)
             ->setIncludeBillingAddress(false)
             ->setIncludeTransactions(false)
-            ->setIncludeOrderDate(false);
+            ->setIncludePersistentData(false);
     }
 }

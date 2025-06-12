@@ -70,7 +70,7 @@ class ProductExportRendererTest extends TestCase
 
         $rendered = $renderer->renderHeader($productExport, $this->context);
 
-        static::assertEquals($expected, $rendered);
+        static::assertSame($expected, $rendered);
     }
 
     public function testRenderHeaderError(): void
@@ -143,7 +143,7 @@ class ProductExportRendererTest extends TestCase
 
         $rendered = $renderer->renderFooter($productExport, $this->context);
 
-        static::assertEquals($expected, $rendered);
+        static::assertSame($expected, $rendered);
     }
 
     /**
@@ -174,7 +174,7 @@ class ProductExportRendererTest extends TestCase
 
         $rendered = $renderer->renderBody($productExport, $this->context, $data);
 
-        static::assertEquals($expected, $rendered);
+        static::assertSame($expected, $rendered);
     }
 
     public function testRenderFooterError(): void

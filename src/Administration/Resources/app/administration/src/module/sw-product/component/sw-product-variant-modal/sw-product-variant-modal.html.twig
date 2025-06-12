@@ -37,7 +37,10 @@
                     @click="toggleFilterMenu"
                 >
                     {{ $tc('sw-product.variations.generatedFilterList') }}
-                    <mt-icon name="regular-filter" />
+                    <mt-icon
+                        name="regular-filter"
+                        size="16"
+                    />
                 </mt-button>
                 {% endblock %}
 
@@ -212,7 +215,7 @@
                 {% block sw_product_variant_modal_bulk_edit_modal_column_stock %}
                 <template #column-stock="{ item }">
                     {{ item.stock }}
-                    <sw-color-badge :variant="stockColorVariant(item.stock)" />
+                    <sw-color-badge :variant="stockColorVariantFilter(item.stock)" />
                 </template>
                 {% endblock %}
 

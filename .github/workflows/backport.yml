@@ -10,9 +10,10 @@ permissions:
   id-token: write
 
 jobs:
-  backport:
+  find-linked-issue:
     runs-on: ubuntu-24.04
     if: >
+      github.event.act ||
       github.event.pull_request.merged
       && (
         github.event.action == 'closed'
@@ -22,15 +23,194 @@ jobs:
           && contains(github.event.label.name, 'backport-')
         )
       )
+    outputs:
+      id: ${{ steps.issue.outputs.id }}
+      title: ${{ steps.issue.outputs.title }}
+      number: ${{ steps.issue.outputs.number }}
+      url: ${{ steps.issue.outputs.url }}
+      owner: ${{ steps.issue.outputs.owner }}
+      repository: ${{ steps.issue.outputs.repository }}
     steps:
       - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
         id: sts-shopware-backport
+        if: ${{ !github.event.act }}
         with:
           scope: shopware
           identity: ShopwareBackport
+
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        with:
+          fetch-depth: 0
+          sparse-checkout: |
+            .github/bin/js
+          sparse-checkout-cone-mode: false
+
+      - shell: bash
+        run: npm ci --prefix .github/bin/js/
+
+      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+        id: issue
+        env:
+          PR_REPO: ${{ github.event.pull_request.base.repo.full_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD: ${{ github.event.pull_request.head.ref }}
+          PR_ASSIGNEE: ${{ github.event.pull_request.assignee && github.event.pull_request.assignee.login || '' }}
+        with:
+          github-token: ${{ github.event.act && secrets.GITHUB_TOKEN || steps.sts-shopware-backport.outputs.token }}
+          script: |
+            const { getDevelopmentIssueForPullRequest } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
+            const issue = await getDevelopmentIssueForPullRequest({github, core, context}, process.env.PR_REPO, parseInt(process.env.PR_NUMBER), process.env.PR_HEAD, process.env.PR_ASSIGNEE)
+
+            core.setOutput('id', issue?.id || null)
+            core.setOutput('title', issue?.title || null)
+            core.setOutput('number', issue?.number || null)
+            core.setOutput('url', issue?.url || null)
+            core.setOutput('owner', issue?.owner || null)
+            core.setOutput('repository', issue?.repository || null)
+
+  reopen-linked-issue:
+    runs-on: ubuntu-24.04
+    if: >
+      github.event.act ||
+      github.event.pull_request.merged
+      && (
+        github.event.action == 'closed'
+          && contains(join(github.event.pull_request.labels.*.name, ','), 'backport-')
+        || (
+          github.event.action == 'labeled'
+          && contains(github.event.label.name, 'backport-')
+        )
+      )
+      && needs.find-linked-issue.outputs.id
+    needs: [ find-linked-issue ]
+    steps:
+      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
+        id: sts-shopware-backport
+        if: ${{ !github.event.act }}
+        with:
+          scope: shopware
+          identity: ShopwareBackport
+
+      - uses: actions/github-script@v7 # actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+        env:
+          ISSUE_NUMBER: ${{ needs.find-linked-issue.outputs.number }}
+          ISSUE_OWNER: ${{ needs.find-linked-issue.outputs.owner }}
+          ISSUE_REPOSITORY: ${{ needs.find-linked-issue.outputs.repository }}
+          POST_COMMENT: 'Reopening issue because the related pull request needs to be backported.'
+        with:
+          github-token: ${{ github.event.act && secrets.GITHUB_TOKEN || steps.sts-shopware-backport.outputs.token }}
+          script: |
+            const issue = await github.rest.issues.get({
+              owner: process.env.ISSUE_OWNER,
+              repo: process.env.ISSUE_REPOSITORY,
+              issue_number: parseInt(process.env.ISSUE_NUMBER),
+            });
+            
+            if (issue.data.state === 'open') {
+              core.info(`Issue #${process.env.ISSUE_NUMBER} is already open, no action needed.`);
+              return;
+            }
+            
+            await github.rest.issues.update({
+              owner: process.env.ISSUE_OWNER,
+              repo: process.env.ISSUE_REPOSITORY,
+              issue_number: parseInt(process.env.ISSUE_NUMBER),
+              state: 'open',
+              state_reason: 'reopened',
+            });
+            
+            if (process.env.POST_COMMENT) {
+              await github.rest.issues.createComment({
+                owner: process.env.ISSUE_OWNER,
+                repo: process.env.ISSUE_REPOSITORY,
+                issue_number: parseInt(process.env.ISSUE_NUMBER),
+                body: process.env.POST_COMMENT,
+              });
+            }
+
+  parse-labels:
+    runs-on: ubuntu-24.04
+    if: >
+      github.event.act ||
+      github.event.pull_request.merged
+      && (
+        github.event.action == 'closed'
+          && contains(join(github.event.pull_request.labels.*.name, ','), 'backport-')
+        || (
+          github.event.action == 'labeled'
+          && contains(github.event.label.name, 'backport-')
+        )
+      )
+    outputs:
+      target-branches: ${{ steps.parse-labels.outputs.target-branches }}
+      labels: ${{ steps.parse-labels.outputs.labels }}
+    env:
+      LABELS: ${{ toJSON(github.event.pull_request.labels) }}
+    steps:
+      - name: Parse labels
+        id: parse-labels
+        uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const labels = JSON.parse(process.env.LABELS);
+            
+            const targetBranches = labels
+              .filter(label => label.name.startsWith('backport-'))
+              .map(label => label.name.replace('backport-', ''));
+            
+            const filteredLabels = labels
+              .filter(label => !label.name.startsWith('backport-'))
+              .map(label => label.name);
+            
+            core.setOutput('target-branches', JSON.stringify(targetBranches));
+            core.setOutput('labels', JSON.stringify(filteredLabels));
+
+  backport:
+    runs-on: ubuntu-24.04
+    if: >
+      github.event.act ||
+      github.event.pull_request.merged
+      && (
+        github.event.action == 'closed'
+          && contains(join(github.event.pull_request.labels.*.name, ','), 'backport-')
+        || (
+          github.event.action == 'labeled'
+          && contains(github.event.label.name, 'backport-')
+        )
+      )
+    needs: [ find-linked-issue, parse-labels ]
+    strategy:
+      matrix:
+        target-branch: ${{ fromJSON(needs.parse-labels.outputs.target-branches) }}
+      fail-fast: true
+    steps:
+      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
+        id: sts-shopware-backport
+        if: ${{ !github.event.act }}
+        with:
+          scope: shopware
+          identity: ShopwareBackport
+
       - name: Backporting
         uses: kiegroup/git-backporting@main
         with:
-          auth: ${{ steps.sts-shopware-backport.outputs.token }}
-          target-branch-pattern: "^backport-(?<target>([^ ]+))$"
+          auth: ${{ github.event.act && secrets.GITHUB_TOKEN || steps.sts-shopware-backport.outputs.token }}
+          target-branch: ${{ matrix.target-branch }}
           pull-request: ${{ github.event.pull_request.url }}
+          bp-branch-name: ${{ format('{0}-backport-{1}', github.event.pull_request.head.ref, matrix.target-branch) }}
+          title: >-
+            ${{ format('{0} (backport: {1}) ', github.event.pull_request.title, matrix.target-branch) }}
+          body-prefix: | # Reference original PR, as well as the related issue, if available
+            ${{ format('**Backport:** {0}', github.event.pull_request.html_url) }}
+            ${{ needs.find-linked-issue.outputs.url && format('Resolves: {0}', needs.find-linked-issue.outputs.url) }}
+            
+            ---
+          assignees: >- # Inherit original assignees
+            ${{ github.event.pull_request.assignees && join(github.event.pull_request.assignees.*.login, ',') || '' }}
+          reviewers: >- # Add the original assignees, as well as the reviewers of the original PR
+            ${{ github.event.pull_request.assignees && format('{0},', join(github.event.pull_request.assignees.*.login, ',')) || '' }}
+            ${{ github.event.pull_request.requested_reviewers && join(github.event.pull_request.requested_reviewers.*.login, ',') || '' }}
+          labels: >- # Inherit original labels, except backport ones
+            ${{ needs.parse-labels.outputs.labels && join(fromJSON(needs.parse-labels.outputs.labels), ',') || '' }}
+          dry-run: ${{ github.event.act && true || false }}

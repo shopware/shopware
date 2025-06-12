@@ -69,6 +69,22 @@ describe('WishlistWidgetPlugin tests', () => {
         expect(document.body.querySelector('.wishlist-widget').innerHTML).toBe('');
     });
 
+    test('Wishlist widget will update live-area content on change', () => {
+        let expectedCounter = null;
+        wishlistWidgetPlugin._wishlistStorage.getCurrentCounter = jest.fn(() => expectedCounter);
+
+        const liveArea = document.createElement('div');
+        liveArea.id = 'wishlist-basket-live-area';
+        document.body.appendChild(liveArea);
+
+        expectedCounter = 5;
+        wishlistWidgetPlugin._wishlistStorage.$emitter.publish('Wishlist/onProductsLoaded');
+        expect(liveArea.innerHTML).toBe('<p>5</p>');
+
+        expectedCounter = 10;
+        wishlistWidgetPlugin._wishlistStorage.$emitter.publish('Wishlist/onProductsLoaded');
+        expect(liveArea.innerHTML).toBe('<p>10</p>');
+    });
 });
 
 

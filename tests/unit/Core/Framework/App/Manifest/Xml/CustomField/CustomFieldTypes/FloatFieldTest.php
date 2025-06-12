@@ -26,17 +26,17 @@ class FloatFieldTest extends TestCase
 
         $floatField = $customFieldSet->getFields()[0];
         static::assertInstanceOf(FloatField::class, $floatField);
-        static::assertEquals('test_float_field', $floatField->getName());
-        static::assertEquals([
+        static::assertSame('test_float_field', $floatField->getName());
+        static::assertSame([
             'en-GB' => 'Test float field',
             'de-DE' => 'Test Kommazahlenfeld',
         ], $floatField->getLabel());
-        static::assertEquals(['en-GB' => 'This is a float field.'], $floatField->getHelpText());
-        static::assertEquals(2, $floatField->getPosition());
-        static::assertEquals(2.2, $floatField->getSteps());
-        static::assertEquals(0.5, $floatField->getMin());
-        static::assertEquals(1.6, $floatField->getMax());
-        static::assertEquals(['en-GB' => 'Enter a float...'], $floatField->getPlaceholder());
+        static::assertSame(['en-GB' => 'This is a float field.'], $floatField->getHelpText());
+        static::assertSame(2, $floatField->getPosition());
+        static::assertSame(2.2, $floatField->getSteps());
+        static::assertSame(0.5, $floatField->getMin());
+        static::assertSame(1.6, $floatField->getMax());
+        static::assertSame(['en-GB' => 'Enter a float...'], $floatField->getPlaceholder());
         static::assertFalse($floatField->getRequired());
     }
 }

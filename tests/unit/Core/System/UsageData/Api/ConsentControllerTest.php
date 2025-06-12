@@ -42,7 +42,7 @@ class ConsentControllerTest extends TestCase
 
         $context = Context::createDefaultContext(new AdminApiSource('018a93bbe90570eda0d89c600de7dd19'));
 
-        static::assertEquals(
+        static::assertSame(
             [
                 'isConsentGiven' => true,
                 'isBannerHidden' => true,

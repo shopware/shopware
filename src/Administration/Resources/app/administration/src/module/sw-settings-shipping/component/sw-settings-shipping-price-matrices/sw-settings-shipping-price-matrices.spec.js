@@ -18,7 +18,9 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                         'sw-settings-shipping-price-matrix': await wrapTestComponent('sw-settings-shipping-price-matrix', {
                             sync: true,
                         }),
-                        'mt-card': true,
+                        'mt-card': {
+                            template: '<div><slot /><slot name="grid" /></div>',
+                        },
                         'sw-container': true,
                         'sw-select-rule-create': true,
                         'sw-single-select': true,

@@ -35,6 +35,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
             $ranking = (int) $configField['ranking'];
 
             $values = array_filter($this->resolveEntityValue($product, $path));
+            ksort($values);
 
             if ($isTokenize) {
                 $nonScalarValues = array_filter($values, static fn ($value) => !\is_scalar($value));
@@ -46,13 +47,13 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
                 /** @var array<int, string> $onlyScalarValues */
                 $onlyScalarValues = $values;
                 $values = $this->tokenize($onlyScalarValues, $context);
+                $values[] = implode(' ', $values);
             }
 
-            foreach ($values as $value) {
-                if (!\is_scalar($value)) {
-                    continue;
-                }
+            $values = array_filter($values, static fn ($value) => \is_scalar($value)); // Keep only scalar values
+            $values = array_unique($values);
 
+            foreach ($values as $value) {
                 // even the field is non tokenize, if it reached 500 chars, we should break it anyway
                 $parts = array_filter(mb_str_split((string) $value, self::MAXIMUM_KEYWORD_LENGTH));
 

@@ -72,7 +72,7 @@ class LicenseSyncSubscriberTest extends TestCase
             SystemConfigChangedEvent::class => 'syncLicense',
         ];
 
-        static::assertEquals($expectedEvents, LicenseSyncSubscriber::getSubscribedEvents());
+        static::assertSame($expectedEvents, LicenseSyncSubscriber::getSubscribedEvents());
     }
 
     public function testLicenseSyncWithValidLicense(): void

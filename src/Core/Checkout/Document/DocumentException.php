@@ -3,7 +3,9 @@
 namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Order\OrderException;
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
+use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,6 +31,10 @@ class DocumentException extends HttpException
 
     public const FILE_EXTENSION_NOT_SUPPORTED = 'DOCUMENT__FILE_EXTENSION_NOT_SUPPORTED';
 
+    public const CANNOT_CREATE_ZIP_FILE = 'DOCUMENT__CANNOT_CREATE_ZIP_FILE';
+
+    public const DOCUMENT_ZIP_READ_ERROR = 'DOCUMENT__ZIP_READ_ERROR';
+
     public static function invalidDocumentGeneratorType(string $type): self
     {
         return new self(
@@ -44,7 +50,7 @@ class DocumentException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::ORDER_NOT_FOUND,
-            'The order with id {{ orderId }} is invalid or could not be found.',
+            'The order with id "{{ orderId }}" is invalid or could not be found.',
             [
                 'orderId' => $orderId,
             ],
@@ -78,9 +84,9 @@ class DocumentException extends HttpException
         );
     }
 
-    public static function customerNotLoggedIn(): self
+    public static function customerNotLoggedIn(): CustomerNotLoggedInException
     {
-        return new self(
+        return new CustomerNotLoggedInException(
             Response::HTTP_FORBIDDEN,
             CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
             'Customer is not logged in.'
@@ -133,22 +139,14 @@ class DocumentException extends HttpException
         );
     }
 
-    public static function guestNotAuthenticated(): self
+    public static function guestNotAuthenticated(): GuestNotAuthenticatedException
     {
-        return new self(
-            Response::HTTP_FORBIDDEN,
-            OrderException::CHECKOUT_GUEST_NOT_AUTHENTICATED,
-            'Guest not authenticated.'
-        );
+        return new GuestNotAuthenticatedException();
     }
 
-    public static function wrongGuestCredentials(): self
+    public static function wrongGuestCredentials(): WrongGuestCredentialsException
     {
-        return new self(
-            Response::HTTP_FORBIDDEN,
-            OrderException::CHECKOUT_GUEST_WRONG_CREDENTIALS,
-            'Wrong credentials for guest authentication.'
-        );
+        return new WrongGuestCredentialsException();
     }
 
     public static function unsupportedDocumentFileExtension(string $fileExtension): self
@@ -174,6 +172,27 @@ class DocumentException extends HttpException
                 'counter' => $count,
                 'violations' => $violations,
             ]
+        );
+    }
+
+    public static function cannotCreateZipFile(string $filePath): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CANNOT_CREATE_ZIP_FILE,
+            'Cannot create ZIP file at "{{ filePath }}"',
+            ['filePath' => $filePath]
+        );
+    }
+
+    public static function cannotReadZipFile(string $filePath, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DOCUMENT_ZIP_READ_ERROR,
+            'Cannot read document ZIP file: {{ filePath }}',
+            ['filePath' => $filePath],
+            $previous
         );
     }
 }

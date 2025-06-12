@@ -121,9 +121,9 @@ class ApiAwareTest extends TestCase
         This change must be carefully controlled to ensure that no sensitive data is given out via the Store API.';
 
         $diff = array_diff($mapping, $expected);
-        static::assertEquals([], $diff, $message);
+        static::assertSame([], $diff, $message);
 
         $diff = array_diff($expected, $mapping);
-        static::assertEquals([], $diff, $message);
+        static::assertSame([], $diff, $message);
     }
 }

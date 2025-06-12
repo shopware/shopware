@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
@@ -17,6 +17,8 @@ abstract class FileNameProvider
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaCollection> $mediaRepository
      */
     public function __construct(private readonly EntityRepository $mediaRepository)
     {
@@ -56,16 +58,11 @@ abstract class FileNameProvider
             [
                 new ContainsFilter('fileName', $fileName),
                 new EqualsFilter('fileExtension', $fileExtension),
-                new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('id', $mediaId)]),
+                new NotEqualsFilter('id', $mediaId),
             ]
         ));
 
-        $search = $this->mediaRepository->search($criteria, $context);
-
-        /** @var MediaCollection $mediaCollection */
-        $mediaCollection = $search->getEntities();
-
-        return $mediaCollection;
+        return $this->mediaRepository->search($criteria, $context)->getEntities();
     }
 
     private function getPossibleFileName(

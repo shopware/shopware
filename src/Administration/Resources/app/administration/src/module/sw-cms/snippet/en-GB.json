@@ -9,7 +9,7 @@
       "deleteDisabledToolTip": "The layout you want to delete is still assigned to at least one category.",
       "deleteDisabledProductToolTip": "The layout you want to delete is still assigned to at least one product.",
       "disabledAddingBlocksToolTip": "Adding blocks only works in your default system language.",
-      "buttonDelete": "Delete"
+      "privacyNotice": "By selecting continue you confirm that you have read our <a href=\"%privacyUrl%\">data protection information</a> and accepted our <a href=\"%tosUrl%\">general terms and conditions</a>."
     },
     "sorting": {
       "labelSort": "Sort by:",
@@ -498,7 +498,6 @@
             "privacy": "Privacy*",
             "salutation": "Salutation*",
             "salutationUndisclosed": "Prefer not to disclose",
-            "send": "Send",
             "subject": "Subject line*",
             "subscribeToNewsletter": "Subscribe to newsletter"
           },
@@ -511,8 +510,7 @@
             "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
           },
           "helpText": {
-            "privacy": "I have read the data protection information.",
-            "requiredFields": "Fields marked with * are required"
+            "requiredFields": "Fields marked with asterisks (*) are required."
           },
           "newsletter": {
             "label": {
@@ -813,6 +811,7 @@
         "rename": "Rename",
         "delete": "Delete",
         "duplicate": "Duplicate",
+        "view": "View",
         "addPreviewImage": "Add preview image",
         "setAsDefaultProductList": "Set as product listing default",
         "setAsDefaultProductDetail": "Set as product page default",

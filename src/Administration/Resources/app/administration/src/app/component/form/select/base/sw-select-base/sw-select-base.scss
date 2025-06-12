@@ -102,8 +102,8 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
         padding: 4px 6px 0;
     }
 
-    &.sw-field--small .sw-select__selection {
-        padding: 4px 6px 0;
+    &.sw-field--small .sw-block-field__block {
+        height: auto;
     }
 
     &.is--disabled {

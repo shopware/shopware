@@ -9,7 +9,7 @@
       "deleteDisabledToolTip": "Das Layout ist noch mindestens einer Kategorie zugewiesen.",
       "deleteDisabledProductToolTip": "Das Layout ist noch mindestens einem Produkt zugewiesen.",
       "disabledAddingBlocksToolTip": "Blöcke können nur in der System-Standardsprache hinzugefügt werden.",
-      "buttonDelete": "Löschen"
+      "privacyNotice": "Ich habe die <a href=\"%privacyUrl%\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a href=\"%tosUrl%\">AGB</a> gelesen und bin mit ihnen einverstanden."
     },
     "sorting": {
       "labelSort": "Sortieren nach:",
@@ -498,7 +498,6 @@
             "privacy": "Datenschutz*",
             "salutation": "Anrede*",
             "salutationUndisclosed": "Keine Angabe",
-            "send": "Senden",
             "subject": "Betreff*",
             "subscribeToNewsletter": "Newsletter abonnieren"
           },
@@ -511,8 +510,7 @@
             "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
           },
           "helpText": {
-            "privacy": "Ich habe die Datenschutzinformationen gelesen.",
-            "requiredFields": "Felder, die mit * markiert sind, werden benötigt"
+            "requiredFields": "Die mit einem Stern (*) markierten Felder sind Pflichtfelder."
           },
           "newsletter": {
             "label": {
@@ -813,6 +811,7 @@
         "rename": "Umbenennen",
         "delete": "Löschen",
         "duplicate": "Duplizieren",
+        "view": "Vorschau",
         "addPreviewImage": "Vorschau hinzufügen",
         "setAsDefaultProductList": "Als Standard für Kategorieseiten festlegen",
         "setAsDefaultProductDetail": "Als Standard für Produkseiten festlegen",

@@ -30,14 +30,13 @@ class PercentagePriceCalculator
      */
     public function calculate(float $percentage, PriceCollection $prices, SalesChannelContext $context): CalculatedPrice
     {
-        $price = $prices->sum();
-
+        $totalPrice = $prices->getTotalPriceAmount();
         $discount = $this->round(
-            $price->getTotalPrice() / 100 * $percentage,
+            $totalPrice / 100 * $percentage,
             $context
         );
 
-        $rules = $this->percentageTaxRuleBuilder->buildRules($price);
+        $rules = $this->percentageTaxRuleBuilder->buildCollectionRules($prices->getCalculatedTaxes(), $totalPrice);
 
         $definition = new QuantityPriceDefinition($discount, $rules, 1);
 

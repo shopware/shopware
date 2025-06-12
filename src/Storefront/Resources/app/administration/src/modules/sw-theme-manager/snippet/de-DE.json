@@ -1,4 +1,98 @@
 {
+  "sw-theme": {
+    "storefront": {
+      "default": {
+        "themeColors": {
+          "label": "Theme-Farben",
+          "default": {
+            "sw-color-brand-primary": {
+              "label": "Primärfarbe"
+            },
+            "sw-color-brand-secondary": {
+              "label": "Sekundärfarbe"
+            },
+            "sw-border-color": {
+              "label": "Rahmen"
+            },
+            "sw-background-color": {
+              "label": "Hintergrund"
+            }
+          }
+        },
+        "statusColors": {
+          "label": "Status-Benachrichtigungen",
+          "default": {
+            "sw-color-success": {
+              "label": "Erfolg"
+            },
+            "sw-color-danger": {
+              "label": "Fehler"
+            },
+            "sw-color-warning": {
+              "label": "Hinweis"
+            },
+            "sw-color-info": {
+              "label": "Information"
+            }
+          }
+        },
+        "typography": {
+          "label": "Typografie",
+          "default": {
+            "sw-font-family-base": {
+              "label": "Fließtext-Schriftart"
+            },
+            "sw-text-color": {
+              "label": "Fließtextfarbe"
+            },
+            "sw-font-family-headline": {
+              "label": "Überschrift-Schriftart"
+            },
+            "sw-headline-color": {
+              "label": "Überschriftfarbe"
+            }
+          }
+        },
+        "eCommerce": {
+          "label": "E-Commerce",
+          "default": {
+            "sw-color-price": {
+              "label": "Preis"
+            },
+            "sw-color-buy-button": {
+              "label": "Kauf-Button"
+            },
+            "sw-color-buy-button-text": {
+              "label": "Kauf-Button-Farbe"
+            }
+          }
+        },
+        "media": {
+          "label": "Medien",
+          "default": {
+            "sw-logo-desktop": {
+              "label": "Desktop",
+              "helpText": "Wird bei Viewports über 991px angezeigt und allen kleineren Viewports, falls für diese kein eigenes Logo verfügbar ist."
+            },
+            "sw-logo-tablet": {
+              "label": "Tablet",
+              "helpText": "Wird bei Viewports zwischen 767px und 991px angezeigt."
+            },
+            "sw-logo-mobile": {
+              "label": "Mobile",
+              "helpText": "Wird bei Viewports von bis zu 767px angezeigt."
+            },
+            "sw-logo-share": {
+              "label": "App- & Share-Icon"
+            },
+            "sw-logo-favicon": {
+              "label": "Favicon"
+            }
+          }
+        }
+      }
+    }
+  },
   "sw-theme-manager": {
     "general": {
       "mainMenuItemGeneral": "Themes",
@@ -36,10 +130,9 @@
       "textDuplicateInfo": "Wenn Du ein Duplikat erstellst, kannst Du das Theme mit einer anderen Farbkonfiguration für weitere Verkaufskanäle nutzen.",
       "buttonDuplicateTheme": "Duplikat anlegen",
       "modalTitleRename": "Umbenennen",
-      "textRenameInfo": "Geib einen neuen Namen für das Theme an.",
+      "textRenameInfo": "Gib einen neuen Namen für das Theme an.",
       "labelRenameThemeName": "Neuer Theme Name",
       "placeholderRenameThemeName": "Namen eintragen",
-      "buttonRenameTheme": "Speichern",
       "modalTextResetInfo": "Bist du sicher, dass du das Theme auf die Standardeinstellungen zurücksetzen möchtest?",
       "modalTextResetAssigned": "Dies kann das Aussehen Deines Shops verändern.",
       "modalTitleReset": "Theme zurücksetzen",

@@ -169,6 +169,8 @@
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
+            <argument type="service" id="Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Api\StructEncoder">
@@ -217,6 +219,68 @@
         <service id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.reset" method="reset"/>
+        </service>
+
+        <!-- Context Gateway -->
+
+        <service id="Shopware\Core\Framework\Gateway\Context\SalesChannel\ContextGatewayRoute" public="true">
+            <argument type="service" id="Shopware\Core\Framework\App\Context\Gateway\AppContextGateway"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandValidator">
+            <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandExecutor">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute"/>
+            <argument type="service" id="Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandValidator"/>
+            <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry">
+            <argument type="tagged_iterator" tag="shopware.context.gateway.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Gateway\Context\Command\Handler\AddCustomerMessageCommandHandler">
+            <tag name="shopware.context.gateway.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeAddressCommandHandler">
+            <tag name="shopware.context.gateway.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeCheckoutOptionsCommandHandler">
+            <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="shipping_method.repository"/>
+            <tag name="shopware.context.gateway.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeCurrencyCommandHandler">
+            <argument type="service" id="currency.repository"/>
+            <tag name="shopware.context.gateway.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeLanguageCommandHandler">
+            <argument type="service" id="language.repository"/>
+            <tag name="shopware.context.gateway.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeShippingLocationCommandHandler">
+            <argument type="service" id="country.repository"/>
+            <argument type="service" id="country_state.repository"/>
+            <tag name="shopware.context.gateway.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Gateway\Context\Command\Handler\LoginCustomerCommandHandler">
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
+            <tag name="shopware.context.gateway.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Gateway\Context\Command\Handler\RegisterCustomerCommandHandler">
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute"/>
+            <tag name="shopware.context.gateway.command"/>
         </service>
     </services>
 </container>

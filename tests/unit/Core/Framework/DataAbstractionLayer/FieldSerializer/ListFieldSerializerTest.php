@@ -29,7 +29,7 @@ class ListFieldSerializerTest extends TestCase
         );
 
         $actual = $serializer->decode($field, $input);
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
     }
 
     /**

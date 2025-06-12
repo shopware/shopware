@@ -162,7 +162,7 @@ class SupportedFeaturesServiceTest extends TestCase
 
         $supportedFeaturesService = new SupportedFeaturesService($entities, []);
 
-        static::assertEquals($entities, $supportedFeaturesService->getEntities());
+        static::assertSame($entities, $supportedFeaturesService->getEntities());
     }
 
     public function testGetFileTypes(): void
@@ -171,7 +171,7 @@ class SupportedFeaturesServiceTest extends TestCase
 
         $supportedFeaturesService = new SupportedFeaturesService([], $fileTypes);
 
-        static::assertEquals($fileTypes, $supportedFeaturesService->getFileTypes());
+        static::assertSame($fileTypes, $supportedFeaturesService->getFileTypes());
     }
 
     public function testGetUploadFileSizeLimit(): void
@@ -183,7 +183,7 @@ class SupportedFeaturesServiceTest extends TestCase
 
         $supportedFeaturesService = new SupportedFeaturesService([], []);
 
-        static::assertEquals(2 * 1024 * 1024 * 1024, $supportedFeaturesService->getUploadFileSizeLimit());
+        static::assertSame(2 * 1024 * 1024 * 1024, $supportedFeaturesService->getUploadFileSizeLimit());
 
         IniMock::withIniMock([]);
     }

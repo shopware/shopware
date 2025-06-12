@@ -567,7 +567,7 @@ export default {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('themes');
 
-            this.salesChannelRepository.get(this.$route.params.id, Context.api, criteria).then((entity) => {
+            this.salesChannelRepository.get(this.$route.params.id.toLowerCase(), Context.api, criteria).then((entity) => {
                 if (entity.extensions.themes !== undefined && entity.extensions.themes.length >= 1) {
                     return;
                 }
@@ -744,7 +744,7 @@ export default {
                 paymentSettingsLink: routeData.href,
             };
 
-            return this.$tc(snippet, collection.length, data);
+            return this.$t(snippet, data, collection.length);
         },
 
         buildDisabledShippingAlert(snippet, collection, property = 'name') {
@@ -752,11 +752,11 @@ export default {
                 name: collection.first().translated[property].replaceAll('|', '&vert;'),
                 addition:
                     collection.length > 2
-                        ? this.$tc('sw-sales-channel.detail.warningDisabledAddition', { amount: collection.length - 1 }, 1)
+                        ? this.$t('sw-sales-channel.detail.warningDisabledAddition', { amount: collection.length - 1 }, 1)
                         : collection.last().translated[property].replaceAll('|', '&vert;'),
             };
 
-            return this.$tc(snippet, collection.length, data);
+            return this.$t(snippet, data, collection.length);
         },
 
         buildUnservedLanguagesAlert(snippet, collection, property = 'name') {
@@ -764,7 +764,7 @@ export default {
                 list: collection.map((item) => item[property]).join(', '),
             };
 
-            return this.$tc(snippet, collection.length, data);
+            return this.$t(snippet, data, collection.length);
         },
 
         isFavorite() {

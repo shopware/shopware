@@ -111,6 +111,15 @@
             </call>
         </service>
 
+        <service id="Shopware\Storefront\Controller\ContextGatewayController">
+            <argument type="service" id="Shopware\Core\Framework\Gateway\Context\SalesChannel\ContextGatewayRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Storefront\Controller\CookieController">
             <argument type="service" id="Shopware\Storefront\Framework\Cookie\CookieProviderInterface"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
@@ -272,6 +281,7 @@
 
         <service id="Shopware\Storefront\Controller\DocumentController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

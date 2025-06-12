@@ -37,7 +37,8 @@
       "technicalUrlHelpText": "Technische URLs können als \"benutzerdefinierte Links\" im Kategorienmodul verwendet werden. Die Sprachauswahl erfolgt dabei automatisch.",
       "availabilitySalesChannel": "Verfügbare Verkaufskanäle",
       "infoText": "Shop-Benutzer können sich über dieses Formular registrieren. Die Benutzer werden der Kundengruppe erst zugewiesen, wenn Du die Anfrage im Kundenmodul angenommen hast. Das Formular kann mit den untenstehenden Feldern angepasst werden.",
-      "seoUrlLabel": "{salesChannelName} - URL"
+      "seoUrlLabel": "{salesChannelName} URL ({languageName})",
+      "domainBanner": "SEO-URLs werden für jede Domain aufgelistet, die pro Verkaufskanal konfiguriert ist."
     },
     "modal": {
       "seoUrl": {

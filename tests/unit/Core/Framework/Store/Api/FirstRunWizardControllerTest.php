@@ -584,7 +584,7 @@ class FirstRunWizardControllerTest extends TestCase
 
         $response = $frwController->frwFinish(new QueryDataBag(['failed' => 'true']), $this->createContext());
 
-        static::assertEquals(SymfonyResponse::HTTP_OK, $response->getStatusCode());
+        static::assertSame(SymfonyResponse::HTTP_OK, $response->getStatusCode());
     }
 
     public function testFinishFrwWithoutFailedParam(): void
@@ -602,7 +602,7 @@ class FirstRunWizardControllerTest extends TestCase
 
         $response = $frwController->frwFinish(new QueryDataBag([]), $this->createContext());
 
-        static::assertEquals(SymfonyResponse::HTTP_OK, $response->getStatusCode());
+        static::assertSame(SymfonyResponse::HTTP_OK, $response->getStatusCode());
     }
 
     public function testFinishFrwButUpgradingAccessTokenFails(): void
@@ -622,7 +622,7 @@ class FirstRunWizardControllerTest extends TestCase
 
         $response = $frwController->frwFinish(new QueryDataBag(['failed' => 'false']), $this->createContext());
 
-        static::assertEquals(SymfonyResponse::HTTP_OK, $response->getStatusCode());
+        static::assertSame(SymfonyResponse::HTTP_OK, $response->getStatusCode());
     }
 
     private function decodeJsonResponse(JsonResponse $response): mixed

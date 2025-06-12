@@ -174,7 +174,7 @@ class TokenQueryBuilderTest extends TestCase
         $query = $this->tokenQueryBuilder->build('product', $term, $config, $context);
 
         static::assertNotNull($query);
-        static::assertEquals($expected, $query->toArray());
+        static::assertSame($expected, $query->toArray());
     }
 
     /**
@@ -443,6 +443,10 @@ class TokenQueryBuilderTest extends TestCase
             'query' => $query,
             'boost' => (float) $boost,
         ];
+
+        if (preg_match('/\d{3,}/', (string) $query)) {
+            $fuzziness = 0;
+        }
 
         if ($fuzziness !== null) {
             $payload['fuzziness'] = $fuzziness;

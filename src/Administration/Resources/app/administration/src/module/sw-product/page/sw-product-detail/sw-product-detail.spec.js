@@ -425,4 +425,124 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.saveProduct.mock.calls).toHaveLength(0);
         await flushPromises();
     });
+
+    it('should set isSaveSuccessful to true when no SEO promises exist', () => {
+        wrapper.vm.loadProduct = jest.fn();
+
+        wrapper.vm.updateSeoPromises = [];
+
+        wrapper.vm.onSaveFinished('success');
+
+        expect(wrapper.vm.isSaveSuccessful).toBe(true);
+        expect(wrapper.vm.loadProduct).not.toHaveBeenCalled();
+    });
+
+    it('should handle success response correctly', async () => {
+        wrapper.vm.updateSeoPromises = [Promise.resolve()];
+        Shopware.Store.get('swProductDetail').setLoading = jest.fn();
+        Shopware.Store.get('error').resetApiErrors = jest.fn();
+        wrapper.vm.loadProduct = jest.fn();
+
+        Shopware.Utils.EventBus.emit = jest.fn();
+
+        wrapper.vm.onSaveFinished('success');
+
+        expect(Shopware.Store.get('swProductDetail').setLoading).toHaveBeenCalledWith([
+            'product',
+            true,
+        ]);
+
+        await flushPromises();
+
+        expect(Shopware.Utils.EventBus.emit).toHaveBeenCalledWith('sw-product-detail-save-finish');
+        expect(wrapper.vm.isSaveSuccessful).toBe(true);
+        expect(Shopware.Store.get('error').resetApiErrors).not.toHaveBeenCalled();
+        expect(Shopware.Store.get('swProductDetail').setLoading).toHaveBeenCalledWith([
+            'product',
+            false,
+        ]);
+        expect(wrapper.vm.loadProduct).toHaveBeenCalled();
+    });
+
+    it('should handle duplicate product number error correctly', async () => {
+        wrapper.vm.updateSeoPromises = [Promise.resolve()];
+        wrapper.vm.isSaveSuccessful = false;
+        wrapper.vm.loadProduct = jest.fn();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        Shopware.Utils.EventBus.emit = jest.fn();
+
+        const duplicateErrorResponse = {
+            response: {
+                data: {
+                    errors: [
+                        {
+                            code: 'CONTENT__DUPLICATE_PRODUCT_NUMBER',
+                            meta: {
+                                parameters: {
+                                    number: 'SW-123',
+                                },
+                            },
+                        },
+                    ],
+                },
+            },
+        };
+
+        wrapper.vm.onSaveFinished(duplicateErrorResponse);
+
+        await flushPromises();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            title: 'global.default.error',
+            message: 'sw-product.notification.notificationSaveErrorProductNoAlreadyExists',
+        });
+        expect(wrapper.vm.isSaveSuccessful).toBe(false);
+        expect(wrapper.vm.loadProduct).toHaveBeenCalled();
+    });
+
+    it('should handle generic error with detail correctly', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.loadProduct = jest.fn();
+        wrapper.vm.updateSeoPromises = [Promise.resolve()];
+        const errorResponse = {
+            response: {
+                data: {
+                    errors: [
+                        {
+                            detail: 'Custom error message',
+                        },
+                    ],
+                },
+            },
+        };
+
+        wrapper.vm.onSaveFinished(errorResponse);
+
+        await flushPromises();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            title: 'global.default.error',
+            message: 'Custom error message',
+        });
+        expect(wrapper.vm.isSaveSuccessful).toBe(false);
+        expect(wrapper.vm.loadProduct).toHaveBeenCalled();
+    });
+
+    it('should handle SEO promise rejection correctly', async () => {
+        const rejectedPromise = Promise.reject(new Error('SEO error'));
+        wrapper.vm.updateSeoPromises = [rejectedPromise];
+        Shopware.Store.get('swProductDetail').setLoading = jest.fn();
+        wrapper.vm.loadProduct = jest.fn();
+
+        wrapper.vm.onSaveFinished('success');
+
+        await flushPromises();
+
+        expect(Shopware.Store.get('swProductDetail').setLoading).toHaveBeenCalledWith([
+            'product',
+            false,
+        ]);
+        expect(wrapper.vm.loadProduct).toHaveBeenCalled();
+    });
 });

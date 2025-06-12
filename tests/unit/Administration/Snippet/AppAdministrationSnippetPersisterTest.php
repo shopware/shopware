@@ -76,7 +76,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
         try {
             $persister->updateSnippets($appEntity, $snippets, Context::createDefaultContext());
         } catch (\Exception $exception) {
-            static::assertEquals($expectedExceptionMessage, $exception->getMessage());
+            static::assertSame($expectedExceptionMessage, $exception->getMessage());
 
             $exceptionWasThrown = true;
         } finally {

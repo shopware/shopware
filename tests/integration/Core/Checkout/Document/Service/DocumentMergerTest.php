@@ -370,13 +370,8 @@ class DocumentMergerTest extends TestCase
         $orderNumber = $order->getOrderNumber();
 
         for ($i = 0; $i < $zip->numFiles; ++$i) {
-            $fileInfo = $zip->statIndex($i);
-            static::assertNotFalse($fileInfo);
-            static::assertArrayHasKey('name', $fileInfo);
-            static::assertSame(
-                $orderNumber . '_' . DeliveryNoteRenderer::TYPE . '_' . $documentNumbers[$i] . '.' . FileTypes::PDF,
-                $fileInfo['name']
-            );
+            $documentName = $orderNumber . '_' . DeliveryNoteRenderer::TYPE . '_' . $documentNumbers[$i] . '.' . FileTypes::PDF;
+            static::assertIsInt($zip->locateName($documentName), 'zip should contain file with name: ' . $documentName);
         }
 
         $zip->close();

@@ -32,7 +32,7 @@ final class ProductPriceCalculationExtension extends Extension
          *
          * @description The products which has to be calculated
          *
-         * @param Entity[]
+         * @param iterable<Entity>
          */
         public iterable $products,
 

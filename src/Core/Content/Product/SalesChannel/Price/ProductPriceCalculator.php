@@ -43,7 +43,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
     }
 
     /**
-     * @param Entity[] $products
+     * @param iterable<Entity> $products
      */
     public function calculate(iterable $products, SalesChannelContext $context): void
     {
@@ -56,7 +56,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
     }
 
     /**
-     * @param Entity[] $products
+     * @param iterable<Entity> $products
      */
     private function _calculate(iterable $products, SalesChannelContext $context): void
     {

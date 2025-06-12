@@ -2,6 +2,7 @@ name: Label Issues and PRs
 
 on:
   pull_request:
+  pull_request_target:
   issues:
   workflow_dispatch:
   schedule:
@@ -79,7 +80,7 @@ jobs:
 
   apply-contributor-label:
     runs-on: ubuntu-24.04
-    if: github.event.act || (github.event_name == 'pull_request' && contains(fromJSON('["opened", "reopened"]'), github.event.action) )
+    if: github.event.act || (github.event_name == 'pull_request_target' && contains(fromJSON('["opened", "reopened"]'), github.event.action) )
     env:
       CONTRIBUTOR_LABEL: "external-contribution"
     permissions:
@@ -92,30 +93,33 @@ jobs:
             const pullRequestNumber = context.payload.pull_request.number;
             const contribLabel = process.env.CONTRIBUTOR_LABEL;
             
+            let hasWriteAccess = false;
+            
             const permissionLevel = await github.rest.repos.getCollaboratorPermissionLevel({
               ...context.repo,
               username: context.actor,
             });
             
             if (permissionLevel.status !== 200) {
-              throw new Error(`Failed to get permission level for ${context.actor}`);
-            }
-            
-            core.debug(`Permission level for ${context.actor}: ${permissionLevel.data.permission}`);
-
-            if (['admin', 'write'].includes(permissionLevel.data.permission)) {
-              core.info(`User ${context.actor} has write access, skipping label addition.`);
-              return;
+              core.info(`Failed to get permission level for "${context.actor}", assuming no write access.`);
+            } else {
+              hasWriteAccess = ['admin', 'write'].includes(permissionLevel?.data?.permission);
             }
 
-            const response = await github.rest.issues.addLabels({
-              ...context.repo,
-              issue_number: pullRequestNumber,
-              labels: [contribLabel],
-            });
-
-            if (response.status !== 200) {
-              throw new Error(`Failed to add label ${contribLabel} to #${pullRequestNumber}`);
+            if (hasWriteAccess) {
+              core.info(`User "${context.actor}" has write access, skipping label addition.`);
+            } else {
+              await github.rest.issues.addLabels({
+                ...context.repo,
+                issue_number: pullRequestNumber,
+                labels: [contribLabel],
+              }).then(res => {
+                if (res.status !== 200) {
+                  throw new Error(`Failed to add label "${contribLabel}" to pull request #${pullRequestNumber}`);
+                } else {
+                  core.info(`Label "${contribLabel}" added to pull request #${pullRequestNumber}`);
+                }
+              });
             }
 
   move-to-wip:

@@ -4,13 +4,19 @@
     &__description {
         margin-bottom: 32px;
     }
+}
 
-    &__popover .sw-select-result__result-item-text {
+.mt-select-result-list-popover-wrapper {
+    .mt-select-result__result-item-text {
         flex-direction: row;
         gap: 8px;
     }
 
     &__popover-short-name {
+        color: $color-gray-500;
+    }
+
+    .mt-select-result > .mt-icon {
         color: $color-gray-500;
     }
 }

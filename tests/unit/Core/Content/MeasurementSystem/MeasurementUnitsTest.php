@@ -141,4 +141,21 @@ class MeasurementUnitsTest extends TestCase
 
         static::assertSame($expectedArray, $measurementUnits->jsonSerialize());
     }
+
+    public function testSetUnit(): void
+    {
+        $measurementUnits = new MeasurementUnits('metric', [
+            'length' => 'm',
+        ]);
+
+        static::assertSame('m', $measurementUnits->getUnit('length'));
+
+        // overwrite existing unit
+        $measurementUnits->setUnit('length', 'cm');
+        static::assertSame('cm', $measurementUnits->getUnit('length'));
+
+        // add new unit
+        $measurementUnits->setUnit('volume', 'l');
+        static::assertSame('l', $measurementUnits->getUnit('volume'));
+    }
 }

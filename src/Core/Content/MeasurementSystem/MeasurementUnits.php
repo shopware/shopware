@@ -30,6 +30,11 @@ class MeasurementUnits extends Struct
         return $this->units[$type];
     }
 
+    public function setUnit(string $type, string $unit): void
+    {
+        $this->units[$type] = $unit;
+    }
+
     /**
      * @return array<string, string>
      */

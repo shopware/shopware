@@ -8,9 +8,12 @@
                 parent: cookieGroup
             } only %}
 
-            {% if cookieGroup.entries is not empty or cookieGroup.snippetDescription is defined %}
+            {# @deprecated tag:v6.8.0 - Use cookieGroup.snippetDescription instead of cookieGroup.snippet_description #}
+            {% if cookieGroup.entries is not empty or cookieGroup.snippet_description is defined or cookieGroup.snippetDescription is defined %}
 
-                {% set cookieGroupName = cookieGroup.snippetName|replace({'cookie.': ''}) %}
+                {# @deprecated tag:v6.8.0 - Use cookieGroup.snippetName instead of cookieGroup.snippet_name #}
+                {% set snippetName = cookieGroup.snippet_name ? cookieGroup.snippet_name : cookieGroup.snippetName %}
+                {% set cookieGroupName = snippetName|replace({'cookie.': ''}) %}
                 {% set cookieGroupId = 'offcanvas-cookie-entries-' ~ cookieGroupName %}
 
                 {% block cookie_configuration_group_collapse_button %}
@@ -28,9 +31,10 @@
                 {% endblock %}
 
                 <div id="{{ cookieGroupId }}" class="offcanvas-cookie-entries collapse">
-
-                    {% if cookieGroup.snippetDescription %}
-                        <p>{{ cookieGroup.snippetDescription|trans|sw_sanitize }}</p>
+                    {# @deprecated tag:v6.8.0 - Use cookieGroup.snippetDescription instead of cookieGroup.snippet_description #}
+                    {% set snippetDescription = cookieGroup.snippet_description ? cookieGroup.snippet_description : cookieGroup.snippetDescription %}
+                    {% if snippetDescription is not empty %}
+                        <p>{{ snippetDescription|trans|sw_sanitize }}</p>
                     {% endif %}
 
                     {% for entry in cookieGroup.entries %}

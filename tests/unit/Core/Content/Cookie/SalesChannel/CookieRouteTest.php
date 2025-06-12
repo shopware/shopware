@@ -5,16 +5,10 @@ namespace Shopware\Tests\Unit\Core\Content\Cookie\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieRoute;
-use Shopware\Core\Content\Cookie\Struct\CookieEntry;
-use Shopware\Core\Content\Cookie\Struct\CookieGroup;
+use Shopware\Core\Content\Cookie\Service\CookieService;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsCollection;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsEntity;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Shopware\Storefront\Framework\Cookie\CookieProvider;
+use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -23,234 +17,242 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(CookieRoute::class)]
 class CookieRouteTest extends TestCase
 {
-    public function testResponseDoesNotIncludeGoogleAnalyticsCookieByDefault(): void
+    public function testGetCookieGroupsWithEmptyProvider(): void
     {
         $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
-        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
+        $cookieProvider = $this->createMock(CookieProviderInterface::class);
+        $cookieProvider->method('getCookieGroups')->willReturn([]);
 
-        $cookieRoute = new CookieRoute(
-            new CookieProvider(),
-            $this->createMock(SystemConfigService::class),
-            $repository
-        );
+        $cookieService = $this->createMock(CookieService::class);
+        // Service methods should not be called when provider returns empty array
+        $cookieService->expects($this->never())->method('filterGoogleAnalyticsCookie');
+        $cookieService->expects($this->never())->method('filterWishlistCookie');
+        $cookieService->expects($this->never())->method('filterGoogleReCaptchaCookie');
+        $cookieService->expects($this->never())->method('convertToCookieGroupCollection');
 
-        $response = $cookieRoute->getCookieGroups($request, $salesChannelContext);
-        $cookieGroups = $response->getCookieGroups();
-
-        $this->assertGoogleAnalyticsCookie(false, $cookieGroups);
-    }
-
-    public function testResponseIncludesGoogleAnalyticsCookieIfActive(): void
-    {
-        $request = new Request();
-        $analyticsId = Uuid::randomHex();
-        $salesChannelContext = Generator::generateSalesChannelContext();
-        $salesChannelContext->getSalesChannel()->setAnalyticsId($analyticsId);
-        $analytics = new SalesChannelAnalyticsEntity();
-        $analytics->setId($analyticsId);
-        $analytics->setActive(true);
-
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
-        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([$analytics])]);
-
-        $cookieRoute = new CookieRoute(
-            new CookieProvider(),
-            $this->createMock(SystemConfigService::class),
-            $repository
-        );
+        $cookieRoute = new CookieRoute($cookieProvider, $cookieService);
 
         $response = $cookieRoute->getCookieGroups($request, $salesChannelContext);
         $cookieGroups = $response->getCookieGroups();
 
-        $this->assertGoogleAnalyticsCookie(true, $cookieGroups);
+        static::assertCount(0, $cookieGroups);
     }
 
-    public function testResponseDoesNotIncludesGoogleAnalyticsCookieIfNotActive(): void
-    {
-        $request = new Request();
-        $analyticsId = Uuid::randomHex();
-        $salesChannelContext = Generator::generateSalesChannelContext();
-        $salesChannelContext->getSalesChannel()->setAnalyticsId($analyticsId);
-        $analytics = new SalesChannelAnalyticsEntity();
-        $analytics->setId($analyticsId);
-        $analytics->setActive(false);
-
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
-        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([$analytics])]);
-
-        $cookieRoute = new CookieRoute(
-            new CookieProvider(),
-            $this->createMock(SystemConfigService::class),
-            $repository
-        );
-
-        $response = $cookieRoute->getCookieGroups($request, $salesChannelContext);
-        $cookieGroups = $response->getCookieGroups();
-
-        $this->assertGoogleAnalyticsCookie(false, $cookieGroups);
-    }
-
-    public function testWishlistCookieFilteringWhenDisabled(): void
+    public function testGetCookieGroupsCallsServiceMethods(): void
     {
         $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->method('getBool')
-            ->willReturnCallback(function (string $key, ?string $salesChannelId = null) {
-                if ($key === 'core.cart.wishlistEnabled') {
-                    return false;
-                }
+        $mockCookieGroups = [
+            [
+                'snippet_name' => 'test.group',
+                'entries' => [
+                    [
+                        'snippet_name' => 'test.cookie',
+                        'cookie' => 'test-cookie',
+                    ],
+                ],
+            ],
+        ];
 
-                return false;
-            });
+        $cookieProvider = $this->createMock(CookieProviderInterface::class);
+        $cookieProvider->method('getCookieGroups')->willReturn($mockCookieGroups);
 
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
-        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
+        $cookieService = $this->createMock(CookieService::class);
 
-        $cookieRoute = new CookieRoute(
-            new CookieProvider(),
-            $systemConfigService,
-            $repository
-        );
+        // Verify all service methods are called in the correct order with correct parameters
+        $cookieService->expects($this->once())
+            ->method('filterGoogleAnalyticsCookie')
+            ->with($salesChannelContext, $mockCookieGroups)
+            ->willReturn($mockCookieGroups);
+
+        $cookieService->expects($this->once())
+            ->method('filterWishlistCookie')
+            ->with($salesChannelContext->getSalesChannelId(), $mockCookieGroups)
+            ->willReturn($mockCookieGroups);
+
+        $cookieService->expects($this->once())
+            ->method('filterGoogleReCaptchaCookie')
+            ->with($salesChannelContext->getSalesChannelId(), $mockCookieGroups)
+            ->willReturn($mockCookieGroups);
+
+        $cookieService->expects($this->once())
+            ->method('translateCookieGroups')
+            ->with($mockCookieGroups, $salesChannelContext)
+            ->willReturn($mockCookieGroups);
+
+        $expectedCollection = new CookieGroupCollection();
+        $cookieService->expects($this->once())
+            ->method('convertToCookieGroupCollection')
+            ->with($mockCookieGroups)
+            ->willReturn($expectedCollection);
+
+        $cookieRoute = new CookieRoute($cookieProvider, $cookieService);
 
         $response = $cookieRoute->getCookieGroups($request, $salesChannelContext);
         $cookieGroups = $response->getCookieGroups();
 
-        $this->assertWishlistCookie(false, $cookieGroups);
+        static::assertSame($expectedCollection, $cookieGroups);
     }
 
-    public function testWishlistCookieFilteringWhenEnabled(): void
+    public function testGetCookieGroupsReturnsCorrectResponseType(): void
     {
         $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->method('getBool')
-            ->willReturnCallback(function (string $key, ?string $salesChannelId = null) {
-                if ($key === 'core.cart.wishlistEnabled') {
-                    return true;
-                }
+        $cookieProvider = $this->createMock(CookieProviderInterface::class);
+        $cookieProvider->method('getCookieGroups')->willReturn([
+            ['snippet_name' => 'test.group'],
+        ]);
 
-                return false;
-            });
+        $expectedCollection = new CookieGroupCollection();
+        $cookieService = $this->createMock(CookieService::class);
+        $cookieService->method('filterGoogleAnalyticsCookie')->willReturnArgument(1);
+        $cookieService->method('filterWishlistCookie')->willReturnArgument(1);
+        $cookieService->method('filterGoogleReCaptchaCookie')->willReturnArgument(1);
+        $cookieService->method('translateCookieGroups')->willReturnArgument(0);
+        $cookieService->method('convertToCookieGroupCollection')->willReturn($expectedCollection);
 
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
-        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
-
-        $cookieRoute = new CookieRoute(
-            new CookieProvider(),
-            $systemConfigService,
-            $repository
-        );
+        $cookieRoute = new CookieRoute($cookieProvider, $cookieService);
 
         $response = $cookieRoute->getCookieGroups($request, $salesChannelContext);
-        $cookieGroups = $response->getCookieGroups();
 
-        $this->assertWishlistCookie(true, $cookieGroups);
+        // Verify the response contains the expected collection from the service
+        static::assertSame($expectedCollection, $response->getCookieGroups());
     }
 
-    public function testGoogleReCaptchaCookieFilteringWhenDisabled(): void
+    public function testGetCookieGroupsWithTranslateParameterTrue(): void
     {
         $request = new Request();
+        $request->query->set('translate', true);
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->method('getBool')
-            ->willReturn(false); // All captcha configs return false
+        $mockCookieGroups = [
+            [
+                'snippet_name' => 'test.group',
+                'entries' => [
+                    [
+                        'snippet_name' => 'test.cookie',
+                        'cookie' => 'test-cookie',
+                    ],
+                ],
+            ],
+        ];
 
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
-        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
+        $translatedCookieGroups = [
+            [
+                'snippet_name' => 'Translated Group',
+                'entries' => [
+                    [
+                        'snippet_name' => 'Translated Cookie',
+                        'cookie' => 'test-cookie',
+                    ],
+                ],
+            ],
+        ];
 
-        $cookieRoute = new CookieRoute(
-            new CookieProvider(),
-            $systemConfigService,
-            $repository
-        );
+        $cookieProvider = $this->createMock(CookieProviderInterface::class);
+        $cookieProvider->method('getCookieGroups')->willReturn($mockCookieGroups);
+
+        $cookieService = $this->createMock(CookieService::class);
+        $cookieService->method('filterGoogleAnalyticsCookie')->willReturn($mockCookieGroups);
+        $cookieService->method('filterWishlistCookie')->willReturn($mockCookieGroups);
+        $cookieService->method('filterGoogleReCaptchaCookie')->willReturn($mockCookieGroups);
+
+        // Expect translation to be called
+        $cookieService->expects($this->once())
+            ->method('translateCookieGroups')
+            ->with($mockCookieGroups, $salesChannelContext)
+            ->willReturn($translatedCookieGroups);
+
+        $expectedCollection = new CookieGroupCollection();
+        $cookieService->method('convertToCookieGroupCollection')
+            ->with($translatedCookieGroups)
+            ->willReturn($expectedCollection);
+
+        $cookieRoute = new CookieRoute($cookieProvider, $cookieService);
 
         $response = $cookieRoute->getCookieGroups($request, $salesChannelContext);
-        $cookieGroups = $response->getCookieGroups();
 
-        $this->assertGoogleReCaptchaCookie(false, $cookieGroups);
+        static::assertSame($expectedCollection, $response->getCookieGroups());
     }
 
-    public function testGoogleReCaptchaCookieFilteringWhenEnabled(): void
+    public function testGetCookieGroupsWithTranslateParameterFalse(): void
     {
         $request = new Request();
+        $request->query->set('translate', false);
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->method('getBool')
-            ->willReturnCallback(function (string $key, ?string $salesChannelId = null) {
-                if ($key === 'core.basicInformation.activeCaptchasV2.googleReCaptchaV2.isActive'
-                    || $key === 'core.basicInformation.activeCaptchasV2.googleReCaptchaV3.isActive') {
-                    return true;
-                }
+        $mockCookieGroups = [
+            [
+                'snippet_name' => 'test.group',
+                'entries' => [
+                    [
+                        'snippet_name' => 'test.cookie',
+                        'cookie' => 'test-cookie',
+                    ],
+                ],
+            ],
+        ];
 
-                return false;
-            });
+        $cookieProvider = $this->createMock(CookieProviderInterface::class);
+        $cookieProvider->method('getCookieGroups')->willReturn($mockCookieGroups);
 
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
-        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
+        $cookieService = $this->createMock(CookieService::class);
+        $cookieService->method('filterGoogleAnalyticsCookie')->willReturn($mockCookieGroups);
+        $cookieService->method('filterWishlistCookie')->willReturn($mockCookieGroups);
+        $cookieService->method('filterGoogleReCaptchaCookie')->willReturn($mockCookieGroups);
 
-        $cookieRoute = new CookieRoute(
-            new CookieProvider(),
-            $systemConfigService,
-            $repository
-        );
+        // Expect translation NOT to be called
+        $cookieService->expects($this->never())->method('translateCookieGroups');
+
+        $expectedCollection = new CookieGroupCollection();
+        $cookieService->method('convertToCookieGroupCollection')
+            ->with($mockCookieGroups)
+            ->willReturn($expectedCollection);
+
+        $cookieRoute = new CookieRoute($cookieProvider, $cookieService);
 
         $response = $cookieRoute->getCookieGroups($request, $salesChannelContext);
-        $cookieGroups = $response->getCookieGroups();
 
-        $this->assertGoogleReCaptchaCookie(true, $cookieGroups);
+        static::assertSame($expectedCollection, $response->getCookieGroups());
     }
 
-    private function assertGoogleAnalyticsCookie(bool $expected, CookieGroupCollection $cookieGroups): void
+    public function testGetCookieGroupsDefaultsToTranslateTrue(): void
     {
-        $googleAnalyticsCookie = array_filter($cookieGroups->getElements(), static function (CookieGroup $cookieGroup) {
-            return \count(array_filter($cookieGroup->getEntries(), static function (CookieEntry $cookie) {
-                return \in_array($cookie->getCookie(), ['google-analytics-enabled', 'google-ads-enabled'], true);
-            })) > 0;
-        });
+        $request = new Request(); // No translate parameter
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
-        if ($expected) {
-            static::assertNotEmpty($googleAnalyticsCookie);
-            static::assertCount(2, $googleAnalyticsCookie);
-        } else {
-            static::assertEmpty($googleAnalyticsCookie);
-        }
-    }
+        $mockCookieGroups = [
+            [
+                'snippet_name' => 'test.group',
+                'entries' => [],
+            ],
+        ];
 
-    private function assertWishlistCookie(bool $expected, CookieGroupCollection $cookieGroups): void
-    {
-        $wishlistCookieFound = false;
-        foreach ($cookieGroups->getElements() as $cookieGroup) {
-            foreach ($cookieGroup->getEntries() as $cookie) {
-                if ($cookie->getSnippetName() === 'cookie.groupComfortFeaturesWishlist') {
-                    $wishlistCookieFound = true;
-                    break 2;
-                }
-            }
-        }
+        $cookieProvider = $this->createMock(CookieProviderInterface::class);
+        $cookieProvider->method('getCookieGroups')->willReturn($mockCookieGroups);
 
-        static::assertSame($expected, $wishlistCookieFound);
-    }
+        $cookieService = $this->createMock(CookieService::class);
+        $cookieService->method('filterGoogleAnalyticsCookie')->willReturn($mockCookieGroups);
+        $cookieService->method('filterWishlistCookie')->willReturn($mockCookieGroups);
+        $cookieService->method('filterGoogleReCaptchaCookie')->willReturn($mockCookieGroups);
 
-    private function assertGoogleReCaptchaCookie(bool $expected, CookieGroupCollection $cookieGroups): void
-    {
-        $reCaptchaCookieFound = false;
-        foreach ($cookieGroups->getElements() as $cookieGroup) {
-            foreach ($cookieGroup->getEntries() as $cookie) {
-                if ($cookie->getSnippetName() === 'cookie.groupRequiredCaptcha') {
-                    $reCaptchaCookieFound = true;
-                    break 2;
-                }
-            }
-        }
+        // Expect translation to be called by default
+        $cookieService->expects($this->once())
+            ->method('translateCookieGroups')
+            ->with($mockCookieGroups, $salesChannelContext)
+            ->willReturn($mockCookieGroups);
 
-        static::assertSame($expected, $reCaptchaCookieFound);
+        $expectedCollection = new CookieGroupCollection();
+        $cookieService->method('convertToCookieGroupCollection')->willReturn($expectedCollection);
+
+        $cookieRoute = new CookieRoute($cookieProvider, $cookieService);
+
+        $response = $cookieRoute->getCookieGroups($request, $salesChannelContext);
+
+        static::assertSame($expectedCollection, $response->getCookieGroups());
     }
 }

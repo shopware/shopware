@@ -5,7 +5,7 @@ author: Björn Meyer
 author_email: b.meyer@shopware.com
 author_github: @BrocksiNet
 ---
-# Core
+# Storefront
 * Changed `CookieController` to use the new `CookieRoute`.
 ___
 # API

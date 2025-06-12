@@ -12,16 +12,6 @@ class CookieEntry extends CookieStruct
     ) {
     }
 
-    public function isHidden(): bool
-    {
-        return $this->hidden;
-    }
-
-    public function setHidden(bool $hidden): void
-    {
-        $this->hidden = $hidden;
-    }
-
     public function getApiAlias(): string
     {
         return 'cookie_entry';

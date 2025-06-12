@@ -59,7 +59,11 @@ class CookieController extends StorefrontController
     private function getCookieGroupsFromCookieRoute(Request $request, SalesChannelContext $salesChannelContext): CookieGroupCollection
     {
         try {
-            $cookieRouteResponse = $this->cookieRoute->getCookieGroups($request, $salesChannelContext);
+            // Create a new request with the translate parameter set to false for Twig templates
+            $cookieRequest = $request->duplicate();
+            $cookieRequest->query->set('translate', false);
+
+            $cookieRouteResponse = $this->cookieRoute->getCookieGroups($cookieRequest, $salesChannelContext);
             $cookieGroups = $cookieRouteResponse->getCookieGroups();
         } catch (\Throwable $e) {
             $cookieGroups = new CookieGroupCollection();

@@ -18,7 +18,6 @@ class CookieGroupTest extends TestCase
     public function testDefaults(): void
     {
         $group = new CookieGroup(isRequired: false);
-        static::assertFalse($group->isRequired());
         static::assertFalse($group->isRequired); // Test public property
         static::assertEmpty($group->getEntries());
         static::assertEmpty($group->entries); // Test public property
@@ -27,14 +26,12 @@ class CookieGroupTest extends TestCase
     public function testConstructorWithRequiredTrue(): void
     {
         $group = new CookieGroup(isRequired: true);
-        static::assertTrue($group->isRequired());
         static::assertTrue($group->isRequired); // Test public property
     }
 
     public function testConstructorWithRequiredFalse(): void
     {
         $group = new CookieGroup(isRequired: false);
-        static::assertFalse($group->isRequired());
         static::assertFalse($group->isRequired); // Test public property
     }
 
@@ -49,27 +46,16 @@ class CookieGroupTest extends TestCase
         static::assertSame($entries, $group->entries); // Test public property
     }
 
-    public function testSetIsRequired(): void
+    public function testPublicPropertyModification(): void
     {
         $group = new CookieGroup(isRequired: false);
-        static::assertFalse($group->isRequired());
+        static::assertFalse($group->isRequired);
 
-        $group->setIsRequired(true);
-        static::assertTrue($group->isRequired());
-        static::assertTrue($group->isRequired); // Test public property
+        $group->isRequired = true;
+        static::assertTrue($group->isRequired);
 
-        $group->setIsRequired(false);
-        static::assertFalse($group->isRequired());
-        static::assertFalse($group->isRequired); // Test public property
-    }
-
-    public function testIsRequired(): void
-    {
-        $group = new CookieGroup(isRequired: true);
-        static::assertTrue($group->isRequired());
-
-        $group = new CookieGroup(isRequired: false);
-        static::assertFalse($group->isRequired());
+        $group->isRequired = false;
+        static::assertFalse($group->isRequired);
     }
 
     public function testSetEntries(): void

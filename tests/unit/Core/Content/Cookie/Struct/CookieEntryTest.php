@@ -17,45 +17,31 @@ class CookieEntryTest extends TestCase
     public function testDefaults(): void
     {
         $entry = new CookieEntry();
-        static::assertFalse($entry->isHidden());
-        static::assertFalse($entry->hidden); // Test public property
+        static::assertFalse($entry->hidden); // Test public property default
     }
 
     public function testConstructorWithHiddenTrue(): void
     {
         $entry = new CookieEntry(hidden: true);
-        static::assertTrue($entry->isHidden());
         static::assertTrue($entry->hidden); // Test public property
     }
 
     public function testConstructorWithHiddenFalse(): void
     {
         $entry = new CookieEntry(hidden: false);
-        static::assertFalse($entry->isHidden());
         static::assertFalse($entry->hidden); // Test public property
     }
 
-    public function testSetHidden(): void
+    public function testPublicPropertyModification(): void
     {
         $entry = new CookieEntry();
-        static::assertFalse($entry->isHidden());
+        static::assertFalse($entry->hidden);
 
-        $entry->setHidden(true);
-        static::assertTrue($entry->isHidden());
-        static::assertTrue($entry->hidden); // Test public property
+        $entry->hidden = true;
+        static::assertTrue($entry->hidden);
 
-        $entry->setHidden(false);
-        static::assertFalse($entry->isHidden());
-        static::assertFalse($entry->hidden); // Test public property
-    }
-
-    public function testIsHidden(): void
-    {
-        $entry = new CookieEntry(hidden: true);
-        static::assertTrue($entry->isHidden());
-
-        $entry = new CookieEntry(hidden: false);
-        static::assertFalse($entry->isHidden());
+        $entry->hidden = false;
+        static::assertFalse($entry->hidden);
     }
 
     public function testGetApiAlias(): void

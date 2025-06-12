@@ -14,16 +14,6 @@ class CookieGroup extends CookieStruct
     ) {
     }
 
-    public function isRequired(): bool
-    {
-        return $this->isRequired;
-    }
-
-    public function setIsRequired(bool $isRequired): void
-    {
-        $this->isRequired = $isRequired;
-    }
-
     /**
      * @return list<CookieEntry>
      */

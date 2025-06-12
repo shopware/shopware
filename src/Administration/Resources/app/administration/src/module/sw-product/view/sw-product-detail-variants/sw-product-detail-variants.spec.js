@@ -206,16 +206,16 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
 
         await wrapper.setData({
             groups: [{}],
-            propertiesAvailable: true,
+            propertiesAvailable: false,
             isLoading: false,
         });
 
         await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
-        expect(wrapper.find('.sw-empty-state__title').text()).toBe('sw-product.variations.emptyStateTitle');
+        expect(wrapper.find('.sw-empty-state__title').text()).toBe('sw-product.variations.emptyStatePropertyTitle');
         expect(wrapper.find('.sw-empty-state__description-content').text()).toBe(
-            'sw-product.variations.emptyStateDescription',
+            'sw-product.variations.emptyStatePropertyDescription',
         );
     });
 

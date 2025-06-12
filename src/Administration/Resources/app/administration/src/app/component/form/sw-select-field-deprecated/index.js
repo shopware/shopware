@@ -67,11 +67,11 @@ export default {
 
     computed: {
         locale() {
-            return this.$root.$i18n.locale;
+            return this.$root.$i18n.locale.value;
         },
 
         fallbackLocale() {
-            return this.$root.$i18n.fallbackLocale;
+            return this.$root.$i18n.fallbackLocale.value;
         },
 
         swFieldSelectClasses() {

@@ -11,6 +11,11 @@ export default {
     emits: ['measurement-system-change'],
 
     props: {
+        measurementSystems: {
+            type: Array,
+            required: true,
+        },
+
         measurementSystem: {
             type: Object,
             required: true,
@@ -20,40 +25,53 @@ export default {
             type: Object,
             required: true,
         },
-
-        measurementSystemCriteria: {
-            type: Object,
-            required: true,
-        },
     },
 
     computed: {
-        lengthUnits() {
-            return (this.measurementSystem?.units || []).filter((unit) => unit.type === 'length');
+        lengthUnitOptions() {
+            return this.getUnitOptionsByType('length');
         },
 
-        weightUnits() {
-            return (this.measurementSystem?.units || []).filter((unit) => unit.type === 'weight');
+        weightUnitOptions() {
+            return this.getUnitOptionsByType('weight');
         },
 
-        measurementUnitId: {
-            get() {
-                if (!this.measurementSystem?.id) {
-                    return null;
-                }
+        measurementSystemOptions() {
+            return this.measurementSystems.map((system) => ({
+                ...system,
+                label: system.translated?.name || system.name,
+                value: system.technicalName,
+            }));
+        },
 
-                return this.measurementSystem.id;
-            },
+        measurementUnitSystemError() {
+            if (!this.measurementSystem?.id) {
+                return null;
+            }
 
-            set(value) {
-                this.measurementSystem.id = value;
-            },
+            return Shopware.Store.get('error').getApiError(this.measurementSystem, 'system');
+        },
+
+        measurementLengthUnitError() {
+            if (!this.measurementSystem?.id) {
+                return null;
+            }
+
+            return Shopware.Store.get('error').getApiError(this.measurementSystem, 'length');
+        },
+
+        measurementWeightUnitError() {
+            if (!this.measurementSystem?.id) {
+                return null;
+            }
+
+            return Shopware.Store.get('error').getApiError(this.measurementSystem, 'weight');
         },
     },
 
     methods: {
-        onChangeMeasurementSystem(_, measurement) {
-            this.$emit('measurement-system-change', measurement);
+        onChangeMeasurementSystem(technicalName) {
+            this.$emit('measurement-system-change', technicalName);
         },
 
         labelUnitCallback(item) {
@@ -65,6 +83,16 @@ export default {
             const shortName = item.shortName || item.name;
 
             return `${name} (${shortName})`.trim();
+        },
+
+        getUnitOptionsByType(type) {
+            return (this.measurementSystem?.units || [])
+                .filter((unit) => unit.type === type)
+                .map((unit) => ({
+                    ...unit,
+                    label: this.labelUnitCallback(unit),
+                    value: unit.shortName,
+                }));
         },
     },
 };

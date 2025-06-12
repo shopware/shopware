@@ -5,7 +5,7 @@ import template from './sw-settings-measurement.html.twig';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { cloneDeep } = Shopware.Utils.object;
+const { ShopwareError } = Shopware.Classes;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -34,6 +34,7 @@ export default {
                 weight: null,
             },
             defaultDisplayUnits: [],
+            measurementSystems: [],
             measurementSystem: null,
             isLoading: false,
         };
@@ -52,11 +53,33 @@ export default {
         },
 
         defaultLengthUnit() {
-            return this.defaultDisplayUnits.find((u) => u.type === 'length');
+            const units = this.measurementSystem?.units || [];
+
+            const lengthUnit = this.defaultDisplayUnits.find((u) => u.type === 'length');
+            const defaultLengthUnit = units.find((unit) => unit.type === 'length' && unit.default);
+
+            return units.find((unit) => unit.shortName === lengthUnit.shortName) || defaultLengthUnit;
         },
 
         defaultWeightUnit() {
-            return this.defaultDisplayUnits.find((u) => u.type === 'weight');
+            const units = this.measurementSystem?.units || [];
+
+            const weightUnit = this.defaultDisplayUnits.find((u) => u.type === 'weight');
+            const defaultWeightUnit = units.find((unit) => unit.type === 'weight' && unit.default);
+
+            return units.find((unit) => unit.shortName === weightUnit.shortName) || defaultWeightUnit;
+        },
+
+        requiredFields() {
+            const isEmptyArray = (arr) => {
+                return Array.isArray(arr) && arr.length === 0;
+            };
+
+            return {
+                system: isEmptyArray(this.measurementUnits.system) || !this.measurementUnits.system,
+                length: isEmptyArray(this.measurementUnits.length) || !this.measurementUnits.length,
+                weight: isEmptyArray(this.measurementUnits.weight) || !this.measurementUnits.weight,
+            };
         },
     },
 
@@ -73,7 +96,10 @@ export default {
                 weight: measurementUnits['core.measurementUnits.weight'],
             };
 
-            this.measurementSystem = await this.getDefaultMeasurementSystem();
+            this.measurementSystems = await this.getDefaultMeasurementSystems();
+            this.measurementSystem = this.measurementSystems.find(
+                (system) => system.technicalName === this.measurementUnits.system,
+            );
 
             this.defaultDisplayUnits = (this.measurementSystem?.units || []).filter((u) =>
                 [
@@ -87,37 +113,57 @@ export default {
             return this.systemConfigApiService.getValues('core.measurementUnits');
         },
 
-        async getDefaultMeasurementSystem() {
-            const criteria = cloneDeep(this.measurementSystemCriteria);
-            criteria.setLimit(1);
-
-            if (this.measurementUnits.system) {
-                criteria.addFilter(Criteria.equals('technicalName', this.measurementUnits.system));
-            }
-
-            const measurement = await this.measurementSystemRepository.search(criteria);
-
-            return measurement.first();
+        getDefaultMeasurementSystems() {
+            return this.measurementSystemRepository.search(this.measurementSystemCriteria);
         },
 
         async onSave() {
             this.isLoading = true;
+
+            const invalidFields = Object.keys(this.requiredFields).filter((field) => this.requiredFields[field]);
+
             try {
+                if (invalidFields.length > 0) {
+                    invalidFields.forEach((property) => {
+                        const expression = `measurement_system.${this.measurementSystem.id}.${property}`;
+                        const error = new ShopwareError({
+                            code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                            detail: 'This field must not be empty.',
+                            selfLink: expression,
+                        });
+
+                        Shopware.Store.get('error').addApiError({ expression, error });
+                    });
+                    this.isLoading = false;
+
+                    return;
+                }
+
                 await this.systemConfigApiService.saveValues({
                     'core.measurementUnits.system': this.measurementUnits.system,
                     'core.measurementUnits.length': this.measurementUnits.length,
                     'core.measurementUnits.weight': this.measurementUnits.weight,
                 });
+
                 this.createNotificationSuccess({
                     title: this.$t('global.default.success'),
                     message: this.$t('sw-settings-measurement.notification.saveMeasurementSuccess'),
                 });
+
+                Shopware.Store.get('error').resetApiErrors();
             } catch (error) {
                 this.createNotificationError({
                     title: this.$t('global.default.error'),
                     message: error.message || this.$t('sw-settings-measurement.notification.saveMeasurementError'),
                 });
             } finally {
+                this.defaultDisplayUnits = (this.measurementSystem?.units || []).filter((u) =>
+                    [
+                        this.measurementUnits.length,
+                        this.measurementUnits.weight,
+                    ].includes(u.shortName),
+                );
+
                 this.isLoading = false;
             }
         },
@@ -126,31 +172,20 @@ export default {
             Shopware.Store.get('context').setApiLanguageId(languageId);
         },
 
-        async onChangeMeasurementSystem(measurementSystem) {
-            if (!measurementSystem) {
+        async onChangeMeasurementSystem(technicalName) {
+            if ((Array.isArray(technicalName) && technicalName.length === 0) || !technicalName) {
                 return;
             }
 
-            this.measurementUnits.system = measurementSystem.technicalName;
-            const units = measurementSystem.units;
+            Shopware.Store.get('error').resetApiErrors();
 
-            this.measurementSystem = measurementSystem;
+            this.measurementSystem = this.measurementSystems.find((system) => system.technicalName === technicalName);
 
-            const defaultLengthUnit =
-                units.find((unit) => unit.shortName === this.defaultLengthUnit.shortName) ||
-                units.find((unit) => unit.type === 'length' && unit.default);
-
-            if (defaultLengthUnit) {
-                this.measurementUnits.length = defaultLengthUnit.shortName;
-            }
-
-            const defaultWeightUnit =
-                units.find((unit) => unit.shortName === this.defaultWeightUnit.shortName) ||
-                units.find((unit) => unit.type === 'weight' && unit.default);
-
-            if (defaultWeightUnit) {
-                this.measurementUnits.weight = defaultWeightUnit.shortName;
-            }
+            this.measurementUnits = {
+                system: technicalName,
+                length: this.defaultLengthUnit.shortName,
+                weight: this.defaultWeightUnit.shortName,
+            };
         },
     },
 };

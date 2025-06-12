@@ -56,14 +56,12 @@
     />
     {% endblock %}
 
-    {% block sw_property_option_detail_custom_fields %}
     <sw-custom-field-set-renderer
         v-if="showCustomFields"
         :entity="currentOption"
         :sets="customFieldSets"
         :disabled="!allowEdit"
     />
-    {% endblock %}
 
     {% block sw_property_option_detail_footer %}
     <template #modal-footer>

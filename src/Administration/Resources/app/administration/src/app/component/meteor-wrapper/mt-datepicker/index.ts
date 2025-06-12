@@ -77,6 +77,8 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         is24HourFormat(): boolean {
+            const test = 'foo';
+
             if (this.is24) {
                 return this.is24 as boolean;
             }

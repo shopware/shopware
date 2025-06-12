@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], isSaas = {isSaas: false}) {
     return mount(
         await wrapTestComponent('sw-users-permissions-user-listing', {
             sync: true,
@@ -29,11 +29,16 @@ async function createWrapper(privileges = []) {
                     },
                     loginService: {},
                     searchRankingService: {},
+                    saasSettingsService: {
+                        isSaas: () => Promise.resolve(isSaas)
+                    }
                 },
                 mocks: {
                     $route: { query: '' },
                 },
                 stubs: {
+                    'sw-user-saas-invitation-modal': true,
+                    'sw-user-saas-status-label': await wrapTestComponent('sw-user-saas-status-label'),
                     'sw-container': true,
                     'sw-simple-search-field': true,
                     'sw-data-grid': {
@@ -209,5 +214,21 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         await flushPromises();
 
         expect(wrapper.vm.userCriteria.associations[1].association).toBe('avatarMedia');
+    });
+
+    it('should show the default add user button', async () => {
+        wrapper = await createWrapper(['users_and_permissions.creator']);
+        await flushPromises();
+
+        const addUserButton = wrapper.find('.sw-users-permissions-user-listing__add-user-button');
+        expect(addUserButton.find('span').text()).toBe('sw-users-permissions.users.general.labelCreateNewUser')
+    });
+
+    it('should show the invite user button', async () => {
+        wrapper = await createWrapper(['users_and_permissions.creator'], {isSaas: true});
+        await flushPromises();
+
+        const addUserButton = wrapper.find('.sw-users-permissions-user-listing__add-user-button');
+        expect(addUserButton.find('span').text()).toBe('sw-users-permissions.saas.inviteButtonLabel')
     });
 });

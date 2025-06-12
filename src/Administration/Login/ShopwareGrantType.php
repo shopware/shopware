@@ -27,7 +27,7 @@ class ShopwareGrantType extends AbstractGrant implements GrantTypeInterface
     public function __construct(
         RefreshTokenRepositoryInterface $refreshTokenRepository,
         private readonly UserService $userService,
-        private readonly ExternalTokenService $tokenService
+        private readonly ExternalTokenService $tokenService,
     ) {
         $this->refreshTokenRepository = $refreshTokenRepository;
     }
@@ -64,13 +64,17 @@ class ShopwareGrantType extends AbstractGrant implements GrantTypeInterface
     private function validateUser(ServerRequestInterface $request): ExternalAuthUser
     {
         $code = $this->getRequestParameter('code', $request);
+        if ($code === null) {
+            throw LoginException::noCodeProvided();
+        }
 
-        $token = $this->tokenService->getUserToken((string) $code);
-        $user = $this->userService->getUser($token->idToken, $token->refreshToken);
-
-        if (!$user instanceof ExternalAuthUser) {
+        try {
+            $token = $this->tokenService->getUserToken($code);
+            $user = $this->userService->getUser($token->idToken, $token->refreshToken);
+        } catch (\Throwable $exception) {
             $this->getEmitter()->emit(new RequestEvent(RequestEvent::USER_AUTHENTICATION_FAILED, $request));
-            throw LoginException::userNotFound();
+
+            throw $exception;
         }
 
         return $user;

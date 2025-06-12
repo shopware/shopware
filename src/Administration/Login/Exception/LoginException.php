@@ -4,7 +4,6 @@ namespace Shopware\Administration\Login\Exception;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -16,11 +15,33 @@ class LoginException extends HttpException
     final public const LOGIN_CONFIG_INCOMPLETE_OR_MISCONFIGURED = 'LOGIN_CONFIG__INCOMPLETE_OR_MISCONFIGURED';
     final public const LOGIN_USER_NOT_FOUND = 'LOGIN__USER_NOT_FOUND';
     final public const LOGIN_CONFIG_NOT_FOUND = 'LOGIN__CONFIG_NOT_FOUND';
-    final public const LOGIN_RATE_LIMIT_EXCEEDED = 'LOGIN__RATE_LIMIT_EXCEEDED';
     final public const LOGIN_USER_INVALID = 'LOGIN__USER_INVALID';
     final public const LOGIN_INVALID_LOGIN_STATE = 'LOGIN__INVALID_LOGIN_STATE';
     final public const LOGIN_INVALID_TOKEN_RESPONSE = 'LOGIN__INVALID_TOKEN_RESPONSE';
-    final public const LOGIN_INVALID_ID_TOKEN_RESPONSE = 'LOGIN__INVALID_ID_TOKEN_RESPONSE';
+    final public const LOGIN_INVALID_ID_TOKEN_DATA_SET = 'LOGIN__INVALID_ID_TOKEN_DATA_SET';
+    final public const LOGIN_INVALID_REQUEST_NO_CODE_PROVIDED = 'LOGIN__INVALID_REQUEST_NO_CODE_PROVIDED';
+    final public const LOGIN_PUBLIC_KEY_NOT_FOUND = 'LOGIN__PUBLIC_KEY_NOT_FOUND';
+    final public const LOGIN_INVALID_ID_TOKEN = 'LOGIN__INVALID_ID_TOKEN';
+
+    private ?string $email;
+
+    public function __construct(
+        protected int $statusCode,
+        protected string $errorCode,
+        string $message,
+        array $parameters = [],
+        ?\Throwable $previous = null,
+        ?string $email = null,
+    ) {
+        parent::__construct($statusCode, $errorCode, $message, $parameters, $previous);
+
+        $this->email = $email;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
 
     public static function configurationNotFound(): self
     {
@@ -46,12 +67,15 @@ class LoginException extends HttpException
         );
     }
 
-    public static function userNotFound(): self
+    public static function userNotFound(string $email): self
     {
         return new self(
             Response::HTTP_UNAUTHORIZED,
             self::LOGIN_USER_NOT_FOUND,
-            'User not found'
+            'User not found',
+            [],
+            null,
+            $email
         );
     }
 
@@ -67,19 +91,6 @@ class LoginException extends HttpException
             [
                 'missingFields' => \implode(', ', $missingFields),
             ]
-        );
-    }
-
-    public static function rateLimitExceeded(RateLimitExceededException $previous): self
-    {
-        return new self(
-            Response::HTTP_UNAUTHORIZED,
-            self::LOGIN_RATE_LIMIT_EXCEEDED,
-            'Wait for {{ seconds }} seconds',
-            [
-                'seconds' => $previous->getWaitTime(),
-            ],
-            $previous
         );
     }
 
@@ -108,17 +119,44 @@ class LoginException extends HttpException
     }
 
     /**
-     * @param array<int, string> $missingFields
+     * @param array<int, string> $violations
      */
-    public static function idTokenNotValid(array $missingFields): self
+    public static function invalidIdTokenDataSet(array $violations): self
     {
         return new self(
             Response::HTTP_UNAUTHORIZED,
-            self::LOGIN_INVALID_ID_TOKEN_RESPONSE,
-            'ID-Token not valid. Missing: {{ missingFields }}',
+            self::LOGIN_INVALID_ID_TOKEN_DATA_SET,
+            'ID-Token not valid: {{ missingFields }}',
             [
-                'missingFields' => \implode(', ', $missingFields),
+                'missingFields' => \implode(', ', $violations),
             ]
+        );
+    }
+
+    public static function noCodeProvided(): self
+    {
+        return new self(
+            Response::HTTP_UNAUTHORIZED,
+            self::LOGIN_INVALID_REQUEST_NO_CODE_PROVIDED,
+            'Invalid request. Request does not provide a code',
+        );
+    }
+
+    public static function publicKeyNotFound(): self
+    {
+        return new self(
+            Response::HTTP_UNAUTHORIZED,
+            self::LOGIN_PUBLIC_KEY_NOT_FOUND,
+            'Public key not found',
+        );
+    }
+
+    public static function invalidIdToken(): self
+    {
+        return new self(
+            Response::HTTP_UNAUTHORIZED,
+            self::LOGIN_INVALID_ID_TOKEN,
+            'The id token is invalid',
         );
     }
 }

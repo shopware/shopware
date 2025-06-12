@@ -497,6 +497,9 @@ class AdministrationControllerTest extends TestCase
                 'base_url' => 'baseUrl',
                 'authorize_path' => '/authorize',
                 'token_path' => '/token',
+                'jwks_path' => '/jwks',
+                'scope' => 'scope',
+                'register_url' => 'https://register.url',
             ], '', ''),
             $this->refreshTokenTtl,
         );

@@ -1,0 +1,46 @@
+<sw-modal
+    :title="$tc('sw-users-permissions.saas.modal.title')"
+    v-bind="$attrs"
+    @modal-close="closeModal()"
+>
+
+    <template #default>
+        <mt-text-field
+            v-model="email"
+            class="sw-users-permissions-saas-modal-field-email"
+            :label="$tc('sw-users-permissions.saas.modal.labelEmail')"
+            :placeholder="$tc('sw-users-permissions.saas.modal.placeholderEmail')"
+            :error="errors.errorEmail"
+        />
+
+        <sw-single-select
+            v-model:value="languageId"
+            class="sw-users-permissions-saas-modal-field-language"
+            :options="languages"
+            label-property="name"
+            value-property="id"
+            :label="$tc('sw-users-permissions.saas.modal.labelLanguage')"
+            :placeholder="$tc('sw-users-permissions.saas.modal.placeholderLanguage')"
+            :error="errors.errorLanguage"
+        />
+    </template>
+
+    <template #modal-footer>
+        <mt-button
+            class="sw-users-permissions-saas-modal-close-button"
+            variant="secondary"
+            @click="closeModal()"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+
+        <mt-button
+            variant="primary"
+            class="sw-users-permissions-saas-modal-save-button"
+            :disabled="hasError"
+            @click="sendInvitation"
+        >
+            {{ $tc('sw-users-permissions.saas.modal.labelButtonInvite') }}
+        </mt-button>
+    </template>
+</sw-modal>

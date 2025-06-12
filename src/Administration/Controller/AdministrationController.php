@@ -118,6 +118,9 @@ class AdministrationController extends AbstractController
     public function ssoAuth(Request $request): RedirectResponse
     {
         $random = $request->getSession()->get(StateValidator::SESSION_KEY);
+        if ($random === null) {
+            return $this->redirectToRoute('administration.index');
+        }
 
         $loginConfig = $this->loginConfigService->getConfig();
         if (!$loginConfig instanceof LoginConfig) {

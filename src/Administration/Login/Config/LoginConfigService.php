@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Validation;
 final class LoginConfigService
 {
     /**
-     * @param array{use_default: bool, client_id: non-empty-string, client_secret: non-empty-string, redirect_uri: non-empty-string, base_url: non-empty-string, authorize_path: non-empty-string, token_path: non-empty-string} $rawConfig
+     * @param array{use_default: bool, client_id: non-empty-string, client_secret: non-empty-string, redirect_uri: non-empty-string, base_url: non-empty-string, authorize_path: non-empty-string, token_path: non-empty-string, jwks_path: non-empty-string, scope: non-empty-string, register_url: non-empty-string} $rawConfig
      */
     public function __construct(
         private readonly array $rawConfig,
@@ -44,6 +44,9 @@ final class LoginConfigService
             $this->rawConfig['base_url'],
             $this->rawConfig['authorize_path'],
             $this->rawConfig['token_path'],
+            $this->rawConfig['jwks_path'],
+            $this->rawConfig['scope'],
+            $this->rawConfig['register_url'],
         );
     }
 
@@ -60,11 +63,12 @@ final class LoginConfigService
         $state = \sprintf('%s/api/oauth/sso/code?rdm=%s', $this->appUrl, $random);
 
         return \sprintf(
-            '%s%s?client_id=%s&redirect_uri=%s&response_type=code&scope=openid&state=%s',
+            '%s%s?client_id=%s&redirect_uri=%s&response_type=code&scope=%s&state=%s',
             $loginConfig->baseUrl,
             $loginConfig->authorizePath,
             $loginConfig->clientId,
             \urlencode($loginConfig->redirectUri ?? ''),
+            \urlencode($loginConfig->scope),
             \urlencode($state)
         );
     }
@@ -113,13 +117,13 @@ final class LoginConfigService
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
-                    new Url(null, $invalidUrlMessage),
+                    new Url(message: $invalidUrlMessage, requireTld: true),
                 ],
                 'base_url' => [
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
-                    new Url(null, $invalidUrlMessage),
+                    new Url(message: $invalidUrlMessage, requireTld: true),
                     new Regex('/\w+(?!\/)$/', 'should not end with "/"'),
                 ],
                 'authorize_path' => [
@@ -133,6 +137,23 @@ final class LoginConfigService
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
                     new Regex('/^[\/].+$/', $invalidPath), // path should start with "/"
+                ],
+                'jwks_path' => [
+                    new NotNull(null, $isNullMessage),
+                    new NotBlank(null, $notBlankMessage),
+                    new Type('string', $invalidStringMessage),
+                    new Regex('/^[\/].+$/', $invalidPath), // path should start with "/"
+                ],
+                'scope' => [
+                    new NotNull(null, $isNullMessage),
+                    new NotBlank(null, $notBlankMessage),
+                    new Type('string', $invalidStringMessage),
+                ],
+                'register_url' => [
+                    new NotNull(null, $isNullMessage),
+                    new NotBlank(null, $notBlankMessage),
+                    new Type('string', $invalidStringMessage),
+                    new Url(message: $invalidUrlMessage, requireTld: true),
                 ],
             ],
             null,

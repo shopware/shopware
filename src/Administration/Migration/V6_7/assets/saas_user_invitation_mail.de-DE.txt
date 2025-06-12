@@ -1,0 +1,5 @@
+{{ nameOfInviter }} hat Dich eingeladen, am Shopware-Store {{ storeName }} mitzuarbeiten.
+
+Nachdem Du die Einladung angenommen hast, melde Dich bitte an bzw. registriere Dich mit dieser E-Mail-Adresse {{ invitedEmailAddress }}.
+
+{{ signupUrl }}

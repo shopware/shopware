@@ -37,6 +37,9 @@ class LoginConfigServiceTest extends TestCase
             'base_url' => 'http://base.url',
             'authorize_path' => '/authorize',
             'token_path' => '/token',
+            'jwks_path' => '/jwks.json',
+            'scope' => 'scope',
+            'register_url' => 'http://register.url',
         ];
 
         $configService = new LoginConfigService($rawConfig, 'http://app.url', '/admin');
@@ -54,7 +57,7 @@ class LoginConfigServiceTest extends TestCase
     }
 
     /**
-     * @param array{use_default: bool, client_id: non-empty-string, client_secret: non-empty-string, redirect_uri: non-empty-string, base_url: non-empty-string, authorize_path: non-empty-string, token_path: non-empty-string} $rawConfig
+     * @param array{use_default: bool, client_id: non-empty-string, client_secret: non-empty-string, redirect_uri: non-empty-string, base_url: non-empty-string, authorize_path: non-empty-string, token_path: non-empty-string, jwks_path: non-empty-string, scope: non-empty-string, register_url: non-empty-string} $rawConfig
      */
     #[DataProvider('getConfigErrorsTestDataProvider')]
     public function testGetConfigErrors(array $rawConfig, string $exceptionMessage): void
@@ -81,19 +84,22 @@ class LoginConfigServiceTest extends TestCase
     {
         return [
             'use_default is not set' => [
-                'config' => [
+                'rawConfig' => [
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [use_default] is missing',
             ],
 
             'use_default is null' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => null,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -101,12 +107,15 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 'http://base.url',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [use_default] is null',
             ],
 
             'use_default is not a bool' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => 'asd',
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -114,24 +123,30 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 'http://base.url',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [use_default] is not a boolean',
             ],
 
             'client_id is not set' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_id] is missing',
             ],
 
             'client_id is null' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => null,
                     'client_secret' => 'clientSecret',
@@ -139,12 +154,15 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 'http://base.url',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_id] is null, [client_id] is blank',
             ],
 
             'client_id is blank' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => '',
                     'client_secret' => 'clientSecret',
@@ -152,12 +170,15 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 'http://base.url',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_id] is blank',
             ],
 
             'client_id is no a string' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 12,
                     'client_secret' => 'clientSecret',
@@ -165,24 +186,30 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 'http://base.url',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_id] is invalid string',
             ],
 
             'client_secret is not set' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_secret] is missing',
             ],
 
             'client_secret is null' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => null,
@@ -190,12 +217,15 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 'http://base.url',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_secret] is null, [client_secret] is blank',
             ],
 
             'client_secret is blank' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => '',
@@ -203,12 +233,15 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 'http://base.url',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_secret] is blank',
             ],
 
             'client_secret is no a string' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 12,
@@ -216,24 +249,30 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 'http://base.url',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_secret] is invalid string',
             ],
 
             'redirect_uri is not set' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
                     'base_url' => 'http://base.url',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is missing',
             ],
 
             'redirect_uri is null' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -241,12 +280,15 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 'http://base.url',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is null, [redirect_uri] is blank',
             ],
 
             'redirect_uri is blank' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -254,12 +296,15 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 'http://base.url',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is blank',
             ],
 
             'redirect_uri is no a string' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -267,12 +312,15 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 'http://base.url',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is invalid string, [redirect_uri] is invalid URL',
             ],
 
             'redirect_uri is no a url' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -280,24 +328,30 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 'http://base.url',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is invalid URL',
             ],
 
             'base_url is not set' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is missing',
             ],
 
             'base_url is null' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -305,12 +359,15 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => null,
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is null, [base_url] is blank',
             ],
 
             'base_url is blank' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -318,12 +375,15 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => '',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is blank',
             ],
 
             'base_url is not a string' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -331,12 +391,15 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 12,
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is invalid string, [base_url] is invalid URL',
             ],
 
             'base_url is no a url' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -344,12 +407,15 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 'baseUrl',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is invalid URL',
             ],
 
             'base_url ends with slash' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -357,24 +423,30 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 'http://base.url/',
                     'authorize_path' => '/authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] should not end with "/"',
             ],
 
             'authorize_path is null' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is missing',
             ],
 
             'authorize_path is blank' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -382,12 +454,15 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 'http://base.url',
                     'authorize_path' => '',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is blank',
             ],
 
             'authorize_path is not a string' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -395,12 +470,15 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 'http://base.url',
                     'authorize_path' => 12,
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is invalid string, [authorize_path] is invalid path. Requires to start with "/"',
             ],
 
             'authorize_path not start with slash' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -408,24 +486,30 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 'http://base.url',
                     'authorize_path' => 'http://authorize',
                     'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is invalid path. Requires to start with "/"',
             ],
 
             'token_path is null' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
                     'redirect_uri' => 'http://redirect.url',
                     'base_url' => 'http://base.url',
                     'authorize_path' => '/authorize',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is missing',
             ],
 
             'token_path is blank' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -433,12 +517,15 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 'http://base.url',
                     'authorize_path' => '/authorize',
                     'token_path' => '',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is blank',
             ],
 
             'token_path is not a string' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -446,12 +533,15 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 'http://base.url',
                     'authorize_path' => '/authorize',
                     'token_path' => 24,
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is invalid string, [token_path] is invalid path. Requires to start with "/"',
             ],
 
             'token_path not start with slash' => [
-                'config' => [
+                'rawConfig' => [
                     'use_default' => false,
                     'client_id' => 'clientId',
                     'client_secret' => 'clientSecret',
@@ -459,8 +549,168 @@ class LoginConfigServiceTest extends TestCase
                     'base_url' => 'http://base.url',
                     'authorize_path' => '/authorize',
                     'token_path' => 'any/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
                 ],
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is invalid path. Requires to start with "/"',
+            ],
+
+            'jwks_path is null' => [
+                'rawConfig' => [
+                    'use_default' => false,
+                    'client_id' => 'clientId',
+                    'client_secret' => 'clientSecret',
+                    'redirect_uri' => 'http://redirect.url',
+                    'base_url' => 'http://base.url',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
+                ],
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [jwks_path] is missing',
+            ],
+
+            'jwks_path is blank' => [
+                'rawConfig' => [
+                    'use_default' => false,
+                    'client_id' => 'clientId',
+                    'client_secret' => 'clientSecret',
+                    'redirect_uri' => 'http://redirect.url',
+                    'base_url' => 'http://base.url',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
+                    'jwks_path' => '',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
+                ],
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [jwks_path] is blank',
+            ],
+
+            'jwks_path is not a string' => [
+                'rawConfig' => [
+                    'use_default' => false,
+                    'client_id' => 'clientId',
+                    'client_secret' => 'clientSecret',
+                    'redirect_uri' => 'http://redirect.url',
+                    'base_url' => 'http://base.url',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
+                    'jwks_path' => 23,
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
+                ],
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [jwks_path] is invalid string, [jwks_path] is invalid path. Requires to start with "/"',
+            ],
+
+            'jwks_path not start with slash' => [
+                'rawConfig' => [
+                    'use_default' => false,
+                    'client_id' => 'clientId',
+                    'client_secret' => 'clientSecret',
+                    'redirect_uri' => 'http://redirect.url',
+                    'base_url' => 'http://base.url',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
+                    'jwks_path' => 'jwks/json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
+                ],
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [jwks_path] is invalid path. Requires to start with "/"',
+            ],
+
+            'scope is null' => [
+                'rawConfig' => [
+                    'use_default' => false,
+                    'client_id' => 'clientId',
+                    'client_secret' => 'clientSecret',
+                    'redirect_uri' => 'http://redirect.url',
+                    'base_url' => 'http://base.url',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'register_url' => 'http://register.url',
+                ],
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [scope] is missing',
+            ],
+
+            'scope is blank' => [
+                'rawConfig' => [
+                    'use_default' => false,
+                    'client_id' => 'clientId',
+                    'client_secret' => 'clientSecret',
+                    'redirect_uri' => 'http://redirect.url',
+                    'base_url' => 'http://base.url',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => '',
+                    'register_url' => 'http://register.url',
+                ],
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [scope] is blank',
+            ],
+
+            'scope is not a string' => [
+                'rawConfig' => [
+                    'use_default' => false,
+                    'client_id' => 'clientId',
+                    'client_secret' => 'clientSecret',
+                    'redirect_uri' => 'http://redirect.url',
+                    'base_url' => 'http://base.url',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 42,
+                    'register_url' => 'http://register.url',
+                ],
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [scope] is invalid string',
+            ],
+
+            'register_url is null' => [
+                'rawConfig' => [
+                    'use_default' => false,
+                    'client_id' => 'clientId',
+                    'client_secret' => 'clientSecret',
+                    'redirect_uri' => 'http://redirect.url',
+                    'base_url' => 'http://base.url',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                ],
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [register_url] is missing',
+            ],
+
+            'register_url is empty' => [
+                'rawConfig' => [
+                    'use_default' => false,
+                    'client_id' => 'clientId',
+                    'client_secret' => 'clientSecret',
+                    'redirect_uri' => 'http://redirect.url',
+                    'base_url' => 'http://base.url',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => '',
+                ],
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [register_url] is blank',
+            ],
+
+            'register_url is not valid url' => [
+                'rawConfig' => [
+                    'use_default' => false,
+                    'client_id' => 'clientId',
+                    'client_secret' => 'clientSecret',
+                    'redirect_uri' => 'http://redirect.url',
+                    'base_url' => 'http://base.url',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'registerUrl',
+                ],
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [register_url] is invalid URL',
             ],
         ];
     }
@@ -485,6 +735,9 @@ class LoginConfigServiceTest extends TestCase
             'base_url' => 'http://base.url',
             'authorize_path' => '/authorize',
             'token_path' => '/token',
+            'jwks_path' => '/jwks.json',
+            'scope' => 'scope',
+            'register_url' => 'http://register.url',
         ];
 
         $configService = new LoginConfigService($rawConfig, 'http://app.url', '/admin');
@@ -507,6 +760,9 @@ class LoginConfigServiceTest extends TestCase
             'base_url' => 'http://base.url',
             'authorize_path' => '/authorize',
             'token_path' => '/token',
+            'jwks_path' => '/jwks.json',
+            'scope' => 'scope',
+            'register_url' => 'http://register.url',
         ];
 
         $configService = new LoginConfigService($rawConfig, 'http://app.url', $adminPath);
@@ -582,8 +838,11 @@ class LoginConfigServiceTest extends TestCase
                     'http://justABaseUrl.net',
                     '/authorize',
                     '/token',
+                    '/jwks.json',
+                    'scope',
+                    'http://register.url',
                 ),
-                'expectedUrl' => 'http://justABaseUrl.net/authorize?client_id=justAClientID&redirect_uri=http%3A%2F%2FjustARedirectUri.org&response_type=code&scope=openid&state=http%3A%2F%2Fapp.url%2Fapi%2Foauth%2Fsso%2Fcode%3Frdm%3DjustARandomString',
+                'expectedUrl' => 'http://justABaseUrl.net/authorize?client_id=justAClientID&redirect_uri=http%3A%2F%2FjustARedirectUri.org&response_type=code&scope=scope&state=http%3A%2F%2Fapp.url%2Fapi%2Foauth%2Fsso%2Fcode%3Frdm%3DjustARandomString',
             ],
 
             'Test case two' => [
@@ -596,8 +855,11 @@ class LoginConfigServiceTest extends TestCase
                     'http://another-base-url.net',
                     '/authorize',
                     '/token',
+                    '/jwks.json',
+                    'scope',
+                    'http://register.url',
                 ),
-                'expectedUrl' => 'http://another-base-url.net/authorize?client_id=anotherClientID&redirect_uri=http%3A%2F%2Fanother-redirect-url.org&response_type=code&scope=openid&state=http%3A%2F%2Fapp.url%2Fapi%2Foauth%2Fsso%2Fcode%3Frdm%3DjustARandomString',
+                'expectedUrl' => 'http://another-base-url.net/authorize?client_id=anotherClientID&redirect_uri=http%3A%2F%2Fanother-redirect-url.org&response_type=code&scope=scope&state=http%3A%2F%2Fapp.url%2Fapi%2Foauth%2Fsso%2Fcode%3Frdm%3DjustARandomString',
             ],
         ];
     }

@@ -30,6 +30,29 @@ final class LoginResponseService
         return $redirectResponse;
     }
 
+    public function createErrorResponse(string $email): RedirectResponse
+    {
+        $redirectUrl = $this->urlGenerator->generate(self::ADMIN_ROUTE_NAME);
+
+        $redirectResponse = new RedirectResponse($redirectUrl . '/#/sso/error');
+
+        $cookie = new Cookie(
+            'user',
+            $email,
+            $this->createTimeStamp(60),
+            $redirectUrl,
+            null,
+            null,
+            false,
+            false,
+            Cookie::SAMESITE_STRICT
+        );
+
+        $redirectResponse->headers->setCookie($cookie);
+
+        return $redirectResponse;
+    }
+
     private function createCookie(ResponseInterface $response, string $path): Cookie
     {
         $cookieData = $this->createCookieData($response);

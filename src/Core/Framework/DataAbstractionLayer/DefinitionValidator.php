@@ -103,6 +103,7 @@ class DefinitionValidator
         'one_time_tasks',
         'invalidation_tags',
         'subscription_cart',
+        'token_user',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [

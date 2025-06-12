@@ -17,6 +17,7 @@ export default {
         'loginService',
         'acl',
         'appAclService',
+        'saasSettingsService',
     ],
 
     mixins: [
@@ -140,7 +141,17 @@ export default {
         },
 
         onSave() {
-            this.confirmPasswordModal = true;
+            this.isLoading = true;
+            this.saasSettingsService.isSaas().then((response) => {
+                if (response.isSaas) {
+                    this.isLoading = false;
+                    this.saveRole({ ...Shopware.Context.api });
+
+                    return;
+                }
+
+                this.confirmPasswordModal = true;
+            });
         },
 
         saveRole(context) {

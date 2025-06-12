@@ -47,7 +47,7 @@ export default Component.wrapComponentConfig({
         },
     },
 
-    created() {
+    created(): void {
         if (!localStorage.getItem('sw-admin-locale')) {
             void Shopware.Store.get('session').setAdminLocale(navigator.language);
         }
@@ -55,7 +55,7 @@ export default Component.wrapComponentConfig({
         this.loginService.getLoginTemplateConfig().then((loginConfig) => {
             this.loginConfig = loginConfig;
             this.loginConfigLoaded = true;
-        });
+        }).catch(() => {});
     },
 
     methods: {

@@ -154,7 +154,7 @@ class ProductFeatureBuilder
     }
 
     /**
-     * Checks wether a custom field name is part of the provided product's feature set
+     * Checks whether a custom field name is part of the provided product's feature set
      */
     private function isRequiredCustomField(string $name, SalesChannelProductEntity $product): bool
     {

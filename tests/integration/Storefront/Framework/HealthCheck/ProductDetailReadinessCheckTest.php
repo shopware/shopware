@@ -81,7 +81,7 @@ class ProductDetailReadinessCheckTest extends TestCase
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'currencyId' => Defaults::CURRENCY,
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-                    'url' => 'https://test.to',
+                    'url' => 'http://example.com',
                 ],
             ],
         ]);
@@ -92,7 +92,7 @@ class ProductDetailReadinessCheckTest extends TestCase
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'currencyId' => Defaults::CURRENCY,
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-                    'url' => 'https://foo.to',
+                    'url' => 'http://shop.test',
                 ],
             ],
         ]);

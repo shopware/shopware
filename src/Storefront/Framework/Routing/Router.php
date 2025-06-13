@@ -216,6 +216,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
                     'v6.8.0.0',
                     \sprintf('Routes without a defined route scope are deprecated, please add a route scope to the route "%s" or add it to "storefront.router.allowed_routes" in "storefront.yaml" configuration.', $name)
                 );
+
                 return true;
             }
         }

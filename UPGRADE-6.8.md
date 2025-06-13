@@ -241,8 +241,14 @@ The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id
 ```
 
 ## Removal of DeleteThemeFilesMessage and its handler
+
 The `\Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage` and its handler `\Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler` are removed.
 Unused theme files are deleted by using the `\Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask` scheduled task.
+
+## Storefront routes now require route scope
+
+Storefront routes require a defined route scope from now on.
+If it is not possible to add a route scope to the route, you can add the route name to the `storefront.router.allowed_routes` configuration in the `storefront.yaml`.
 
 </details>
 

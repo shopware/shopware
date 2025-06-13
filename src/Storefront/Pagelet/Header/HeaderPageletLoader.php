@@ -64,8 +64,8 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
                 throw SalesChannelException::languageNotFound($context->getLanguageId());
             }
 
-            $page->setActiveLanguage($contextLanguage);
-            $page->setActiveCurrency($context->getCurrency());
+            Feature::callSilentIfInactive('v6.8.0.0', static fn () => $page->setActiveLanguage($contextLanguage));
+            Feature::callSilentIfInactive('v6.8.0.0', static fn () => $page->setActiveCurrency($context->getCurrency()));
         }
 
         $this->eventDispatcher->dispatch(new HeaderPageletLoadedEvent($page, $context, $request));

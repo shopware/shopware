@@ -29,7 +29,7 @@ export default class LoadingIndicatorUtil {
         if (this.exists()) return;
 
         if (this.position === INDICATOR_POSITION.INNER) {
-            this._previusHTML = this.parent.innerHTML;
+            this._previousHTML = this.parent.innerHTML;
             this.parent.innerHTML = LoadingIndicatorUtil.getTemplate();
 
             return;
@@ -43,7 +43,7 @@ export default class LoadingIndicatorUtil {
      */
     remove() {
         if (this.position === INDICATOR_POSITION.INNER) {
-            this.parent.innerHTML = this._previusHTML;
+            this.parent.innerHTML = this._previousHTML;
             return;
         }
 

@@ -207,8 +207,8 @@
     </card>
 
     <card>
-        <title> robots.txt Rules</title>
-        <title lang="de-DE">robots.txt Regeln</title>
+        <title>Rules for robots.txt</title>
+        <title lang="de-DE">Regeln für robots.txt </title>
         <input-field type="textarea">
             <name>robotsRules</name>
             <label>Domain specific robots.txt Allow/Disallow rules</label>

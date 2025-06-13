@@ -341,8 +341,7 @@ export default {
                 .getDocument(documentId, documentDeepLink, Shopware.Context.api, true, fileType)
                 .then((response) => {
                     if (response.data) {
-                        let filename = response.headers['content-disposition'].split('filename=')[1];
-                        filename = filename.replace(/['"]/g, '');
+                        const filename = response.headers['content-disposition'].split('filename=')[1];
                         const link = document.createElement('a');
                         link.href = URL.createObjectURL(response.data);
                         link.download = filename;

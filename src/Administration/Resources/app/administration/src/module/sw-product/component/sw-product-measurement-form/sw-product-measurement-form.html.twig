@@ -1,7 +1,16 @@
 <div class="sw-product-measurement-form">
     <div class="sw-product-measurement-form__description-group">
-        <p>{{ $t('sw-product.measurementForm.description') }}</p>
-        <p v-html="$t('sw-product.measurementForm.note')"></p>
+        <i18n-t
+            tag="p"
+            keypath="sw-product.measurementForm.description"
+            scope="local"
+        >
+            <template #link>
+                <sw-internal-link :router-link="{ name: 'sw.sales.channel.list' }" hide-icon inline>
+                    {{ $tc('sw-product.measurementForm.linkText') }}
+                </sw-internal-link>
+            </template>
+        </i18n-t>
     </div>
 
     <sw-container

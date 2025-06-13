@@ -78,7 +78,7 @@
       "advancedPrices": {
         "cardTitle": "Advanced pricing",
         "changeLabel": "Change: Advanced pricing",
-        "selectRule": "Select pricing rule ...",
+        "selectRule": "Select pricing rule...",
         "newAdvancedPrices": "Create new Advanced Prices ({count})"
       },
       "property": {
@@ -185,7 +185,7 @@
         }
       },
       "sellingPackaging": {
-        "cardTitle": "Selling & Packaging Information",
+        "cardTitle": "Selling & packaging information",
         "purchaseUnit": {
           "changeLabel": "Change: Selling unit",
           "placeholder": "e.g. 6..."

@@ -159,7 +159,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     private function removePrefix(string $subject, string $prefix): string
     {
-        if (!$prefix || mb_strpos($subject, $prefix) !== 0) {
+        if (!$prefix || !str_starts_with($subject, $prefix)) {
             return $subject;
         }
 
@@ -194,8 +194,8 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     private function isStorefrontRoute(string $name): bool
     {
-        return str_starts_with($name, 'frontend.')
-            || str_starts_with($name, 'widgets.')
-            || str_starts_with($name, 'payment.');
+        $routeScopes = $this->getRouteCollection()->get($name)?->getDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE) ?? [];
+
+        return \in_array(StorefrontRouteScope::ID, $routeScopes, true);
     }
 }

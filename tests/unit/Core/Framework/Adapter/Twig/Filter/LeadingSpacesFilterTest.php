@@ -19,9 +19,12 @@ class LeadingSpacesFilterTest extends TestCase
     public function testRemoveLeadingSpacesFilter(string $input, string $expected): void
     {
         $filter = new LeadingSpacesFilter();
-        static::assertEquals($expected, $filter->removeLeadingSpaces($input));
+        static::assertSame($expected, $filter->removeLeadingSpaces($input));
     }
 
+    /**
+     * @return array<array{string, string}>
+     */
     public static function removeLeadingSpacesProvider(): array
     {
         return [

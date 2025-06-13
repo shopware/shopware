@@ -7,18 +7,15 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
-use Shopware\Storefront\Page\Robots\RobotsPage;
 use Shopware\Storefront\Page\Robots\RobotsPageLoadedEvent;
 use Shopware\Storefront\Page\Robots\RobotsPageLoader;
-use Shopware\Storefront\Page\Robots\Struct\DomainRuleCollection;
 use Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,8 +27,14 @@ use Symfony\Component\HttpFoundation\Request;
 class RobotsPageLoaderTest extends TestCase
 {
     private MockObject&EventDispatcherInterface $eventDispatcher;
+
+    /**
+     * @var StaticEntityRepository<SalesChannelDomainCollection>
+     */
     private StaticEntityRepository $salesChannelDomainRepository;
+
     private StaticSystemConfigService $systemConfigService;
+
     private RobotsPageLoader $robotsPageLoader;
 
     protected function setUp(): void
@@ -52,15 +55,13 @@ class RobotsPageLoaderTest extends TestCase
         $request = new Request();
         $context = Context::createDefaultContext();
 
-        $this->eventDispatcher->expects(static::once())
+        $this->eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(RobotsPageLoadedEvent::class));
 
         $page = $this->robotsPageLoader->load($request, $context);
 
-        static::assertInstanceOf(RobotsPage::class, $page);
         static::assertEmpty($page->getSitemaps());
-        static::assertInstanceOf(DomainRuleCollection::class, $page->getDomainRules());
         static::assertCount(0, $page->getDomainRules());
     }
 
@@ -93,13 +94,12 @@ class RobotsPageLoaderTest extends TestCase
             $salesChannelId
         );
 
-        $this->eventDispatcher->expects(static::once())
+        $this->eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(RobotsPageLoadedEvent::class));
 
         $page = $this->robotsPageLoader->load($request, $context);
 
-        static::assertInstanceOf(RobotsPage::class, $page);
         static::assertCount(1, $page->getSitemaps());
         static::assertEquals(['https://example.com/sitemap.xml'], $page->getSitemaps());
         static::assertCount(1, $page->getDomainRules());
@@ -113,7 +113,7 @@ class RobotsPageLoaderTest extends TestCase
             ['type' => 'Allow', 'path' => '/widgets/cms/'],
             ['type' => 'Allow', 'path' => '/widgets/menu/offcanvas'],
         ], $domainRule->getRules());
-        static::assertEquals('', $domainRule->getBasePath());
+        static::assertSame('', $domainRule->getBasePath());
     }
 
     public function testLoadWithMultipleDomains(): void
@@ -166,7 +166,7 @@ class RobotsPageLoaderTest extends TestCase
 
         $firstDomainRule = $domainRules->get(0);
         static::assertInstanceOf(DomainRuleStruct::class, $firstDomainRule);
-        static::assertEquals('', $firstDomainRule->getBasePath());
+        static::assertSame('', $firstDomainRule->getBasePath());
         static::assertCount(5, $firstDomainRule->getRules());
         static::assertEquals(
             [
@@ -181,7 +181,7 @@ class RobotsPageLoaderTest extends TestCase
 
         $secondDomainRule = $domainRules->get(1);
         static::assertInstanceOf(DomainRuleStruct::class, $secondDomainRule);
-        static::assertEquals('/en', $secondDomainRule->getBasePath());
+        static::assertSame('/en', $secondDomainRule->getBasePath());
         static::assertCount(3, $secondDomainRule->getRules());
 
         static::assertEquals(

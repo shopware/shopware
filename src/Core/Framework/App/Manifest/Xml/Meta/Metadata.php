@@ -7,6 +7,7 @@ use Composer\Semver\Constraint\ConstraintInterface;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\App\Validation\Error\MissingTranslationError;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -183,6 +184,12 @@ class Metadata extends XmlElement
      */
     public function getUrl(): ?string
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(
+            __CLASS__,
+            __METHOD__,
+            'v6.8.0.0',
+        ));
+
         return $this->url;
     }
 

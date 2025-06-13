@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['default']])]
-#[Package('storefront')]
+#[Package('framework')]
 class RobotsController extends StorefrontController
 {
     public function __construct(private readonly RobotsPageLoader $robotsPageLoader)

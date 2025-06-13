@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @extends Collection<DomainRuleStruct>
  */
-#[Package('storefront')]
+#[Package('framework')]
 class DomainRuleCollection extends Collection
 {
     protected function getExpectedClass(): string

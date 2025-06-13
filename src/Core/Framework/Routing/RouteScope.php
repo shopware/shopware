@@ -8,9 +8,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('framework')]
 class RouteScope extends AbstractRouteScope
 {
-    /**
-     * @var array<string>
-     */
     protected array $allowedPaths = ['_wdt', '_profiler', '_error', 'robots.txt'];
 
     public function isAllowed(Request $request): bool

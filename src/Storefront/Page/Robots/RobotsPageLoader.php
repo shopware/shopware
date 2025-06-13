@@ -16,7 +16,7 @@ use Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('storefront')]
+#[Package('framework')]
 class RobotsPageLoader
 {
     /**

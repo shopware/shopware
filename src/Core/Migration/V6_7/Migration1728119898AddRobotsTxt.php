@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\V6_6;
+namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1728119898AddRobotsTxt extends MigrationStep
 {
     public function getCreationTimestamp(): int

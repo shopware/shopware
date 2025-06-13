@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Page\Robots\Struct\DomainRuleCollection;
 
-#[Package('storefront')]
+#[Package('framework')]
 class RobotsPage extends Struct
 {
     protected DomainRuleCollection $domainRules;
@@ -27,7 +27,7 @@ class RobotsPage extends Struct
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     public function getSitemaps(): array
     {
@@ -35,7 +35,7 @@ class RobotsPage extends Struct
     }
 
     /**
-     * @param string[] $sitemaps
+     * @param list<string> $sitemaps
      */
     public function setSitemaps(array $sitemaps): void
     {

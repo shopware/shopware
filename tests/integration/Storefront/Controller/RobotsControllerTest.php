@@ -19,6 +19,7 @@ class RobotsControllerTest extends TestCase
     public function testRobotsTxt(): void
     {
         $appUrl = EnvironmentHelper::getVariable('APP_URL');
+        static::assertIsString($appUrl);
 
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
         $browser->request('GET', $appUrl . '/robots.txt');

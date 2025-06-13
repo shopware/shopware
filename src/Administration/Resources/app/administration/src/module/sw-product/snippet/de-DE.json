@@ -66,7 +66,7 @@
       "labelTaxRate": "Steuersatz",
       "labelPurchasePriceGross": "Einkaufspreis (brutto)",
       "labelPurchasePriceNet": "Einkaufspreis (netto)",
-      "labelUnit": "Product unit",
+      "labelUnit": "Produkteinheit",
       "labelPurchaseUnit": "Verkaufseinheit",
       "labelReferenceUnit": "Grundeinheit",
       "labelPackUnit": "Verpackungseinheit",
@@ -123,11 +123,11 @@
       "placeholderDeliveryTime": "Gib die Lieferzeit an ...",
       "placeholderCreatedAt": "Gib ein Erstelldatum ein ...",
       "placeholderReleaseDate": "Gib ein Einstelldatum ein ...",
-      "placeholderWidth": "z.B. 500 ...",
-      "placeholderHeight": "z.B. 200 ...",
-      "placeholderLength": "z.B.100 ...",
-      "placeholderWeight": "z.B. 0,4 ...",
-      "placeholderTime": "z.B. 31 ...",
+      "placeholderWidth": "z. B. 500 ...",
+      "placeholderHeight": "z. B. 200 ...",
+      "placeholderLength": "z. B.100 ...",
+      "placeholderWeight": "z. B. 0,4 ...",
+      "placeholderTime": "z. B. 31 ...",
       "placeholderStock": "Gib den Lagerbestand ein ...",
       "placeholderMinPurchase": "Mindestabnahme ...",
       "placeholderMaxPurchase": "Maximalabnahme ...",
@@ -139,21 +139,21 @@
       "labelPurchaseSteps": "Staffelung"
     },
     "measurementForm": {
-      "description": "Enter the product’s dimensions and weight as provided. They’ll be automatically converted into all supported measurement units.",
-      "note": "<b>Note:</b> The units displayed to customers are determined by the settings of the assigned Sales Channels."
+      "description": "Gib die Produktmaße in den Dir zur Verfügung stehenden Maßeinheiten ein. Die Anzeige für Deine Kunden wird automatisch gemäß den {link} umgerechnet.",
+      "linkText": "Verkaufskanal-Einstellungen"
     },
     "packagingForm": {
-      "description": "Define how the product is sold and packaged. This information is shown to customers in the storefront.",
-      "labelProductUnit": "Product unit",
-      "placeholderSellingUnit": "e.g. 6 ...",
-      "placeholderProductUnit": "Select product unit ...",
-      "placeholderBasicUnit": "e.g. 1 ...",
-      "placeholderPackagingUnit": "e.g. Bottle ...",
-      "placeholderPackagingUnitPlural": "e.g. Bottles ...",
-      "helpTextBasicUnit": "Required to calculate the product's unit price. The base value to be entered depends on the selected product unit.<br><br>Unit price = (product price * basic unit) / selling unit.<br><br>Unit price not displayed, if selling unit and basic unit have the same value.",
-      "helpTextPackUnit": "Art der Verpackung: z.B. Flasche, Kiste, Tiegel ...",
-      "helpTextPackUnitPlural": "Art der Verpackung (Mehrzahl): z.B. Flaschen, Kisten, Tiegel ...",
-      "helpTextSellingUnit": "Required to calculate the product's unit price. The value to be entered depends on the selected product unit.<br><br>Unit price = (product price * basic unit) / selling unit.<br><br>Unit price not displayed, if selling unit and basic unit have the same value."
+      "description": "Definiere, wie das Produkt verkauft und verpackt wird. Diese Informationen werden den Kunden in der Storefront angezeigt.",
+      "labelProductUnit": "Produkteinheit",
+      "placeholderSellingUnit": "z. B. 6 ...",
+      "placeholderProductUnit": "Produkteinheit auswählen ...",
+      "placeholderBasicUnit": "z. B. 1 ...",
+      "placeholderPackagingUnit": "z. B. Flasche ...",
+      "placeholderPackagingUnitPlural": "z. B. Flaschen ...",
+      "helpTextBasicUnit": "Notwendig für die Grundpreisberechnung. Der einzugebende Grundwert ist abhängig von der gewählten Maßeinheit.<br><br>Grundpreis = (Produktpreis * Grundeinheit) / Verkaufseinheit.<br><br>Der Grundpreis wird nicht angezeigt, wenn Verkaufseinheit und Grundeinheit den gleichen Wert haben.",
+      "helpTextPackUnit": "Art der Verpackung: z. B. Flasche, Kiste, Tiegel ...",
+      "helpTextPackUnitPlural": "Art der Verpackung (Mehrzahl): z. B. Flaschen, Kisten, Tiegel ...",
+      "helpTextSellingUnit": "Notwendig für die Grundpreisberechnung. Der einzugebende Wert ist abhängig von der gewählten Maßeinheit.<br><br>Grundpreis = (Produktpreis * Grundeinheit) / Verkaufseinheit.<br><br>Der Grundpreis wird nicht angezeigt, wenn Verkaufseinheit und Grundeinheit den gleichen Wert haben."
     },
     "detailBase": {
       "cardTitleDeliverabilityInfo": "Lieferbarkeit",
@@ -177,8 +177,8 @@
       "manageStockTooltip": "Wenn der Lagerbestand nicht verwaltet wird, ist das digitale Produkt für eine unendliche Anzahl von Transaktionen verfügbar."
     },
     "specifications": {
-      "cardTitleMeasurement": "Product measurements",
-      "cardTitleSellingPackaging": "Selling & Packaging Information",
+      "cardTitleMeasurement": "Produktmaße",
+      "cardTitleSellingPackaging": "Verkaufs- & Verpackungsinformationen",
       "cardTitleEssentialCharacteristics": "Wesentliche Merkmale",
       "cardTitleCustomFields": "Zusatzfelder",
       "cardTitleProperties": "Eigenschaften",

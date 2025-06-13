@@ -248,6 +248,20 @@ class OrderLineItemEntity extends Entity
         return $this->payload;
     }
 
+    public function getPayloadValue(string $key): mixed
+    {
+        if (!$this->hasPayloadValue($key)) {
+            return null;
+        }
+
+        return $this->payload[$key];
+    }
+
+    public function hasPayloadValue(string $key): bool
+    {
+        return isset($this->payload[$key]);
+    }
+
     /**
      * @param array<string, mixed>|null $payload
      */

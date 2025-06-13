@@ -97,7 +97,6 @@ parameters:
            paths:
             - **/*Test.php
             - src/Core/Installer
-            - src/Core/Checkout/Payment/Controller/PaymentController.php
 
         -
            message: '#No global Command directories allowed, put your commands in the right domain directory#'

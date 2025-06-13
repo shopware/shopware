@@ -194,6 +194,11 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     private function isStorefrontRoute(string $name): bool
     {
+        /** Exception for @see \Shopware\Core\Checkout\Payment\Controller\PaymentController::finalizeTransaction */
+        if (str_starts_with($name, 'payment.')) {
+            return true;
+        }
+
         $routeScopes = $this->getRouteCollection()->get($name)?->getDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE) ?? [];
 
         return \in_array(StorefrontRouteScope::ID, $routeScopes, true);

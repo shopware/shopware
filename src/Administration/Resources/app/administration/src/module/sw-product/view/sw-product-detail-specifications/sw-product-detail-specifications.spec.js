@@ -48,6 +48,10 @@ async function createWrapper(privileges = []) {
                     'sw-help-text': true,
                     'sw-inheritance-switch': true,
                     'mt-unit-field': true,
+                    'i18n-t': {
+                        template: '<div class="i18n-stub"><slot></slot></div>',
+                    },
+                    'sw-internal-link': true,
                 },
             },
         },

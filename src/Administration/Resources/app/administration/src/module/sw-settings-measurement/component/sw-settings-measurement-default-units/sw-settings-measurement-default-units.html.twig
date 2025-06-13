@@ -3,9 +3,19 @@
     position-identifier="sw-settings-measurement-default-units"
     :title="$t('sw-settings-measurement.defaultUnits.title')"
 >
-    <p class="sw-settings-measurement-default-units__description">
-        {{ $t('sw-settings-measurement.defaultUnits.description') }}
-    </p>
+    <i18n-t
+        tag="p"
+        keypath="sw-settings-measurement.defaultUnits.description"
+        scope="local"
+        hide-icon
+        class="sw-settings-measurement-default-units__description"
+    >
+        <template #link>
+            <sw-internal-link :router-link="{ name: 'sw.sales.channel.list' }" inline hide-icon>
+                {{ $tc('sw-settings-measurement.defaultUnits.linkText') }}
+            </sw-internal-link>
+        </template>
+    </i18n-t>
 
     <sw-container
         columns="1fr 1fr 1fr"

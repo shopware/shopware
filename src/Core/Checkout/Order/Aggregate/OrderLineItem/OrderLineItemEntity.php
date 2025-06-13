@@ -60,7 +60,7 @@ class OrderLineItemEntity extends Entity
     protected ?PriceDefinitionInterface $priceDefinition = null;
 
     /**
-     * @var array<string>|null
+     * @var array<mixed>|null
      */
     protected ?array $payload = null;
 
@@ -254,7 +254,7 @@ class OrderLineItemEntity extends Entity
             return null;
         }
 
-        return $this->payload[$key];
+        return $this->payload[$key] ?? null;
     }
 
     public function hasPayloadValue(string $key): bool

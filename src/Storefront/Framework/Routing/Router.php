@@ -208,14 +208,16 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         }
 
         if (!Feature::isActive('v6.8.0.0')) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.8.0.0',
-                \sprintf('Routes without a defined route scope are deprecated, please add a route scope to the route "%s"', $name)
-            );
-
-            return str_starts_with($name, 'frontend.')
+            if (str_starts_with($name, 'frontend.')
                 || str_starts_with($name, 'widgets.')
-                || str_starts_with($name, 'payment.');
+                || str_starts_with($name, 'payment.')
+            ) {
+                Feature::triggerDeprecationOrThrow(
+                    'v6.8.0.0',
+                    \sprintf('Routes without a defined route scope are deprecated, please add a route scope to the route "%s" or add it to "storefront.router.allowed_routes" in "storefront.yaml" configuration.', $name)
+                );
+                return true;
+            }
         }
 
         return false;

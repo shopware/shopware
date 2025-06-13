@@ -17,7 +17,10 @@ interface EntitySchema {
     properties: Record<string, PropertySchema>;
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type EntityNameMapping = Record<string, string>;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type PropertyDefinition = Record<string, PropertySchema>;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

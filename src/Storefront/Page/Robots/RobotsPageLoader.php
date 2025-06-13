@@ -42,6 +42,9 @@ class RobotsPageLoader
 
             $page->setDomainRules($this->getDomainRules($hostname, $domains));
             $page->setSitemaps($this->getSitemaps($domains));
+        } else {
+            $page->setDomainRules(new DomainRuleCollection());
+            $page->setSitemaps([]);
         }
 
         $this->eventDispatcher->dispatch(

@@ -30,6 +30,11 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\System\Snippet\Command\InstallTranslationCommand">
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\System\Snippet\SnippetFileHandler" />
 
         <service id="Shopware\Core\System\Snippet\Subscriber\CustomFieldSubscriber">

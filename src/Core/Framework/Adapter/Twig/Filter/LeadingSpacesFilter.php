@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 class LeadingSpacesFilter extends AbstractExtension
 {

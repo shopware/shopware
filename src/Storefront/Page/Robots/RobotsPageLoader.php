@@ -92,7 +92,7 @@ class RobotsPageLoader
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     private function getSitemaps(SalesChannelDomainCollection $domains): array
     {

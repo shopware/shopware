@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Cookie\Service;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
-use Shopware\Core\Content\Cookie\Struct\CookieStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -43,17 +42,14 @@ readonly class CookieService
     {
         $collection = new CookieGroupCollection();
         foreach ($cookieGroups as $group) {
-            $cookieStruct = new CookieStruct();
-            $cookieStruct = $this->transformValuesToStruct($cookieStruct, $group);
-
             $cookieGroup = new CookieGroup(
                 $group['isRequired'] ?? false,
                 isset($group['entries']) && \is_array($group['entries'])
                     ? $this->convertCookieEntries($group['entries'])
                     : []
             );
-            $cookieGroup->assign($cookieStruct->jsonSerialize());
 
+            $this->setCookieProperties($cookieGroup, $group);
             $collection->add($cookieGroup);
         }
 
@@ -243,34 +239,6 @@ readonly class CookieService
     }
 
     /**
-     * Transforms the provided data into a CookieGroup or CookieEntry struct.
-     *
-     * @param array<string|int, mixed> $data
-     */
-    private function transformValuesToStruct(
-        CookieStruct $cookieStruct,
-        array $data
-    ): CookieStruct {
-        if (!empty($data['snippet_name'])) {
-            $cookieStruct->snippetName = $data['snippet_name'];
-        }
-        if (!empty($data['snippet_description'])) {
-            $cookieStruct->snippetDescription = $data['snippet_description'];
-        }
-        if (!empty($data['cookie'])) {
-            $cookieStruct->cookie = $data['cookie'];
-        }
-        if (!empty($data['value'])) {
-            $cookieStruct->value = $data['value'];
-        }
-        if (!empty($data['expiration'])) {
-            $cookieStruct->expiration = $data['expiration'];
-        }
-
-        return $cookieStruct;
-    }
-
-    /**
      * Converts an array of cookie entries to an array of CookieEntry objects.
      *
      * @param array<string|int, mixed> $entries
@@ -281,15 +249,35 @@ readonly class CookieService
     {
         $convertedEntries = [];
         foreach ($entries as $entry) {
-            $cookieStruct = new CookieStruct();
-            $cookieStruct = $this->transformValuesToStruct($cookieStruct, $entry);
-
             $cookieEntry = new CookieEntry($entry['hidden'] ?? false);
-            $cookieEntry->assign($cookieStruct->jsonSerialize());
-
+            $this->setCookieProperties($cookieEntry, $entry);
             $convertedEntries[] = $cookieEntry;
         }
 
         return $convertedEntries;
+    }
+
+    /**
+     * Sets the cookie properties from the given data array to the cookie object.
+     *
+     * @param array<string|int, mixed> $data
+     */
+    private function setCookieProperties(CookieEntry|CookieGroup $cookie, array $data): void
+    {
+        if (!empty($data['snippet_name'])) {
+            $cookie->snippetName = $data['snippet_name'];
+        }
+        if (!empty($data['snippet_description'])) {
+            $cookie->snippetDescription = $data['snippet_description'];
+        }
+        if (!empty($data['cookie'])) {
+            $cookie->cookie = $data['cookie'];
+        }
+        if (!empty($data['value'])) {
+            $cookie->value = $data['value'];
+        }
+        if (!empty($data['expiration'])) {
+            $cookie->expiration = $data['expiration'];
+        }
     }
 }

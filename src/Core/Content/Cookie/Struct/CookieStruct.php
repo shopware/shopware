@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('framework')]
-class CookieStruct extends Struct
+abstract class CookieStruct extends Struct
 {
     public ?string $snippetName;
 

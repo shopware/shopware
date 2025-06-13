@@ -3,8 +3,9 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieRoute;
+use Shopware\Core\Content\Cookie\Struct\CookieEntry;
+use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
-use Shopware\Core\Content\Cookie\Struct\CookieStruct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -96,7 +97,7 @@ class CookieController extends StorefrontController
         return $result;
     }
 
-    private function setDefaultValuesForCookieStruct(CookieStruct $cookieStruct): void
+    private function setDefaultValuesForCookieStruct(CookieEntry|CookieGroup $cookieStruct): void
     {
         if ($cookieStruct->isSnippetNameUninitializedOrNull()) {
             $cookieStruct->snippetName = '';

@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -99,8 +98,7 @@ class RouterTest extends TestCase
 
         $this->requestStackMock
             ->expects($this->once())
-            ->method('getMainRequest')
-            ->willReturn(new Request([], [], [], [], [], ['SCRIPT_NAME' => '/base-path']));
+            ->method('getMainRequest');
 
         $result = $this->router->generate('test_route', [], Router::PATH_INFO);
 
@@ -175,32 +173,46 @@ class RouterTest extends TestCase
         $this->symfonyRouterMock
             ->expects($this->once())
             ->method('generate')
-            ->with('storefront_route', [])
+            ->with($routeName, [])
             ->willReturn('/base-path/storefront-route');
 
         $this->requestStackMock
             ->expects($this->exactly(2)) // only when the route is a storefront route it is called twice
-            ->method('getMainRequest')
-            ->willReturn(new Request(server: ['SCRIPT_NAME' => '/base-path']));
+            ->method('getMainRequest');
 
-        $result = $this->router->generate('storefront_route');
+        $result = $this->router->generate($routeName);
 
         static::assertSame('/base-path/storefront-route', $result);
     }
 
-    public function testGenerateWithNonStorefrontRoute(): void
+    public function testGenerateWithPaymentRoute(): void
     {
-        $routeName = 'storefront_route';
-        $routeCollection = new RouteCollection();
-        $route = new Route('/base-path/storefront-route', [
-            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID],
-        ]);
-        $routeCollection->add($routeName, $route);
+        $routeName = 'payment.finalize.transaction';
+
+        $this->symfonyRouterMock
+            ->expects($this->never())
+            ->method('getRouteCollection');
 
         $this->symfonyRouterMock
             ->expects($this->once())
-            ->method('getRouteCollection')
-            ->willReturn($routeCollection);
+            ->method('generate')
+            ->with($routeName, [])
+            ->willReturn('/base-path/payment/finalize-transaction');
+
+        $this->requestStackMock
+            ->expects($this->exactly(2)) // only when the route is a storefront route it is called twice
+            ->method('getMainRequest');
+
+        $result = $this->router->generate($routeName);
+
+        static::assertSame('/base-path/payment/finalize-transaction', $result);
+    }
+
+    public function testGenerateWithNonStorefrontRoute(): void
+    {
+        $this->symfonyRouterMock
+            ->expects($this->once())
+            ->method('getRouteCollection');
 
         $this->symfonyRouterMock
             ->expects($this->once())
@@ -234,7 +246,7 @@ class RouterTest extends TestCase
         $this->symfonyRouterMock
             ->expects($this->once())
             ->method('generate')
-            ->with('test_route', [])
+            ->with($routeName, [])
             ->willReturn('/base-path/test-route');
 
         $this->symfonyRouterMock
@@ -249,15 +261,9 @@ class RouterTest extends TestCase
 
         $this->requestStackMock
             ->expects($this->exactly(2))
-            ->method('getMainRequest')
-            ->willReturn(new Request(server: [
-                'SCRIPT_NAME' => '/base-path',
-                'HTTPS' => 'on',
-                'HTTP_HOST' => 'example.com',
-                'SERVER_PORT' => 443,
-            ]));
+            ->method('getMainRequest');
 
-        $result = $this->router->generate('test_route', [], Router::ABSOLUTE_URL);
+        $result = $this->router->generate($routeName, [], Router::ABSOLUTE_URL);
 
         static::assertSame('https://example.com/base-path/test-route', $result);
     }
@@ -279,7 +285,7 @@ class RouterTest extends TestCase
         $this->symfonyRouterMock
             ->expects($this->once())
             ->method('generate')
-            ->with('test_route', [])
+            ->with($routeName, [])
             ->willReturn('/base-path/test-route');
 
         $this->symfonyRouterMock
@@ -294,15 +300,9 @@ class RouterTest extends TestCase
 
         $this->requestStackMock
             ->expects($this->exactly(2))
-            ->method('getMainRequest')
-            ->willReturn(new Request(server: [
-                'SCRIPT_NAME' => '/base-path',
-                'HTTPS' => 'off',
-                'HTTP_HOST' => 'example.com',
-                'SERVER_PORT' => 80,
-            ]));
+            ->method('getMainRequest');
 
-        $result = $this->router->generate('test_route', [], Router::ABSOLUTE_URL);
+        $result = $this->router->generate($routeName, [], Router::ABSOLUTE_URL);
 
         static::assertSame('http://example.com/base-path/test-route', $result);
     }
@@ -324,7 +324,7 @@ class RouterTest extends TestCase
         $this->symfonyRouterMock
             ->expects($this->once())
             ->method('generate')
-            ->with('test_route', [])
+            ->with($routeName, [])
             ->willReturn('/base-path/test-route');
 
         $this->symfonyRouterMock
@@ -340,15 +340,9 @@ class RouterTest extends TestCase
 
         $this->requestStackMock
             ->expects($this->exactly(2))
-            ->method('getMainRequest')
-            ->willReturn(new Request(server: [
-                'SCRIPT_NAME' => '/base-path',
-                'HTTPS' => 'off',
-                'HTTP_HOST' => 'example.com',
-                'SERVER_PORT' => 8000,
-            ]));
+            ->method('getMainRequest');
 
-        $result = $this->router->generate('test_route', [], Router::ABSOLUTE_URL);
+        $result = $this->router->generate($routeName, [], Router::ABSOLUTE_URL);
 
         static::assertSame('http://example.com:8000/base-path/test-route', $result);
     }
@@ -370,7 +364,7 @@ class RouterTest extends TestCase
         $this->symfonyRouterMock
             ->expects($this->once())
             ->method('generate')
-            ->with('test_route', [])
+            ->with($routeName, [])
             ->willReturn('/base-path/test-route');
 
         $this->symfonyRouterMock
@@ -386,15 +380,9 @@ class RouterTest extends TestCase
 
         $this->requestStackMock
             ->expects($this->exactly(2))
-            ->method('getMainRequest')
-            ->willReturn(new Request(server: [
-                'SCRIPT_NAME' => '/base-path',
-                'HTTPS' => 'on',
-                'HTTP_HOST' => 'example.com',
-                'SERVER_PORT' => 8443,
-            ]));
+            ->method('getMainRequest');
 
-        $result = $this->router->generate('test_route', [], Router::ABSOLUTE_URL);
+        $result = $this->router->generate($routeName, [], Router::ABSOLUTE_URL);
 
         static::assertSame('https://example.com:8443/base-path/test-route', $result);
     }
@@ -416,7 +404,7 @@ class RouterTest extends TestCase
         $this->symfonyRouterMock
             ->expects($this->once())
             ->method('generate')
-            ->with('test_route', [])
+            ->with($routeName, [])
             ->willReturn('/base-path/test-route');
 
         $this->symfonyRouterMock
@@ -431,14 +419,9 @@ class RouterTest extends TestCase
 
         $this->requestStackMock
             ->expects($this->exactly(2))
-            ->method('getMainRequest')
-            ->willReturn(new Request(server: [
-                'SCRIPT_NAME' => '/base-path',
-                'HTTP_HOST' => 'example.com',
-                'SERVER_PORT' => 80,
-            ]));
+            ->method('getMainRequest');
 
-        $result = $this->router->generate('test_route', [], Router::NETWORK_PATH);
+        $result = $this->router->generate($routeName, [], Router::NETWORK_PATH);
 
         static::assertSame('//example.com/base-path/test-route', $result);
     }
@@ -460,7 +443,7 @@ class RouterTest extends TestCase
         $this->symfonyRouterMock
             ->expects($this->once())
             ->method('generate')
-            ->with('test_route', [], Router::RELATIVE_PATH)
+            ->with($routeName, [], Router::RELATIVE_PATH)
             ->willReturn('/test-route');
 
         $this->symfonyRouterMock
@@ -469,10 +452,9 @@ class RouterTest extends TestCase
 
         $this->requestStackMock
             ->expects($this->exactly(2))
-            ->method('getMainRequest')
-            ->willReturn(new Request(server: ['SCRIPT_NAME' => '/base-path']));
+            ->method('getMainRequest');
 
-        $result = $this->router->generate('test_route', [], Router::RELATIVE_PATH);
+        $result = $this->router->generate($routeName, [], Router::RELATIVE_PATH);
 
         static::assertSame('/test-route', $result);
     }
@@ -487,8 +469,7 @@ class RouterTest extends TestCase
 
         $this->requestStackMock
             ->expects($this->once())
-            ->method('getMainRequest')
-            ->willReturn(new Request(server: ['SCRIPT_NAME' => '/base-path']));
+            ->method('getMainRequest');
 
         $result = $this->router->generate('test_route');
 

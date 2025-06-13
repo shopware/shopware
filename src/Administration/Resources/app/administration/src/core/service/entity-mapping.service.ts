@@ -17,13 +17,15 @@ interface EntitySchema {
     properties: Record<string, PropertySchema>;
 }
 
-type EntityNameMapping = Record<string, string>;
-type PropertyDefinition = Record<string, PropertySchema>;
+export type EntityNameMapping = Record<string, string>;
+export type PropertyDefinition = Record<string, PropertySchema>;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     getEntityMapping,
 };
+
+const { cloneDeep } = Shopware.Utils.object;
 
 const mappingTypesCache: Record<string, PropertyDefinition> = {};
 
@@ -107,7 +109,7 @@ function handlePropertyMappings(propertyDefinitions: PropertyDefinition): Proper
     const formatBlocklist: string[] = ['uuid'];
 
     // Deep clone to avoid mutation
-    const clonedMapping = JSON.parse(JSON.stringify(propertyDefinitions)) as PropertyDefinition;
+    const clonedMapping = cloneDeep(propertyDefinitions);
 
     Object.keys(propertyDefinitions).forEach((property) => {
         const propSchema = propertyDefinitions[property];

@@ -151,12 +151,16 @@ class ProductDetailReadinessCheckTest extends TestCase
 
     private function initDataMocks(): void
     {
-        $this->connection->method('fetchAllAssociative')->willReturn(
-            [
-                ['id' => $this->ids->get('sales-channel-1'), 'product_id' => Uuid::randomHex()],
-                ['id' => $this->ids->get('sales-channel-2'), 'product_id' => Uuid::randomHex()],
-            ]
-        );
+        $counter = 0;
+        $this->connection->method('fetchOne')->willReturnCallback(function () use (&$counter) {
+            ++$counter;
+
+            if ($counter >= 3) {
+                return null;
+            }
+
+            return Uuid::randomHex();
+        });
 
         $collection = new SalesChannelDomainCollection([
             SalesChannelDomain::create($this->ids->get('sales-channel-1'), 'http://localhost:8000/de'),

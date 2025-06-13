@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Sitemap\ScheduledTask;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 #[Package('discovery')]
 class SitemapGenerateTask extends ScheduledTask
@@ -16,5 +17,10 @@ class SitemapGenerateTask extends ScheduledTask
     public static function getDefaultInterval(): int
     {
         return self::DAILY;
+    }
+
+    public static function shouldRun(ParameterBagInterface $bag): bool
+    {
+        return (bool) $bag->get('shopware.sitemap.scheduled_task.enabled');
     }
 }

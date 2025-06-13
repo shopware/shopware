@@ -88,6 +88,10 @@ describe('src/module/sw-product/component/sw-product-measurement-form', () => {
                             },
                         },
                     },
+                    'i18n-t': {
+                        template: '<div class="i18n-stub"><slot></slot></div>',
+                    },
+                    'sw-internal-link': true,
                 },
             },
         });

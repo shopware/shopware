@@ -14,7 +14,7 @@
       "tabContent": "Inhalte",
       "tabAutomation": "Automatisierung",
       "tabPlugins": "Erweiterungen",
-      "textSettingRenameBanner": "The setting <b>Scale units</b> has been renamed to <b>Product units</b>."
+      "textSettingRenameBanner": "Die Einstellung <b>Maßeinheiten</b> wurde in <b>Produkteinheiten</b> umbenannt."
     },
     "system-config": {
       "labelSalesChannelSelect": "Verkaufskanal",

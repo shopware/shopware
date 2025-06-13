@@ -136,6 +136,10 @@ const createWrapper = async () => {
                         ],
                     },
                     'sw-highlight-text': true,
+                    'i18n-t': {
+                        template: '<div class="i18n-stub"><slot></slot></div>',
+                    },
+                    'sw-internal-link': true,
                 },
                 mocks: {
                     $t: (path) => {

@@ -139,17 +139,17 @@
       "labelPurchaseSteps": "Purchase steps"
     },
     "measurementForm": {
-      "description": "Enter the product’s dimensions and weight as provided. They’ll be automatically converted into all supported measurement units.",
-      "note": "<b>Note:</b> The units displayed to customers are determined by the settings of the assigned Sales Channels."
+      "description": "Enter the product measurements using the units available to you. When displayed to your customers, they will be automatically converted based on the {link}.",
+      "linkText": "Sales Channel settings"
     },
     "packagingForm": {
       "description": "Define how the product is sold and packaged. This information is shown to customers in the storefront.",
       "labelProductUnit": "Product unit",
-      "placeholderSellingUnit": "e.g. 6 ...",
-      "placeholderProductUnit": "Select product unit ...",
-      "placeholderBasicUnit": "e.g. 1 ...",
-      "placeholderPackagingUnit": "e.g. Bottle ...",
-      "placeholderPackagingUnitPlural": "e.g. Bottles ...",
+      "placeholderSellingUnit": "e.g. 6...",
+      "placeholderProductUnit": "Select product unit...",
+      "placeholderBasicUnit": "e.g. 1...",
+      "placeholderPackagingUnit": "e.g. Bottle...",
+      "placeholderPackagingUnitPlural": "e.g. Bottles...",
       "helpTextBasicUnit": "Required to calculate the product's unit price. The base value to be entered depends on the selected product unit.<br><br>Unit price = (product price * basic unit) / selling unit.<br><br>Unit price not displayed, if selling unit and basic unit have the same value.",
       "helpTextPackUnit": "Type of packing: e.g. bottle, crate, tin...",
       "helpTextPackUnitPlural": "Type of packing (plural): e.g. bottles, crates, tins...",

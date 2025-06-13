@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Routing\Router as SymfonyRouter;
@@ -24,10 +25,13 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     /**
      * @internal
+     *
+     * @param list<string> $allowedRoutes
      */
     public function __construct(
         private readonly SymfonyRouter $decorated,
-        private readonly RequestStack $requestStack
+        private readonly RequestStack $requestStack,
+        private readonly array $allowedRoutes = [],
     ) {
     }
 
@@ -194,13 +198,26 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     private function isStorefrontRoute(string $name): bool
     {
-        /** Exception for @see \Shopware\Core\Checkout\Payment\Controller\PaymentController::finalizeTransaction */
-        if (str_starts_with($name, 'payment.')) {
+        if (\in_array($name, $this->allowedRoutes, true)) {
             return true;
         }
 
         $routeScopes = $this->getRouteCollection()->get($name)?->getDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE) ?? [];
+        if ($routeScopes !== []) {
+            return \in_array(StorefrontRouteScope::ID, $routeScopes, true);
+        }
 
-        return \in_array(StorefrontRouteScope::ID, $routeScopes, true);
+        if (!Feature::isActive('v6.8.0.0')) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                \sprintf('Routes without a defined route scope are deprecated, please add a route scope to the route "%s"', $name)
+            );
+
+            return str_starts_with($name, 'frontend.')
+                || str_starts_with($name, 'widgets.')
+                || str_starts_with($name, 'payment.');
+        }
+
+        return false;
     }
 }

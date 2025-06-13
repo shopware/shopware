@@ -74,6 +74,7 @@
         <service id="Shopware\Storefront\Framework\Routing\Router" decorates="router">
             <argument type="service" id="Shopware\Storefront\Framework\Routing\Router.inner"/>
             <argument type="service" id="request_stack"/>
+            <argument>%storefront.router.allowed_routes%</argument>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver">

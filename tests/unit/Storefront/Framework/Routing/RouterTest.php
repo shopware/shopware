@@ -34,7 +34,7 @@ class RouterTest extends TestCase
         $this->symfonyRouterMock = $this->createMock(SymfonyRouter::class);
         $this->requestStackMock = $this->createMock(RequestStack::class);
 
-        $this->router = new Router($this->symfonyRouterMock, $this->requestStackMock);
+        $this->router = new Router($this->symfonyRouterMock, $this->requestStackMock, ['payment.finalize.transaction']);
     }
 
     public function testGetSubscribedServices(): void

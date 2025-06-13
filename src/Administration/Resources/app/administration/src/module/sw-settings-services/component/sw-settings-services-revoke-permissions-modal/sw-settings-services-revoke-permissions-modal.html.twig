@@ -27,6 +27,7 @@
                 <mt-modal-action
                     as="mt-button"
                     variant="critical"
+                    :is-loading="isLoading"
                     @click="revokePermissions"
                 >
                     {{ $t('sw-settings-services.revoke-permissions-modal.label-button-revoke-permissions') }}

@@ -23,6 +23,7 @@
             <sw-settings-services-grant-permissions-card
                 v-if="!consentGiven"
                 :tos-link="currentRevision.links['tos-url']"
+                @service-permissions-granted="reloadServices"
             />
 
             <mt-banner
@@ -49,8 +50,19 @@
 
                     <sw-help-text :text="$t('sw-settings-services.index.available-services-tooltip')" />
                 </h3>
+                <mt-banner
+                    v-if="loadingError !== ''"
+                    variant="critical"
+                >
+                    <p><b>{{ $t('sw-settings-services.exception.service-list') }}</b></p>
 
-                <ul class="sw-settings-services__available-services">
+                    <p>{{ loadingError }}</p>
+                </mt-banner>
+
+                <ul
+                    v-else
+                    class="sw-settings-services__available-services"
+                >
                     <sw-settings-services-service-card
                         v-for="service in services"
                         :key="service.name"
@@ -77,7 +89,10 @@
                     {{ $t('sw-settings-services.index.label-tos-link') }}
                 </a>
 
-                <sw-settings-services-revoke-permissions-modal :services="services" />
+                <sw-settings-services-revoke-permissions-modal
+                    :services="services"
+                    @service-permissions-revoked="reloadServices"
+                />
 
                 <sw-settings-services-deactivate-modal :feedback-link="currentRevision.links['feedback-url']" />
             </div>

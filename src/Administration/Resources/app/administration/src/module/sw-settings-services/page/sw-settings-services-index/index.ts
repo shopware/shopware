@@ -8,11 +8,13 @@ import grantPermissionsCardBackground from
     '../../component/sw-settings-services-grant-permissions-modal/assets/grant-permissions-background.svg?no-inline';
 
 import type { ServiceDescription } from '../../service/shopware-services.service';
+import extractErrorMessage from '../../composables/extract-error';
 
 type SwSettingsPageData = {
     grantPermissionsCardBackground: string,
     services: ServiceDescription[]
     suspended: boolean,
+    loadingError: string,
 };
 
 /**
@@ -24,11 +26,14 @@ export default Shopware.Component.wrapComponentConfig({
 
     template,
 
+    inject: ['acl'],
+
     data(): SwSettingsPageData {
         return {
             grantPermissionsCardBackground,
             services: [],
             suspended: true,
+            loadingError: '',
         };
     },
 
@@ -43,15 +48,15 @@ export default Shopware.Component.wrapComponentConfig({
         const sessionStore = useSession();
 
         Promise.all([
-            shopwareServicesService.getInstalledServices().then((services) => {
-                this.services = services;
-            }),
+            this.reloadServices(),
             shopwareServicesService.getServicesContext().then((servicesConsent) => {
                 shopwareServicesStore.config = servicesConsent;
             }),
-            serviceRegistryClient.getCurrentRevision(sessionStore.currentLocale.value).then((serviceRevisions) => {
-                shopwareServicesStore.revisions = serviceRevisions;
-            }),
+            serviceRegistryClient
+                .getCurrentRevision(sessionStore.currentLocale.value ?? 'en-GB')
+                .then((serviceRevisions) => {
+                    shopwareServicesStore.revisions = serviceRevisions;
+                }),
         ]).then(() => {
             this.suspended = false;
         }).catch(() =>  {});
@@ -60,6 +65,24 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         activateServices() {
             console.log('activate services...');
+        },
+
+        async reloadServices() {
+            try {
+                const shopwareServicesService = Shopware.Service('shopwareServicesService');
+
+                this.services = await shopwareServicesService.getInstalledServices();
+            } catch(exception) {
+                this.loadingError = extractErrorMessage(exception);
+
+                Shopware.Store.get('notification').createNotification({
+                    variant: 'critical',
+                    title: this.$t('global.default.error'),
+                    message: this.$t('sw-settings-services.exception.service-list'),
+                });
+
+                this.services = [];
+            }
         },
     },
 });

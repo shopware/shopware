@@ -2,11 +2,11 @@
  * @sw-package framework
  */
 import type { PropType } from 'vue';
-import type { AxiosError } from 'axios';
 import { MtPopoverItem, MtModalAction } from '@shopware-ag/meteor-component-library';
 import type { ServiceDescription } from '../../service/shopware-services.service';
 import template from './sw-settings-services-service-card.html.twig';
 import './sw-settings-services-service-card.scss';
+import extractErrorMessage from '../../composables/extract-error'
 
 /**
  * @private
@@ -40,7 +40,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return 'red';
             }
 
-            return this.service.requestedPermissions.length === 0 ? 'green' : 'orange';
+            return this.service.requested_privileges.length === 0 ? 'green' : 'orange';
         },
 
         statusText() {
@@ -51,6 +51,10 @@ export default Shopware.Component.wrapComponentConfig({
                 default:
                     return 'sw-settings-services.service-card.status-inactive';
             }
+        },
+
+        updatedAt() {
+            return (new Date(this.service.updated_at)).toLocaleDateString();
         },
     },
 
@@ -65,39 +69,22 @@ export default Shopware.Component.wrapComponentConfig({
                 const servicesService = Shopware.Service('shopwareServicesService');
 
                 if (active) {
-                    await servicesService.deactivateService(this.service.technicalName);
+                    await servicesService.deactivateService(this.service.name);
                 } else {
-                    await servicesService.activateService(this.service.technicalName);
+                    await servicesService.activateService(this.service.name);
                 }
 
                 this.service.active = active
             } catch (exception) {
-                let message = '';
-
-                if (exception instanceof Error) {
-                    message = exception.message;
-                }
-
-                if (this.isAxiosError(exception)) {
-                    if (exception.response?.data.errors[0]?.detail) {
-                        message = exception.response?.data.errors[0]?.detail;
-                    }
-                }
-
                 Shopware.Store.get('notification').createNotification({
                     variant: 'critical',
-                    title: this.$t('global.default.error'),
-                    message,
+                    message: extractErrorMessage(exception),
                 });
             }
 
             if(toggleFloatingUi) {
                 toggleFloatingUi();
             }
-        },
-
-        isAxiosError(exception: unknown): exception is AxiosError<{ errors: ShopwareHttpError[] }> {
-            return typeof exception === 'object' && exception !== null && exception.name === 'AxiosError';
         },
     },
 })

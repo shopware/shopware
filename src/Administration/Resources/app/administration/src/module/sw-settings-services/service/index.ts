@@ -27,5 +27,5 @@ Shopware.Service().register('shopwareServicesService', () => {
  * @private
  */
 Shopware.Service().register('serviceRegistryClient', () => {
-    return new ServiceRegistryClient(Shopware.Context.api.serviceRegistryUrl);
+    return new ServiceRegistryClient(Shopware.Context.api.serviceRegistryUrl!);
 })

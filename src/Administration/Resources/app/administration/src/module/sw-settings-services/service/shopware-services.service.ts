@@ -9,27 +9,25 @@ import type SystemConfigApiService from 'src/core/service/api/system-config.api.
 
 import type { ServiceConfiguration } from '../store/shopware-services.store';
 
-import imageEditor from '../component/sw-settings-services-hero/assets/image-editor.svg?no-inline';
-import previewGenerator from '../component/sw-settings-services-hero/assets/3d-preview-generator.svg?no-inline';
-import copilot from '../component/sw-settings-services-hero/assets/copilot.svg?no-inline';
-
 /**
  * @private
  */
 export type ServiceDescription = {
+    id: string,
+    active: boolean,
     name: string,
-    technicalName: string,
+    label: string,
     icon: string,
     description: string,
-    active: boolean,
-    lastUpdatedAt: Date,
+    updated_at: Date,
     version: string
-    requestedPermissions: string[]
+    requested_privileges: string[],
+    privileges: string[],
 }
 
 type ServiceConfigurationConfigValues = {
-    'core.service.disabled'?: boolean,
-    'core.service.permissionsGrantedAt'?: string,
+    'core.services.disabled'?: boolean,
+    'core.services.acceptedPermissionsRevision'?: string,
 }
 
 /**
@@ -48,43 +46,20 @@ export default class ShopwareServicesService extends ApiService {
         this.name = 'ShopwareServices';
     }
 
-    getInstalledServices(): Promise<Array<ServiceDescription>> {
-        return Promise.resolve([{
-            name: 'Shopware Image Editor',
-            technicalName: 'SwagImageEditor',
-            icon: imageEditor,
-            description: 'Fast wie Gimp. Kann auch nichts',
-            lastUpdatedAt: new Date('2025-05-10'),
-            active: false,
-            version: '1.0.0',
-            requestedPermissions: [],
-        }, {
-            name: 'Preview Generator',
-            technicalName: 'SwagPreviewGenerator',
-            icon: previewGenerator,
-            description: 'Man weiß vorher nie was am Ende dabei rauskommt',
-            lastUpdatedAt: new Date('2625-05-10'),
-            active: true,
-            version: '9001.0.0',
-            requestedPermissions: [],
-        }, {
-            name: 'Copilot',
-            technicalName: 'SwagCopilot',
-            icon: copilot,
-            description: 'Nervt an jeder Ampel.',
-            lastUpdatedAt: new Date('2025-05-10'),
-            active: true,
-            version: '4.1.0',
-            requestedPermissions: ['system_config:write'],
-        }]);
+    getInstalledServices(): Promise<ServiceDescription[]> {
+        return this.httpClient.get('service/list', {
+            headers: this.getBasicHeaders(),
+        }).then((response) => {
+            return response.data as ServiceDescription[];
+        });
     }
 
     async getServicesContext(): Promise<ServiceConfiguration> {
-        const configValues = await this.systemConfigService.getValues('core.service') as ServiceConfigurationConfigValues;
+        const configValues = await this.systemConfigService.getValues('core.services') as ServiceConfigurationConfigValues;
 
         return {
-            disabled: configValues['core.service.disabled'],
-            permissionsGrantedAt: configValues['core.service.permissionsGrantedAt'],
+            disabled: configValues['core.services.disabled'],
+            acceptedPermissionsRevision: configValues['core.services.acceptedPermissionsRevision'],
         };
     }
 
@@ -94,5 +69,23 @@ export default class ShopwareServicesService extends ApiService {
 
     deactivateService(technicalName: string): Promise<void> {
         return this.httpClient.post(`service/deactivate/${technicalName}`);
+    }
+
+    acceptRevision(revision: string): Promise<ServiceConfiguration> {
+        return this.httpClient.post(
+            `services/permissions/grant/${revision}`, {}, {
+                headers: this.getBasicHeaders(),
+            }).then(() => {
+                return this.getServicesContext();
+            });
+    }
+
+    revokePermissions(): Promise<ServiceConfiguration> {
+        return this.httpClient.post(
+            `services/permissions/revoke`, {}, {
+                headers: this.getBasicHeaders(),
+            }).then(() => {
+                return this.getServicesContext();
+            });
     }
 }

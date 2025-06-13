@@ -15,6 +15,7 @@
     <div class="sw-settings-services-grant-permission-card__actions">
         <mt-button
             variant="primary"
+            :is-loading="isLoading"
             @click="grantPermissions"
         >
             {{  $t("sw-settings-services.grant-permissions.label-button-grant-permissions") }}

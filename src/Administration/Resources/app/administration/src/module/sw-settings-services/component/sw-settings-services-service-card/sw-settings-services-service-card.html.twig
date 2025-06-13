@@ -1,13 +1,13 @@
 <li class="sw-settings-services-service-card">
     <div class="sw-settings-services-service-card__header">
-        <img
-            :src="service.icon"
-            :alt="`Icon for ${service.name}`"
+        <sw-extension-icon
             class="sw-settings-services-service-card__icon"
-        >
+            :src="`data:image/png;base64, ${service.icon}`"
+            :alt="`Icon for ${service.name}`"
+        />
 
         <div>
-            <h4>{{ service.name }}</h4>
+            <h4>{{ service.label }}</h4>
             <sw-status
                 :color="serviceStatus"
             >
@@ -84,7 +84,7 @@
     </div>
 
     <div class="sw-settings-services-service-card__footer">
-        {{  $t('sw-settings-services.service-card.updated-at-label', { updatedAt: service.lastUpdatedAt.toLocaleDateString() }) }}
+        {{  $t('sw-settings-services.service-card.updated-at-label', { updatedAt: updatedAt }) }}
         •
         {{ $t('sw-settings-services.service-card.version', { version: service.version }) }}
     </div>

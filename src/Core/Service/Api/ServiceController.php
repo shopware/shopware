@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Message\UpdateServiceMessage;
 use Shopware\Core\Service\ServiceException;
+use Shopware\Core\Service\State;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -137,6 +138,7 @@ class ServiceController
             'version' => $app->getVersion(),
             'requested_privileges' => $app->getRequestedPrivileges(),
             'privileges' => $app->getAclRole()->getPrivileges(),
+            'state' => State::state($app),
         ]));
     }
 

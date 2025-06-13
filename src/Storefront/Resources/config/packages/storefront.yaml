@@ -4,4 +4,4 @@ storefront:
         validate_on_compile: false
     router:
         allowed_routes:
-            - 'payment.finalize.transaction'
+            - 'payment.finalize.transaction' # See \Shopware\Core\Checkout\Payment\Controller\PaymentController::finalizeTransaction

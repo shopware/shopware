@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -17,12 +18,16 @@ class RobotsControllerTest extends TestCase
 
     public function testRobotsTxt(): void
     {
+        $appUrl = EnvironmentHelper::getVariable('APP_URL');
+
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
-        $browser->request('GET', $_SERVER['APP_URL'] . '/robots.txt');
+        $browser->request('GET', $appUrl . '/robots.txt');
 
         $html = $browser->getResponse()->getContent();
 
+        $appUri = parse_url($appUrl)['path'] ?? '';
+
         static::assertIsString($html);
-        static::assertStringContainsString("User-agent: *\n\nAllow: /\n\nDisallow: /*?\n\nAllow: /*theme/\n\nAllow: /media/*?ts=\n\n\nSitemap: {$_SERVER['APP_URL']}/sitemap.xml", $html);
+        static::assertEquals("User-agent: *\n\nAllow: /\n\nDisallow: /*?\n\nAllow: /*theme/\n\nAllow: /media/*?ts=\n\nDisallow: {$appUri}/account/\nDisallow: {$appUri}/checkout/\nDisallow: {$appUri}/widgets/\nAllow: {$appUri}/widgets/cms/\nAllow: {$appUri}/widgets/menu/offcanvas\n\nSitemap: {$appUrl}/sitemap.xml", $html);
     }
 }

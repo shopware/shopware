@@ -133,6 +133,11 @@ class RobotsPageLoaderTest extends TestCase
         $domain2->setUrl('https://example.com/en');
         $domain2->setSalesChannelId($salesChannelId2);
 
+        $domain3 = new SalesChannelDomainEntity();
+        $domain3->setId('test-domain-id-3');
+        $domain3->setUrl('http://example.com/en');
+        $domain3->setSalesChannelId($salesChannelId2);
+
         $this->salesChannelDomainRepository->addSearch(new SalesChannelDomainCollection([$domain1, $domain2]));
 
         $this->robotsPageLoader = new RobotsPageLoader(

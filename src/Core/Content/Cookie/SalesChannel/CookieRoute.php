@@ -39,13 +39,11 @@ class CookieRoute extends AbstractCookieRoute
             return new CookieRouteResponse(new CookieGroupCollection());
         }
 
-        $cookieGroups = $this->cookieService->filterCookieGroups($salesChannelContext, $cookieGroups);
-
-        if ($translate) {
-            $cookieGroups = $this->cookieService->translateCookieGroups($cookieGroups, $salesChannelContext);
-        }
-
-        $cookieGroups = $this->cookieService->convertToCookieGroupCollection($cookieGroups);
+        $cookieGroups = $this->cookieService->getCookieGroupCollection(
+            $cookieGroups,
+            $salesChannelContext,
+            $translate
+        );
 
         return new CookieRouteResponse($cookieGroups);
     }

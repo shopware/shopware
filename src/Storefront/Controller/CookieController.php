@@ -99,19 +99,19 @@ class CookieController extends StorefrontController
 
     private function setDefaultValuesForCookieStruct(CookieEntry|CookieGroup $cookieStruct): void
     {
-        if ($cookieStruct->isSnippetNameUninitializedOrNull()) {
+        if (!isset($cookieStruct->snippetName)) {
             $cookieStruct->snippetName = '';
         }
-        if ($cookieStruct->isSnippetDescriptionUninitializedOrNull()) {
+        if (!isset($cookieStruct->snippetDescription)) {
             $cookieStruct->snippetDescription = '';
         }
-        if ($cookieStruct->isCookieUninitializedOrNull()) {
+        if (!isset($cookieStruct->cookie)) {
             $cookieStruct->cookie = '';
         }
-        if ($cookieStruct->isValueUninitializedOrNull()) {
+        if (!isset($cookieStruct->value)) {
             $cookieStruct->value = '';
         }
-        if ($cookieStruct->isExpirationUninitializedOrNull()) {
+        if (!isset($cookieStruct->expiration)) {
             $cookieStruct->expiration = '';
         }
     }

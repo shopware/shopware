@@ -18,33 +18,22 @@ abstract class CookieStruct extends Struct
 
     public ?string $expiration;
 
-    public function isSnippetNameUninitializedOrNull(): bool
-    {
-        return !isset($this->snippetName);
-    }
-
-    public function isSnippetDescriptionUninitializedOrNull(): bool
-    {
-        return !isset($this->snippetDescription);
-    }
-
-    public function isCookieUninitializedOrNull(): bool
-    {
-        return !isset($this->cookie);
-    }
-
-    public function isValueUninitializedOrNull(): bool
-    {
-        return !isset($this->value);
-    }
-
-    public function isExpirationUninitializedOrNull(): bool
-    {
-        return !isset($this->expiration);
-    }
-
     public function getApiAlias(): string
     {
         return 'cookie_struct';
+    }
+
+    /**
+     * @return array<array-key, mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        $vars = get_object_vars($this);
+        $this->convertDateTimePropertiesToJsonStringRepresentation($vars);
+
+        // Remove null values from the output (for small payloads in store API)
+        return array_filter($vars, function ($value) {
+            return $value !== null;
+        });
     }
 }

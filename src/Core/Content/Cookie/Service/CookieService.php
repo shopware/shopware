@@ -34,11 +34,27 @@ readonly class CookieService
     }
 
     /**
+     * Returns a CookieGroupCollection based on the provided cookie groups and sales channel context.
+     *
+     * @param array<string|int, mixed> $cookieGroups
+     */
+    public function getCookieGroupCollection(array $cookieGroups, SalesChannelContext $salesChannelContext, bool $translate = true): CookieGroupCollection
+    {
+        $cookieGroups = $this->filterCookieGroups($salesChannelContext, $cookieGroups);
+
+        if ($translate) {
+            $cookieGroups = $this->translateCookieGroups($cookieGroups);
+        }
+
+        return $this->convertToCookieGroupCollection($cookieGroups);
+    }
+
+    /**
      * Converts an array of cookie groups to a CookieGroupCollection.
      *
      * @param array<string|int, mixed> $cookieGroups
      */
-    public function convertToCookieGroupCollection(array $cookieGroups): CookieGroupCollection
+    private function convertToCookieGroupCollection(array $cookieGroups): CookieGroupCollection
     {
         $collection = new CookieGroupCollection();
         foreach ($cookieGroups as $group) {
@@ -61,7 +77,7 @@ readonly class CookieService
      *
      * @return array<string|int, mixed>
      */
-    public function filterCookieGroups(SalesChannelContext $context, array $cookieGroups): array
+    private function filterCookieGroups(SalesChannelContext $context, array $cookieGroups): array
     {
         $cookieGroups = $this->filterGoogleAnalyticsCookie($context, $cookieGroups);
         $cookieGroups = $this->filterWishlistCookie($context->getSalesChannelId(), $cookieGroups);
@@ -76,7 +92,7 @@ readonly class CookieService
      *
      * @return array<string|int, mixed>
      */
-    public function translateCookieGroups(array $cookieGroups, SalesChannelContext $context): array
+    private function translateCookieGroups(array $cookieGroups): array
     {
         $translatedGroups = [];
 
@@ -264,19 +280,19 @@ readonly class CookieService
      */
     private function setCookieProperties(CookieEntry|CookieGroup $cookie, array $data): void
     {
-        if (!empty($data['snippet_name'])) {
+        if (isset($data['snippet_name']) && $data['snippet_name'] !== '') {
             $cookie->snippetName = $data['snippet_name'];
         }
-        if (!empty($data['snippet_description'])) {
+        if (isset($data['snippet_description']) && $data['snippet_description'] !== '') {
             $cookie->snippetDescription = $data['snippet_description'];
         }
-        if (!empty($data['cookie'])) {
+        if (isset($data['cookie']) && $data['cookie'] !== '') {
             $cookie->cookie = $data['cookie'];
         }
-        if (!empty($data['value'])) {
+        if (isset($data['value']) && $data['value'] !== '') {
             $cookie->value = $data['value'];
         }
-        if (!empty($data['expiration'])) {
+        if (isset($data['expiration']) && $data['expiration'] !== '') {
             $cookie->expiration = $data['expiration'];
         }
     }

@@ -26,10 +26,7 @@ class CookieRouteTest extends TestCase
         $cookieProvider->method('getCookieGroups')->willReturn([]);
 
         $cookieService = $this->createMock(CookieService::class);
-        // Service methods should not be called when provider returns empty array
-        $cookieService->expects($this->never())->method('filterCookieGroups');
-        $cookieService->expects($this->never())->method('translateCookieGroups');
-        $cookieService->expects($this->never())->method('convertToCookieGroupCollection');
+        $cookieService->expects($this->never())->method('getCookieGroupCollection');
 
         $cookieRoute = new CookieRoute($cookieProvider, $cookieService);
 
@@ -60,22 +57,11 @@ class CookieRouteTest extends TestCase
         $cookieProvider->method('getCookieGroups')->willReturn($mockCookieGroups);
 
         $cookieService = $this->createMock(CookieService::class);
-
-        // Verify all service methods are called in the correct order with correct parameters
-        $cookieService->expects($this->once())
-            ->method('filterCookieGroups')
-            ->with($salesChannelContext, $mockCookieGroups)
-            ->willReturn($mockCookieGroups);
-
-        $cookieService->expects($this->once())
-            ->method('translateCookieGroups')
-            ->with($mockCookieGroups, $salesChannelContext)
-            ->willReturn($mockCookieGroups);
-
         $expectedCollection = new CookieGroupCollection();
+
         $cookieService->expects($this->once())
-            ->method('convertToCookieGroupCollection')
-            ->with($mockCookieGroups)
+            ->method('getCookieGroupCollection')
+            ->with($mockCookieGroups, $salesChannelContext, true)
             ->willReturn($expectedCollection);
 
         $cookieRoute = new CookieRoute($cookieProvider, $cookieService);
@@ -98,15 +84,13 @@ class CookieRouteTest extends TestCase
 
         $expectedCollection = new CookieGroupCollection();
         $cookieService = $this->createMock(CookieService::class);
-        $cookieService->method('filterCookieGroups')->willReturnArgument(1);
-        $cookieService->method('translateCookieGroups')->willReturnArgument(0);
-        $cookieService->method('convertToCookieGroupCollection')->willReturn($expectedCollection);
+        $cookieService->method('getCookieGroupCollection')
+            ->willReturn($expectedCollection);
 
         $cookieRoute = new CookieRoute($cookieProvider, $cookieService);
 
         $response = $cookieRoute->getCookieGroups($request, $salesChannelContext);
 
-        // Verify the response contains the expected collection from the service
         static::assertSame($expectedCollection, $response->getCookieGroups());
     }
 
@@ -128,33 +112,15 @@ class CookieRouteTest extends TestCase
             ],
         ];
 
-        $translatedCookieGroups = [
-            [
-                'snippet_name' => 'Translated Group',
-                'entries' => [
-                    [
-                        'snippet_name' => 'Translated Cookie',
-                        'cookie' => 'test-cookie',
-                    ],
-                ],
-            ],
-        ];
-
         $cookieProvider = $this->createMock(CookieProviderInterface::class);
         $cookieProvider->method('getCookieGroups')->willReturn($mockCookieGroups);
 
         $cookieService = $this->createMock(CookieService::class);
-        $cookieService->method('filterCookieGroups')->willReturn($mockCookieGroups);
-
-        // Expect translation to be called
-        $cookieService->expects($this->once())
-            ->method('translateCookieGroups')
-            ->with($mockCookieGroups, $salesChannelContext)
-            ->willReturn($translatedCookieGroups);
-
         $expectedCollection = new CookieGroupCollection();
-        $cookieService->method('convertToCookieGroupCollection')
-            ->with($translatedCookieGroups)
+
+        $cookieService->expects($this->once())
+            ->method('getCookieGroupCollection')
+            ->with($mockCookieGroups, $salesChannelContext, true)
             ->willReturn($expectedCollection);
 
         $cookieRoute = new CookieRoute($cookieProvider, $cookieService);
@@ -186,14 +152,11 @@ class CookieRouteTest extends TestCase
         $cookieProvider->method('getCookieGroups')->willReturn($mockCookieGroups);
 
         $cookieService = $this->createMock(CookieService::class);
-        $cookieService->method('filterCookieGroups')->willReturn($mockCookieGroups);
-
-        // Expect translation NOT to be called
-        $cookieService->expects($this->never())->method('translateCookieGroups');
-
         $expectedCollection = new CookieGroupCollection();
-        $cookieService->method('convertToCookieGroupCollection')
-            ->with($mockCookieGroups)
+
+        $cookieService->expects($this->once())
+            ->method('getCookieGroupCollection')
+            ->with($mockCookieGroups, $salesChannelContext, false)
             ->willReturn($expectedCollection);
 
         $cookieRoute = new CookieRoute($cookieProvider, $cookieService);
@@ -219,16 +182,12 @@ class CookieRouteTest extends TestCase
         $cookieProvider->method('getCookieGroups')->willReturn($mockCookieGroups);
 
         $cookieService = $this->createMock(CookieService::class);
-        $cookieService->method('filterCookieGroups')->willReturn($mockCookieGroups);
-
-        // Expect translation to be called by default
-        $cookieService->expects($this->once())
-            ->method('translateCookieGroups')
-            ->with($mockCookieGroups, $salesChannelContext)
-            ->willReturn($mockCookieGroups);
-
         $expectedCollection = new CookieGroupCollection();
-        $cookieService->method('convertToCookieGroupCollection')->willReturn($expectedCollection);
+
+        $cookieService->expects($this->once())
+            ->method('getCookieGroupCollection')
+            ->with($mockCookieGroups, $salesChannelContext, true)
+            ->willReturn($expectedCollection);
 
         $cookieRoute = new CookieRoute($cookieProvider, $cookieService);
 

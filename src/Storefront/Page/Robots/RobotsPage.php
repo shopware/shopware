@@ -12,7 +12,7 @@ class RobotsPage extends Struct
     protected DomainRuleCollection $domainRules;
 
     /**
-     * @var string[]
+     * @var list<string>
      */
     protected array $sitemaps;
 

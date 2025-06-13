@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
 #[Package('storefront')]
-class RobotsPageLoadedEvent extends NestedEvent
+class RobotsPageLoadedEvent extends NestedEvent implements ShopwareEvent
 {
     public function __construct(
         private readonly RobotsPage $page,

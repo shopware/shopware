@@ -9,6 +9,10 @@
         }
     }
 
+    &__generated-variants.mt-card .sw-tabs .sw-tabs__custom-content {
+        padding: 0;
+    }
+
     .sw-product-detail-variants__generated-variants.is--loading .mt-card__content {
         min-height: 250px;
     }

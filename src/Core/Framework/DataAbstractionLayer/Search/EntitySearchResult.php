@@ -6,24 +6,15 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\StateAwareTrait;
 
 /**
  * @final
  *
  * @template TEntityCollection of EntityCollection
- *
- * @phpstan-type TElement template-type<TEntityCollection, EntityCollection, 'TElement'>
- *
- * @extends EntityCollection<TElement>
  */
 #[Package('framework')]
-class EntitySearchResult extends EntityCollection
+class EntitySearchResult
 {
-    use StateAwareTrait;
-
-    protected AggregationResultCollection $aggregations;
-
     protected int $page;
 
     protected ?int $limit = null;
@@ -32,28 +23,14 @@ class EntitySearchResult extends EntityCollection
      * @param TEntityCollection $entities
      */
     final public function __construct(
-        protected string $entity,
         protected int $total,
         protected EntityCollection $entities,
-        ?AggregationResultCollection $aggregations,
         protected Criteria $criteria,
-        protected Context $context
+        protected Context $context,
+        protected AggregationResultCollection $aggregations = new AggregationResultCollection(),
     ) {
-        $this->aggregations = $aggregations ?? new AggregationResultCollection();
         $this->limit = $criteria->getLimit();
         $this->page = !$criteria->getLimit() ? 1 : (int) ceil((($criteria->getOffset() ?? 0) + 1) / $criteria->getLimit());
-
-        parent::__construct($entities);
-    }
-
-    public function filter(\Closure $closure): static
-    {
-        return $this->createNew($this->entities->filter($closure));
-    }
-
-    public function slice(int $offset, ?int $length = null): static
-    {
-        return $this->createNew($this->entities->slice($offset, $length));
     }
 
     public function getTotal(): int
@@ -84,18 +61,14 @@ class EntitySearchResult extends EntityCollection
         return $this->context;
     }
 
-    public function clear(): void
+    public function getLimit(): ?int
     {
-        parent::clear();
-
-        $this->entities->clear();
+        return $this->limit;
     }
 
-    public function add($entity): void
+    public function getPage(): int
     {
-        parent::add($entity);
-
-        $this->entities->add($entity);
+        return $this->page;
     }
 
     public function jsonSerialize(): array
@@ -106,70 +79,11 @@ class EntitySearchResult extends EntityCollection
         unset($vars['context']);
         unset($vars['entities']);
 
-        $this->convertDateTimePropertiesToJsonStringRepresentation($vars);
-
         return $vars;
     }
 
     public function getApiAlias(): string
     {
         return 'dal_entity_search_result';
-    }
-
-    public function getPage(): int
-    {
-        return $this->page;
-    }
-
-    public function setPage(int $page): void
-    {
-        $this->page = $page;
-    }
-
-    public function getLimit(): ?int
-    {
-        return $this->limit;
-    }
-
-    public function setLimit(int $limit): void
-    {
-        $this->limit = $limit;
-    }
-
-    public function getEntity(): string
-    {
-        return $this->entity;
-    }
-
-    public function setEntity(string $entity): void
-    {
-        $this->entity = $entity;
-    }
-
-    /**
-     * @return TElement|null
-     */
-    public function getAt(int $position)
-    {
-        return $this->entities->getAt($position);
-    }
-
-    /**
-     * @param iterable<TElement> $elements
-     */
-    protected function createNew(iterable $elements = []): static
-    {
-        if (!($elements instanceof EntityCollection)) {
-            $elements = new EntityCollection($elements);
-        }
-
-        return new static(
-            $this->entity,
-            $elements->count(),
-            $elements,
-            $this->aggregations,
-            $this->criteria,
-            $this->context
-        );
     }
 }

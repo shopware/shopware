@@ -448,6 +448,7 @@ class InfoControllerTest extends TestCase
 
         $kernel = new StubKernel([
             new AdminExtensionApiBundle(),
+            new AdminExtensionApiWithoutSelfKnownBaseUrlBundle(),
             new AdminExtensionApiPlugin(true, __DIR__ . '/Fixtures/InfoController'),
             new AdminExtensionApiPluginWithLocalEntryPoint(true, __DIR__ . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint'),
         ]);
@@ -498,11 +499,13 @@ class InfoControllerTest extends TestCase
         $content = $infoController->config(Context::createDefaultContext(), Request::create($appUrl))->getContent();
         static::assertNotFalse($content);
         $config = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertCount(3, $config['bundles']);
+        static::assertCount(4, $config['bundles']);
 
         static::assertArrayHasKey('AdminExtensionApiBundle', $config['bundles']);
         static::assertSame('https://extension-bundle.test', $config['bundles']['AdminExtensionApiBundle']['baseUrl']);
         static::assertSame('plugin', $config['bundles']['AdminExtensionApiBundle']['type']);
+
+        static::assertArrayNotHasKey('AdminExtensionApiWithoutSelfKnownBaseUrlBundle', $config['bundles']);
 
         static::assertArrayHasKey('AdminExtensionApiPlugin', $config['bundles']);
         static::assertSame('https://extension-api.test', $config['bundles']['AdminExtensionApiPlugin']['baseUrl']);
@@ -795,6 +798,13 @@ class AdminExtensionApiBundle extends Bundle
     {
         return 'https://extension-bundle.test';
     }
+}
+
+/**
+ * @internal
+ */
+class AdminExtensionApiWithoutSelfKnownBaseUrlBundle extends Bundle
+{
 }
 
 /**

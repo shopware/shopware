@@ -31,12 +31,15 @@
                                       action="{{ path('frontend.account.profile.save') }}"
                                       data-form-handler="true">
                                     {% block page_account_profile_personal_fields %}
+                                        {# @deprecated tag:v6.8.0 - Unused variable `showVatIdField` will be removed, use variable showCompanyFields instead #}
+                                        {% set showVatIdField = true %}
+
                                         {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                                             prefix: '',
                                             showBirthdayField: config('core.loginRegistration.showBirthdayField'),
-                                            showVatIdField: true,
                                             data: context.customer,
                                             onlyCompanyRegistration: context.currentCustomerGroup.translated.registrationOnlyCompanyRegistration ?? false,
+                                            showCompanyFields: true,
                                         } %}
                                     {% endblock %}
 

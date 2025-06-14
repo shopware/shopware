@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Assoc
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendableDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\FkFieldExtension;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ModifyFieldsExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ReferenceVersionExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarRuntimeExtension;
@@ -520,50 +521,64 @@ class EntityExtensionTest extends TestCase
         static::expectExceptionMessage('Only AssociationFields, FkFields/ReferenceVersionFields for a ManyToOneAssociationField or fields flagged as Runtime can be added as Extension.');
 
         $this->registerDefinitionWithExtensions(ExtendableDefinition::class, ScalarExtension::class);
-        $extension = static::getContainer()->get(ExtendableDefinition::class);
+        $definition = static::getContainer()->get(ExtendableDefinition::class);
 
-        static::assertInstanceOf(ExtendableDefinition::class, $extension);
-        $extension->getFields()->has('test');
+        static::assertInstanceOf(ExtendableDefinition::class, $definition);
+        $definition->getFields()->has('test');
     }
 
     public function testICanAddRuntimeExtensions(): void
     {
         $this->registerDefinitionWithExtensions(ExtendableDefinition::class, ScalarRuntimeExtension::class);
-        $extension = static::getContainer()->get(ExtendableDefinition::class);
+        $definition = static::getContainer()->get(ExtendableDefinition::class);
 
-        static::assertInstanceOf(ExtendableDefinition::class, $extension);
-        static::assertTrue($extension->getFields()->has('test'));
+        static::assertInstanceOf(ExtendableDefinition::class, $definition);
+        static::assertTrue($definition->getFields()->has('test'));
     }
 
     public function testICanAddFkFieldsAsExtensions(): void
     {
         $this->registerDefinitionWithExtensions(ExtendableDefinition::class, FkFieldExtension::class);
-        $extension = static::getContainer()->get(ExtendableDefinition::class);
+        $definition = static::getContainer()->get(ExtendableDefinition::class);
 
-        static::assertInstanceOf(ExtendableDefinition::class, $extension);
-        static::assertTrue($extension->getFields()->has('test'));
+        static::assertInstanceOf(ExtendableDefinition::class, $definition);
+        static::assertTrue($definition->getFields()->has('test'));
     }
 
     public function testICanAddAssociationExtensions(): void
     {
         $this->registerDefinition(ExtendedDefinition::class);
         $this->registerDefinitionWithExtensions(ExtendableDefinition::class, AssociationExtension::class);
-        $extension = static::getContainer()->get(ExtendableDefinition::class);
+        $definition = static::getContainer()->get(ExtendableDefinition::class);
 
-        static::assertInstanceOf(ExtendableDefinition::class, $extension);
-        static::assertTrue($extension->getFields()->has('toOne'));
-        static::assertTrue($extension->getFields()->has('toMany'));
+        static::assertInstanceOf(ExtendableDefinition::class, $definition);
+        static::assertTrue($definition->getFields()->has('toOne'));
+        static::assertTrue($definition->getFields()->has('toMany'));
     }
 
     public function testICanAddReferenceVersionAsExtensionWithValidManyToOneAssociation(): void
     {
         $this->registerDefinition(ExtendedDefinition::class);
         $this->registerDefinitionWithExtensions(ExtendableDefinition::class, ReferenceVersionExtension::class);
-        $extension = static::getContainer()->get(ExtendableDefinition::class);
+        $definition = static::getContainer()->get(ExtendableDefinition::class);
 
-        static::assertInstanceOf(ExtendableDefinition::class, $extension);
-        static::assertTrue($extension->getFields()->has('toOne'));
-        static::assertTrue($extension->getFields()->has('extendedVersionId'));
+        static::assertInstanceOf(ExtendableDefinition::class, $definition);
+        static::assertTrue($definition->getFields()->has('toOne'));
+        static::assertTrue($definition->getFields()->has('extendedVersionId'));
+    }
+
+    public function testICanModifyFields(): void
+    {
+        $this->registerDefinitionWithExtensions(ExtendableDefinition::class, ModifyFieldsExtension::class);
+        $definition = static::getContainer()->get(ExtendableDefinition::class);
+
+        static::assertInstanceOf(ExtendableDefinition::class, $definition);
+        foreach ($definition->getFields() as $field) {
+            if ($field->getPropertyName() === 'apiAwareTest') {
+                static::assertFalse($field->is(ApiAware::class), 'Field ' . $field->getPropertyName() . ' should not have ApiAware flag');
+                break;
+            }
+        }
     }
 
     /**

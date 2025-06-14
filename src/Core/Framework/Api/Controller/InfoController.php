@@ -295,10 +295,6 @@ class InfoController extends AbstractController
 
     private function getBaseUrl(Bundle $bundle): ?string
     {
-        if (!$bundle instanceof Plugin) {
-            return null;
-        }
-
         if ($bundle->getAdminBaseUrl()) {
             return $bundle->getAdminBaseUrl();
         }

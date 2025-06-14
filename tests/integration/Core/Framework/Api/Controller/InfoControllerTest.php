@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -446,6 +447,7 @@ class InfoControllerTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/Fixtures/AdminExtensionApiApp');
 
         $kernel = new StubKernel([
+            new AdminExtensionApiBundle(),
             new AdminExtensionApiPlugin(true, __DIR__ . '/Fixtures/InfoController'),
             new AdminExtensionApiPluginWithLocalEntryPoint(true, __DIR__ . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint'),
         ]);
@@ -497,6 +499,10 @@ class InfoControllerTest extends TestCase
         static::assertNotFalse($content);
         $config = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertCount(3, $config['bundles']);
+
+        static::assertArrayHasKey('AdminExtensionApiBundle', $config['bundles']);
+        static::assertSame('https://extension-bundle.test', $config['bundles']['AdminExtensionApiBundle']['baseUrl']);
+        static::assertSame('plugin', $config['bundles']['AdminExtensionApiBundle']['type']);
 
         static::assertArrayHasKey('AdminExtensionApiPlugin', $config['bundles']);
         static::assertSame('https://extension-api.test', $config['bundles']['AdminExtensionApiPlugin']['baseUrl']);
@@ -777,6 +783,17 @@ class InfoControllerTest extends TestCase
             'privileges' => json_encode(['users_and_permissions.viewer']),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class AdminExtensionApiBundle extends Bundle
+{
+    public function getAdminBaseUrl(): ?string
+    {
+        return 'https://extension-bundle.test';
     }
 }
 

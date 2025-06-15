@@ -139,8 +139,10 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
      */
     _updateCanonicalUrl(newPageNumber) {
         const canonicalMetaTag = document.querySelector('link[rel="canonical"]');
-        const canonicalUrl = new URL(canonicalMetaTag.href);
-        canonicalUrl.searchParams.set('p', newPageNumber);
-        canonicalMetaTag.href = canonicalUrl.href;
+        if (canonicalMetaTag?.href) {
+            const canonicalUrl = new URL(canonicalMetaTag.href);
+            canonicalUrl.searchParams.set('p', newPageNumber);
+            canonicalMetaTag.href = canonicalUrl.href;
+        }        
     }
 }

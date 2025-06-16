@@ -95,8 +95,7 @@ class CookieControllerTest extends TestCase
                     return $req->query->getBoolean('translate') === false;
                 }),
                 $salesChannelContext
-            )
-            ->willThrowException(new \RuntimeException('Test exception'));
+            );
 
         $controller = new CookieControllerTestClass($cookieRoute);
 

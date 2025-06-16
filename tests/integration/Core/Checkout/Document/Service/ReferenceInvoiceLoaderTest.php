@@ -124,7 +124,13 @@ class ReferenceInvoiceLoaderTest extends TestCase
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
-        $invoiceStruct = $this->createDocument(ZugferdEmbeddedRenderer::TYPE, $orderId, [], $this->context)->first();
+        $invoiceStruct = $this->createDocument(
+            ZugferdEmbeddedRenderer::TYPE,
+            $orderId,
+            ['companyName' => 'Test Company'],
+            $this->context
+        )->first();
+
         static::assertNotNull($invoiceStruct);
 
         $invoice = $this->referenceInvoiceLoader->load($orderId, $invoiceStruct->getId(), $invoiceStruct->getDeepLinkCode());

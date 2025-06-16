@@ -5,20 +5,15 @@
 {% endblock %}
 
 {% block component_product_feature_list_item_base_content_value %}
-    {% set isDimension = label in ['height', 'width', 'length'] %}
+    {% set isLength = label in ['height', 'width', 'length'] %}
     {% set isWeight = label == 'weight' %}
-    {% set usesMeasurementUnit = isDimension or isWeight %}
+    {% set usesMeasurementUnit = isLength or isWeight %}
 
     {% if label == 'releaseDate' %}
         {{ value|sw_sanitize|date('Y-m-d') }}
     {% elseif usesMeasurementUnit %}
-        {% if measurementUnits and measurementUnits[label] is defined %}
-            {% set unit = measurementUnits[label].unit %}
-            {% set value = measurementUnits[label].value %}
-        {% else %}
-            {% set unit = isWeight ? 'kg' : 'mm' %}
-        {% endif %}
-        {{ value|sw_sanitize }} {{ unit }}
+        {% set fromUnit = isWeight ? 'kg' : 'mm' %}
+        {{ value|sw_sanitize|sw_convert_unit(fromUnit) }}
     {% else %}
         {{ value|sw_sanitize }}
     {% endif %}

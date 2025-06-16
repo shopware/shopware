@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\Content\MeasurementSystem\TwigExtension;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\MeasurementSystem\DataAbstractionLayer\MeasurementDisplayUnitEntity;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\MeasurementSystem\TwigExtension\MeasurementConvertUnitTwigFilter;
-use Shopware\Core\Content\MeasurementSystem\UnitConverter\AbstractMeasurementUnitConverter;
-use Shopware\Core\Content\MeasurementSystem\UnitConverter\ConvertedUnit;
-use Shopware\Core\Content\MeasurementSystem\UnitProvider\AbstractMeasurementUnitProvider;
+use Shopware\Core\Content\MeasurementSystem\Unit\AbstractMeasurementUnitConverter;
+use Shopware\Core\Content\MeasurementSystem\Unit\AbstractMeasurementUnitProvider;
+use Shopware\Core\Content\MeasurementSystem\Unit\ConvertedUnit;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Twig\TwigFilter;
 
@@ -79,11 +81,18 @@ class MeasurementConvertUnitTwigFilterTest extends TestCase
 
         $twigContext = ['context' => $context];
 
+        $measurementUnit = $this->createMeasurementDisplayUnitEntity(
+            'mm',
+            'length',
+            10.0,
+            2
+        );
+
         $this->unitProvider
             ->expects($this->once())
             ->method('getUnitInfo')
             ->with('mm')
-            ->willReturn(['type' => 'length']);
+            ->willReturn($measurementUnit);
 
         $this->unitConverter
             ->expects($this->once())
@@ -208,11 +217,18 @@ class MeasurementConvertUnitTwigFilterTest extends TestCase
 
         $twigContext = ['context' => $context];
 
+        $measurementUnit = $this->createMeasurementDisplayUnitEntity(
+            'mm',
+            'length',
+            10.0,
+            2
+        );
+
         $this->unitProvider
             ->expects($this->once())
             ->method('getUnitInfo')
             ->with('mm')
-            ->willReturn(['type' => 'length']);
+            ->willReturn($measurementUnit);
 
         $context->setMeasurementSystem($measurementUnits);
 
@@ -241,11 +257,18 @@ class MeasurementConvertUnitTwigFilterTest extends TestCase
 
         $twigContext = ['context' => $context];
 
+        $measurementUnit = $this->createMeasurementDisplayUnitEntity(
+            'mm',
+            'length',
+            10.0,
+            2
+        );
+
         $this->unitProvider
             ->expects($this->once())
             ->method('getUnitInfo')
             ->with('mm')
-            ->willReturn(['type' => 'length']);
+            ->willReturn($measurementUnit);
 
         $this->unitConverter
             ->expects($this->once())
@@ -256,5 +279,17 @@ class MeasurementConvertUnitTwigFilterTest extends TestCase
         $result = $this->filter->convert($twigContext, 100);
 
         static::assertSame('10 cm', $result);
+    }
+
+    private function createMeasurementDisplayUnitEntity(string $shortName, string $type, float $factor, int $precision): MeasurementDisplayUnitEntity
+    {
+        $entity = new MeasurementDisplayUnitEntity();
+        $entity->setUniqueIdentifier(Uuid::randomHex());
+        $entity->shortName = $shortName;
+        $entity->type = $type;
+        $entity->factor = $factor;
+        $entity->precision = $precision;
+
+        return $entity;
     }
 }

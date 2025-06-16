@@ -4,8 +4,8 @@ namespace Shopware\Tests\Unit\Core\Content\MeasurementSystem\DataAbstractionLaye
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\MeasurementSystem\DataAbstractionLayer\ConvertedUnitSet;
-use Shopware\Core\Content\MeasurementSystem\UnitConverter\ConvertedUnit;
+use Shopware\Core\Content\MeasurementSystem\Unit\ConvertedUnit;
+use Shopware\Core\Content\MeasurementSystem\Unit\ConvertedUnitSet;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -206,5 +206,22 @@ class ConvertedUnitSetTest extends TestCase
         static::assertSame($lengthUnit, $this->unitSet->getType('length'));
 
         static::assertNull($this->unitSet->getType('volume'));
+    }
+
+    public function testGetUnits(): void
+    {
+        $unit1 = new ConvertedUnit(10.5, 'kg');
+        $unit2 = new ConvertedUnit(150.0, 'cm');
+
+        $this->unitSet->addUnit('weight', $unit1);
+        $this->unitSet->addUnit('length', $unit2);
+
+        $result = $this->unitSet->getUnits();
+
+        static::assertCount(2, $result);
+        static::assertArrayHasKey('weight', $result);
+        static::assertArrayHasKey('length', $result);
+        static::assertSame($unit1, $result['weight']);
+        static::assertSame($unit2, $result['length']);
     }
 }

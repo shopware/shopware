@@ -135,6 +135,7 @@ class MeasurementUnitsTest extends TestCase
         $measurementUnits = new MeasurementUnits('metric', $units);
 
         $expectedArray = [
+            'extensions' => [],
             'system' => 'metric',
             'units' => $units,
         ];

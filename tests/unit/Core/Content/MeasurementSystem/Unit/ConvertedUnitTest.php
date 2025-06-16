@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Content\MeasurementSystem\UnitConverter;
+namespace Shopware\Tests\Unit\Core\Content\MeasurementSystem\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\MeasurementSystem\UnitConverter\ConvertedUnit;
+use Shopware\Core\Content\MeasurementSystem\Unit\ConvertedUnit;
 use Shopware\Core\Framework\Log\Package;
 
 /**

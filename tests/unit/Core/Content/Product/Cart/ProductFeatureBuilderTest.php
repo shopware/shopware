@@ -11,8 +11,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Content\MeasurementSystem\DataAbstractionLayer\ConvertedUnitSet;
-use Shopware\Core\Content\MeasurementSystem\UnitConverter\ConvertedUnit;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetEntity;
 use Shopware\Core\Content\Product\Cart\ProductFeatureBuilder;
@@ -59,14 +57,9 @@ class ProductFeatureBuilderTest extends TestCase
         $productId = 'product-id-123';
         $lineItem = new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId);
 
-        $convertedUnitSet = new ConvertedUnitSet();
-        $convertedUnitSet->addUnit('weight', new ConvertedUnit(10.5, 'kg'));
-        $convertedUnitSet->addUnit('length', new ConvertedUnit(150.0, 'cm'));
-
         $product = new SalesChannelProductEntity();
         $product->setName('foo');
         $product->setId($productId);
-        $product->setMeasurementUnits($convertedUnitSet);
 
         $group = new PropertyGroupEntity();
         $group->setTranslated(['name' => 'color']);
@@ -132,16 +125,6 @@ class ProductFeatureBuilderTest extends TestCase
                 'label' => 'name',
                 'value' => 'foo',
                 'type' => 'product',
-                'measurementUnits' => [
-                    'weight' => [
-                        'value' => 10.5,
-                        'unit' => 'kg',
-                    ],
-                    'length' => [
-                        'value' => 150.0,
-                        'unit' => 'cm',
-                    ],
-                ],
             ],
             [
                 'label' => 'referencePrice',

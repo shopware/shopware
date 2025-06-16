@@ -176,7 +176,7 @@ class ProductFeatureBuilder
     }
 
     /**
-     * @return array{label: string, value: mixed, type: string, measurementUnits: ?array<string, array{ unit: string, value: float }>}
+     * @return array{label: string, value: mixed, type: string}
      */
     private function getAttribute(string $name, SalesChannelProductEntity $product): array
     {
@@ -195,7 +195,6 @@ class ProductFeatureBuilder
             'label' => $name,
             'value' => $value,
             'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
-            'measurementUnits' => $product->getMeasurementUnits()?->jsonSerialize() ?? null,
         ];
     }
 

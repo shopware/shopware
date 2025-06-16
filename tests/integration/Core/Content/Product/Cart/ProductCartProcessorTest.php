@@ -382,24 +382,6 @@ class ProductCartProcessorTest extends TestCase
                     'label' => 'description',
                     'value' => 'Lorem ipsum dolor sit amet.',
                     'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
-                    'measurementUnits' => [
-                        'width' => [
-                            'value' => 102.0,
-                            'unit' => 'mm',
-                        ],
-                        'height' => [
-                            'value' => 101.0,
-                            'unit' => 'mm',
-                        ],
-                        'length' => [
-                            'value' => 103.0,
-                            'unit' => 'mm',
-                        ],
-                        'weight' => [
-                            'value' => 100.0,
-                            'unit' => 'kg',
-                        ],
-                    ],
                 ],
             ],
             [
@@ -416,24 +398,6 @@ class ProductCartProcessorTest extends TestCase
                     'label' => 'manufacturerNumber',
                     'value' => '22ee3d8063da',
                     'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
-                    'measurementUnits' => [
-                        'width' => [
-                            'value' => 102.0,
-                            'unit' => 'mm',
-                        ],
-                        'height' => [
-                            'value' => 101.0,
-                            'unit' => 'mm',
-                        ],
-                        'length' => [
-                            'value' => 103.0,
-                            'unit' => 'mm',
-                        ],
-                        'weight' => [
-                            'value' => 100.0,
-                            'unit' => 'kg',
-                        ],
-                    ],
                 ],
             ],
             [

@@ -17,10 +17,15 @@ services:
             - --default-time-zone=+00:00
             - --max_binlog_size=512M
             - --binlog_expire_logs_seconds=86400
-        ports:
-            - '3306:3306'
-        tmpfs:
-            - /var/lib/mysql:uid=999,gid=999
+        volumes:
+            - db-data:/var/lib/mysql
+        healthcheck:
+            test: [ "CMD", "mariadb-admin" ,"ping", "-h", "localhost", "-proot" ]
+            start_interval: 3s
+            start_period: 10s
+            interval: 5s
+            timeout: 1s
+            retries: 10
 
     adminer:
         image: shyim/adminerevo:latest

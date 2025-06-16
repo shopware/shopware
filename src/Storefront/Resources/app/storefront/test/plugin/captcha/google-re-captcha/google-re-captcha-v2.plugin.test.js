@@ -6,6 +6,7 @@ describe('GoogleReCaptchaV2Plugin tests', () => {
     let inputField;
     let captchaContainer;
     let mockIframe;
+    let mockRecaptchaScriptElement;
 
     beforeEach(() => {
         window.grecaptcha = {
@@ -28,6 +29,10 @@ describe('GoogleReCaptchaV2Plugin tests', () => {
         mockIframe = document.createElement('iframe');
         mockElement.appendChild(mockIframe);
 
+        mockRecaptchaScriptElement = document.createElement('script');
+        mockRecaptchaScriptElement.id = 'recaptcha-script';
+        document.body.appendChild(mockRecaptchaScriptElement);
+
         mockElement.appendChild(inputField);
         mockElement.appendChild(captchaContainer);
         document.body.appendChild(mockElement);
@@ -45,6 +50,9 @@ describe('GoogleReCaptchaV2Plugin tests', () => {
         googleReCaptchav2Plugin = undefined;
         if (mockElement?.parentElement) {
             mockElement.parentElement.removeChild(mockElement);
+        }
+        if (mockRecaptchaScriptElement?.parentElement) {
+            mockRecaptchaScriptElement.parentElement.removeChild(mockRecaptchaScriptElement);
         }
         window.grecaptcha = undefined;
         mockIframe = null;
@@ -133,5 +141,3 @@ describe('GoogleReCaptchaV2Plugin tests', () => {
         expect(mockIframe.classList.contains(googleReCaptchav2Plugin.options.grecaptchaIframeHasErrorClassSelector)).toBe(false);
     });
 });
-
-

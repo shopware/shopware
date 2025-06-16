@@ -79,9 +79,9 @@ class ProductDetailRouteTest extends TestCase
         static::assertSame(30, $response['product']['height']);
         static::assertSame(1.5, $response['product']['weight']);
 
-        // measurementUnits is calculated in the response
-        static::assertArrayHasKey('measurementUnits', $response['product']);
-        static::assertNotEmpty($response['product']['measurementUnits']);
+        // measurements is calculated in the response
+        static::assertArrayHasKey('measurements', $response['product']);
+        static::assertNotEmpty($response['product']['measurements']);
         static::assertSame([
             'width' => [
                 'value' => 50,
@@ -100,7 +100,7 @@ class ProductDetailRouteTest extends TestCase
                 'unit' => 'kg',
             ],
             'apiAlias' => 'converted_unit_set',
-        ], $response['product']['measurementUnits']);
+        ], $response['product']['measurements']);
 
         // change the default unit to imperial
         $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
@@ -134,9 +134,9 @@ class ProductDetailRouteTest extends TestCase
         static::assertSame(30, $response['product']['height']);
         static::assertSame(1.5, $response['product']['weight']);
 
-        // measurementUnits is calculated in the response
-        static::assertArrayHasKey('measurementUnits', $response['product']);
-        static::assertNotEmpty($response['product']['measurementUnits']);
+        // measurements is calculated in the response
+        static::assertArrayHasKey('measurements', $response['product']);
+        static::assertNotEmpty($response['product']['measurements']);
         static::assertSame([
             'width' => [
                 'value' => 1.97,
@@ -155,7 +155,7 @@ class ProductDetailRouteTest extends TestCase
                 'unit' => 'lb',
             ],
             'apiAlias' => 'converted_unit_set',
-        ], $response['product']['measurementUnits']);
+        ], $response['product']['measurements']);
     }
 
     public function testLoadProductVariantShowBestVariant(): void

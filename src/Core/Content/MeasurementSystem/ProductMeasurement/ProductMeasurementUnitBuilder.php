@@ -2,15 +2,18 @@
 
 namespace Shopware\Core\Content\MeasurementSystem\ProductMeasurement;
 
-use Shopware\Core\Content\MeasurementSystem\DataAbstractionLayer\ConvertedUnitSet;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
-use Shopware\Core\Content\MeasurementSystem\UnitConverter\AbstractMeasurementUnitConverter;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnitTypeEnum;
+use Shopware\Core\Content\MeasurementSystem\Unit\AbstractMeasurementUnitConverter;
+use Shopware\Core\Content\MeasurementSystem\Unit\ConvertedUnitSet;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
+ * This class is responsible for building product internal measurement units
  */
 #[Package('inventory')]
 class ProductMeasurementUnitBuilder
@@ -20,32 +23,38 @@ class ProductMeasurementUnitBuilder
     ) {
     }
 
-    public function build(Entity $product, SalesChannelContext $context): ConvertedUnitSet
+    public function buildFromContext(Entity $product, SalesChannelContext $context): ConvertedUnitSet
+    {
+        $lengthUnit = $context->getMeasurementSystem()->getUnit(MeasurementUnitTypeEnum::LENGTH->value);
+        $weightUnit = $context->getMeasurementSystem()->getUnit(MeasurementUnitTypeEnum::WEIGHT->value);
+
+        return $this->build($product, $lengthUnit, $weightUnit);
+    }
+
+    public function build(Entity $product, string $toLengthUnit, string $toWeightUnit): ConvertedUnitSet
     {
         $measurementUnit = new ConvertedUnitSet();
 
-        $lengthUnit = $context->getMeasurementSystem()->getUnit('length');
-        $weightUnit = $context->getMeasurementSystem()->getUnit('weight');
+        foreach (ProductMeasurementEnum::DIMENSIONS_MAPPING as $dimension => $type) {
+            if (!$product->has($dimension)) {
+                continue;
+            }
 
-        $width = $product->get('width');
-        $height = $product->get('height');
-        $length = $product->get('length');
-        $weight = $product->get('weight');
+            $value = $product->get($dimension);
 
-        if (\is_float($width)) {
-            $measurementUnit->addUnit('width', $this->unitConverter->convert($width, MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnit));
-        }
+            if (!\is_float($value)) {
+                continue;
+            }
 
-        if (\is_float($height)) {
-            $measurementUnit->addUnit('height', $this->unitConverter->convert($height, MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnit));
-        }
+            $fromUnit = $type === MeasurementUnitTypeEnum::WEIGHT
+                ? MeasurementUnits::DEFAULT_WEIGHT_UNIT
+                : MeasurementUnits::DEFAULT_LENGTH_UNIT;
 
-        if (\is_float($length)) {
-            $measurementUnit->addUnit('length', $this->unitConverter->convert($length, MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnit));
-        }
+            $toUnit = $type === MeasurementUnitTypeEnum::WEIGHT
+                ? $toWeightUnit
+                : $toLengthUnit;
 
-        if (\is_float($weight)) {
-            $measurementUnit->addUnit('weight', $this->unitConverter->convert($weight, MeasurementUnits::DEFAULT_WEIGHT_UNIT, $weightUnit));
+            $measurementUnit->addUnit($dimension, $this->unitConverter->convert($value, $fromUnit, $toUnit));
         }
 
         return $measurementUnit;

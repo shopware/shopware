@@ -6,10 +6,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
+use Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementEnum;
 use Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementUnitBuilder;
-use Shopware\Core\Content\MeasurementSystem\UnitConverter\AbstractMeasurementUnitConverter;
-use Shopware\Core\Content\MeasurementSystem\UnitConverter\ConvertedUnit;
+use Shopware\Core\Content\MeasurementSystem\Unit\AbstractMeasurementUnitConverter;
+use Shopware\Core\Content\MeasurementSystem\Unit\ConvertedUnit;
+use Shopware\Core\Content\MeasurementSystem\Unit\ConvertedUnitSet;
 use Shopware\Core\Content\Product\AbstractPropertyGroupSorter;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
 use Shopware\Core\Content\Product\IsNewDetector;
@@ -244,11 +245,8 @@ class ProductSubscriberTest extends TestCase
     public function testLoadedWithAdminContextConvertsUnits(): void
     {
         $measurementUnitConverter = $this->createMock(AbstractMeasurementUnitConverter::class);
-        $measurementUnitConverter->expects($this->exactly(4))
-            ->method('convert')
-            ->willReturnCallback(function ($value, $from, $to) {
-                return new ConvertedUnit($value * 2.0, $to);
-            });
+
+        $measurementBuilder = $this->createMock(ProductMeasurementUnitBuilder::class);
 
         $requestStack = new RequestStack();
         $request = new Request();
@@ -265,7 +263,7 @@ class ProductSubscriberTest extends TestCase
             $this->createMock(ProductMaxPurchaseCalculator::class),
             $this->createMock(IsNewDetector::class),
             new StaticSystemConfigService(),
-            $this->createMock(ProductMeasurementUnitBuilder::class),
+            $measurementBuilder,
             $measurementUnitConverter,
             $requestStack,
         );
@@ -277,6 +275,22 @@ class ProductSubscriberTest extends TestCase
             'length' => 30.0,
             'weight' => 5.0,
         ]);
+
+        $measurementBuilder->expects($this->exactly(1))
+            ->method('build')
+            ->with($product, 'ft', 'lb')
+            ->willReturnCallback(function (ProductEntity $product, $from, $to) {
+                // Simulate conversion logic
+                // For the sake of this example, we will just double the value
+
+                $converted = new ConvertedUnitSet();
+                $converted->addUnit(ProductMeasurementEnum::WEIGHT->value, new ConvertedUnit($product->getWeight() * 2.0, $to));
+                $converted->addUnit(ProductMeasurementEnum::WIDTH->value, new ConvertedUnit($product->getWidth() * 2.0, $to));
+                $converted->addUnit(ProductMeasurementEnum::LENGTH->value, new ConvertedUnit($product->getLength() * 2.0, $to));
+                $converted->addUnit(ProductMeasurementEnum::HEIGHT->value, new ConvertedUnit($product->getHeight() * 2.0, $to));
+
+                return $converted;
+            });
 
         $context = Context::createDefaultContext(new AdminApiSource('user-id', 'integration-id'));
 
@@ -298,7 +312,8 @@ class ProductSubscriberTest extends TestCase
     public function testLoadedWithNonAdminContextDoesNotConvertUnits(): void
     {
         $measurementUnitConverter = $this->createMock(AbstractMeasurementUnitConverter::class);
-        $measurementUnitConverter->expects($this->never())->method('convert');
+        $measurementUnitBuilder = $this->createMock(ProductMeasurementUnitBuilder::class);
+        $measurementUnitBuilder->expects($this->never())->method('build');
 
         $requestStack = new RequestStack();
         $request = new Request();
@@ -315,7 +330,7 @@ class ProductSubscriberTest extends TestCase
             $this->createMock(ProductMaxPurchaseCalculator::class),
             $this->createMock(IsNewDetector::class),
             new StaticSystemConfigService(),
-            $this->createMock(ProductMeasurementUnitBuilder::class),
+            $measurementUnitBuilder,
             $measurementUnitConverter,
             $requestStack,
         );
@@ -359,29 +374,34 @@ class ProductSubscriberTest extends TestCase
         array $expectedFinalValues
     ): void {
         $measurementUnitConverter = $this->createMock(AbstractMeasurementUnitConverter::class);
-
-        if ($expectedConversions > 0) {
-            $measurementUnitConverter->expects($this->exactly($expectedConversions))
-                ->method('convert')
-                ->with(
-                    static::isFloat(),
-                    static::logicalOr(
-                        static::equalTo(MeasurementUnits::DEFAULT_LENGTH_UNIT),
-                        static::equalTo(MeasurementUnits::DEFAULT_WEIGHT_UNIT)
-                    ),
-                    static::logicalOr(
-                        static::equalTo($headers[PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT] ?? MeasurementUnits::DEFAULT_LENGTH_UNIT),
-                        static::equalTo($headers[PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT] ?? MeasurementUnits::DEFAULT_WEIGHT_UNIT)
-                    )
-                )->willReturnOnConsecutiveCalls(...array_values($expectedFinalValues));
-        } else {
-            $measurementUnitConverter->expects($this->never())->method('convert');
-        }
+        $measurementBuilder = $this->createMock(ProductMeasurementUnitBuilder::class);
 
         $requestStack = new RequestStack();
         $request = new Request();
         $request->headers = new HeaderBag($headers);
         $requestStack->push($request);
+
+        $product = (new ProductEntity())->assign(array_merge(['id' => Uuid::randomHex()], $productDimensions));
+
+        if ($expectedConversions > 0) {
+            $measurementBuilder->expects($this->exactly(1))
+                ->method('build')
+                ->with($product, $headers[PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT] ?? 'mm', $headers[PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT] ?? 'kg')
+                ->willReturnCallback(function (ProductEntity $product, $from, $to) {
+                    // Simulate conversion logic
+                    // For the sake of this example, we will just double the value
+
+                    $converted = new ConvertedUnitSet();
+                    $converted->addUnit(ProductMeasurementEnum::WEIGHT->value, new ConvertedUnit($product->getWeight() * 2.0, $to));
+                    $converted->addUnit(ProductMeasurementEnum::WIDTH->value, new ConvertedUnit($product->getWidth() * 2.0, $to));
+                    $converted->addUnit(ProductMeasurementEnum::LENGTH->value, new ConvertedUnit($product->getLength() * 2.0, $to));
+                    $converted->addUnit(ProductMeasurementEnum::HEIGHT->value, new ConvertedUnit($product->getHeight() * 2.0, $to));
+
+                    return $converted;
+                });
+        } else {
+            $measurementBuilder->expects($this->never())->method('build');
+        }
 
         $subscriber = new ProductSubscriber(
             $this->createMock(ProductVariationBuilder::class),
@@ -390,12 +410,10 @@ class ProductSubscriberTest extends TestCase
             $this->createMock(ProductMaxPurchaseCalculator::class),
             $this->createMock(IsNewDetector::class),
             new StaticSystemConfigService(),
-            $this->createMock(ProductMeasurementUnitBuilder::class),
+            $measurementBuilder,
             $measurementUnitConverter,
             $requestStack,
         );
-
-        $product = (new PartialEntity())->assign(array_merge(['id' => Uuid::randomHex()], $productDimensions));
 
         $context = Context::createDefaultContext(new AdminApiSource('user-id', 'integration-id'));
 
@@ -428,8 +446,8 @@ class ProductSubscriberTest extends TestCase
             'expectedConversions' => 3,
             'expectedFinalValues' => [
                 'width' => new ConvertedUnit(20.0, 'mm'),
-                'height' => new ConvertedUnit(20.0, 'mm'),
-                'length' => new ConvertedUnit(30.0, 'mm'),
+                'height' => new ConvertedUnit(40.0, 'mm'),
+                'length' => new ConvertedUnit(60.0, 'mm'),
             ],
         ];
 
@@ -451,9 +469,9 @@ class ProductSubscriberTest extends TestCase
             'expectedConversions' => 4,
             'expectedFinalValues' => [
                 'width' => new ConvertedUnit(20.0, 'mm'),
-                'height' => new ConvertedUnit(20.0, 'mm'),
-                'length' => new ConvertedUnit(30.0, 'mm'),
-                'weight' => new ConvertedUnit(40.0, 'kg'),
+                'height' => new ConvertedUnit(40.0, 'mm'),
+                'length' => new ConvertedUnit(60.0, 'mm'),
+                'weight' => new ConvertedUnit(10.0, 'kg'),
             ],
         ];
 
@@ -648,10 +666,8 @@ class ProductSubscriberTest extends TestCase
         $command->expects($this->never())->method('addPayload');
 
         $event = $this->createMock(EntityWriteEvent::class);
-        $event->expects($this->once())
-            ->method('getCommandsForEntity')
-            ->with(ProductDefinition::ENTITY_NAME)
-            ->willReturn([$command]);
+        $event->expects($this->never())
+            ->method('getCommandsForEntity');
 
         $subscriber->beforeWriteProduct($event);
     }
@@ -825,10 +841,8 @@ class ProductSubscriberTest extends TestCase
         $command->expects($this->never())->method('addPayload');
 
         $event = $this->createMock(EntityWriteEvent::class);
-        $event->expects($this->once())
-            ->method('getCommandsForEntity')
-            ->with(ProductDefinition::ENTITY_NAME)
-            ->willReturn([$command]);
+        $event->expects($this->never())
+            ->method('getCommandsForEntity');
 
         $subscriber->beforeWriteProduct($event);
     }

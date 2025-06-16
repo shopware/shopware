@@ -236,8 +236,8 @@ Storefront templates currently use fixed units (mm, kg):
 With the new system, the value and unit will be dynamically resolved based on the configured measurement system and units.
 
 ```twig
-{{ product.measurementUnits.type('width').value }} {{ product.measurementUnits.type('width').unit }}
-{{ product.measurementUnits.type('weight').value }} {{ product.measurementUnits.type('weight').unit }}
+{{ product.measurements.type('width').value }} {{ product.measurements.type('width').unit }}
+{{ product.measurements.type('weight').value }} {{ product.measurements.type('weight').unit }}
 ```
 
 #### New Twig Filters for On-the-Fly Conversion
@@ -250,9 +250,9 @@ We provide new Twig filters for on-the-fly unit conversion.
 {{ 1.2|sw_convert_unit(from: 'kg') }}   {# Output: 1200g #}
 
 {# Convert to specific units #}
-{{ 100|sw_convert(from: 'kg', to: 'lb') }}  {# Output: 220.462 #}
+{{ 100|sw_convert_unit(from: 'kg', to: 'lb') }}  {# Output: 220.462 #}
 {# Convert to with specific rounding (default as 2) #}
-{{ 100|sw_convert(from: 'kg', to: 'lb', precision: 1) }}  {# Output: 220.5 #}
+{{ 100|sw_convert_unit(from: 'kg', to: 'lb', precision: 1) }}  {# Output: 220.5 #}
 ```
 
 ## Consequences

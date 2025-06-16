@@ -410,7 +410,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         await flushPromises();
 
         const stateHistoryRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        
+
         // First row should show username
         const firstRow = stateHistoryRows.at(0);
         expect(firstRow.find('.sw-data-grid__cell--user').text()).toBe('sw-order.stateHistoryModal.labelSystemUser');

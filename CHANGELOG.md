@@ -1,6 +1,22 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.7.0.0
+*  [#10006 - Product variants empty state list position doesn't correct](./changelog/release-6-7-0-0/2025-06-05-product-variants-empty-state-list-position-doesn-t-correct.md)
+*  [#10192 - Improve listing of customerGroup registration form SEO URLs](./changelog/release-6-7-0-0/2025-06-06-improve-listing-of-customergroup-registration-form-seo-urls.md)
+*  [#10274 - Pass through extensions from IdSearchResult to EntitySearchResult in ProductListingLoader](./changelog/release-6-7-0-0/2025-06-02-bypass-extensions-from-id-result-to-search-result.md) @OliverSkroblin
+*  [#10275 - Translated custom field value accessor](./changelog/release-6-7-0-0/2025-06-02-translated-custom-field-value-accessor.md) @OliverSkroblin
+*  [#10286 - Unwrap messages when routing](./changelog/release-6-7-0-0/2025-05-29-unwrap-messages-when-routing.md)
+*  [#10293 - Fix inconsistency between login & register page for guest customers](./changelog/release-6-7-0-0/2025-06-03-fix-inconsistency-between-login-and-register.md)
+*  [#10299 - Fix StoreAPI criteria endpoints schema](./changelog/release-6-7-0-0/2025-05-22-fix-store-api-criteria-endpoints-schema.md) @akf-bw
+*  [#10422 - Vue3 compatibility for template refs in cross-selling component](./changelog/release-6-7-0-0/2025-06-09-vue3-compatibility-for-template-refs-in-cross-selling-component.md) @aragon999
+*  [#9310 - E-invoice vertical tax calculation](./changelog/release-6-7-0-0/2025-05-22-e-invoice-vertical-tax-calculation.md)
+*  [#10120 - Fix generating variants shows NaN%](./changelog/release-6-7-0-0/2025-06-05-fix-generating-variants-shows-nan.md)
+*  [#10190 - Fix essential characteristics create template with more than 2 values does not work](./changelog/release-6-7-0-0/2025-06-09-fix-essential-characteristics-create-template-with-more-than-2-values-does-not-work.md)
+*  [#9367 - Fix alignment logo manufacturer media field not correct](./changelog/release-6-7-0-0/2025-05-26-fix-alignment-logo-manufacture-media-field.md)
+*  [#9715 - Set Limit when loading options in property group detail page](./changelog/release-6-7-0-0/2025-05-22-set-limit-when-loading-options-in-property-group-detail-page.md)
+*  [#9855 - Elasticsearch custom fields dynamic product groups not working](./changelog/release-6-7-0-0/2025-05-27-elasticsearch-custom-fields-dynamic-product-groups-not-working.md)
+
 ## 6.7.0.0-rc5
 *  [#8388 - Replace old data protection info the our current standard](./changelog/release-6-7-0-0/2025-05-27-replace-old-data-protection-info-the-our-current-standard.md)
 *  [#9433 - Adjust styling label created by admin on customer detail page](./changelog/release-6-7-0-0/2025-05-21-adjust-styling-label-created-by-admin.md)

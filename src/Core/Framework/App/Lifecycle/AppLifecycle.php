@@ -188,9 +188,18 @@ class AppLifecycle extends AbstractAppLifecycle
             $this->appStateService->deactivateApp($appEntity->getId(), $context);
         }
 
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $appEntity->getId()));
+
+        // custom entities might be marked as deleted in `removeAppAndRole`, therefore we need to fetch the count before
+        $customEntityCount = $this->customEntityRepository->searchIds($criteria, $context)->getTotal();
+
         $this->removeAppAndRole($appEntity, $context, $keepUserData, true);
         $this->assetService->removeAssets($appEntity->getName());
-        $this->customEntitySchemaUpdater->update();
+
+        if ($customEntityCount > 0) {
+            $this->customEntitySchemaUpdater->update();
+        }
 
         $event = new PostAppDeletedEvent($appEntity->getName(), $appEntity->getSourceType(), $context, $keepUserData);
         $this->eventDispatcher->dispatch($event);

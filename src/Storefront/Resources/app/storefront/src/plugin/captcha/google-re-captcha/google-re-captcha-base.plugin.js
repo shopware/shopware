@@ -2,21 +2,24 @@ import Plugin from 'src/plugin-system/plugin.class';
 
 export default class GoogleReCaptchaBasePlugin extends Plugin {
     init() {
-
         // Ensure the script loading is initiated if data-src is present and src is not.
         const recaptchaScript = document.getElementById('recaptcha-script');
-        if (recaptchaScript?.hasAttribute('data-src') && !recaptchaScript.getAttribute('src') && this._isValidUrl(recaptchaScript.getAttribute('data-src'))) {
+        const hasDataSrc = recaptchaScript?.hasAttribute('data-src');
+        const srcAttr = recaptchaScript.getAttribute('src');
+        const isValidUrl = this._isValidUrl(recaptchaScript.getAttribute('data-src'));
+
+        if (hasDataSrc && !srcAttr && isValidUrl) {
             recaptchaScript.setAttribute('src', encodeURI(recaptchaScript.getAttribute('data-src')));
         }
 
         // The shim script in main.js ensures window.grecaptcha and window.grecaptcha.ready exist.
-        // The callback .bind(this) ensures 'this' context is correct in _doActualInitialization.
+        // The callback .bind(this) ensures 'this' context is correct in _executeGoogleReCaptchaInitialization.
         if (window.grecaptcha && typeof window.grecaptcha.ready === 'function') {
-            window.grecaptcha.ready(this._doActualInitialization.bind(this));
+            window.grecaptcha.ready(this._executeGoogleReCaptchaInitialization.bind(this));
         }
     }
 
-    _doActualInitialization() {
+    _executeGoogleReCaptchaInitialization() {
         this._getForm();
 
         if (!this._form) {

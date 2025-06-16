@@ -19,8 +19,8 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
         super.init();
     }
 
-    _doActualInitialization() {
-        super._doActualInitialization();
+    _executeGoogleReCaptchaInitialization() {
+        super._executeGoogleReCaptchaInitialization();
 
         if (this.grecaptcha) {
             this._renderV2Captcha();

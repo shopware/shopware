@@ -157,13 +157,16 @@ if ((window.googleReCaptchaV2Active || window.googleReCaptchaV3Active) && typeof
     };
 }
 
+// depends on the value that is set via src/Storefront/Framework/Cookie/CookieProvider.php for that specific cookie (cookie.groupRequiredAccepted)
 const cookiesAccepted = CookieStorage.getItem('cookie-preference') === '1';
-if (cookiesAccepted && window.googleReCaptchaV2Active) {
-    PluginManager.register('GoogleReCaptchaV2', () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v2.plugin'), '[data-google-re-captcha-v2]');
-}
+if (cookiesAccepted || !window.useDefaultCookieConsent) {
+    if (window.googleReCaptchaV2Active) {
+        PluginManager.register('GoogleReCaptchaV2', () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v2.plugin'), '[data-google-re-captcha-v2]');
+    }
 
-if (cookiesAccepted && window.googleReCaptchaV3Active) {
-    PluginManager.register('GoogleReCaptchaV3', () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v3.plugin'), '[data-google-re-captcha-v3]');
+    if (window.googleReCaptchaV3Active) {
+        PluginManager.register('GoogleReCaptchaV3', () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v3.plugin'), '[data-google-re-captcha-v3]');
+    }
 }
 
 /*

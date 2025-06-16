@@ -18,6 +18,10 @@ $sw-shipping-list-color-error: $color-crimson-500;
         }
     }
 
+    .sw-data-grid.is--compact .sw-data-grid__body .sw-data-grid__cell-content {
+        height: auto;
+    }
+
     .sw-settings-shipping-price-matrix__price-group-context {
         width: 35px;
         border: 1px solid #d6dde5;

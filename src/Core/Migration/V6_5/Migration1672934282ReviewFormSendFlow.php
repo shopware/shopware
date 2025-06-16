@@ -32,7 +32,7 @@ class Migration1672934282ReviewFormSendFlow extends MigrationStep
         $this->createFlow($connection, $templateId);
     }
 
-    private function createFlow(Connection $connection, string $mailtTemplateId): void
+    private function createFlow(Connection $connection, string $mailTemplateId): void
     {
         $flowId = Uuid::randomBytes();
 
@@ -63,7 +63,7 @@ class Migration1672934282ReviewFormSendFlow extends MigrationStep
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'config' => \sprintf(
                     '{"recipient": {"data": [], "type": "default"}, "mailTemplateId": "%s", "documentTypeIds": []}',
-                    Uuid::fromBytesToHex($mailtTemplateId)
+                    Uuid::fromBytesToHex($mailTemplateId)
                 ),
             ]
         );

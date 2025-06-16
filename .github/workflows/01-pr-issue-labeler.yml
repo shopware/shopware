@@ -36,7 +36,7 @@ jobs:
 
   apply-team-label:
     runs-on: ubuntu-24.04
-    if: github.event_name == 'issues' && ( github.event.action == 'opened' || github.event.action == 'reopened' )
+    if: github.event.act || (github.event_name == 'issues' && ( github.event.action == 'opened' || github.event.action == 'reopened' ))
     env:
       TEAM_LABEL: "domain/customer-support"
     permissions:
@@ -44,6 +44,7 @@ jobs:
       issues: write
     steps:
       - id: sts
+        if: ${{ !github.event.act }}
         continue-on-error: true
         uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
         with:
@@ -53,7 +54,7 @@ jobs:
         id: actorTeams
         with:
           username: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ steps.sts.outputs.token }}
+          GITHUB_TOKEN: ${{ github.event.act && secrets.GITHUB_TOKEN || steps.sts.outputs.token }}
       - name: debug
         if: runner.debug
         run: |

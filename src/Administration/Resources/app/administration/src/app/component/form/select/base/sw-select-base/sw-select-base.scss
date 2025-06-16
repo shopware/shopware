@@ -14,6 +14,7 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
 
     .sw-select__selection {
         position: relative;
+        height: 100%;
         padding: 0 8px;
         border: none;
         font-size: $font-size-xs;

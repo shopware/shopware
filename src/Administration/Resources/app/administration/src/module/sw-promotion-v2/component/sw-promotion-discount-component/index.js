@@ -179,7 +179,11 @@ export default {
         // only show advanced max value settings if
         // at least a base max value has been set
         showMaxValueAdvancedPrices() {
-            return this.discount.type === DiscountTypes.PERCENTAGE && this.discount.maxValue !== null;
+            return (
+                this.discount.type === DiscountTypes.PERCENTAGE &&
+                this.discount.maxValue !== null &&
+                this.discount.maxValue !== undefined
+            );
         },
 
         /** @deprecated tag:v6.8.0 - Will be removed without replacement */
@@ -297,7 +301,7 @@ export default {
         },
 
         isPickingModeVisible() {
-            if (this.discount.scope.startsWith(DiscountScopes.SETGROUP)) {
+            if (this.discount.scope?.startsWith(DiscountScopes.SETGROUP)) {
                 return true;
             }
 

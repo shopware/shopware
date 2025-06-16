@@ -149,7 +149,7 @@ Module.register('sw-promotion-v2', {
             props: {
                 default: (route) => {
                     return {
-                        promotionId: route.params.id,
+                        promotionId: route.params.id?.toLowerCase(),
                     };
                 },
             },

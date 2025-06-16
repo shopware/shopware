@@ -1,0 +1,41 @@
+// @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
+.ar-qr-modal {
+    .ar-qr-modal-content {
+        width: 30.25rem;
+
+        .ar-qr-modal-header {
+            height: 5rem;
+            padding: 0 2rem 0 4rem;
+        }
+
+        .ar-qr-modal-body {
+            padding: 1.5rem 2rem 0 2rem;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            align-self: stretch;
+
+            font-weight: 600;
+            font-size: 0.875rem;
+
+            .ar-qr-modal-body-qr-code {
+                max-width: 300px;
+                max-height: 300px;
+            }
+        }
+
+        .ar-qr-modal-footer {
+            padding: 0 2rem 2rem 2rem;
+
+            justify-content: center;
+
+            font-weight: 400;
+            font-size: 0.75rem;
+
+            .ar-qr-modal-footer-headline {
+                font-weight: 600;
+            }
+        }
+    }
+}

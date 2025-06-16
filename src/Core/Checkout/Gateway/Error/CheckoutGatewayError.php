@@ -12,9 +12,9 @@ class CheckoutGatewayError extends Error
     private const KEY = 'checkout-gateway-error';
 
     public function __construct(
-        private readonly string $reason,
-        private readonly int $level,
-        private readonly bool $blockOrder,
+        protected readonly string $reason,
+        protected readonly int $level,
+        protected readonly bool $blockOrder,
     ) {
         parent::__construct($this->reason);
     }

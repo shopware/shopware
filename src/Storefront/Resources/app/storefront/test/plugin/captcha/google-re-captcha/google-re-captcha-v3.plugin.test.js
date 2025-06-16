@@ -4,6 +4,7 @@ describe('GoogleReCaptchaV3Plugin tests', () => {
     let googleReCaptchaV3Plugin = undefined;
     let mockElement;
     let inputField;
+    let mockRecaptchaScriptElement; // Added for the mock script
 
     beforeEach(() => {
         window.grecaptcha = {
@@ -18,6 +19,11 @@ describe('GoogleReCaptchaV3Plugin tests', () => {
         mockElement.appendChild(inputField);
         document.body.appendChild(mockElement);
 
+        // Add the mock recaptcha script element
+        mockRecaptchaScriptElement = document.createElement('script');
+        mockRecaptchaScriptElement.id = 'recaptcha-script';
+        document.body.appendChild(mockRecaptchaScriptElement);
+
         googleReCaptchaV3Plugin = new GoogleReCaptchaV3Plugin(mockElement, {
             grecaptchaInputSelector: '.grecaptcha_v3-input',
             siteKey: 'test-site-key',
@@ -28,6 +34,10 @@ describe('GoogleReCaptchaV3Plugin tests', () => {
         googleReCaptchaV3Plugin = undefined;
         if (mockElement?.parentElement) {
             mockElement.parentElement.removeChild(mockElement);
+        }
+        // Remove the mock recaptcha script element
+        if (mockRecaptchaScriptElement?.parentElement) {
+            mockRecaptchaScriptElement.parentElement.removeChild(mockRecaptchaScriptElement);
         }
         window.grecaptcha = undefined;
     });
@@ -55,5 +65,3 @@ describe('GoogleReCaptchaV3Plugin tests', () => {
         });
     });
 });
-
-

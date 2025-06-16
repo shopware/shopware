@@ -3,16 +3,12 @@ import GoogleReCaptchaBasePlugin from 'src/plugin/captcha/google-re-captcha/goog
 describe('GoogleReCaptchaBasePlugin tests', () => {
     let googleReCaptchaBasePlugin = undefined;
     let mockElement;
-    let readyCallback;
     let originalPluginManager;
+    let mockRecaptchaScriptElement;
 
     beforeEach(() => {
-        readyCallback = undefined;
-
         window.grecaptcha = {
-            ready: jest.fn(cb => {
-                readyCallback = cb;
-            }),
+            ready: jest.fn(),
             render: jest.fn(),
             execute: jest.fn(),
         };
@@ -26,6 +22,10 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
         mockElement.checkValidity = jest.fn(() => true);
 
         document.body.appendChild(mockElement);
+
+        mockRecaptchaScriptElement = document.createElement('script');
+        mockRecaptchaScriptElement.id = 'recaptcha-script';
+        document.body.appendChild(mockRecaptchaScriptElement);
 
         originalPluginManager = window.PluginManager;
         window.PluginManager = {
@@ -48,16 +48,12 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
     });
 
     afterEach(() => {
-        jest.restoreAllMocks();
         window.grecaptcha = undefined;
-        googleReCaptchaBasePlugin = undefined;
-        readyCallback = undefined;
-        document.body.innerHTML = '';
-        window.PluginManager = originalPluginManager;
-        const scriptEl = document.getElementById('recaptcha-script');
-        if (scriptEl) {
-            scriptEl.remove();
+        document.body.removeChild(mockElement);
+        if (mockRecaptchaScriptElement?.parentElement) {
+            mockRecaptchaScriptElement.parentElement.removeChild(mockRecaptchaScriptElement);
         }
+        window.PluginManager = originalPluginManager;
     });
 
     test('GoogleReCaptchaBasePlugin exists and init calls grecaptcha.ready', () => {
@@ -66,6 +62,10 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
     });
 
     test('init sets src on recaptcha script if data-src exists and src is missing', () => {
+        if (mockRecaptchaScriptElement?.parentElement) {
+            mockRecaptchaScriptElement.parentElement.removeChild(mockRecaptchaScriptElement);
+        }
+
         const script = document.createElement('script');
         script.id = 'recaptcha-script';
         script.setAttribute('data-src', 'http://example.com/recaptcha.js');
@@ -76,6 +76,10 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
             grecaptchaInputSelector: '.grecaptcha-input',
         });
         expect(script.getAttribute('src')).toBe('http://example.com/recaptcha.js');
+
+        if (script.parentElement) {
+            script.parentElement.removeChild(script);
+        }
     });
 
 
@@ -99,6 +103,8 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
         noFormPluginReadyCallback.call(noFormPlugin);
 
         expect(noFormPlugin.grecaptchaInput).toBeUndefined();
+
+        document.body.removeChild(divElement);
     });
 
 
@@ -121,6 +127,8 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
 
     test('Throw error if input field for Google reCAPTCHA is missing during async init', () => {
         const mockFormError = document.createElement('form');
+        document.body.appendChild(mockFormError);
+
         let errorPluginReadyCallback;
         window.grecaptcha.ready = jest.fn(cb => {
             errorPluginReadyCallback = cb;
@@ -130,6 +138,8 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
         });
         expect(errorPluginReadyCallback).toBeDefined();
         expect(() => errorPluginReadyCallback.call(errorPlugin)).toThrow('Input field for Google reCAPTCHA is missing!');
+
+        document.body.removeChild(mockFormError);
     });
 
     describe('AJAX form submission handling', () => {
@@ -174,9 +184,7 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
             };
             window.PluginManager = specificPluginManagerMock;
 
-            if (readyCallback) {
-                readyCallback.call(googleReCaptchaBasePlugin);
-            }
+            googleReCaptchaBasePlugin._executeGoogleReCaptchaInitialization();
         });
 
         test('_setGoogleReCaptchaHandleSubmit sets flag on AJAX plugins', () => {
@@ -195,9 +203,9 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
 
 
     test('onFormSubmit is called _onFormSubmitCallback after async init', () => {
-        if (!readyCallback) throw new Error('readyCallback was not captured for googleReCaptchaBasePlugin');
-        readyCallback.call(googleReCaptchaBasePlugin);
+        googleReCaptchaBasePlugin._executeGoogleReCaptchaInitialization();
         expect(googleReCaptchaBasePlugin._form).toBeDefined();
+
         googleReCaptchaBasePlugin.onFormSubmit = jest.fn();
         googleReCaptchaBasePlugin._formSubmitting = true;
         const submitEvent = new Event('submit');
@@ -224,18 +232,8 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
             }),
         };
 
-        let pluginReadyCallback;
-        window.grecaptcha.ready = jest.fn(cb => { pluginReadyCallback = cb; });
-
         const testPlugin = new GoogleReCaptchaBasePlugin(mockElement, { grecaptchaInputSelector: '.grecaptcha-input' });
-
-        window.PluginManager.getPluginInstancesFromElement = jest.fn(() => []);
-
-        if (pluginReadyCallback) {
-            pluginReadyCallback.call(testPlugin);
-        } else {
-            throw new Error('Ready callback not captured for testPlugin in \'form is not submitted...\' test');
-        }
+        testPlugin._executeGoogleReCaptchaInitialization();
 
         expect(testPlugin._form).toBeDefined();
         testPlugin._form.submit = jest.fn();
@@ -270,4 +268,3 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
         expect(pluginWithChildEl._form).toBe(parentForm);
     });
 });
-

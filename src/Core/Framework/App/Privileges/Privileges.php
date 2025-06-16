@@ -79,8 +79,14 @@ class Privileges
      */
     public function revokeAllForApps(array $appIds, Context $context): void
     {
+        $privileges = $this->fetchPrivileges($appIds);
+
         foreach ($appIds as $appId) {
-            $this->writePrivileges($appId, [], [], $context);
+            [$existingPrivileges, $requestedPrivileges] = $privileges[$appId];
+
+            $new = array_merge($existingPrivileges, $requestedPrivileges);
+
+            $this->writePrivileges($appId, [], $new, $context);
         }
     }
 

@@ -5,7 +5,7 @@ namespace Shopware\Core\Service\Subscriber;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Service\Event\PermissionsGrantedEvent;
+use Shopware\Core\Service\Event\PermissionsRevokedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -23,11 +23,11 @@ readonly class PermissionsRevokedSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            PermissionsRevokedSubscriber::class => 'requestPermissionsForInstalledServices',
+            PermissionsRevokedEvent::class => 'revokePermissionsForInstalledAServices',
         ];
     }
 
-    public function requestPermissionsForInstalledServices(PermissionsGrantedEvent $event): void
+    public function revokePermissionsForInstalledAServices(PermissionsRevokedEvent $event): void
     {
         $this->privileges->revokeAllForApps($this->loadInstalledServiceIds(), $event->getContext());
     }

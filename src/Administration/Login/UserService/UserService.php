@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Administration\Login\TokenService\IdTokenParser;
 use Shopware\Administration\Login\TokenService\ParsedIdToken;
+use Shopware\Administration\Login\TokenService\TokenResult;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -35,16 +36,16 @@ final class UserService
     /**
      * @param non-empty-string $idToken
      */
-    public function getUser(string $idToken, string $refreshToken): ExternalAuthUser
+    public function getUser(TokenResult $tokenResult): ExternalAuthUser
     {
-        $parsedIdToken = $this->idTokenParser->parse($idToken);
+        $parsedIdToken = $this->idTokenParser->parse($tokenResult->idToken);
 
         $invitedUser = $this->getInvitedUser($parsedIdToken);
         if ($invitedUser instanceof UserEntity) {
             $this->activateInvitedUser($invitedUser, $parsedIdToken);
         }
 
-        $userSearchResult = $this->searchUser($parsedIdToken, $refreshToken);
+        $userSearchResult = $this->searchUser($parsedIdToken, $tokenResult);
         if (!$userSearchResult instanceof ExternalAuthUser) {
             throw LoginException::userNotFound($parsedIdToken->email);
         }
@@ -58,20 +59,20 @@ final class UserService
         return $userSearchResult;
     }
 
-    private function searchUser(ParsedIdToken $parsedToken, string $refreshToken): ?ExternalAuthUser
+    private function searchUser(ParsedIdToken $parsedToken, TokenResult $tokenResult): ?ExternalAuthUser
     {
-        $userSearchResult = $this->searchBySub($parsedToken, $refreshToken);
+        $userSearchResult = $this->searchBySub($parsedToken, $tokenResult);
         if (!$userSearchResult instanceof ExternalAuthUser) {
-            $userSearchResult = $this->searchByEmail($parsedToken, $refreshToken);
+            $userSearchResult = $this->searchByEmail($parsedToken, $tokenResult);
         }
 
         return $userSearchResult;
     }
 
-    private function searchBySub(ParsedIdToken $parsedToken, string $refreshToken): ?ExternalAuthUser
+    private function searchBySub(ParsedIdToken $parsedToken, TokenResult $tokenResult): ?ExternalAuthUser
     {
         $tokenUserData = $this->connection->createQueryBuilder()
-            ->select('token_user.id', 'token_user.user_id', 'token_user.user_sub', 'token_user.refresh_token', 'token_user.expiry', 'user.email')
+            ->select('token_user.id', 'token_user.user_id', 'token_user.user_sub', 'token_user.token', 'token_user.expiry', 'user.email')
             ->from('token_user', 'token_user')
             ->join('token_user', 'user', 'user', 'token_user.user_id = user.id')
             ->where('token_user.user_sub = :sub')
@@ -85,7 +86,10 @@ final class UserService
 
         $tokenUserData['id'] = Uuid::fromBytesToHex($tokenUserData['id']);
         $tokenUserData['user_id'] = Uuid::fromBytesToHex($tokenUserData['user_id']);
-        $tokenUserData['refresh_token'] = $refreshToken;
+        $tokenUserData['token'] = [
+            'token' => $tokenResult->accessToken,
+            'refreshToken' => $tokenResult->refreshToken,
+        ];
         $tokenUserData['is_new'] = false;
         if ($tokenUserData['expiry'] !== null) {
             $tokenUserData['expiry'] = new \DateTimeImmutable($tokenUserData['expiry']);
@@ -94,7 +98,7 @@ final class UserService
         return ExternalAuthUser::create($tokenUserData);
     }
 
-    private function searchByEmail(ParsedIdToken $parsedToken, string $refreshToken): ?ExternalAuthUser
+    private function searchByEmail(ParsedIdToken $parsedToken, TokenResult $tokenResult): ?ExternalAuthUser
     {
         $criteria = new Criteria();
         $criteria->addFilter(
@@ -119,7 +123,10 @@ final class UserService
             'id' => Uuid::randomHex(),
             'user_id' => $user->getId(),
             'user_sub' => $parsedToken->sub,
-            'refresh_token' => $refreshToken,
+            'token' => [
+                'token' => $tokenResult->accessToken,
+                'refreshToken' => $tokenResult->refreshToken,
+            ],
             'expiry' => $parsedToken->expiry,
             'email' => $user->getEmail(),
             'is_new' => true,
@@ -147,7 +154,7 @@ final class UserService
                     'id' => Uuid::randomBytes(),
                     'user_id' => Uuid::fromHexToBytes($userSearchResult->userId),
                     'user_sub' => $userSearchResult->sub,
-                    'refresh_token' => $userSearchResult->refreshToken,
+                    'token' => $userSearchResult->token->toJson(),
                     'expiry' => $userSearchResult->expiry?->format(\DATE_RFC3339),
                     'created_at' => (new \DateTime())->format(\DATE_RFC3339),
                     'updated_at' => null,
@@ -160,7 +167,7 @@ final class UserService
         $this->connection->update(
             'token_user',
             [
-                'refresh_token' => $userSearchResult->refreshToken,
+                'token' => $userSearchResult->token->toJson(),
                 'expiry' => $userSearchResult->expiry?->format(\DATE_RFC3339),
                 'updated_at' => (new \DateTime())->format(\DATE_RFC3339),
             ],

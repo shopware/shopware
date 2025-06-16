@@ -19,6 +19,7 @@ class LoginException extends HttpException
     final public const LOGIN_INVALID_LOGIN_STATE = 'LOGIN__INVALID_LOGIN_STATE';
     final public const LOGIN_INVALID_TOKEN_RESPONSE = 'LOGIN__INVALID_TOKEN_RESPONSE';
     final public const LOGIN_INVALID_ID_TOKEN_DATA_SET = 'LOGIN__INVALID_ID_TOKEN_DATA_SET';
+    final public const LOGIN_INVALID_REFRESH_OR_ACCESS_TOKEN = 'LOGIN__INVALID_REFRESH_OR_ACCESS_TOKEN';
     final public const LOGIN_INVALID_REQUEST_NO_CODE_PROVIDED = 'LOGIN__INVALID_REQUEST_NO_CODE_PROVIDED';
     final public const LOGIN_PUBLIC_KEY_NOT_FOUND = 'LOGIN__PUBLIC_KEY_NOT_FOUND';
     final public const LOGIN_INVALID_ID_TOKEN = 'LOGIN__INVALID_ID_TOKEN';
@@ -157,6 +158,18 @@ class LoginException extends HttpException
             Response::HTTP_UNAUTHORIZED,
             self::LOGIN_INVALID_ID_TOKEN,
             'The id token is invalid',
+        );
+    }
+
+    public static function invalidRefreshOrAccessToken(array $violations): self
+    {
+        return new self(
+            Response::HTTP_UNAUTHORIZED,
+            self::LOGIN_INVALID_REFRESH_OR_ACCESS_TOKEN,
+            'Invalid user Access or refresh token: {{ missingFields }}',
+            [
+                'missingFields' => \implode(', ', $violations),
+            ]
         );
     }
 }

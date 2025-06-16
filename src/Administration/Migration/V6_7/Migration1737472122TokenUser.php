@@ -24,7 +24,7 @@ class Migration1737472122TokenUser extends MigrationStep
                 `id` BINARY(16) UNIQUE NOT NULL,
                 `user_id` BINARY(16) UNIQUE NOT NULL,
                 `user_sub` VARCHAR(255) UNIQUE NOT NULL,
-                `refresh_token` TEXT NOT NULL,
+                `token` JSON DEFAULT NULL,
                 `expiry` DATETIME NOT NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3),

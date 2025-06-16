@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Service\Api;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -110,7 +111,7 @@ class ServiceController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/service/list', name: 'api.service.list', defaults: ['auth_required' => true, '_acl' => ['api_service_list']], methods: ['GET'])]
+    #[Route(path: '/api/service/list', name: 'api.service.list', defaults: ['auth_required' => true, '_acl' => ['system.plugin_maintain']], methods: ['GET'])]
     public function list(Context $context): JsonResponse
     {
         return new JsonResponse($this->loadAllServices($context));
@@ -122,17 +123,20 @@ class ServiceController
     private function loadAllServices(Context $context): array
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('selfManaged', true));
+        $criteria->addFilter(new EqualsFilter('selfManaged', true))
+            ->addAssociation('app.acl_role');
 
         return array_values($this->appRepository->search($criteria, $context)->getEntities()->map(fn (AppEntity $app) => [
             'id' => $app->getId(),
             'name' => $app->getName(),
+            'label' => $app->getTranslated()['label'] ?? $app->getName(),
             'active' => $app->isActive(),
             'icon' => $app->getIcon(),
             'description' => $app->getTranslated()['description'] ?? null,
-            'updated_at' => $app->getUpdatedAt() ?? $app->getCreatedAt(),
+            'updated_at' => date_format(($app->getUpdatedAt() ?? $app->getCreatedAt()), Defaults::STORAGE_DATE_TIME_FORMAT),
             'version' => $app->getVersion(),
-            'needs_permissions' => true, // todo: count($app->getRequestedPrivileges()) > 0 (see https://github.com/shopware/shopware/pull/7116)
+            'requested_privileges' => $app->getRequestedPrivileges(),
+            'privileges' => $app->getAclRole()->getPrivileges(),
         ]));
     }
 

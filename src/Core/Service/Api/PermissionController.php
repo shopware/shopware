@@ -20,7 +20,7 @@ readonly class PermissionController
     ) {
     }
 
-    #[Route(path: '/api/services/permissions/grant/{revision}', name: 'api.services.permissions.grant', defaults: ['auth_required' => true, '_acl' => ['system.system_config']], methods: ['POST'])]
+    #[Route(path: '/api/services/permissions/grant/{revision}', name: 'api.services.permissions.grant', defaults: ['auth_required' => true, '_acl' => ['system.system_config', 'system.plugin_maintain']], methods: ['POST'])]
     public function grantPermissions(string $revision, Context $context): JsonResponse
     {
         $this->permissionsService->grantPermissions($revision, $context);
@@ -28,7 +28,7 @@ readonly class PermissionController
         return new JsonResponse();
     }
 
-    #[Route(path: '/api/services/permissions/revoke', name: 'api.services.permissions.revoke', defaults: ['auth_required' => true, '_acl' => ['system.system_config']], methods: ['POST'])]
+    #[Route(path: '/api/services/permissions/revoke', name: 'api.services.permissions.revoke', defaults: ['auth_required' => true, '_acl' => ['system.system_config', 'system.plugin_maintain']], methods: ['POST'])]
     public function revokePermissions(Context $context): JsonResponse
     {
         $this->permissionsService->revokePermissions($context);

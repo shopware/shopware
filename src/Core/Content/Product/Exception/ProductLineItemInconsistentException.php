@@ -12,7 +12,7 @@ class ProductLineItemInconsistentException extends ShopwareHttpException
     public function __construct(string $lineItemId)
     {
         $message = \sprintf(
-            'To change the product of line item (%s), the following properties must also be updated: `productId`, `referenceId`, `payload.productNumber`.',
+            'To change the product of line item (%s), the following properties must also be updated: `productId`, `referencedId`, `payload.productNumber`.',
             $lineItemId
         );
 

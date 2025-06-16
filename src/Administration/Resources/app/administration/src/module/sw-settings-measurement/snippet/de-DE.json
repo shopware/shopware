@@ -19,5 +19,12 @@
       "saveMeasurementSuccess": "Maßeinheitensystem-Einstellungen erfolgreich gespeichert",
       "saveMeasurementError": "Fehler beim Speichern der Maßeinheitensystem-Einstellungen"
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "measurement": {
+        "label": "Maßeinheitensystem"
+      }
+    }
   }
 }

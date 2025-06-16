@@ -5,7 +5,7 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from '../../../../core/data/entity-collection.data';
 
-async function createWrapper(repositoryMock, measurementUnits = {}) {
+async function createWrapper(repositoryMock, measurementUnits = {}, privileges = []) {
     const mockDefaultUnits = new EntityCollection(
         '/measurement-system',
         'measurement_system',
@@ -103,6 +103,16 @@ async function createWrapper(repositoryMock, measurementUnits = {}) {
             },
     };
 
+    const acl = {
+        can: (privilege) => {
+            if (!privilege) {
+                return true;
+            }
+
+            return privileges.includes(privilege);
+        },
+    };
+
     return mount(await wrapTestComponent('sw-sales-channel-measurement', { sync: true }), {
         props: {
             salesChannel: {
@@ -151,6 +161,7 @@ async function createWrapper(repositoryMock, measurementUnits = {}) {
             },
             provide: {
                 repositoryFactory,
+                acl,
             },
         },
     });
@@ -206,7 +217,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-measurement', (
     });
 
     it('should correctly update units on onMeasurementSystemChange', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper(null, {}, ['sales_channel.editor']);
 
         const systemInput = wrapper.findAll('.mt-select__input').at(0);
         await systemInput.setValue('imperial');
@@ -219,13 +230,17 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-measurement', (
     });
 
     it('should update measurement units when measurement system changes', async () => {
-        const wrapper = await createWrapper(null, {
-            system: 'imperial',
-            units: {
-                length: 'in',
-                weight: 'lb',
+        const wrapper = await createWrapper(
+            null,
+            {
+                system: 'imperial',
+                units: {
+                    length: 'in',
+                    weight: 'lb',
+                },
             },
-        });
+            ['sales_channel.editor'],
+        );
 
         expect(wrapper.vm.measurementUnits.system).toBe('imperial');
         expect(wrapper.vm.measurementUnits.units).toEqual({
@@ -293,7 +308,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-measurement', (
             get: jest.fn().mockResolvedValue(),
         };
 
-        const wrapper = await createWrapper(measurementSystemRepository);
+        const wrapper = await createWrapper(measurementSystemRepository, {}, ['sales_channel.editor']);
         await flushPromises();
 
         expect(wrapper.vm.lengthUnitOptions.length).toBeGreaterThan(0);
@@ -350,7 +365,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-measurement', (
             get: jest.fn().mockResolvedValue(),
         };
 
-        const wrapper = await createWrapper(measurementSystemRepository);
+        const wrapper = await createWrapper(measurementSystemRepository, {}, ['sales_channel.editor']);
         await flushPromises();
 
         expect(wrapper.vm.weightUnitOptions.length).toBeGreaterThan(0);

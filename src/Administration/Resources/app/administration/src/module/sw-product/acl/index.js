@@ -54,6 +54,8 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'number_range:read',
                 'number_range_type:read',
                 Shopware.Service('privileges').getPrivileges('cms.viewer'),
+                Shopware.Service('privileges').getPrivileges('measurement.viewer'),
+                'user_config:read',
             ],
             dependencies: [],
         },
@@ -99,6 +101,8 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'product_feature_set:create',
                 'product_feature_set:update',
                 'product_feature_set:delete',
+                'user_config:create',
+                'user_config:update',
             ],
             dependencies: [
                 'product.viewer',

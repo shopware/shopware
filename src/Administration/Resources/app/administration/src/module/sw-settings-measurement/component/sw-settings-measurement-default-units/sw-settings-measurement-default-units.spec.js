@@ -4,7 +4,7 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from '../../../../core/data/entity-collection.data';
 
-const createWrapper = async () => {
+const createWrapper = async (privileges = []) => {
     const mockDefaultUnits = new EntityCollection(
         '/measurement-system',
         'measurement_system',
@@ -91,6 +91,16 @@ const createWrapper = async () => {
         }),
     };
 
+    const acl = {
+        can: (privilege) => {
+            if (!privilege) {
+                return true;
+            }
+
+            return privileges.includes(privilege);
+        },
+    };
+
     return mount(
         await wrapTestComponent('sw-settings-measurement-default-units', {
             sync: true,
@@ -152,6 +162,7 @@ const createWrapper = async () => {
 
                 provide: {
                     repositoryFactory,
+                    acl,
                 },
             },
         },
@@ -160,12 +171,12 @@ const createWrapper = async () => {
 
 describe('src/module/sw-settings-measurement/component/sw-settings-measurement-default-units', () => {
     it('should be a Vue component', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper(['measurement.editor']);
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render the component properly', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper(['measurement.editor']);
 
         expect(wrapper.find('.sw-settings-measurement-default-units').exists()).toBeTruthy();
         expect(wrapper.find('.sw-settings-measurement-default-units__description').exists()).toBeTruthy();
@@ -180,7 +191,7 @@ describe('src/module/sw-settings-measurement/component/sw-settings-measurement-d
     });
 
     it('should emit measurement-system-change event when measurement system changes', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper(['measurement.editor']);
         const selects = wrapper.findAll('.mt-select__input');
 
         await selects.at(0).setValue('imperial');
@@ -191,7 +202,7 @@ describe('src/module/sw-settings-measurement/component/sw-settings-measurement-d
     });
 
     it('should format unit label correctly', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper(['measurement.editor']);
 
         const item = {
             name: 'Meter',
@@ -206,7 +217,7 @@ describe('src/module/sw-settings-measurement/component/sw-settings-measurement-d
     });
 
     it('should handle null values in label callbacks', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper(['measurement.editor']);
 
         expect(wrapper.vm.labelUnitCallback(null)).toBe('');
     });

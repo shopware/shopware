@@ -35,6 +35,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: [
         'repositoryFactory',
+        'acl',
     ],
 
     emits: [

@@ -4,7 +4,7 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
-const createWrapper = async (options = {}) => {
+const createWrapper = async (options = {}, privileges = []) => {
     const mockMeasurementSystem = {
         'core.measurementUnits.system': 'metric',
         'core.measurementUnits.length': 'mm',
@@ -74,6 +74,16 @@ const createWrapper = async (options = {}) => {
         }),
     };
 
+    const acl = {
+        can: (privilege) => {
+            if (!privilege) {
+                return true;
+            }
+
+            return privileges.includes(privilege);
+        },
+    };
+
     return mount(
         await wrapTestComponent('sw-settings-measurement', {
             sync: true,
@@ -105,6 +115,7 @@ const createWrapper = async (options = {}) => {
                 provide: {
                     repositoryFactory,
                     systemConfigApiService,
+                    acl,
                 },
                 mocks: {
                     $createTitle: () => 'Test Title',
@@ -122,7 +133,7 @@ describe('src/module/sw-settings-measurement/page/sw-settings-measurement', () =
     const resetApiErrors = jest.fn();
 
     beforeEach(async () => {
-        wrapper = await createWrapper();
+        wrapper = await createWrapper({}, ['measurement.creator']);
 
         Shopware.Store.unregister('error');
         Shopware.Store.register({

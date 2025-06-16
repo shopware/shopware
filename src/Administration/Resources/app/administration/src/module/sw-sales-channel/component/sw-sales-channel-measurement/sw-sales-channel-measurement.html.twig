@@ -9,6 +9,7 @@
         :label="labelUnitSystem"
         :options="measurementSystemOptions"
         :error="measurementUnitSystemError"
+        :disabled="!acl.can('sales_channel.editor')"
         @update:model-value="onMeasurementSystemChange"
     />
 
@@ -19,6 +20,7 @@
         :label="labelLengthUnit"
         :options="lengthUnitOptions"
         :error="measurementLengthUnitError"
+        :disabled="!acl.can('sales_channel.editor')"
     >
         <template #result-label-property="{ item, searchTerm }">
             <sw-highlight-text
@@ -39,6 +41,7 @@
         hide-clearable-button
         :options="weightUnitOptions"
         :error="measurementWeightUnitError"
+        :disabled="!acl.can('sales_channel.editor')"
     >
         <template #result-label-property="{ item, searchTerm }">
             <sw-highlight-text

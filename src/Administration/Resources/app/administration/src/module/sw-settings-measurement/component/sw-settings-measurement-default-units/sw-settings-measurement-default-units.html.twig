@@ -11,7 +11,11 @@
         class="sw-settings-measurement-default-units__description"
     >
         <template #link>
-            <sw-internal-link :router-link="{ name: 'sw.sales.channel.list' }" inline hide-icon>
+            <sw-internal-link
+                :router-link="{ name: 'sw.sales.channel.list' }"
+                inline
+                hide-icon
+            >
                 {{ $tc('sw-settings-measurement.defaultUnits.linkText') }}
             </sw-internal-link>
         </template>
@@ -28,6 +32,7 @@
             :label="$t('sw-settings-measurement.defaultUnits.config.type')"
             :options="measurementSystemOptions"
             :error="measurementUnitSystemError"
+            :disabled="!acl.can('measurement.editor')"
             @update:model-value="onChangeMeasurementSystem"
         />
 
@@ -38,6 +43,7 @@
             :label="$t('sw-settings-measurement.defaultUnits.config.lengthUnit')"
             :options="lengthUnitOptions"
             :error="measurementLengthUnitError"
+            :disabled="!acl.can('measurement.editor')"
         >
             <template #result-label-property="{ item, searchTerm }">
                 <sw-highlight-text
@@ -58,6 +64,7 @@
             :label="$t('sw-settings-measurement.defaultUnits.config.weightUnit')"
             :options="weightUnitOptions"
             :error="measurementWeightUnitError"
+            :disabled="!acl.can('measurement.editor')"
         >
             <template #result-label-property="{ item, searchTerm }">
                 <sw-highlight-text

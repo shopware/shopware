@@ -19,5 +19,12 @@
       "saveMeasurementSuccess": "Measurement system settings saved successfully",
       "saveMeasurementError": "Failed to save measurement system settings"
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "measurement": {
+        "label": "Measurement system"
+      }
+    }
   }
 }

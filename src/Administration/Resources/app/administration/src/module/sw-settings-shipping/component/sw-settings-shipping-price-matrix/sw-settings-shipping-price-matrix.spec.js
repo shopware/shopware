@@ -150,4 +150,76 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(wrapper.vm.showAllPrices).toBeTruthy();
         expect(wrapper.vm.shippingMethod.prices).toHaveLength(length + 1);
     });
+
+    describe('Price matrix quantity handling', () => {
+        it('should update next price start value when quantity end changes (quantity calculation)', async () => {
+            const wrapper = await createWrapper();
+            wrapper.vm.updateShowAllPrices(); // Show all prices
+            wrapper.vm.priceGroup.calculation = 1; // Set to quantity calculation
+
+            // Set initial values
+            wrapper.vm.priceGroup.prices[0].quantityEnd = 5;
+            wrapper.vm.priceGroup.prices[1].quantityStart = 6;
+
+            // Change quantity end of first price
+            wrapper.vm.onQuantityEndChange(wrapper.vm.priceGroup.prices[0]);
+
+            // Check if next price start was updated
+            expect(wrapper.vm.priceGroup.prices[1].quantityStart).toBe(5);
+        });
+
+        it('should update next price start value when quantity end changes (price calculation)', async () => {
+            const wrapper = await createWrapper();
+            wrapper.vm.updateShowAllPrices(); // Show all prices
+            wrapper.vm.priceGroup.calculation = 2; // Set to price calculation
+
+            // Set initial values
+            wrapper.vm.priceGroup.prices[0].quantityEnd = 100;
+            wrapper.vm.priceGroup.prices[1].quantityStart = 101;
+
+            // Change quantity end of first price
+            wrapper.vm.onQuantityEndChange(wrapper.vm.priceGroup.prices[0]);
+
+            // Check if next price start was updated
+            expect(wrapper.vm.priceGroup.prices[1].quantityStart).toBe(100);
+        });
+
+        it('should handle changeNextPrice for middle price in matrix', async () => {
+            const wrapper = await createWrapper();
+            wrapper.vm.updateShowAllPrices(); // Show all prices
+
+            // Add a third price to test middle price behavior
+            const newPrice = {
+                _isNew: true,
+                id: 'priceId3',
+                shippingMethodId: 'shippingMethodId',
+                quantityStart: 3,
+                quantityEnd: null,
+                ruleId: 'ruleId',
+                rule: {},
+                calculation: 1,
+                currencyPrice: [
+                    {
+                        currencyId: 'euro',
+                        gross: 0,
+                        linked: false,
+                        net: 0,
+                    },
+                ],
+            };
+            wrapper.vm.priceGroup.prices.push(newPrice);
+
+            // Set values for testing
+            wrapper.vm.priceGroup.prices[0].quantityEnd = 5;
+            wrapper.vm.priceGroup.prices[1].quantityStart = 6;
+            wrapper.vm.priceGroup.prices[1].quantityEnd = 10;
+            wrapper.vm.priceGroup.prices[2].quantityStart = 11;
+
+            // Change middle price's end value
+            wrapper.vm.onQuantityEndChange(wrapper.vm.priceGroup.prices[1]);
+
+            // Check if next price start was updated
+            expect(wrapper.vm.priceGroup.prices[2].quantityStart).toBe(10);
+        });
+    });
 });

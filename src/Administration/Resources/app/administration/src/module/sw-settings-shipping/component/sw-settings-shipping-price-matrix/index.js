@@ -489,6 +489,7 @@ export default {
         onQuantityEndChange(price) {
             // when not last price
             if (this.priceGroup.prices.indexOf(price) + 1 !== this.priceGroup.prices.length) {
+                this.changeNextPrice(this.priceGroup.prices.indexOf(price));
                 return;
             }
 
@@ -497,6 +498,10 @@ export default {
 
         updateShowAllPrices() {
             this.showAllPrices = true;
+        },
+
+        changeNextPrice(index) {
+            this.priceGroup.prices[index + 1].quantityStart = this.priceGroup.prices[index].quantityEnd;
         },
     },
 };

@@ -134,10 +134,10 @@ class ServiceController
             'active' => $app->isActive(),
             'icon' => $app->getIcon(),
             'description' => $app->getTranslated()['description'] ?? null,
-            'updated_at' => date_format(($app->getUpdatedAt() ?? $app->getCreatedAt()), Defaults::STORAGE_DATE_TIME_FORMAT),
+            'updated_at' => ($app->getUpdatedAt() ?? $app->getCreatedAt())?->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'version' => $app->getVersion(),
             'requested_privileges' => $app->getRequestedPrivileges(),
-            'privileges' => $app->getAclRole()->getPrivileges(),
+            'privileges' => $app->getAclRole()?->getPrivileges(),
             'state' => State::state($app),
         ]));
     }

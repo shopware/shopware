@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnitTypeEnum;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -57,7 +58,15 @@ class SalesChannelContext extends Struct
         protected CashRoundingConfig $totalRounding,
         protected LanguageInfo $languageInfo,
         protected array $areaRuleIds = [],
+        ?MeasurementUnits $measurementSystem = null,
     ) {
+        $this->measurementSystem = $measurementSystem ?? new MeasurementUnits(
+            MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM,
+            [
+                MeasurementUnitTypeEnum::LENGTH->value => MeasurementUnits::DEFAULT_LENGTH_UNIT,
+                MeasurementUnitTypeEnum::WEIGHT->value => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
+            ]
+        );
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupEntity
@@ -433,13 +442,7 @@ class SalesChannelContext extends Struct
 
     public function getMeasurementSystem(): MeasurementUnits
     {
-        return $this->measurementSystem ?? new MeasurementUnits(
-            MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM,
-            [
-                'length' => MeasurementUnits::DEFAULT_LENGTH_UNIT,
-                'weight' => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
-            ]
-        );
+        return $this->measurementSystem;
     }
 
     public function setMeasurementSystem(MeasurementUnits $measurementSystem): void

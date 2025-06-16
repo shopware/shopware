@@ -48,8 +48,8 @@ class MeasurementUnits extends Struct
         return new self(
             self::DEFAULT_MEASUREMENT_SYSTEM,
             [
-                'length' => self::DEFAULT_LENGTH_UNIT,
-                'weight' => self::DEFAULT_WEIGHT_UNIT,
+                MeasurementUnitTypeEnum::LENGTH->value => self::DEFAULT_LENGTH_UNIT,
+                MeasurementUnitTypeEnum::WEIGHT->value => self::DEFAULT_WEIGHT_UNIT,
             ]
         );
     }
@@ -57,14 +57,6 @@ class MeasurementUnits extends Struct
     public function getSystem(): string
     {
         return $this->system;
-    }
-
-    public function jsonSerialize(): array
-    {
-        return [
-            'system' => $this->system,
-            'units' => $this->units,
-        ];
     }
 
     public function getApiAlias(): string

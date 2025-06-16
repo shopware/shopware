@@ -1,15 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\MeasurementSystem\UnitConverter;
+namespace Shopware\Core\Content\MeasurementSystem\Unit;
 
 use Shopware\Core\Content\MeasurementSystem\MeasurementSystemException;
-use Shopware\Core\Content\MeasurementSystem\UnitProvider\AbstractMeasurementUnitProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
-/**
- * @phpstan-import-type MeasurementUnitType from AbstractMeasurementUnitProvider
- */
 #[Package('inventory')]
 class MeasurementUnitConverter extends AbstractMeasurementUnitConverter
 {
@@ -29,19 +25,18 @@ class MeasurementUnitConverter extends AbstractMeasurementUnitConverter
         $fromUnitInfo = $this->unitProvider->getUnitInfo($fromUnit);
         $toUnitInfo = $this->unitProvider->getUnitInfo($toUnit);
 
-        if ($fromUnitInfo['type'] !== $toUnitInfo['type']) {
+        if ($fromUnitInfo->type !== $toUnitInfo->type) {
             throw MeasurementSystemException::incompatibleMeasurementUnits($fromUnit, $toUnit);
         }
 
-        // Protect against division by zero
-        if ($toUnitInfo['factor'] === 0) {
+        if ($toUnitInfo->factor === 0.0) {
             throw MeasurementSystemException::measurementUnitCantHaveZeroFactor($toUnit);
         }
 
-        $value = $value * $fromUnitInfo['factor'] / $toUnitInfo['factor'];
+        $value = $value * $fromUnitInfo->factor / $toUnitInfo->factor;
 
         // Use the target unit's precision from database if no override is provided
-        $targetRounding = $precision ?? $toUnitInfo['precision'];
+        $targetRounding = $precision ?? $toUnitInfo->precision;
         $roundedValue = round($value, $targetRounding);
 
         return new ConvertedUnit($roundedValue, $toUnit);

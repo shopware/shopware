@@ -1,8 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\MeasurementSystem\DataAbstractionLayer;
+namespace Shopware\Core\Content\MeasurementSystem\Unit;
 
-use Shopware\Core\Content\MeasurementSystem\UnitConverter\ConvertedUnit;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -12,7 +11,7 @@ class ConvertedUnitSet extends Struct
     /**
      * @param array<string, ConvertedUnit> $units
      */
-    public function __construct(protected array $units = [])
+    public function __construct(private array $units = [])
     {
     }
 
@@ -37,11 +36,15 @@ class ConvertedUnitSet extends Struct
 
     public function getType(string $name): ?ConvertedUnit
     {
-        if (\array_key_exists($name, $this->units)) {
-            return $this->units[$name];
-        }
+        return $this->units[$name] ?? null;
+    }
 
-        return null;
+    /**
+     * @return array<string, ConvertedUnit>
+     */
+    public function getUnits(): array
+    {
+        return $this->units;
     }
 
     public function getApiAlias(): string

@@ -44,6 +44,7 @@ class SalesChannelContextTest extends TestCase
         static::assertSame([$idC], $salesChannelContext->getRuleIdsByAreas(['d']));
         static::assertSame([], $salesChannelContext->getRuleIdsByAreas(['f']));
         static::assertSame([
+            'extensions' => [],
             'system' => 'metric',
             'units' => [
                 'length' => 'mm',
@@ -61,6 +62,7 @@ class SalesChannelContextTest extends TestCase
 
         $salesChannelContext->setMeasurementSystem($newMeasurementSystem);
         static::assertSame([
+            'extensions' => [],
             'system' => 'imperial',
             'units' => [
                 'length' => 'in',

@@ -3,8 +3,10 @@
 namespace Shopware\Core\Content\Product\Subscriber;
 
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnitTypeEnum;
+use Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementEnum;
 use Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementUnitBuilder;
-use Shopware\Core\Content\MeasurementSystem\UnitConverter\AbstractMeasurementUnitConverter;
+use Shopware\Core\Content\MeasurementSystem\Unit\AbstractMeasurementUnitConverter;
 use Shopware\Core\Content\Product\AbstractIsNewDetector;
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
 use Shopware\Core\Content\Product\AbstractProductVariationBuilder;
@@ -106,7 +108,7 @@ class ProductSubscriber implements EventSubscriberInterface
 
             $assigns['isNew'] = $this->isNewDetector->isNew($product, $event->getSalesChannelContext());
 
-            $assigns['measurementUnits'] = $this->measurementUnitBuilder->build($product, $event->getSalesChannelContext());
+            $assigns['measurements'] = $this->measurementUnitBuilder->buildFromContext($product, $event->getSalesChannelContext());
 
             $product->assign($assigns);
 
@@ -123,45 +125,35 @@ class ProductSubscriber implements EventSubscriberInterface
         $lengthUnitHeader = $this->requestStack->getCurrentRequest()?->headers->get(PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT);
         $weightUnitHeader = $this->requestStack->getCurrentRequest()?->headers->get(PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT);
 
+        if (!$lengthUnitHeader && !$weightUnitHeader) {
+            return;
+        }
+
         $commands = $event->getCommandsForEntity(ProductDefinition::ENTITY_NAME);
 
         foreach ($commands as $command) {
-            if (!$lengthUnitHeader && !$weightUnitHeader) {
-                continue;
-            }
-
             $payload = $command->getPayload();
 
-            if ($command->hasField('width') && \is_float($payload['width']) && $lengthUnitHeader) {
-                $command->addPayload('width', $this->measurementUnitConverter->convert(
-                    $payload['width'],
-                    $lengthUnitHeader,
-                    MeasurementUnits::DEFAULT_LENGTH_UNIT,
-                )->value);
-            }
+            foreach (ProductMeasurementEnum::DIMENSIONS_MAPPING as $dimension => $type) {
+                if (!$command->hasField($dimension) || !\is_float($payload[$dimension] ?? null)) {
+                    continue;
+                }
 
-            if ($command->hasField('height') && \is_float($payload['height']) && $lengthUnitHeader) {
-                $command->addPayload('height', $this->measurementUnitConverter->convert(
-                    $payload['height'],
-                    $lengthUnitHeader,
-                    MeasurementUnits::DEFAULT_LENGTH_UNIT,
-                )->value);
-            }
+                $fromUnit = $type === MeasurementUnitTypeEnum::WEIGHT
+                    ? $weightUnitHeader
+                    : $lengthUnitHeader;
 
-            if ($command->hasField('length') && \is_float($payload['length']) && $lengthUnitHeader) {
-                $command->addPayload('length', $this->measurementUnitConverter->convert(
-                    $payload['length'],
-                    $lengthUnitHeader,
-                    MeasurementUnits::DEFAULT_LENGTH_UNIT,
-                )->value);
-            }
+                $toUnit = $type === MeasurementUnitTypeEnum::WEIGHT
+                    ? MeasurementUnits::DEFAULT_WEIGHT_UNIT
+                    : MeasurementUnits::DEFAULT_LENGTH_UNIT;
 
-            if ($command->hasField('weight') && \is_float($payload['weight']) && $weightUnitHeader) {
-                $command->addPayload('weight', $this->measurementUnitConverter->convert(
-                    $payload['weight'],
-                    $weightUnitHeader,
-                    MeasurementUnits::DEFAULT_WEIGHT_UNIT,
-                )->value);
+                if ($fromUnit) {
+                    $command->addPayload($dimension, $this->measurementUnitConverter->convert(
+                        $payload[$dimension],
+                        $fromUnit,
+                        $toUnit,
+                    )->value);
+                }
             }
         }
     }
@@ -191,33 +183,21 @@ class ProductSubscriber implements EventSubscriberInterface
     private function convertMeasurementUnit(ProductEntity|PartialEntity $product): void
     {
         $lengthUnitHeader = $this->requestStack->getCurrentRequest()?->headers->get(PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT);
+        $weightUnitHeader = $this->requestStack->getCurrentRequest()?->headers->get(PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT);
+
+        if (!$lengthUnitHeader && !$weightUnitHeader) {
+            return;
+        }
+
+        $toLengthUnit = $lengthUnitHeader ?? MeasurementUnits::DEFAULT_LENGTH_UNIT;
+        $toWeightUnit = $weightUnitHeader ?? MeasurementUnits::DEFAULT_WEIGHT_UNIT;
+
+        $converted = $this->measurementUnitBuilder->build($product, $toLengthUnit, $toWeightUnit);
 
         $assigns = [];
 
-        if ($lengthUnitHeader) {
-            $height = $product->get('height');
-            $width = $product->get('width');
-            $length = $product->get('length');
-
-            if (\is_float($height) && $height > 0) {
-                $assigns['height'] = $this->measurementUnitConverter->convert($height, MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnitHeader)->value;
-            }
-
-            if (\is_float($width) && $width > 0) {
-                $assigns['width'] = $this->measurementUnitConverter->convert($width, MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnitHeader)->value;
-            }
-
-            if (\is_float($length) && $length > 0) {
-                $assigns['length'] = $this->measurementUnitConverter->convert($length, MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnitHeader)->value;
-            }
-        }
-
-        $weightUnitHeader = $this->requestStack->getCurrentRequest()?->headers->get(PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT);
-
-        $weight = $product->get('weight');
-
-        if ($weightUnitHeader && \is_float($weight) && $weight > 0) {
-            $assigns['weight'] = $this->measurementUnitConverter->convert($product->get('weight'), MeasurementUnits::DEFAULT_WEIGHT_UNIT, $weightUnitHeader)->value;
+        foreach ($converted->getUnits() as $unit => $convertedUnit) {
+            $assigns[$unit] = $convertedUnit->value;
         }
 
         if (!empty($assigns)) {

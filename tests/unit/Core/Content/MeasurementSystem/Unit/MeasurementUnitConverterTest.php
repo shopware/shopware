@@ -1,15 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Content\MeasurementSystem\UnitConverter;
+namespace Shopware\Tests\Unit\Core\Content\MeasurementSystem\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\MeasurementSystem\DataAbstractionLayer\MeasurementDisplayUnitEntity;
 use Shopware\Core\Content\MeasurementSystem\MeasurementSystemException;
-use Shopware\Core\Content\MeasurementSystem\UnitConverter\MeasurementUnitConverter;
-use Shopware\Core\Content\MeasurementSystem\UnitProvider\AbstractMeasurementUnitProvider;
+use Shopware\Core\Content\MeasurementSystem\Unit\AbstractMeasurementUnitProvider;
+use Shopware\Core\Content\MeasurementSystem\Unit\MeasurementUnitConverter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
@@ -38,17 +40,19 @@ class MeasurementUnitConverterTest extends TestCase
 
     public function testConvertDifferentUnits(): void
     {
-        $fromUnitInfo = [
-            'type' => 'length',
-            'factor' => 1.0,
-            'precision' => 2,
-        ];
+        $fromUnitInfo = $this->createMeasurementDisplayUnitEntity(
+            'mm',
+            'length',
+            1.0,
+            2
+        );
 
-        $toUnitInfo = [
-            'type' => 'length',
-            'factor' => 10.0,
-            'precision' => 1,
-        ];
+        $toUnitInfo = $this->createMeasurementDisplayUnitEntity(
+            'cm',
+            'length',
+            10.0,
+            1
+        );
 
         $this->unitProvider
             ->expects($this->exactly(2))
@@ -66,17 +70,19 @@ class MeasurementUnitConverterTest extends TestCase
 
     public function testConvertWithCustomPrecision(): void
     {
-        $fromUnitInfo = [
-            'type' => 'length',
-            'factor' => 1.0,
-            'precision' => 2,
-        ];
+        $fromUnitInfo = $this->createMeasurementDisplayUnitEntity(
+            'mm',
+            'length',
+            1.0,
+            2
+        );
 
-        $toUnitInfo = [
-            'type' => 'length',
-            'factor' => 3.0,
-            'precision' => 1,
-        ];
+        $toUnitInfo = $this->createMeasurementDisplayUnitEntity(
+            'custom',
+            'length',
+            3.0,
+            3
+        );
 
         $this->unitProvider
             ->expects($this->exactly(2))
@@ -94,17 +100,19 @@ class MeasurementUnitConverterTest extends TestCase
 
     public function testConvertWithTargetUnitPrecision(): void
     {
-        $fromUnitInfo = [
-            'type' => 'weight',
-            'factor' => 1000.0,
-            'precision' => 3,
-        ];
+        $fromUnitInfo = $this->createMeasurementDisplayUnitEntity(
+            'kg',
+            'weight',
+            1000.0,
+            3
+        );
 
-        $toUnitInfo = [
-            'type' => 'weight',
-            'factor' => 1.0,
-            'precision' => 0,
-        ];
+        $toUnitInfo = $this->createMeasurementDisplayUnitEntity(
+            'g',
+            'weight',
+            1.0,
+            0
+        );
 
         $this->unitProvider
             ->expects($this->exactly(2))
@@ -122,17 +130,19 @@ class MeasurementUnitConverterTest extends TestCase
 
     public function testConvertIncompatibleUnits(): void
     {
-        $fromUnitInfo = [
-            'type' => 'length',
-            'factor' => 1.0,
-            'precision' => 2,
-        ];
+        $fromUnitInfo = $this->createMeasurementDisplayUnitEntity(
+            'mm',
+            'length',
+            1.0,
+            2
+        );
 
-        $toUnitInfo = [
-            'type' => 'weight',
-            'factor' => 1.0,
-            'precision' => 2,
-        ];
+        $toUnitInfo = $this->createMeasurementDisplayUnitEntity(
+            'kg',
+            'weight',
+            1.0,
+            2
+        );
 
         $this->unitProvider
             ->expects($this->exactly(2))
@@ -157,17 +167,19 @@ class MeasurementUnitConverterTest extends TestCase
 
     public function testConvertComplexCalculation(): void
     {
-        $fromUnitInfo = [
-            'type' => 'length',
-            'factor' => 0.001, // mm to m
-            'precision' => 2,
-        ];
+        $fromUnitInfo = $this->createMeasurementDisplayUnitEntity(
+            'mm',
+            'length',
+            0.001,
+            2
+        );
 
-        $toUnitInfo = [
-            'type' => 'length',
-            'factor' => 0.01, // cm to m
-            'precision' => 3,
-        ];
+        $toUnitInfo = $this->createMeasurementDisplayUnitEntity(
+            'cm',
+            'length',
+            0.01,
+            3
+        );
 
         $this->unitProvider
             ->expects($this->exactly(2))
@@ -186,17 +198,19 @@ class MeasurementUnitConverterTest extends TestCase
 
     public function testConvertZeroValue(): void
     {
-        $fromUnitInfo = [
-            'type' => 'length',
-            'factor' => 1.0,
-            'precision' => 2,
-        ];
+        $fromUnitInfo = $this->createMeasurementDisplayUnitEntity(
+            'mm',
+            'length',
+            1.0,
+            2
+        );
 
-        $toUnitInfo = [
-            'type' => 'length',
-            'factor' => 10.0,
-            'precision' => 2,
-        ];
+        $toUnitInfo = $this->createMeasurementDisplayUnitEntity(
+            'cm',
+            'length',
+            10.0,
+            2
+        );
 
         $this->unitProvider
             ->expects($this->exactly(2))
@@ -214,17 +228,19 @@ class MeasurementUnitConverterTest extends TestCase
 
     public function testConvertZeroFactor(): void
     {
-        $fromUnitInfo = [
-            'type' => 'length',
-            'factor' => 1.0,
-            'precision' => 2,
-        ];
+        $fromUnitInfo = $this->createMeasurementDisplayUnitEntity(
+            'mm',
+            'length',
+            1.0,
+            2
+        );
 
-        $toUnitInfo = [
-            'type' => 'length',
-            'factor' => 0,
-            'precision' => 2,
-        ];
+        $toUnitInfo = $this->createMeasurementDisplayUnitEntity(
+            'cm',
+            'length',
+            0.0,
+            2
+        );
 
         $this->unitProvider
             ->expects($this->exactly(2))
@@ -241,17 +257,19 @@ class MeasurementUnitConverterTest extends TestCase
 
     public function testConvertNegativeValue(): void
     {
-        $fromUnitInfo = [
-            'type' => 'temperature',
-            'factor' => 1.0,
-            'precision' => 1,
-        ];
+        $fromUnitInfo = $this->createMeasurementDisplayUnitEntity(
+            'celsius',
+            'temperature',
+            1.0,
+            1
+        );
 
-        $toUnitInfo = [
-            'type' => 'temperature',
-            'factor' => 2.0,
-            'precision' => 1,
-        ];
+        $toUnitInfo = $this->createMeasurementDisplayUnitEntity(
+            'kelvin',
+            'temperature',
+            2.0,
+            1
+        );
 
         $this->unitProvider
             ->expects($this->exactly(2))
@@ -265,5 +283,17 @@ class MeasurementUnitConverterTest extends TestCase
 
         static::assertSame(-5.0, $result->value);
         static::assertSame('kelvin', $result->unit);
+    }
+
+    private function createMeasurementDisplayUnitEntity(string $shortName, string $type, float $factor, int $precision): MeasurementDisplayUnitEntity
+    {
+        $entity = new MeasurementDisplayUnitEntity();
+        $entity->setUniqueIdentifier(Uuid::randomHex());
+        $entity->shortName = $shortName;
+        $entity->type = $type;
+        $entity->factor = $factor;
+        $entity->precision = $precision;
+
+        return $entity;
     }
 }

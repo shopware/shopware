@@ -7,8 +7,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementUnitBuilder;
-use Shopware\Core\Content\MeasurementSystem\UnitConverter\AbstractMeasurementUnitConverter;
-use Shopware\Core\Content\MeasurementSystem\UnitConverter\ConvertedUnit;
+use Shopware\Core\Content\MeasurementSystem\Unit\AbstractMeasurementUnitConverter;
+use Shopware\Core\Content\MeasurementSystem\Unit\ConvertedUnit;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
@@ -61,7 +61,7 @@ class ProductMeasurementUnitBuilderTest extends TestCase
                 [1.5, MeasurementUnits::DEFAULT_WEIGHT_UNIT, 'g', null, new ConvertedUnit(1500.0, 'g')],
             ]);
 
-        $result = $this->builder->build($product, $context);
+        $result = $this->builder->buildFromContext($product, $context);
 
         static::assertNotNull($result->getType('width'));
         static::assertNotNull($result->getType('height'));
@@ -110,7 +110,7 @@ class ProductMeasurementUnitBuilderTest extends TestCase
             ->with(100.0, MeasurementUnits::DEFAULT_LENGTH_UNIT, 'cm', null)
             ->willReturn(new ConvertedUnit(10.0, 'cm'));
 
-        $result = $this->builder->build($product, $context);
+        $result = $this->builder->buildFromContext($product, $context);
 
         static::assertNotNull($result->getType('width'));
         static::assertNull($result->getType('height'));
@@ -135,7 +135,7 @@ class ProductMeasurementUnitBuilderTest extends TestCase
             ->expects($this->never())
             ->method('convert');
 
-        $result = $this->builder->build($product, $context);
+        $result = $this->builder->buildFromContext($product, $context);
 
         static::assertNull($result->getType('width'));
         static::assertNull($result->getType('height'));
@@ -174,7 +174,7 @@ class ProductMeasurementUnitBuilderTest extends TestCase
                 [0.0, MeasurementUnits::DEFAULT_WEIGHT_UNIT, 'g', null, new ConvertedUnit(0.0, 'g')],
             ]);
 
-        $result = $this->builder->build($product, $context);
+        $result = $this->builder->buildFromContext($product, $context);
 
         static::assertNotNull($result->getType('width'));
         static::assertNotNull($result->getType('height'));
@@ -216,7 +216,7 @@ class ProductMeasurementUnitBuilderTest extends TestCase
                 [150.0, MeasurementUnits::DEFAULT_LENGTH_UNIT, 'm', null, new ConvertedUnit(0.15, 'm')],
             ]);
 
-        $result = $this->builder->build($product, $context);
+        $result = $this->builder->buildFromContext($product, $context);
 
         static::assertNotNull($result->getType('width'));
         static::assertNotNull($result->getType('height'));

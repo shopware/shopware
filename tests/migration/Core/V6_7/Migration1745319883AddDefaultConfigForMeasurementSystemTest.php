@@ -8,6 +8,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Migration\V6_7\Migration1742199549MeasurementSystemTable;
+use Shopware\Core\Migration\V6_7\Migration1742199550MeasurementDisplayUnitTable;
 use Shopware\Core\Migration\V6_7\Migration1745319883AddDefaultConfigForMeasurementSystem;
 
 /**
@@ -33,6 +35,11 @@ class Migration1745319883AddDefaultConfigForMeasurementSystemTest extends TestCa
             "core.measurementUnits.length",
             "core.measurementUnits.weight"
         )');
+
+        $measurementSystemTableMigration = new Migration1742199549MeasurementSystemTable();
+        $measurementSystemTableMigration->update($this->connection);
+        $measurementUnitTableMigration = new Migration1742199550MeasurementDisplayUnitTable();
+        $measurementUnitTableMigration->update($this->connection);
 
         $this->migration = new Migration1745319883AddDefaultConfigForMeasurementSystem();
     }

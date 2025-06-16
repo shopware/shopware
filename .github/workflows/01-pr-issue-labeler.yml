@@ -77,48 +77,6 @@ jobs:
               throw new Error(`Failed to add label ${teamLabel} to issue #${issueNumber}`);
             }
 
-  apply-contributor-label:
-    runs-on: ubuntu-24.04
-    if: github.event.act || (github.event_name == 'pull_request' && ( github.event.action == 'opened' || github.event.action == 'reopened' ))
-    env:
-      CONTRIBUTOR_LABEL: "external-contribution"
-    permissions:
-      id-token: write
-      issues: write
-    steps:
-      - id: sts
-        if: ${{ !github.event.act }}
-        continue-on-error: true
-        uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
-        with:
-          scope: shopware
-          identity: ReadCollaborators
-      - uses: tspascoal/get-user-teams-membership@57e9f42acd78f4d0f496b3be4368fc5f62696662 # 3
-        id: actorTeams
-        with:
-          username: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ github.event.act && secrets.GITHUB_TOKEN || steps.sts.outputs.token }}
-      - if: runner.debug
-        run: |
-          echo "${{ github.actor }} is member of teams: ${{ steps.actorTeams.outputs.teams }}"
-      - if: ${{ join(steps.actorTeams.outputs.teams, '') == '' }}
-        uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
-        with:
-          script: |
-            const pullRequestNumber = context.payload.pull_request.number;
-            const contribLabel = process.env.CONTRIBUTOR_LABEL;
-
-            const response = await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: pullRequestNumber,
-              labels: [contribLabel],
-            });
-
-            if (response.status !== 200) {
-              throw new Error(`Failed to add label ${contribLabel} to issue #${pullRequestNumber}`);
-            }
-
   move-to-wip:
     runs-on: ubuntu-24.04
     if: github.event.action == 'reopened'

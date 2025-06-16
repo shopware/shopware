@@ -29,6 +29,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Header\HeaderInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -393,8 +394,8 @@ class MailServiceTest extends TestCase
 
         // check that no header is empty (e.g. Amazon SES doesn't like that)
         foreach ($headers->all() as $header) {
-            echo $header->getName();
-            static::assertNotEmpty($header->getBody(), 'mail header ' . $header->getName() . ' should not be empty');
+            static::assertInstanceOf(HeaderInterface::class, $header);
+            static::assertNotEmpty($header->getBodyAsString(), 'mail header ' . $header->getName() . ' should not be empty');
         }
     }
 }

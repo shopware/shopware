@@ -281,10 +281,10 @@ readonly class CookieService
     private function setCookieProperties(CookieEntry|CookieGroup $cookie, array $data): void
     {
         if (isset($data['snippet_name']) && $data['snippet_name'] !== '') {
-            $cookie->snippetName = $data['snippet_name'];
+            $cookie->snippet_name = $data['snippet_name'];
         }
         if (isset($data['snippet_description']) && $data['snippet_description'] !== '') {
-            $cookie->snippetDescription = $data['snippet_description'];
+            $cookie->snippet_description = $data['snippet_description'];
         }
         if (isset($data['cookie']) && $data['cookie'] !== '') {
             $cookie->cookie = $data['cookie'];

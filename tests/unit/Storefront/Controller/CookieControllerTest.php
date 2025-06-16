@@ -24,8 +24,8 @@ class CookieControllerTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $cookieGroup = new CookieGroup(false, []);
-        $cookieGroup->snippetName = 'test.group';
-        $cookieGroup->snippetDescription = 'Test Group';
+        $cookieGroup->snippet_name = 'test.group';
+        $cookieGroup->snippet_description = 'Test Group';
 
         $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 
@@ -56,8 +56,8 @@ class CookieControllerTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $cookieGroup = new CookieGroup(false, []);
-        $cookieGroup->snippetName = 'test.group';
-        $cookieGroup->snippetDescription = 'Test Group';
+        $cookieGroup->snippet_name = 'test.group';
+        $cookieGroup->snippet_description = 'Test Group';
 
         $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 
@@ -130,8 +130,8 @@ class CookieControllerTest extends TestCase
 
         // Check that default values are set
         $group = $transformedGroups[0];
-        static::assertArrayHasKey('snippetName', $group);
-        static::assertArrayHasKey('snippetDescription', $group);
+        static::assertArrayHasKey('snippet_name', $group);
+        static::assertArrayHasKey('snippet_description', $group);
         static::assertArrayHasKey('cookie', $group);
         static::assertArrayHasKey('value', $group);
         static::assertArrayHasKey('expiration', $group);

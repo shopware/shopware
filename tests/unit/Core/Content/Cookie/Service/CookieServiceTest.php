@@ -86,11 +86,11 @@ class CookieServiceTest extends TestCase
         static::assertCount(1, $result);
         $group = $result->first();
         static::assertInstanceOf(CookieGroup::class, $group);
-        static::assertSame('cookie.groupOther', $group->snippetName);
-        static::assertSame('Other cookies', $group->snippetDescription);
+        static::assertSame('cookie.groupOther', $group->snippet_name);
+        static::assertSame('Other cookies', $group->snippet_description);
         static::assertCount(1, $group->entries);
-        static::assertSame('other.cookie', $group->entries[0]->snippetName);
-        static::assertSame('Other cookie description', $group->entries[0]->snippetDescription);
+        static::assertSame('other.cookie', $group->entries[0]->snippet_name);
+        static::assertSame('Other cookie description', $group->entries[0]->snippet_description);
         static::assertSame('other-cookie', $group->entries[0]->cookie);
         static::assertSame('1', $group->entries[0]->value);
         static::assertSame('30', $group->entries[0]->expiration);
@@ -133,11 +133,11 @@ class CookieServiceTest extends TestCase
         static::assertCount(1, $result);
         $group = $result->first();
         static::assertInstanceOf(CookieGroup::class, $group);
-        static::assertSame('Translated: cookie.group.test', $group->snippetName);
-        static::assertSame('Translated: cookie.group.test.description', $group->snippetDescription);
+        static::assertSame('Translated: cookie.group.test', $group->snippet_name);
+        static::assertSame('Translated: cookie.group.test.description', $group->snippet_description);
         static::assertCount(1, $group->entries);
-        static::assertSame('Translated: cookie.entry.test', $group->entries[0]->snippetName);
-        static::assertSame('Translated: cookie.entry.test.description', $group->entries[0]->snippetDescription);
+        static::assertSame('Translated: cookie.entry.test', $group->entries[0]->snippet_name);
+        static::assertSame('Translated: cookie.entry.test.description', $group->entries[0]->snippet_description);
         static::assertSame('test-cookie', $group->entries[0]->cookie);
         static::assertSame('1', $group->entries[0]->value);
         static::assertSame('30', $group->entries[0]->expiration);
@@ -178,10 +178,10 @@ class CookieServiceTest extends TestCase
         static::assertInstanceOf(CookieGroup::class, $group);
         static::assertTrue($group->isRequired);
         static::assertCount(1, $group->entries);
-        static::assertSame('test.group', $group->snippetName);
-        static::assertSame('Test Group Description', $group->snippetDescription);
-        static::assertSame('test.cookie', $group->entries[0]->snippetName);
-        static::assertSame('Test Cookie Description', $group->entries[0]->snippetDescription);
+        static::assertSame('test.group', $group->snippet_name);
+        static::assertSame('Test Group Description', $group->snippet_description);
+        static::assertSame('test.cookie', $group->entries[0]->snippet_name);
+        static::assertSame('Test Cookie Description', $group->entries[0]->snippet_description);
         static::assertSame('test-cookie', $group->entries[0]->cookie);
         static::assertSame('1', $group->entries[0]->value);
         static::assertSame('30', $group->entries[0]->expiration);
@@ -232,18 +232,18 @@ class CookieServiceTest extends TestCase
         static::assertArrayNotHasKey('value', $groupJson);
         static::assertArrayNotHasKey('expiration', $groupJson);
 
-        static::assertArrayNotHasKey('snippetDescription', $entryJson);
+        static::assertArrayNotHasKey('snippet_description', $entryJson);
         static::assertArrayNotHasKey('cookie', $entryJson);
         static::assertArrayNotHasKey('value', $entryJson);
         static::assertArrayNotHasKey('expiration', $entryJson);
 
         // Verify that non-null values are present
-        static::assertArrayHasKey('snippetName', $groupJson);
-        static::assertArrayHasKey('snippetDescription', $groupJson);
+        static::assertArrayHasKey('snippet_name', $groupJson);
+        static::assertArrayHasKey('snippet_description', $groupJson);
         static::assertArrayHasKey('isRequired', $groupJson);
         static::assertArrayHasKey('entries', $groupJson);
 
-        static::assertArrayHasKey('snippetName', $entryJson);
+        static::assertArrayHasKey('snippet_name', $entryJson);
         static::assertArrayHasKey('hidden', $entryJson);
     }
 }

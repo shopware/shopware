@@ -1,7 +1,6 @@
 {# @sw-package framework #}
 
-{# @deprecated tag:v6.8.0 - Use parent.snippetName instead of parent.snippet_name #}
-{% set name = parent.snippet_name ? parent.snippet_name|trans|sw_sanitize : parent.snippetName ? parent.snippetName|trans|sw_sanitize : parent.cookie %}
+{% set name = parent.snippet_name ? parent.snippet_name|trans|sw_sanitize : parent.cookie %}
 {% set identifier = parent.cookie ? parent.cookie : name %}
 
 {% if name is not empty %}

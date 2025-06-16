@@ -59,18 +59,13 @@ class CookieController extends StorefrontController
 
     private function getCookieGroupsFromCookieRoute(Request $request, SalesChannelContext $salesChannelContext): CookieGroupCollection
     {
-        try {
-            // Create a new request with the translate parameter set to false for Twig templates
-            $cookieRequest = $request->duplicate();
-            $cookieRequest->query->set('translate', false);
+        // Create a new request with the translation parameter set to false for Twig templates
+        $cookieRequest = $request->duplicate();
+        $cookieRequest->query->set('translate', false);
 
-            $cookieRouteResponse = $this->cookieRoute->getCookieGroups($cookieRequest, $salesChannelContext);
-            $cookieGroups = $cookieRouteResponse->getCookieGroups();
-        } catch (\Throwable $e) {
-            $cookieGroups = new CookieGroupCollection();
-        }
+        $cookieRouteResponse = $this->cookieRoute->getCookieGroups($cookieRequest, $salesChannelContext);
 
-        return $cookieGroups;
+        return $cookieRouteResponse->getCookieGroups();
     }
 
     /**
@@ -99,11 +94,11 @@ class CookieController extends StorefrontController
 
     private function setDefaultValuesForCookieStruct(CookieEntry|CookieGroup $cookieStruct): void
     {
-        if (!isset($cookieStruct->snippetName)) {
-            $cookieStruct->snippetName = '';
+        if (!isset($cookieStruct->snippet_name)) {
+            $cookieStruct->snippet_name = '';
         }
-        if (!isset($cookieStruct->snippetDescription)) {
-            $cookieStruct->snippetDescription = '';
+        if (!isset($cookieStruct->snippet_description)) {
+            $cookieStruct->snippet_description = '';
         }
         if (!isset($cookieStruct->cookie)) {
             $cookieStruct->cookie = '';

@@ -2,10 +2,6 @@
 
 {% if child.cookie is not empty and child.hidden is not same as(true) %}
     {% set cookie = child.cookie %}
-    {# @deprecated tag:v6.8.0 - Use child.snippetName instead of child.snippet_name #}
-    {% set snippetName = child.snippet_name ? child.snippet_name : child.snippetName %}
-    {# @deprecated tag:v6.8.0 - Use child.snippetDescription instead of child.snippet_description #}
-    {% set snippetDescription = child.snippet_description ? child.snippet_description : child.snippetDescription %}
     <div class="offcanvas-cookie-entry form-check">
         <input
             type="checkbox"
@@ -28,11 +24,11 @@
         <label
             for="cookie_{{ cookie }}"
             class="custom-control-label">
-            {{ snippetName ? snippetName|trans|sw_sanitize : cookie }}
+            {{ child.snippet_name ? child.snippet_name|trans|sw_sanitize : cookie }}
         </label>
 
-        {% if snippetDescription is not empty %}
-            <p>{{ snippetDescription|trans|sw_sanitize }}</p>
+        {% if child.snippet_description %}
+            <p>{{ child.snippet_description|trans|sw_sanitize }}</p>
         {% endif %}
     </div>
 {% endif %}

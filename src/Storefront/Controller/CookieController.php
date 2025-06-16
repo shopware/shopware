@@ -77,16 +77,14 @@ class CookieController extends StorefrontController
      */
     private function transformCookieGroupForTwig(CookieGroupCollection $cookieGroupCollection): array
     {
-        foreach ($cookieGroupCollection as $group) {
-            $this->setDefaultValuesForCookieStruct($group);
-            foreach ($group->entries as $cookieStruct) {
-                $this->setDefaultValuesForCookieStruct($cookieStruct);
-            }
-        }
-
         $result = [];
         foreach ($cookieGroupCollection as $group) {
+            $this->setDefaultValuesForCookieStruct($group);
             $result[] = $group->jsonSerialize();
+            foreach ($group->entries as $pos => $cookieStruct) {
+                $this->setDefaultValuesForCookieStruct($cookieStruct);
+                $result[\count($result) - 1]['entries'][$pos] = $cookieStruct->jsonSerialize();
+            }
         }
 
         return $result;

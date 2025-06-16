@@ -68,6 +68,7 @@ export default {
             paymentStateOptions: [],
             showModal: false,
             tagCollection: null,
+            stateChangeInProgress: false,
         };
     },
 
@@ -187,6 +188,7 @@ export default {
         savedSuccessful() {
             if (this.savedSuccessful) {
                 this.getLiveOrder();
+                this.stateChangeInProgress = false;
             }
         },
 
@@ -376,10 +378,12 @@ export default {
             this.currentActionName = null;
             this.currentStateType = null;
             this.showModal = false;
+            this.stateChangeInProgress = false;
         },
 
         onLeaveModalConfirm(docIds, sendMail = true) {
             this.showModal = false;
+            this.stateChangeInProgress = true;
 
             let transition = null;
 
@@ -418,6 +422,7 @@ export default {
                     })
                     .catch((error) => {
                         this.createStateChangeErrorNotification(error);
+                        this.stateChangeInProgress = false;
                     });
             }
 

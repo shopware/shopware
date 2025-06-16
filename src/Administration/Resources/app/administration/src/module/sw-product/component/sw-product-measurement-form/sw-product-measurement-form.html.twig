@@ -6,7 +6,11 @@
             scope="local"
         >
             <template #link>
-                <sw-internal-link :router-link="{ name: 'sw.sales.channel.list' }" hide-icon inline>
+                <sw-internal-link
+                    :router-link="{ name: 'sw.sales.channel.list' }"
+                    hide-icon
+                    inline
+                >
                     {{ $tc('sw-product.measurementForm.linkText') }}
                 </sw-internal-link>
             </template>

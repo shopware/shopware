@@ -18,10 +18,16 @@
 
     <template #smart-bar-actions>
         <mt-button
+            v-tooltip.bottom="{
+                message: $t('sw-privileges.tooltip.warning'),
+                disabled: acl.can('measurement.creator'),
+                showOnDisabledElements: true
+            }"
             class="sw-settings-measurement__save-action"
             variant="primary"
             size="default"
             :is-loading="isLoading"
+            :disabled="!acl.can('measurement.creator')"
             @click="onSave"
         >
             {{ $t('global.default.save') }}

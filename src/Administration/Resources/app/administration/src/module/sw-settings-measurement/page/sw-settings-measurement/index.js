@@ -14,6 +14,7 @@ export default {
     inject: [
         'repositoryFactory',
         'systemConfigApiService',
+        'acl',
     ],
 
     mixins: [

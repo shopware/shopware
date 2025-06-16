@@ -7,7 +7,7 @@ describe('src/module/sw-product/component/sw-product-measurement-form', () => {
     let wrapper;
     let store;
 
-    async function createWrapper(propsOverride = {}) {
+    async function createWrapper(propsOverride = {}, privileges = []) {
         store = Shopware.Store.get('swProductDetail');
         store.product.width = 1000;
         store.product.height = 2000;
@@ -15,6 +15,16 @@ describe('src/module/sw-product/component/sw-product-measurement-form', () => {
         store.product.weight = 2;
         store.lengthUnit = 'mm';
         store.weightUnit = 'kg';
+
+        const acl = {
+            can: (privilege) => {
+                if (!privilege) {
+                    return true;
+                }
+
+                return privileges.includes(privilege);
+            },
+        };
 
         return mount(await wrapTestComponent('sw-product-measurement-form', { sync: true }), {
             props: {
@@ -93,12 +103,15 @@ describe('src/module/sw-product/component/sw-product-measurement-form', () => {
                     },
                     'sw-internal-link': true,
                 },
+                provide: {
+                    acl,
+                },
             },
         });
     }
 
     beforeEach(async () => {
-        wrapper = await createWrapper();
+        wrapper = await createWrapper({}, ['product.editor']);
     });
 
     it('should be a Vue.js component', () => {

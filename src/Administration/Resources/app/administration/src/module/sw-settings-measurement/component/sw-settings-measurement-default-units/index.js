@@ -8,6 +8,10 @@ import './sw-settings-measurement-default-units.scss';
 export default {
     template,
 
+    inject: [
+        'acl',
+    ],
+
     emits: ['measurement-system-change'],
 
     props: {

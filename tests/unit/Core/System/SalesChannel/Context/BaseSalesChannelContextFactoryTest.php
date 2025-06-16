@@ -36,8 +36,6 @@ use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\LanguageDefinition;
-use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -150,6 +148,17 @@ class BaseSalesChannelContextFactoryTest extends TestCase
         $countryId = Uuid::randomHex();
         $anotherLanguageId = Uuid::randomHex();
 
+        $locale = new LocaleEntity();
+        $locale->setCode('en-GB');
+
+        $language = new PartialEntity();
+        $language->assign([
+            'id' => Defaults::LANGUAGE_SYSTEM,
+            'name' => 'English',
+            'locale' => $locale,
+            'translationCode' => $locale,
+        ]);
+
         $salesChannelEntity = new SalesChannelEntity();
         $salesChannelEntity->setUniqueIdentifier(TestDefaults::SALES_CHANNEL);
         $salesChannelEntity->setCustomerGroupId($customerGroupId);
@@ -189,16 +198,6 @@ class BaseSalesChannelContextFactoryTest extends TestCase
 
         $customerGroup = new CustomerGroupEntity();
         $customerGroup->setUniqueIdentifier($customerGroupId);
-
-        $language = new PartialEntity([
-            'id' => Defaults::LANGUAGE_SYSTEM,
-            'uniqueIdentifier' => Defaults::LANGUAGE_SYSTEM,
-            'name' => 'English',
-            'translationCode' => new PartialEntity([
-                'id' => Uuid::randomHex(),
-                'code' => 'en-GB',
-            ]),
-        ]);
 
         yield 'no context data' => [
             'options' => [],
@@ -641,6 +640,9 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                 ],
                 CustomerGroupDefinition::ENTITY_NAME => [
                     $customerGroupId => $customerGroup,
+                ],
+                LanguageDefinition::ENTITY_NAME => [
+                    Defaults::LANGUAGE_SYSTEM => $language,
                 ],
             ],
             'exceptionMessage' => null,

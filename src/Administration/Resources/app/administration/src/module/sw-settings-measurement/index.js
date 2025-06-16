@@ -1,6 +1,7 @@
 /**
  * @sw-package inventory
  */
+import './acl';
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-measurement', () => import('./page/sw-settings-measurement'));

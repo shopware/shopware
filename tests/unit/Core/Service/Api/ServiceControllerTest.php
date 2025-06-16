@@ -259,6 +259,6 @@ class ServiceControllerTest extends TestCase
         static::assertSame('MyCoolService', $service['name']);
         static::assertTrue($service['active']);
         static::assertSame('1.0.0', $service['version']);
-        static::assertSame('active', $service['needs_permissions']);
+        static::assertSame('active', $service['state']);
     }
 }

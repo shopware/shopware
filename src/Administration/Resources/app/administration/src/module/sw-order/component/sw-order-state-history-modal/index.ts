@@ -17,6 +17,7 @@ interface StateMachineHistoryData {
     createdAt: string;
     user?: {
         username: string;
+        email: string;
     };
     integration?: {
         label: string;

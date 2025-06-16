@@ -413,10 +413,14 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         
         // First row should show username
         const firstRow = stateHistoryRows.at(0);
-        expect(firstRow.find('.sw-data-grid__cell--user').text()).toBe('admin');
+        expect(firstRow.find('.sw-data-grid__cell--user').text()).toBe('sw-order.stateHistoryModal.labelSystemUser');
 
-        // Second row should show email (fallback)
+        // Second row should show username
         const secondRow = stateHistoryRows.at(1);
-        expect(secondRow.find('.sw-data-grid__cell--user').text()).toBe('user@example.com');
+        expect(secondRow.find('.sw-data-grid__cell--user').text()).toBe('admin');
+
+        // Third row should show email (fallback)
+        const thirdRow = stateHistoryRows.at(2);
+        expect(thirdRow.find('.sw-data-grid__cell--user').text()).toBe('user@example.com');
     });
 });

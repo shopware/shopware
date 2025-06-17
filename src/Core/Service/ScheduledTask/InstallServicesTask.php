@@ -20,4 +20,9 @@ class InstallServicesTask extends ScheduledTask
     {
         return parent::DAILY;
     }
+
+    public static function shouldRescheduleOnFailure(): bool
+    {
+        return true;
+    }
 }

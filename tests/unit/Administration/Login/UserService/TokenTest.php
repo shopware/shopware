@@ -2,13 +2,20 @@
 
 namespace Shopware\Tests\Unit\Administration\Login\UserService;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Administration\Login\UserService\Token;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
+#[Package('after-sales')]
+#[CoversClass(Token::class)]
 class TokenTest extends TestCase
 {
     public function testFromAndToJson(): void
@@ -35,6 +42,9 @@ class TokenTest extends TestCase
         static::assertSame($token->refreshToken, $refreshTokenValue);
     }
 
+    /**
+     * @param array<string, string> $data
+     */
     #[DataProvider('validateTestDataProvider')]
     public function testValidate(array $data, string $expected): void
     {
@@ -47,6 +57,9 @@ class TokenTest extends TestCase
         }
     }
 
+    /**
+     * @return array<string, array{data: array<string, string>, expected: string}>
+     */
     public static function validateTestDataProvider(): array
     {
         return [

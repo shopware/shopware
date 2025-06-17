@@ -33,9 +33,6 @@ final class UserService
     ) {
     }
 
-    /**
-     * @param non-empty-string $idToken
-     */
     public function getUser(TokenResult $tokenResult): ExternalAuthUser
     {
         $parsedIdToken = $this->idTokenParser->parse($tokenResult->idToken);

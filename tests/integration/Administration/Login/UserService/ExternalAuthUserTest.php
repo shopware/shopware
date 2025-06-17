@@ -37,7 +37,6 @@ class ExternalAuthUserTest extends TestCase
         static::assertSame('id_value', $externalAuthUser->id);
         static::assertSame('user_id_value', $externalAuthUser->userId);
         static::assertSame('user_sub_value', $externalAuthUser->sub);
-        static::assertInstanceOf(Token::class, $externalAuthUser->token);
         static::assertSame($expiry, $externalAuthUser->expiry);
         static::assertSame('test@example.com', $externalAuthUser->email);
     }

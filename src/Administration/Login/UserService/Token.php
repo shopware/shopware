@@ -26,7 +26,7 @@ final class Token
         return \json_encode([
             'token' => $this->token,
             'refreshToken' => $this->refreshToken,
-        ]);
+        ], \JSON_THROW_ON_ERROR);
     }
 
     public static function fromJson(string $json): self
@@ -36,6 +36,9 @@ final class Token
         return self::fromArray($data);
     }
 
+    /**
+     * @param array<string, string> $data
+     */
     public static function fromArray(array $data): self
     {
         self::validate($data);
@@ -47,7 +50,7 @@ final class Token
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param array<string, string> $data
      */
     private static function validate(array $data): void
     {

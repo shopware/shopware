@@ -161,6 +161,9 @@ class LoginException extends HttpException
         );
     }
 
+    /**
+     * @param array<int, string> $violations
+     */
     public static function invalidRefreshOrAccessToken(array $violations): self
     {
         return new self(

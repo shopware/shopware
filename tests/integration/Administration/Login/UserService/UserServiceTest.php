@@ -50,7 +50,7 @@ class UserServiceTest extends TestCase
             'expires_in' => 3600,
             'token_type' => 'Bearer',
             'scope' => 'any',
-        ]));
+        ], \JSON_THROW_ON_ERROR));
 
         $externalAuthUser = $this->createUserService()->getUser($tokenResult);
         static::assertSame($userId, $externalAuthUser->userId);
@@ -64,8 +64,12 @@ class UserServiceTest extends TestCase
         static::assertArrayHasKey('token', $tokenUserData);
         static::assertArrayHasKey('user_sub', $tokenUserData);
         static::assertArrayHasKey('user_id', $tokenUserData);
-        static::assertSame($token, $tokenUserData['token']->token);
-        static::assertSame($refreshToken, $tokenUserData['token']->refreshToken);
+
+        $tokenObject = $tokenUserData['token'];
+        static::assertInstanceOf(Token::class, $tokenObject);
+
+        static::assertSame($token, $tokenObject->token);
+        static::assertSame($refreshToken, $tokenObject->refreshToken);
         static::assertSame($subject, $tokenUserData['user_sub']);
         static::assertSame($userId, Uuid::fromBytesToHex($tokenUserData['user_id']));
     }
@@ -91,7 +95,7 @@ class UserServiceTest extends TestCase
             'expires_in' => 3600,
             'token_type' => 'Bearer',
             'scope' => 'any',
-        ]));
+        ], \JSON_THROW_ON_ERROR));
 
         $externalAuthUser = $this->createUserService()->getUser($tokenResult);
         static::assertSame($userId, $externalAuthUser->userId);
@@ -105,8 +109,12 @@ class UserServiceTest extends TestCase
         static::assertArrayHasKey('token', $tokenUserData);
         static::assertArrayHasKey('user_sub', $tokenUserData);
         static::assertArrayHasKey('user_id', $tokenUserData);
-        static::assertSame($token, $tokenUserData['token']->token);
-        static::assertSame($refreshToken, $tokenUserData['token']->refreshToken);
+
+        $tokenObject = $tokenUserData['token'];
+        static::assertInstanceOf(Token::class, $tokenObject);
+
+        static::assertSame($token, $tokenObject->token);
+        static::assertSame($refreshToken, $tokenObject->refreshToken);
         static::assertSame($subject, $tokenUserData['user_sub']);
         static::assertSame($userId, Uuid::fromBytesToHex($tokenUserData['user_id']));
 
@@ -142,7 +150,7 @@ class UserServiceTest extends TestCase
             'expires_in' => 3600,
             'token_type' => 'Bearer',
             'scope' => 'any',
-        ]));
+        ], \JSON_THROW_ON_ERROR));
 
         $externalAuthUser = $this->createUserService()->getUser($tokenResult);
         static::assertSame($userId, $externalAuthUser->userId);
@@ -162,7 +170,7 @@ class UserServiceTest extends TestCase
     }
 
     /**
-     * @return array{id: string, user_id: string, user_sub: string, token: string, expiry: string}|null
+     * @return array{id: string, user_id: string, user_sub: string, token: Token, expiry: string}|null
      */
     private function getTokenUserData(string $subject): ?array
     {

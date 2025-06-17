@@ -31,9 +31,13 @@
         </service>
 
         <service id="Shopware\Core\System\Snippet\Command\InstallTranslationCommand">
-            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationLoader"/>
 
             <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\System\Snippet\Service\TranslationLoader">
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\SnippetFileHandler" />

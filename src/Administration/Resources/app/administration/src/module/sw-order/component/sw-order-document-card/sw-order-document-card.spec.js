@@ -248,6 +248,34 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         setActivePinia(createPinia());
     });
 
+    it('Should test filename extraction from content-disposition header', async () => {
+        wrapper = await createWrapper();
+
+        let response = {
+            headers: {
+                'content-disposition': 'attachment; filename="normal-filename.pdf"',
+            },
+        };
+        let result = wrapper.vm.getFilenameFromResponse(response);
+        expect(result).toBe('normal-filename.pdf');
+
+        response = {
+            headers: {
+                'content-disposition': 'attachment; filename=unquoted-name.txt',
+            },
+        };
+        result = wrapper.vm.getFilenameFromResponse(response);
+        expect(result).toBe('unquoted-name.txt');
+
+        response = {
+            headers: {
+                'content-disposition': "attachment; filename*=UTF-8''%E2%82%ACrates.csv",
+            },
+        };
+        result = wrapper.vm.getFilenameFromResponse(response);
+        expect(result).toBe('€rates.csv');
+    });
+
     it('should be a Vue.js component', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();

@@ -341,7 +341,7 @@ export default {
                 .getDocument(documentId, documentDeepLink, Shopware.Context.api, true, fileType)
                 .then((response) => {
                     if (response.data) {
-                        const filename = response.headers['content-disposition'].match(/filename="?(.*?)"?$/)[1];
+                        const filename = this.getFilenameFromResponse(response);
                         const link = document.createElement('a');
                         link.href = URL.createObjectURL(response.data);
                         link.download = filename;
@@ -349,6 +349,21 @@ export default {
                         link.remove();
                     }
                 });
+        },
+
+        getFilenameFromResponse(response) {
+            const header = response.headers['content-disposition'];
+            if (!header) {
+                return null;
+            }
+
+            const filenameStarMatch = header.match(/filename\*=UTF-8''([^;]+)/);
+            if (filenameStarMatch) {
+                return decodeURIComponent(filenameStarMatch[1]);
+            }
+
+            const filenameMatch = header.match(/filename="?([^"]+)"?/);
+            return filenameMatch ? filenameMatch[1] : null;
         },
 
         markDocumentAsSent(documentId) {

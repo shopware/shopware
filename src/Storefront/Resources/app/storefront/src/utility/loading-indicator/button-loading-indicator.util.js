@@ -50,6 +50,7 @@ export default class ButtonLoadingIndicatorUtil extends LoadingIndicatorUtil {
      */
     remove() {
         if (!this.exists()) {
+            console.warn(`[ButtonLoadingIndicatorUtil] Unable to remove loading indicator. No indicator present on given element: ${this.parent}`);
             return;
         }
 

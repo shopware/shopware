@@ -135,4 +135,34 @@ describe('ButtonLoadingIndicatorUtil tests', () => {
         expect(consoleSpy).toHaveBeenCalledWith('[ButtonLoadingIndicatorUtil] Parent element is not of type <button> or <a>. Given element: [object HTMLDivElement]');
         consoleSpy.mockRestore();
     });
+
+    test('shows a console warning when attempting to create loading indicator on illegal element', () => {
+        const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+        const illegalButton = document.querySelector('.illegal-button');
+        const indicator = new ButtonLoadingIndicatorUtil(illegalButton);
+        indicator.create();
+
+        expect(consoleSpy).toHaveBeenCalledWith('[ButtonLoadingIndicatorUtil] Unable to create loading indicator. Parent element is not of type <button> or <a>. Given element: [object HTMLDivElement]');
+        consoleSpy.mockRestore();
+    });
+
+    test('shows a console warning when trying to remove a non-existing loading indicator', () => {
+        const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+        const buttonEl = document.querySelector('button.button-el');
+        const indicator = new ButtonLoadingIndicatorUtil(buttonEl);
+
+        indicator.create();
+        expect(buttonEl.querySelector('.loader').textContent).toContain('Loading...');
+
+        indicator.remove();
+        expect(buttonEl.querySelector('.loader')).toBe(null);
+
+        // Try to remove it again
+        indicator.remove();
+
+        expect(consoleSpy).toHaveBeenCalledWith('[ButtonLoadingIndicatorUtil] Unable to remove loading indicator. No indicator present on given element: [object HTMLButtonElement]');
+        consoleSpy.mockRestore();
+    });
 });

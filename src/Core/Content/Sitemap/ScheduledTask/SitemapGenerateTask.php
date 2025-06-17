@@ -17,4 +17,14 @@ class SitemapGenerateTask extends ScheduledTask
     {
         return self::DAILY;
     }
+
+    public static function shouldRun(ParameterBagInterface $bag): bool
+    {
+        return (bool) $bag->get('shopware.sitemap.scheduled_task.enabled');
+    }
+
+    public static function shouldRescheduleOnFailure(): bool
+    {
+        return true;
+    }
 }

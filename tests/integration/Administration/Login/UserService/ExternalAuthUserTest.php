@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Administration\Login\UserService\ExternalAuthUser;
-use Shopware\Administration\Login\UserService\Token;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;

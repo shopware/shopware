@@ -1,0 +1,23 @@
+repository-url: https://raw.githubusercontent.com/shopware/translations/main/translations
+
+locales: [
+    'ar-SA', 'bg-BG', 'bs-BA', 'ca-ES', 'cs-CZ', 'da-DK',
+    'de-AT', 'de-CH', 'de-DE', 'el-GR', 'en-GB', 'en-US', 'es-AR',
+    'es-ES', 'et-EE', 'fi-FI', 'fr-FR', 'hi-IN', 'hr-HR', 'hu-HU',
+    'hy-AM', 'id-ID', 'it-IT', 'ja-JP', 'ko-KR', 'lt-LT', 'lv-LV',
+    'nl-NL', 'nn-NO', 'pl-PL', 'pt-PT', 'ro-RO', 'ru-RU', 'sk-SK',
+    'sl-SI', 'sr-RS', 'sv-SE', 'th-TH', 'tr-TR', 'uk-UA', 'vi-VN',
+]
+
+plugins: [
+    'PluginPublisher',
+    'SwagB2bPlatform',
+    'SwagCmsExtensions',
+    'SwagCommercial',
+    'SwagCustomizedProducts',
+    'SwagEnterpriseSearch',
+    'SwagMigrationAssistant',
+    'SwagMigrationMagento',
+    'SwagPaypal',
+    'SwagSocialShopping',
+]

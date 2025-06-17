@@ -2,20 +2,18 @@
 
 namespace Shopware\Core\System\Snippet\Command;
 
-use Shopware\Core\Content\Media\File\FileFetcher;
-use Shopware\Core\Content\Media\File\FileInfoHelper;
-use Shopware\Core\Content\Media\File\MediaFile;
-use Shopware\Core\Content\Media\MediaException;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Yaml\Yaml;
 
 #[AsCommand(
     name: 'translation:install',
@@ -24,170 +22,156 @@ use Symfony\Component\Filesystem\Filesystem;
 #[Package('discovery')]
 class InstallTranslationCommand extends Command
 {
+    private TranslationConfig $config;
+
     public function __construct(
         private readonly Filesystem $filesystem,
     ) {
         parent::__construct();
+        $this->config = $this->loadConfig();
     }
 
-    private const RAW_GITHUB_URL = 'https://raw.githubusercontent.com/shopware/translations/main/translations';
+    private const TRANSLATION_DESTINATION = __DIR__ . '/../../Resources/translation';
 
-    private const TRANSLATIONS_DESTINATION = __DIR__ . '/../../Resources/translation';
+    private const TRANSLATION_CONFIG_DIR = __DIR__ . '/../../Resources/translation/config';
 
-    private const ISO_CODES = [
-        /*todo: this one is not a translation, it is a workaround: "ach-UG",*/ "ar-SA", "bg-BG", "bs-BA", "ca-ES", "cs-CZ", "da-DK",
-        "de-AT", "de-CH", "de-DE", "el-GR", "en-GB", "en-US", "es-AR",
-        "es-ES", "et-EE", "fi-FI", "fr-FR", "hi-IN", "hr-HR", "hu-HU",
-        "hy-AM", "id-ID", "it-IT", "ja-JP", "ko-KR", "lt-LT", "lv-LV",
-        "nl-NL", "nn-NO", "pl-PL", "pt-PT", "ro-RO", "ru-RU", "sk-SK",
-        "sl-SI", "sr-RS", "sv-SE", "th-TH", "tr-TR", "uk-UA", "vi-VN",
-    ];
+    private const TRANSLATION_CONFIG_FILE = '/translation.yaml';
 
-    private const BUNDLE_STRUCTURE = [
+    private const PLATFORM_STRUCTURE = [
         'Platform' => [
             'Administration' => 'administration.json',
             'Core' => 'messages.json',
             'Storefront' => 'storefront.json',
         ],
-        'Plugins' => [ // todo: check
-            'PluginPublisher' => ['Storefront', 'Administration'],
-            'SwagB2bPlatform' => ['Storefront', 'Administration'],
-            'SwagCmsExtensions' => ['Storefront', 'Administration'],
-            'SwagCommercial' => ['Storefront', 'Administration'],
-            'SwagCustomizedProducts' => ['Storefront', 'Administration'],
-            'SwagEnterpriseSearch' => ['Storefront', 'Administration'],
-            'SwagMigrationAssistant' => ['Administration'],
-            'SwagMigrationMagento' => ['Administration'],
-            'SwagPaypal' => ['Storefront', 'Administration'],
-            'SwagSocialShopping' => ['Administration'],
-        ],
     ];
+
+    private const PLUGIN_DOMAINS = [
+        'Storefront',
+        'Administration',
+    ];
+
+    protected function configure(): void
+    {
+        $this->addOption('all', null, InputOption::VALUE_NONE, 'Fetch all available translations');
+        $this->addOption('locales', null, InputOption::VALUE_OPTIONAL, 'Fetch translations for specific locale codes comma separated, e.g. "de-DE,en-US"');
+    }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        foreach (self::ISO_CODES as $isoCode) {
-            foreach (self::BUNDLE_STRUCTURE as $bundle => $domains) {
+        $locales = $this->getLocales($input);
+        $progressBar = $this->createProgressBar($output, \count($locales));
+
+        foreach ($locales as $locale) {
+            $progressBar->setMessage($locale);
+            $progressBar->advance();
+
+            $this->fetchPluginSnippets($locale);
+
+            foreach (self::PLATFORM_STRUCTURE as $bundle => $domains) {
                 foreach ($domains as $domain => $fileName) {
-                    if (\is_array($fileName)) {
-                        $this->handleBundles($fileName, $isoCode, $bundle, $domain);
-                        continue;
-                    }
+                    $path = '/' . $locale . '/' . $bundle. '/' . $domain;
 
-                    $path = '/' . $isoCode . '/' . $bundle. '/' . $domain;
-                    $destinationPath = realpath(self::TRANSLATIONS_DESTINATION) . $path;
-
-                    if (!$this->filesystem->exists($destinationPath)) {
-                        $this->filesystem->mkdir($destinationPath);
-                    }
-
-                    $url = self::RAW_GITHUB_URL . $path . '/' . $fileName;
-
-                    try {
-                        $inputStream = $this->openStream($url, 'r', stream_context_create([
-                            'http' => [
-                                'follow_location' => 0,
-                                'max_redirects' => 0,
-                            ],
-                        ]));
-                    } catch (MediaException $e/* todo: use own exception*/) {
-                        if ($e->getStatusCode() === 400) {
-                            continue;
-                        }
-                    }
-
-                    $destStream = $this->openStream($destinationPath . '/' . $fileName, 'w');
-
-                    try {
-                        $this->copyStreams($inputStream, $destStream);
-                    } finally {
-                        fclose($inputStream);
-                        fclose($destStream);
-                    }
+                    $this->fetchFile($path, $fileName);
                 }
             }
         }
+
+        $progressBar->finish();
+        $output->write(PHP_EOL);
 
         return self::SUCCESS;
     }
 
-    private function handleBundles(array $domains, string $isoCode, string $bundle, string $domain): void
+    private function loadConfig(): TranslationConfig
     {
-        foreach ($domains as $subdomain) {
-            $fileName = strtolower($subdomain) . '.json';
+        $config = Yaml::parse(file_get_contents(realpath(self::TRANSLATION_CONFIG_DIR) . self::TRANSLATION_CONFIG_FILE));
 
-            $path = '/' . $isoCode . '/' . $bundle. '/' . $domain . '/' . $subdomain;
-            $destinationPath = realpath(self::TRANSLATIONS_DESTINATION) . $path;
+        return TranslationConfig::create(
+            $config['repository-url'],
+            $config['locales'],
+            $config['plugins'],
+        );
+    }
 
-            if (!$this->filesystem->exists($destinationPath)) {
-                $this->filesystem->mkdir($destinationPath);
+    private function getLocales(InputInterface $input): array
+    {
+        if ($input->getOption('all')) {
+            return $this->config->locales;
+        }
+
+        $locales = $input->getOption('locales');
+
+        if (!$locales) {
+            throw new \InvalidArgumentException('You must specify either --all or --locales option.');
+        }
+
+        $locales = explode(',', $locales);
+
+        if ($locales === []) {
+            throw new \InvalidArgumentException('The --locales option must not be empty.');
+        }
+
+        $errors = [];
+        foreach ($locales as $locale) {
+            if (!\in_array($locale, $this->config->locales, true)) {
+                $errors[] = $locale;
             }
+        }
 
-            $url = self::RAW_GITHUB_URL . $path . '/' . $fileName;
+        if ($errors) {
+            throw new \InvalidArgumentException(sprintf('Invalid locale codes: %s. Available codes: %s', implode(', ', $errors), implode(', ', $this->config->locales)));
+        }
 
-            try {
-                $inputStream = $this->openStream($url, 'r', stream_context_create([
-                    'http' => [
-                        'follow_location' => 0,
-                        'max_redirects' => 0,
-                    ],
-                ]));
-            } catch (MediaException $e/* todo: use own exception*/) {
-                if ($e->getStatusCode() === 400) {
-                    continue;
-                }
+        return $locales;
+    }
 
-                dd($e);
-            }
+    private function fetchPluginSnippets(string $locale): void
+    {
+        foreach ($this->config->plugins as $plugin) {
+            foreach (self::PLUGIN_DOMAINS as $domain) {
+                $fileName = strtolower($domain) . '.json';
+                $path = '/' . $locale . '/Plugins/' . $plugin . '/' . $domain;
 
-            $destStream = $this->openStream($destinationPath . '/' . $fileName, 'w');
-
-            try {
-                $this->copyStreams($inputStream, $destStream);
-            } finally {
-                fclose($inputStream);
-                fclose($destStream);
+                $this->fetchFile($path, $fileName);
             }
         }
     }
 
-    private function openStream(string $url, string $mode, $streamContext = null)
+    private function fetchFile(string $path, string $fileName): void
     {
+        $destinationPath = realpath(self::TRANSLATION_DESTINATION) . $path;
+
+        if (!$this->filesystem->exists($destinationPath)) {
+            $this->filesystem->mkdir($destinationPath);
+        }
+
+        $url = $this->config->repositoryUrl . $path . '/' . $fileName;
+
+        $this->downloadFile($url, $destinationPath . '/' . $fileName);
+    }
+
+    private function downloadFile(string $url, string $destination): void
+    {
+        $client = new Client();
+
         try {
-            $stream = @fopen($url, $mode, false, $streamContext);
-        } catch (\Throwable) {
-        }
-
-        if ($stream === false) {
-            throw MediaException::cannotOpenSourceStreamToRead($url);
-        }
-
-        return $stream;
-    }
-
-    /**
-     * @param resource $sourceStream
-     * @param resource $destStream
-     */
-    private function copyStreams($sourceStream, $destStream/*, int $maxFileSize = 0*/): int
-    {
-        /*if ($maxFileSize === 0) {
-            $writtenBytes = stream_copy_to_stream($sourceStream, $destStream);
-            if ($writtenBytes === false) {
-                throw MediaException::cannotCopyMedia();
+            $client->request('GET', $url, ['sink' => $destination]);
+        } catch (GuzzleException $e) {
+            if ($e->getCode() === 404) {
+                // If the file does not exist, we can skip it
+                return;
             }
 
-            return $writtenBytes;
-        }*/
-
-        $writtenBytes = stream_copy_to_stream($sourceStream, $destStream/*, $maxFileSize*/);
-        if ($writtenBytes === false) {
-            throw MediaException::cannotCopyMedia();
+            throw $e;
         }
+    }
 
-        /*if ($writtenBytes === $maxFileSize) {
-            throw MediaException::fileSizeLimitExceeded();
-        }*/
+    private function createProgressBar(OutputInterface $output, int $count): ProgressBar
+    {
+        ProgressBar::setFormatDefinition('custom', '%current%/%max% -- Fetching translations for locale: %message%');
+        $progressBar = new ProgressBar($output, $count);
+        $progressBar->setFormat('custom');
 
-        return $writtenBytes;
+        return $progressBar;
     }
 }

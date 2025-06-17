@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsEntity;
+use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsResponseEntity;
+use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsCollection;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Store\InAppPurchase;
@@ -46,6 +49,14 @@ class InfoControllerTest extends TestCase
     private InAppPurchase $inAppPurchase;
 
     private ShopIdProvider&MockObject $shopIdProvider;
+
+    private StatsService&MockObject $statsService;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->statsService = $this->createMock(StatsService::class);
+    }
 
     public function testConfig(): void
     {
@@ -138,6 +149,29 @@ class InfoControllerTest extends TestCase
         static::assertSame('current-shop-id', $data['shopId']);
     }
 
+    public function testMessageStatsPreservesFloatingPointPrecision(): void
+    {
+        $this->statsService->method('getStats')->willReturn(
+            new MessageStatsResponseEntity(
+                true,
+                new MessageStatsEntity(1, new \DateTime(), 1.00, new MessageTypeStatsCollection())
+            )
+        );
+        $this->createInstance();
+
+        $response = $this->infoController->messageStats();
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('stats', $data);
+        static::assertArrayHasKey('averageTimeInQueue', $data['stats']);
+
+        // Check that the floating point precision is preserved for zero-padded decimal values
+        static::assertSame(1.00, $data['stats']['averageTimeInQueue']);
+    }
+
     private function createInstance(): void
     {
         $kernel = new StubKernel([
@@ -192,7 +226,7 @@ class InfoControllerTest extends TestCase
             ),
             new Filesystem(),
             $this->shopIdProvider,
-            $this->createMock(StatsService::class),
+            $this->statsService,
         );
     }
 }

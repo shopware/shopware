@@ -28,12 +28,12 @@ If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on GitHub!
 
 * 🙋‍♂️ &nbsp;[Be part of shopware!](https://www.shopware.com/en/jobs/) ‍&nbsp;We are hiring!  🙋
 * 🌎 &nbsp;Discover our [website](https://www.shopware.com/en/)
-* 🧩 &nbsp;Browse more than [5,200 extensions](https://store.shopware.com) in our community store
+* 🧩 &nbsp;Browse more than [3,100 extensions](https://store.shopware.com/en/) in our community store
 * 📖 &nbsp;Learn how to [develop extensions](https://developer.shopware.com) and everything else about the tech behind Shopware
 * 🉐 &nbsp;[Translate](https://translate.shopware.com) Shopware or help by contributing to existing languages
 * 🛠 &nbsp;[Report bugs](https://github.com/shopware/shopware/issues) in our issue tracker
 * 💡 &nbsp;Give us [feedback](https://feedback.shopware.com/) or vote existing ideas
-* 👪 &nbsp;Exchange with more than 9.000 shopware developers in our [Slack community workspace](https://slack.shopware.com)
+* 👪 &nbsp;Exchange with more than 9.000 Shopware developers in our [Slack community workspace](https://slack.shopware.com)
 * 🗨 &nbsp;Help and get helped on [Stack Overflow](https://stackoverflow.com/questions/tagged/shopware6?tab=Newest) or in our [Community forum](https://forum.shopware.com/)
 
 ## Table of contents

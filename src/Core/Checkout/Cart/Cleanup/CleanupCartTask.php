@@ -17,4 +17,9 @@ class CleanupCartTask extends ScheduledTask
     {
         return self::DAILY;
     }
+
+    public static function shouldRescheduleOnFailure(): bool
+    {
+        return true;
+    }
 }

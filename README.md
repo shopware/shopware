@@ -28,7 +28,7 @@ If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on GitHub!
 
 * 🙋‍♂️ &nbsp;[Be part of shopware!](https://www.shopware.com/en/jobs/) ‍&nbsp;We are hiring!  🙋
 * 🌎 &nbsp;Discover our [website](https://www.shopware.com/en/)
-* 🧩 &nbsp;Browse more than [5,200 extensions](https://store.shopware.com/en/) in our community store
+* 🧩 &nbsp;Browse more than [3,100 extensions](https://store.shopware.com/en/) in our community store
 * 📖 &nbsp;Learn how to [develop extensions](https://developer.shopware.com) and everything else about the tech behind Shopware
 * 🉐 &nbsp;[Translate](https://translate.shopware.com) Shopware or help by contributing to existing languages
 * 🛠 &nbsp;[Report bugs](https://github.com/shopware/shopware/issues) in our issue tracker

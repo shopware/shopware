@@ -199,7 +199,6 @@ const missingTests = [
     'src/core/service/api/user-validation.api.service.js',
     'src/core/service/api/user.api.service.js',
     'src/core/service/customer-group-registration-listener.service.js',
-    'src/core/service/entity-mapping.service.js',
     'src/core/service/shopware-updates-listener.service.js',
     'src/core/service/utils/debug.utils.ts',
     'src/core/service/utils/object.utils.ts',

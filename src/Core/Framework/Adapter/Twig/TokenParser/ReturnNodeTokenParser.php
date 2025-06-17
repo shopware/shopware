@@ -24,7 +24,7 @@ final class ReturnNodeTokenParser extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        return new ReturnNode($nodes, [], $token->getLine(), $this->getTag());
+        return new ReturnNode($nodes, [], $token->getLine());
     }
 
     public function getTag(): string

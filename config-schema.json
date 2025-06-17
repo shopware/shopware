@@ -1218,6 +1218,16 @@
                 },
                 "excluded_urls": {
                     "type": "null"
+                },
+                "scheduled_task": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
                 }
             },
             "title": "sitemap"

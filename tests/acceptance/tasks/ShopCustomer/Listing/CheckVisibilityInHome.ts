@@ -1,8 +1,8 @@
 import { test as base } from '@playwright/test';
 import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
 
-export const VisibleInHome = base.extend<{ VisibleInHome: Task }, FixtureTypes>({
-    VisibleInHome: async ({ ShopCustomer, StorefrontHome, TestDataService }, use) => {
+export const CheckVisibilityInHome = base.extend<{ CheckVisibilityInHome: Task }, FixtureTypes>({
+    CheckVisibilityInHome: async ({ ShopCustomer, StorefrontHome, TestDataService }, use) => {
         const task = (productName: string) => {
             return async function () {
 

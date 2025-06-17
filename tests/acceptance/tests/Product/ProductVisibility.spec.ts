@@ -9,7 +9,7 @@ test('Product is visible in listing and storefront search when set to "Visible".
     StorefrontSearchSuggest,
     IdProvider,
     StorefrontProductDetail,
-    VisibleInHome,
+    CheckVisibilityInHome,
 }) => {
     let product: Product;
     await test.step('Create a product with "Visible" visibility in the default sales channel.', async () => {
@@ -24,7 +24,7 @@ test('Product is visible in listing and storefront search when set to "Visible".
         });
     });
 
-    await VisibleInHome(product.name)();
+    await CheckVisibilityInHome(product.name)();
 
     await test.step('Verify the product appears in storefront search results.', async () => {
         await ShopCustomer.attemptsTo(SearchForTerm(product.name));

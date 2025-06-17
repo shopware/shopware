@@ -7,22 +7,22 @@ export interface HomeProducts {
 }
 
 export const test = base.extend<FixtureTypes & HomeProducts>({
-    HomeProduct: async ({ TestDataService, VisibleInHome }, use) => {
+    HomeProduct: async ({ TestDataService, CheckVisibilityInHome }, use) => {
         const product = await TestDataService.createBasicProduct();
 
-        await VisibleInHome(product.name)();
+        await CheckVisibilityInHome(product.name)();
 
         await use(product);
     },
 
-    HomeProducts: async ({ TestDataService, VisibleInHome }, use) => {
+    HomeProducts: async ({ TestDataService, CheckVisibilityInHome }, use) => {
         const product1 = await TestDataService.createBasicProduct();
         const product2 = await TestDataService.createBasicProduct();
         const product3 = await TestDataService.createBasicProduct();
 
-        await VisibleInHome(product1.name)();
-        await VisibleInHome(product2.name)();
-        await VisibleInHome(product3.name)();
+        await CheckVisibilityInHome(product1.name)();
+        await CheckVisibilityInHome(product2.name)();
+        await CheckVisibilityInHome(product3.name)();
 
         await use([product1, product2, product3]);
     },

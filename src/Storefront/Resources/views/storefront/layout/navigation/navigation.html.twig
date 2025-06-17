@@ -39,7 +39,9 @@
 
                                 {% block layout_main_navigation_menu_item %}
                                     {% if category.type == 'folder' %}
-                                        <div class="nav-link main-navigation-link nav-item-{{ category.id}}"
+                                        <a class="nav-link main-navigation-link nav-item-{{ category.id}}"
+                                           href="#"
+                                           itemprop="url"
                                             {% if treeItem.children|length > 0 %}
                                                 data-flyout-menu-trigger="{{ category.id }}"
                                             {% endif %}
@@ -47,7 +49,7 @@
                                             <div class="main-navigation-link-text">
                                                 <span itemprop="name">{{ name }}</span>
                                             </div>
-                                        </div>
+                                        </a>
                                         {% if feature('ACCESSIBILITY_TWEAKS') and (treeItem.children|length > 0) %}
                                             <div class="navigation-flyouts position-absolute w-100 start-0">
                                                 <div class="navigation-flyout"

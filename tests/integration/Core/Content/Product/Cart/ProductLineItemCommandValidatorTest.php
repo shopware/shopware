@@ -155,7 +155,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
         static::assertArrayHasKey('productNumber', $first->getPayload());
 
         static::expectException(WriteException::class);
-        static::expectExceptionMessage('To change the product of line item (' . $first->getId() . '), the following properties must also be updated: `productId`, `referenceId`, `payload.productNumber`.');
+        static::expectExceptionMessage('To change the product of line item (' . $first->getId() . '), the following properties must also be updated: `productId`, `referencedId`, `payload.productNumber`.');
 
         $this->lineItemRepository->update([
             ['id' => $first->getId(), 'productId' => $secondId],

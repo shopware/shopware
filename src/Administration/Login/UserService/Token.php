@@ -16,8 +16,8 @@ use Symfony\Component\Validator\Validation;
 final class Token
 {
     public function __construct(
-        private readonly string $token,
-        private readonly string $refreshToken
+        public readonly string $token,
+        public readonly string $refreshToken
     ) {
     }
 

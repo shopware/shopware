@@ -7,7 +7,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Administration\Login\UserService\ExternalAuthUser;
+use Shopware\Administration\Login\UserService\Token;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -25,7 +27,7 @@ class ExternalAuthUserTest extends TestCase
                 'id' => 'id_value',
                 'user_id' => 'user_id_value',
                 'user_sub' => 'user_sub_value',
-                'refresh_token' => 'refresh_token_value',
+                'token' => ['token' => Uuid::randomHex(), 'refreshToken' => Uuid::randomHex()],
                 'expiry' => $expiry,
                 'email' => 'test@example.com',
                 'is_new' => false,
@@ -35,7 +37,7 @@ class ExternalAuthUserTest extends TestCase
         static::assertSame('id_value', $externalAuthUser->id);
         static::assertSame('user_id_value', $externalAuthUser->userId);
         static::assertSame('user_sub_value', $externalAuthUser->sub);
-        static::assertSame('refresh_token_value', $externalAuthUser->refreshToken);
+        static::assertInstanceOf(Token::class, $externalAuthUser->token);
         static::assertSame($expiry, $externalAuthUser->expiry);
         static::assertSame('test@example.com', $externalAuthUser->email);
     }
@@ -50,7 +52,7 @@ class ExternalAuthUserTest extends TestCase
             static::assertArrayHasKey('id', $data);
             static::assertArrayHasKey('user_id', $data);
             static::assertArrayHasKey('user_sub', $data);
-            static::assertArrayHasKey('refresh_token', $data);
+            static::assertArrayHasKey('token', $data);
             static::assertArrayHasKey('expiry', $data);
             static::assertArrayHasKey('email', $data);
             static::assertArrayHasKey('is_new', $data);
@@ -73,7 +75,7 @@ class ExternalAuthUserTest extends TestCase
                     'id' => null,
                     'user_id' => null,
                     'user_sub' => null,
-                    'refresh_token' => null,
+                    'token' => null,
                     'expiry' => null,
                     'email' => null,
                     'is_new' => false,
@@ -86,12 +88,12 @@ class ExternalAuthUserTest extends TestCase
                     'id' => '',
                     'user_id' => '',
                     'user_sub' => '',
-                    'refresh_token' => '',
+                    'token' => '',
                     'expiry' => '',
                     'email' => '',
                     'is_new' => false,
                 ],
-                'expected' => 'Login user invalid: [id]: is required, [user_id]: is required, [user_sub]: is required, [expiry]: Needs to be a DateTimeInterface, [email]: is required',
+                'expected' => 'Login user invalid: [id]: is required, [user_id]: is required, [user_sub]: is required, [token]: Needs to be an array, [token]: This value should be of type array|(Traversable&ArrayAccess)., [expiry]: Needs to be a DateTimeInterface, [email]: is required',
             ],
 
             'id is invalid' => [
@@ -99,7 +101,7 @@ class ExternalAuthUserTest extends TestCase
                     'id' => 12,
                     'user_id' => 'user_id',
                     'user_sub' => 'user_sub',
-                    'refresh_token' => 'refresh_token',
+                    'token' => ['token' => Uuid::randomHex(), 'refreshToken' => Uuid::randomHex()],
                     'expiry' => new \DateTimeImmutable(),
                     'email' => 'test@example.com',
                     'is_new' => false,
@@ -112,7 +114,7 @@ class ExternalAuthUserTest extends TestCase
                     'id' => 'id',
                     'user_id' => 12,
                     'user_sub' => 'user_sub',
-                    'refresh_token' => 'refresh_token',
+                    'token' => ['token' => Uuid::randomHex(), 'refreshToken' => Uuid::randomHex()],
                     'expiry' => new \DateTimeImmutable(),
                     'email' => 'test@example.com',
                     'is_new' => false,
@@ -125,7 +127,7 @@ class ExternalAuthUserTest extends TestCase
                     'id' => 'id',
                     'user_id' => 'user_id',
                     'user_sub' => 12,
-                    'refresh_token' => 'refresh_token',
+                    'token' => ['token' => Uuid::randomHex(), 'refreshToken' => Uuid::randomHex()],
                     'expiry' => new \DateTimeImmutable(),
                     'email' => 'test@example.com',
                     'is_new' => false,
@@ -133,17 +135,17 @@ class ExternalAuthUserTest extends TestCase
                 'expected' => 'Login user invalid: [user_sub]: Needs to be a string',
             ],
 
-            'refresh_token is invalid' => [
+            'token is invalid' => [
                 'data' => [
                     'id' => 'id',
                     'user_id' => 'user_id',
                     'user_sub' => 'user_sub',
-                    'refresh_token' => 12,
+                    'token' => 12,
                     'expiry' => new \DateTimeImmutable(),
                     'email' => 'test@example.com',
                     'is_new' => false,
                 ],
-                'expected' => 'Login user invalid: [refresh_token]: Needs to be a string',
+                'expected' => 'Login user invalid: [token]: Needs to be an array, [token]: This value should be of type array|(Traversable&ArrayAccess).',
             ],
 
             'expiry is invalid' => [
@@ -151,7 +153,7 @@ class ExternalAuthUserTest extends TestCase
                     'id' => 'id',
                     'user_id' => 'user_id',
                     'user_sub' => 'user_sub',
-                    'refresh_token' => 'refresh_token',
+                    'token' => ['token' => Uuid::randomHex(), 'refreshToken' => Uuid::randomHex()],
                     'expiry' => '12-12-1212',
                     'email' => 'test@example.com',
                     'is_new' => false,
@@ -164,7 +166,7 @@ class ExternalAuthUserTest extends TestCase
                     'id' => 'id',
                     'user_id' => 'user_id',
                     'user_sub' => 'user_sub',
-                    'refresh_token' => 'refresh_token',
+                    'token' => ['token' => Uuid::randomHex(), 'refreshToken' => Uuid::randomHex()],
                     'expiry' => new \DateTimeImmutable(),
                     'email' => 'test.com',
                     'is_new' => false,

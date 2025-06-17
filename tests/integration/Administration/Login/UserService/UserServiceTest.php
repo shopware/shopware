@@ -5,6 +5,8 @@ namespace Shopware\Tests\Integration\Administration\Login\UserService;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Login\TokenService\TokenResult;
+use Shopware\Administration\Login\UserService\Token;
 use Shopware\Administration\Login\UserService\UserService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -38,21 +40,32 @@ class UserServiceTest extends TestCase
         $fakeUserInstaller->installBaseUserData($userId, $email);
 
         $idToken = (new FakeTokenGenerator())->setEmail($email)->setSubject($subject)->generate(JwksIds::KEY_ID_ONE);
+        $token = Uuid::randomHex();
         $refreshToken = Uuid::randomHex();
 
-        $externalAuthUser = $this->createUserService()->getUser($idToken, $refreshToken);
+        $tokenResult = TokenResult::createFromResponse(\json_encode([
+            'id_token' => $idToken,
+            'access_token' => $token,
+            'refresh_token' => $refreshToken,
+            'expires_in' => 3600,
+            'token_type' => 'Bearer',
+            'scope' => 'any',
+        ]));
+
+        $externalAuthUser = $this->createUserService()->getUser($tokenResult);
         static::assertSame($userId, $externalAuthUser->userId);
-        static::assertSame($refreshToken, $externalAuthUser->refreshToken);
+        static::assertSame($refreshToken, $externalAuthUser->token->refreshToken);
         static::assertTrue($externalAuthUser->isNew);
         static::assertSame($email, $externalAuthUser->email);
 
         // ensure data is created and updated
         $tokenUserData = $this->getTokenUserData($subject);
         static::assertIsArray($tokenUserData);
-        static::assertArrayHasKey('refresh_token', $tokenUserData);
+        static::assertArrayHasKey('token', $tokenUserData);
         static::assertArrayHasKey('user_sub', $tokenUserData);
         static::assertArrayHasKey('user_id', $tokenUserData);
-        static::assertSame($refreshToken, $tokenUserData['refresh_token']);
+        static::assertSame($token, $tokenUserData['token']->token);
+        static::assertSame($refreshToken, $tokenUserData['token']->refreshToken);
         static::assertSame($subject, $tokenUserData['user_sub']);
         static::assertSame($userId, Uuid::fromBytesToHex($tokenUserData['user_id']));
     }
@@ -68,20 +81,32 @@ class UserServiceTest extends TestCase
         $fakeUserInstaller->installTokenUser($userId, $subject);
 
         $idToken = (new FakeTokenGenerator())->setEmail($email)->setSubject($subject)->generate(JwksIds::KEY_ID_ONE);
+        $token = Uuid::randomHex();
         $refreshToken = Uuid::randomHex();
 
-        $externalAuthUser = $this->createUserService()->getUser($idToken, $refreshToken);
+        $tokenResult = TokenResult::createFromResponse(\json_encode([
+            'id_token' => $idToken,
+            'access_token' => $token,
+            'refresh_token' => $refreshToken,
+            'expires_in' => 3600,
+            'token_type' => 'Bearer',
+            'scope' => 'any',
+        ]));
+
+        $externalAuthUser = $this->createUserService()->getUser($tokenResult);
         static::assertSame($userId, $externalAuthUser->userId);
-        static::assertSame($refreshToken, $externalAuthUser->refreshToken);
+        static::assertSame($token, $externalAuthUser->token->token);
+        static::assertSame($refreshToken, $externalAuthUser->token->refreshToken);
         static::assertFalse($externalAuthUser->isNew);
         static::assertSame($email, $externalAuthUser->email);
 
         $tokenUserData = $this->getTokenUserData($subject);
         static::assertIsArray($tokenUserData);
-        static::assertArrayHasKey('refresh_token', $tokenUserData);
+        static::assertArrayHasKey('token', $tokenUserData);
         static::assertArrayHasKey('user_sub', $tokenUserData);
         static::assertArrayHasKey('user_id', $tokenUserData);
-        static::assertSame($refreshToken, $tokenUserData['refresh_token']);
+        static::assertSame($token, $tokenUserData['token']->token);
+        static::assertSame($refreshToken, $tokenUserData['token']->refreshToken);
         static::assertSame($subject, $tokenUserData['user_sub']);
         static::assertSame($userId, Uuid::fromBytesToHex($tokenUserData['user_id']));
 
@@ -107,11 +132,22 @@ class UserServiceTest extends TestCase
         $fakeUserInstaller->installTokenUser($userId, $subject);
 
         $idToken = (new FakeTokenGenerator())->setEmail($tokenEmail)->setSubject($subject)->generate(JwksIds::KEY_ID_ONE);
+        $token = Uuid::randomHex();
         $refreshToken = Uuid::randomHex();
 
-        $externalAuthUser = $this->createUserService()->getUser($idToken, $refreshToken);
+        $tokenResult = TokenResult::createFromResponse(\json_encode([
+            'id_token' => $idToken,
+            'access_token' => $token,
+            'refresh_token' => $refreshToken,
+            'expires_in' => 3600,
+            'token_type' => 'Bearer',
+            'scope' => 'any',
+        ]));
+
+        $externalAuthUser = $this->createUserService()->getUser($tokenResult);
         static::assertSame($userId, $externalAuthUser->userId);
-        static::assertSame($refreshToken, $externalAuthUser->refreshToken);
+        static::assertSame($token, $externalAuthUser->token->token);
+        static::assertSame($refreshToken, $externalAuthUser->token->refreshToken);
         static::assertFalse($externalAuthUser->isNew);
         static::assertSame($localeEmail, $externalAuthUser->email);
 
@@ -126,14 +162,14 @@ class UserServiceTest extends TestCase
     }
 
     /**
-     * @return array{id: string, user_id: string, user_sub: string, refresh_token: string, expiry: string}|null
+     * @return array{id: string, user_id: string, user_sub: string, token: string, expiry: string}|null
      */
     private function getTokenUserData(string $subject): ?array
     {
         $connection = $this->getContainer()->get(Connection::class);
 
         $result = $connection->createQueryBuilder()
-            ->select('id', 'user_id', 'user_sub', 'refresh_token', 'expiry')
+            ->select('id', 'user_id', 'user_sub', 'token', 'expiry')
             ->from('token_user')
             ->where('user_sub = :subject')
             ->setParameter('subject', $subject)
@@ -147,8 +183,10 @@ class UserServiceTest extends TestCase
         static::assertArrayHasKey('id', $result);
         static::assertArrayHasKey('user_id', $result);
         static::assertArrayHasKey('user_sub', $result);
-        static::assertArrayHasKey('refresh_token', $result);
+        static::assertArrayHasKey('token', $result);
         static::assertArrayHasKey('expiry', $result);
+
+        $result['token'] = Token::fromJson($result['token']);
 
         return $result;
     }

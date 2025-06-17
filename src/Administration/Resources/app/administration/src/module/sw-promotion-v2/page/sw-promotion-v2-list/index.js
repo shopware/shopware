@@ -114,14 +114,14 @@ export default {
                     label: 'sw-promotion-v2.list.columnValidFrom',
                     inlineEdit: 'date',
                     allowResize: true,
-                    align: 'center',
+                    align: 'left',
                 },
                 {
                     property: 'validUntil',
                     label: 'sw-promotion-v2.list.columnValidUntil',
                     inlineEdit: 'date',
                     allowResize: true,
-                    align: 'center',
+                    align: 'left',
                 },
             ];
         },

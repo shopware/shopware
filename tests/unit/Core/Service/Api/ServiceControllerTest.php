@@ -48,7 +48,15 @@ class ServiceControllerTest extends TestCase
         $this->app = new AppEntity();
         $this->app->setId($this->appId);
         $this->app->setUniqueIdentifier($this->appId);
-        $this->app->assign(['name' => 'MyCoolService', 'integrationId' => 'CCDD']);
+        $this->app->assign([
+            'name' => 'MyCoolService',
+            'integrationId' => 'CCDD',
+            'version' => '1.0.0',
+            'icon' => null,
+            'description' => 'A cool service',
+            'createdAt' => new \DateTimeImmutable(),
+            'updatedAt' => new \DateTimeImmutable(),
+        ]);
 
         $this->appRepo = new StaticEntityRepository([[$this->app]]);
 
@@ -241,6 +249,16 @@ class ServiceControllerTest extends TestCase
         $response = $controller->list($context);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertSame([['id' => $this->appId, 'name' => 'MyCoolService', 'active' => true]], json_decode((string) $response->getContent(), true));
+
+        $responseData = json_decode((string) $response->getContent(), true);
+        static::assertIsArray($responseData);
+        static::assertCount(1, $responseData);
+
+        $service = $responseData[0];
+        static::assertSame($this->appId, $service['id']);
+        static::assertSame('MyCoolService', $service['name']);
+        static::assertTrue($service['active']);
+        static::assertSame('1.0.0', $service['version']);
+        static::assertSame('active', $service['state']);
     }
 }

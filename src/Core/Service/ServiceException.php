@@ -25,6 +25,10 @@ class ServiceException extends HttpException
 
     public const SERVICE_TOGGLE_ACTION_NOT_ALLOWED = 'SERVICE__TOGGLE_ACTION_NOT_ALLOWED';
 
+    public const COULD_NOT_FETCH_PERMISSIONS_REVISIONS = 'SERVICE__COULD_NOT_FETCH_PERMISSIONS_REVISIONS';
+
+    public const INVALID_PERMISSIONS_REVISION_FORMAT = 'SERVICE__INVALID_PERMISSIONS_REVISION_FORMAT';
+
     public static function notFound(string $field, string $value): self
     {
         return new self(
@@ -136,6 +140,16 @@ class ServiceException extends HttpException
             self::SERVICE_CANNOT_WRITE_APP,
             'Error writing app zip to file "{{ file }}"',
             ['file' => $file]
+        );
+    }
+
+    public static function invalidPermissionsRevisionFormat(string $revision): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_PERMISSIONS_REVISION_FORMAT,
+            'The provided permissions revision "{{ revision }}" is not in the correct format Y-m-d.',
+            ['revision' => $revision]
         );
     }
 }

@@ -59,6 +59,18 @@ describe('ButtonLoadingIndicatorUtil tests', () => {
         expect(buttonEl.querySelector('.loader')).toBeNull();
     });
 
+    test('adds a loading indicator after the text', () => {
+        const buttonEl = document.querySelector('button.button-el');
+
+        const buttonLoadingIndicatorUtil = new ButtonLoadingIndicatorUtil(buttonEl, 'after');
+        buttonLoadingIndicatorUtil.create();
+
+        // Verify the loading indicator comes after the button text.
+        expect(buttonEl.disabled).toBe(true);
+        expect(buttonEl.classList.contains('is-loading-indicator-after')).toBe(true);
+        expect(buttonEl.innerHTML).toContain('Default button<div class="loader" role="status">');
+    });
+
     test('replaces the button text with a loading indicator when the "inner" parameter is passed', () => {
         const buttonEl = document.querySelector('button.button-el');
         const buttonLoadingIndicatorUtil = new ButtonLoadingIndicatorUtil(buttonEl, 'inner');

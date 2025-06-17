@@ -178,6 +178,7 @@ $sw-media-upload-v2-caption-icon-color: $color-gray-300;
     border-radius: $sw-media-upload-v2-border-radius;
     background-color: $sw-media-upload-v2-upload-background-color;
     position: relative;
+    gap: 12px;
 
     &.is--multi {
         flex-direction: column;
@@ -185,7 +186,6 @@ $sw-media-upload-v2-caption-icon-color: $color-gray-300;
         padding: 36px 24px;
 
         .sw-media-upload-v2__actions {
-            margin-top: 12px;
             margin-left: unset;
             flex-direction: row;
             padding-left: unset;

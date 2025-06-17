@@ -37,7 +37,8 @@
       "technicalUrlHelpText": "Technical URLs can be used as \"customisable link\" within the category module and will provide an automatic language mapping.",
       "availabilitySalesChannel": "Available Sales Channels",
       "infoText": "Shop users can sign up through this custom form, but will be assigned to the customer group only after you accepted the request in the customer module. You can customise this form with the fields below.",
-      "seoUrlLabel": "{salesChannelName} URL"
+      "seoUrlLabel": "{salesChannelName} URL ({languageName})",
+      "domainBanner": "SEO URLs are listed for each domain configured per SalesChannel."
     },
     "modal": {
       "seoUrl": {

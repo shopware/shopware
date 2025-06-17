@@ -8,15 +8,15 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 class SalesChannelCategoryEntity extends CategoryEntity
 {
-    protected ?string $seoLink = null;
+    protected ?string $seoUrl = null;
 
-    public function getSeoLink(): ?string
+    public function getSeoUrl(): ?string
     {
-        return $this->seoLink;
+        return $this->seoUrl;
     }
 
-    public function setSeoLink(string $seoLink): void
+    public function setSeoUrl(string $seoUrl): void
     {
-        $this->seoLink = $seoLink;
+        $this->seoUrl = $seoUrl;
     }
 }

@@ -62,7 +62,7 @@ Module.register('sw-product-stream', {
             },
             props: {
                 default(route) {
-                    return { productStreamId: route.params.id };
+                    return { productStreamId: route.params.id.toLowerCase() };
                 },
             },
         },

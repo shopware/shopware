@@ -13,4 +13,32 @@
     & > .sw-condition-or-container {
         border: none;
     }
+
+    .mt-block-field__block {
+        min-height: unset;
+        height: 100%;
+    }
+
+    .sw-entity-multi-select .sw-block-field__block {
+        min-height: unset;
+        height: unset;
+    }
+
+    .sw-condition input {
+        padding: 4px 16px 8px !important;
+    }
+
+    .mt-datepicker__hint {
+        display: none;
+    }
+
+    .wrapper .dp__input {
+        height: 100%;
+        padding: 10px !important;
+    }
+
+    .sw-single-select__selection-text,
+    .sw-single-select__selection-input {
+        margin-right: 2.75rem;
+    }
 }

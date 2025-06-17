@@ -6,6 +6,7 @@
             :label="$tc('sw-product.crossselling.inputCrossSellingProductList')"
             entity="product"
             value=""
+            :placeholder="$tc('sw-product.crossselling.inputCrossSellingProductListPlaceholder')"
             :criteria="searchCriteria"
             :context="searchContext"
             disable-auto-close
@@ -84,9 +85,9 @@
         <sw-empty-state
             v-if="!total && !isLoadingGrid"
             class="sw-product-cross-selling-assignment__option-list-empty-state"
-            title=""
+            :title="$tc('sw-product.crossselling.assignEmptyStateTitle')"
+            :show-description="false"
             :absolute="false"
-            :subline="$tc('sw-product.crossselling.assignEmptyStateDescription')"
         >
             <template #icon>
                 <img

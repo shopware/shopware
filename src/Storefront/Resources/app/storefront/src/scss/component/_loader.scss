@@ -7,6 +7,7 @@ Defines the loader icon
 .loader {
     @extend .spinner-border;
     @extend .text-primary;
+    --#{$prefix}spinner-border-width: 3px;
 }
 
 /*
@@ -117,5 +118,55 @@ Skeleton screen for reloading product-listing with subtle shimmer effect
     .product-variant-characteristics-text,
     .product-wishlist-remove {
         display: none;
+    }
+}
+
+/*
+Button loading indicator
+==============================================
+Can be shown before or after the button text or replace it.
+*/
+
+.btn {
+    > .loader {
+        --#{$prefix}spinner-width: 18px;
+        --#{$prefix}spinner-height: 18px;
+        --#{$prefix}spinner-vertical-align: -0.25em;
+        color: var(--#{$prefix}btn-color);
+    }
+
+    &.is-loading-indicator-before {
+        .loader {
+            margin-right: var(--#{$prefix}btn-padding-x);
+        }
+    }
+
+    &.is-loading-indicator-after {
+        .loader {
+            margin-left: var(--#{$prefix}btn-padding-x);
+        }
+    }
+
+    &.is-loading-indicator-inner {
+        @keyframes slide-in {
+            0% {
+                opacity: 0;
+                margin-bottom: -30px;
+            }
+            100% {
+                opacity: 1;
+                margin-bottom: 0;
+            }
+        }
+
+        .loader {
+            animation:
+                // Slide in effect
+                0.15s ease-out 0s 1 slide-in,
+                // Restore original Bootstrap spinning animation (prettier cannot handle CSS vars in animations)
+                /* stylelint-disable */
+                var(--#{$prefix}spinner-animation-speed) linear infinite var(--#{$prefix}spinner-animation-name);
+                /* stylelint-enable */
+        }
     }
 }

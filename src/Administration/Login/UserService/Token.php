@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Validation;
 #[Package('after-sales')]
 final class Token
 {
-    public function __construct(
+    private function __construct(
         public readonly string $token,
         public readonly string $refreshToken
     ) {
@@ -32,12 +32,8 @@ final class Token
     public static function fromJson(string $json): self
     {
         $data = \json_decode($json, true);
-        self::validate($data);
 
-        return new self(
-            $data['token'],
-            $data['refreshToken']
-        );
+        return self::fromArray($data);
     }
 
     public static function fromArray(array $data): self

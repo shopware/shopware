@@ -7,7 +7,6 @@ use Composer\Semver\Constraint\ConstraintInterface;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\App\Validation\Error\MissingTranslationError;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -63,11 +62,6 @@ class Metadata extends XmlElement
      * @var array<string, string>
      */
     protected array $privacyPolicyExtensions = [];
-
-    /**
-     * @deprecated tag:v6.8.0 - will be removed, as it was never specified in the official mainfest.xsd
-     */
-    protected ?string $url = null;
 
     /**
      * @return array<string, mixed>
@@ -180,20 +174,6 @@ class Metadata extends XmlElement
     }
 
     /**
-     * @deprecated tag:v6.8.0 - will be removed, as it was never specified in the official mainfest.xsd
-     */
-    public function getUrl(): ?string
-    {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(
-            __CLASS__,
-            __METHOD__,
-            'v6.8.0.0',
-        ));
-
-        return $this->url;
-    }
-
-    /**
      * @return array<string, string>
      */
     public function getPrivacyPolicyExtensions(): array
@@ -217,7 +197,6 @@ class Metadata extends XmlElement
          *      icon: ?string,
          *      privacy: ?string,
          *      privacyPolicyExtensions: array<string, string>,
-         *      url: ?string,
          *  } $values
          */
         $values = XmlParserUtils::parseChildrenAndTranslate($element, self::TRANSLATABLE_FIELDS);

@@ -406,4 +406,61 @@ describe('app/plugins/shortcut.plugin', () => {
         expect(onSaveMock).toHaveBeenCalledWith();
         expect(testString).toBe('foobar');
     });
+
+    it('should call the onEsc method when Escape key is pressed outside a modal', async () => {
+        const onEscMock = jest.fn();
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                Escape: 'onEsc',
+            },
+            methods: {
+                onEsc() {
+                    onEscMock();
+                },
+            },
+        });
+
+        expect(onEscMock).not.toHaveBeenCalled();
+
+        // Simulate Escape keydown event outside a modal
+        await wrapper.trigger('keydown', {
+            key: 'Escape',
+        });
+
+        expect(onEscMock).toHaveBeenCalledWith();
+    });
+
+    it('should NOT call the onEsc method when Escape key is pressed inside a modal', async () => {
+        const onEscMock = jest.fn();
+
+        // Create a modal element in the DOM
+        const modal = document.createElement('div');
+        modal.className = 'sw-modal';
+        document.body.appendChild(modal);
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                Escape: 'onEsc',
+            },
+            methods: {
+                onEsc() {
+                    onEscMock();
+                },
+            },
+        });
+
+        expect(onEscMock).not.toHaveBeenCalled();
+
+        // Simulate Escape keydown event with the target inside the modal
+        const event = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
+        Object.defineProperty(event, 'target', { value: modal, enumerable: true });
+
+        document.dispatchEvent(event);
+
+        expect(onEscMock).not.toHaveBeenCalled();
+
+        // Clean up
+        document.body.removeChild(modal);
+    });
 });

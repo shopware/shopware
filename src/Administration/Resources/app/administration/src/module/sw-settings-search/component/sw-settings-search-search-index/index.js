@@ -84,6 +84,10 @@ export default {
             this.productSearchKeywordRepository
                 .search(this.productSearchKeywordsCriteria, Context.api)
                 .then((result) => {
+                    if (!result.total) {
+                        return;
+                    }
+
                     this.latestIndex = {
                         firstDate: result.aggregations.firstDate.min,
                         lastDate: result.aggregations.lastDate.max,

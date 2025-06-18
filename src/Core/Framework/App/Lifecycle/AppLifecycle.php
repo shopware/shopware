@@ -184,22 +184,15 @@ class AppLifecycle extends AbstractAppLifecycle
     {
         $appEntity = $this->loadApp($app['id'], $context);
 
+        // if we do not keep user data, or the app has no restrict delete data,
+        // we can safely delete the app as no references in the DB will be left over
+        $restrictDeletesPresent = $keepUserData && $this->appHasRestrictDeleteData($appEntity);
         if ($appEntity->isActive()) {
-            $this->appStateService->deactivateApp($appEntity->getId(), $context);
+            $this->appStateService->deactivateApp($appEntity->getId(), $context, !$restrictDeletesPresent);
         }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('appId', $appEntity->getId()));
-
-        // custom entities might be marked as deleted in `removeAppAndRole`, therefore we need to fetch the count before
-        $customEntityCount = $this->customEntityRepository->searchIds($criteria, $context)->getTotal();
 
         $this->removeAppAndRole($appEntity, $context, $keepUserData, true);
         $this->assetService->removeAssets($appEntity->getName());
-
-        if ($customEntityCount > 0) {
-            $this->customEntitySchemaUpdater->update();
-        }
 
         $event = new PostAppDeletedEvent($appEntity->getName(), $appEntity->getSourceType(), $context, $keepUserData);
         $this->eventDispatcher->dispatch($event);
@@ -412,7 +405,7 @@ class AppLifecycle extends AbstractAppLifecycle
                 }
             }
 
-            $this->markCustomEntitiesAsDeleted($app->getId(), $keepUserData, $context);
+            $this->handleCustomEntityRemoval($app->getId(), $keepUserData, $context);
 
             $this->appRepository->delete([['id' => $app->getId()]], $context);
 
@@ -431,31 +424,42 @@ class AppLifecycle extends AbstractAppLifecycle
         });
     }
 
-    private function markCustomEntitiesAsDeleted(string $appId, bool $keepUserData, Context $context): void
+    private function handleCustomEntityRemoval(string $appId, bool $keepUserData, Context $context): void
     {
-        if (!$keepUserData) {
-            return;
-        }
-
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
 
         $customEntities = $this->customEntityRepository->search($criteria, $context)->getEntities();
+        if ($customEntities->count() === 0) {
+            return;
+        }
 
         $update = [];
         foreach ($customEntities as $customEntity) {
-            $update[] = [
-                'id' => $customEntity->getId(),
-                'appId' => null,
-                'deletedAt' => new \DateTimeImmutable(),
-            ];
+            if ($keepUserData) {
+                // If we keep user data, we only set the appId to null and mark the custom entities as deleted
+                $update[] = [
+                    'id' => $customEntity->getId(),
+                    'appId' => null,
+                    'deletedAt' => null,
+                ];
+            } else {
+                $update[] = [
+                    'id' => $customEntity->getId(),
+                ];
+            }
         }
 
         if (empty($update)) {
             return;
         }
 
-        $this->customEntityRepository->update($update, $context);
+        if ($keepUserData) {
+            $this->customEntityRepository->update($update, $context);
+        } else {
+            $this->customEntityRepository->delete($update, $context);
+            $this->customEntitySchemaUpdater->update();
+        }
     }
 
     /**
@@ -646,8 +650,6 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private function doesAllowDisabling(AppEntity $app): bool
     {
-        $allow = true;
-
         $entities = $this->connection->fetchFirstColumn(
             'SELECT fields FROM custom_entity WHERE app_id = :id',
             ['id' => Uuid::fromHexToBytes($app->getId())]
@@ -660,12 +662,43 @@ class AppLifecycle extends AbstractAppLifecycle
                 $restricted = $field['onDelete'] ?? null;
 
                 if ($restricted === AssociationField::RESTRICT) {
-                    $allow = false;
+                    return false;
                 }
             }
         }
 
-        return $allow;
+        return true;
+    }
+
+    private function appHasRestrictDeleteData(AppEntity $app): bool
+    {
+        $entities = $this->connection->fetchAllKeyValue(
+            'SELECT name, fields FROM custom_entity WHERE app_id = :id',
+            ['id' => Uuid::fromHexToBytes($app->getId())]
+        );
+
+        foreach ($entities as $table => $fields) {
+            $fields = json_decode((string) $fields, true, 512, \JSON_THROW_ON_ERROR);
+
+            foreach ($fields as $field) {
+                $restricted = $field['onDelete'] ?? null;
+
+                if ($restricted !== AssociationField::RESTRICT) {
+                    continue;
+                }
+
+                $hasData = (int) $this->connection->createQueryBuilder()
+                    ->select('COUNT(*)')
+                    ->from($table)
+                    ->fetchOne();
+
+                if ($hasData > 0) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**

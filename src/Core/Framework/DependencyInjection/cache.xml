@@ -73,6 +73,7 @@
             <argument>%kernel.cache_dir%</argument>
             <argument>%kernel.environment%</argument>
             <argument>%shopware.deployment.cluster_setup%</argument>
+            <argument>%shopware.http_cache.reverse_proxy.enabled%</argument>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="logger"/>
         </service>

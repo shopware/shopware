@@ -200,6 +200,7 @@ class PluginManagementServiceTest extends TestCase
             $this->cacheDir,
             'test',
             false,
+            false,
             static::getContainer()->get('messenger.default_bus'),
             static::getContainer()->get('logger')
         );

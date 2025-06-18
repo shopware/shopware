@@ -252,8 +252,11 @@ jobs:
       matrix:
         update:
           - version: ${{ needs.tested-update-versions.outputs.lts-latest-version }}
+            type: lts-latest
           - version: ${{ needs.tested-update-versions.outputs.first-version }}
+            type: first
           - version: ${{ needs.tested-update-versions.outputs.latest-version }}
+            type: latest
     env:
       SHOPWARE_HTTP_CACHE_ENABLED: 0
       BLUE_GREEN_DEPLOYMENT: 1
@@ -342,7 +345,7 @@ jobs:
       - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # 4
         if: always()
         with:
-          name: playwright-report-update-${{ matrix.update.version }}
+          name: playwright-report-update-${{ matrix.update.type }}-${{ matrix.update.version }}
           path: new-shopware/tests/acceptance/test-results/
           retention-days: 3
 

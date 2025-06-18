@@ -78,12 +78,19 @@ export default {
                         return false;
                     }
 
-                    const isModalShown = !!document.querySelector('.sw-modal__dialog');
+                    // Check if event originates from within a modal
+                    const eventTarget = event.target instanceof Element ? event.target : null;
+                    const isFromModal =
+                        eventTarget?.closest('.sw-modal') ||
+                        eventTarget?.closest('.sw-modal__dialog') ||
+                        !!document.querySelector('.sw-modal__dialog') ||
+                        !!document.querySelector('.sw-modal');
+
                     const systemKey = this.$device.getSystemKey();
                     const { key, altKey, ctrlKey } = event;
                     const systemKeyPressed = systemKey === 'CTRL' ? ctrlKey : altKey;
 
-                    if (isModalShown) {
+                    if (isFromModal) {
                         return false;
                     }
 

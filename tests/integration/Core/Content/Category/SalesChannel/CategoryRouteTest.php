@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -141,7 +142,7 @@ class CategoryRouteTest extends TestCase
             '/store-api/category/' . $id
         );
 
-        $this->assertError($id);
+        $this->assertLinkCategory($this->ids->get('link'));
     }
 
     public function testHomeWithSalesChannelOverride(): void
@@ -401,6 +402,22 @@ class CategoryRouteTest extends TestCase
         static::assertArrayHasKey('elements', $listing);
     }
 
+    private function assertLinkCategory(string $expectedCategoryId): void
+    {
+        $response = $this->browser->getResponse();
+        static::assertIsString($response->getContent());
+        $response = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame($expectedCategoryId, $response['id'], 'CategoryIds do not match');
+        static::assertSame($this->ids->get('linked-category-name'), $response['name']);
+        static::assertSame(CategoryDefinition::TYPE_LINK, $response['type']);
+        static::assertSame(CategoryDefinition::LINK_TYPE_PRODUCT, $response['linkType']);
+        static::assertSame($this->ids->get('linked-product'), $response['internalLink'], 'Internal Link Ids do not match');
+
+        static::assertSame('/detail/' . $this->ids->get('linked-product'), $response['seoUrl'], 'SEO URLs do not match');
+        static::assertTrue($response['linkNewTab']);
+    }
+
     private function assertLandingPageCmsPage(string $categoryId, string $cmsPageId, string $expected): void
     {
         static::assertIsString($this->browser->getResponse()->getContent());
@@ -566,7 +583,11 @@ class CategoryRouteTest extends TestCase
 
         $linkData = $childCategory;
         $linkData['id'] = $this->ids->create('link');
+        $linkData['name'] = $this->ids->create('linked-category-name');
         $linkData['type'] = 'link';
+        $linkData['linkType'] = CategoryDefinition::LINK_TYPE_PRODUCT;
+        $linkData['internalLink'] = $this->ids->create('linked-product');
+        $linkData['linkNewTab'] = true;
         unset($linkData['cmsPage']);
 
         $this->getContainer()->get('category.repository')

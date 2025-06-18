@@ -46,6 +46,7 @@ export default class CookieConfiguration extends Plugin {
         buttonSubmitSelector: '.js-offcanvas-cookie-submit',
         buttonAcceptAllSelector: '.js-offcanvas-cookie-accept-all',
         globalButtonAcceptAllSelector: '.js-cookie-accept-all-button',
+        globalButtonPermissionSelector: '.js-cookie-permission-button',
         parentInputSelector: '.offcanvas-cookie-parent-input',
         customLinkSelector: `[href="${window.router['frontend.cookie.offcanvas']}"]`,
         entriesActiveClass: 'offcanvas-cookie-entries--active',
@@ -85,7 +86,7 @@ export default class CookieConfiguration extends Plugin {
      * @private
      */
     _registerEvents() {
-        const { submitEvent, buttonOpenSelector, customLinkSelector, globalButtonAcceptAllSelector } = this.options;
+        const { submitEvent, buttonOpenSelector, customLinkSelector, globalButtonAcceptAllSelector, globalButtonPermissionSelector } = this.options;
 
         Array.from(document.querySelectorAll(buttonOpenSelector)).forEach(button => {
             button.addEventListener(submitEvent, this.openOffCanvas.bind(this));
@@ -93,6 +94,10 @@ export default class CookieConfiguration extends Plugin {
 
         Array.from(document.querySelectorAll(customLinkSelector)).forEach(customLink => {
             customLink.addEventListener(submitEvent, this._handleCustomLink.bind(this));
+        });
+
+        Array.from(document.querySelectorAll(globalButtonPermissionSelector)).forEach(customLink => {
+            customLink.addEventListener(submitEvent, this._handlePermission.bind(this));
         });
 
         Array.from(document.querySelectorAll(globalButtonAcceptAllSelector)).forEach(customLink => {
@@ -140,8 +145,23 @@ export default class CookieConfiguration extends Plugin {
         this.openOffCanvas();
     }
 
+    _handlePermission(event) {
+        event.preventDefault();
+
+        CookieStorage.setItem(this.options.cookiePreference, '1', '30');
+
+        this._handleUpdateListener([], []);
+        this.closeOffCanvas();
+    }
+
     _handleUpdateListener(active, inactive) {
         const updatedCookies = this._getUpdatedCookies(active, inactive);
+
+        // Check if Google reCAPTCHA registration function exists, register plugins and initialize them (needed for cookieBar only technical required cookies)
+        if (typeof window.registerGoogleReCaptchaPlugins === 'function') {
+            window.registerGoogleReCaptchaPlugins();
+            PluginManager.initializePlugins();
+        }
 
         document.$emitter.publish(COOKIE_CONFIGURATION_UPDATE, updatedCookies);
     }
@@ -200,6 +220,25 @@ export default class CookieConfiguration extends Plugin {
     }
 
     /**
+     * Check if cookie preference is set and show cookie bar if needed
+     * @private
+     */
+    _checkAndShowCookieBarIfNeeded() {
+        const { cookiePreference } = this.options;
+        const cookiePermission = CookieStorage.getItem(cookiePreference);
+
+        // If no cookie preference is set, show the cookie bar again
+        if (!cookiePermission) {
+            const cookiePermissionPlugin = PluginManager.getPluginInstances('CookiePermission');
+
+            if (cookiePermissionPlugin && cookiePermissionPlugin[0]) {
+                cookiePermissionPlugin[0]._showCookieBar();
+                cookiePermissionPlugin[0]._setBodyPadding();
+            }
+        }
+    }
+
+    /**
      * Private method to apply events to the cookie-configuration template
      * Also sets the initial checkbox state based on currently set cookies
      *
@@ -209,11 +248,27 @@ export default class CookieConfiguration extends Plugin {
         this._registerOffCanvasEvents();
         this._setInitialState();
         this._setInitialOffcanvasState();
+        this._registerOffCanvasCloseListener();
         PluginManager.initializePlugins();
 
         if (typeof callback === 'function') {
             callback();
         }
+    }
+
+    /**
+     * Register listener for offcanvas close events
+     * @private
+     */
+    _registerOffCanvasCloseListener() {
+        // Listen to the offcanvas close event to check cookie preferences
+        const onOffCanvasClose = () => {
+            this._checkAndShowCookieBarIfNeeded();
+            // Remove the listener to avoid memory leaks
+            document.$emitter.unsubscribe('onCloseOffcanvas', onOffCanvasClose);
+        };
+
+        document.$emitter.subscribe('onCloseOffcanvas', onOffCanvasClose);
     }
 
     _hideCookieBar() {

@@ -157,17 +157,36 @@ if ((window.googleReCaptchaV2Active || window.googleReCaptchaV3Active) && typeof
     };
 }
 
-// depends on the value that is set via src/Storefront/Framework/Cookie/CookieProvider.php for that specific cookie (cookie.groupRequiredAccepted)
-const cookiesAccepted = CookieStorage.getItem('cookie-preference') === '1';
-if (cookiesAccepted || !window.useDefaultCookieConsent) {
-    if (window.googleReCaptchaV2Active) {
-        PluginManager.register('GoogleReCaptchaV2', () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v2.plugin'), '[data-google-re-captcha-v2]');
-    }
+/**
+ * Registers Google reCAPTCHA plugins based on current cookie preferences
+ */
+function registerGoogleReCaptchaPlugins() {
+    // depends on the value that is set via src/Storefront/Framework/Cookie/CookieProvider.php for cookie.groupRequiredAccepted
+    const cookiesAccepted = CookieStorage.getItem('cookie-preference') === '1';
 
-    if (window.googleReCaptchaV3Active) {
-        PluginManager.register('GoogleReCaptchaV3', () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v3.plugin'), '[data-google-re-captcha-v3]');
+    if (cookiesAccepted || !window.useDefaultCookieConsent) {
+        if (window.googleReCaptchaV2Active) {
+            try {
+                PluginManager.register('GoogleReCaptchaV2', () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v2.plugin'), '[data-google-re-captcha-v2]');
+            } catch (e) {
+                // Plugin already registered, ignore
+            }
+        }
+
+        if (window.googleReCaptchaV3Active) {
+            try {
+                PluginManager.register('GoogleReCaptchaV3', () => import('src/plugin/captcha/google-re-captcha/google-re-captcha-v3.plugin'), '[data-google-re-captcha-v3]');
+            } catch (e) {
+                // Plugin already registered, ignore
+            }
+        }
     }
 }
+
+// Make the function globally available
+window.registerGoogleReCaptchaPlugins = registerGoogleReCaptchaPlugins;
+// Register Google reCAPTCHA plugins on inital page load
+registerGoogleReCaptchaPlugins();
 
 /*
 run plugins

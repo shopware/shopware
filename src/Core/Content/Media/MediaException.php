@@ -436,4 +436,22 @@ class MediaException extends HttpException
             'Unknown location type'
         );
     }
+
+    public static function fileNotProvided(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT__MEDIA_NO_FORM_DATA_FIELD_PROVIDED',
+            'No form data field "field" provided.'
+        );
+    }
+
+    public static function mimeTypeNotProvided(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT__MEDIA_NO_MIME_TYPE_PROVIDED',
+            'mimeType is not provided'
+        );
+    }
 }

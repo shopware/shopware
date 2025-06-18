@@ -1,23 +1,23 @@
 {% sw_extends '@Storefront/storefront/utilities/offcanvas.html.twig' %}
 
 {% block utilities_offcanvas_close_text %}
-    {{ "cookie.wishlist.title"|trans }}
+    {{ 'cookie.wishlist.title'|trans }}
 {% endblock %}
 
 {% block utilities_offcanvas_content %}
     <div class="offcanvas-cookie" data-offcanvas-wishlist-cookie="true">
         <div class="offcanvas-cookie-description">
             <p>
-                {{ "cookie.wishlist.description"|trans }}
+                {{ 'cookie.wishlist.description'|trans }}
             </p>
         </div>
         <div class="offcanvas-cookie-list">
             <div class="d-grid gap-2 mb-2">
-                <button class="btn btn-primary js-wishlist-cookie-accept">{{ "cookie.wishlist.accept"|trans }}</button>
-                <button class="btn btn-primary js-wishlist-login">{{ "cookie.wishlist.login"|trans }}</button>
-                <button class="btn btn-secondary js-wishlist-cookie-offcanvas-cancel">{{ "global.default.cancel"|trans }}</button>
+                <button class="btn btn-primary js-wishlist-cookie-accept">{{ 'cookie.wishlist.accept'|trans }}</button>
+                <button class="btn btn-primary js-wishlist-login">{{ 'cookie.wishlist.login'|trans }}</button>
+                <button class="btn btn-secondary js-wishlist-cookie-offcanvas-cancel">{{ 'global.default.cancel'|trans }}</button>
             </div>
-            <a href="#" class="js-wishlist-cookie-preferences text-center d-block mt-3">{{ "cookie.headline"|trans }}</a>
+            <a href="#" class="js-wishlist-cookie-preferences text-center d-block mt-3">{{ 'cookie.headline'|trans }}</a>
         </div>
     </div>
 {% endblock %}

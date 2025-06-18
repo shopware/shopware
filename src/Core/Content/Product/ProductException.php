@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product;
 
+use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -126,8 +127,15 @@ class ProductException extends HttpException
         );
     }
 
-    public static function productNotFound(string $productId): self
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function productNotFound(string $productId): self|ProductNotFoundException
     {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new ProductNotFoundException($productId);
+        }
+
         return new self(
             Response::HTTP_NOT_FOUND,
             self::PRODUCT_NOT_FOUND,

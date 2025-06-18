@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -306,7 +308,11 @@ class ProductDetailRouteTest extends TestCase
 
     public function testLoadProductNotFound(): void
     {
-        $this->expectException(ProductException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(ProductNotFoundException::class);
+        } else {
+            $this->expectException(ProductException::class);
+        }
 
         $this->route->load('1', new Request(), $this->context, new Criteria());
     }

@@ -7,9 +7,11 @@ use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
+use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -40,7 +42,12 @@ class ProductPageTest extends TestCase
         $request = new Request([], [], ['productId' => '99999911ffff4fffafffffff19830531']);
         $context = $this->createSalesChannelContextWithNavigation();
 
-        $this->expectException(ProductException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(ProductNotFoundException::class);
+        } else {
+            $this->expectException(ProductException::class);
+        }
+
         $this->getPageLoader()->load($request, $context);
     }
 
@@ -52,7 +59,12 @@ class ProductPageTest extends TestCase
         $event = null;
         $this->catchEvent(ProductPageLoadedEvent::class, $event);
 
-        $this->expectException(ProductException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(ProductNotFoundException::class);
+        } else {
+            $this->expectException(ProductException::class);
+        }
+
         $this->getPageLoader()->load($request, $context);
     }
 
@@ -120,7 +132,12 @@ class ProductPageTest extends TestCase
         $event = null;
         $this->catchEvent(ProductPageLoadedEvent::class, $event);
 
-        $this->expectException(ProductException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(ProductNotFoundException::class);
+        } else {
+            $this->expectException(ProductException::class);
+        }
+
         $this->getPageLoader()->load($request, $context);
     }
 

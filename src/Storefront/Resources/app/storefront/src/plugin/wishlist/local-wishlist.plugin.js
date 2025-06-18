@@ -1,14 +1,13 @@
 import Storage from 'src/helper/storage/storage.helper';
 import BaseWishlistStoragePlugin from 'src/plugin/wishlist/base-wishlist-storage.plugin';
-import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
+import WishlistCookieOffcanvasPlugin
+    from 'src/plugin/wishlist/wishlist-cookie-offcanvas.plugin';
 
 /**
  * @package checkout
  */
 export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugin {
     init() {
-        this.cookieEnabledName = 'wishlist-enabled';
-
         this.storage = Storage;
 
         super.init();
@@ -21,18 +20,26 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
         super.load();
     }
 
-    add(productId, router) {
-        if (window.useDefaultCookieConsent && !CookieStorageHelper.getItem(this.cookieEnabledName)) {
-            window.location.href = router.afterLoginPath;
-
-            this.$emitter.publish('Wishlist/onLoginRedirect');
-
-            return;
+    add(productId) {
+        if (
+            !window.customerLoggedInState
+            && window.useDefaultCookieConsent
+            && !WishlistCookieOffcanvasPlugin.hasConsent()
+        ) {
+            WishlistCookieOffcanvasPlugin.requestConsent(
+                productId,
+                () => {
+                    super.add(productId);
+                    this._save();
+                }
+            );
+            return false;
         }
 
         super.add(productId);
 
         this._save();
+        return true;
     }
 
     remove(productId) {
@@ -45,7 +52,7 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
      * @private
      */
     _fetch() {
-        if (window.useDefaultCookieConsent && !CookieStorageHelper.getItem(this.cookieEnabledName)) {
+        if (window.useDefaultCookieConsent && !WishlistCookieOffcanvasPlugin.hasConsent()) {
             this.storage.removeItem(this._getStorageKey());
         }
 

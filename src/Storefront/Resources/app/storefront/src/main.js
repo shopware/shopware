@@ -132,6 +132,7 @@ if (window.wishlistEnabled) {
     } else {
         PluginManager.register('WishlistStorage', () => import('src/plugin/wishlist/local-wishlist.plugin'), '[data-wishlist-storage]');
         PluginManager.register('GuestWishlistPage', () => import('src/plugin/wishlist/guest-wishlist-page.plugin'), '[data-guest-wishlist-page]');
+        PluginManager.register('WishlistCookieOffcanvas', () => import('src/plugin/wishlist/wishlist-cookie-offcanvas.plugin'), '[data-offcanvas-wishlist-cookie]');
     }
 
     PluginManager.register('AddToWishlist', () => import('src/plugin/wishlist/add-to-wishlist.plugin'), '[data-add-to-wishlist]');

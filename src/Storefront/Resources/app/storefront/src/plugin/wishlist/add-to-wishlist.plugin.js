@@ -73,8 +73,6 @@ export default class AddToWishlistPlugin extends Plugin {
             return;
         }
 
-        this.el.classList.add(this.classList.isLoading);
-
         if (this._wishlistStorage.has(this.options.productId)) {
             this._wishlistStorage.remove(this.options.productId, this.options.router.remove);
         } else {

@@ -91,15 +91,13 @@ describe('AddToWishlistPlugin tests', () => {
 
         mockElement.click();
 
-        expect(document.getElementById('add-to-wishlist').classList.contains('product-wishlist-loading')).toBe(true);
+        expect(document.getElementById('add-to-wishlist').classList.contains('product-wishlist-loading')).toBe(false);
 
         // called by WishlistWidgetPlugin
         plugin.initStateClasses();
 
         expect(document.getElementById('add-to-wishlist').classList.contains('product-wishlist-not-added')).toBe(false);
         expect(document.getElementById('add-to-wishlist').classList.contains('product-wishlist-added')).toBe(true);
-
-        expect(document.getElementById('add-to-wishlist').classList.contains('product-wishlist-loading')).toBe(false);
     });
 });
 

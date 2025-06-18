@@ -1,0 +1,33 @@
+{% props
+    product,
+%}
+
+<div class="product-card-badges d-flex gap-1 p-2">
+    {% set price = product.calculatedPrice %}
+    {% if product.calculatedPrices.count > 0 %}
+        {% set price = product.calculatedPrices.last %}
+    {% endif %}
+
+    {% set listPrice = price.listPrice.percentage > 0 %}
+    {% set hasRange = product.calculatedPrices.count > 1 %}
+
+    {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
+    {% if displayParent %}
+        {% set displayFromVariants = displayParent and price.unitPrice !== product.calculatedCheapestPrice.unitPrice %}
+    {% endif %}
+
+    {% if listPrice and not hasRange and not displayFromVariants %}
+        <span class="badge text-bg-danger badge-discount product-card-badge">
+            <strong aria-hidden="true">&#37;</strong>
+            <span class="visually-hidden">{{ 'listing.boxLabelDiscount'|trans|sw_sanitize }}</span>
+        </span>
+    {% endif %}
+
+    {% if product.markAsTopseller %}
+        <span class="badge text-bg-primary badge-topseller product-card-badge">{{ 'listing.boxLabelTopseller'|trans|sw_sanitize }}</span>
+    {% endif %}
+
+    {% if product.isNew %}
+        <span class="badge text-bg-success badge-new product-card-badge">{{ 'listing.boxLabelNew'|trans|sw_sanitize }}</span>
+    {% endif %}
+</div>

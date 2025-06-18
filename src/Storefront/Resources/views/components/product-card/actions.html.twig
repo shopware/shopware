@@ -1,0 +1,60 @@
+{% props
+    product,
+    addToCartExtraFormData = {},
+%}
+
+<div class="product-card-actions d-grid">
+    {% set id = product.id %}
+    {% set isAvailable = not product.isCloseout or (product.stock >= product.minPurchase) %}
+    {% set displayFrom = product.calculatedPrices.count > 1 %}
+    {% set displayBuyButton = isAvailable and not displayFrom and product.childCount <= 0 %}
+
+    {% set formData = {
+        'redirectTo': 'frontend.detail.page',
+        'redirectParameters': { productId: id }|json_encode,
+        ("lineItems[#{id}][id]"): id,
+        ("lineItems[#{id}][referencedId]"): id,
+        ("lineItems[#{id}][type]"): 'product',
+        ("lineItems[#{id}][stackable]"): '1',
+        ("lineItems[#{id}][removable]"): '1',
+        ("lineItems[#{id}][quantity]"): product.minPurchase,
+        ("lineItems[#{id}][product-name]"): product.translated.name
+    } %}
+
+    {% if addToCartExtraFormData %}
+        {% set formData = formData|merge(addToCartExtraFormData) %}
+    {% endif %}
+
+    {% if displayBuyButton and config('core.listing.allowBuyInListing') %}
+        {# @var product \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity #}
+        <form
+            action="{{ path('frontend.checkout.line-item.add') }}"
+            method="post"
+            class="buy-widget d-grid"
+            data-add-to-cart="true"
+        >
+            {% for name, value in formData %}
+                <input
+                    type="hidden"
+                    name="{{ name }}"
+                    value="{{ value }}"
+                    {% if name == 'redirectParameters' %}
+                        data-redirect-parameters="true"
+                    {% endif %}
+                >
+            {% endfor %}
+
+            <button class="btn btn-primary">
+                {{ 'listing.boxAddProduct'|trans|sw_sanitize }}
+            </button>
+        </form>
+    {% else %}
+        <a href="{{ seoUrl('frontend.detail.page', {productId: id}) }}"
+           class="btn btn-light btn-detail"
+           style="--bs-btn-border-color: var(--bs-border-color); --bs-btn-hover-border-color: var(--bs-border-color); --bs-btn-color: var(--bs-body-color);">
+            {% block component_product_box_action_detail_label %}
+                {{ 'listing.boxProductDetails'|trans|sw_sanitize }}
+            {% endblock %}
+        </a>
+    {% endif %}
+</div>

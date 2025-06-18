@@ -1,0 +1,19 @@
+{% props
+    stars,
+    maxStars = 5
+%}
+
+<div class="rating mb-2 text-primary">
+    {# Actual rating stars #}
+    {% for star in range(1, stars) %}
+        <twig:icon:icon name="star" pack="solid" size="xs" />
+    {% endfor %}
+
+    {# Remaining stars #}
+    {% set delta = maxStars - stars %}
+    {% if delta > 0 %}
+        {% for star in 1..delta %}
+            <twig:icon:icon name="star"  size="xs" />
+        {% endfor %}
+    {% endif %}
+</div>

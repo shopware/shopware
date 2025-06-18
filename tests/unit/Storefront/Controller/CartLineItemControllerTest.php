@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
-use Composer\Autoload\ClassLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;

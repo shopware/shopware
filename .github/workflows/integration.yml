@@ -270,6 +270,9 @@ jobs:
       - name: Generate versions
         id: versions
         uses: shopware/github-actions/versions@main
+        with:
+          major: v6.6.0
+          lts-major: v6.5.0
 
   acceptance-update:
     needs: tested-update-versions

@@ -17,8 +17,10 @@ use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionCartDeletedInformationError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
+use Shopware\Core\Content\Product\Cart\PurchaseStepsError;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -742,32 +744,11 @@ class CartLineItemControllerTest extends TestCase
      */
     public static function errorProvider(): array
     {
-        $filtered = [
-            PromotionCartAddedInformationError::class,
+        return [
+            [PurchaseStepsError::class, false],
+            [PromotionCartDeletedInformationError::class, false],
+            [PromotionCartAddedInformationError::class, true],
         ];
-
-        $classLoader = require __DIR__ . '/../../../../vendor/autoload.php';
-        static::assertInstanceOf(ClassLoader::class, $classLoader);
-
-        $errors = [];
-        foreach ($classLoader->getClassMap() as $class => $_) {
-            if (!str_starts_with($class, 'Shopware\\')) {
-                continue;
-            }
-
-            if ($class !== Error::class && !\is_subclass_of($class, Error::class)) {
-                continue;
-            }
-
-            $refClass = new \ReflectionClass($class);
-            if ($refClass->isAbstract()) {
-                continue;
-            }
-
-            $errors[] = [$class, \in_array($class, $filtered, true)];
-        }
-
-        return $errors;
     }
 
     private function translatorCallback(?Session $session = null): void

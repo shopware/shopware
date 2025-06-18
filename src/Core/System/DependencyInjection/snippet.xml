@@ -38,6 +38,9 @@
 
         <service id="Shopware\Core\System\Snippet\Service\TranslationLoader">
             <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="locale.repository"/>
+            <argument type="service" id="snippet_set.repository"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\SnippetFileHandler" />

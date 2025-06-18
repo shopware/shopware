@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Snippet\Command;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\SnippetException;
@@ -42,12 +43,13 @@ class InstallTranslationCommand extends Command
     {
         $locales = $this->getLocales($input);
         $progressBar = $this->createProgressBar($output, \count($locales));
+        $context = Context::createDefaultContext();
 
         foreach ($locales as $locale) {
             $progressBar->setMessage($locale);
             $progressBar->advance();
 
-            $this->translationLoader->load($locale);
+            $this->translationLoader->load($locale, $context);
         }
 
         $progressBar->finish();

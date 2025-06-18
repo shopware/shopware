@@ -16,6 +16,7 @@ class TranslationConfig extends Struct
         public string $repositoryUrl,
         public array $locales,
         public array $plugins,
+        public LanguageCollection $languages,
     ) {
     }
 
@@ -23,8 +24,12 @@ class TranslationConfig extends Struct
      * @param list<string> $locales
      * @param list<string> $plugins
      */
-    public static function create(string $repositoryUrl, array $locales, array $plugins): self
-    {
-        return new self($repositoryUrl, $locales, $plugins);
+    public static function create(
+        string $repositoryUrl,
+        array $locales,
+        array $plugins,
+        LanguageCollection $languages
+    ): self {
+        return new self($repositoryUrl, $locales, $plugins, $languages);
     }
 }

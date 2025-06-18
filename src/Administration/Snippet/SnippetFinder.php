@@ -173,9 +173,7 @@ class SnippetFinder implements SnippetFinderInterface
         );
 
         $appSnippets = array_replace_recursive([], ...$decodedSnippets);
-        $appSnippets = $this->sanitizeAppSnippets($appSnippets);
-
-        return $appSnippets;
+        return $this->sanitizeAppSnippets($appSnippets);
     }
 
     /**

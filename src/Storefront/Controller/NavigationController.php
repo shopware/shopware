@@ -2,8 +2,13 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\CategoryException;
+use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoadedHook;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoaderInterface;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoadedHook;
@@ -12,6 +17,7 @@ use Shopware\Storefront\Pagelet\Header\HeaderPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoaderInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -32,6 +38,8 @@ class NavigationController extends StorefrontController
         private readonly MenuOffcanvasPageletLoaderInterface $offcanvasLoader,
         private readonly HeaderPageletLoaderInterface $headerLoader,
         private readonly FooterPageletLoaderInterface $footerLoader,
+        private readonly AbstractCategoryUrlGenerator $categoryUrlGenerator,
+        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
     ) {
     }
 
@@ -51,6 +59,20 @@ class NavigationController extends StorefrontController
         $page = $this->navigationPageLoader->load($request, $context);
 
         $this->hook(new NavigationPageLoadedHook($page, $context));
+
+        $category = $page->getCategory();
+        \assert($category !== null);
+
+        if ($category->getType() === CategoryDefinition::TYPE_LINK) {
+            $host = $request->attributes->get(RequestTransformer::STOREFRONT_URL);
+            $urlPlaceholder = $this->categoryUrlGenerator->generate($category, $context->getSalesChannel());
+
+            if (!$urlPlaceholder) {
+                throw CategoryException::categoryNotFound($category->getId());
+            }
+
+            return new RedirectResponse($this->seoUrlReplacer->replace($urlPlaceholder, $host, $context));
+        }
 
         return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
     }

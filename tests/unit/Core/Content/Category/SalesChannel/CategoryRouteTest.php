@@ -11,7 +11,9 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTransla
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
+use Shopware\Core\Content\Category\SalesChannel\CategoryRouteResponse;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionCollection;
@@ -94,7 +96,7 @@ class CategoryRouteTest extends TestCase
     {
         $request = new Request();
         $salesChannelContext = $this->buildSalesChannelContext($languageCodeChain);
-        $category = $this->buildCategory($languageCodeChain);
+        $category = $this->buildPageCategory($languageCodeChain);
         $cmsPage = $this->buildCmsPage();
 
         $cmsPageLoaderCriteria = new Criteria([$this->ids->get('cms-page')]);
@@ -115,7 +117,7 @@ class CategoryRouteTest extends TestCase
 
         $cmsPageLoader = $this->createMock(SalesChannelCmsPageLoaderInterface::class);
 
-        // Passively asserts, that the call of the cmsPageLoader mock using the slotConfig has been successful
+        // Passively asserts that the call of the cmsPageLoader mock using the slotConfig has been successful
         $cmsPageLoader
             ->expects($this->once())
             ->method('load')
@@ -149,6 +151,45 @@ class CategoryRouteTest extends TestCase
             $this->ids->get('category'),
             $request,
             $salesChannelContext,
+        );
+    }
+
+    public function testLoadLinkPageType(): void
+    {
+        $request = new Request();
+        $salesChannelContext = $this->buildSalesChannelContext(['en']);
+        $category = $this->buildPageCategory(['en']);
+
+        $category->setType(CategoryDefinition::TYPE_LINK);
+
+        $response = $this->buildContentlessCategoryRepositoryMock(
+            $category,
+            $salesChannelContext,
+            $request
+        );
+
+        // Passively asserts that no exception has been thrown
+        static::assertSame(CategoryDefinition::TYPE_LINK, $response->getCategory()->getType());
+    }
+
+    public function testLoadFolderPageType(): void
+    {
+        $request = new Request();
+        $salesChannelContext = $this->buildSalesChannelContext(['en']);
+        $category = $this->buildPageCategory(['en']);
+
+        $category->setType(CategoryDefinition::TYPE_FOLDER);
+
+        $this->expectException(CategoryNotFoundException::class);
+        $this->expectExceptionMessage(\sprintf(
+            'Category "%s" not found.',
+            $this->ids->get('category'),
+        ));
+
+        $this->buildContentlessCategoryRepositoryMock(
+            $category,
+            $salesChannelContext,
+            $request
         );
     }
 
@@ -197,7 +238,7 @@ class CategoryRouteTest extends TestCase
     /**
      * @param non-empty-list<string> $languageCodeChain
      */
-    private function buildCategory(array $languageCodeChain): CategoryEntity
+    private function buildPageCategory(array $languageCodeChain): CategoryEntity
     {
         $category = new CategoryEntity();
         $category->setId($this->ids->create('category'));
@@ -225,5 +266,34 @@ class CategoryRouteTest extends TestCase
         $category->setTranslations(new CategoryTranslationCollection($categoryTranslations));
 
         return $category;
+    }
+
+    private function buildContentlessCategoryRepositoryMock(CategoryEntity $category, SalesChannelContext $salesChannelContext, Request $request): CategoryRouteResponse
+    {
+        $categoryRepositoryMock = $this->createMock(SalesChannelRepository::class);
+        $categoryRepositoryMock
+            ->expects($this->once())
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                'category',
+                1,
+                new CategoryCollection([$category]),
+                null,
+                new Criteria(),
+                $salesChannelContext->getContext(),
+            ));
+
+        $categoryRoute = new CategoryRoute(
+            $categoryRepositoryMock,
+            $this->createMock(SalesChannelCmsPageLoaderInterface::class),
+            new CategoryDefinition(),
+            new EventDispatcher(),
+        );
+
+        return $categoryRoute->load(
+            $this->ids->get('category'),
+            $request,
+            $salesChannelContext,
+        );
     }
 }

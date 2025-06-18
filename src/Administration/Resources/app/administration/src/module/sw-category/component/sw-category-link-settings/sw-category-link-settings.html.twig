@@ -77,8 +77,7 @@
     {% endblock %}
 
     {% block sw_category_detail_link_field %}
-
-    <mt-text-field
+    <mt-url-field
         v-if="isExternal"
         v-model="category.externalLink"
         class="sw-category-link-settings__external-link"
@@ -89,7 +88,6 @@
     {% endblock %}
 
     {% block sw_category_detail_link_new_tab %}
-
     <mt-switch
         v-model="category.linkNewTab"
         class="sw-category-link-settings__link-new-tab"

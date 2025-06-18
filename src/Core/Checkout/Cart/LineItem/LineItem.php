@@ -215,6 +215,8 @@ class LineItem extends Struct
 
     /**
      * @return mixed|null
+     *
+     * @deprecated tag:v6.8.0 - reason:return-type-change - will use "strong" return type `mixed`
      */
     public function getPayloadValue(string $key)
     {

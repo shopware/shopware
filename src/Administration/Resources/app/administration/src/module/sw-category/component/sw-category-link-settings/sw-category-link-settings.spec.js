@@ -2,6 +2,7 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
+import { MtUrlField } from '@shopware-ag/meteor-component-library';
 
 async function createWrapper(category = {}) {
     const responses = global.repositoryFactoryMock.responses;
@@ -29,9 +30,9 @@ async function createWrapper(category = {}) {
                 'mt-card': {
                     template: '<div class="mt-card"><slot></slot></div>',
                 },
+                'mt-url-field': MtUrlField,
                 'sw-single-select': true,
                 'sw-entity-single-select': true,
-
                 'sw-category-tree-field': true,
             },
         },
@@ -50,19 +51,19 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         global.activeAclRoles = ['category.editor'];
         const wrapper = await createWrapper({
             linkType: null,
-            externalLink: 'https://',
+            externalLink: 'https://example.com',
         });
 
         const linkTypeField = wrapper.find('sw-single-select-stub');
-        expect(linkTypeField.attributes().disabled).toBeFalsy();
-        expect(linkTypeField.attributes().options).toBeTruthy();
+        expect(linkTypeField.attributes('disabled')).toBeFalsy();
+        expect(linkTypeField.attributes('options')).toBeTruthy();
         expect(wrapper.vm.linkTypeValues).toHaveLength(2);
 
-        const textField = wrapper.findComponent('.mt-text-field');
-        expect(textField.props().disabled).toBeFalsy();
+        const urlField = wrapper.findComponent('.sw-category-link-settings__external-link');
+        expect(urlField.attributes('disabled')).toBeUndefined();
 
-        const newTabField = wrapper.find('.mt-switch');
-        expect(newTabField.attributes().disabled).toBeFalsy();
+        const newTabField = wrapper.findComponent('.mt-switch');
+        expect(newTabField.attributes('disabled')).toBeUndefined();
     });
 
     it('should have an enabled text field for external link', async () => {
@@ -73,15 +74,15 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         });
 
         const linkTypeField = wrapper.find('sw-single-select-stub');
-        expect(linkTypeField.attributes().disabled).toBeFalsy();
-        expect(linkTypeField.attributes().options).toBeTruthy();
+        expect(linkTypeField.attributes('disabled')).toBeFalsy();
+        expect(linkTypeField.attributes('options')).toBeTruthy();
         expect(wrapper.vm.linkTypeValues).toHaveLength(2);
 
-        const textField = wrapper.findComponent('.mt-text-field');
-        expect(textField.props().disabled).toBeFalsy();
+        const urlField = wrapper.findComponent('.sw-category-link-settings__external-link');
+        expect(urlField.attributes('disabled')).toBeUndefined();
 
-        const newTabField = wrapper.find('.mt-switch');
-        expect(newTabField.attributes().disabled).toBeFalsy();
+        const newTabField = wrapper.findComponent('.mt-switch');
+        expect(newTabField.attributes('disabled')).toBeUndefined();
     });
 
     it('should have enabled select fields for internal link', async () => {
@@ -95,21 +96,21 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         expect(selects).toHaveLength(2);
 
         const linkTypeField = selects.at(0);
-        expect(linkTypeField.attributes().disabled).toBeFalsy();
-        expect(linkTypeField.attributes().options).toBeTruthy();
+        expect(linkTypeField.attributes('disabled')).toBeFalsy();
+        expect(linkTypeField.attributes('options')).toBeTruthy();
         expect(wrapper.vm.linkTypeValues).toHaveLength(2);
 
         const internalTypeField = selects.at(1);
-        expect(internalTypeField.attributes().disabled).toBeFalsy();
-        expect(internalTypeField.attributes().options).toBeTruthy();
+        expect(internalTypeField.attributes('disabled')).toBeFalsy();
+        expect(internalTypeField.attributes('options')).toBeTruthy();
         expect(wrapper.vm.entityValues).toHaveLength(3);
 
         const productSelectField = wrapper.find('sw-entity-single-select-stub');
-        expect(productSelectField.attributes().disabled).toBeFalsy();
-        expect(productSelectField.attributes().entity).toBe('product');
+        expect(productSelectField.attributes('disabled')).toBeFalsy();
+        expect(productSelectField.attributes('entity')).toBe('product');
 
-        const newTabField = wrapper.find('.mt-switch');
-        expect(newTabField.attributes().disabled).toBeFalsy();
+        const newTabField = wrapper.findComponent('.mt-switch');
+        expect(newTabField.attributes('disabled')).toBeUndefined();
     });
 
     it('should have correct select fields on entity switch', async () => {
@@ -121,7 +122,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         });
 
         const productSelectField = wrapper.find('sw-entity-single-select-stub');
-        expect(productSelectField.attributes().entity).toBe('product');
+        expect(productSelectField.attributes('entity')).toBe('product');
         expect(wrapper.vm.category.internalLink).toBe('someUuid');
     });
 
@@ -130,7 +131,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
 
         const wrapper = await createWrapper({
             linkType: 'external',
-            externalLink: 'https://',
+            externalLink: 'https://example.com',
         });
 
         await wrapper.getComponent('.sw-category-link-settings__type').vm.$emit('update:value', 'internal');
@@ -157,13 +158,16 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         });
 
         const linkTypeField = wrapper.find('sw-single-select-stub');
-        expect(linkTypeField.attributes().disabled).toBeTruthy();
+        expect(linkTypeField.attributes('disabled')).toBeTruthy();
 
-        const externalLinkField = wrapper.findComponent('.mt-text-field');
-        expect(externalLinkField.props().disabled).toBeTruthy();
+        const externalLinkField = wrapper.findComponent('.sw-category-link-settings__external-link');
+        expect(externalLinkField.find('.mt-url-field__protocol-toggle').attributes('disabled')).toBeDefined();
+        expect(externalLinkField.find('.mt-url-field__input').attributes('disabled')).toBeDefined();
 
-        const newTabField = wrapper.findComponent('.mt-switch');
-        expect(newTabField.props().disabled).toBe(true);
+        const newTabField = wrapper
+            .findComponent('.sw-category-link-settings__link-new-tab')
+            .find('[aria-label="sw-category.base.link.linkNewTabLabel"]');
+        expect(newTabField.attributes('disabled')).toBeDefined();
     });
 
     it('should have correct internal link', async () => {

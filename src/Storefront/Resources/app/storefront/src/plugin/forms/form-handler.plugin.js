@@ -81,7 +81,7 @@ export default class FormHandler extends Plugin {
         /**
          * @type {'before' | 'after' | 'inner'} loadingIndicatorPosition
          */
-        loadingIndicatorPosition: 'before',
+        loadingIndicatorPosition: 'inner',
     };
 
     init() {

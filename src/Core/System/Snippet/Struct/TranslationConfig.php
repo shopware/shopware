@@ -8,6 +8,10 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class TranslationConfig extends Struct
 {
+    /**
+     * @param list<string> $locales
+     * @param list<string> $plugins
+     */
     private function __construct(
         public string $repositoryUrl,
         public array $locales,
@@ -15,6 +19,10 @@ class TranslationConfig extends Struct
     ) {
     }
 
+    /**
+     * @param list<string> $locales
+     * @param list<string> $plugins
+     */
     public static function create(string $repositoryUrl, array $locales, array $plugins): self
     {
         return new self($repositoryUrl, $locales, $plugins);

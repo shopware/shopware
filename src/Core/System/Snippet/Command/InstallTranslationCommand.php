@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Snippet\Command;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
+use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -67,14 +68,23 @@ class InstallTranslationCommand extends Command
         $locales = $input->getOption('locales');
 
         if (!$locales) {
-            // todo: custom domain exception
-            throw new \InvalidArgumentException('You must specify either --all or --locales option.');
+            throw SnippetException::noArgumentsProvided();
         }
 
         $locales = explode(',', $locales);
 
+        $this->validateLocales($locales);
+
+        return $locales;
+    }
+
+    /**
+     * @param list<string> $locales
+     */
+    private function validateLocales(array $locales): void
+    {
         if ($locales === []) {
-            throw new \InvalidArgumentException('The --locales option must not be empty.');
+            throw SnippetException::noLocalesArgumentProvided();
         }
 
         $errors = [];
@@ -84,18 +94,21 @@ class InstallTranslationCommand extends Command
             }
         }
 
-        if ($errors) {
-            throw new \InvalidArgumentException(\sprintf('Invalid locale codes: %s. Available codes: %s', implode(', ', $errors), implode(', ', $this->config->locales)));
+        if (!$errors) {
+            return;
         }
 
-        return $locales;
+        throw SnippetException::invalidLocalesProvided(
+            implode(', ', $errors),
+            implode(', ', $this->config->locales)
+        );
     }
 
     private function createProgressBar(OutputInterface $output, int $count): ProgressBar
     {
-        ProgressBar::setFormatDefinition('custom', '%current%/%max% -- Fetching translations for locale: %message%');
+        ProgressBar::setFormatDefinition('install-translations-format', '%current%/%max% -- Fetching translations for locale: %message%');
         $progressBar = new ProgressBar($output, $count);
-        $progressBar->setFormat('custom');
+        $progressBar->setFormat('install-translations-format');
 
         return $progressBar;
     }

@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Snippet\Service;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
@@ -21,12 +22,10 @@ class TranslationLoader
 
     private const TRANSLATION_CONFIG_FILE = '/translation.yaml';
 
-    private const PLATFORM_STRUCTURE = [
-        'Platform' => [
-            'Administration' => 'administration.json',
-            'Core' => 'messages.json',
-            'Storefront' => 'storefront.json',
-        ],
+    private const PLATFORM_DOMAINS = [
+        'Administration' => 'administration.json',
+        'Core' => 'messages.json',
+        'Storefront' => 'storefront.json',
     ];
 
     private const PLUGIN_DOMAINS = [
@@ -45,25 +44,42 @@ class TranslationLoader
     public function load(string $locale): void
     {
         $this->fetchPluginSnippets($locale);
-
-        foreach (self::PLATFORM_STRUCTURE as $bundle => $domains) {
-            foreach ($domains as $domain => $fileName) {
-                $path = '/' . $locale . '/' . $bundle . '/' . $domain;
-
-                $this->fetchFile($path, $fileName);
-            }
-        }
+        $this->fetchPlatformSnippets($locale);
     }
 
     public static function loadConfig(): TranslationConfig
     {
-        // todo: implement error handling
-        $config = Yaml::parse(file_get_contents(realpath(self::TRANSLATION_CONFIG_DIR) . self::TRANSLATION_CONFIG_FILE));
+        $path = realpath(self::TRANSLATION_CONFIG_DIR);
+
+        if ($path === false) {
+            throw SnippetException::translationConfigurationDirectoryDoesNotExist(self::TRANSLATION_CONFIG_DIR);
+        }
+
+        $path .= self::TRANSLATION_CONFIG_FILE;
+
+        $content = file_get_contents($path);
+
+        if ($content === false) {
+            throw SnippetException::translationConfigurationFileDoesNotExist(self::TRANSLATION_CONFIG_FILE);
+        }
+
+        $config = Yaml::parse($content);
+
+        $url = $config['repository-url'];
+        \assert(\is_string($url), 'The repository-url in the translation config must be a string.');
+
+        /** @var list<string> $locales */
+        $locales = $config['locales'];
+        \assert(\is_array($locales), 'The locales in the translation config must be an array.');
+
+        /** @var list<string> $plugins */
+        $plugins = $config['plugins'];
+        \assert(\is_array($plugins), 'The plugins in the translation config must be an array.');
 
         return TranslationConfig::create(
-            $config['repository-url'],
-            $config['locales'],
-            $config['plugins'],
+            $url,
+            $locales,
+            $plugins,
         );
     }
 
@@ -76,6 +92,15 @@ class TranslationLoader
 
                 $this->fetchFile($path, $fileName);
             }
+        }
+    }
+
+    private function fetchPlatformSnippets(string $locale): void
+    {
+        foreach (self::PLATFORM_DOMAINS as $domain => $fileName) {
+            $path = '/' . $locale . '/Platform/' . $domain;
+
+            $this->fetchFile($path, $fileName);
         }
     }
 

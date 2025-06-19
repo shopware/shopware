@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import template from './sw-time-ago.html.twig';
 
 /**

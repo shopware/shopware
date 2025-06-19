@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
 import template from './sw-order-state-history-modal.html.twig';

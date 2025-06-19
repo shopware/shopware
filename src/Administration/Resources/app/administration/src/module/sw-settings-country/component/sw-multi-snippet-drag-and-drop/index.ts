@@ -1,4 +1,4 @@
-import type { PropType, ComponentObjectPropsOptions } from 'vue';
+import type { ComponentObjectPropsOptions } from 'vue';
 import type { DragConfig } from 'src/app/directive/dragdrop.directive';
 import template from './sw-multi-snippet-drag-and-drop.html.twig';
 import './sw-multi-snippet-drag-and-drop.scss';

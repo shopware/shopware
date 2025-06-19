@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\SessionBagInterface;
@@ -20,7 +21,7 @@ class TestSessionStorage implements SessionStorageInterface
 
     private static string $id = 'test-id';
 
-    private static string $name = 'session-';
+    private static string $name = PlatformRequest::FALLBACK_SESSION_NAME;
 
     public function start(): bool
     {

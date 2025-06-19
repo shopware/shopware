@@ -20,7 +20,7 @@ export default class FormSubmitLoaderPlugin extends Plugin {
         /**
          * Possible values: before|after|inner
          */
-        indicatorPosition: INDICATOR_POSITION.BEFORE,
+        indicatorPosition: INDICATOR_POSITION.INNER,
 
         /**
          * If true, the loading indicator will not show

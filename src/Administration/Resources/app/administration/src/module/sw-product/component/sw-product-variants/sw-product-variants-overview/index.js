@@ -389,7 +389,7 @@ export default {
 
                     return {
                         id: group.id,
-                        name: group.name,
+                        name: group.translated.name || group.name,
                         childCount: children.length,
                         parentId: null,
                         afterId: index > 0 ? this.selectedGroups[index - 1].id : null,
@@ -417,7 +417,7 @@ export default {
 
                         return {
                             id: option.id,
-                            name: option.name,
+                            name: option.translated.name || option.name,
                             childCount: 0,
                             parentId: option.groupId,
                             afterId,

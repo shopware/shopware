@@ -17,6 +17,9 @@ use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 #[Package('framework')]
 class TestSessionStorage implements SessionStorageInterface
 {
+    /**
+     * @var array<string, SessionBagInterface>
+     */
     private static array $data = [];
 
     private static string $id = 'test-id';
@@ -70,7 +73,6 @@ class TestSessionStorage implements SessionStorageInterface
 
     public function clear(): void
     {
-        /** @var SessionBagInterface $bag */
         foreach (self::$data as $bag) {
             $bag->clear();
         }

@@ -119,7 +119,7 @@ export default function initializeContext(): void {
                 type: 'app' as const,
                 version: '0.0.0',
                 inAppPurchases: [],
-                permissions: {},
+                privileges: {},
             };
         }
 
@@ -133,7 +133,7 @@ export default function initializeContext(): void {
             type: extension.type,
             version: extension.version ?? '',
             inAppPurchases: Shopware.InAppPurchase.getByExtension(extension.name),
-            permissions: extension.permissions,
+            privileges: extension.permissions,
         };
     });
 

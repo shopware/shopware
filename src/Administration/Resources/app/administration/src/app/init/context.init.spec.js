@@ -102,7 +102,7 @@ describe('src/app/init/context.init.ts', () => {
             name: 'jestapp',
             baseUrl: '',
             permissions: {
-                read: ['product_read'],
+                read: ['product'],
             },
             version: '1.0.0',
             type: 'app',
@@ -116,8 +116,8 @@ describe('src/app/init/context.init.ts', () => {
                     name: 'jestapp',
                     version: '1.0.0',
                     type: 'app',
-                    permissions: {
-                        read: ['product_read'],
+                    privileges: {
+                        read: ['product'],
                     },
                 }),
             );

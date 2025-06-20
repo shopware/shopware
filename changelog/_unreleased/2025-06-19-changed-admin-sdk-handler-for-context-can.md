@@ -6,5 +6,5 @@ author_email: s.franze@shopware.com
 ---
 # Administration
 * Changed Admin-SDK handler `AdminSDK.Context.getAppInformation`  
-* Added `permissions` to response of `AdminSDK.Context.getAppInformation`
+  * Added `privileges` to response of `AdminSDK.Context.getAppInformation`
 * Changed type of `Extension.permissions` in `src/app/store/extension.store.js` to use `privileges` type from the Admin-SDK

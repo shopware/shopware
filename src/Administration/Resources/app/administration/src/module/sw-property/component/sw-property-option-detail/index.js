@@ -47,16 +47,6 @@ export default {
             return this.repositoryFactory.create('media');
         },
 
-        colorHexCode: {
-            set(value) {
-                this.currentOption.colorHexCode = value;
-            },
-
-            get() {
-                return this.currentOption?.colorHexCode || '';
-            },
-        },
-
         modalTitle() {
             return this.currentOption?.translated?.name || this.$tc('sw-property.detail.textOptionHeadline');
         },

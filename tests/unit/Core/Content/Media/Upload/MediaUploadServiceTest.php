@@ -174,12 +174,15 @@ class MediaUploadServiceTest extends TestCase
             'test-hash'
         );
 
+        $tmpDir = sys_get_temp_dir();
+        static::assertNotEmpty($tmpDir);
+
         $this->fileFetcher
             ->expects($this->once())
             ->method('fetchFileFromURL')
             ->with(
                 static::isInstanceOf(Request::class),
-                'image.jpg'
+                static::stringStartsWith($tmpDir)
             )
             ->willReturn($mediaFile);
 

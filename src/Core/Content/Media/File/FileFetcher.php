@@ -154,6 +154,7 @@ class FileFetcher
             'http' => [
                 'follow_location' => 0,
                 'max_redirects' => 0,
+                'user_agent' => 'Shopware Remote File Fetcher',
             ],
         ]);
 

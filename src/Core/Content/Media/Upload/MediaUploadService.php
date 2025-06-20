@@ -90,11 +90,23 @@ readonly class MediaUploadService
      */
     public function uploadFromURL(string $url, Context $context, MediaUploadParameters $params = new MediaUploadParameters()): string
     {
+        $tempFile = tempnam(sys_get_temp_dir(), '');
+
+        if (!$tempFile) {
+            throw MediaException::cannotCreateTempFile();
+        }
+
         $params->fillDefaultFileName(basename($url));
 
-        $media = $this->fileFetcher->fetchFileFromURL(new Request([], ['url' => $url]), $params->fileName);
+        try {
+            $media = $this->fileFetcher->fetchFileFromURL(new Request([], ['url' => $url]), $tempFile);
 
-        return $this->upload($media, $context, $params);
+            $id = $this->upload($media, $context, $params);
+        } finally {
+            unlink($tempFile);
+        }
+
+        return $id;
     }
 
     /**

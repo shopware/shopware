@@ -34,6 +34,7 @@ class CacheClearer
         private readonly string $cacheDir,
         private readonly string $environment,
         private readonly bool $clusterMode,
+        private readonly bool $reverseHttpCacheEnabled,
         private readonly MessageBusInterface $messageBus,
         private readonly LoggerInterface $logger
     ) {
@@ -45,7 +46,7 @@ class CacheClearer
             $adapter->clear();
         }
 
-        if ($clearHttp) {
+        if ($clearHttp && $this->reverseHttpCacheEnabled) {
             $this->reverseProxyCache?->banAll();
         }
 

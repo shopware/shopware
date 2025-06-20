@@ -2,10 +2,17 @@
 
 namespace Shopware\Core\Service;
 
-use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\ScheduledTask\InstallServicesTask;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -13,29 +20,62 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class Manager
 {
+    public const CONFIG_KEY_SERVICES_DISABLED = 'core.services.disabled';
+
+    /**
+     * @param EntityRepository<AppCollection> $repository
+     */
     public function __construct(
         private readonly Privileges $privileges,
-        private readonly Connection $connection,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EntityRepository $repository,
+        private readonly AbstractAppLifecycle $appLifecycle,
+        private readonly MessageBusInterface $messageBus,
     ) {
     }
 
-    public function enable(Context $context): void
+    public function startServices(Context $context): void
     {
-        $this->privileges->acceptAllForApps($this->getAllServices(), $context);
+        /** @var list<string> $serviceIds */
+        $serviceIds = $this->getAllServices($context)->getIds();
+
+        $this->privileges->acceptAllForApps($serviceIds, $context);
     }
 
-    public function disable(Context $context): void
+    public function stopServices(Context $context): void
     {
-        $this->privileges->revokeAllForApps($this->getAllServices(), $context);
+        /** @var list<string> $serviceIds */
+        $serviceIds = $this->getAllServices($context)->getIds();
+
+        $this->privileges->revokeAllForApps($serviceIds, $context);
     }
 
-    /**
-     * @return list<string>
-     */
-    private function getAllServices(): array
+    public function enableServices(): void
     {
-        return $this->connection->fetchFirstColumn(
-            'SELECT LOWER(HEX(id)) FROM app WHERE self_managed = 1'
-        );
+        $this->systemConfigService->delete(self::CONFIG_KEY_SERVICES_DISABLED);
+
+        $this->messageBus->dispatch(new InstallServicesTask());
+    }
+
+    public function disableServices(Context $context): void
+    {
+        foreach ($this->getAllServices($context) as $service) {
+            $this->appLifecycle->delete($service->getName(), ['id' => $service->getId()], $context);
+        }
+
+        $this->systemConfigService->set(self::CONFIG_KEY_SERVICES_DISABLED, true);
+    }
+
+    public function isDisabled(): bool
+    {
+        return $this->systemConfigService->getBool(self::CONFIG_KEY_SERVICES_DISABLED) === true;
+    }
+
+    private function getAllServices(Context $context): AppCollection
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('selfManaged', true));
+
+        return $this->repository->search($criteria, $context)->getEntities();
     }
 }

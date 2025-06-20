@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\Command\Install;
+use Shopware\Core\Service\Manager;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -19,11 +20,31 @@ class InstallTest extends TestCase
         $installer = $this->createMock(AllServiceInstaller::class);
         $installer->expects($this->once())->method('install');
 
-        $command = new Install($installer);
+        $manager = $this->createMock(Manager::class);
+        $manager->method('isDisabled')
+            ->willReturn(false);
+
+        $command = new Install($installer, $manager);
         $tester = new CommandTester($command);
         $tester->execute([]);
 
         static::assertStringContainsString('No services were installed', $tester->getDisplay());
+    }
+
+    public function testCommandWhenServicesAreDisabled(): void
+    {
+        $installer = $this->createMock(AllServiceInstaller::class);
+        $installer->expects($this->never())->method('install');
+
+        $manager = $this->createMock(Manager::class);
+        $manager->method('isDisabled')
+            ->willReturn(true);
+
+        $command = new Install($installer, $manager);
+        $tester = new CommandTester($command);
+        $tester->execute([]);
+
+        static::assertStringContainsString('Services are disabled. Please enable them to install services.', $tester->getDisplay());
     }
 
     public function testCommandWritesListOfInstalledServices(): void
@@ -34,7 +55,11 @@ class InstallTest extends TestCase
             'MyCoolService2',
         ]);
 
-        $command = new Install($installer);
+        $manager = $this->createMock(Manager::class);
+        $manager->method('isDisabled')
+            ->willReturn(false);
+
+        $command = new Install($installer, $manager);
         $tester = new CommandTester($command);
         $tester->execute([]);
 

@@ -37,10 +37,10 @@ class PermissionsSubscriberTest extends TestCase
 
         $this->manager
             ->expects($this->once())
-            ->method('enable')
+            ->method('startServices')
             ->with($this->context);
 
-        $this->subscriber->enableServices($event);
+        $this->subscriber->startServices($event);
     }
 
     public function testDisableServices(): void
@@ -49,9 +49,9 @@ class PermissionsSubscriberTest extends TestCase
 
         $this->manager
             ->expects($this->once())
-            ->method('disable')
+            ->method('stopServices')
             ->with($this->context);
 
-        $this->subscriber->disableServices($event);
+        $this->subscriber->stopServices($event);
     }
 }

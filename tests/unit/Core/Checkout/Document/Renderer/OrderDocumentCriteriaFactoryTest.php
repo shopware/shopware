@@ -61,6 +61,9 @@ class OrderDocumentCriteriaFactoryTest extends TestCase
         static::assertInstanceOf(Criteria::class, $shippingAddressCriteria->getAssociations()['country']);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed. testCreate will cover the new behavior
+     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testCreateDeprecated(): void
     {
@@ -74,7 +77,6 @@ class OrderDocumentCriteriaFactoryTest extends TestCase
 
         static::assertArrayHasKey('lineItems', $associations);
         static::assertArrayHasKey('primaryOrderTransaction', $associations);
-        /** @deprecated tag:v6.8.0 - will be removed. Use primaryOrderTransaction instead */
         static::assertArrayHasKey('transactions', $associations);
         static::assertArrayHasKey('currency', $associations);
         static::assertArrayHasKey('language', $associations);

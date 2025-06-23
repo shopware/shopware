@@ -441,7 +441,7 @@ class AppLifecycle extends AbstractAppLifecycle
                 $update[] = [
                     'id' => $customEntity->getId(),
                     'appId' => null,
-                    'deletedAt' => null,
+                    'deletedAt' => new \DateTimeImmutable(),
                 ];
             } else {
                 $update[] = [

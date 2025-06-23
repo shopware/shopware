@@ -286,6 +286,7 @@
             :disabled="isGenerateButtonDisabled"
             class="sw-product-variant-generation__generate-action"
             :variant="buttonVariant"
+            :is-loading="isLoading"
             size="small"
             @click="generateVariants()"
         >
@@ -301,7 +302,8 @@
             >
                 <mt-progress-bar
                     class="generate-variant-progress-bar"
-                    :model-value="progressInPercentage"
+                    :model-value="actualProgress"
+                    :max-value="maxProgress"
                 />
 
                 <span class="generate-variant-progress-bar__description">

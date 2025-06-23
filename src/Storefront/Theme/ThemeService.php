@@ -361,7 +361,9 @@ class ThemeService implements ResetInterface
         $isLegacy = !Feature::isActive('v6.8.0.0');
         if ($isLegacy) {
             $translate = \func_num_args() === 3 ? func_get_arg(2) : false;
-            $themeConfig = $this->getPlainThemeConfiguration($themeId, $context, $translate);
+            $themeConfig = Feature::silent('v6.8.0.0', function () use ($themeId, $translate, $context) {
+                return $this->getThemeConfiguration($themeId, $translate, $context);
+            });
         } else {
             $themeConfig = $this->getPlainThemeConfiguration($themeId, $context);
         }

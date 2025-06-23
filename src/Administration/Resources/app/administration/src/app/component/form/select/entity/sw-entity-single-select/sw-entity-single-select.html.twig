@@ -32,7 +32,7 @@
             {% block sw_entity_single_select_single_selection_inner %}
             {% block sw_entity_single_select_single_selection_inner_label %}
             <div
-                v-if="!isExpanded"
+                v-show="!isExpanded"
                 class="sw-entity-single-select__selection-text"
                 :class="selectionTextClasses"
             >

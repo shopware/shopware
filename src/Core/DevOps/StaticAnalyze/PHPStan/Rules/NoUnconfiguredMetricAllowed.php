@@ -26,12 +26,12 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
  * This is only considered because the last changes in the interfaces is ~2-3 years ago, and the interfaces are simple (don't see a case where they might break)
  *
  * See: tests/integration/Core/Framework/Telemetry/EventTelemetryFlowTest.php (as a test that holds partial example coverage)
- * All other cases are implicitly covered by other integration tests, since when adding an inconfigured Metric, the test would be expected to fail with an exception.
+ * All other cases are implicitly covered by other integration tests, since adding an unconfigured Metric, the test would be expected to fail with an exception.
  *
  * @internal
  */
 #[Package('framework')]
-class NoInconfiguredMetricAllowed implements Rule
+class NoUnconfiguredMetricAllowed implements Rule
 {
     use InTestClassTrait;
 

@@ -28,6 +28,7 @@ final class OrderDocumentCriteriaFactory
             'primaryOrderDelivery',
             'lineItems',
             'transactions.paymentMethod',
+            'transactions.stateMachineState',
             'currency',
             'language.locale',
             'addresses.country',

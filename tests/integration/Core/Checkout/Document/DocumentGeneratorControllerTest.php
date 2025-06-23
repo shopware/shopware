@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentIdCollection;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
@@ -107,11 +106,10 @@ class DocumentGeneratorControllerTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        /** @var EntityRepository<DocumentTypeCollection> $documentTypeRepository */
         $documentTypeRepository = static::getContainer()->get('document_type.repository');
         $criteria = (new Criteria())->addFilter(new EqualsFilter('technicalName', 'invoice'));
-        /** @var DocumentTypeEntity $type */
         $type = $documentTypeRepository->search($criteria, $context)->first();
+        static::assertInstanceOf(DocumentTypeEntity::class, $type);
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
@@ -452,7 +450,6 @@ class DocumentGeneratorControllerTest extends TestCase
 
         $this->orderRepository->upsert([$order], $context);
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
 
         static::assertNotNull($order);

@@ -230,6 +230,9 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             },
         );
 
+        $ruleIds = array_unique($ruleIds);
+        sort($ruleIds);
+
         $parts = [
             HttpCacheCookieEvent::RULE_IDS => $ruleIds,
             HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),

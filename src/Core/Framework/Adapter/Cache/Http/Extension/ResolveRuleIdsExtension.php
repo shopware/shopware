@@ -8,7 +8,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @extends Extension<array<string, mixed>>
+ * @extends Extension<array<string>>
  */
 #[Package('framework')]
 final class ResolveRuleIdsExtension extends Extension

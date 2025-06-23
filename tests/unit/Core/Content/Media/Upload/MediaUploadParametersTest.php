@@ -105,6 +105,7 @@ class MediaUploadParametersTest extends TestCase
         $parameters = new MediaUploadParameters();
 
         $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('A valid filename must be provided.');
 
         $parameters->getFileNameWithoutExtension();
     }
@@ -150,6 +151,7 @@ class MediaUploadParametersTest extends TestCase
         $parameters = new MediaUploadParameters();
 
         $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('A valid filename must be provided.');
 
         $parameters->getFileNameExtension();
     }
@@ -188,5 +190,74 @@ class MediaUploadParametersTest extends TestCase
         $result = $parameters->getFileNameExtension();
 
         static::assertSame('htaccess', $result);
+    }
+
+    public function testFromRequestWithAllParameters(): void
+    {
+        $request = new \Symfony\Component\HttpFoundation\Request([], [
+            'id' => 'test-id',
+            'fileName' => 'test-file.jpg',
+            'private' => 'true',
+            'mediaFolderId' => 'folder-id',
+            'mimeType' => 'image/jpeg',
+            'deduplicate' => 'false',
+        ]);
+
+        $parameters = MediaUploadParameters::fromRequest($request);
+
+        static::assertSame('test-id', $parameters->id);
+        static::assertSame('test-file.jpg', $parameters->fileName);
+        static::assertTrue($parameters->private);
+        static::assertSame('folder-id', $parameters->mediaFolderId);
+        static::assertSame('image/jpeg', $parameters->mimeType);
+        static::assertFalse($parameters->deduplicate);
+    }
+
+    public function testFromRequestWithBooleanValues(): void
+    {
+        $request = new \Symfony\Component\HttpFoundation\Request([], [
+            'private' => true,
+            'deduplicate' => false,
+        ]);
+
+        $parameters = MediaUploadParameters::fromRequest($request);
+
+        static::assertTrue($parameters->private);
+        static::assertFalse($parameters->deduplicate);
+    }
+
+    public function testFromRequestWithEmptyRequest(): void
+    {
+        $request = new \Symfony\Component\HttpFoundation\Request();
+
+        $parameters = MediaUploadParameters::fromRequest($request);
+
+        static::assertNull($parameters->id);
+        static::assertNull($parameters->fileName);
+        static::assertNull($parameters->private);
+        static::assertNull($parameters->mediaFolderId);
+        static::assertNull($parameters->mimeType);
+        static::assertNull($parameters->deduplicate);
+    }
+
+    public function testFromRequestWithInvalidValues(): void
+    {
+        $request = new \Symfony\Component\HttpFoundation\Request([], [
+            'id' => 123, // Not a string
+            'fileName' => ['invalid'], // Not a string
+            'private' => 'not-a-boolean',
+            'mediaFolderId' => ['invalid'], // Not a string
+            'mimeType' => ['invalid'], // Not a string
+            'deduplicate' => 'not-a-boolean',
+        ]);
+
+        $parameters = MediaUploadParameters::fromRequest($request);
+
+        static::assertNull($parameters->id);
+        static::assertNull($parameters->fileName);
+        static::assertFalse($parameters->private);
+        static::assertNull($parameters->mediaFolderId);
+        static::assertNull($parameters->mimeType);
+        static::assertFalse($parameters->deduplicate);
     }
 }

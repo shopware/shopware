@@ -179,9 +179,9 @@ class MediaUploadServiceTest extends TestCase
 
         $this->fileFetcher
             ->expects($this->once())
-            ->method('fetchFileFromURL')
+            ->method('fetchFromURL')
             ->with(
-                static::isInstanceOf(Request::class),
+                $url,
                 static::stringStartsWith($tmpDir)
             )
             ->willReturn($mediaFile);

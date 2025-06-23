@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Document\Renderer\OrderDocumentCriteriaFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(OrderDocumentCriteriaFactory::class)]
 class OrderDocumentCriteriaFactoryTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testCreate(): void
     {
         $id = Uuid::randomHex();
@@ -27,15 +29,23 @@ class OrderDocumentCriteriaFactoryTest extends TestCase
         $associations = $criteria->getAssociations();
 
         static::assertArrayHasKey('lineItems', $associations);
+        static::assertArrayHasKey('primaryOrderTransaction', $associations);
+        /** @deprecated tag:v6.8.0 - will be removed. Use primaryOrderTransaction instead */
         static::assertArrayHasKey('transactions', $associations);
         static::assertArrayHasKey('currency', $associations);
         static::assertArrayHasKey('language', $associations);
         static::assertArrayHasKey('addresses', $associations);
         static::assertArrayHasKey('orderCustomer', $associations);
 
+        $primaryOrderTransactionCriteria = $associations['primaryOrderTransaction'];
+        static::assertInstanceOf(Criteria::class, $primaryOrderTransactionCriteria);
+        static::assertInstanceOf(Criteria::class, $primaryOrderTransactionCriteria->getAssociations()['paymentMethod']);
+        static::assertInstanceOf(Criteria::class, $primaryOrderTransactionCriteria->getAssociations()['stateMachineState']);
+
         $transactionCriteria = $associations['transactions'];
         static::assertInstanceOf(Criteria::class, $transactionCriteria);
         static::assertInstanceOf(Criteria::class, $transactionCriteria->getAssociations()['paymentMethod']);
+        static::assertInstanceOf(Criteria::class, $transactionCriteria->getAssociations()['stateMachineState']);
 
         $languageCriteria = $associations['language'];
         static::assertInstanceOf(Criteria::class, $languageCriteria);

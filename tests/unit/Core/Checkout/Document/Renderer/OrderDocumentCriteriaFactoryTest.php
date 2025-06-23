@@ -17,8 +17,52 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 #[CoversClass(OrderDocumentCriteriaFactory::class)]
 class OrderDocumentCriteriaFactoryTest extends TestCase
 {
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testCreate(): void
+    {
+        $id = Uuid::randomHex();
+
+        $criteria = OrderDocumentCriteriaFactory::create([$id], 'test');
+
+        static::assertSame($id, $criteria->getIds()[0]);
+
+        $associations = $criteria->getAssociations();
+
+        static::assertArrayHasKey('lineItems', $associations);
+        static::assertArrayHasKey('primaryOrderTransaction', $associations);
+        static::assertArrayHasKey('currency', $associations);
+        static::assertArrayHasKey('language', $associations);
+        static::assertArrayHasKey('addresses', $associations);
+        static::assertArrayHasKey('orderCustomer', $associations);
+
+        $primaryOrderTransactionCriteria = $associations['primaryOrderTransaction'];
+        static::assertInstanceOf(Criteria::class, $primaryOrderTransactionCriteria);
+        static::assertInstanceOf(Criteria::class, $primaryOrderTransactionCriteria->getAssociations()['paymentMethod']);
+        static::assertInstanceOf(Criteria::class, $primaryOrderTransactionCriteria->getAssociations()['stateMachineState']);
+
+        $languageCriteria = $associations['language'];
+        static::assertInstanceOf(Criteria::class, $languageCriteria);
+        static::assertInstanceOf(Criteria::class, $languageCriteria->getAssociations()['locale']);
+
+        $addressesCriteria = $associations['addresses'];
+        static::assertInstanceOf(Criteria::class, $addressesCriteria);
+        static::assertInstanceOf(Criteria::class, $addressesCriteria->getAssociations()['country']);
+
+        $orderCustomerCriteria = $associations['orderCustomer'];
+        static::assertInstanceOf(Criteria::class, $orderCustomerCriteria);
+        static::assertInstanceOf(Criteria::class, $orderCustomerCriteria->getAssociations()['customer']);
+
+        $deliveryCriteria = $associations['deliveries'];
+        static::assertInstanceOf(Criteria::class, $deliveryCriteria);
+        static::assertInstanceOf(Criteria::class, $deliveryCriteria->getAssociations()['shippingMethod']);
+        static::assertInstanceOf(Criteria::class, $deliveryCriteria->getAssociations()['positions']);
+        static::assertInstanceOf(Criteria::class, $deliveryCriteria->getAssociations()['shippingOrderAddress']);
+
+        $shippingAddressCriteria = $deliveryCriteria->getAssociations()['shippingOrderAddress'];
+        static::assertInstanceOf(Criteria::class, $shippingAddressCriteria->getAssociations()['country']);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testCreateDeprecated(): void
     {
         $id = Uuid::randomHex();
 

@@ -4,7 +4,7 @@
 
 import template from './sw-property-option-detail.html.twig';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -14,6 +14,10 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
+    ],
+
+    mixins: [
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
@@ -49,6 +53,10 @@ export default {
             get() {
                 return this.currentOption?.colorHexCode || '';
             },
+        },
+
+        modalTitle() {
+            return this.currentOption?.translated?.name || this.$tc('sw-property.detail.textOptionHeadline');
         },
 
         ...mapPropertyErrors('currentOption', ['name']),

@@ -99,7 +99,7 @@ readonly class MediaUploadService
         $params->fillDefaultFileName(basename($url));
 
         try {
-            $media = $this->fileFetcher->fetchFileFromURL(new Request([], ['url' => $url]), $tempFile);
+            $media = $this->fileFetcher->fetchFromURL($url, $tempFile);
 
             $id = $this->upload($media, $context, $params);
         } finally {

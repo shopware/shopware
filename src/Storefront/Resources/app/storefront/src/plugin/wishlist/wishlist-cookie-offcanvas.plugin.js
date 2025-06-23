@@ -30,7 +30,7 @@ export default class WishlistCookieOffcanvasPlugin extends Plugin {
      * @param {Function} onConsent
      */
     static requestConsent(productId, onConsent) {
-        const url = window.router['frontend.wishlist.cookie.offcanvas'] || '/wishlist/cookie-offcanvas';
+        const url = window.router['frontend.wishlist.cookie.offcanvas'];
 
         AjaxOffCanvas.open(url, false, () => {
             window.PluginManager.initializePlugins();

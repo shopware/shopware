@@ -299,6 +299,13 @@ class WishlistControllerTest extends TestCase
         static::assertArrayHasKey(WishlistWidgetLoadedHook::HOOK_NAME, $traces);
     }
 
+    public function testWishlistCookieOffcanvas(): void
+    {
+        $response = $this->request('GET', '/wishlist/cookie-offcanvas', []);
+        static::assertSame(200, $response->getStatusCode());
+        static::assertStringContainsString('data-offcanvas-wishlist-cookie', $response->getContent());
+    }
+
     private function createCustomer(): CustomerEntity
     {
         $addressId = Uuid::randomHex();
@@ -443,12 +450,5 @@ class WishlistControllerTest extends TestCase
         }
 
         return $session->getFlashBag();
-    }
-
-    public function testWishlistCookieOffcanvas(): void
-    {
-        $response = $this->request('GET', '/wishlist/cookie-offcanvas', []);
-        static::assertSame(200, $response->getStatusCode());
-        static::assertStringContainsString('data-offcanvas-wishlist-cookie', $response->getContent());
     }
 }

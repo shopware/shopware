@@ -16,7 +16,7 @@ describe('WishlistLocalStoragePlugin tests', () => {
 
     beforeEach(() => {
         jest.spyOn(AjaxOffCanvas, 'open')
-             .mockImplementation((url, push, cb) => cb());
+            .mockImplementation((url, push, cb) => cb());
         jest.spyOn(AjaxOffCanvas, 'close')
             .mockImplementation(() => {});
         CookieStorageHelper.setItem('wishlist-enabled', true);

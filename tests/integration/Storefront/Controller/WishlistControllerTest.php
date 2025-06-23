@@ -444,4 +444,11 @@ class WishlistControllerTest extends TestCase
 
         return $session->getFlashBag();
     }
+
+    public function testWishlistCookieOffcanvas(): void
+    {
+        $response = $this->request('GET', '/wishlist/cookie-offcanvas', []);
+        static::assertSame(200, $response->getStatusCode());
+        static::assertStringContainsString('data-offcanvas-wishlist-cookie', $response->getContent());
+    }
 }

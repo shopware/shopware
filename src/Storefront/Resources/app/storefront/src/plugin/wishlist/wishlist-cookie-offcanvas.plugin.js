@@ -93,7 +93,7 @@ export default class WishlistCookieOffcanvasPlugin extends Plugin {
      */
     _onLogin() {
         this._closeOffcanvas();
-        window.location.href = window.router['frontend.account.login.page'] || '/account/login';
+        window.location.href = window.router['frontend.account.login.page'];
         this.$emitter.publish('Wishlist/onLoginRedirect');
     }
 

@@ -21,6 +21,9 @@ describe('WishlistLocalStoragePlugin tests', () => {
             .mockImplementation(() => {});
         CookieStorageHelper.setItem('wishlist-enabled', true);
 
+        window.router = {
+            'frontend.wishlist.cookie.offcanvas': '/wishlist/cookie-offcanvas'
+        };
         window.wishlistEnabled = true;
 
         const mockElement = document.createElement('div');

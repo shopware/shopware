@@ -29,7 +29,10 @@ describe('WishlistCookieOffcanvasPlugin tests', () => {
                 ['instances', []]
             ]))
         };
-        window.router = { 'frontend.account.login.page': '/login' };
+        window.router = {
+            'frontend.account.login.page': '/login',
+            'frontend.wishlist.cookie.offcanvas': '/wishlist/cookie-offcanvas'
+        };
         delete window.location;
         window.location = { href: '' };
 

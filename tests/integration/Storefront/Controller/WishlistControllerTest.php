@@ -302,8 +302,10 @@ class WishlistControllerTest extends TestCase
     public function testWishlistCookieOffcanvas(): void
     {
         $response = $this->request('GET', '/wishlist/cookie-offcanvas', []);
+        $content = $response->getContent();
         static::assertSame(200, $response->getStatusCode());
-        static::assertStringContainsString('data-offcanvas-wishlist-cookie', $response->getContent());
+        static::assertNotFalse($content);
+        static::assertStringContainsString('data-offcanvas-wishlist-cookie', $content);
     }
 
     private function createCustomer(): CustomerEntity

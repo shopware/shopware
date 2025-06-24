@@ -172,7 +172,9 @@ export default {
         },
 
         disabledCountryVariant() {
-            return this.disabledCountries.find((country) => country.id === this.salesChannel.countryId) ? 'warning' : 'info';
+            return this.disabledCountries.find((country) => country.id === this.salesChannel.countryId)
+                ? 'attention'
+                : 'info';
         },
 
         disabledPaymentMethods() {
@@ -183,7 +185,7 @@ export default {
             return this.disabledPaymentMethods.find(
                 (paymentMethod) => paymentMethod.id === this.salesChannel.paymentMethodId,
             )
-                ? 'warning'
+                ? 'attention'
                 : 'info';
         },
 
@@ -195,7 +197,7 @@ export default {
             return this.disabledShippingMethods.find(
                 (shippingMethod) => shippingMethod.id === this.salesChannel.shippingMethodId,
             )
-                ? 'warning'
+                ? 'attention'
                 : 'info';
         },
 
@@ -211,7 +213,7 @@ export default {
 
         unservedLanguageVariant() {
             return this.unservedLanguages.find((language) => language.id === this.salesChannel.languageId)
-                ? 'warning'
+                ? 'attention'
                 : 'info';
         },
 

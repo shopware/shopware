@@ -182,4 +182,13 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
             message: 'sw-settings-search.notification.index.success',
         });
     });
+
+    it('should return early and not set latestIndex when result.total === 0', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.productSearchKeywordRepository.search = jest.fn(() => Promise.resolve({ total: 0 }));
+        wrapper.vm.latestIndex = null;
+        await wrapper.vm.getLatestProductKeywordIndexed();
+        expect(wrapper.vm.latestIndex).toBeNull();
+    });
 });

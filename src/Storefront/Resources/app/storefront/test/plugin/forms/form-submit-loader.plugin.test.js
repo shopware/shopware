@@ -206,7 +206,7 @@ describe('form submit loader', () => {
         submitButtons.forEach((button) => {
             expect(button.disabled).toBeTruthy();
             expect(button.querySelector('div').classList.contains('loader')).toBeTruthy();
-            expect(button.innerHTML).toContain('Submit');
+            expect(button.innerHTML).toContain('Loading...');
         });
     });
 

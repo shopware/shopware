@@ -76,6 +76,7 @@
       "modalTitleClone": "Copy snippet set",
       "notEditableNoteErrorMessage": "An error occurred while editing snippet sets.",
       "placeholderName": "Enter snippet set name...",
+      "placeholderBaseFile": "Select base file...",
       "textDeleteConfirm": "Are you sure you want to delete the snippet set \"{name}\"?"
     },
     "filter": {
@@ -87,10 +88,10 @@
     }
   },
   "sw-privileges": {
-      "permissions": {
-          "snippet": {
-            "label": "Snippets"
-         }
+    "permissions": {
+      "snippet": {
+        "label": "Snippets"
       }
-   }
+    }
+  }
 }

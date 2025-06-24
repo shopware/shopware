@@ -13,10 +13,15 @@ use Symfony\Component\HttpFoundation\Response;
 class SnippetException extends HttpException
 {
     final public const SNIPPET_INVALID_FILTER_NAME = 'SYSTEM__SNIPPET_INVALID_FILTER_NAME';
+
     final public const SNIPPET_INVALID_LIMIT_QUERY = 'SYSTEM__SNIPPET_INVALID_LIMIT_QUERY';
+
     final public const SNIPPET_FILE_NOT_REGISTERED = 'SYSTEM__SNIPPET_FILE_NOT_REGISTERED';
+
     final public const SNIPPET_FILTER_NOT_FOUND = 'SYSTEM__SNIPPET_FILTER_NOT_FOUND';
+
     final public const SNIPPET_SET_NOT_FOUND = 'SYSTEM__SNIPPET_SET_NOT_FOUND';
+
     final public const INVALID_SNIPPET_FILE = 'SYSTEM__INVALID_SNIPPET_FILE';
 
     final public const SNIPPET_NO_ARGUMENTS_PROVIDED = 'SYSTEM__NO_ARGUMENTS_PROVIDED';
@@ -28,6 +33,8 @@ class SnippetException extends HttpException
     final public const SNIPPET_TRANSLATION_CONFIGURATION_DIRECTORY_DOES_NOT_EXISTS = 'SYSTEM__TRANSLATION_CONFIGURATION_DIRECTORY_DOES_NOT_EXISTS';
 
     final public const SNIPPET_TRANSLATION_CONFIGURATION_FILE_DOES_NOT_EXISTS = 'SYSTEM__TRANSLATION_CONFIGURATION_FILE_DOES_NOT_EXISTS';
+
+    final public const SNIPPET_PROVIDED_LOCALE_DOES_NOT_EXISTS = 'SYSTEM__PROVIDED_LOCALE_DOES_NOT_EXISTS';
 
     public static function invalidFilterName(): self
     {
@@ -140,6 +147,18 @@ class SnippetException extends HttpException
             'Translation configuration file does not exist: "{{ file }}".',
             [
                 'file' => $file,
+            ]
+        );
+    }
+
+    public static function localeDoesNotExists(string $locale): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::SNIPPET_PROVIDED_LOCALE_DOES_NOT_EXISTS,
+            'The provided locale {{ locale }} does not exist.',
+            [
+                'locale' => $locale,
             ]
         );
     }

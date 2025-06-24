@@ -3,7 +3,7 @@ name: Send reminders for stale pull requests
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 1 * * *" # Every day at 01:00 UTC
+    - cron: "0 12 * * *" # Every day at 12:00 UTC
 
 jobs:
   reminder:

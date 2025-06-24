@@ -51,6 +51,8 @@ export default {
             liveSearchTerm: '',
             salesChannels: [],
             salesChannelId: this.currentSalesChannelId,
+            productSortings: [],
+            productSortingKey: null,
             liveSearchResults: null,
             searchInProgress: false,
             showExampleModal: false,
@@ -60,6 +62,10 @@ export default {
     computed: {
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
+        },
+
+        productSortingRepository() {
+            return this.repositoryFactory.create('product_sorting');
         },
 
         isSearchEnable() {
@@ -93,6 +99,7 @@ export default {
     methods: {
         createdComponent() {
             this.fetchSalesChannels();
+            this.fetchProductSortings();
             this.liveSearchTerm = this.searchTerms;
             this.liveSearchResults = this.searchResults;
         },
@@ -103,12 +110,19 @@ export default {
             }
 
             this.searchInProgress = true;
+
+            const searchParams = {
+                salesChannelId: this.salesChannelId,
+                search: this.liveSearchTerm,
+            };
+
+            if (this.productSortingKey) {
+                searchParams.order = this.productSortingKey;
+            }
+
             this.liveSearchService
                 .search(
-                    {
-                        salesChannelId: this.salesChannelId,
-                        search: this.liveSearchTerm,
-                    },
+                    searchParams,
                     {},
                     {},
                     { 'sw-language-id': Shopware.Context.api.languageId },
@@ -139,6 +153,19 @@ export default {
         fetchSalesChannels() {
             this.salesChannelRepository.search(new Criteria(1, 25)).then((response) => {
                 this.salesChannels = response;
+            });
+        },
+
+        fetchProductSortings() {
+            const criteria = new Criteria(1, 100);
+            criteria.addSorting(Criteria.sort('priority', 'DESC'));
+
+            this.productSortingRepository.search(criteria).then((response) => {
+                this.productSortings = response;
+                const topSearchSorting = this.productSortings.find(entry => entry.key === 'score');
+                if (topSearchSorting) {
+                    this.productSortingKey = topSearchSorting.key;
+                }
             });
         },
 

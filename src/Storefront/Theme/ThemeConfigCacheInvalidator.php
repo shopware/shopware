@@ -15,7 +15,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @internal
  */
 #[Package('framework')]
-class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
+class ThemeConfigCacheInvalidator implements EventSubscriberInterface
 {
     /**
      * @internal
@@ -39,7 +39,7 @@ class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
 
     public function invalidate(ThemeConfigChangedEvent $event): void
     {
-        $tags = [CachedResolvedConfigLoader::buildName($event->getThemeId())];
+        $tags = [self::buildCacheTag($event->getThemeId())];
 
         $this->cacheInvalidator->invalidate($tags);
     }
@@ -49,7 +49,7 @@ class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
         $salesChannelId = $event->getSalesChannelId();
 
         $this->cacheInvalidator->invalidate([
-            CachedResolvedConfigLoader::buildName($event->getThemeId()),
+            self::buildCacheTag($event->getThemeId()),
             CachedDomainLoader::CACHE_KEY,
             Translator::tag($salesChannelId),
         ]);
@@ -57,6 +57,11 @@ class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
 
     public function reset(ThemeConfigResetEvent $event): void
     {
-        $this->cacheInvalidator->invalidate([CachedResolvedConfigLoader::buildName($event->getThemeId())]);
+        $this->cacheInvalidator->invalidate([self::buildCacheTag($event->getThemeId())]);
+    }
+
+    public static function buildCacheTag(string $themeId): string
+    {
+        return 'theme-config-' . $themeId;
     }
 }

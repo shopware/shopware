@@ -5,11 +5,11 @@ namespace Shopware\Storefront\Theme;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 
 #[Package('framework')]
 class ResolvedConfigLoader extends AbstractResolvedConfigLoader
@@ -21,7 +21,7 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
      */
     public function __construct(
         private readonly EntityRepository $repository,
-        private readonly ThemeService $service
+        private readonly ThemeRuntimeConfigService $runtimeConfigService,
     ) {
     }
 
@@ -32,14 +32,11 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
 
     public function load(string $themeId, SalesChannelContext $context): array
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            $config = Feature::silent('v6.8.0.0', function () use ($themeId, $context) {
-                return $this->service->getThemeConfiguration($themeId, false, $context->getContext());
-            });
-        } else {
-            $config = $this->service->getPlainThemeConfiguration($themeId, $context->getContext());
+        $runtimeConfig = $this->runtimeConfigService->getRuntimeConfig($themeId);
+        if ($runtimeConfig === null) {
+            throw ThemeException::errorLoadingRuntimeConfig($themeId);
         }
-
+        $config = $runtimeConfig->resolvedConfig;
         $resolvedConfig = [];
         $mediaItems = [];
         if (!\array_key_exists('fields', $config)) {

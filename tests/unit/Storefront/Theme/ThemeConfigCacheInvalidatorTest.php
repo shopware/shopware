@@ -7,25 +7,25 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
-use Shopware\Storefront\Theme\CachedResolvedConfigLoaderInvalidator;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
+use Shopware\Storefront\Theme\ThemeConfigCacheInvalidator;
 
 /**
  * @internal
  */
-#[CoversClass(CachedResolvedConfigLoaderInvalidator::class)]
-class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
+#[CoversClass(ThemeConfigCacheInvalidator::class)]
+class ThemeConfigCacheInvalidatorTest extends TestCase
 {
-    private CachedResolvedConfigLoaderInvalidator $cachedResolvedConfigLoaderInvalidator;
+    private ThemeConfigCacheInvalidator $themeConfigCacheInvalidator;
 
     private MockedCacheInvalidator $cacheInvalidator;
 
     protected function setUp(): void
     {
         $this->cacheInvalidator = new MockedCacheInvalidator();
-        $this->cachedResolvedConfigLoaderInvalidator = new CachedResolvedConfigLoaderInvalidator($this->cacheInvalidator);
+        $this->themeConfigCacheInvalidator = new ThemeConfigCacheInvalidator($this->cacheInvalidator);
     }
 
     public function testGetSubscribedEvents(): void
@@ -36,7 +36,7 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
                 ThemeAssignedEvent::class => 'assigned',
                 ThemeConfigResetEvent::class => 'reset',
             ],
-            CachedResolvedConfigLoaderInvalidator::getSubscribedEvents()
+            ThemeConfigCacheInvalidator::getSubscribedEvents()
         );
     }
 
@@ -47,7 +47,7 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
         $event = new ThemeAssignedEvent($themeId, $salesChannelId);
         $name = 'theme-config-' . $themeId;
 
-        $this->cachedResolvedConfigLoaderInvalidator->assigned($event);
+        $this->themeConfigCacheInvalidator->assigned($event);
 
         $expectedInvalidatedTags = [
             $name,
@@ -66,7 +66,7 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
         $themeId = Uuid::randomHex();
         $event = new ThemeConfigChangedEvent($themeId, ['test' => 'test']);
 
-        $this->cachedResolvedConfigLoaderInvalidator->invalidate($event);
+        $this->themeConfigCacheInvalidator->invalidate($event);
 
         $expectedInvalidatedTags = ['theme-config-' . $themeId];
 
@@ -78,12 +78,12 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
 
     public function testInvalidateDisabledFineGrained(): void
     {
-        $this->cachedResolvedConfigLoaderInvalidator = new CachedResolvedConfigLoaderInvalidator($this->cacheInvalidator);
+        $this->themeConfigCacheInvalidator = new ThemeConfigCacheInvalidator($this->cacheInvalidator);
 
         $themeId = Uuid::randomHex();
         $event = new ThemeConfigChangedEvent($themeId, ['test' => 'test']);
 
-        $this->cachedResolvedConfigLoaderInvalidator->invalidate($event);
+        $this->themeConfigCacheInvalidator->invalidate($event);
 
         $expectedInvalidatedTags = ['theme-config-' . $themeId];
 

@@ -13,7 +13,6 @@ use League\Flysystem\FilesystemReader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Storefront\Theme\AbstractThemePathBuilder;
 use Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTaskHandler;
@@ -93,13 +92,6 @@ class DeleteThemeFilesTaskHandlerTest extends TestCase
             ['theme/themeOldId'],
         ]);
 
-        $cacheInvalidator = $this->createMock(CacheInvalidator::class);
-        $cacheInvalidator->expects($this->exactly(3))->method('invalidate')->willReturnMap([
-            [['theme_scripts_theme/unusedThemePathWithoutFiles']],
-            [['theme_scripts_theme/unusedThemePathOlderThanOneDay']],
-            [['theme_scripts_theme/themeOldId']],
-        ]);
-
         $themePathBuilder = $this->createMock(AbstractThemePathBuilder::class);
         $themePathBuilder->expects($this->exactly(2))->method('assemblePath')->willReturnMap([
             ['salesChannelId1', 'themeId1', 'usedThemePath'],
@@ -111,7 +103,6 @@ class DeleteThemeFilesTaskHandlerTest extends TestCase
             $this->createMock(LoggerInterface::class),
             $connection,
             $themeFileSystem,
-            $cacheInvalidator,
             $themePathBuilder
         );
 

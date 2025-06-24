@@ -139,6 +139,13 @@ The concrete events being removed:
 - `\Shopware\Core\Content\Sitemap\Event\SitemapRouteCacheKeyEvent`
 - `\Shopware\Core\Content\Sitemap\Event\SitemapRouteCacheTagsEvent`
 
+## Theme Configuration Changes
+As part of optimizing theme configuration loading, several changes are being made to the theme system:
+
+* The `\Shopware\Storefront\Theme\CachedResolvedConfigLoader` has been removed. This class was previously used to cache theme configurations but has been replaced by a more efficient database-based solution using the new `theme_runtime_config` table.
+* The `\Shopware\Storefront\Theme\Exception\ThemeAssignmentException` has been removed. Instead, use `\Shopware\Storefront\Theme\Exception\ThemeException::themeAssignmentException` for handling theme assignment errors.
+* The `\Shopware\Storefront\Theme\ThemeLifecycleService` is now marked as final and cannot be extended. Additionally, its `refreshTheme` method now accepts an optional `$configurationCollection` parameter.
+
 ## `filterByActiveRules` in Payment- and ShippingMethodCollection removed
 
 The `filterByActiveRules` methods in `Shopware\Core\Checkout\Payment\PaymentMethodCollection` and `Shopware\Core\Checkout\Shipping\ShippingMethodCollection` were removed.

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\Struct\ThemeDependencies;
@@ -40,7 +41,7 @@ class ThemeLifecycleHandler
     ): void {
         $themeId = null;
         if ($config->getIsTheme()) {
-            $this->themeLifecycleService->refreshTheme($config, $context);
+            $this->themeLifecycleService->refreshTheme($config, $context, $configurationCollection);
             $themeData = $this->getThemeDataByTechnicalName($config->getTechnicalName());
             $themeId = $themeData->getId();
             $this->changeThemeActive($themeData, true, $context);
@@ -97,6 +98,7 @@ class ThemeLifecycleHandler
 
     /**
      * @throws ThemeAssignmentException
+     * @throws ThemeException
      * @throws InconsistentCriteriaIdsException
      */
     private function validateThemeAssignment(?string $themeId): void
@@ -214,7 +216,7 @@ class ThemeLifecycleHandler
             }
         } catch (\Throwable $e) {
             // on case an error occurs while fetching data for the exception we still want to have the correct exception
-            throw new ThemeAssignmentException(
+            throw ThemeException::themeAssignmentException(
                 $themeId,
                 [],
                 [],
@@ -223,7 +225,7 @@ class ThemeLifecycleHandler
             );
         }
 
-        throw new ThemeAssignmentException(
+        throw ThemeException::themeAssignmentException(
             $themeName,
             $themeSalesChannel,
             $childThemeSalesChannel,

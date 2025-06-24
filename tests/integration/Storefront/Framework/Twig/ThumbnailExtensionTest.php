@@ -25,14 +25,8 @@ use Shopware\Storefront\Framework\Twig\TemplateConfigAccessor;
 use Shopware\Storefront\Framework\Twig\ThumbnailExtension;
 use Shopware\Storefront\Storefront;
 use Shopware\Storefront\Theme\AbstractResolvedConfigLoader;
-use Shopware\Storefront\Theme\AbstractThemePathBuilder;
-use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
-use Shopware\Storefront\Theme\ThemeFileResolver;
 use Shopware\Storefront\Theme\ThemeScripts;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 use Twig\Error\LoaderError;
@@ -243,17 +237,9 @@ class ThumbnailExtensionTest extends TestCase
             $this->createMock(SystemConfigService::class),
             new ThemeConfigValueAccessor(
                 $this->createMock(AbstractResolvedConfigLoader::class),
-                false,
                 $this->createMock(EventDispatcherInterface::class)
             ),
-            new ThemeScripts(
-                $this->createMock(StorefrontPluginRegistryInterface::class),
-                $this->createMock(ThemeFileResolver::class),
-                $this->createMock(RequestStack::class),
-                $this->createMock(AbstractThemePathBuilder::class),
-                $this->createMock(CacheInterface::class),
-                $this->createMock(AbstractConfigLoader::class),
-            )
+            $this->createMock(ThemeScripts::class)
         );
 
         $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));

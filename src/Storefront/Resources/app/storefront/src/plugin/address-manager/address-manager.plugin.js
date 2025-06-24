@@ -95,7 +95,7 @@ export default class AddressManagerPlugin extends Plugin {
     _getModal(event) {
         event.preventDefault();
 
-        this._btnLoader = new ButtonLoadingIndicatorUtil(event.currentTarget);
+        this._btnLoader = new ButtonLoadingIndicatorUtil(event.currentTarget, 'inner');
         this._btnLoader.create();
 
         fetch(this.options.addressManagerUrl, {
@@ -190,11 +190,16 @@ export default class AddressManagerPlugin extends Plugin {
             return;
         }
 
+        const radio = element.querySelector('input[type="radio"]');
+        if (radio?.disabled) {
+            return;
+        }
+
         type === SHIPPING
             ? document.querySelector(this.options.currentShippingIdSelector).value = id
             : document.querySelector(this.options.currentBillingIdSelector).value = id;
 
-        element.querySelector('input[type="radio"]').checked = true;
+        radio.checked = true;
     }
 
     /**

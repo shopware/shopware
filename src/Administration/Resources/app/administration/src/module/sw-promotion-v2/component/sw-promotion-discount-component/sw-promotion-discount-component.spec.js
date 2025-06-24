@@ -31,7 +31,7 @@ async function createWrapper() {
                         template: '<div class="sw-loader"></div>',
                     },
                     'mt-card': {
-                        template: '<div class="mt-card"><slot></slot></div>',
+                        template: '<div class="mt-card"><slot name="headerRight"></slot><slot></slot></div>',
                     },
                     'sw-context-button': {
                         template: '<div class="sw-context-button"><slot></slot></div>',

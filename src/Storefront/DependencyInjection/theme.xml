@@ -36,6 +36,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
             <argument>%storefront.theme.allowed_scss_values%</argument>
             <argument>%storefront.theme.validate_on_compile%</argument>
+            <argument>%shopware.filesystem.theme.config%</argument>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeLifecycleService">

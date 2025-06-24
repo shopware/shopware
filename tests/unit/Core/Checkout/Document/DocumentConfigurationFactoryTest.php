@@ -102,4 +102,16 @@ class DocumentConfigurationFactoryTest extends TestCase
         static::assertIsArray($customData);
         static::assertSame('1', $customData['invoiceNumber']);
     }
+
+    public function testMergeConfigurationStringToIntConversion(): void
+    {
+        $baseConfig = new DocumentConfiguration();
+        $additionalConfig = [
+            'itemsPerPage' => '10',
+        ];
+
+        $mergedConfig = DocumentConfigurationFactory::mergeConfiguration($baseConfig, $additionalConfig);
+
+        static::assertSame(10, $mergedConfig->__get('itemsPerPage'));
+    }
 }

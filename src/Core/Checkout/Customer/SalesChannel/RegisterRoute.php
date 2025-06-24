@@ -53,7 +53,6 @@ use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Length;
@@ -87,6 +86,7 @@ class RegisterRoute extends AbstractRegisterRoute
         private readonly SalesChannelContextServiceInterface $contextService,
         private readonly StoreApiCustomFieldMapper $customFieldMapper,
         private readonly EntityRepository $salutationRepository,
+        private readonly DataValidationFactoryInterface $passwordValidationFactory,
     ) {
     }
 
@@ -329,9 +329,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $definition = $this->getCustomerCreateValidationDefinition($isGuest, $data, $context);
 
         if ($additionalValidations) {
-            foreach ($additionalValidations->getProperties() as $key => $validation) {
-                $definition->add($key, ...$validation);
-            }
+            $definition->merge($additionalValidations);
         }
 
         if ($validateStorefrontUrl) {
@@ -490,11 +488,8 @@ class RegisterRoute extends AbstractRegisterRoute
         ]));
 
         if (!$isGuest) {
-            $minLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
-            $validation->add(
-                'password',
-                new NotBlank(),
-                new Length(['min' => $minLength, 'max' => PasswordHasherInterface::MAX_PASSWORD_LENGTH, 'maxMessage' => 'VIOLATION::PASSWORD_IS_TOO_LONG'])
+            $validation->merge(
+                $this->passwordValidationFactory->create($context)
             );
             $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
             $validation->add('email', new CustomerEmailUnique($options));

@@ -46,8 +46,8 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        customEntityDataId(): string | string[] {
-            return this.$route.params?.id;
+        customEntityDataId(): string | null {
+            return (this.$route.params?.id as null | string)?.toLowerCase() ?? null;
         },
 
         customEntityName(): string | string[] {
@@ -132,7 +132,7 @@ export default Shopware.Component.wrapComponentConfig({
                     return;
                 }
 
-                this.customEntityData = await this.customEntityDataRepository.get(this.customEntityDataId as string);
+                this.customEntityData = await this.customEntityDataRepository.get(this.customEntityDataId);
             } catch (e) {
                 console.error(e);
 

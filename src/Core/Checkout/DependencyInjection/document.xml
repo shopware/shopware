@@ -181,6 +181,7 @@
 
         <service id="Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder">
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator"/>
         </service>
     </services>
 </container>

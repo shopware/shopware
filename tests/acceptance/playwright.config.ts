@@ -90,7 +90,7 @@ export default defineConfig({
                 },
             },
             dependencies: ['Setup'],
-            grepInvert: /@Install|@Update|@Setup.*/,
+            grepInvert: /@Install|@Update|@Visual|@Setup.*/,
         },
         {
             name: 'Install',
@@ -108,6 +108,14 @@ export default defineConfig({
             dependencies: [],
             grep: /@Update/,
             retries: 0,
+        },
+        {
+            name: 'Visual',
+            use: {
+                ...devices['Desktop Chrome'],
+            },
+            dependencies: [],
+            grep: /@Visual/,
         },
     ],
 

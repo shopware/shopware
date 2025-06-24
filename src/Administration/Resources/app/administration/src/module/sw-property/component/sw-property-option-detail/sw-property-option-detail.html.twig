@@ -1,6 +1,6 @@
 {% block sw_property_option_detail %}
 <sw-modal
-    :title="currentOption.name ? currentOption.name : $tc('sw-property.detail.textOptionHeadline')"
+    :title="modalTitle"
     @modal-close="onCancel"
 >
     {% block sw_property_option_detail_name %}
@@ -11,7 +11,7 @@
         validation="required"
         :label="$tc('sw-property.detail.labelOptionName')"
         :disabled="!allowEdit"
-        :placeholder="$tc('sw-property.detail.placeholderOptionName')"
+        :placeholder="placeholder(currentOption, 'name', $tc('sw-property.detail.placeholderOptionName'))"
         :error="currentOptionNameError"
         required
     />

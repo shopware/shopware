@@ -111,6 +111,105 @@
                     }
                 }
             },
+            "NoneFieldsCriteria": {
+                "type": "object",
+                "description": "Search parameters. For more information, see our documentation on [Search Queries](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#structure)",
+                "properties": {
+                    "page": {
+                        "description": "Search result page",
+                        "type": "integer"
+                    },
+                    "term": {
+                        "description": "Search term",
+                        "type": "string"
+                    },
+                    "limit": {
+                        "description": "Number of items per result page",
+                        "type": "integer"
+                    },
+                    "filter": {
+                        "type": "array",
+                        "description": "List of filters to restrict the search result. For more information, see [Search Queries > Filter](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#filter)",
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/SimpleFilter"
+                                },
+                                {
+                                    "$ref": "#/components/schemas/EqualsFilter"
+                                },
+                                {
+                                    "$ref": "#/components/schemas/MultiNotFilter"
+                                },
+                                {
+                                    "$ref": "#/components/schemas/RangeFilter"
+                                }
+                            ]
+                        }
+                    },
+                    "ids": {
+                        "type": "array",
+                        "description": "List of ids to search for",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "query": {
+                        "type": "string",
+                        "description": "The query string to search for"
+                    },
+                    "associations": {
+                        "$ref": "#/components/schemas/Associations"
+                    },
+                    "post-filter": {
+                        "type": "array",
+                        "description": "Filters that applied without affecting aggregations. For more information, see [Search Queries > Post Filter](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#post-filter)",
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/SimpleFilter"
+                                },
+                                {
+                                    "$ref": "#/components/schemas/EqualsFilter"
+                                },
+                                {
+                                    "$ref": "#/components/schemas/MultiNotFilter"
+                                },
+                                {
+                                    "$ref": "#/components/schemas/RangeFilter"
+                                }
+                            ]
+                        }
+                    },
+                    "sort": {
+                        "type": "array",
+                        "description": "Sorting in the search result.",
+                        "items": {
+                            "$ref": "#/components/schemas/Sort"
+                        }
+                    },
+                    "aggregations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Aggregation"
+                        }
+                    },
+                    "grouping": {
+                        "type": "array",
+                        "description": "Perform groupings over certain fields",
+                        "items": {
+                            "type": "string",
+                            "description": "Name of a field"
+                        }
+                    },
+                    "total-count-mode": {
+                        "$ref": "#/components/schemas/TotalCountMode"
+                    },
+                    "includes": {
+                        "$ref": "#/components/schemas/Includes"
+                    }
+                }
+            },
             "Associations": {
                 "type": "object",
                 "additionalProperties": {

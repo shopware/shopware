@@ -121,10 +121,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
         $schemaRoutes = $schema['paths'];
         $missingRoutes = [];
 
-        foreach ($this->routes as $route) {
-            if (!$this->isCoreRoute($route)) {
-                continue;
-            }
+        foreach ($this->routes as $key => $route) {
             $path = $route->getPath();
             if (!$this->isAdminApi($path)) {
                 continue;
@@ -142,6 +139,11 @@ class ApiRoutesHaveASchemaTest extends TestCase
                 unset($schemaRoutes[$listPath]);
                 unset($schemaRoutes[$crudPath]);
 
+                continue;
+            }
+
+            // Don't enforce schema for non-core routes (test can run on custom installations)
+            if (!$this->isCoreRoute($route)) {
                 continue;
             }
 
@@ -235,6 +237,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
             '/store-api/checkout/cart/line-item:ids',
             '/store-api/product-listing/{categoryId}:p',
             '/store-api/search:p',
+            '/store-api/search-suggest:p',
         ];
 
         foreach ($schema as $operation) {

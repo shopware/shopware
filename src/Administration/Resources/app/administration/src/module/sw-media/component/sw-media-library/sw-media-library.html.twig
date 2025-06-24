@@ -122,6 +122,7 @@
     {% block sw_media_library_empty_state %}
     <sw-empty-state
         v-if="shouldDisplayEmptyState"
+        class="sw-media-library__empty-state"
         :title="$tc('sw-empty-state.messageNoResultTitle')"
     >
         <template #icon>

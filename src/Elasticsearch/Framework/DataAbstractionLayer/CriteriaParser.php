@@ -587,7 +587,7 @@ class CriteriaParser
 
             if ($field instanceof TranslatedField) {
                 foreach ($context->getLanguageIdChain() as $languageId) {
-                    $query->add(new ExistsQuery(\sprintf('%s.%s', $fieldName, $languageId)), BoolQuery::MUST_NOT);
+                    $query->add(new ExistsQuery($this->getTranslatedFieldName($fieldName, $languageId)), BoolQuery::MUST_NOT);
                 }
             } else {
                 $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);

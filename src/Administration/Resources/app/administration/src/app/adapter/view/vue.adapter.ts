@@ -72,10 +72,43 @@ export default class VueAdapter extends ViewAdapter {
             throw new Error('Vue app is not initialized yet');
         }
 
+        function fixI18NParametersOrder(args: Parameters<typeof i18n.global.t>): Parameters<typeof i18n.global.t> {
+            if (args.length === 3 && typeof args[1] === 'number' && typeof args[2] === 'object') {
+                console.warn(
+                    'the order of the parameters for $t has changed in the latest version.',
+                    'Please, check Vue I18n documentation for more details:',
+                    // eslint-disable-next-line max-len
+                    'https://vue-i18n.intlify.dev/guide/migration/breaking10#tc-key-key-resourcekeys-choice-number-named-record-string-unknown-translateresult',
+                );
+                // This is a workaround to avoid breaking changes for the $tc function which that swap the second and
+                // third parameters in the latest version.
+                return [
+                    args[0],
+                    args[1],
+                    args[2],
+                ];
+            }
+            return args;
+        }
+
         this.app.config.compilerOptions.whitespace = 'preserve';
         this.app.config.performance = process.env.NODE_ENV !== 'production';
-        this.app.config.globalProperties.$t = i18n.global.t;
-        this.app.config.globalProperties.$tc = i18n.global.t;
+        this.app.config.globalProperties.$t = function (...args: Parameters<typeof i18n.global.t>) {
+            return i18n.global.t(...fixI18NParametersOrder(args));
+        } as typeof i18n.global.t;
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use $t instead.
+         */
+        this.app.config.globalProperties.$tc = function (...args: Parameters<typeof i18n.global.t>) {
+            if (window._features_.V6_8_0_0) {
+                console.warn(
+                    'Deprecation Warning',
+                    'The $tc function is deprecated and will be removed in future versions. Please use $t instead.',
+                );
+            }
+            return i18n.global.t(...fixI18NParametersOrder(args));
+        } as typeof i18n.global.t;
+
         this.app.config.warnHandler = (msg: string, instance: unknown, trace: string) => {
             const warnArgs = [
                 `[Vue warn]: ${msg}`,

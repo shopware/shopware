@@ -49,7 +49,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
@@ -545,10 +545,7 @@ class AppLifecycle extends AbstractAppLifecycle
     private function updateAclRole(string $appName, Context $context): void
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new NotFilter(
-            NotFilter::CONNECTION_AND,
-            [new EqualsFilter('users.id', null)]
-        ));
+        $criteria->addFilter(new NotEqualsFilter('users.id', null));
         $roles = $this->aclRoleRepository->search($criteria, $context)->getEntities();
 
         $newPrivileges = [

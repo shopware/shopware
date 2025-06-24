@@ -1,0 +1,47 @@
+name: Visual Tests
+
+# Once proven stable, this workflow can be integrated into the integration workflow
+# by adding "Visual" to the "name" matrix element.
+on:
+  workflow_dispatch:
+    inputs:
+      update-snapshots:
+        description: 'Update snapshots?'
+        type: boolean
+        default: false
+      nightly:
+        description: 'Running as part of the nightly build?'
+        type: boolean
+        default: false
+
+  workflow_call:
+    inputs:
+      update-snapshots:
+        description: 'Update snapshots?'
+        type: boolean
+        default: false
+      nightly:
+        description: 'Running as part of the nightly build?'
+        type: boolean
+        default: false
+
+jobs:
+  visual-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/ats
+        with:
+          project: 'Visual'
+          install: 'true'
+          # TODO: Remove --pass-with-no-tests once we have visual testcases
+          extra-options: >-
+            --pass-with-no-tests
+            ${{ inputs.update-snapshots && ' --update-snapshots' || '' }}
+          # use-currents: ${{ inputs.nightly && 'true' || '' }} # TODO: Re-Enable at a later point when we want to report visual test results to currents
+          currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID_VISUAL }}
+          currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}

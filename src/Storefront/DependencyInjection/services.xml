@@ -535,12 +535,37 @@
             <tag name="kernel.event_listener" event="kernel.exception"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\SystemCheck\SaleChannelsReadinessCheck" >
-            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface" />
-            <argument type="service" id="Symfony\Component\Routing\RouterInterface" />
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        <service id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil">
+            <argument type="service" id="Symfony\Component\Routing\RouterInterface"/>
+            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
+            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck">
+            <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil"/>
+            <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider"/>
 
             <tag name="shopware.system_check"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\SystemCheck\ProductDetailReadinessCheck">
+            <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider"/>
+
+            <tag name="shopware.system_check"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\SystemCheck\ProductListingReadinessCheck">
+            <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider"/>
+
+            <tag name="shopware.system_check"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
     </services>
 </container>

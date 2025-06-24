@@ -2,13 +2,13 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed in 6.8.0 as it was not used anymore
+ */
 #[Package('framework')]
 class CachedResolvedConfigLoader extends AbstractResolvedConfigLoader
 {
@@ -17,34 +17,36 @@ class CachedResolvedConfigLoader extends AbstractResolvedConfigLoader
      */
     public function __construct(
         private readonly AbstractResolvedConfigLoader $decorated,
-        private readonly CacheInterface $cache
     ) {
     }
 
     public function getDecorated(): AbstractResolvedConfigLoader
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'),
+        );
+
         return $this->decorated;
     }
 
     public function load(string $themeId, SalesChannelContext $context): array
     {
-        $name = self::buildName($themeId);
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'),
+        );
 
-        $key = Hasher::hash($name . $context->getSalesChannelId() . $context->getDomainId());
-
-        $value = $this->cache->get($key, function (ItemInterface $item) use ($name, $themeId, $context) {
-            $config = $this->getDecorated()->load($themeId, $context);
-
-            $item->tag([$name]);
-
-            return CacheValueCompressor::compress($config);
-        });
-
-        return CacheValueCompressor::uncompress($value);
+        return $this->getDecorated()->load($themeId, $context);
     }
 
     public static function buildName(string $themeId): string
     {
-        return 'theme-config-' . $themeId;
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'),
+        );
+
+        return ThemeConfigCacheInvalidator::buildCacheTag($themeId);
     }
 }

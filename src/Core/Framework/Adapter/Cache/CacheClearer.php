@@ -86,6 +86,10 @@ class CacheClearer
 
         $finder = (new Finder())->in($this->cacheDir)->name('*Container*')->depth(0);
 
+        if (!$finder->hasResults()) {
+            return;
+        }
+
         foreach ($finder->getIterator() as $containerPaths) {
             try {
                 $this->filesystem->remove($containerPaths->getRealPath());

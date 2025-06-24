@@ -67,7 +67,7 @@ class RobotsPageLoaderTest extends TestCase
 
     public function testLoadWithValidHostname(): void
     {
-        $request = new Request([], [], [], [], [], ['HTTP_HOST' => 'example.com']);
+        $request = new Request(server: ['HTTP_HOST' => 'example.com']);
         $context = Context::createDefaultContext();
         $salesChannelId = 'test-sales-channel-id';
 
@@ -118,7 +118,7 @@ class RobotsPageLoaderTest extends TestCase
 
     public function testLoadWithMultipleDomains(): void
     {
-        $request = new Request([], [], [], [], [], ['HTTP_HOST' => 'example.com']);
+        $request = new Request(server: ['HTTP_HOST' => 'example.com']);
         $context = Context::createDefaultContext();
         $salesChannelId1 = 'test-sales-channel-id-1';
         $salesChannelId2 = 'test-sales-channel-id-2';

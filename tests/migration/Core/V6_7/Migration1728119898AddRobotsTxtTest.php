@@ -38,7 +38,7 @@ class Migration1728119898AddRobotsTxtTest extends TestCase
         $robotsRules = json_decode($robotsRules, true);
         static::assertIsArray($robotsRules);
         static::assertArrayHasKey('_value', $robotsRules);
-        static::assertEquals(
+        static::assertSame(
             <<<'TXT'
                 Disallow: /account/
                 Disallow: /checkout/

@@ -90,7 +90,7 @@ class CacheClearer
             try {
                 $this->filesystem->remove($containerPaths->getRealPath());
             } catch (IOException $e) {
-                // If the path is not readable, we skip it
+                // In case of concurrent access, clearContainerCache can have cleaned the files already
                 $this->logger->warning('Could not read container cache path: ' . $e->getMessage());
                 continue;
             }

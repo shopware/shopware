@@ -24,13 +24,13 @@ readonly class MediaUploadV2Controller
     }
 
     #[Route(path: '/api/_action/media/upload', name: 'api.action.media.upload_v2', methods: ['POST'])]
-    public function upload(Request $request, Context $context): Response
+    public function upload(Request $request, Context $context): JsonResponse
     {
         return new JsonResponse(['id' => $this->mediaUploadService->uploadFromRequest($request, $context, MediaUploadParameters::fromRequest($request))]);
     }
 
     #[Route(path: '/api/_action/media/upload_by_url', name: 'api.action.media.upload_v2_url', methods: ['POST'])]
-    public function uploadUrl(Request $request, Context $context): Response
+    public function uploadUrl(Request $request, Context $context): JsonResponse
     {
         $url = $request->get('url');
 
@@ -42,7 +42,7 @@ readonly class MediaUploadV2Controller
     }
 
     #[Route(path: '/api/_action/media/external-link', name: 'api.action.media.external-link', methods: ['POST'])]
-    public function externalLink(Request $request, Context $context): Response
+    public function externalLink(Request $request, Context $context): JsonResponse
     {
         $url = $request->get('url');
 

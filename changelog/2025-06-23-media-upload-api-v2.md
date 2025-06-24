@@ -1,7 +1,7 @@
 ---
 title: New Media Upload API v2
 ---
-# Core
+# API
 
 * Added new Media Upload API v2 with three new endpoints to streamline media management workflows:
   * `POST /api/_action/media/upload` - Direct file upload that creates media entity and uploads file in one step

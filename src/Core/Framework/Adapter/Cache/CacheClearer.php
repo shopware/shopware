@@ -138,16 +138,15 @@ class CacheClearer
             return;
         }
 
+        $remove = [];
         foreach ($finder->getIterator() as $directory) {
             if ($directory->getPathname() !== $this->cacheDir) {
-                try {
-                    $this->filesystem->remove($directory->getPathname());
-                } catch (IOException $e) {
-                    // If the path is not readable, we skip it
-                    $this->logger->warning('Could not remove old cache directory: ' . $e->getMessage());
-                    continue;
-                }
+                $remove[] = $directory->getPathname();
             }
+        }
+
+        if ($remove !== []) {
+            $this->filesystem->remove($remove);
         }
     }
 

@@ -186,9 +186,9 @@ class AppLifecycle extends AbstractAppLifecycle
 
         // if we do not keep user data, or the app has no restrict delete data,
         // we can safely delete the app as no references in the DB will be left over
-        $restrictDeletesPresent = $keepUserData && $this->appHasRestrictDeleteData($appEntity);
+        $isSafeToDeleteCustomFields = !$keepUserData || !$this->appHasRestrictDeleteData($appEntity);
         if ($appEntity->isActive()) {
-            $this->appStateService->deactivateApp($appEntity->getId(), $context, !$restrictDeletesPresent);
+            $this->appStateService->deactivateApp($appEntity->getId(), $context, $isSafeToDeleteCustomFields);
         }
 
         $this->removeAppAndRole($appEntity, $context, $keepUserData, true);

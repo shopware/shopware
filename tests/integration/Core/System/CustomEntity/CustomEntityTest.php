@@ -187,6 +187,8 @@ class CustomEntityTest extends TestCase
             $appLifecycle->delete($installedApp->getName(), ['id' => $installedApp->getId()], $context, true);
         }
 
+        // with keepUserData=true the custom entity schema is not removed during app uninstall,
+        // therefore we need to clean up the custom entity schema manually
         self::cleanUp(static::getContainer());
     }
 
@@ -217,7 +219,7 @@ class CustomEntityTest extends TestCase
             static::assertSame(AppException::APP_RESTRICT_DELETE_PREVENTS_DEACTIVATION, $e->getErrorCode());
             $exceptionThrown = true;
         } finally {
-            self::cleanUp(static::getContainer());
+            $this->cleanupAppData(static::getContainer());
         }
 
         static::assertTrue($exceptionThrown);

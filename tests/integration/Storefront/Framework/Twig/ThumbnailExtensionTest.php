@@ -90,6 +90,27 @@ class ThumbnailExtensionTest extends TestCase
      * @throws RuntimeError
      * @throws LoaderError
      */
+    public function testSwThumbnailsRendersImageWithoutAltAttr(): void
+    {
+        $result = $this->renderTemplate('@Storefront/storefront/thumbnail-alt-false.html.twig', [
+            'media' => $this->createExampleMedia(),
+            'context' => Generator::generateSalesChannelContext(),
+        ]);
+
+        // Expect the image to be rendered without alt attribute
+        static::assertStringNotContainsString('alt=', $result);
+
+        // Other attributes are set
+        static::assertStringContainsString('title="Very cute cat title"', $result);
+    }
+
+    /**
+     * @throws SyntaxError
+     * @throws \Throwable
+     * @throws Exception
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
     public function testSwThumbnailsRendersSrcsetAttrWhenMediaThumbnailsAreGiven(): void
     {
         $result = $this->renderTemplate('@Storefront/storefront/thumbnail-default.html.twig', [

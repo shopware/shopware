@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\PruneableInterface;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
@@ -84,13 +85,16 @@ class CacheClearer
         }
 
         $finder = (new Finder())->in($this->cacheDir)->name('*Container*')->depth(0);
-        $containerCaches = [];
 
         foreach ($finder->getIterator() as $containerPaths) {
-            $containerCaches[] = $containerPaths->getRealPath();
+            try {
+                $this->filesystem->remove($containerPaths->getRealPath());
+            } catch (IOException $e) {
+                // If the path is not readable, we skip it
+                $this->logger->warning('Could not read container cache path: ' . $e->getMessage());
+                continue;
+            }
         }
-
-        $this->filesystem->remove($containerCaches);
     }
 
     public function scheduleCacheFolderCleanup(): void
@@ -134,15 +138,16 @@ class CacheClearer
             return;
         }
 
-        $remove = [];
         foreach ($finder->getIterator() as $directory) {
             if ($directory->getPathname() !== $this->cacheDir) {
-                $remove[] = $directory->getPathname();
+                try {
+                    $this->filesystem->remove($directory->getPathname());
+                } catch (IOException $e) {
+                    // If the path is not readable, we skip it
+                    $this->logger->warning('Could not remove old cache directory: ' . $e->getMessage());
+                    continue;
+                }
             }
-        }
-
-        if ($remove !== []) {
-            $this->filesystem->remove($remove);
         }
     }
 

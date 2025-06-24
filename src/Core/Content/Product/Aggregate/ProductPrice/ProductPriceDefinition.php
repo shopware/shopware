@@ -64,12 +64,10 @@ class ProductPriceDefinition extends EntityDefinition
             (new FkField('rule_id', 'ruleId', RuleDefinition::class))->addFlags(new Required()),
             (new PriceField('price', 'price'))->addFlags(new Required()),
             (new IntField('quantity_start', 'quantityStart'))->addFlags(new Required()),
-            (new BoolField('linked', 'linked'))->addFlags(new Required()),
             new IntField('quantity_end', 'quantityEnd'),
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false))->addFlags(new ReverseInherited('prices')),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id', false),
             new CustomFields(),
-            
         ]);
     }
 }

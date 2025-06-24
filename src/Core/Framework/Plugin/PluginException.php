@@ -115,6 +115,8 @@ class PluginException extends HttpException
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed with next major. Use PluginException::invalidContainerParameter instead
+     *
+     * @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
      */
     public static function projectDirNotInContainer(): self
     {

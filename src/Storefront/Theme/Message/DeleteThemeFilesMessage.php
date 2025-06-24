@@ -22,16 +22,19 @@ class DeleteThemeFilesMessage implements AsyncMessageInterface
     ) {
     }
 
+    // @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
     public function getThemePath(): string
     {
         return $this->themePath;
     }
 
+    // @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
     public function getSalesChannelId(): string
     {
         return $this->salesChannelId;
     }
 
+    // @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
     public function getThemeId(): string
     {
         return $this->themeId;

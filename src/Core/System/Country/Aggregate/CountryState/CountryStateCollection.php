@@ -26,6 +26,8 @@ class CountryStateCollection extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 - will be removed, use sorting via SQL instead
+     *
+     * @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
      */
     public function sortByPositionAndName(): void
     {

@@ -70,6 +70,8 @@ class ZugferdDocument
 
     /**
      * @deprecated tag:v6.8.0 - added new parameter $calculator
+     *
+     * @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
      */
     public function getContent(OrderEntity $order/* , AmountCalculator $calculator */): string
     {
@@ -292,6 +294,8 @@ class ZugferdDocument
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed. Use addMappedPrice instead
+     *
+     * @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
      */
     protected function addChargeAmount(float $chargeAmount): void
     {
@@ -300,6 +304,8 @@ class ZugferdDocument
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed. Use addMappedPrice instead
+     *
+     * @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
      */
     protected function addLineTotalAmount(float $lineTotalAmount): void
     {
@@ -308,6 +314,8 @@ class ZugferdDocument
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed. Use addMappedPrice instead
+     *
+     * @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
      */
     protected function addAllowanceAmount(float $allowanceAmount): void
     {

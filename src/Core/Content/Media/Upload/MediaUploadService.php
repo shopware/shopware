@@ -65,10 +65,9 @@ readonly class MediaUploadService
      */
     public function uploadFromRequest(Request $request, Context $context, MediaUploadParameters $params = new MediaUploadParameters()): string
     {
-        /** @var UploadedFile|null $file */
         $file = $request->files->get('file');
 
-        if ($file === null) {
+        if (!$file instanceof UploadedFile) {
             throw MediaException::fileNotProvided();
         }
 

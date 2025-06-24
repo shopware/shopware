@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -70,11 +71,9 @@ class MediaUploadServiceTest extends TestCase
     public function testUploadFromLocalPath(): void
     {
         $filePath = __DIR__ . '/fixtures/test-image.jpg';
-        $mediaId = Uuid::randomHex();
         $params = new MediaUploadParameters();
 
-        // Create test file
-        file_put_contents($filePath, 'test content');
+        (new Filesystem())->dumpFile($filePath, 'test content');
 
         $this->fileSaver
             ->expects($this->once())
@@ -99,8 +98,7 @@ class MediaUploadServiceTest extends TestCase
         static::assertTrue(isset($this->mediaRepository->creates[0][0]['id']));
         static::assertTrue(isset($this->mediaRepository->creates[0][0]['private']));
 
-        // Cleanup
-        unlink($filePath);
+        (new Filesystem())->remove($filePath);
     }
 
     public function testUploadFromLocalPathFileNotFound(): void
@@ -146,8 +144,7 @@ class MediaUploadServiceTest extends TestCase
         static::assertTrue(Uuid::isValid($result));
         static::assertCount(1, $this->mediaRepository->creates);
 
-        // Cleanup
-        @unlink($tempFile);
+        (new Filesystem())->remove($tempFile);
     }
 
     public function testUploadFromRequestWithoutFile(): void
@@ -325,8 +322,7 @@ class MediaUploadServiceTest extends TestCase
         $existingMediaId = Uuid::randomHex();
         $params = new MediaUploadParameters(deduplicate: true);
 
-        // Create test file
-        file_put_contents($filePath, 'test content');
+        (new Filesystem())->dumpFile($filePath, 'test content');
 
         // Setup the repository to return an existing media ID for deduplication
         $this->mediaRepository->addSearch([$existingMediaId]);
@@ -339,18 +335,15 @@ class MediaUploadServiceTest extends TestCase
         static::assertSame($existingMediaId, $result);
         static::assertCount(0, $this->mediaRepository->creates);
 
-        // Cleanup
-        unlink($filePath);
+        (new Filesystem())->remove($filePath);
     }
 
     public function testUploadWithErrorHandling(): void
     {
         $filePath = __DIR__ . '/fixtures/test-image.jpg';
-        $mediaId = Uuid::randomHex();
         $params = new MediaUploadParameters();
 
-        // Create test file
-        file_put_contents($filePath, 'test content');
+        (new Filesystem())->dumpFile($filePath, 'test content');
 
         $this->fileSaver
             ->expects($this->once())
@@ -369,8 +362,7 @@ class MediaUploadServiceTest extends TestCase
             static::assertCount(1, $this->mediaRepository->creates);
             static::assertCount(1, $this->mediaRepository->deletes);
 
-            // Cleanup
-            unlink($filePath);
+            (new Filesystem())->remove($filePath);
         }
     }
 
@@ -413,8 +405,7 @@ class MediaUploadServiceTest extends TestCase
         static::assertTrue($createdMedia['private']);
         static::assertSame($mediaFolderId, $createdMedia['mediaFolderId']);
 
-        // Cleanup
-        unlink($filePath);
+        (new Filesystem())->remove($filePath);
     }
 }
 

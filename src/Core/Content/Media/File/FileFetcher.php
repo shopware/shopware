@@ -53,6 +53,10 @@ class FileFetcher
 
     public function fetchFromURL(string $url, string $fileName, ?string $fileExtension = null): MediaFile
     {
+        if (!$this->enableUrlUploadFeature) {
+            throw MediaException::disableUrlUploadFeature();
+        }
+
         if (!$this->fileService->isUrl($url)) {
             throw MediaException::invalidUrl($url);
         }
@@ -86,10 +90,6 @@ class FileFetcher
 
     public function fetchFileFromURL(Request $request, string $fileName): MediaFile
     {
-        if (!$this->enableUrlUploadFeature) {
-            throw MediaException::disableUrlUploadFeature();
-        }
-
         $url = $this->getUrlFromRequest($request);
 
         return $this->fetchFromURL($url, $fileName, (string) $request->query->get('extension'));

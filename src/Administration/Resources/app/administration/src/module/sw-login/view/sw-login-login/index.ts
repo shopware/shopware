@@ -55,6 +55,10 @@ export default Component.wrapComponentConfig({
         this.loginService.getLoginTemplateConfig().then((loginConfig) => {
             this.loginConfig = loginConfig;
             this.loginConfigLoaded = true;
+
+            if (!loginConfig.useDefault) {
+                window.location.href = loginConfig.url;
+            }
         }).catch(() => {});
     },
 

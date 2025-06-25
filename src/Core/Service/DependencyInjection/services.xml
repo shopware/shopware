@@ -4,7 +4,7 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <parameters>
-        <parameter key="env(SERVICE_REGISTRY_URL)" type="string">https://services.shopware.io/services.json</parameter>
+        <parameter key="env(SERVICE_REGISTRY_URL)" type="string">https://registry.services.shopware.io</parameter>
         <parameter key="env(ENABLE_SERVICES)" type="string">auto</parameter>
     </parameters>
 
@@ -125,16 +125,13 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Service\Subscriber\PermissionsGrantedSubscriber">
+        <service id="Shopware\Core\Service\Manager">
             <argument type="service" id="Shopware\Core\Framework\App\Privileges\Privileges"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-
-            <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Service\Subscriber\PermissionsRevokedSubscriber">
-            <argument type="service" id="Shopware\Core\Framework\App\Privileges\Privileges"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        <service id="Shopware\Core\Service\Subscriber\PermissionsSubscriber">
+            <argument type="service" id="Shopware\Core\Service\Manager"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

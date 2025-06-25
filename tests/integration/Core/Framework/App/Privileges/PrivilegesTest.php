@@ -98,13 +98,13 @@ class PrivilegesTest extends TestCase
         $appId = $this->createApp();
         $context = Context::createDefaultContext();
 
-        $this->privileges->setPrivileges($appId, ['product:read', 'product:update'], $context);
-        $this->privileges->requestPrivileges($appId, ['customer:read', 'customer:update', 'product:read', 'product:update'], $context);
+        $setPrivileges = ['customer:read', 'customer:update', 'product:read', 'product:update'];
+        $this->privileges->setPrivileges($appId, $setPrivileges, $context);
 
         $this->assertPrivileges(
             'TestApp',
-            ['product:read', 'product:update'],
-            ['customer:read', 'customer:update']
+            $setPrivileges,
+            []
         );
 
         $this->privileges->revokeAllForApps([$appId], $context);
@@ -112,7 +112,7 @@ class PrivilegesTest extends TestCase
         $this->assertPrivileges(
             'TestApp',
             [],
-            []
+            $setPrivileges,
         );
     }
 

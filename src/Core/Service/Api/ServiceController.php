@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Message\UpdateServiceMessage;
 use Shopware\Core\Service\ServiceException;
+use Shopware\Core\Service\State;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -133,10 +134,11 @@ class ServiceController
             'active' => $app->isActive(),
             'icon' => $app->getIcon(),
             'description' => $app->getTranslated()['description'] ?? null,
-            'updated_at' => date_format(($app->getUpdatedAt() ?? $app->getCreatedAt()), Defaults::STORAGE_DATE_TIME_FORMAT),
+            'updated_at' => ($app->getUpdatedAt() ?? $app->getCreatedAt())?->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'version' => $app->getVersion(),
             'requested_privileges' => $app->getRequestedPrivileges(),
-            'privileges' => $app->getAclRole()->getPrivileges(),
+            'privileges' => $app->getAclRole()?->getPrivileges(),
+            'state' => State::state($app),
         ]));
     }
 

@@ -4,9 +4,9 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1717572627RemoveImportExportProfileName;
@@ -19,6 +19,7 @@ use Shopware\Core\Migration\V6_7\Migration1717572627RemoveImportExportProfileNam
 class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
 {
     use KernelTestBehaviour;
+
     private static bool $nameColumnAdded = false;
 
     private Connection $connection;
@@ -47,6 +48,7 @@ class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = self::getContainer()->get(Connection::class);
+        $this->insertDefaultData();
     }
 
     protected function tearDown(): void
@@ -83,6 +85,7 @@ class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
 
         $migration = new Migration1717572627RemoveImportExportProfileName();
         $migration->update($this->connection);
+        $migration->update($this->connection);
 
         static::assertTrue($this->columnExists());
 
@@ -93,20 +96,100 @@ class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
         static::assertNotFalse($indexExists, 'Unique index on technical_name should be created');
     }
 
-    public function testUpdateGeneratesTechnicalNames(): void
+    /**
+     * @param array<int, array{uuid: string, name: string|null, technical_name: string|null, expected_technical_name: string}> $datas
+     */
+    #[DataProvider('importExportProfilesDataProvider')]
+    public function testUpdateGeneratesTechnicalNames(array $datas): void
     {
-        $this->addTestData();
+        foreach ($datas as $data) {
+            $this->connection->insert('import_export_profile', [
+                'id' => $data['uuid'],
+                'name' => $data['name'],
+                'technical_name' => $data['technical_name'],
+                'source_entity' => 'product',
+                'file_type' => 'text/csv',
+                'created_at' => '2021-01-01 00:00:00',
+            ]);
+        }
 
         $migration = new Migration1717572627RemoveImportExportProfileName();
         $migration->update($this->connection);
+        $migration->update($this->connection);
 
-        $rows = $this->connection->fetchAllAssociative('SELECT * FROM `import_export_profile` WHERE `system_default` != 1');
+        $results = $this->connection->fetchAllAssociative(
+            'SELECT id, technical_name FROM `import_export_profile` WHERE `system_default` != 1'
+        );
 
-        static::assertSame('some-technical-name',$rows[0]['technical_name']);
-        static::assertSame('profile_2', $rows[1]['technical_name']);
-        static::assertSame('unnamed_profile', $rows[2]['technical_name']);
-        static::assertSame('unnamed_profile_1', $rows[3]['technical_name']);
+        foreach ($datas as $expected) {
+            $found = false;
+            foreach ($results as $result) {
+                if ($result['id'] === $expected['uuid']) {
+                    static::assertSame($expected['expected_technical_name'], $result['technical_name']);
+                    $found = true;
+                    break;
+                }
+            }
+            static::assertTrue($found, 'Record with UUID not found');
+        }
+    }
 
+    public static function importExportProfilesDataProvider(): \Generator
+    {
+        $uuid1 = Uuid::randomBytes();
+        $uuid2 = Uuid::randomBytes();
+        $uuid3 = Uuid::randomBytes();
+
+        yield 'single profile' => [
+            [
+                [
+                    'uuid' => $uuid1,
+                    'name' => 'Default Profile',
+                    'technical_name' => null,
+                    'expected_technical_name' => 'default_profile',
+                ],
+            ],
+        ];
+
+        yield 'multiple profiles with existing technical_name' => [
+            [
+                [
+                    'uuid' => $uuid1,
+                    'name' => 'Custom Profile',
+                    'technical_name' => 'custom_profile_1',
+                    'expected_technical_name' => 'custom_profile_1',
+                ],
+                [
+                    'uuid' => $uuid2,
+                    'name' => null,
+                    'technical_name' => 'custom_profile_2',
+                    'expected_technical_name' => 'custom_profile_2',
+                ],
+            ],
+        ];
+
+        yield 'multiple profiles with null name and null technical_name' => [
+            [
+                [
+                    'uuid' => $uuid1,
+                    'name' => null,
+                    'technical_name' => null,
+                    'expected_technical_name' => 'unnamed_profile',
+                ],
+                [
+                    'uuid' => $uuid2,
+                    'name' => null,
+                    'technical_name' => null,
+                    'expected_technical_name' => 'unnamed_profile_1',
+                ],
+                [
+                    'uuid' => $uuid3,
+                    'name' => null,
+                    'technical_name' => null,
+                    'expected_technical_name' => 'unnamed_profile_2',
+                ],
+            ],
+        ];
     }
 
     private function addColumn(): void
@@ -125,27 +208,19 @@ class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
         return !empty($exists);
     }
 
-    private function addTestData(): void
+    private function insertDefaultData(): void
     {
-        $profiles = [
-            [Uuid::randomBytes(), 'Profile 1', 'some-technical-name'],
-            [Uuid::randomBytes(), 'Profile 2', null],
-            [Uuid::randomBytes(), null, null],
-            [Uuid::randomBytes(), null, null],
-        ];
+        $sql = 'SELECT * FROM `import_export_profile`';
 
-        foreach ($profiles as [$id, $name, $technicalName]) {
-            $this->connection->insert('import_export_profile', [
-                'id' => $id,
-                'name' => $name,
-                'technical_name' => $technicalName,
-                'source_entity' => 'product',
-                'file_type' => 'text/csv',
-                'created_at' => "2025-06-24 00:00:00.000"
-            ]);
-        }
+        $this->connection->executeStatement('DELETE FROM `import_export_profile`');
+        $rows = $this->connection->fetchAllAssociative($sql);
+        static::assertCount(0, $rows);
 
-        $rows = $this->connection->fetchAllAssociative('SELECT * FROM `import_export_profile` WHERE `system_default` != 1');
-        static::assertCount(4, $rows);
+        $importExportDefaultProfilesSql = file_get_contents(__DIR__ . '/fixtures/import_export_default_profiles.sql');
+        static::assertIsString($importExportDefaultProfilesSql);
+        $this->connection->executeStatement($importExportDefaultProfilesSql);
+
+        $rows = $this->connection->fetchAllAssociative($sql);
+        static::assertCount(12, $rows);
     }
 }

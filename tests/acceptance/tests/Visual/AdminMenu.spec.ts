@@ -1,5 +1,4 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
-import path from 'path';
 
 test('Visual: Administration menu', { tag: '@Visual' }, async ({
 ShopAdmin,
@@ -19,12 +18,8 @@ AdminDashboard,
 
         await AdminDashboard.page.setViewportSize({ width: 1280, height: 2048});
 
-        await expect(AdminDashboard.page.locator('.sw-admin-menu')).toHaveScreenshot({
-            stylePath: path.resolve('./tests/Visual/screenshot.css'),
-            mask: [
-                AdminDashboard.page.locator('.sw-admin-menu__user-name'),
-                AdminDashboard.page.locator('.sw-avatar'),
-            ],
-        });
+        await AdminDashboard.page.addStyleTag({content: `.sw-admin-menu__user-name,.sw-avatar {display: none !important;}`});
+
+        await expect(AdminDashboard.page.locator('.sw-admin-menu')).toHaveScreenshot();
     });
 });

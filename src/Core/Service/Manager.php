@@ -31,6 +31,7 @@ class Manager
         private readonly EntityRepository $repository,
         private readonly AbstractAppLifecycle $appLifecycle,
         private readonly MessageBusInterface $messageBus,
+        private readonly EntityRepository $scheduledTaskRepository,
     ) {
     }
 
@@ -54,7 +55,20 @@ class Manager
     {
         $this->systemConfigService->delete(self::CONFIG_KEY_SERVICES_DISABLED);
 
-        $this->messageBus->dispatch(new InstallServicesTask());
+        $criteria = new Criteria();
+        $criteria->setLimit(1)
+            ->addFilter(new EqualsFilter('name', 'services.install'));
+
+        $result = $this->scheduledTaskRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+
+        if (empty($result)) {
+            throw ServiceException::scheduledTaskNotRegistered();
+        }
+
+        $message = new InstallServicesTask();
+        $message->setTaskId($result[0]);
+
+        $this->messageBus->dispatch($message);
     }
 
     public function disableServices(Context $context): void

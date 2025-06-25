@@ -29,6 +29,8 @@ class ServiceException extends HttpException
 
     public const INVALID_PERMISSIONS_REVISION_FORMAT = 'SERVICE__INVALID_PERMISSIONS_REVISION_FORMAT';
 
+    public const SCHEDULED_TASK_NOT_REGISTERED = 'SCHEDULED_TASK_NOT_REGISTERED';
+
     public static function notFound(string $field, string $value): self
     {
         return new self(
@@ -150,6 +152,15 @@ class ServiceException extends HttpException
             self::INVALID_PERMISSIONS_REVISION_FORMAT,
             'The provided permissions revision "{{ revision }}" is not in the correct format Y-m-d.',
             ['revision' => $revision]
+        );
+    }
+
+    public static function scheduledTaskNotRegistered(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::SCHEDULED_TASK_NOT_REGISTERED,
+            'Could not queue task "services.install" because it is not registered.',
         );
     }
 }

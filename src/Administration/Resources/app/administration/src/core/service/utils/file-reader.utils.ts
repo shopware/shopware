@@ -116,7 +116,6 @@ function getFilenameFromResponse(response: { headers?: { [key: string]: string }
     return filenameMatch ? filenameMatch[1] : null;
 }
 
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     readFileAsArrayBuffer,

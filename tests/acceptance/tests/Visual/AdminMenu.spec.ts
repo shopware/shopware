@@ -6,7 +6,6 @@ AdminDashboard,
 }) => {
 
     await test.step('Creates a screenshot of the fully expanded admin menu.', async () => {
-
         await ShopAdmin.goesTo(AdminDashboard.url());
         await AdminDashboard.page.locator('.sw-catalogue').click();
         await AdminDashboard.page.locator('.sw-order').click();
@@ -15,11 +14,8 @@ AdminDashboard,
         await AdminDashboard.page.locator('.sw-marketing').click();
         await AdminDashboard.page.locator('.sw-extension').click();
         await AdminDashboard.page.locator('.sw-admin-menu__user-actions-indicator').click();
-
         await AdminDashboard.page.setViewportSize({ width: 1280, height: 2048});
-
         await AdminDashboard.page.addStyleTag({content: `.sw-admin-menu__user-name,.sw-avatar {display: none !important;}`});
-
         await expect(AdminDashboard.page.locator('.sw-admin-menu')).toHaveScreenshot();
     });
 });

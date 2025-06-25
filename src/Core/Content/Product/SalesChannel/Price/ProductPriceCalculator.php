@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
 use Shopware\Core\Content\Product\Extension\ProductPriceCalculationExtension;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
@@ -29,11 +30,13 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
 
     /**
      * @internal
+     *
+     * @param EntityRepository<UnitCollection> $unitRepository
      */
     public function __construct(
         private readonly EntityRepository $unitRepository,
         private readonly QuantityPriceCalculator $calculator,
-        private readonly ExtensionDispatcher $extensions
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -55,6 +58,11 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         );
     }
 
+    public function reset(): void
+    {
+        $this->units = null;
+    }
+
     /**
      * @param iterable<Entity> $products
      */
@@ -62,17 +70,11 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
     {
         $units = $this->getUnits($context);
 
-        /** @var Entity $product */
         foreach ($products as $product) {
             $this->calculatePrice($product, $context, $units);
             $this->calculateAdvancePrices($product, $context, $units);
             $this->calculateCheapestPrice($product, $context, $units);
         }
-    }
-
-    public function reset(): void
-    {
-        $this->units = null;
     }
 
     private function calculatePrice(Entity $product, SalesChannelContext $context, UnitCollection $units): void
@@ -201,8 +203,10 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
 
     private function getPriceValue(PriceCollection $price, SalesChannelContext $context): float
     {
-        /** @var Price $currency */
         $currency = $price->getCurrencyPrice($context->getCurrencyId());
+        if ($currency === null) {
+            throw ProductException::noPriceForCurrency($context->getCurrency());
+        }
 
         $value = $this->getPriceForTaxState($currency, $context);
 
@@ -306,12 +310,10 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         $criteria = new Criteria();
         $criteria->setTitle('product-price-calculator::units');
 
-        /** @var UnitCollection $units */
         $units = $this->unitRepository
             ->search($criteria, $context->getContext())
             ->getEntities();
 
         return $this->units = $units;
     }
-
 }

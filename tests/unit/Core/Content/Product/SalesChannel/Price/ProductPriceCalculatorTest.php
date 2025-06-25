@@ -15,7 +15,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceC
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
-use Shopware\Core\Checkout\Document\Extension\HtmlRendererExtension;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
@@ -50,41 +49,39 @@ class ProductPriceCalculatorTest extends TestCase
 {
     private ProductPriceCalculator $calculator;
 
+    private EventDispatcher $eventDispatcher;
+
     protected function setUp(): void
     {
+        $this->eventDispatcher = new EventDispatcher();
+
+        /** @var StaticEntityRepository<UnitCollection> $unitRepository */
+        $unitRepository = new StaticEntityRepository([
+            new UnitCollection([(
+            new UnitEntity())->assign(['id' => Defaults::CURRENCY, 'translated' => ['name' => 'test']])]),
+        ]);
+
         $this->calculator = new ProductPriceCalculator(
-            new StaticEntityRepository([
-                new UnitCollection([(
-                new UnitEntity())->assign(['id' => Defaults::CURRENCY, 'translated' => ['name' => 'test']])]),
-            ]),
+            $unitRepository,
             new QuantityPriceCalculator(
                 new GrossPriceCalculator(new TaxCalculator(), new CashRounding()),
                 new NetPriceCalculator(new TaxCalculator(), new CashRounding())
             ),
-            new ExtensionDispatcher(new EventDispatcher())
+            new ExtensionDispatcher($this->eventDispatcher),
         );
     }
 
     public function testExtensionIsDispatched(): void
     {
-        $dispatcher = new EventDispatcher();
-        $extensions = new ExtensionDispatcher($dispatcher);
-
-        $calculator = new ProductPriceCalculator(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(QuantityPriceCalculator::class),
-            $extensions
-        );
-
         $pre = $this->createMock(CallableClass::class);
         $pre->expects($this->once())->method('__invoke');
-        $dispatcher->addListener(ProductPriceCalculationExtension::NAME . '.pre', $pre);
+        $this->eventDispatcher->addListener(ProductPriceCalculationExtension::NAME . '.pre', $pre);
 
         $post = $this->createMock(CallableClass::class);
         $post->expects($this->once())->method('__invoke');
-        $dispatcher->addListener(ProductPriceCalculationExtension::NAME . '.post', $post);
+        $this->eventDispatcher->addListener(ProductPriceCalculationExtension::NAME . '.post', $post);
 
-        $calculator->calculate([], $this->createMock(SalesChannelContext::class));
+        $this->calculator->calculate([], $this->createMock(SalesChannelContext::class));
     }
 
     #[DataProvider('priceWillBeCalculated')]
@@ -178,7 +175,7 @@ class ProductPriceCalculatorTest extends TestCase
                 new GrossPriceCalculator(new TaxCalculator(), new CashRounding()),
                 new NetPriceCalculator(new TaxCalculator(), new CashRounding())
             ),
-            new ExtensionDispatcher(new EventDispatcher())
+            new ExtensionDispatcher($this->eventDispatcher)
         ))->getDecorated();
     }
 

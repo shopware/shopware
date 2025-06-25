@@ -295,7 +295,7 @@
       }
     },
     "sw-sales-channel-defaults-select": {
-      "messageError": "Der Wert wird von der Domain \"%{url}\" verwendet."
+      "messageError": "Der Wert wird von der Domain \"{url}\" verwendet."
     }
   },
   "sw-privileges": {

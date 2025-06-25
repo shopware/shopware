@@ -10,7 +10,11 @@ use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Framework\SystemCheck\ProductListingReadinessCheck;
+use Shopware\Storefront\Framework\SystemCheck\Util\AbstractSalesChannelDomainProvider;
+use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomain;
+use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainCollection;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Shopware\Storefront\Framework\SystemCheck\Util\StorefrontHealthCheckResult;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,9 +29,15 @@ class ProductListingReadinessCheckTest extends TestCase
 
     private SalesChannelDomainUtil&MockObject $util;
 
+    private AbstractSalesChannelDomainProvider&MockObject $domainProvider;
+
+    private IdsCollection $ids;
+
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
+        $this->domainProvider = $this->createMock(AbstractSalesChannelDomainProvider::class);
+        $this->ids = new IdsCollection();
 
         $this->initUtilMock();
     }
@@ -52,7 +62,7 @@ class ProductListingReadinessCheckTest extends TestCase
 
     public function testRunSuccessfully(): void
     {
-        $this->initConnectionMock();
+        $this->initDataMocks();
 
         $this->util->method('handleRequest')->willReturn(
             StorefrontHealthCheckResult::create(
@@ -92,7 +102,7 @@ class ProductListingReadinessCheckTest extends TestCase
 
     public function testRunFailed(): void
     {
-        $this->initConnectionMock();
+        $this->initDataMocks();
 
         $this->util->method('handleRequest')->willReturn(
             StorefrontHealthCheckResult::create(
@@ -117,7 +127,7 @@ class ProductListingReadinessCheckTest extends TestCase
 
     private function createCheck(): ProductListingReadinessCheck
     {
-        return new ProductListingReadinessCheck($this->util, $this->connection);
+        return new ProductListingReadinessCheck($this->util, $this->connection, $this->domainProvider);
     }
 
     private function initUtilMock(): void
@@ -138,19 +148,22 @@ class ProductListingReadinessCheckTest extends TestCase
         });
     }
 
-    private function initConnectionMock(): void
+    private function initDataMocks(): void
     {
-        $this->connection->method('fetchAllAssociative')->willReturnOnConsecutiveCalls(
+        $this->connection->method('fetchAllAssociative')->willReturn(
             [
-                ['id' => 'sales-channel-1', 'url' => 'http://localhost:8000/de'],
-                ['id' => 'sales-channel-2', 'url' => 'http://localhost:8000/en'],
-                ['id' => 'sales-channel-3', 'url' => 'http://localhost:8000/invalid'],
-            ],
-            [
-                ['id' => 'sales-channel-1', 'category_id' => Uuid::randomHex()],
-                ['id' => 'sales-channel-2', 'category_id' => Uuid::randomHex()],
+                ['id' => $this->ids->get('sales-channel-1'), 'category_id' => Uuid::randomHex()],
+                ['id' => $this->ids->get('sales-channel-2'), 'category_id' => Uuid::randomHex()],
             ]
         );
+
+        $collection = new SalesChannelDomainCollection([
+            SalesChannelDomain::create($this->ids->get('sales-channel-1'), 'http://localhost:8000/de'),
+            SalesChannelDomain::create($this->ids->get('sales-channel-2'), 'http://localhost:8000/en'),
+            SalesChannelDomain::create($this->ids->get('sales-channel-3'), 'http://localhost:8000/invalid'),
+        ]);
+
+        $this->domainProvider->method('fetchSalesChannelDomains')->willReturn($collection);
     }
 
     private function initCreateEmptyResult(): void

@@ -4,12 +4,12 @@ import { Product } from '@shopware-ag/acceptance-test-suite';
 test('Product is visible in listing and storefront search when set to "Visible".', { tag: '@Product' }, async ({
     ShopCustomer,
     TestDataService,
-    StorefrontHome,
     DefaultSalesChannel,
     SearchForTerm,
     StorefrontSearchSuggest,
     IdProvider,
     StorefrontProductDetail,
+    CheckVisibilityInHome,
 }) => {
     let product: Product;
     await test.step('Create a product with "Visible" visibility in the default sales channel.', async () => {
@@ -24,11 +24,7 @@ test('Product is visible in listing and storefront search when set to "Visible".
         });
     });
 
-    await test.step('Verify the product appears in the Home category listing.', async () => {
-        await ShopCustomer.goesTo(StorefrontHome.url());
-        const productLocators = await StorefrontHome.getListingItemByProductName(product.name);
-        await ShopCustomer.expects(productLocators.productName).toBeVisible();
-    });
+    await CheckVisibilityInHome(product.name)();
 
     await test.step('Verify the product appears in storefront search results.', async () => {
         await ShopCustomer.attemptsTo(SearchForTerm(product.name));
@@ -74,14 +70,18 @@ test('Product is visible in storefront search but hidden from listing when set t
         await ShopCustomer.expects(productLocators.productName).not.toBeVisible();
     });
 
-    await test.step('Verify the product appears in storefront search results.', async () => {
-        await ShopCustomer.attemptsTo(SearchForTerm(product.name));
-        await ShopCustomer.expects(StorefrontSearchSuggest.searchSuggestLineItemName.getByText(product.name)).toBeVisible();
-        const totalCount1 = await StorefrontSearchSuggest.getTotalSearchResultCount();
+    await ShopCustomer.expects(async () => {
+        await test.step('Verify the product appears in storefront search results.', async () => {
+            await ShopCustomer.attemptsTo(SearchForTerm(product.name));
+            await ShopCustomer.expects(StorefrontSearchSuggest.searchSuggestLineItemName.getByText(product.name)).toBeVisible();
+            const totalCount1 = await StorefrontSearchSuggest.getTotalSearchResultCount();
 
-        // if we create other products in parallel - for example by using workers - we might find multiple results
-        await ShopCustomer.expects(totalCount1).toBeGreaterThanOrEqual(1);
-        await ShopCustomer.expects(StorefrontSearchSuggest.searchSuggestLineItemName.getByText(product.name)).toBeVisible();
+            // if we create other products in parallel - for example by using workers - we might find multiple results
+            await ShopCustomer.expects(totalCount1).toBeGreaterThanOrEqual(1);
+            await ShopCustomer.expects(StorefrontSearchSuggest.searchSuggestLineItemName.getByText(product.name)).toBeVisible();
+        });
+    }).toPass({
+        intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
     });
 
     await test.step('Verify the product can be accessed directly via its URL.', async () => {

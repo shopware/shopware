@@ -8,11 +8,13 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
+use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck;
+use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Shopware\Storefront\Framework\SystemCheck\Util\StorefrontHealthCheckResult;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,6 +26,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(SalesChannelsReadinessCheck::class)]
 class SalesChannelsReadinessCheckTest extends TestCase
 {
+    use CacheTestBehaviour;
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
     use SalesChannelApiTestBehaviour;
@@ -117,8 +120,8 @@ class SalesChannelsReadinessCheckTest extends TestCase
     private function createCheck((SalesChannelDomainUtil&MockObject)|null $util = null): SalesChannelsReadinessCheck
     {
         return new SalesChannelsReadinessCheck(
-            $this->connection,
             $util ?? static::getContainer()->get(SalesChannelDomainUtil::class),
+            static::getContainer()->get(SalesChannelDomainProvider::class)
         );
     }
 
@@ -133,7 +136,7 @@ class SalesChannelsReadinessCheckTest extends TestCase
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'currencyId' => Defaults::CURRENCY,
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-                    'url' => 'https://test.to',
+                    'url' => 'http://example.com',
                 ],
             ],
         ]);
@@ -144,7 +147,7 @@ class SalesChannelsReadinessCheckTest extends TestCase
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'currencyId' => Defaults::CURRENCY,
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-                    'url' => 'https://foo.to',
+                    'url' => 'http://shop.test',
                 ],
             ],
         ]);

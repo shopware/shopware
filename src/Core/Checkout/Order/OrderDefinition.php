@@ -113,6 +113,7 @@ class OrderDefinition extends EntityDefinition
             (new LongTextField('customer_comment', 'customerComment'))->addFlags(new ApiAware(), new AllowEmptyString()),
             (new LongTextField('internal_comment', 'internalComment'))->addFlags(new AllowEmptyString()),
             (new StringField('source', 'source'))->addFlags(new ApiAware()),
+            (new StringField('tax_calculation_type', 'taxCalculationType'))->addFlags(new ApiAware()),
 
             (new StateMachineStateField('state_id', 'stateId', OrderStates::STATE_MACHINE))->addFlags(new Required()),
             (new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id'))->addFlags(new ApiAware()),

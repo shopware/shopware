@@ -78,14 +78,16 @@ async function createWrapper(privileges = []) {
                 'sw-skeleton': true,
                 'sw-language-switch': true,
                 'sw-context-menu-item': true,
-                'sw-sidebar-media-item': true,
-                'sw-sidebar': true,
+                'sw-media-modal-v2': true,
             },
             provide: {
                 acl: {
                     can: (key) => (key ? privileges.includes(key) : true),
                 },
                 stateStyleDataProviderService: {},
+                mediaDefaultFolderService: {
+                    getDefaultFolderId: () => Promise.resolve('mediaDefaultFolderId'),
+                },
                 repositoryFactory: {
                     create: (repositoryName) => {
                         switch (repositoryName) {

@@ -1,6 +1,6 @@
 {% set isActive = item.category.id == activeId %}
 {% set hasChildren = item.category.visibleChildCount > 0 %}
-{% set url = item.category.seoLink %}
+{% set url = item.category.seoUrl %}
 {% set name = item.category.translated.name %}
 
 {% block layout_navigation_offcanvas_navigation_category_item_link %}

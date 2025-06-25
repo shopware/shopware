@@ -2,11 +2,11 @@
 
 namespace Shopware\Tests\Unit\Storefront\Framework\Health;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck;
+use Shopware\Storefront\Framework\SystemCheck\Util\AbstractSalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 
 /**
@@ -22,8 +22,8 @@ class SalesChannelsReadinessCheckTest extends TestCase
         parent::setUp();
 
         $this->salesChannelReadinessCheck = new SalesChannelsReadinessCheck(
-            $this->createMock(Connection::class),
-            $this->createMock(SalesChannelDomainUtil::class)
+            $this->createMock(SalesChannelDomainUtil::class),
+            $this->createMock(AbstractSalesChannelDomainProvider::class)
         );
     }
 

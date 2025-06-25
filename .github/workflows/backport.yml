@@ -204,6 +204,7 @@ jobs:
           body-prefix: | # Reference original PR, as well as the related issue, if available
             ${{ format('**Backport:** {0}', github.event.pull_request.html_url) }}
             ${{ needs.find-linked-issue.outputs.url && format('Resolves: {0}', needs.find-linked-issue.outputs.url) }}
+            
             ---
           assignees: >- # Inherit original assignees
             ${{ github.event.pull_request.assignees && join(github.event.pull_request.assignees.*.login, ',') || '' }}

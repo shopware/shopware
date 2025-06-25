@@ -107,7 +107,7 @@ Module.register('sw-customer', {
             props: {
                 default(route) {
                     return {
-                        customerId: route.params.id,
+                        customerId: route.params.id.toLowerCase(),
                     };
                 },
             },

@@ -59,7 +59,7 @@ class ChangelogProcessor
         $this->featureFlags = $flags;
     }
 
-    public function findLastestTag(): ?string
+    public function findLatestTag(): ?string
     {
         if ($this->env === 'test') {
             return null;

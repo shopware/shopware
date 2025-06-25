@@ -139,6 +139,13 @@ The concrete events being removed:
 - `\Shopware\Core\Content\Sitemap\Event\SitemapRouteCacheKeyEvent`
 - `\Shopware\Core\Content\Sitemap\Event\SitemapRouteCacheTagsEvent`
 
+## Theme Configuration Changes
+As part of optimizing theme configuration loading, several changes are being made to the theme system:
+
+* The `\Shopware\Storefront\Theme\CachedResolvedConfigLoader` has been removed. This class was previously used to cache theme configurations but has been replaced by a more efficient database-based solution using the new `theme_runtime_config` table.
+* The `\Shopware\Storefront\Theme\Exception\ThemeAssignmentException` has been removed. Instead, use `\Shopware\Storefront\Theme\Exception\ThemeException::themeAssignmentException` for handling theme assignment errors.
+* The `\Shopware\Storefront\Theme\ThemeLifecycleService` is now marked as final and cannot be extended. Additionally, its `refreshTheme` method now accepts an optional `$configurationCollection` parameter.
+
 ## `filterByActiveRules` in Payment- and ShippingMethodCollection removed
 
 The `filterByActiveRules` methods in `Shopware\Core\Checkout\Payment\PaymentMethodCollection` and `Shopware\Core\Checkout\Shipping\ShippingMethodCollection` were removed.
@@ -218,15 +225,26 @@ The `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurati
 
 ## Removed `category_url` and `category_linknewtab` twig functions
 
-The `category_url` and `category_linknewtab` twig functions have been removed. The data is now directly available in the category entities, therefore use `category.seoLink` or `category.shouldOpenInNewTab` instead.
+The `category_url` and `category_linknewtab` twig functions have been removed. The data is now directly available in the category entities, therefore use `category.seoUrl` or `category.shouldOpenInNewTab` instead.
 
 ```diff
 <a class="link"
 -   href="{{ category_url(item) }}"
-+   href="{{ item.seoLink }}"
++   href="{{ item.seoUrl }}"
 -   {% if category_linknewtab(item) %}target="_blank"{% endif %}
 +   {% if item.shouldOpenInNewTab %}target="_blank"{% endif %}
 </a>
+```
+
+## Breadcrumb template functions require the `SalesChannelContext`
+
+The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` now require the `SalesChannelContext`, i.e.
+
+```diff
+- sw_breadcrumb_full(category, context.context)
+- sw_breadcrumb_full_by_id(category, context.context)
++ sw_breadcrumb_full(category, context)
++ sw_breadcrumb_full_by_id(category, context)
 ```
 
 ## Removal of DeleteThemeFilesMessage and its handler

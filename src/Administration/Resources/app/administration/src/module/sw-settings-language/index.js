@@ -38,7 +38,7 @@ Module.register('sw-settings-language', {
                 privilege: 'language.viewer',
             },
             props: {
-                default: (route) => ({ languageId: route.params.id }),
+                default: (route) => ({ languageId: route.params.id?.toLowerCase() }),
             },
         },
         create: {

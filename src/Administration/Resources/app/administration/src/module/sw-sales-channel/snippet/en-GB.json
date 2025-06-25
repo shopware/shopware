@@ -295,7 +295,7 @@
       }
     },
     "sw-sales-channel-defaults-select": {
-      "messageError": "The value is in use by this domain: \"%{url}\"."
+      "messageError": "The value is in use by this domain: \"{url}\"."
     }
   },
   "sw-privileges": {

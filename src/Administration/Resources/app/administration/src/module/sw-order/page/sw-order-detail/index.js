@@ -283,9 +283,10 @@ export default {
             this.createdById = createdById;
         },
 
-        onChangeLanguage() {
-            this.$root.$emit('language-change');
-        },
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
+        onChangeLanguage() {},
 
         saveEditsFinish() {
             this.isSaveSuccessful = false;
@@ -295,9 +296,7 @@ export default {
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
-        onStartEditing() {
-            this.$root.$emit('order-edit-start');
-        },
+        onStartEditing() {},
 
         async onSaveEdits() {
             Store.get('swOrderDetail').setLoading([
@@ -355,8 +354,6 @@ export default {
                         false,
                     ]);
                 });
-
-            this.$root.$emit('order-edit-save');
         },
 
         async handleOrderAddressUpdate(addressMappings) {

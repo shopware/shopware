@@ -55,7 +55,7 @@ export default {
 
     computed: {
         locale() {
-            return this.$root.$i18n.locale;
+            return this.$root.$i18n.locale.value;
         },
 
         defaultContextMenuClass() {

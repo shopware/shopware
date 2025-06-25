@@ -48,6 +48,7 @@ class AppException extends HttpException
     final public const APP_DIRECTORY_CREATION_FAILED = 'FRAMEWORK__APP_DIRECTORY_CREATION_FAILED';
     final public const APP_GATEWAY_NOT_CONFIGURED = 'FRAMEWORK__APP_GATEWAY_NOT_CONFIGURED';
     final public const APP_GATEWAY_REQUEST_FAILED = 'FRAMEWORK__APP_CONTEXT_GATEWAY_REQUEST_FAILED';
+    final public const APP_RESTRICT_DELETE_PREVENTS_DEACTIVATION = 'FRAMEWORK__APP_RESTRICT_DELETE_PREVENTS_DEACTIVATION';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -428,6 +429,16 @@ class AppException extends HttpException
             'Request from app "{{ appName }}" to gateway "{{ gateway }}" failed.',
             ['appName' => $appName, 'gateway' => $gateway],
             $requestException
+        );
+    }
+
+    public static function restrictDeletePreventsDeactivation(string $appName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_RESTRICT_DELETE_PREVENTS_DEACTIVATION,
+            'App "{{ name }}" has some data that restricts deletion, please remove the data first or uninstall the app without the `keepUserData` option.',
+            ['name' => $appName]
         );
     }
 }

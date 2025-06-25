@@ -9,6 +9,7 @@ import grantPermissionsCardBackground from
 
 import type { ServiceDescription } from '../../service/shopware-services.service';
 import extractErrorMessage from '../../composables/extract-error';
+import extractError from '../../composables/extract-error';
 
 type SwSettingsPageData = {
     grantPermissionsCardBackground: string,
@@ -71,8 +72,27 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
-        activateServices() {
-            console.log('activate services...');
+        async activateServices() {
+            try {
+                const  shopwareServicesService = Shopware.Service('shopwareServicesService');
+                const shopwareServicesStore = useShopwareServicesStore();
+
+                shopwareServicesStore.config = await shopwareServicesService.enableAllServices();
+
+                Shopware.Store.get('notification').createNotification({
+                    title: this.$t('sw-settings-services.index.services-enabled'),
+                    variant: 'positive',
+                    message: this.$t('sw-settings-services.index.services-enabled'),
+                    autoClose: false,
+                });
+            } catch (exceptionResponse) {
+                Shopware.Store.get('notification').createNotification({
+                    title: this.$t('global.default.error'),
+                    variant: 'critical',
+                    message: extractError(exceptionResponse),
+                    autoClose: false,
+                });
+            }
         },
 
         async reloadServices() {
@@ -87,6 +107,7 @@ export default Shopware.Component.wrapComponentConfig({
                     variant: 'critical',
                     title: this.$t('global.default.error'),
                     message: this.$t('sw-settings-services.exception.service-list'),
+                    autoClose: false,
                 });
 
                 this.services = [];

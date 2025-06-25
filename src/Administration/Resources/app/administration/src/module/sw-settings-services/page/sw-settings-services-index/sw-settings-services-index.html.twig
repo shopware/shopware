@@ -90,11 +90,15 @@
                 </a>
 
                 <sw-settings-services-revoke-permissions-modal
+                    v-if="config.acceptedPermissionsRevision"
                     :services="services"
                     @service-permissions-revoked="reloadServices"
                 />
 
-                <sw-settings-services-deactivate-modal :feedback-link="currentRevision.links['feedback-url']" />
+                <sw-settings-services-deactivate-modal
+                    v-if="!config.disabled"
+                    :feedback-link="currentRevision.links['feedback-url']"
+                />
             </div>
         </div>
     </template>

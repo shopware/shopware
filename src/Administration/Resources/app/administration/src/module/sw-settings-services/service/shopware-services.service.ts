@@ -63,14 +63,6 @@ export default class ShopwareServicesService extends ApiService {
         };
     }
 
-    activateService(technicalName: string): Promise<void> {
-        return this.httpClient.post(`service/activate/${technicalName}`);
-    }
-
-    deactivateService(technicalName: string): Promise<void> {
-        return this.httpClient.post(`service/deactivate/${technicalName}`);
-    }
-
     acceptRevision(revision: string): Promise<ServiceConfiguration> {
         return this.httpClient.post(
             `services/permissions/grant/${revision}`, {}, {
@@ -87,5 +79,23 @@ export default class ShopwareServicesService extends ApiService {
             }).then(() => {
                 return this.getServicesContext();
             });
+    }
+
+    enableAllServices(): Promise<ServiceConfiguration> {
+        return this.httpClient.post(
+            'services/enable', {}, {
+                headers: this.getBasicHeaders(),
+            }).then(() => {
+                return this.getServicesContext();
+            });
+    }
+
+    disableAllServices(): Promise<ServiceConfiguration> {
+        return this.httpClient.post(
+            'services/disable', {}, {
+                headers: this.getBasicHeaders(),
+            }).then(() => {
+            return this.getServicesContext();
+        });
     }
 }

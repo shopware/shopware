@@ -193,6 +193,29 @@ class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
                 ],
             ],
         ];
+
+        yield 'multiple profiles with already existing name' => [
+            [
+                [
+                    'uuid' => $uuid1,
+                    'name' => 'Default product',
+                    'technical_name' => null,
+                    'expected_technical_name' => 'default_product_1',
+                ],
+                [
+                    'uuid' => $uuid2,
+                    'name' => 'Default product',
+                    'technical_name' => null,
+                    'expected_technical_name' => 'default_product_2',
+                ],
+                [
+                    'uuid' => $uuid3,
+                    'name' => 'Default category',
+                    'technical_name' => null,
+                    'expected_technical_name' => 'default_category_1',
+                ],
+            ],
+        ];
     }
 
     private function addColumn(): void

@@ -34,12 +34,17 @@ class Migration1717572627RemoveImportExportProfileName extends MigrationStep
         }
 
         $names = $connection->executeQuery('SELECT id, name FROM import_export_profile WHERE technical_name IS NULL')->fetchAllAssociative();
+        $existingTechnicalNames = $connection->executeQuery('SELECT technical_name FROM import_export_profile WHERE technical_name IS NOT NULL')->fetchFirstColumn();
 
         $technicalNames = [];
         foreach ($names as $name) {
             $technicalNames[] = [
                 'id' => $name['id'],
-                'technical_name' => $this->generateTechnicalName($name['name'], $technicalNames),
+                'technical_name' => $this->generateTechnicalName(
+                    $name['name'],
+                    $technicalNames,
+                    $existingTechnicalNames,
+                ),
             ];
         }
 
@@ -61,17 +66,23 @@ class Migration1717572627RemoveImportExportProfileName extends MigrationStep
 
     /**
      * @param array<int, array<string, string>> $technicalNames
+     * @param array<int, string> $existingTechnicalNames
      */
-    private function generateTechnicalName(?string $name, array $technicalNames): string
+    private function generateTechnicalName(?string $name, array $technicalNames, array $existingTechnicalNames): string
     {
         $name = $name ?? 'Unnamed profile';
 
         $technicalName = $this->getTechnicalName($name);
 
+        $allExistingNames = array_merge(
+            array_column($technicalNames, 'technical_name'),
+            $existingTechnicalNames
+        );
+
         // Check if the name already exists, if yes, add a number to the end
         $i = 1;
         $baseTechnicalName = $technicalName;
-        while (\in_array($technicalName, array_column($technicalNames, 'technical_name'), true)) {
+        while (\in_array($technicalName, $allExistingNames, true)) {
             $technicalName = $baseTechnicalName . '_' . $i++;
         }
 

@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\Country;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -14,11 +13,11 @@ class CountryCollection extends EntityCollection
 {
     /**
      * @deprecated tag:v6.8.0 - will be removed, use sorting via SQL instead
+     *
+     * @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
      */
     public function sortCountryAndStates(): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Use sorting via SQL instead of this method.');
-
         $this->sortByPositionAndName();
 
         foreach ($this->getIterator() as $country) {
@@ -30,11 +29,11 @@ class CountryCollection extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 - will be removed, use sorting via SQL instead
+     *
+     * @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
      */
     public function sortByPositionAndName(): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Use sorting via SQL instead of this method.');
-
         uasort($this->elements, static function (CountryEntity $a, CountryEntity $b) {
             $aPosition = $a->getPosition();
             $bPosition = $b->getPosition();

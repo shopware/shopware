@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Theme\Message;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
@@ -23,33 +22,21 @@ class DeleteThemeFilesMessage implements AsyncMessageInterface
     ) {
     }
 
+    // @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
     public function getThemePath(): string
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0')
-        );
-
         return $this->themePath;
     }
 
+    // @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
     public function getSalesChannelId(): string
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0')
-        );
-
         return $this->salesChannelId;
     }
 
+    // @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
     public function getThemeId(): string
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0')
-        );
-
         return $this->themeId;
     }
 }

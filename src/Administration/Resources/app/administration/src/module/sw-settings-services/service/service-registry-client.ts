@@ -34,7 +34,7 @@ export default class {
 
     async getCurrentRevision(locale: string): Promise<RevisionData> {
         const response = await fetch(
-            new URL('/api/service/licensing', this.registryUrl),
+            new URL('/api/service/permission-revisions', this.registryUrl),
             {
                 method: 'GET',
                 headers: {
@@ -49,11 +49,11 @@ export default class {
 
         this.assertIsRevisionResponse(content);
 
-        return content.permissions;
+        return content.revisions;
     }
 
-    private assertIsRevisionResponse(content: unknown): asserts content is { permissions: RevisionData } {
-        if (typeof content !== 'object' || content === null || !('permissions' in content)) {
+    private assertIsRevisionResponse(content: unknown): asserts content is { revisions: RevisionData } {
+        if (typeof content !== 'object' || content === null || !('revisions' in content)) {
             throw new Error('Could not fetch Revision data from Service Registry');
         }
     }

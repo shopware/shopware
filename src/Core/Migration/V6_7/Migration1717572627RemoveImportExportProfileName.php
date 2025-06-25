@@ -33,14 +33,10 @@ class Migration1717572627RemoveImportExportProfileName extends MigrationStep
             $connection->executeStatement('ALTER TABLE `import_export_profile` ADD CONSTRAINT `uniq.import_export_profile.technical_name` UNIQUE (`technical_name`)');
         }
 
-        $names = $connection->executeQuery('SELECT id, name, technical_name FROM import_export_profile')->fetchAllAssociative();
+        $names = $connection->executeQuery('SELECT id, name FROM import_export_profile WHERE technical_name IS NULL')->fetchAllAssociative();
 
         $technicalNames = [];
         foreach ($names as $name) {
-            if ($name['technical_name'] !== null) {
-                continue;
-            }
-
             $technicalNames[] = [
                 'id' => $name['id'],
                 'technical_name' => $this->generateTechnicalName($name['name'], $technicalNames),

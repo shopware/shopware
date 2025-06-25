@@ -4,14 +4,22 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\SalesChannel\CustomerRoute;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -35,6 +43,33 @@ class CustomerRouteTest extends TestCase
             'id' => $this->ids->create('sales-channel'),
         ]);
         $this->assignSalesChannelContext($this->browser);
+    }
+
+    public function testPartialEntityLoading(): void
+    {
+        $email = Uuid::randomHex() . '@example.com';
+        $id = $this->createCustomer($email);
+
+        $parameters = new SalesChannelContextServiceParameters(
+            TestDefaults::SALES_CHANNEL,
+            Random::getAlphanumericString(32),
+            customerId: $id,
+        );
+        $salesChannelContext = $this->getContainer()->get(SalesChannelContextService::class)->get($parameters);
+        $customer = $salesChannelContext->getCustomer();
+
+        static::assertNotNull($customer);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addFields(['email']);
+
+        $partialCustomer = $this->getContainer()
+            ->get(CustomerRoute::class)
+            ->load(new Request(), $salesChannelContext, $criteria, $customer)
+            ->getCustomer();
+
+        static::assertInstanceOf(PartialEntity::class, $partialCustomer);
+        static::assertEquals(['id' => $id, 'email' => $email], $partialCustomer->all());
     }
 
     public function testNotLoggedin(): void

@@ -20,8 +20,8 @@ class CustomerResponse extends StoreApiResponse
      */
     public function getCustomer(): CustomerEntity
     {
-        if ($partial = $this->getPartialCustomer()) {
-            return (new CustomerEntity())->assign($partial->all());
+        if ($this->object instanceof PartialEntity) {
+            return (new CustomerEntity())->assign($this->object->all());
         }
 
         return $this->object;

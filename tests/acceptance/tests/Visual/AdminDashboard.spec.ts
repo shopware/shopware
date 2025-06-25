@@ -11,7 +11,9 @@ test('Visual: Administration dashboard', { tag: '@Visual' }, async ({ ShopAdmin,
             content: `
                 .sw-admin-menu__user-name,
                 .sw-avatar,
-                .sw-dashboard-index__welcome-text 
+                .sw-dashboard-index__welcome-text,
+                .mt-card__subtitle,
+                .apexcharts-xaxis-texts-g
                 {display: none !important;}`,
         });
         await expect(AdminDashboard.page.locator('.sw-desktop__content')).toHaveScreenshot();

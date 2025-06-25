@@ -53,7 +53,7 @@ class PropertyGroupGenerator implements DemodataGeneratorInterface
                 }
 
                 $iteration = $groupIterations[$group];
-                $groupName = $iteration === 0 ? $group : sprintf('%s_%d', $group, $iteration);
+                $groupName = $iteration === 0 ? $group : \sprintf('%s_%d', $group, $iteration);
 
                 $propertyOptions = $baseData[$group];
                 $mapped = array_map(fn ($option) => ['id' => Uuid::randomHex(), 'name' => $option], $propertyOptions);

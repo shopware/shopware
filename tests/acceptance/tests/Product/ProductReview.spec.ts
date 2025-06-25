@@ -68,29 +68,8 @@ test('As a shop customer, I want to submit a review, so that I can share my expe
             await ShopCustomer.expects(StorefrontProductDetail.reviewRatingPoints.nth(i)).toHaveClass('product-detail-review-form-star is-active');
             await ShopCustomer.expects(StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1))).not.toHaveClass('d-none');
             await ShopCustomer.expects(StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1))).toBeVisible();
-            // eslint-disable-next-line playwright/no-conditional-in-test
-            switch (i) {
-                case 0: {
-                    await ShopCustomer.expects(StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1))).toHaveText('Unsatisfactory');
-                    break;
-                }
-                case 1: {
-                    await ShopCustomer.expects(StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1))).toHaveText('Acceptable');
-                    break;
-                }
-                case 2: {
-                    await ShopCustomer.expects(StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1))).toHaveText('Good');
-                    break;
-                }
-                case 3: {
-                    await ShopCustomer.expects(StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1))).toHaveText('Very good');
-                    break;
-                }
-                case 4: {
-                    await ShopCustomer.expects(StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1))).toHaveText('Excellent');
-                    break;
-                }
-            }
+            const expectedTexts = ['Unsatisfactory', 'Acceptable', 'Good', 'Very good', 'Excellent'];
+            await ShopCustomer.expects(StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1))).toHaveText(expectedTexts[i]);
         }
     });
 
@@ -146,35 +125,34 @@ test('As a shop customer, I want to filter reviews, so that I can find the conte
         await StorefrontProductDetail.reviewsTab.click();
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(3);
 
-        //await StorefrontProductDetail.page.waitForTimeout(20_000);
-
-        let reviewFilterRowOptions = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Excellent'); //get back 3 properties
+        let reviewFilterRowOptions = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Excellent');
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).toBeDisabled();
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionText).toHaveText('Excellent (0)');
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionPercentage).toHaveText('0%');
 
-        reviewFilterRowOptions = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Very good'); //get back 3 properties
+        reviewFilterRowOptions = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Very good');
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).toBeDisabled();
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionText).toHaveText('Very good (0)');
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionPercentage).toHaveText('0%');
 
-        reviewFilterRowOptions = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Acceptable'); //get back 3 properties
+        reviewFilterRowOptions = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Acceptable');
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).toBeEnabled();
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionText).toHaveText('Acceptable (2)');
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionPercentage).toHaveText('67%');
 
-        await reviewFilterRowOptions.reviewFilterOptionCheckbox.click();
+        await reviewFilterRowOptions.reviewFilterOptionCheckbox.check();
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(2);
         await reviewFilterRowOptions.reviewFilterOptionCheckbox.uncheck();
 
-        reviewFilterRowOptions = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Unsatisfactory'); //get back 3 properties
+        reviewFilterRowOptions = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Unsatisfactory');
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).toBeEnabled();
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionText).toHaveText('Unsatisfactory (1)');
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionPercentage).toHaveText('33%');
 
         await reviewFilterRowOptions.reviewFilterOptionCheckbox.check();
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(1);
+        await reviewFilterRowOptions.reviewFilterOptionCheckbox.uncheck();
 
+        await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(3);
     });
-
 });

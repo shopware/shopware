@@ -48,17 +48,11 @@ class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = self::getContainer()->get(Connection::class);
-        $this->insertDefaultData();
-    }
-
-    protected function tearDown(): void
-    {
-        $this->connection->executeStatement('DELETE FROM `import_export_profile` WHERE `system_default` != 1');
     }
 
     public function testUpdateDestructiveRemovesColumn(): void
     {
-        $exists = $this->columnExists();
+        $exists = $this->columnExists('name');
 
         if (!$exists) {
             $this->addColumn();
@@ -68,7 +62,7 @@ class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
         $migration->updateDestructive($this->connection);
         $migration->updateDestructive($this->connection);
 
-        static::assertFalse($this->columnExists());
+        static::assertFalse($this->columnExists('name'));
 
         if ($exists) {
             $this->addColumn();
@@ -77,7 +71,7 @@ class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
 
     public function testUpdateAddsColumnTechnicalNameIfNotExists(): void
     {
-        $exists = $this->columnExists();
+        $exists = $this->columnExists('technical_name');
 
         if ($exists) {
             $this->connection->executeStatement('ALTER TABLE `import_export_profile` DROP COLUMN `technical_name`');
@@ -87,7 +81,7 @@ class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        static::assertTrue($this->columnExists());
+        static::assertTrue($this->columnExists('technical_name'), 'Column technical_name should be created');
 
         $indexExists = $this->connection->fetchOne(
             'SHOW INDEX FROM `import_export_profile` WHERE Key_name = \'uniq.import_export_profile.technical_name\''
@@ -102,6 +96,8 @@ class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
     #[DataProvider('importExportProfilesDataProvider')]
     public function testUpdateGeneratesTechnicalNames(array $datas): void
     {
+        $this->insertDefaultData();
+
         foreach ($datas as $data) {
             $this->connection->insert('import_export_profile', [
                 'id' => $data['uuid'],
@@ -132,6 +128,9 @@ class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
             }
             static::assertTrue($found, 'Record with UUID not found');
         }
+
+        // Clean up test data
+        $this->connection->executeStatement('DELETE FROM `import_export_profile` WHERE `system_default` != 1');
     }
 
     public static function importExportProfilesDataProvider(): \Generator
@@ -199,10 +198,11 @@ class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
         );
     }
 
-    private function columnExists(): bool
+    private function columnExists(string $columnName): bool
     {
         $exists = $this->connection->fetchOne(
-            'SHOW COLUMNS FROM `import_export_profile` WHERE `Field` LIKE "name"',
+            'SHOW COLUMNS FROM `import_export_profile` WHERE `Field` LIKE :columnName',
+            ['columnName' => $columnName]
         );
 
         return !empty($exists);

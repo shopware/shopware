@@ -96,6 +96,10 @@ class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
     #[DataProvider('importExportProfilesDataProvider')]
     public function testUpdateGeneratesTechnicalNames(array $datas): void
     {
+        // We need to reset to a clean table state because:
+        // Previous test (testUpdateAddsColumnTechnicalNameIfNotExists) drops and recreates the technical_name column
+        // At this point technical_name = NULL and name = NULL
+        // which had generate technical_names for the default profiles like that "unnamed_profile", "unnamed_profile_1", etc.
         $this->insertDefaultData();
 
         foreach ($datas as $data) {

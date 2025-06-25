@@ -67,7 +67,7 @@
                         v-for="service in services"
                         :key="service.name"
                         :service="service"
-                        variant="card"
+                        @service-status-changed="reloadServices"
                     />
                 </ul>
             </div>

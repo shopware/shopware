@@ -66,15 +66,15 @@ export default Shopware.Component.wrapComponentConfig({
 
         async setActive(active: boolean, toggleFloatingUi?: () => void) {
             try {
-                const servicesService = Shopware.Service('shopwareServicesService');
+                const extensionService = Shopware.Service('shopwareExtensionService');
 
                 if (active) {
-                    await servicesService.deactivateService(this.service.name);
+                    await extensionService.activateExtension(this.service.name, 'app');
                 } else {
-                    await servicesService.activateService(this.service.name);
+                    await extensionService.deactivateExtension(this.service.name, 'app');
                 }
 
-                this.service.active = active
+                this.$emit('service-status-changed');
             } catch (exception) {
                 Shopware.Store.get('notification').createNotification({
                     variant: 'critical',

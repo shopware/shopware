@@ -59,7 +59,15 @@ export default Shopware.Component.wrapComponentConfig({
                 }),
         ]).then(() => {
             this.suspended = false;
-        }).catch(() =>  {});
+        }).catch((exception) =>  {
+            const errorMessage = extractErrorMessage(exception);
+
+            Shopware.Store.get('notification').createNotification({
+                variant: 'critical',
+                title: this.$t('global.default.error'),
+                message: errorMessage,
+            });
+        });
     },
 
     methods: {

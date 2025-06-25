@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Service\AllServiceInstaller;
+use Shopware\Core\Service\Manager;
 use Shopware\Core\Service\ScheduledTask\InstallServicesTaskHandler;
 
 /**
@@ -15,15 +16,41 @@ use Shopware\Core\Service\ScheduledTask\InstallServicesTaskHandler;
 #[CoversClass(InstallServicesTaskHandler::class)]
 class InstallServicesTaskHandlerTest extends TestCase
 {
-    public function testRunDelegatesToInstaller(): void
+    public function testDelegatesToInstallerIfServicesAreEnabled(): void
     {
         $installer = $this->createMock(AllServiceInstaller::class);
-        $installer->expects($this->once())->method('install');
+        $installer->expects($this->once())
+            ->method('install');
+
+        $manager = $this->createMock(Manager::class);
+        $manager->method('isDisabled')
+            ->willReturn(false);
 
         $handler = new InstallServicesTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
-            $installer
+            $installer,
+            $manager,
+        );
+
+        $handler->run();
+    }
+
+    public function testDoesNotDelegateToInstallerIfServicesAreDisabled(): void
+    {
+        $installer = $this->createMock(AllServiceInstaller::class);
+        $installer->expects($this->never())
+            ->method('install');
+
+        $manager = $this->createMock(Manager::class);
+        $manager->method('isDisabled')
+            ->willReturn(true);
+
+        $handler = new InstallServicesTaskHandler(
+            $this->createMock(EntityRepository::class),
+            $this->createMock(LoggerInterface::class),
+            $installer,
+            $manager,
         );
 
         $handler->run();

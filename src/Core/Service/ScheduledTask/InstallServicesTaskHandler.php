@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\Service\AllServiceInstaller;
+use Shopware\Core\Service\Manager;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
@@ -21,12 +22,17 @@ final class InstallServicesTaskHandler extends ScheduledTaskHandler
         EntityRepository $repository,
         LoggerInterface $logger,
         private readonly AllServiceInstaller $serviceInstaller,
+        private readonly Manager $manager,
     ) {
         parent::__construct($repository, $logger);
     }
 
     public function run(): void
     {
+        if ($this->manager->isDisabled()) {
+            return;
+        }
+
         $this->serviceInstaller->install(Context::createCLIContext());
     }
 }

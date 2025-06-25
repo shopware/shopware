@@ -21,18 +21,18 @@ readonly class PermissionsSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            PermissionsGrantedEvent::class => 'enableServices',
-            PermissionsRevokedEvent::class => 'disableServices',
+            PermissionsGrantedEvent::class => 'startServices',
+            PermissionsRevokedEvent::class => 'stopServices',
         ];
     }
 
-    public function enableServices(PermissionsGrantedEvent $event): void
+    public function startServices(PermissionsGrantedEvent $event): void
     {
-        $this->manager->enable($event->getContext());
+        $this->manager->startServices($event->getContext());
     }
 
-    public function disableServices(PermissionsRevokedEvent $event): void
+    public function stopServices(PermissionsRevokedEvent $event): void
     {
-        $this->manager->disable($event->getContext());
+        $this->manager->stopServices($event->getContext());
     }
 }

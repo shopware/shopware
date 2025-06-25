@@ -44,7 +44,7 @@
         <service id="Shopware\Core\Framework\Demodata\Generator\PropertyGroupGenerator">
             <argument type="service" id="property_group.repository" />
 
-            <tag name="shopware.demodata_generator" option-name="properties" option-default="10" option-description="Property group count (option count rand(30-300))"/>
+            <tag name="shopware.demodata_generator" option-name="properties" option-default="11" option-description="Property group count"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\CategoryGenerator">

@@ -7,156 +7,159 @@
         {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
         {% set headlineLevel = element.config.boxHeadlineLevel.value %}
         {% set headlineClasses = "product-name-headline mb-0" %}
+        {% set productInformation = {id, name} %}
 
-        <div class="card product-box box-{{ layout }}" data-product-information="{{ {id, name}|json_encode }}">
-            {% block component_product_box_content %}
-                <div class="card-body">
-                    {% block component_product_box_badges %}
-                        {% sw_include '@Storefront/storefront/component/product/card/badges.html.twig' %}
-                    {% endblock %}
-
-                    {% block component_product_box_image %}
-                        <div class="product-image-wrapper">
-                            {# fallback if display mode is not set #}
-                            {% set displayMode = displayMode ?: 'standard' %}
-
-                            {# set display mode 'cover' for box-image with standard display mode #}
-                            {% if layout == 'image' and displayMode == 'standard' %}
-                                {% set displayMode = 'cover' %}
-                            {% endif %}
-
-                            {% block component_product_box_image_inner %}
-                                {# @deprecated tag:v6.8.0 - Block will be removed. Use component_product_box_image_inner instead. #}
-                                {% block component_product_box_image_link_inner %}
-
-                                    {% if cover.url and cover.isSpatialObject() == false %}
-                                        {% set attributes = {
-                                            class: 'product-image is-' ~ displayMode,
-                                            title: (cover.translated.title ?: name)
-                                        } %}
-
-                                        {% if cover.getMediaType().getName() === 'VIDEO' %}
-                                            {% if config('core.listing.autoplayVideoInListing') %}
+        {% block component_product_box_product_inner %}
+            <div class="card product-box box-{{ layout }}" data-product-information="{{ productInformation|json_encode }}">
+                {% block component_product_box_content %}
+                    <div class="card-body">
+                        {% block component_product_box_badges %}
+                            {% sw_include '@Storefront/storefront/component/product/card/badges.html.twig' %}
+                        {% endblock %}
+    
+                        {% block component_product_box_image %}
+                            <div class="product-image-wrapper">
+                                {# fallback if display mode is not set #}
+                                {% set displayMode = displayMode ?: 'standard' %}
+    
+                                {# set display mode 'cover' for box-image with standard display mode #}
+                                {% if layout == 'image' and displayMode == 'standard' %}
+                                    {% set displayMode = 'cover' %}
+                                {% endif %}
+    
+                                {% block component_product_box_image_inner %}
+                                    {# @deprecated tag:v6.8.0 - Block will be removed. Use component_product_box_image_inner instead. #}
+                                    {% block component_product_box_image_link_inner %}
+    
+                                        {% if cover.url and cover.isSpatialObject() == false %}
+                                            {% set attributes = {
+                                                class: 'product-image is-' ~ displayMode,
+                                                title: (cover.translated.title ?: name)
+                                            } %}
+    
+                                            {% if cover.getMediaType().getName() === 'VIDEO' %}
+                                                {% if config('core.listing.autoplayVideoInListing') %}
+                                                    {% set attributes = attributes|merge({
+                                                        autoplay: true,
+                                                        loop: true
+                                                    }) %}
+                                                {% endif %}
+    
+                                                {% block component_product_box_video %}
+                                                    {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
+                                                        media: cover,
+                                                        attributes: attributes
+                                                    } %}
+                                                {% endblock %}
+                                            {% else %}
                                                 {% set attributes = attributes|merge({
-                                                    autoplay: true,
-                                                    loop: true
+                                                    alt: (cover.translated.alt ?: name),
+                                                    loading: 'lazy'
                                                 }) %}
+    
+                                                {% if displayMode == 'cover' or displayMode == 'contain' %}
+                                                    {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
+                                                {% endif %}
+    
+                                                {% block component_product_box_image_thumbnail %}
+                                                    {% sw_thumbnails 'product-image-thumbnails' with {
+                                                        media: cover,
+                                                        sizes: sizes,
+                                                        attributes: attributes
+                                                    } %}
+                                                {% endblock %}
                                             {% endif %}
-
-                                            {% block component_product_box_video %}
-                                                {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
-                                                    media: cover,
-                                                    attributes: attributes
-                                                } %}
-                                            {% endblock %}
                                         {% else %}
-                                            {% set attributes = attributes|merge({
-                                                alt: (cover.translated.alt ?: name),
-                                                loading: 'lazy'
-                                            }) %}
-
-                                            {% if displayMode == 'cover' or displayMode == 'contain' %}
-                                                {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
-                                            {% endif %}
-
-                                            {% block component_product_box_image_thumbnail %}
-                                                {% sw_thumbnails 'product-image-thumbnails' with {
-                                                    media: cover,
-                                                    sizes: sizes,
-                                                    attributes: attributes
-                                                } %}
+                                            {% block component_product_box_image_placeholder %}
+                                                <div class="product-image-placeholder">
+                                                    {% sw_icon 'placeholder' style {
+                                                        size: 'fluid'
+                                                    } %}
+                                                </div>
                                             {% endblock %}
                                         {% endif %}
-                                    {% else %}
-                                        {% block component_product_box_image_placeholder %}
-                                            <div class="product-image-placeholder">
-                                                {% sw_icon 'placeholder' style {
-                                                    size: 'fluid'
+                                    {% endblock %}
+                                {% endblock %}
+    
+                                {% if config('core.cart.wishlistEnabled') %}
+                                    {% block component_product_box_wishlist_action %}
+                                        {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
+                                            appearance: 'circle',
+                                            productId: id
+                                        } %}
+                                    {% endblock %}
+                                {% endif %}
+                            </div>
+                        {% endblock %}
+    
+                        {% block component_product_box_info %}
+                            <div class="product-info">
+                                {% block component_product_box_rating %}
+                                    {% if config('core.listing.showReview') %}
+                                        <div class="product-rating">
+                                            {% if product.ratingAverage %}
+                                                {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
+                                                    points: product.ratingAverage,
+                                                    style: 'text-primary'
                                                 } %}
-                                            </div>
-                                        {% endblock %}
+                                            {% endif %}
+                                        </div>
                                     {% endif %}
                                 {% endblock %}
-                            {% endblock %}
-
-                            {% if config('core.cart.wishlistEnabled') %}
-                                {% block component_product_box_wishlist_action %}
-                                    {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
-                                        appearance: 'circle',
-                                        productId: id
-                                    } %}
-                                {% endblock %}
-                            {% endif %}
-                        </div>
-                    {% endblock %}
-
-                    {% block component_product_box_info %}
-                        <div class="product-info">
-                            {% block component_product_box_rating %}
-                                {% if config('core.listing.showReview') %}
-                                    <div class="product-rating">
-                                        {% if product.ratingAverage %}
-                                            {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
-                                                points: product.ratingAverage,
-                                                style: 'text-primary'
-                                            } %}
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            {% endblock %}
-
-                            {% block component_product_box_name %}
-                                {% if headlineLevel is not empty %}
-                                    {{ "<h#{headlineLevel} class=\"#{headlineClasses}\">"|raw }}
+    
+                                {% block component_product_box_name %}
+                                    {% if headlineLevel is not empty %}
+                                        {{ "<h#{headlineLevel} class=\"#{headlineClasses}\">"|raw }}
+                                            <a href="{{ seoUrl('frontend.detail.page', { productId: id }) }}"
+                                               class="product-name stretched-link">
+                                                {{ name }}
+                                            </a>
+                                        {{ "</h#{headlineLevel}>"|raw }}
+                                    {% else %}
                                         <a href="{{ seoUrl('frontend.detail.page', { productId: id }) }}"
                                            class="product-name stretched-link">
                                             {{ name }}
                                         </a>
-                                    {{ "</h#{headlineLevel}>"|raw }}
-                                {% else %}
-                                    <a href="{{ seoUrl('frontend.detail.page', { productId: id }) }}"
-                                       class="product-name stretched-link">
-                                        {{ name }}
-                                    </a>
-                                {% endif %}
-                            {% endblock %}
-
-                            {% block component_product_box_variant_characteristics %}
-                                <div class="product-variant-characteristics">
-                                    <div class="product-variant-characteristics-text">
-                                        {% if not displayParent %}
-                                            {% for variation in product.variation %}
-                                                {{ variation.group }}:
-                                                <span class="product-variant-characteristics-option">
-                                                    {{ variation.option }}
-                                                </span>
-
-                                                {% if product.variation|last != variation %}
-                                                    <span aria-hidden="true">|</span>
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% endif %}
+                                    {% endif %}
+                                {% endblock %}
+    
+                                {% block component_product_box_variant_characteristics %}
+                                    <div class="product-variant-characteristics">
+                                        <div class="product-variant-characteristics-text">
+                                            {% if not displayParent %}
+                                                {% for variation in product.variation %}
+                                                    {{ variation.group }}:
+                                                    <span class="product-variant-characteristics-option">
+                                                        {{ variation.option }}
+                                                    </span>
+    
+                                                    {% if product.variation|last != variation %}
+                                                        <span aria-hidden="true">|</span>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
                                     </div>
-                                </div>
-                            {% endblock %}
-
-                            {% block component_product_box_description %}
-                                <p class="product-description mb-0">
-                                    {{ product.translated.description|striptags|raw }}
-                                </p>
-                            {% endblock %}
-
-                            {% block component_product_box_price %}
-                                {% sw_include '@Storefront/storefront/component/product/card/price-unit.html.twig' %}
-                            {% endblock %}
-
-                            {% block component_product_box_action %}
-                                {% sw_include '@Storefront/storefront/component/product/card/action.html.twig' %}
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-                </div>
-            {% endblock %}
-        </div>
+                                {% endblock %}
+    
+                                {% block component_product_box_description %}
+                                    <p class="product-description mb-0">
+                                        {{ product.translated.description|striptags|raw }}
+                                    </p>
+                                {% endblock %}
+    
+                                {% block component_product_box_price %}
+                                    {% sw_include '@Storefront/storefront/component/product/card/price-unit.html.twig' %}
+                                {% endblock %}
+    
+                                {% block component_product_box_action %}
+                                    {% sw_include '@Storefront/storefront/component/product/card/action.html.twig' %}
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
     {% endif %}
 {% endblock %}

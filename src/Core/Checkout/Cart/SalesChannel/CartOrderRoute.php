@@ -56,7 +56,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
         private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
         private readonly CartContextHasher $cartContextHasher,
         private readonly LockFactory $lockFactory,
-        private readonly ExtensionDispatcher $extensions
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 

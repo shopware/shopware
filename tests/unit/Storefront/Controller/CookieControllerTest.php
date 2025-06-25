@@ -37,7 +37,7 @@ class CookieControllerTest extends TestCase
         $controller->offcanvas($salesChannelContext);
         $cookieGroups = $controller->renderStorefrontParameters['cookieGroups'];
 
-        static::assertEquals(PlatformRequest::FALLBACK_SESSION_NAME, $cookieGroups[0]['entries'][0]['cookie']);
+        static::assertSame(PlatformRequest::FALLBACK_SESSION_NAME, $cookieGroups[0]['entries'][0]['cookie']);
 
         // Test with a custom session cookie name
         $controller = new CookieControllerTestClass(
@@ -49,7 +49,7 @@ class CookieControllerTest extends TestCase
         $controller->offcanvas($salesChannelContext);
         $cookieGroups = $controller->renderStorefrontParameters['cookieGroups'];
 
-        static::assertEquals('test-session-cookie', $cookieGroups[0]['entries'][0]['cookie']);
+        static::assertSame('test-session-cookie', $cookieGroups[0]['entries'][0]['cookie']);
     }
 
     public function testResponseDoesNotIncludeGoogleAnalyticsCookieByDefault(): void

@@ -9,6 +9,10 @@ export default class WishlistCookieOffcanvasPlugin extends Plugin {
     static options = {
         cookieName: 'wishlist-enabled',
         cookieLifetime: 30,
+        acceptBtnSelector: '.js-wishlist-cookie-accept',
+        loginBtnSelector: '.js-wishlist-login',
+        prefBtnSelector: '.js-wishlist-cookie-preferences',
+        cancelBtnSelector: '.js-wishlist-cookie-offcanvas-cancel',
     };
 
     init() {
@@ -54,22 +58,22 @@ export default class WishlistCookieOffcanvasPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        const acceptBtn = this.el.querySelector('.js-wishlist-cookie-accept');
+        const acceptBtn = this.el.querySelector(this.options.acceptBtnSelector);
         if (acceptBtn) {
             acceptBtn.addEventListener('click', this._onAccept.bind(this));
         }
 
-        const loginBtn = this.el.querySelector('.js-wishlist-login');
+        const loginBtn = this.el.querySelector(this.options.loginBtnSelector);
         if (loginBtn) {
             loginBtn.addEventListener('click', this._onLogin.bind(this));
         }
 
-        const prefBtn = this.el.querySelector('.js-wishlist-cookie-preferences');
+        const prefBtn = this.el.querySelector(this.options.prefBtnSelector);
         if (prefBtn) {
             prefBtn.addEventListener('click', this._onPreferences.bind(this));
         }
 
-        const cancelBtn = this.el.querySelector('.js-wishlist-cookie-offcanvas-cancel');
+        const cancelBtn = this.el.querySelector(this.options.cancelBtnSelector);
         if (cancelBtn) {
             cancelBtn.addEventListener('click', this._onCancel.bind(this));
         }

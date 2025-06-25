@@ -29,12 +29,14 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
-        async revokePermissions(done: () => void) {
+        async disableServices(done: () => void) {
             try {
                 const  shopwareServicesService = Shopware.Service('shopwareServicesService');
                 const shopwareServicesStore = useShopwareServicesStore();
 
                 shopwareServicesStore.config = await shopwareServicesService.disableAllServices();
+
+                this.$emit('service-disabled')
             } catch (exceptionResponse) {
                 Shopware.Store.get('notification').createNotification({
                     title: this.$t('global.default.error'),

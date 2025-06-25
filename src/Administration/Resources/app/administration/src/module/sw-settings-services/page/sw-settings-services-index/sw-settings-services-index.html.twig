@@ -26,30 +26,13 @@
                 @service-permissions-granted="reloadServices"
             />
 
-            <mt-banner
-                v-if="config.disabled"
-                class="sw-settings-services-index__services-deactivated-banner"
-                variant="attention"
-            >
-                <p><b>Shopware Services are deactivated</b></p>
-
-                <p>You are currently missing out on all Shopware Services, including advanced AI tools and much more. Activate Shopware Services to take advantage of all the current and future Services we have to offer.</p>
-
-                <mt-button
-                    variant="primary"
-                    size="small"
-                    @click="activateServices"
-                >
-                    Activate Services
-                </mt-button>
-            </mt-banner>
-
             <div class="sw-settings-services__listing-section">
                 <h3>
                     {{ $t('sw-settings-services.index.available-services') }}
 
                     <sw-help-text :text="$t('sw-settings-services.index.available-services-tooltip')" />
                 </h3>
+
                 <mt-banner
                     v-if="loadingError !== ''"
                     variant="critical"
@@ -59,6 +42,23 @@
                     <p>{{ loadingError }}</p>
                 </mt-banner>
 
+                <mt-banner
+                    v-if="config.disabled"
+                    class="sw-settings-services-index__services-deactivated-banner"
+                    variant="attention"
+                >
+                    <p><b>{{ $t('sw-settings-services.index.services-are-disabled') }}</b></p>
+
+                    <p>{{ $t('sw-settings-services.index.services-are-disabled-cta') }}</p>
+
+                    <mt-button
+                            variant="primary"
+                            size="small"
+                            @click="activateServices"
+                    >
+                        {{ $t('sw-settings-services.index.services-are-disabled-button-label') }}
+                    </mt-button>
+                </mt-banner>
                 <ul
                     v-else
                     class="sw-settings-services__available-services"
@@ -98,6 +98,7 @@
                 <sw-settings-services-deactivate-modal
                     v-if="!config.disabled"
                     :feedback-link="currentRevision.links['feedback-url']"
+                    @service-disabled="reloadServices"
                 />
             </div>
         </div>

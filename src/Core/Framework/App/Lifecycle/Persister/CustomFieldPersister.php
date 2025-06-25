@@ -54,7 +54,7 @@ class CustomFieldPersister
 
         $groupedByName = [];
         foreach ($allCustomFields as $id => $name) {
-            $groupedByName[$name][] = Uuid::fromBytesToHex($id);
+            $groupedByName[$name][] = Uuid::fromBytesToHex((string) $id);
         }
 
         $existingCustomFieldSets = [];

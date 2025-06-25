@@ -538,7 +538,7 @@
                                                                     {% else %}
                                                                         {% block element_image_gallery_inner_thumbnails_item_inner_image %}
                                                                             {% set attributes = attributes|merge({
-                                                                                alt: (image.translated.alt ?: fallbackImageTitle)
+                                                                                alt: (image.translated.alt ?: false)
                                                                             }) %}
 
                                                                             {% if isProduct %}
@@ -872,7 +872,7 @@
                                                                                                         {% block element_image_gallery_inner_zoom_modal_thumbnails_item_inner_image %}
                                                                                                             {% set attributes = attributes|merge({
                                                                                                                 class: attributes.class ~ ' js-load-img',
-                                                                                                                alt: (image.translated.alt ?: fallbackImageTitle)
+                                                                                                                alt: (image.translated.alt ?: false)
                                                                                                             }) %}
 
                                                                                                             {% sw_thumbnails 'gallery-slider-thumbnails-image-thumbnails' with {

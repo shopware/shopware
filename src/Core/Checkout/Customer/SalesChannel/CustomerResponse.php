@@ -13,8 +13,22 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
 #[Package('checkout')]
 class CustomerResponse extends StoreApiResponse
 {
-    public function getCustomer(): PartialEntity|CustomerEntity
+    /**
+     * If the criteria used to load the customer results in a partial entity,
+     * the customer entity returned may be incomplete.
+     * Use {@see CustomerResponse::getPartialCustomer} to check for a partial entity.
+     */
+    public function getCustomer(): CustomerEntity
     {
+        if ($partial = $this->getPartialCustomer()) {
+            return (new CustomerEntity())->assign($partial->all());
+        }
+
         return $this->object;
+    }
+
+    public function getPartialCustomer(): ?PartialEntity
+    {
+        return $this->object instanceof PartialEntity ? $this->object : null;
     }
 }

@@ -6,4 +6,4 @@ author_email: m.bade@shopware.com
 author_github: @cyl3x
 ---
 # Core
-* Changed `Shopware\Core\Checkout\Customer\SalesChannel\CustomerResponse` to support partial customer entity loading in `Shopware\Core\Checkout\Customer\SalesChannel\CustomerRoute` via PHP
+* Changed `Shopware\Core\Checkout\Customer\SalesChannel\CustomerResponse` to account for partial customer entity loading in `Shopware\Core\Checkout\Customer\SalesChannel\CustomerRoute` via PHP

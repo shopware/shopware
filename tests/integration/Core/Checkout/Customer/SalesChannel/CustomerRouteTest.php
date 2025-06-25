@@ -63,13 +63,15 @@ class CustomerRouteTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addFields(['email']);
 
-        $partialCustomer = $this->getContainer()
+        $response = $this->getContainer()
             ->get(CustomerRoute::class)
-            ->load(new Request(), $salesChannelContext, $criteria, $customer)
-            ->getCustomer();
+            ->load(new Request(), $salesChannelContext, $criteria, $customer);
 
-        static::assertInstanceOf(PartialEntity::class, $partialCustomer);
-        static::assertEquals(['id' => $id, 'email' => $email], $partialCustomer->all());
+        static::assertInstanceOf(PartialEntity::class, $response->getPartialCustomer());
+        static::assertEquals(
+            ['id' => $id, '_uniqueIdentifier' => $id, 'email' => $email],
+            \array_filter($response->getCustomer()->jsonSerialize()),
+        );
     }
 
     public function testNotLoggedin(): void

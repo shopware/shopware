@@ -7,11 +7,19 @@ on:
     inputs:
       nightly:
         default: ""
+      update-snapshots:
+        description: 'Update visual testing snapshots?'
+        type: boolean
+        default: false
   workflow_call:
     inputs:
       nightly:
         type: string
         default: ""
+      update-snapshots:
+        description: 'Update visual testing snapshots?'
+        type: boolean
+        default: false
 
 jobs:
   acceptance:
@@ -21,6 +29,7 @@ jobs:
       matrix:
         name:
           - "Platform"
+          - "Visual"
         php-version:
           - "8.4"
         shard:
@@ -53,9 +62,11 @@ jobs:
           shard-count: ${{ matrix.shard-count }}
           workers: 1
           install: ${{ matrix.name != 'Install' && 'true' || 'false' }}
-          extra-options: ${{ matrix.name != 'Install' && '' || '--trace=on' }}
+          extra-options: >-
+            ${{ matrix.name != 'Install' && '' || '--trace=on' }}
+            ${{ inputs.update-snapshots && ' --update-snapshots' || '' }}
           use-currents: ${{ inputs.nightly == 'true' && matrix.php-version == '8.4' && !matrix.major && 'true' || '' }}
-          currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID }}
+          currents-project-id: ${{ matrix.name == 'Visual' && secrets.CURRENTS_PROJECT_ID_VISUAL || secrets.CURRENTS_PROJECT_ID }}
           currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}
 
   acceptance-tests-changed:

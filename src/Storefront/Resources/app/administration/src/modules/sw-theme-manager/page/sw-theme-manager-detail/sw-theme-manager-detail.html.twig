@@ -288,7 +288,7 @@
                                                                             :ref="`wrapper-${fieldName}`"
                                                                             :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                             :inherited-value="baseThemeConfig[fieldName].value"
-                                                                            :label="getSnippet(field.labelSnippetKey, field.label)"
+                                                                            :label="getFieldLabel(field, fieldName)"
                                                                             :customInheritationCheckFunction="checkInheritanceFunction(fieldName)"
                                                                             @update:value="handleInheritanceInput($event, fieldName)"
                                                                         >
@@ -313,7 +313,7 @@
                                                                             :ref="`wrapper-${fieldName}`"
                                                                             :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                             :inherited-value="baseThemeConfig[fieldName].value"
-                                                                            :label="getSnippet(field.labelSnippetKey, field.label)"
+                                                                            :label="getFieldLabel(field, fieldName)"
                                                                             :customInheritationCheckFunction="checkInheritanceFunction(fieldName)"
                                                                             @update:value="handleInheritanceInput($event, fieldName)"
                                                                         >
@@ -341,7 +341,7 @@
                                                                             :ref="`wrapper-${fieldName}`"
                                                                             :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                             :inherited-value="baseThemeConfig[fieldName].value"
-                                                                            :label="getSnippet(field.labelSnippetKey, field.label)"
+                                                                            :label="getFieldLabel(field, fieldName)"
                                                                             :customInheritationCheckFunction="checkInheritanceFunction(fieldName)"
                                                                             @update:value="handleInheritanceInput($event, fieldName)"
                                                                         >
@@ -369,7 +369,7 @@
                                                                             :ref="`wrapper-${fieldName}`"
                                                                             :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                             :inherited-value="baseThemeConfig[fieldName].value"
-                                                                            :label="getSnippet(field.labelSnippetKey, field.label)"
+                                                                            :label="getFieldLabel(field, fieldName)"
                                                                             :customInheritationCheckFunction="checkInheritanceFunction(fieldName)"
                                                                             @update:value="handleInheritanceInput($event, fieldName)"
                                                                         >
@@ -401,7 +401,7 @@
                                                                             :ref="`wrapper-${fieldName}`"
                                                                             :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                             :inherited-value="baseThemeConfig[fieldName].value"
-                                                                            :label="getSnippet(field.labelSnippetKey, field.label)"
+                                                                            :label="getFieldLabel(field, fieldName)"
                                                                             :customInheritationCheckFunction="checkInheritanceFunction(fieldName)"
                                                                             @update:value="handleInheritanceInput($event, fieldName)"
                                                                         >
@@ -743,7 +743,7 @@
                                                             :key="fieldName"
                                                             @click="onAddMediaToTheme(media.mediaItem, currentThemeConfig[fieldName])"
                                                         >
-                                                            {{ $t('sw-theme-manager.modal.addToMediaLabel', { name: getSnippet(field.labelSnippetKey, field.label) }) }}
+                                                            {{ $t('sw-theme-manager.modal.addToMediaLabel', { name: getFieldLabel(field, fieldName) }) }}
                                                         </sw-context-menu-item>
                                                     </template>
                                                 </template>

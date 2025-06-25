@@ -9,8 +9,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('framework')]
 /**
  * @internal
+ *
+ * @final
  */
-final class DatabaseSalesChannelThemeLoader
+class DatabaseSalesChannelThemeLoader
 {
     /**
      * @var array<string, array<int, string>>

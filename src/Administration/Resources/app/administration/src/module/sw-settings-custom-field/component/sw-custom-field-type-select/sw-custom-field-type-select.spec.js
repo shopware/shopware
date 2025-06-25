@@ -69,7 +69,9 @@ async function createWrapper(props = defaultProps) {
             renderStubDefaultSlot: true,
             mocks: {
                 $i18n: {
-                    fallbackLocale: 'en-GB',
+                    fallbackLocale: {
+                        value: 'en-GB',
+                    },
                 },
             },
             stubs: {

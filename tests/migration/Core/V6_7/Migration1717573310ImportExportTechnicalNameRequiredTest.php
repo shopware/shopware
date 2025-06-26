@@ -71,6 +71,8 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
     #[DataProvider('importExportProfilesDataProvider')]
     public function testUpdateGeneratesTechnicalNames(array $datas): void
     {
+        $this->insertDefaultData();
+
         foreach ($datas as $data) {
             $this->connection->insert('import_export_profile', [
                 'id' => $data['uuid'],
@@ -185,5 +187,21 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    private function insertDefaultData(): void
+    {
+        $sql = 'SELECT * FROM `import_export_profile`';
+
+        $this->connection->executeStatement('DELETE FROM `import_export_profile`');
+        $rows = $this->connection->fetchAllAssociative($sql);
+        static::assertCount(0, $rows);
+
+        $importExportDefaultProfilesSql = file_get_contents(__DIR__ . '/fixtures/import_export_default_profiles.sql');
+        static::assertIsString($importExportDefaultProfilesSql);
+        $this->connection->executeStatement($importExportDefaultProfilesSql);
+
+        $rows = $this->connection->fetchAllAssociative($sql);
+        static::assertCount(12, $rows);
     }
 }

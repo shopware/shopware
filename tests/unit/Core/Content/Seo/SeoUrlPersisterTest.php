@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Seo;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Framework\Context;
@@ -21,7 +22,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(SeoUrlPersister::class)]
 class SeoUrlPersisterTest extends TestCase
 {
-    private Connection $connection;
+    private Connection&MockObject $connection;
 
     private SeoUrlPersister $seoUrlPersister;
 
@@ -43,6 +44,7 @@ class SeoUrlPersisterTest extends TestCase
                 'foreignKey' => Uuid::randomHex(),
                 'salesChannelId' => Uuid::randomHex(),
                 'routeName' => 'test-route',
+                'pathInfo' => 'path1',
                 'seoPathInfo' => 'path1',
             ],
             [
@@ -50,15 +52,24 @@ class SeoUrlPersisterTest extends TestCase
                 'foreignKey' => Uuid::randomHex(),
                 'salesChannelId' => Uuid::randomHex(),
                 'routeName' => 'test-route',
+                'pathInfo' => 'path2',
                 'seoPathInfo' => 'path2',
             ],
         ];
 
-        $this->connection->method('fetchAllAssociative')->willReturn([]);
+        $this->connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([]);
 
-        $this->connection->method('fetchOne')->willReturn([]);
+        $this->connection->expects($this->never())
+            ->method('fetchOne')
+            ->willReturn([]);
 
-        $this->connection->expects($this->never())->method('executeStatement');
+        $this->connection->expects($this->never())
+            ->method('executeStatement');
+
+        $seoChannel = new SalesChannelEntity();
+        $seoChannel->setId(Uuid::randomHex());
 
         $this->seoUrlPersister->updateSeoUrls(
             Context::createDefaultContext(),
@@ -67,7 +78,7 @@ class SeoUrlPersisterTest extends TestCase
                 'foreignKey' => Uuid::randomHex(),
             ],
             $seoUrls,
-            $this->createMock(SalesChannelEntity::class),
+            $seoChannel
         );
     }
 
@@ -79,6 +90,7 @@ class SeoUrlPersisterTest extends TestCase
                 'foreignKey' => Uuid::randomHex(),
                 'salesChannelId' => Uuid::randomHex(),
                 'routeName' => 'test-route',
+                'pathInfo' => 'path1',
                 'seoPathInfo' => 'path1',
             ],
             [
@@ -86,6 +98,7 @@ class SeoUrlPersisterTest extends TestCase
                 'foreignKey' => Uuid::randomHex(),
                 'salesChannelId' => Uuid::randomHex(),
                 'routeName' => 'test-route',
+                'pathInfo' => 'path2',
                 'seoPathInfo' => 'path2',
             ],
         ];
@@ -94,25 +107,28 @@ class SeoUrlPersisterTest extends TestCase
         $id2 = Uuid::randomHex();
         $expectedIds = [$id1, $id2];
 
-        $this->connection->method('fetchAllAssociative')->willReturn([
-            [
-                'id' => 'id1',
-                'languageId' => Uuid::randomHex(),
-                'salesChannelId' => Uuid::randomHex(),
-                'foreignKey' => Uuid::randomHex(),
-                'routeName' => 'test-route',
-            ],
-            [
-                'id' => 'id2',
-                'languageId' => Uuid::randomHex(),
-                'salesChannelId' => Uuid::randomHex(),
-                'foreignKey' => Uuid::randomHex(),
-                'routeName' => 'test-route',
-            ],
-        ]);
+        $this->connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                [
+                    'id' => 'id1',
+                    'languageId' => Uuid::randomHex(),
+                    'salesChannelId' => Uuid::randomHex(),
+                    'foreignKey' => Uuid::randomHex(),
+                    'routeName' => 'test-route',
+                ],
+                [
+                    'id' => 'id2',
+                    'languageId' => Uuid::randomHex(),
+                    'salesChannelId' => Uuid::randomHex(),
+                    'foreignKey' => Uuid::randomHex(),
+                    'routeName' => 'test-route',
+                ],
+            ]);
 
-        // Mock updateInuseSeoUrls behavior
-        $this->connection->method('fetchOne')->willReturnOnConsecutiveCalls($id1, $id2);
+        $this->connection->expects($this->exactly(2))
+            ->method('fetchOne')
+            ->willReturnOnConsecutiveCalls($id1, $id2);
 
         $this->connection->expects($this->once())
             ->method('executeStatement')

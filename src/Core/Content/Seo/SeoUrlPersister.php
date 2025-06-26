@@ -55,7 +55,6 @@ class SeoUrlPersister
                 $seoUrl = $seoUrl->jsonSerialize();
             }
             $updates[] = $seoUrl;
-            $seoPathInfos[] = $seoUrl['seoPathInfo'];
 
             $fk = $seoUrl['foreignKey'];
             $salesChannelId = $seoUrl['salesChannelId'] ??= null;
@@ -86,6 +85,8 @@ class SeoUrlPersister
                 $obsoleted[] = $existing['id'];
             }
 
+            $seoPathInfos[] = $seoUrl['seoPathInfo'];
+
             $insert = [];
             $insert['id'] = Uuid::randomBytes();
 
@@ -108,7 +109,7 @@ class SeoUrlPersister
             $insertQuery->addInsert($this->seoUrlRepository->getDefinition()->getEntityName(), $insert);
         }
 
-        $inuseSeoUrls = $this->findInuseSeoUrls($seoPathInfos);
+        $inuseSeoUrls = $this->findInUseCanonicalSeoUrls($seoPathInfos);
 
         RetryableTransaction::retryable($this->connection, function () use ($obsoleted, $insertQuery, $foreignKeys, $updatedFks, $salesChannelId): void {
             $this->obsoleteIds($obsoleted, $salesChannelId);
@@ -125,7 +126,7 @@ class SeoUrlPersister
         // the existing row is seamlessly replaced due to the useReplace flag being set to true within the MultiInsertQueryQueue configuration above.
         // Hence, we have to find the default seoUrls for Entity A and update it accordingly to set is_canonical and is_modified to true,
         // thereby preserving the canonical SEO URL for Entity A.
-        $this->updateDefaultSeoUrls($inuseSeoUrls);
+        $this->updateCanonicalSeoUrls($inuseSeoUrls);
 
         $this->eventDispatcher->dispatch(new SeoUrlUpdateEvent($updates));
     }
@@ -195,7 +196,7 @@ class SeoUrlPersister
      *
      * @return array<array<string, mixed>>
      */
-    private function findInuseSeoUrls(array $seoPathInfos): array
+    private function findInUseCanonicalSeoUrls(array $seoPathInfos): array
     {
         return $this->connection->fetchAllAssociative(
             'SELECT id, language_id languageId, sales_channel_id salesChannelId, foreign_key foreignKey, route_name routeName
@@ -211,7 +212,7 @@ class SeoUrlPersister
      *
      * @param array<array<string, mixed>> $seoUrls
      */
-    private function updateDefaultSeoUrls(array $seoUrls): void
+    private function updateCanonicalSeoUrls(array $seoUrls): void
     {
         if (empty($seoUrls)) {
             return;

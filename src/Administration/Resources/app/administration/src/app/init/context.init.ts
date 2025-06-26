@@ -109,26 +109,31 @@ export default function initializeContext(): void {
 
     Shopware.ExtensionAPI.handle('contextAppInformation', (_, { _event_ }) => {
         const appOrigin = _event_.origin;
-        const extension = Object.entries(Shopware.Store.get('extensions').extensionsState).find((ext) => {
+        const extensionEntry = Object.entries(Shopware.Store.get('extensions').extensionsState).find((ext) => {
             return ext[1].baseUrl.startsWith(appOrigin);
         });
 
-        if (!extension || !extension[0] || !extension[1]) {
-            const type: 'app' | 'plugin' = 'app';
-
+        if (extensionEntry === undefined) {
             return {
                 name: 'unknown',
-                type: type,
+                type: 'app' as const,
                 version: '0.0.0',
-                inAppPurchases: null,
+                inAppPurchases: [],
+                privileges: {},
             };
         }
 
+        const [
+            extensionName,
+            extension,
+        ] = extensionEntry;
+
         return {
-            name: extension[0],
-            type: extension[1].type,
-            version: extension[1].version ?? '',
-            inAppPurchases: Shopware.InAppPurchase.getByExtension(extension[1].name),
+            name: extensionName,
+            type: extension.type,
+            version: extension.version ?? '',
+            inAppPurchases: Shopware.InAppPurchase.getByExtension(extension.name),
+            privileges: extension.permissions,
         };
     });
 

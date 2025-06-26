@@ -225,13 +225,11 @@ class DeliveryCalculator
     {
         $shippingPrices->sort(
             function (ShippingMethodPriceEntity $priceEntityA, ShippingMethodPriceEntity $priceEntityB) use ($context) {
-                /** @var PriceCollection $priceCollectionA */
                 $priceCollectionA = $priceEntityA->getCurrencyPrice();
-                $priceA = $this->getCurrencyPrice($priceCollectionA, $context);
+                $priceA = $priceCollectionA ? $this->getCurrencyPrice($priceCollectionA, $context) : null;
 
-                /** @var PriceCollection $priceCollectionB */
                 $priceCollectionB = $priceEntityB->getCurrencyPrice();
-                $priceB = $this->getCurrencyPrice($priceCollectionB, $context);
+                $priceB = $priceCollectionB ? $this->getCurrencyPrice($priceCollectionB, $context) : null;
 
                 return $priceA <=> $priceB;
             }

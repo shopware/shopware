@@ -16,6 +16,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
@@ -569,16 +570,21 @@ class EntityExtensionTest extends TestCase
 
     public function testICanModifyFields(): void
     {
+        $this->registerDefinitionWithExtensions(ExtendableDefinition::class);
+        $definition = static::getContainer()->get(ExtendableDefinition::class);
+
+        static::assertInstanceOf(ExtendableDefinition::class, $definition);
+        $field = $definition->getFields()->get('apiAwareTest');
+        static::assertInstanceOf(BoolField::class, $field);
+        static::assertTrue($field->is(ApiAware::class), 'Field ' . $field->getPropertyName() . ' should have ApiAware flag');
+
         $this->registerDefinitionWithExtensions(ExtendableDefinition::class, ModifyFieldsExtension::class);
         $definition = static::getContainer()->get(ExtendableDefinition::class);
 
         static::assertInstanceOf(ExtendableDefinition::class, $definition);
-        foreach ($definition->getFields() as $field) {
-            if ($field->getPropertyName() === 'apiAwareTest') {
-                static::assertFalse($field->is(ApiAware::class), 'Field ' . $field->getPropertyName() . ' should not have ApiAware flag');
-                break;
-            }
-        }
+        $field = $definition->getFields()->get('apiAwareTest');
+        static::assertInstanceOf(BoolField::class, $field);
+        static::assertFalse($field->is(ApiAware::class), 'Field ' . $field->getPropertyName() . ' should not have ApiAware flag');
     }
 
     public function testICantAddOrRemoveFieldsByModifyFields(): void

@@ -37,9 +37,6 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
             $connection->executeStatement('ALTER TABLE `import_export_profile` ADD COLUMN `name` VARCHAR(255) NULL');
             self::$nameColumnAdded = true;
         }
-
-        var_dump($connection->fetchAllAssociative('SELECT * FROM `import_export_profile`'));
-        exit();
     }
 
     public static function tearDownAfterClass(): void
@@ -83,11 +80,10 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
     public function testUpdateGeneratesTechnicalNames(array $datas): void
     {
         // Insert default data at the start to ensure the migration has a clean state
-        if (!self::hasDefaultProfiles) {
+        // a previous migration test already manipulated the data
+        if (!self::$hasDefaultProfiles) {
             $this->insertDefaultData();
         }
-
-        $this->insertDefaultData;
 
         foreach ($datas as $data) {
             $this->connection->insert('import_export_profile', [

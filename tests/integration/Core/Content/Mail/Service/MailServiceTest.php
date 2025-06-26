@@ -258,6 +258,7 @@ class MailServiceTest extends TestCase
             'order' => [
                 'deepLinkCode' => 'home',
             ],
+            'eventName' => 'state_enter.order_transaction.state.paid',
         ];
 
         $context = Context::createDefaultContext();

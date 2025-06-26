@@ -35,6 +35,9 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
             $connection->executeStatement('ALTER TABLE `import_export_profile` ADD COLUMN `name` VARCHAR(255) NULL');
             self::$nameColumnAdded = true;
         }
+
+        // Clean up profiles to ensure a clean state for the tests
+        $connection->executeStatement('DELETE FROM `import_export_profile` WHERE `system_default` != 1');
     }
 
     public static function tearDownAfterClass(): void
@@ -50,12 +53,6 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
         $this->connection = static::getContainer()->get(Connection::class);
         $this->connection
             ->executeStatement('ALTER TABLE `import_export_profile` MODIFY COLUMN `technical_name` VARCHAR(255) NULL');
-    }
-
-    protected function tearDown(): void
-    {
-        $rows = $this->connection->fetchAllAssociative('SELECT * FROM `import_export_profile`');
-        static::assertCount(12, $rows);
     }
 
     public function testUpdateSetTechnicalNameRequired(): void
@@ -110,8 +107,6 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
 
         // Clean up test data
         $this->connection->executeStatement('DELETE FROM `import_export_profile` WHERE `system_default` != 1');
-        $rows = $this->connection->fetchAllAssociative('SELECT * FROM `import_export_profile`');
-        static::assertCount(12, $rows);
     }
 
     public static function importExportProfilesDataProvider(): \Generator

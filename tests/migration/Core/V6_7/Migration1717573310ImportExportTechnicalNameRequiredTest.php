@@ -52,6 +52,12 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
             ->executeStatement('ALTER TABLE `import_export_profile` MODIFY COLUMN `technical_name` VARCHAR(255) NULL');
     }
 
+    protected function tearDown(): void
+    {
+        $rows = $this->connection->fetchAllAssociative('SELECT * FROM `import_export_profile`');
+        static::assertCount(12, $rows);
+    }
+
     public function testUpdateSetTechnicalNameRequired(): void
     {
         $migration = new Migration1717573310ImportExportTechnicalNameRequired();

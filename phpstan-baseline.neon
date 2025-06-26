@@ -2899,24 +2899,6 @@ parameters:
 			path: src/Core/System/SystemConfig/SystemConfigService.php
 
 		-
-			message: '#^Method Shopware\\Core\\System\\Tax\\Aggregate\\TaxRule\\TaxRuleEntity\:\:getData\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/System/Tax/Aggregate/TaxRule/TaxRuleEntity.php
-
-		-
-			message: '#^Method Shopware\\Core\\System\\Tax\\Aggregate\\TaxRule\\TaxRuleEntity\:\:setData\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/System/Tax/Aggregate/TaxRule/TaxRuleEntity.php
-
-		-
-			message: '#^Property Shopware\\Core\\System\\Tax\\Aggregate\\TaxRule\\TaxRuleEntity\:\:\$data type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/System/Tax/Aggregate/TaxRule/TaxRuleEntity.php
-
-		-
 			message: '#^Method Shopware\\Core\\System\\Unit\\Aggregate\\UnitTranslation\\UnitTranslationCollection\:\:getLanguageIds\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1

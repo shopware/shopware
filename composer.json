@@ -344,8 +344,14 @@
             "@php bin/console assets:install"
         ],
         "check:license": "bash -c \"vendor/bin/composer-license-checker check -a $(sed -z 's/\\n/ -a /g' .allowed-licenses)\"",
-        "ecs": "php-cs-fixer fix --dry-run --diff",
-        "ecs-fix": "php-cs-fixer fix",
+        "ecs": [
+            "@putenv PHP_CS_FIXER_IGNORE_ENV=true",
+            "php-cs-fixer fix --dry-run --diff"
+        ],
+        "ecs-fix": [
+            "@putenv PHP_CS_FIXER_IGNORE_ENV=true",
+            "php-cs-fixer fix"
+        ],
         "eslint": [
             "@eslint:admin",
             "@eslint:storefront"
@@ -378,7 +384,8 @@
             "export PROJECT_ROOT=\"$PWD\"; \"$PROJECT_ROOT\"/bin/install-extension-npm"
         ],
         "init:testdb": [
-            "FORCE_INSTALL=true vendor/bin/phpunit --group=none --testsuite migration,unit,integration,devops"
+            "@putenv FORCE_INSTALL=true",
+            "vendor/bin/phpunit --group=none --testsuite migration,unit,integration,devops"
         ],
         "lint": [
             "@stylelint",

@@ -12,6 +12,7 @@
       "PHP2408"
     ]
   },
+  "remote.autoForwardPortsSource": "process",
   "search.exclude": {
     "**/node_modules": true,
     "**/bower_components": true,

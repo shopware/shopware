@@ -126,7 +126,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         $this->themePathBuilder->saveSeed($salesChannelId, $themeId, $newThemeHash);
 
         $this->cacheInvalidator->invalidate([
-            CachedResolvedConfigLoader::buildName($themeId),
+            ThemeConfigCacheInvalidator::buildCacheTag($themeId),
         ]);
     }
 

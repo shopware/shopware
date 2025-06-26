@@ -64,6 +64,10 @@ class Migration1717573310ImportExportTechnicalNameRequired extends MigrationStep
     {
         $name = $name ?? 'Unnamed profile';
 
+        if (empty(trim($name))) {
+            $name = 'Unnamed profile';
+        }
+
         $technicalName = $this->getTechnicalName($name);
 
         // Check if the name already exists, if yes, add a number to the end

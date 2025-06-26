@@ -36,8 +36,10 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
             self::$nameColumnAdded = true;
         }
 
-        // Clean up profiles to ensure a clean state for the tests
-        $connection->executeStatement('DELETE FROM `import_export_profile` WHERE `system_default` != 1');
+
+        var_dump($connection->executeStatement('SELECT * FROM `import_export_profile`'));
+        exit();
+
     }
 
     public static function tearDownAfterClass(): void
@@ -53,6 +55,12 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
         $this->connection = static::getContainer()->get(Connection::class);
         $this->connection
             ->executeStatement('ALTER TABLE `import_export_profile` MODIFY COLUMN `technical_name` VARCHAR(255) NULL');
+    }
+
+    protected function tearDown(): void
+    {
+        // Clean up profiles to ensure a clean state for the tests
+        $this->connection->executeStatement('DELETE FROM `import_export_profile` WHERE `system_default` != 1');
     }
 
     public function testUpdateSetTechnicalNameRequired(): void
@@ -104,9 +112,6 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
             }
             static::assertTrue($found, 'Record with UUID not found');
         }
-
-        // Clean up test data
-        $this->connection->executeStatement('DELETE FROM `import_export_profile` WHERE `system_default` != 1');
     }
 
     public static function importExportProfilesDataProvider(): \Generator
@@ -181,6 +186,23 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
                     'name' => 'Default category',
                     'technical_name' => null,
                     'expected_technical_name' => 'default_category_1',
+                ],
+            ],
+        ];
+
+        yield 'multiple profiles with empty string and null values for name' => [
+            [
+                [
+                    'uuid' => Uuid::randomBytes(),
+                    'name' => '',
+                    'technical_name' => null,
+                    'expected_technical_name' => 'unnamed_profile',
+                ],
+                [
+                    'uuid' => Uuid::randomBytes(),
+                    'name' => null,
+                    'technical_name' => null,
+                    'expected_technical_name' => 'unnamed_profile_1',
                 ],
             ],
         ];

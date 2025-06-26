@@ -10,6 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\ScheduledTask\InstallServicesTask;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -17,38 +19,28 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AllServiceInstaller
 {
-    public const AUTO_ENABLED = 'auto';
-
     /**
      * @internal
      *
      * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(
-        private readonly string $enabled,
-        private readonly string $appEnv,
         private readonly ServiceRegistryClient $serviceRegistryClient,
         private readonly ServiceLifecycle $serviceLifecycle,
         private readonly EntityRepository $appRepository,
+        private readonly MessageBusInterface $messageBus,
+        private readonly EntityRepository $scheduledTaskRepository,
     ) {
     }
 
     /**
+     * This is a low-level class that is responsible for installing all services.
+     * It should only be called from a higher-level with 'state' awareness class, Specifically: Shopware\Core\Service\LifecycleManager
+     *
      * @return array<string> The newly installed services
      */
     public function install(Context $context): array
     {
-        // auto means not explicitly enabled, then we enable it based on the app environment
-        if ($this->enabled === self::AUTO_ENABLED) {
-            $enabled = $this->appEnv === 'prod';
-        } else {
-            $enabled = filter_var($this->enabled, \FILTER_VALIDATE_BOOLEAN);
-        }
-
-        if (!$enabled) {
-            return [];
-        }
-
         $existingServices = $this->appRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('selfManaged', true)),
             $context
@@ -65,6 +57,24 @@ class AllServiceInstaller
         }
 
         return $installedServices;
+    }
+
+    public function scheduleInstall(): void
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(1)
+            ->addFilter(new EqualsFilter('name', 'services.install'));
+
+        $result = $this->scheduledTaskRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+
+        if (empty($result)) {
+            throw ServiceException::scheduledTaskNotRegistered();
+        }
+
+        $message = new InstallServicesTask();
+        $message->setTaskId($result[0]);
+
+        $this->messageBus->dispatch($message);
     }
 
     /**

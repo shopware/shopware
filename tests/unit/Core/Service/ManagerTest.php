@@ -11,7 +11,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Service\Manager;
+use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\ScheduledTask\InstallServicesTask;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -22,7 +22,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[CoversClass(Manager::class)]
+#[CoversClass(LifecycleManager::class)]
 class ManagerTest extends TestCase
 {
     private Privileges&MockObject $privileges;
@@ -54,7 +54,7 @@ class ManagerTest extends TestCase
 
         $this->systemConfigService->expects($this->once())
             ->method('delete')
-            ->with(Manager::CONFIG_KEY_SERVICES_DISABLED);
+            ->with(LifecycleManager::CONFIG_KEY_SERVICES_DISABLED);
 
         $message = new InstallServicesTask();
 
@@ -63,9 +63,9 @@ class ManagerTest extends TestCase
             ->with(static::isInstanceOf($message::class))
             ->willReturn(new Envelope($message));
 
-        $manager = new Manager($this->privileges, $this->systemConfigService, $this->createAppRepository($services), $this->appLifecycle, $this->messageBus);
+        $manager = new LifecycleManager($this->privileges, $this->systemConfigService, $this->createAppRepository($services), $this->appLifecycle, $this->messageBus);
 
-        $manager->enableServices();
+        $manager->enable();
     }
 
     public function testDisable(): void
@@ -78,14 +78,14 @@ class ManagerTest extends TestCase
 
         $this->systemConfigService->expects($this->once())
             ->method('set')
-            ->with(Manager::CONFIG_KEY_SERVICES_DISABLED, true);
+            ->with(LifecycleManager::CONFIG_KEY_SERVICES_DISABLED, true);
 
         $this->appLifecycle->expects($this->exactly($services->count()))
             ->method('delete');
 
-        $manager = new Manager($this->privileges, $this->systemConfigService, $this->createAppRepository($services), $this->appLifecycle, $this->messageBus);
+        $manager = new LifecycleManager($this->privileges, $this->systemConfigService, $this->createAppRepository($services), $this->appLifecycle, $this->messageBus);
 
-        $manager->disableServices($this->context);
+        $manager->disable($this->context);
     }
 
     public function testDisableWithNoServices(): void
@@ -94,14 +94,14 @@ class ManagerTest extends TestCase
 
         $this->systemConfigService->expects($this->once())
             ->method('set')
-            ->with(Manager::CONFIG_KEY_SERVICES_DISABLED, true);
+            ->with(LifecycleManager::CONFIG_KEY_SERVICES_DISABLED, true);
 
         $this->appLifecycle->expects($this->never())
             ->method('delete');
 
-        $manager = new Manager($this->privileges, $this->systemConfigService, $this->createAppRepository($services), $this->appLifecycle, $this->messageBus);
+        $manager = new LifecycleManager($this->privileges, $this->systemConfigService, $this->createAppRepository($services), $this->appLifecycle, $this->messageBus);
 
-        $manager->disableServices($this->context);
+        $manager->disable($this->context);
     }
 
     public function testGrantPermissions(): void
@@ -117,9 +117,9 @@ class ManagerTest extends TestCase
             ->method('acceptAllForApps')
             ->with($services->getIds(), $this->context);
 
-        $manager = new Manager($this->privileges, $this->systemConfigService, $this->createAppRepository($services), $this->appLifecycle, $this->messageBus);
+        $manager = new LifecycleManager($this->privileges, $this->systemConfigService, $this->createAppRepository($services), $this->appLifecycle, $this->messageBus);
 
-        $manager->startServices($this->context);
+        $manager->start($this->context);
     }
 
     public function testRevokePermissions(): void
@@ -135,9 +135,9 @@ class ManagerTest extends TestCase
             ->method('revokeAllForApps')
             ->with($services->getIds(), $this->context);
 
-        $manager = new Manager($this->privileges, $this->systemConfigService, $this->createAppRepository($services), $this->appLifecycle, $this->messageBus);
+        $manager = new LifecycleManager($this->privileges, $this->systemConfigService, $this->createAppRepository($services), $this->appLifecycle, $this->messageBus);
 
-        $manager->stopServices($this->context);
+        $manager->stop($this->context);
     }
 
     /**
@@ -146,7 +146,7 @@ class ManagerTest extends TestCase
     #[DataProvider('servicesDisabledProvider')]
     public function testIsDisabled(array $systemConfig, bool $isDisabled): void
     {
-        $managerWithDisabledServices = new Manager(
+        $managerWithDisabledServices = new LifecycleManager(
             $this->createMock(Privileges::class),
             new StaticSystemConfigService($systemConfig),
             $this->createAppRepository(),
@@ -154,7 +154,7 @@ class ManagerTest extends TestCase
             $this->createMock(MessageBusInterface::class),
         );
 
-        static::assertSame($isDisabled, $managerWithDisabledServices->isDisabled());
+        static::assertSame($isDisabled, $managerWithDisabledServices->enabled());
     }
 
     public static function servicesDisabledProvider(): \Generator

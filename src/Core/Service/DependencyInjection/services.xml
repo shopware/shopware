@@ -14,7 +14,7 @@
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
-            <argument type="service" id="Shopware\Core\Service\Manager"/>
+            <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
         </service>
 
         <service id="Shopware\Core\Service\Api\PermissionController" public="true">
@@ -22,8 +22,7 @@
         </service>
 
         <service id="Shopware\Core\Service\Command\Install">
-            <argument type="service" id="Shopware\Core\Service\AllServiceInstaller"/>
-            <argument type="service" id="Shopware\Core\Service\Manager"/>
+            <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
 
             <tag name="console.command" />
         </service>
@@ -55,11 +54,12 @@
         </service>
 
         <service id="Shopware\Core\Service\AllServiceInstaller">
-            <argument>%env(ENABLE_SERVICES)%</argument>
-            <argument>%kernel.environment%</argument>
             <argument type="service" id="Shopware\Core\Service\ServiceRegistryClient"/>
             <argument type="service" id="Shopware\Core\Service\ServiceLifecycle"/>
             <argument type="service" id="app.repository"/>
+            <argument type="service" id="messenger.bus.default"/>
+            <argument type="service" id="scheduled_task.repository"/>
+
         </service>
 
         <service id="Shopware\Core\Service\ScheduledTask\InstallServicesTask">
@@ -69,8 +69,7 @@
         <service id="Shopware\Core\Service\ScheduledTask\InstallServicesTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
-            <argument type="service" id="Shopware\Core\Service\AllServiceInstaller"/>
-            <argument type="service" id="Shopware\Core\Service\Manager"/>
+            <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
 
             <tag name="messenger.message_handler"/>
         </service>
@@ -129,17 +128,18 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Service\Manager">
+        <service id="Shopware\Core\Service\LifecycleManager">
+            <argument>%env(ENABLE_SERVICES)%</argument>
+            <argument>%kernel.environment%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\Privileges\Privileges"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
-            <argument type="service" id="messenger.default_bus"/>
-            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="Shopware\Core\Service\AllServiceInstaller"/>
         </service>
 
         <service id="Shopware\Core\Service\Subscriber\PermissionsSubscriber">
-            <argument type="service" id="Shopware\Core\Service\Manager"/>
+            <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

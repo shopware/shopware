@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\Command\Install;
-use Shopware\Core\Service\Manager;
+use Shopware\Core\Service\LifecycleManager;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -20,8 +20,8 @@ class InstallTest extends TestCase
         $installer = $this->createMock(AllServiceInstaller::class);
         $installer->expects($this->once())->method('install');
 
-        $manager = $this->createMock(Manager::class);
-        $manager->method('isDisabled')
+        $manager = $this->createMock(LifecycleManager::class);
+        $manager->method('enabled')
             ->willReturn(false);
 
         $command = new Install($installer, $manager);
@@ -36,8 +36,8 @@ class InstallTest extends TestCase
         $installer = $this->createMock(AllServiceInstaller::class);
         $installer->expects($this->never())->method('install');
 
-        $manager = $this->createMock(Manager::class);
-        $manager->method('isDisabled')
+        $manager = $this->createMock(LifecycleManager::class);
+        $manager->method('enabled')
             ->willReturn(true);
 
         $command = new Install($installer, $manager);
@@ -55,8 +55,8 @@ class InstallTest extends TestCase
             'MyCoolService2',
         ]);
 
-        $manager = $this->createMock(Manager::class);
-        $manager->method('isDisabled')
+        $manager = $this->createMock(LifecycleManager::class);
+        $manager->method('enabled')
             ->willReturn(false);
 
         $command = new Install($installer, $manager);

@@ -116,16 +116,25 @@ export default class WishlistCookieOffcanvasPlugin extends Plugin {
             return;
         }
 
+        const handler = updated => {
+            if (updated[this.options.cookieName]) {
+                this.$emitter.publish('WishlistCookie/onAccept');
+                document.$emitter.unsubscribe('CookieConfiguration_Update', handler);
+            }
+        };
+        document.$emitter.subscribe('CookieConfiguration_Update', handler);
+
         configurator.openOffCanvas(() => {
             const offcanvasElement = document.querySelector('.offcanvas');
             if (!offcanvasElement) {
                 return;
             }
 
-            offcanvasElement.addEventListener('hidden.bs.offcanvas',
-                this._restoreFocus.bind(this),
-                { once: true }
-            );
+            offcanvasElement.addEventListener('hidden.bs.offcanvas', () => {
+                document.$emitter.unsubscribe('CookieConfiguration_Update', handler);
+
+                this._restoreFocus();
+            }, { once: true });
         });
     }
 

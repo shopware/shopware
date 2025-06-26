@@ -227,7 +227,7 @@ class SeoUrlPersister
                    AND foreign_key = :foreignKey
                    AND sales_channel_id = :salesChannelId
                    AND route_name = :routeName
-                   AND is_canonical IS NULL
+                   AND is_canonical IS NULL AND is_deleted = 0
                  ORDER BY created_at ASC
                  LIMIT 1',
                 [

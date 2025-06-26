@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Seo;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -29,6 +30,10 @@ class SeoUrlPersisterTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
+
+        $queryBuilderMock = $this->createMock(QueryBuilder::class);
+        $this->connection->method('createQueryBuilder')->willReturn($queryBuilderMock);
+
         $this->seoUrlPersister = new SeoUrlPersister(
             $this->connection,
             $this->createMock(EntityRepository::class),

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -15,50 +14,23 @@ use Shopware\Core\Migration\Traits\Translations;
  * @internal
  */
 #[Package('inventory')]
-class Migration1742199548MeasurementSystem extends MigrationStep
+class Migration1742199550MeasurementDisplayUnitTable extends MigrationStep
 {
     use ImportTranslationsTrait;
 
     public function getCreationTimestamp(): int
     {
-        return 1742199548;
+        return 1742199550;
     }
 
     public function update(Connection $connection): void
     {
-        $this->addMeasurementSystemTables($connection);
-        $this->addDefaultMeasurementSystem($connection);
-
-        $this->addSalesChannelDomainColumns($connection);
-        $this->addSalesChannelColumns($connection);
+        $this->createMeasurementDisplayUnitTable($connection);
+        $this->addDefaultMeasurementUnits($connection);
     }
 
-    private function addMeasurementSystemTables(Connection $connection): void
+    private function createMeasurementDisplayUnitTable(Connection $connection): void
     {
-        $connection->executeStatement('
-        CREATE TABLE IF NOT EXISTS `measurement_system` (
-              `id` BINARY(16) NOT NULL,
-              `technical_name` VARCHAR(255) NOT NULL,
-              `created_at` DATETIME(3) NOT NULL,
-              `updated_at` DATETIME(3) NULL,
-              PRIMARY KEY (`id`)
-          ) ENGINE = InnoDB');
-
-        $connection->executeStatement('
-        CREATE TABLE IF NOT EXISTS `measurement_system_translation` (
-            `name` VARCHAR(255) NULL,
-            `measurement_system_id` BINARY(16) NOT NULL,
-            `language_id` BINARY(16) NOT NULL,
-            `created_at` DATETIME(3) NOT NULL,
-            `updated_at` DATETIME(3) NULL,
-            PRIMARY KEY (`measurement_system_id`,`language_id`),
-            CONSTRAINT `fk.measurement_system_translation.measurement_system_id` FOREIGN KEY (`measurement_system_id`)
-              REFERENCES `measurement_system` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-            CONSTRAINT `fk.measurement_system_translation.language_id` FOREIGN KEY (`language_id`)
-              REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-        ');
-
         $connection->executeStatement('
         CREATE TABLE IF NOT EXISTS `measurement_display_unit` (
               `id` BINARY(16) NOT NULL,
@@ -91,52 +63,10 @@ class Migration1742199548MeasurementSystem extends MigrationStep
         ');
     }
 
-    private function addDefaultMeasurementSystem(Connection $connection): void
+    private function addDefaultMeasurementUnits(Connection $connection): void
     {
         $metricId = Uuid::fromHexToBytes(Uuid::fromStringToHex('metric'));
         $imperialId = Uuid::fromHexToBytes(Uuid::fromStringToHex('imperial'));
-
-        $metricExists = $connection->fetchOne('SELECT 1 FROM `measurement_system` WHERE `id` = :id', ['id' => $metricId]);
-        if (!$metricExists) {
-            $connection->insert(
-                'measurement_system',
-                [
-                    'id' => $metricId,
-                    'technical_name' => 'metric',
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                ]
-            );
-
-            $this->importTranslation(
-                'measurement_system_translation',
-                new Translations(
-                    ['measurement_system_id' => $metricId, 'name' => 'Metrisches System'],
-                    ['measurement_system_id' => $metricId, 'name' => 'Metric system']
-                ),
-                $connection
-            );
-        }
-
-        $imperialExists = $connection->fetchOne('SELECT 1 FROM `measurement_system` WHERE `id` = :id', ['id' => $imperialId]);
-        if (!$imperialExists) {
-            $connection->insert(
-                'measurement_system',
-                [
-                    'id' => $imperialId,
-                    'technical_name' => 'imperial',
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                ]
-            );
-
-            $this->importTranslation(
-                'measurement_system_translation',
-                new Translations(
-                    ['measurement_system_id' => $imperialId, 'name' => 'Angloamerikanisches Maßsystem'],
-                    ['measurement_system_id' => $imperialId, 'name' => 'Imperial system']
-                ),
-                $connection
-            );
-        }
 
         $units = [
             ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'm', 'factor' => 1000, 'precision' => 2, 'name_en' => 'Meter', 'name_de' => 'Zähler'],
@@ -182,57 +112,5 @@ class Migration1742199548MeasurementSystem extends MigrationStep
                 $connection
             );
         }
-    }
-
-    private function addSalesChannelDomainColumns(Connection $connection): void
-    {
-        if ($this->columnExists($connection, 'sales_channel_domain', 'measurement_units')) {
-            return;
-        }
-
-        $defaultUnits = \json_encode([
-            'system' => MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM,
-            'units' => [
-                'length' => MeasurementUnits::DEFAULT_LENGTH_UNIT,
-                'weight' => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
-            ],
-        ]);
-
-        $connection->executeStatement('
-            ALTER TABLE `sales_channel_domain`
-            ADD COLUMN `measurement_units` JSON NULL;
-        ');
-
-        // Set default measurement units for existing domains
-        $connection->executeStatement('
-            UPDATE `sales_channel_domain`
-            SET `measurement_units` = \'' . $defaultUnits . '\'
-        ');
-    }
-
-    private function addSalesChannelColumns(Connection $connection): void
-    {
-        if ($this->columnExists($connection, 'sales_channel', 'measurement_units')) {
-            return;
-        }
-
-        $defaultUnits = \json_encode([
-            'system' => 'metric',
-            'units' => [
-                'weight' => 'kg',
-                'length' => 'mm',
-            ],
-        ]);
-
-        $connection->executeStatement('
-            ALTER TABLE `sales_channel`
-            ADD COLUMN `measurement_units` JSON NULL;
-        ');
-
-        // Set default measurement units for existing sales channels
-        $connection->executeStatement('
-            UPDATE `sales_channel`
-            SET `measurement_units` = \'' . $defaultUnits . '\'
-        ');
     }
 }

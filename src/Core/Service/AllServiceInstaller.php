@@ -65,14 +65,15 @@ class AllServiceInstaller
         $criteria->setLimit(1)
             ->addFilter(new EqualsFilter('name', 'services.install'));
 
-        $result = $this->scheduledTaskRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+        $result = $this->scheduledTaskRepository->searchIds($criteria, Context::createDefaultContext());
 
-        if (empty($result)) {
+        $taskId = $result->firstId();
+        if ($taskId === null) {
             throw ServiceException::scheduledTaskNotRegistered();
         }
 
         $message = new InstallServicesTask();
-        $message->setTaskId($result[0]);
+        $message->setTaskId($taskId);
 
         $this->messageBus->dispatch($message);
     }

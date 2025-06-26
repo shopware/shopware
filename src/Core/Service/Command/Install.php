@@ -32,7 +32,7 @@ class Install extends Command
 
         $io->title('Installing services...');
 
-        if (! $this->manager->enabled()) {
+        if (!$this->manager->enabled()) {
             $io->error('Services are disabled. Please enable them to install services.');
 
             return Command::FAILURE;

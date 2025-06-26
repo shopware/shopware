@@ -34,7 +34,8 @@ class LifecycleManager
         private readonly SystemConfigService $systemConfigService,
         private readonly EntityRepository $repository,
         private readonly AbstractAppLifecycle $appLifecycle,
-        private readonly AllServiceInstaller $serviceInstaller
+        private readonly AllServiceInstaller $serviceInstaller,
+        private readonly PermissionsService $permissionsService,
     ) {
     }
 
@@ -79,6 +80,7 @@ class LifecycleManager
             $this->appLifecycle->delete($service->getName(), ['id' => $service->getId()], $context);
         }
 
+        $this->permissionsService->revokePermissions($context);
         $this->systemConfigService->set(self::CONFIG_KEY_SERVICES_DISABLED, true);
     }
 
@@ -95,7 +97,7 @@ class LifecycleManager
             $enabled = filter_var($this->enabled, \FILTER_VALIDATE_BOOLEAN);
         }
 
-        return $enabled;
+        return !$enabled;
     }
 
     private function areDisabledFromConfig(): bool

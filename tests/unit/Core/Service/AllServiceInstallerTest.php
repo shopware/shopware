@@ -3,17 +3,20 @@
 namespace Shopware\Tests\Unit\Core\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceRegistryClient;
 use Shopware\Core\Service\ServiceRegistryEntry;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -25,20 +28,22 @@ class AllServiceInstallerTest extends TestCase
     {
         $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $scheduledTaskRepository = $this->createMock(EntityRepository::class);
 
         $serviceInstaller = new AllServiceInstaller(
-            '1',
-            'prod',
             $serviceRegistryClient,
             $serviceLifeCycle,
             $this->buildAppRepository(),
+            $messageBus,
+            $scheduledTaskRepository,
         );
 
         $serviceRegistryClient->expects($this->once())
             ->method('getAll')
             ->willReturn([
-                new ServiceRegistryEntry('Service1', 'https://service-1.com', 'Service 1', ''),
-                new ServiceRegistryEntry('Service2', 'https://service-2.com', 'Service 2', ''),
+                new ServiceRegistryEntry('Service1', 'https://service1.example.com', 'Service 1', ''),
+                new ServiceRegistryEntry('Service2', 'https://service2.example.com', 'Service 2', ''),
             ]);
 
         $matcher = $this->exactly(2);
@@ -57,64 +62,6 @@ class AllServiceInstallerTest extends TestCase
         $serviceInstaller->install(Context::createDefaultContext());
     }
 
-    #[DataProvider('serviceTogglesProvider')]
-    public function testServicesCanBeEnabledOrDisabled(string $enabled, string $appEnv, bool $shouldBeActive): void
-    {
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
-
-        $serviceInstaller = new AllServiceInstaller(
-            $enabled,
-            $appEnv,
-            $serviceRegistryClient,
-            $serviceLifeCycle,
-            $this->buildAppRepository(),
-        );
-
-        if ($shouldBeActive) {
-            $serviceRegistryClient->expects($this->once())
-            ->method('getAll')
-            ->willReturn([
-                new ServiceRegistryEntry('Service1', 'https://service-1.com', 'Service 1', ''),
-            ]);
-
-            $serviceLifeCycle->expects($this->once())
-                ->method('install')
-                ->willReturnCallback(function (ServiceRegistryEntry $serviceRegistryEntry): bool {
-                    $this->assertSame('Service1', $serviceRegistryEntry->name);
-
-                    return true;
-                });
-        } else {
-            $serviceRegistryClient->expects($this->never())
-                ->method('getAll');
-
-            $serviceLifeCycle->expects($this->never())
-                ->method('install');
-        }
-
-        $serviceInstaller->install(Context::createDefaultContext());
-    }
-
-    public static function serviceTogglesProvider(): \Generator
-    {
-        yield 'not explicitly configured on prod should default to enabled' => ['auto', 'prod', true];
-
-        yield 'not explicitly configured on non-prod should default to disabled' => ['auto', 'dev', false];
-
-        yield 'explicitly enabled on dev should override default and be enabled' => ['1', 'dev', true];
-
-        yield '"true" is treated as truthy' => ['true', 'dev', true];
-
-        yield '"on" is treated as truthy' => ['on', 'dev', true];
-
-        yield 'explicitly disabled on prod should override default and be disabled' => ['0', 'prod', false];
-
-        yield '"false" is treated as falsy' => ['false', 'prod', false];
-
-        yield '"off" is treated as falsy' => ['off', 'prod', false];
-    }
-
     public function testOnlyNewServicesAreInstalled(): void
     {
         $app1 = new AppEntity();
@@ -123,20 +70,22 @@ class AllServiceInstallerTest extends TestCase
 
         $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $scheduledTaskRepository = $this->createMock(EntityRepository::class);
 
         $serviceInstaller = new AllServiceInstaller(
-            '1',
-            'prod',
             $serviceRegistryClient,
             $serviceLifeCycle,
             $this->buildAppRepository([$app1]),
+            $messageBus,
+            $scheduledTaskRepository,
         );
 
         $serviceRegistryClient->expects($this->once())
             ->method('getAll')
             ->willReturn([
-                new ServiceRegistryEntry('Service1', 'Service 1', 'https://service-1.com', '/app-endpoint'),
-                new ServiceRegistryEntry('Service2', 'Service 2', 'https://service-2.com', '/app-endpoint'),
+                new ServiceRegistryEntry('Service1', 'Service 1', 'https://service1.example.com', '/app-endpoint'),
+                new ServiceRegistryEntry('Service2', 'Service 2', 'https://service2.example.com', '/app-endpoint'),
             ]);
 
         $serviceLifeCycle->expects($this->exactly(1))
@@ -161,26 +110,208 @@ class AllServiceInstallerTest extends TestCase
 
         $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $scheduledTaskRepository = $this->createMock(EntityRepository::class);
 
         $serviceInstaller = new AllServiceInstaller(
-            '1',
-            'prod',
             $serviceRegistryClient,
             $serviceLifeCycle,
             $this->buildAppRepository([$app1, $app2]),
+            $messageBus,
+            $scheduledTaskRepository,
         );
 
         $serviceRegistryClient->expects($this->once())
             ->method('getAll')
             ->willReturn([
-                new ServiceRegistryEntry('Service1', 'Service 1', 'https://service-1.com', '/app-endpoint'),
-                new ServiceRegistryEntry('Service2', 'Service 2', 'https://service-2.com', '/app-endpoint'),
+                new ServiceRegistryEntry('Service1', 'Service 1', 'https://service1.example.com', '/app-endpoint'),
+                new ServiceRegistryEntry('Service2', 'Service 2', 'https://service2.example.com', '/app-endpoint'),
             ]);
 
         $serviceLifeCycle->expects($this->never())
             ->method('install');
 
         $serviceInstaller->install(Context::createDefaultContext());
+    }
+
+    public function testScheduleInstallDispatchesMessage(): void
+    {
+        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
+        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $scheduledTaskRepository = $this->createMock(EntityRepository::class);
+
+        $serviceInstaller = new AllServiceInstaller(
+            $serviceRegistryClient,
+            $serviceLifeCycle,
+            $this->buildAppRepository(),
+            $messageBus,
+            $scheduledTaskRepository,
+        );
+
+        $taskId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $criteria = new Criteria();
+        $searchResult = new IdSearchResult(
+            1,
+            [['primaryKey' => $taskId, 'data' => []]],
+            $criteria,
+            $context
+        );
+
+        $scheduledTaskRepository->expects($this->once())
+            ->method('searchIds')
+            ->willReturn($searchResult);
+
+        $envelope = new \Symfony\Component\Messenger\Envelope(new \stdClass());
+        $messageBus->expects($this->once())
+            ->method('dispatch')
+            ->with(static::callback(function ($message) use ($taskId) {
+                return $message instanceof \Shopware\Core\Service\ScheduledTask\InstallServicesTask
+                    && $message->getTaskId() === $taskId;
+            }))
+            ->willReturn($envelope);
+
+        $serviceInstaller->scheduleInstall();
+    }
+
+    public function testScheduleInstallThrowsExceptionWhenTaskNotRegistered(): void
+    {
+        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
+        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $scheduledTaskRepository = $this->createMock(EntityRepository::class);
+
+        $serviceInstaller = new AllServiceInstaller(
+            $serviceRegistryClient,
+            $serviceLifeCycle,
+            $this->buildAppRepository(),
+            $messageBus,
+            $scheduledTaskRepository,
+        );
+
+        $context = Context::createDefaultContext();
+        $criteria = new Criteria();
+        $searchResult = new IdSearchResult(
+            0,
+            [],
+            $criteria,
+            $context
+        );
+
+        $scheduledTaskRepository->expects($this->once())
+            ->method('searchIds')
+            ->willReturn($searchResult);
+
+        $this->expectException(\Shopware\Core\Service\ServiceException::class);
+        $this->expectExceptionMessage('Could not queue task "services.install" because it is not registered.');
+
+        $serviceInstaller->scheduleInstall();
+    }
+
+    public function testInstallReturnsEmptyArrayWhenNoServicesAvailable(): void
+    {
+        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
+        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $scheduledTaskRepository = $this->createMock(EntityRepository::class);
+
+        $serviceInstaller = new AllServiceInstaller(
+            $serviceRegistryClient,
+            $serviceLifeCycle,
+            $this->buildAppRepository(),
+            $messageBus,
+            $scheduledTaskRepository,
+        );
+
+        $serviceRegistryClient->expects($this->once())
+            ->method('getAll')
+            ->willReturn([]);
+
+        $serviceLifeCycle->expects($this->never())
+            ->method('install');
+
+        $result = $serviceInstaller->install(Context::createDefaultContext());
+
+        static::assertSame([], $result);
+    }
+
+    public function testInstallHandlesFailedServiceInstallation(): void
+    {
+        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
+        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $scheduledTaskRepository = $this->createMock(EntityRepository::class);
+
+        $serviceInstaller = new AllServiceInstaller(
+            $serviceRegistryClient,
+            $serviceLifeCycle,
+            $this->buildAppRepository(),
+            $messageBus,
+            $scheduledTaskRepository,
+        );
+
+        $serviceRegistryClient->expects($this->once())
+            ->method('getAll')
+            ->willReturn([
+                new ServiceRegistryEntry('SuccessfulService', 'https://successful.example.com', 'Service 1', ''),
+                new ServiceRegistryEntry('FailingService', 'https://failing.example.com', 'Service 2', ''),
+            ]);
+
+        $matcher = $this->exactly(2);
+        $serviceLifeCycle->expects($matcher)
+            ->method('install')
+            ->willReturnCallback(function () use ($matcher): bool {
+                return match ($matcher->numberOfInvocations()) {
+                    1 => true,
+                    2 => false,
+                    default => throw new \UnhandledMatchError(),
+                };
+            });
+
+        $result = $serviceInstaller->install(Context::createDefaultContext());
+
+        static::assertSame(['SuccessfulService'], $result);
+    }
+
+    public function testInstallOnlyReturnsSuccessfullyInstalledServices(): void
+    {
+        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
+        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $scheduledTaskRepository = $this->createMock(EntityRepository::class);
+
+        $serviceInstaller = new AllServiceInstaller(
+            $serviceRegistryClient,
+            $serviceLifeCycle,
+            $this->buildAppRepository(),
+            $messageBus,
+            $scheduledTaskRepository,
+        );
+
+        $serviceRegistryClient->expects($this->once())
+            ->method('getAll')
+            ->willReturn([
+                new ServiceRegistryEntry('Service1', 'https://service1.example.com', 'Service 1', ''),
+                new ServiceRegistryEntry('Service2', 'https://service2.example.com', 'Service 2', ''),
+                new ServiceRegistryEntry('Service3', 'https://service3.example.com', 'Service 3', ''),
+            ]);
+
+        $matcher = $this->exactly(3);
+        $serviceLifeCycle->expects($matcher)
+            ->method('install')
+            ->willReturnCallback(function (ServiceRegistryEntry $serviceRegistryEntry) use ($matcher): bool {
+                return match ($matcher->numberOfInvocations()) {
+                    1 => true,
+                    2 => false,
+                    3 => true,
+                    default => throw new \UnhandledMatchError(),
+                };
+            });
+
+        $result = $serviceInstaller->install(Context::createDefaultContext());
+
+        static::assertSame(['Service1', 'Service3'], $result);
     }
 
     /**

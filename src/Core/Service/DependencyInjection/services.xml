@@ -136,6 +136,7 @@
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
             <argument type="service" id="Shopware\Core\Service\AllServiceInstaller"/>
+            <argument type="service" id="Shopware\Core\Service\PermissionsService"/>
         </service>
 
         <service id="Shopware\Core\Service\Subscriber\PermissionsSubscriber">

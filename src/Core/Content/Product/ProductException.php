@@ -6,6 +6,7 @@ use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Currency\CurrencyEntity;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('inventory')]
@@ -111,6 +112,16 @@ class ProductException extends HttpException
             self::PRODUCT_ORIGINAL_ID_NOT_FOUND,
             'Cannot find originalId {{ originalId }} in listing mapping',
             ['originalId' => $originalId]
+        );
+    }
+
+    public static function noPriceForCurrency(CurrencyEntity $currency): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            'PRODUCT__NO_PRICE_FOR_CURRENCY',
+            'No price found for currency "{{ currency }}"',
+            ['currency' => $currency->getName() ?? $currency->getShortName() ?? $currency->getIsoCode()]
         );
     }
 }

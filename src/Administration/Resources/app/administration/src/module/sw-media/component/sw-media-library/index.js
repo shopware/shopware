@@ -500,7 +500,7 @@ export default {
                     this.items.splice(itemsIndex, 1, media);
                 }
 
-                if (selectedItemsIndex !== -1){
+                if (selectedItemsIndex !== -1) {
                     this.selectedItems.splice(selectedItemsIndex, 1, media);
                 }
             } finally {

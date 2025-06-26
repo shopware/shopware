@@ -313,4 +313,38 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         const tooltip = wrapper.vm.buildAugmentedRealityTooltip('global.sw-media-media-item.tooltip.ar');
         expect(tooltip).toBe('global.sw-media-media-item.tooltip.ar');
     });
+
+    it('should handle save error and show notification', async () => {
+        const saveError = new Error('Save failed');
+        const mediaSaveMock = jest.fn().mockRejectedValue(saveError);
+        const mediaRepositoryFunctions = {
+            save: mediaSaveMock,
+        };
+
+        const wrapper = await createWrapper({}, {}, mediaRepositoryFunctions);
+        const createNotificationErrorSpy = jest.spyOn(wrapper.vm, 'createNotificationError');
+
+        await wrapper.vm.onSave();
+
+        expect(mediaSaveMock).toHaveBeenCalledWith(wrapper.vm.item, expect.any(Object));
+        expect(wrapper.vm.isSaveSuccessful).toBe(false);
+        expect(wrapper.vm.isLoading).toBe(false);
+        expect(createNotificationErrorSpy).toHaveBeenCalledWith({
+            message: saveError.message,
+        });
+    });
+
+    it('should emit event bus message after save', async () => {
+        const mediaSaveMock = jest.fn().mockResolvedValue();
+        const mediaRepositoryFunctions = {
+            save: mediaSaveMock,
+        };
+        const eventBusEmitSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+
+        const wrapper = await createWrapper({}, {}, mediaRepositoryFunctions);
+
+        await wrapper.vm.onSave();
+
+        expect(eventBusEmitSpy).toHaveBeenCalledWith('sw-media-library-item-updated', wrapper.vm.item.id);
+    });
 });

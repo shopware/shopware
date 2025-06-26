@@ -71,8 +71,6 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
     #[DataProvider('importExportProfilesDataProvider')]
     public function testUpdateGeneratesTechnicalNames(array $datas): void
     {
-        $this->insertDefaultData();
-
         foreach ($datas as $data) {
             $this->connection->insert('import_export_profile', [
                 'id' => $data['uuid'],
@@ -106,18 +104,16 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
 
         // Clean up test data
         $this->connection->executeStatement('DELETE FROM `import_export_profile` WHERE `system_default` != 1');
+        $rows = $this->connection->fetchAllAssociative('SELECT * FROM `import_export_profile`');
+        static::assertCount(12, $rows);
     }
 
     public static function importExportProfilesDataProvider(): \Generator
     {
-        $uuid1 = Uuid::randomBytes();
-        $uuid2 = Uuid::randomBytes();
-        $uuid3 = Uuid::randomBytes();
-
         yield 'single profile' => [
             [
                 [
-                    'uuid' => $uuid1,
+                    'uuid' => Uuid::randomBytes(),
                     'name' => 'Default Profile',
                     'technical_name' => null,
                     'expected_technical_name' => 'default_profile',
@@ -128,13 +124,13 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
         yield 'multiple profiles with existing technical_name' => [
             [
                 [
-                    'uuid' => $uuid1,
+                    'uuid' => Uuid::randomBytes(),
                     'name' => 'Custom Profile',
                     'technical_name' => 'custom_profile_1',
                     'expected_technical_name' => 'custom_profile_1',
                 ],
                 [
-                    'uuid' => $uuid2,
+                    'uuid' => Uuid::randomBytes(),
                     'name' => null,
                     'technical_name' => 'custom_profile_2',
                     'expected_technical_name' => 'custom_profile_2',
@@ -145,19 +141,19 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
         yield 'multiple profiles with null name and null technical_name' => [
             [
                 [
-                    'uuid' => $uuid1,
+                    'uuid' => Uuid::randomBytes(),
                     'name' => null,
                     'technical_name' => null,
                     'expected_technical_name' => 'unnamed_profile',
                 ],
                 [
-                    'uuid' => $uuid2,
+                    'uuid' => Uuid::randomBytes(),
                     'name' => null,
                     'technical_name' => null,
                     'expected_technical_name' => 'unnamed_profile_1',
                 ],
                 [
-                    'uuid' => $uuid3,
+                    'uuid' => Uuid::randomBytes(),
                     'name' => null,
                     'technical_name' => null,
                     'expected_technical_name' => 'unnamed_profile_2',
@@ -168,40 +164,24 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
         yield 'multiple profiles with already existing name' => [
             [
                 [
-                    'uuid' => $uuid1,
+                    'uuid' => Uuid::randomBytes(),
                     'name' => 'Default product',
                     'technical_name' => null,
                     'expected_technical_name' => 'default_product_1',
                 ],
                 [
-                    'uuid' => $uuid2,
+                    'uuid' => Uuid::randomBytes(),
                     'name' => 'Default product',
                     'technical_name' => null,
                     'expected_technical_name' => 'default_product_2',
                 ],
                 [
-                    'uuid' => $uuid3,
+                    'uuid' => Uuid::randomBytes(),
                     'name' => 'Default category',
                     'technical_name' => null,
                     'expected_technical_name' => 'default_category_1',
                 ],
             ],
         ];
-    }
-
-    private function insertDefaultData(): void
-    {
-        $sql = 'SELECT * FROM `import_export_profile`';
-
-        $this->connection->executeStatement('DELETE FROM `import_export_profile`');
-        $rows = $this->connection->fetchAllAssociative($sql);
-        static::assertCount(0, $rows);
-
-        $importExportDefaultProfilesSql = file_get_contents(__DIR__ . '/fixtures/import_export_default_profiles.sql');
-        static::assertIsString($importExportDefaultProfilesSql);
-        $this->connection->executeStatement($importExportDefaultProfilesSql);
-
-        $rows = $this->connection->fetchAllAssociative($sql);
-        static::assertCount(12, $rows);
     }
 }

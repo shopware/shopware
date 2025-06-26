@@ -576,7 +576,7 @@ class OrderRouteTest extends TestCase
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextService::class)->get($parameters);
 
         $criteria = new Criteria([$this->orderId]);
-        $criteria->addFields(['paymentMethodId']);
+        $criteria->addFields(['currencyId']);
 
         $orders = $this->getContainer()
             ->get(OrderRoute::class)

@@ -25,6 +25,9 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPl
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
+/**
+ * @deprecated tag:v6.8.0 - reason:becomes-final
+ */
 #[Package('framework')]
 class ThemeLifecycleService
 {
@@ -50,7 +53,8 @@ class ThemeLifecycleService
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $themeChildRepository,
         private readonly Connection $connection,
-        private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory
+        private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
+        private readonly ThemeRuntimeConfigService $runtimeConfigService,
     ) {
     }
 
@@ -64,11 +68,14 @@ class ThemeLifecycleService
 
         // iterate over all theme configs in the filesystem (plugins/bundles)
         foreach ($configurationCollection as $config) {
-            $this->refreshTheme($config, $context);
+            $this->refreshTheme($config, $context, $configurationCollection);
         }
     }
 
-    public function refreshTheme(StorefrontPluginConfiguration $configuration, Context $context): void
+    /**
+     * @deprecated tag:v6.8.0 parameter $configurationCollection will be added - reason:new-optional-parameter
+     */
+    public function refreshTheme(StorefrontPluginConfiguration $configuration, Context $context/* , ?StorefrontPluginConfigurationCollection $configurationCollection = null */): void
     {
         $themeData = [];
         $themeData['name'] = $configuration->getName();
@@ -115,6 +122,17 @@ class ThemeLifecycleService
         $toDeleteIds = $this->themeChildRepository->searchIds($parentCriteria, $context)->getIds();
         $this->themeChildRepository->delete($toDeleteIds, $context);
         $this->themeChildRepository->upsert($parentThemes, $context);
+
+        /** @deprecated tag:v6.8.0 - Remove whole next line as $configurationCollection will become a part of method signature */
+        $configurationCollection = \func_num_args() === 3 ? \func_get_arg(2) : null;
+
+        // we don't resolve files as theme can be refreshed before it's built
+        $filesRequired = false;
+        if ($configurationCollection === null) {
+            $configurationCollection = $this->pluginRegistry->getConfigurations();
+        }
+        $this->runtimeConfigService->refreshRuntimeConfig($themeData['id'], $configuration, $context, $filesRequired, $configurationCollection);
+        $this->runtimeConfigService->resetCaches();
     }
 
     public function removeTheme(string $technicalName, Context $context): void

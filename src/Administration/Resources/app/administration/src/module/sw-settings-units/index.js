@@ -40,7 +40,7 @@ Module.register('sw-settings-units', {
             props: {
                 default(route) {
                     return {
-                        unitId: route.params.id,
+                        unitId: route.params.id.toLowerCase(),
                     };
                 },
             },

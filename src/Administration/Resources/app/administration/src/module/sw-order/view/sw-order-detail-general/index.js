@@ -161,8 +161,10 @@ export default {
         },
 
         onShippingChargeEdited() {
-            this.delivery.shippingCosts.unitPrice = this.shippingCosts;
-            this.delivery.shippingCosts.totalPrice = this.shippingCosts;
+            if (this.shippingCosts >= 0) {
+                this.delivery.shippingCosts.unitPrice = this.shippingCosts;
+                this.delivery.shippingCosts.totalPrice = this.shippingCosts;
+            }
 
             this.saveAndRecalculate();
         },
@@ -199,7 +201,10 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         updateLoading(loadingValue) {
-            Store.get('swOrderDetail').setLoading(['order', loadingValue]);
+            Store.get('swOrderDetail').setLoading([
+                'order',
+                loadingValue,
+            ]);
         },
 
         reloadEntityData() {

@@ -87,15 +87,18 @@ export default {
                     property: 'name',
                     label: this.$t('sw-settings-snippet.setList.columnName'),
                     inlineEdit: 'string',
-                }, {
+                },
+                {
                     property: 'iso',
                     label: this.$t('sw-settings-snippet.setList.columnIso'),
                     inlineEdit: 'string',
-                }, {
+                },
+                {
                     property: 'baseFile',
                     label: this.$t('sw-settings-snippet.setList.columnBaseFile'),
                     inlineEdit: 'string',
-                }, {
+                },
+                {
                     property: 'updatedAt',
                     label: this.$t('sw-settings-snippet.setList.columnChangedAt'),
                 },
@@ -152,14 +155,18 @@ export default {
             if (match && match.iso !== null) {
                 item.iso = match.iso;
 
-                this.snippetSetRepository.save(item).then(() => {
-                    this.createInlineSuccessNote(item.name);
-                }).catch(() => {
-                    this.createInlineErrorNote(item.name);
-                    this.getList();
-                }).finally(() => {
-                    this.isLoading = false;
-                });
+                this.snippetSetRepository
+                    .save(item)
+                    .then(() => {
+                        this.createInlineSuccessNote(item.name);
+                    })
+                    .catch(() => {
+                        this.createInlineErrorNote(item.name);
+                        this.getList();
+                    })
+                    .finally(() => {
+                        this.isLoading = false;
+                    });
             } else {
                 this.isLoading = false;
                 this.createInlineErrorNote(item.name);
@@ -207,7 +214,7 @@ export default {
             this.closeDeleteModal();
         },
 
-        closeDeleteModal(){
+        closeDeleteModal() {
             this.showDeleteModal = false;
         },
 

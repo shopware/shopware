@@ -63,7 +63,7 @@
                                     {% else %}
                                         <li class="nav-item nav-item-{{ id }} {% if hasChildren %}dropdown position-static{% endif %}">
                                             <a class="nav-link nav-item-{{ id }}-link root main-navigation-link p-2{% if hasChildren %} dropdown-toggle{% endif %}"
-                                               href="{{ category.seoLink }}"
+                                               href="{{ category.seoUrl }}"
                                                {% if hasChildren %}data-bs-toggle="dropdown"{% endif %}
                                                {% if category.shouldOpenInNewTab %}target="_blank"{% endif %}
                                                itemprop="url"

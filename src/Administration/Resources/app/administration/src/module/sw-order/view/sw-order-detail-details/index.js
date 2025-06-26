@@ -104,7 +104,12 @@ export default {
 
         transaction() {
             for (let i = 0; i < this.order.transactions.length; i += 1) {
-                if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
+                if (
+                    ![
+                        'cancelled',
+                        'failed',
+                    ].includes(this.order.transactions[i].stateMachineState.technicalName)
+                ) {
                     return this.order.transactions[i];
                 }
             }
@@ -197,8 +202,10 @@ export default {
 
         // @deprecated tag:v6.8.0 - Will be removed, change shipping cost on order general view instead.
         onShippingChargeEdited: Utils.debounce(function onShippingChargeEdited(amount) {
-            this.delivery.shippingCosts.unitPrice = amount;
-            this.delivery.shippingCosts.totalPrice = amount;
+            if (amount >= 0) {
+                this.delivery.shippingCosts.unitPrice = amount;
+                this.delivery.shippingCosts.totalPrice = amount;
+            }
 
             this.saveAndRecalculate();
         }, 800),
@@ -255,7 +262,10 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         updateLoading(loadingValue) {
-            Store.get('swOrderDetail').setLoading(['order', loadingValue]);
+            Store.get('swOrderDetail').setLoading([
+                'order',
+                loadingValue,
+            ]);
         },
 
         validateTrackingCode(searchTerm) {

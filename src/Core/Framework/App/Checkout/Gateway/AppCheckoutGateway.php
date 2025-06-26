@@ -21,8 +21,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -61,8 +60,8 @@ class AppCheckoutGateway implements CheckoutGatewayInterface
         $apps = $this->getActiveAppsWithCheckoutGateway($context->getContext());
 
         foreach ($apps as $app) {
-            /** @var string $checkoutGatewayUrl */
             $checkoutGatewayUrl = $app->getCheckoutGatewayUrl();
+            \assert(\is_string($checkoutGatewayUrl));
             $appResponse = $this->payloadService->request($checkoutGatewayUrl, $appPayload, $app);
 
             if (!$appResponse) {
@@ -96,9 +95,7 @@ class AppCheckoutGateway implements CheckoutGatewayInterface
 
         $criteria->addFilter(
             new EqualsFilter('active', true),
-            new NotFilter(MultiFilter::CONNECTION_AND, [
-                new EqualsFilter('checkoutGatewayUrl', null),
-            ]),
+            new NotEqualsFilter('checkoutGatewayUrl', null),
         );
 
         return $this->appRepository->search($criteria, $context)->getEntities();

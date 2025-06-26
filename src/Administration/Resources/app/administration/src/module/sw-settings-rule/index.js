@@ -65,7 +65,7 @@ Module.register('sw-settings-rule', {
             props: {
                 default(route) {
                     return {
-                        ruleId: route.params.id,
+                        ruleId: route.params.id.toLowerCase(),
                     };
                 },
             },

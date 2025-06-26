@@ -6,6 +6,7 @@ use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\ThemeCollection;
@@ -42,7 +43,13 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
 
         $mediaIds = [];
         foreach ($allThemeIds as $themeId) {
-            $config = $this->themeService->getThemeConfiguration($themeId, false, $context);
+            if (!Feature::isActive('v6.8.0.0')) {
+                $config = Feature::silent('v6.8.0.0', function () use ($themeId, $context) {
+                    return $this->themeService->getThemeConfiguration($themeId, false, $context);
+                });
+            } else {
+                $config = $this->themeService->getPlainThemeConfiguration($themeId, $context);
+            }
 
             foreach ($config['fields'] ?? [] as $data) {
                 if ($data['type'] === 'media' && $data['value'] && Uuid::isValid($data['value'])) {

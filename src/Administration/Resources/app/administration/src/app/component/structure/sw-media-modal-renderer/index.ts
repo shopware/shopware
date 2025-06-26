@@ -23,7 +23,11 @@ export default Shopware.Component.wrapComponentConfig({
 
         onSelectionChange(selection: EntityCollection<'media'>): void {
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-            const selectors: string[] = (this.mediaModal?.selectors as string[] | undefined) || ['id', 'fileName', 'url'];
+            const selectors: string[] = (this.mediaModal?.selectors as string[] | undefined) || [
+                'id',
+                'fileName',
+                'url',
+            ];
 
             const mediaSelection = this.transformObjectsByPaths(selection, selectors);
 
@@ -48,19 +52,16 @@ export default Shopware.Component.wrapComponentConfig({
             }, obj);
         },
 
-        transformObjectsByPaths(
-            inputArray: Entity<'media'>[],
-            keysToKeep: string[],
-        ): Array<Record<string, unknown>> {
+        transformObjectsByPaths(inputArray: Entity<'media'>[], keysToKeep: string[]): Array<Record<string, unknown>> {
             if (!Array.isArray(inputArray) || !Array.isArray(keysToKeep)) {
                 return [];
             }
 
-            return inputArray.map(item => {
+            return inputArray.map((item) => {
                 const transformedObject = {};
 
                 keysToKeep
-                    .filter(keyPath => typeof keyPath === 'string' && keyPath.length > 0) // 1. Filter for valid keyPaths
+                    .filter((keyPath) => typeof keyPath === 'string' && keyPath.length > 0) // 1. Filter for valid keyPaths
                     .forEach((keyPath: string) => {
                         const value = this.getValueByPath(item, keyPath);
                         this.setValueByPath(transformedObject, keyPath, value);

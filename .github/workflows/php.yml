@@ -212,6 +212,11 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
+      # do not remove
+      # This is required for the test `tests/unit/Core/Checkout/Cart/Error/ErrorTest.php` to work properly
+      - name: Dump composer autoloader
+        run: php vendor/bin/composer dump-autoload -o
+
       - name: Start Webserver
         run: symfony server:start -d
 

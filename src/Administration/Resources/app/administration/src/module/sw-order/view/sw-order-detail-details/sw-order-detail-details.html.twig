@@ -88,6 +88,7 @@
             class="sw-order-detail-details__shipping-cost"
             :disabled="!acl.can('order.editor')"
             :step="1"
+            :min="0"
             :label="$tc('sw-order.detailDeliveries.labelShippingCosts')"
         >
             <template #suffix>

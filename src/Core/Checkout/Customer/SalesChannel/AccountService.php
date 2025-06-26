@@ -144,6 +144,22 @@ class AccountService
         return $customer;
     }
 
+    /**
+     * @throws CustomerNotFoundException
+     */
+    public function getCustomerByEmail(string $email, SalesChannelContext $context): CustomerEntity
+    {
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('email', $email));
+
+        $customer = $this->fetchCustomer($criteria, $context);
+        if ($customer === null) {
+            throw CustomerException::customerNotFound($email);
+        }
+
+        return $customer;
+    }
+
     private function isCustomerConfirmed(CustomerEntity $customer): bool
     {
         return !$customer->getDoubleOptInRegistration() || $customer->getDoubleOptInConfirmDate();
@@ -165,22 +181,6 @@ class AccountService
         $this->eventDispatcher->dispatch($event);
 
         return $newToken;
-    }
-
-    /**
-     * @throws CustomerNotFoundException
-     */
-    private function getCustomerByEmail(string $email, SalesChannelContext $context): CustomerEntity
-    {
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('email', $email));
-
-        $customer = $this->fetchCustomer($criteria, $context);
-        if ($customer === null) {
-            throw CustomerException::customerNotFound($email);
-        }
-
-        return $customer;
     }
 
     /**

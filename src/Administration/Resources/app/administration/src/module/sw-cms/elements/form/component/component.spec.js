@@ -46,4 +46,19 @@ describe('module/sw-cms/elements/form/component', () => {
     it.each(formTemplates)('should render form of type "%s"', async (type) => {
         expect((await createWrapper(type)).get(type)).toBeTruthy();
     });
+
+    it('should return correct selectedForm for type "contact"', async () => {
+        const wrapper = await createWrapper('contact');
+        expect(wrapper.vm.selectedForm).toBe('sw-cms-el-form-template-contact');
+    });
+
+    it('should return correct selectedForm for type "newsletter"', async () => {
+        const wrapper = await createWrapper('newsletter');
+        expect(wrapper.vm.selectedForm).toBe('sw-cms-el-form-template-newsletter');
+    });
+
+    it('should return the type value for unknown types', async () => {
+        const wrapper = await createWrapper('custom-type');
+        expect(wrapper.vm.selectedForm).toBe('custom-type');
+    });
 });

@@ -132,6 +132,7 @@
                                         v-model="item.name"
                                         class="sw-settings-snippet-set__column-name"
                                         :placeholder="$t('sw-settings-snippet.setList.placeholderName')"
+                                        size="small"
                                     />
                                 </template>
                             </template>
@@ -145,7 +146,7 @@
                                 </template>
                             </template>
 
-                            <template #column-baseFile="{ item, isInlineEdit }">
+                            <template #column-baseFile="{ item, isInlineEdit, compact }">
                                 <template v-if="!isInlineEdit">
                                     {{ item.baseFile }}
                                 </template>
@@ -155,7 +156,7 @@
                                     class="sw-settings-snippet-set__column-base-file"
                                     :options="baseFileOptions"
                                     :placeholder="$t('sw-settings-snippet.setList.placeholderBaseFile')"
-                                    small
+                                    :small="compact"
                                 />
                             </template>
 

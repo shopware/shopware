@@ -80,7 +80,8 @@ class InAppPurchaseUpdaterTest extends TestCase
                     $this->createMock(StoreRequestOptionsProvider::class),
                     $systemConfig,
                     $this->createMock(LoggerInterface::class)
-                )
+                ),
+                $this->createMock(LoggerInterface::class)
             )
         );
 

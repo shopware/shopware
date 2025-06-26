@@ -30,7 +30,7 @@ class MediaIndexer extends EntityIndexer
         private readonly EntityRepository $thumbnailRepository,
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly bool $remoteThumbnailsEnabled = false
+        private readonly bool $remoteThumbnailsEnabled
     ) {
     }
 

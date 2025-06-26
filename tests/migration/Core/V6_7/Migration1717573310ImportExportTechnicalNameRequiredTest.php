@@ -25,6 +25,8 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
 
     private static bool $nameColumnAdded = false;
 
+    private static bool $hasDefaultProfiles = false;
+
     public static function setUpBeforeClass(): void
     {
         $connection = self::getContainer()->get(Connection::class);
@@ -36,10 +38,8 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
             self::$nameColumnAdded = true;
         }
 
-
-        var_dump($connection->executeStatement('SELECT * FROM `import_export_profile`'));
+        var_dump($connection->fetchAllAssociative('SELECT * FROM `import_export_profile`'));
         exit();
-
     }
 
     public static function tearDownAfterClass(): void
@@ -82,6 +82,13 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
     #[DataProvider('importExportProfilesDataProvider')]
     public function testUpdateGeneratesTechnicalNames(array $datas): void
     {
+        // Insert default data at the start to ensure the migration has a clean state
+        if (!self::hasDefaultProfiles) {
+            $this->insertDefaultData();
+        }
+
+        $this->insertDefaultData;
+
         foreach ($datas as $data) {
             $this->connection->insert('import_export_profile', [
                 'id' => $data['uuid'],
@@ -206,5 +213,23 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    private function insertDefaultData(): void
+    {
+        $sql = 'SELECT * FROM `import_export_profile`';
+
+        $this->connection->executeStatement('DELETE FROM `import_export_profile`');
+        $rows = $this->connection->fetchAllAssociative($sql);
+        static::assertCount(0, $rows);
+
+        $importExportDefaultProfilesSql = file_get_contents(__DIR__ . '/fixtures/import_export_default_profiles.sql');
+        static::assertIsString($importExportDefaultProfilesSql);
+        $this->connection->executeStatement($importExportDefaultProfilesSql);
+
+        $rows = $this->connection->fetchAllAssociative($sql);
+        static::assertCount(12, $rows);
+
+        self::$hasDefaultProfiles = true;
     }
 }

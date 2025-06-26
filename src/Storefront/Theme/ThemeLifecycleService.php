@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
@@ -183,7 +184,8 @@ class ThemeLifecycleService
                 $path,
                 (string) MimeType::fromFilename($pathinfo['basename']),
                 $pathinfo['extension'] ?? '',
-                (int) filesize($path)
+                (int) filesize($path),
+                Hasher::hashFile($path, 'md5'),
             ),
         ];
     }

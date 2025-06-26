@@ -180,6 +180,10 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Content\Media\Api\MediaUploadV2Controller" public="true">
+            <argument type="service" id="Shopware\Core\Content\Media\Upload\MediaUploadService"/>
+        </service>
+
         <!-- Metadata -->
         <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader\ImageMetadataLoader">
             <tag name="shopware.metadata.loader"/>
@@ -252,6 +256,14 @@
             <argument type="service" id="Shopware\Core\Content\Media\File\FileLoader"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileFetcher"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Upload\MediaUploadService">
+            <argument type="service" id="media.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Media\File\FileFetcher"/>
+            <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="http_client"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface" class="Shopware\Core\Content\Media\MediaUrlPlaceholderHandler" public="true">

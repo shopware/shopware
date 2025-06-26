@@ -15,6 +15,8 @@ export default class WishlistCookieOffcanvasPlugin extends Plugin {
         cancelBtnSelector: '.js-wishlist-cookie-offcanvas-cancel',
     };
 
+    static lastTriggerElement = null;
+
     init() {
         this._registerEvents();
     }
@@ -36,6 +38,7 @@ export default class WishlistCookieOffcanvasPlugin extends Plugin {
     static requestConsent(productId, onConsent) {
         const url = window.router['frontend.wishlist.cookie.offcanvas'];
 
+        WishlistCookieOffcanvasPlugin.lastTriggerElement = document.activeElement;
         AjaxOffCanvas.open(url, false, () => {
             window.PluginManager.initializePlugins();
 
@@ -113,15 +116,16 @@ export default class WishlistCookieOffcanvasPlugin extends Plugin {
             return;
         }
 
-        const handler = updated => {
-            if (updated[this.options.cookieName]) {
-                this.$emitter.publish('WishlistCookie/onAccept');
-                document.$emitter.unsubscribe('CookieConfiguration_Update', handler);
-            }
-        };
-
         configurator.openOffCanvas(() => {
-            document.$emitter.subscribe('CookieConfiguration_Update', handler);
+            const offcanvasElement = document.querySelector('.offcanvas');
+            if (!offcanvasElement) {
+                return;
+            }
+
+            offcanvasElement.addEventListener('hidden.bs.offcanvas',
+                this._restoreFocus.bind(this),
+                { once: true }
+            );
         });
     }
 
@@ -137,5 +141,12 @@ export default class WishlistCookieOffcanvasPlugin extends Plugin {
 
         // remove all offcanvas-backdrop nodes
         document.querySelectorAll('.offcanvas-backdrop').forEach(el => el.remove());
+    }
+
+    _restoreFocus() {
+        const btn = WishlistCookieOffcanvasPlugin.lastTriggerElement;
+        if (btn && btn.focus) {
+            btn.focus();
+        }
     }
 }

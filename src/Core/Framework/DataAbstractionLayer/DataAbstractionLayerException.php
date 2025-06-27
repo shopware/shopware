@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
@@ -92,6 +93,8 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_CHUNK_SIZE = 'FRAMEWORK__INVALID_CHUNK_SIZE';
     public const HOOK_INJECTION_EXCEPTION = 'FRAMEWORK__HOOK_INJECTION_EXCEPTION';
     public const FRAMEWORK_DEPRECATED_DEFINITION_CALL = 'FRAMEWORK__DEPRECATED_DEFINITION_CALL';
+    public const UNSUPPORTED_QUERY_FILTER = 'FRAMEWORK__UNSUPPORTED_QUERY_FILTER';
+    public const INVALID_SORT_DIRECTION = 'FRAMEWORK__INVALID_SORT_DIRECTION';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -848,17 +851,17 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @internal
-     *
-     * @deprecated tag:v6.7.0 - reason:remove-subscriber - remove method completely not used anymore
-     */
-    public static function deprecatedDefinitionCall(): self
+    public static function invalidSortingDirection(string $direction): self
     {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new InvalidSortingDirectionException($direction);
+        }
+
         return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::FRAMEWORK_DEPRECATED_DEFINITION_CALL,
-            'Method getDefinitionClass is deprecated. Use getEntityName instead.'
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_SORT_DIRECTION,
+            'The given sort direction "{{ direction }}" is invalid.',
+            ['direction' => $direction]
         );
     }
 }

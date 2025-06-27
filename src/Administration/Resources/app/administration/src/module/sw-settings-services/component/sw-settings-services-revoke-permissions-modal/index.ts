@@ -26,12 +26,6 @@ export default Shopware.Component.wrapComponentConfig({
 
     emits: ['service-permissions-revoked'],
 
-    props: {
-        services: {
-            type: Array as PropType<ServiceDescription[]>,
-        },
-    },
-
     data() {
         return {
             isLoading: false,

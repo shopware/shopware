@@ -4,15 +4,6 @@
             <p>{{ $t('sw-settings-services.revoke-permissions-modal.p-1') }}</p>
 
             <p>{{ $t('sw-settings-services.revoke-permissions-modal.p-2') }}</p>
-
-            <ul>
-                <li
-                    v-for="service in services"
-                    :key="service.id"
-                >
-                    {{ service.name }}
-                </li>
-            </ul>
         </div>
 
         <template #footer>

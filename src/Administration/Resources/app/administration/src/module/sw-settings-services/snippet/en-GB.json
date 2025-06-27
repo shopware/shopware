@@ -50,7 +50,7 @@
     "revoke-permissions-modal": {
       "title": "Revoke permissions",
       "p-1": "Are you sure you want to revoke permissions?",
-      "p-2": "This will deactivate certain Shopware Services and result in loss of all related functionality. The following Services will be deactivated:",
+      "p-2": "This will deactivate certain Shopware Services and result in loss of all related functionality.",
       "label-button-revoke-permissions": "Revoke permissions"
     },
     "deactivate-modal": {

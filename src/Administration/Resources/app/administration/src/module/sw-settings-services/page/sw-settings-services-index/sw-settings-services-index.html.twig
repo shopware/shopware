@@ -59,6 +59,11 @@
                         {{ $t('sw-settings-services.index.services-are-disabled-button-label') }}
                     </mt-button>
                 </mt-banner>
+                <sw-empty-state
+                    v-else-if="services.length === 0"
+                >
+
+                </sw-empty-state>
                 <ul
                     v-else
                     class="sw-settings-services__available-services"
@@ -90,7 +95,6 @@
 
                 <sw-settings-services-revoke-permissions-modal
                     v-if="config.acceptedPermissionsRevision"
-                    :services="services"
                     @service-permissions-revoked="reloadServices"
                 />
 

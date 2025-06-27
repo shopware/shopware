@@ -77,7 +77,7 @@ class CashRoundingTest extends TestCase
         $result = $service->mathRound(-0.001, $config);
 
         // Convert to string to check if it's positive zero (should not start with '-')
-        static::assertEquals('0', (string) $result);
+        static::assertSame('0', (string) $result);
     }
 
     public static function provider_german(): \Generator

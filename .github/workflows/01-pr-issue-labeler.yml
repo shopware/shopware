@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-24.04
     if: github.event.act || (github.event_name == 'issues' && ( github.event.action == 'opened' || github.event.action == 'reopened' ))
     env:
-      TEAM_LABEL: "domain/customer-support"
+      TEAM_LABEL: "customer-support"
     permissions:
       id-token: write
       issues: write

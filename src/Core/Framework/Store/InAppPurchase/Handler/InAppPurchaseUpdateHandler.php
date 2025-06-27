@@ -23,7 +23,7 @@ final class InAppPurchaseUpdateHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
-        private readonly InAppPurchaseUpdater $iapUpdater,
+        private readonly InAppPurchaseUpdater $iapUpdater
     ) {
         parent::__construct($scheduledTaskRepository, $logger);
     }
@@ -31,7 +31,6 @@ final class InAppPurchaseUpdateHandler extends ScheduledTaskHandler
     public function run(): void
     {
         $context = Context::createCLIContext();
-
         $this->iapUpdater->update($context);
     }
 }

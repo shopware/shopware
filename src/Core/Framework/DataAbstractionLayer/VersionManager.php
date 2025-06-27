@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use LensOnline\Exception\VersionMergeOutdatedException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
@@ -168,6 +169,8 @@ class VersionManager
             throw DataAbstractionLayerException::versionNotExists($versionId);
         }
 
+        $this->checkVersionTimestamps($versionId, $writeContext);
+
         // load all commits of the provided version
         $commits = $this->getCommits($versionId, $writeContext);
 
@@ -210,6 +213,44 @@ class VersionManager
 
         $versionContext->removeState(self::MERGE_SCOPE);
         $liveContext->addState(self::MERGE_SCOPE);
+    }
+
+    private function checkVersionTimestamps(string $versionId, WriteContext $writeContext): void
+    {
+        $commits = $this->getCommits($versionId, $writeContext);
+        if ($commits->count() === 0) {
+            return;
+        }
+
+        foreach ($commits as $commit) {
+            foreach ($commit->getData() as $commitData) {
+                $commitCreatedAt = $commitData->getCreatedAt();
+                if (!$commitCreatedAt) {
+                    continue;
+                }
+
+                $entityName = $commitData->getEntityName();
+                $entityId = $commitData->getEntityId();
+
+                if (!$entityName || !$entityId) {
+                    continue;
+                }
+
+                $liveEntity = $this->entityReader->read(
+                    $this->registry->getByEntityName($entityName),
+                    new Criteria([$entityId['id']]),
+                    $writeContext->getContext()->createWithVersionId(Defaults::LIVE_VERSION)
+                )->first();
+
+                if (!$liveEntity || !$liveEntity->getUpdatedAt()) {
+                    continue;
+                }
+
+                if ($commitCreatedAt < $liveEntity->getUpdatedAt()) {
+                    throw DataAbstractionLayerException::versionIsOlderThanLiveVersion($versionId);
+                }
+            }
+        }
     }
 
     /**

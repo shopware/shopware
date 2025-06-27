@@ -46,6 +46,7 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_LANGUAGE_ID = 'FRAMEWORK__INVALID_LANGUAGE_ID';
     public const VERSION_NO_COMMITS_FOUND = 'FRAMEWORK__VERSION_NO_COMMITS_FOUND';
     public const VERSION_NOT_EXISTS = 'FRAMEWORK__VERSION_NOT_EXISTS';
+    public const VERSION_IS_OLDER_THAN_LIVE_VERSION = 'FRAMEWORK__VERSION_IS_OLDER_THAN_LIVE_VERSION';
     public const MIGRATION_STUB_NOT_FOUND = 'FRAMEWORK__MIGRATION_STUB_NOT_FOUND';
     public const MIGRATION_DIRECTORY_NOT_FOUND = 'FRAMEWORK__MIGRATION_DIRECTORY_NOT_FOUND';
     public const DATABASE_PLATFORM_INVALID = 'FRAMEWORK__DATABASE_PLATFORM_INVALID';
@@ -231,6 +232,16 @@ class DataAbstractionLayerException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::VERSION_NOT_EXISTS,
             'Version {{ versionId }} does not exist. Version was probably deleted or already merged.',
+            ['versionId' => $versionId]
+        );
+    }
+
+    public static function versionIsOlderThanLiveVersion(string $versionId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::VERSION_IS_OLDER_THAN_LIVE_VERSION,
+            'Version {{ versionId }} is older than the live version. Cannot merge.',
             ['versionId' => $versionId]
         );
     }

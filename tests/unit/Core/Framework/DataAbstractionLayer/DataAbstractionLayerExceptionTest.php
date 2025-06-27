@@ -229,4 +229,13 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertSame(DataAbstractionLayerException::UNSUPPORTED_QUERY_FILTER, $exception->getErrorCode());
         static::assertSame('Unsupported query foo', $exception->getMessage());
     }
+
+    public function testInvalidSortingDirection(): void
+    {
+        $e = DataAbstractionLayerException::invalidSortingDirection('foo');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__INVALID_SORT_DIRECTION', $e->getErrorCode());
+        static::assertSame('The given sort direction "foo" is invalid.', $e->getMessage());
+    }
 }

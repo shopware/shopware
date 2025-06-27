@@ -13,7 +13,7 @@ use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\LifecycleManager;
-use Shopware\Core\Service\PermissionsService;
+use Shopware\Core\Service\Permission\PermissionsService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;

@@ -25,8 +25,8 @@ use Shopware\Core\Service\ServiceClient;
 use Shopware\Core\Service\ServiceClientFactory;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceLifecycle;
-use Shopware\Core\Service\ServiceRegistryClient;
-use Shopware\Core\Service\ServiceRegistryEntry;
+use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Shopware\Core\Service\ServiceSourceResolver;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
@@ -39,7 +39,7 @@ class ServiceLifecycleTest extends TestCase
 {
     private AbstractAppLifecycle&MockObject $appLifecycle;
 
-    private ServiceRegistryEntry $entry;
+    private ServiceEntry $entry;
 
     private LoggerInterface&MockObject $logger;
 
@@ -65,7 +65,7 @@ class ServiceLifecycleTest extends TestCase
     protected function setUp(): void
     {
         $this->appLifecycle = $this->createMock(AbstractAppLifecycle::class);
-        $this->entry = new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/service/lifecycle/choose-app');
+        $this->entry = new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/service/lifecycle/choose-app');
         $this->appInfo = new AppInfo('MyCoolService', '6.6.0.0', 'a1bcd', '6.6.0.0-a1bcd', 'https://mycoolservice.com/service/lifecycle/app-zip/6.6.0.0');
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->manifestFactory = $this->createMock(ManifestFactory::class);
@@ -296,7 +296,7 @@ class ServiceLifecycleTest extends TestCase
 
     public function testInstallDoesNotActivateIfRegistryEntrySpecifiesNotTo(): void
     {
-        $entry = new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/service/lifecycle/choose-app', activateOnInstall: false);
+        $entry = new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/service/lifecycle/choose-app', activateOnInstall: false);
 
         $tempDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
         $tempDirectoryFactory->method('path')->willReturn('/tmp/path');

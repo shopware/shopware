@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Service;
+namespace Shopware\Tests\Unit\Core\Service\ServiceRegistry;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Service\ServiceRegistryClient;
-use Shopware\Core\Service\ServiceRegistryEntry;
+use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
@@ -14,7 +14,7 @@ use Symfony\Component\HttpClient\Response\MockResponse;
  * @internal
  */
 #[CoversClass(ServiceRegistryClient::class)]
-class ServiceRegistryClientTest extends TestCase
+class ClientTest extends TestCase
 {
     public static function invalidResponseProvider(): \Generator
     {
@@ -83,7 +83,7 @@ class ServiceRegistryClientTest extends TestCase
         $entries = $registryClient->getAll();
 
         static::assertCount(2, $entries);
-        static::assertContainsOnlyInstancesOf(ServiceRegistryEntry::class, $entries);
+        static::assertContainsOnlyInstancesOf(ServiceEntry::class, $entries);
         static::assertSame('MyCoolService1', $entries[0]->name);
         static::assertSame('My Cool Service 1', $entries[0]->description);
         static::assertSame('https://coolservice1.com', $entries[0]->host);

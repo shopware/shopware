@@ -7,7 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Service\Api\PermissionController;
-use Shopware\Core\Service\PermissionsService;
+use Shopware\Core\Service\Permission\PermissionsService;
 use Shopware\Core\Service\ServiceException;
 use Symfony\Component\HttpFoundation\Response;
 

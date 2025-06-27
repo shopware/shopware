@@ -11,6 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\ScheduledTask\InstallServicesTask;
+use Shopware\Core\Service\ServiceRegistry\Client;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -25,7 +27,7 @@ class AllServiceInstaller
      * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(
-        private readonly ServiceRegistryClient $serviceRegistryClient,
+        private readonly Client $serviceRegistryClient,
         private readonly ServiceLifecycle $serviceLifecycle,
         private readonly EntityRepository $appRepository,
         private readonly MessageBusInterface $messageBus,
@@ -81,7 +83,7 @@ class AllServiceInstaller
     /**
      * @param EntitySearchResult<AppCollection> $installedServices
      *
-     * @return array<ServiceRegistryEntry>
+     * @return array<ServiceEntry>
      */
     private function getNewServices(EntitySearchResult $installedServices): array
     {
@@ -89,7 +91,7 @@ class AllServiceInstaller
 
         return array_filter(
             $this->serviceRegistryClient->getAll(),
-            static fn (ServiceRegistryEntry $service) => !\in_array($service->name, $names, true)
+            static fn (ServiceEntry $service) => !\in_array($service->name, $names, true)
         );
     }
 }

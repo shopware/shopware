@@ -3,10 +3,12 @@
 namespace Shopware\Tests\Integration\Core\Service\Api;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Service\PermissionsService;
+use Shopware\Core\Service\Permission\PermissionsConsent;
+use Shopware\Core\Service\Permission\PermissionsService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -36,7 +38,7 @@ class PermissionControllerTest extends TestCase
     public function testGrantPermissionsEndpoint(): void
     {
         $revision = '2025-06-13';
-        $storedRevision = $this->permissionsService->getAcceptedPermissionsRevision();
+        $storedRevision = $this->systemConfigService->get('core.services.acceptedPermissionsRevision');
         static::assertNull($storedRevision, 'No revision should be stored before granting permissions');
 
         $this->getBrowser()->request(
@@ -54,9 +56,7 @@ class PermissionControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame('{}', $response->getContent());
-        $storedRevision = $this->permissionsService->getAcceptedPermissionsRevision();
-        static::assertNotNull($storedRevision);
-        static::assertSame($revision, $storedRevision->format('Y-m-d'));
+        PermissionsConsent::fromJsonString($this->systemConfigService->getString('core.services.acceptedPermissionsRevision'));
     }
 
     public function testGrantPermissionsEndpointWithInvalidRevision(): void
@@ -82,16 +82,14 @@ class PermissionControllerTest extends TestCase
         static::assertArrayHasKey('errors', $responseData);
         static::assertSame('SERVICE__INVALID_PERMISSIONS_REVISION_FORMAT', $responseData['errors'][0]['code']);
         static::assertStringContainsString('invalid-date', $responseData['errors'][0]['detail']);
-
-        $storedRevision = $this->permissionsService->getAcceptedPermissionsRevision();
-        static::assertNull($storedRevision);
+        static::assertNull($this->systemConfigService->get('core.services.acceptedPermissionsRevision'));
     }
 
     public function testRevokePermissionsEndpoint(): void
     {
         $revision = '2025-06-13';
-        $this->permissionsService->grantPermissions($revision, Context::createDefaultContext());
-        static::assertNotNull($this->permissionsService->getAcceptedPermissionsRevision());
+        $this->permissionsService->grantPermissions($revision, Context::createDefaultContext(new AdminApiSource('test-user-id')));
+        static::assertNotNull($this->systemConfigService->get('core.services.acceptedPermissionsRevision'));
 
         $this->getBrowser()->request(
             'POST',
@@ -107,7 +105,6 @@ class PermissionControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame('{}', $response->getContent());
-        $storedRevision = $this->permissionsService->getAcceptedPermissionsRevision();
-        static::assertNull($storedRevision);
+        static::assertNull($this->systemConfigService->get('core.services.acceptedPermissionsRevision'), 'The permissions revision should be removed after revoking permissions');
     }
 }

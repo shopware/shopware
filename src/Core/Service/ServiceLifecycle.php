@@ -17,6 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\ServiceRegistry\Client;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 
 /**
  * @internal
@@ -30,7 +32,7 @@ class ServiceLifecycle
      * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(
-        private readonly ServiceRegistryClient $serviceRegistryClient,
+        private readonly Client $serviceRegistryClient,
         private readonly ServiceClientFactory $serviceClientFactory,
         private readonly AbstractAppLifecycle $appLifecycle,
         private readonly EntityRepository $appRepository,
@@ -41,7 +43,7 @@ class ServiceLifecycle
     ) {
     }
 
-    public function install(ServiceRegistryEntry $serviceEntry, Context $context): bool
+    public function install(ServiceEntry $serviceEntry, Context $context): bool
     {
         $appId = $this->getAppIdForAppWithSameNameAsService($serviceEntry, $context);
 
@@ -140,7 +142,7 @@ class ServiceLifecycle
     /**
      * If a non-service app exists with the same name as the service, return its ID.
      */
-    public function getAppIdForAppWithSameNameAsService(ServiceRegistryEntry $serviceEntry, Context $context): ?string
+    public function getAppIdForAppWithSameNameAsService(ServiceEntry $serviceEntry, Context $context): ?string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $serviceEntry->name));
@@ -170,7 +172,7 @@ class ServiceLifecycle
         return $this->appRepository->search($criteria, $context)->getEntities()->first();
     }
 
-    private function upgradeAppToService(string $appId, ServiceRegistryEntry $entry, Context $context): bool
+    private function upgradeAppToService(string $appId, ServiceEntry $entry, Context $context): bool
     {
         $this->appRepository->update(
             [

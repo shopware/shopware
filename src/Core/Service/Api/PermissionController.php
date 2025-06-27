@@ -4,7 +4,7 @@ namespace Shopware\Core\Service\Api;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Service\PermissionsService;
+use Shopware\Core\Service\Permission\PermissionsService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 

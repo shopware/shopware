@@ -31,6 +31,10 @@ class ServiceException extends HttpException
 
     public const SCHEDULED_TASK_NOT_REGISTERED = 'SCHEDULED_TASK_NOT_REGISTERED';
 
+    public const SERVICE_REQUEST_FAILED = 'SERVICE__REQUEST_FAILED';
+
+    public const NO_CURRENT_PERMISSIONS_CONSENT = 'SERVICE__NO_CURRENT_PERMISSIONS_CONSENT';
+
     public static function notFound(string $field, string $value): self
     {
         return new self(
@@ -161,6 +165,55 @@ class ServiceException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::SCHEDULED_TASK_NOT_REGISTERED,
             'Could not queue task "services.install" because it is not registered.',
+        );
+    }
+
+    public static function consentSaveFailed(string $getMessage): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SERVICE_REQUEST_FAILED,
+            'Could not save consent: ' . $getMessage
+        );
+    }
+
+    public static function consentRevokeFailed(string $getMessage): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SERVICE_REQUEST_FAILED,
+            'Could not revoke consent: ' . $getMessage
+        );
+    }
+
+    public static function noCurrentPermissionsConsent(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::NO_CURRENT_PERMISSIONS_CONSENT,
+            'No current permissions consent found.',
+        );
+    }
+
+    public static function invalidPermissionsContext(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SERVICE_REQUEST_FAILED,
+            'This action is only allowed from Admins.',
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $json
+     */
+    public static function invalidPermissionConsentFormat(array $json): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_PERMISSIONS_REVISION_FORMAT,
+            'The saved permissions consent is not in a valid format.',
+            ['consent' => $json]
         );
     }
 }

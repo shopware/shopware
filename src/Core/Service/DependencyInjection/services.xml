@@ -18,7 +18,7 @@
         </service>
 
         <service id="Shopware\Core\Service\Api\PermissionController" public="true">
-            <argument type="service" id="Shopware\Core\Service\PermissionsService"/>
+            <argument type="service" id="Shopware\Core\Service\Permission\PermissionsService"/>
         </service>
 
         <service id="Shopware\Core\Service\Command\Install">
@@ -27,7 +27,7 @@
             <tag name="console.command" />
         </service>
 
-        <service id="Shopware\Core\Service\ServiceRegistryClient">
+        <service id="Shopware\Core\Service\ServiceRegistry\Client">
             <argument>%env(SERVICE_REGISTRY_URL)%</argument>
             <argument type="service" id="http_client"/>
 
@@ -35,7 +35,7 @@
         </service>
 
         <service id="Shopware\Core\Service\ServiceLifecycle">
-            <argument type="service" id="Shopware\Core\Service\ServiceRegistryClient"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
             <argument type="service" id="Shopware\Core\Service\ServiceClientFactory"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
             <argument type="service" id="app.repository"/>
@@ -47,14 +47,14 @@
 
         <service id="Shopware\Core\Service\ServiceClientFactory">
             <argument type="service" id="Symfony\Contracts\HttpClient\HttpClientInterface"/>
-            <argument type="service" id="Shopware\Core\Service\ServiceRegistryClient"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
             <argument>%kernel.shopware_version%</argument>
             <argument type="service" id="shopware.app_system.guzzle.middleware"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
         </service>
 
         <service id="Shopware\Core\Service\AllServiceInstaller">
-            <argument type="service" id="Shopware\Core\Service\ServiceRegistryClient"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
             <argument type="service" id="Shopware\Core\Service\ServiceLifecycle"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="messenger.bus.default"/>
@@ -91,7 +91,7 @@
         </service>
 
         <service id="Shopware\Core\Service\Subscriber\ExtensionCompatibilitiesResolvedSubscriber">
-            <argument type="service" id="Shopware\Core\Service\ServiceRegistryClient"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider"/>
 
             <tag name="kernel.event_subscriber"/>
@@ -115,7 +115,7 @@
 
         <service id="Shopware\Core\Service\Subscriber\LicenseSyncSubscriber">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Core\Service\ServiceRegistryClient"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Service\ServiceClientFactory"/>
@@ -123,9 +123,11 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Service\PermissionsService">
+        <service id="Shopware\Core\Service\Permission\PermissionsService">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="system_config.repository"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceRegistry\PermissionLogger"/>
         </service>
 
         <service id="Shopware\Core\Service\LifecycleManager">
@@ -136,13 +138,26 @@
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
             <argument type="service" id="Shopware\Core\Service\AllServiceInstaller"/>
-            <argument type="service" id="Shopware\Core\Service\PermissionsService"/>
+            <argument type="service" id="Shopware\Core\Service\Permission\PermissionsService"/>
         </service>
 
         <service id="Shopware\Core\Service\Subscriber\PermissionsSubscriber">
             <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
 
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Service\ServiceRegistry\PermissionLogger">
+            <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
+            <argument type="service" id="messenger.bus.default"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+
+        </service>
+
+        <service id="Shopware\Core\Service\MessageHandler\LogConsentToRegistryHandler">
+            <argument type="service" id="Shopware\Core\Service\ServiceRegistry\PermissionLogger"/>
+            <tag name="messenger.message_handler"/>
         </service>
     </services>
 </container>

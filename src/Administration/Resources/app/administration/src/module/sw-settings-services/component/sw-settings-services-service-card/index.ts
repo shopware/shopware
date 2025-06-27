@@ -7,7 +7,8 @@ import type { ServiceDescription } from '../../service/shopware-services.service
 import template from './sw-settings-services-service-card.html.twig';
 import './sw-settings-services-service-card.scss';
 import extractErrorMessage from '../../composables/extract-error';
-import iconPlaceholder from './service-placeholder.jpg'
+// eslint-disable-next-line import/no-unresolved
+import iconPlaceholder from './assets/extension-icon-placeholder.svg?no-inline';
 
 /**
  * @private

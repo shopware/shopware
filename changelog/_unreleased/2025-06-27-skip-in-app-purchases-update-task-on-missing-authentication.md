@@ -6,4 +6,4 @@ author_email: m.bade@shopware.com
 author_github: @cyl3x
 ---
 # Core
-* Changed `Shopware\Core\Framework\Store\InAppPurchase\Handler\InAppPurchaseUpdateHandler` to skip IAP update on missing authentication headers
+* Changed `Shopware\Tests\Unit\Core\Framework\Store\InAppPurchases\Services\InAppPurchaseUpdater` to skip IAP update on missing authentication headers

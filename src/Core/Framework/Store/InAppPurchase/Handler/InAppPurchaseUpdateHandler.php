@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
-use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\InAppPurchase\InAppPurchaseUpdateTask;
 use Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseUpdater;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -25,7 +24,6 @@ final class InAppPurchaseUpdateHandler extends ScheduledTaskHandler
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
         private readonly InAppPurchaseUpdater $iapUpdater,
-        private readonly AbstractStoreRequestOptionsProvider $storeRequestOptionsProvider,
     ) {
         parent::__construct($scheduledTaskRepository, $logger);
     }
@@ -34,9 +32,6 @@ final class InAppPurchaseUpdateHandler extends ScheduledTaskHandler
     {
         $context = Context::createCLIContext();
 
-        // without authentication headers the request will fail anyway
-        if ($this->storeRequestOptionsProvider->getAuthenticationHeader($context)) {
-            $this->iapUpdater->update($context);
-        }
+        $this->iapUpdater->update($context);
     }
 }

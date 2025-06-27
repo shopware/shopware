@@ -1,0 +1,8 @@
+---
+title: Fix invoice number selection for credit notes and storno invoices
+author: Justus Geramb
+author_email: justus@devite.io
+author_github: @jgeramb
+---
+# Administration
+* Allows the selection of invoice numbers of ZUGFeRD and embedded ZUGFeRD invoices for the creation of credit notes and storno invoices.

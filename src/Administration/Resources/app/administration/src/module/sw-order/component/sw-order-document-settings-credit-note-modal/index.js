@@ -69,7 +69,11 @@ export default {
 
             const invoiceNumbers = this.order.documents
                 .filter((document) => {
-                    return document.documentType.technicalName === 'invoice';
+                    return (
+                        document.documentType.technicalName === 'invoice' ||
+                        document.documentType.technicalName === 'zugferd_invoice' ||
+                        document.documentType.technicalName === 'zugferd_embedded_invoice'
+                    );
                 })
                 .map((item) => {
                     return item.config.custom.invoiceNumber;

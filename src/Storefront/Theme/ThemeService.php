@@ -219,6 +219,7 @@ class ThemeService implements ResetInterface
      * Validates if the theme config can be compiled in SCSS.
      *
      * @param array<string, mixed> $config
+     * @param array<int, string> $customAllowedRegex
      *
      * @return array<string, mixed>
      */

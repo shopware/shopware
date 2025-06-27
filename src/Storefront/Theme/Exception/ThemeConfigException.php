@@ -61,6 +61,9 @@ class ThemeConfigException extends ShopwareHttpException
         }
     }
 
+    /**
+     * @return \Throwable[]
+     */
     public function getExceptions(): array
     {
         return $this->exceptions;

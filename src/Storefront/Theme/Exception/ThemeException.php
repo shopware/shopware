@@ -59,7 +59,7 @@ class ThemeException extends HttpException
         );
     }
 
-    public static function InvalidScssValue(mixed $value, string $type, string $name = ''): self
+    public static function InvalidScssValue(mixed $value, string $type, string $name): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,

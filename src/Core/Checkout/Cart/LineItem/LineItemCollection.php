@@ -49,6 +49,7 @@ class LineItemCollection extends Collection
             }
 
             $exists->setQuantity($newQuantity);
+            $exists->markModified();
 
             return;
         }

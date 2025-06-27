@@ -389,8 +389,8 @@ class MailServiceTest extends TestCase
 
         static::assertInstanceOf(Email::class, $email);
         $headers = $email->getHeaders();
-        static::assertSame($headers->get('X-Shopware-Language-Id')?->getBody(), Defaults::LANGUAGE_SYSTEM);
-        static::assertSame($headers->get('X-Shopware-Sales-Channel-Id')?->getBody(), $salesChannelId);
+        static::assertSame(Defaults::LANGUAGE_SYSTEM, $headers->get('X-Shopware-Language-Id')?->getBody());
+        static::assertSame($salesChannelId, $headers->get('X-Shopware-Sales-Channel-Id')?->getBody());
 
         // check that no header is empty (e.g. Amazon SES doesn't like that)
         foreach ($headers->all() as $header) {

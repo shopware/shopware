@@ -2,16 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Store\InAppPurchases\Handler;
 
-use Psr\Log\LoggerInterface;
-use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
-use Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseUpdater;
 use Shopware\Core\Framework\Store\InAppPurchase\Handler\InAppPurchaseUpdateHandler;
+use Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseUpdater;
 
 /**
  * @internal
@@ -51,7 +51,7 @@ class InAppPurchaseUpdateHandlerTest extends TestCase
 
         $this->logger
             ->expects($this->never())
-            ->method($this->anything());
+            ->method(static::anything());
 
         $this->storeRequestOptionsProvider
             ->expects($this->once())
@@ -69,7 +69,7 @@ class InAppPurchaseUpdateHandlerTest extends TestCase
 
         $this->logger
             ->expects($this->never())
-            ->method($this->anything());
+            ->method(static::anything());
 
         $this->storeRequestOptionsProvider
             ->expects($this->once())

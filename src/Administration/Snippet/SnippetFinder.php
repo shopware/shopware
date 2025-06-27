@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -44,8 +45,37 @@ class SnippetFinder implements SnippetFinderInterface
     private function findSnippetFiles(string $locale): array
     {
         $paths = [];
+        // todo: init new translations
+
+        // platform
+        $paths[] = sprintf(TranslationLoader::TRANSLATION_DESTINATION . '/%s/Platform', $locale);
+
+        // plugins
+        $activePlugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();
+
+        foreach ($activePlugins as $plugin) {
+            $name = $plugin->getName();
+            $path = sprintf(TranslationLoader::TRANSLATION_DESTINATION . '/%s/Plugins/%s', $locale, $name);
+
+            // todo: publisher plugin has a different name (PluginPublisher) as the official plugin name (SwagPublisher)
+            if (!file_exists($path)) {
+                continue;
+            }
+
+            $paths[] = $path;
+        }
+
+        // legacy
         $this->loadPluginPaths($paths);
         $this->loadShopwareBundlePaths($paths);
+
+        // todo: use this to define the file name patterns
+        $namePattern = [
+            'administration.json',
+            'core.json', // todo: change to messages.locale.json
+            'storefront.json',
+            \sprintf('%s.json', $locale), // legacy pattern
+        ];
 
         $finder = (new Finder())
             ->files()
@@ -53,7 +83,7 @@ class SnippetFinder implements SnippetFinderInterface
             ->ignoreDotFiles(true)
             ->ignoreVCS(true)
             ->ignoreUnreadableDirs()
-            ->name(\sprintf('%s.json', $locale))
+            ->name($namePattern)
             ->in($paths);
 
         $iterator = $finder->getIterator();

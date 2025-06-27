@@ -23,7 +23,7 @@ use Symfony\Component\Filesystem\Filesystem;
 #[Package('discovery')]
 class TranslationLoader
 {
-    private const TRANSLATION_DESTINATION = __DIR__ . '/../../Resources/translation';
+    public const TRANSLATION_DESTINATION = __DIR__ . '/../../Resources/translation';
 
     private const PLATFORM_BUNDLES = [
         'Administration' => 'administration.json',

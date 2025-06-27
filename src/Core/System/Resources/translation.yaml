@@ -1,12 +1,10 @@
 repository-url: https://raw.githubusercontent.com/shopware/translations/main/translations
 
 locales: [
-    'ar-SA', 'bg-BG', 'bs-BA', 'ca-ES', 'cs-CZ', 'da-DK',
-    'de-AT', 'de-CH', 'de-DE', 'el-GR', 'en-GB', 'en-US', 'es-AR',
-    'es-ES', 'et-EE', 'fi-FI', 'fr-FR', 'hi-IN', 'hr-HR', 'hu-HU',
-    'hy-AM', 'id-ID', 'it-IT', 'ja-JP', 'ko-KR', 'lt-LT', 'lv-LV',
-    'nl-NL', 'nn-NO', 'pl-PL', 'pt-PT', 'ro-RO', 'ru-RU', 'sk-SK',
-    'sl-SI', 'sr-RS', 'sv-SE', 'th-TH', 'tr-TR', 'uk-UA', 'vi-VN',
+    'bs-BA', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-GB', 'en-US',
+    'es-ES', 'fi-FI', 'fr-FR', 'hi-IN', 'hr-HR', 'hu-HU', 'id-ID', 'it-IT',
+    'ko-KR', 'lv-LV', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-PT', 'ro-RO', 'ru-RU',
+    'sk-SK', 'sl-SI', 'sr-RS', 'sv-SE', 'tr-TR', 'uk-UA', 'vi-VN',
 ]
 
 plugins: [
@@ -23,8 +21,6 @@ plugins: [
 ]
 
 languages:
-  - name: 'Bahasa Indonesia'
-    locale: 'id-ID'
   - name: 'Bosanski'
     locale: 'bs-BA'
   - name: 'български език'
@@ -53,6 +49,8 @@ languages:
     locale: 'hr-HR'
   - name: 'Magyar'
     locale: 'hu-HU'
+  - name: 'Bahasa Indonesia'
+    locale: 'id-ID'
   - name: 'Italiano'
     locale: 'it-IT'
   - name: '한국어'

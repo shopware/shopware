@@ -69,12 +69,12 @@ class AuthController extends StorefrontController
             $request->attributes->remove(PlatformRequest::ATTRIBUTE_NO_STORE);
         }
 
-        /** @var string $redirect */
-        $redirect = $request->get('redirectTo', 'frontend.account.home.page');
-
         $customer = $context->getCustomer();
 
-        if ($customer !== null && $customer->getGuest() === false) {
+        /** @var string $redirect */
+        $redirect = $request->get('redirectTo', $customer?->getGuest() ? 'frontend.account.logout.page' : 'frontend.account.home.page');
+
+        if ($customer !== null) {
             $request->request->set('redirectTo', $redirect);
 
             return $this->createActionResponse($request);

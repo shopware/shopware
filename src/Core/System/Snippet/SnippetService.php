@@ -4,23 +4,22 @@ namespace Shopware\Core\System\Snippet;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
+use Shopware\Core\System\Snippet\Event\SnippetsThemeResolveEvent;
 use Shopware\Core\System\Snippet\Extension\StorefrontSnippetsExtension;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
-use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
-use Shopware\Storefront\Theme\StorefrontPluginRegistry;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
 /**
@@ -44,13 +43,8 @@ class SnippetService
         private readonly EntityRepository $snippetRepository,
         private readonly EntityRepository $snippetSetRepository,
         private readonly SnippetFilterFactory $snippetFilterFactory,
-        /**
-         * The "kernel" service is synthetic, it needs to be set at boot time before it can be used.
-         * We need to get StorefrontPluginRegistry service from service_container lazily because it depends on kernel service.
-         */
-        private readonly ContainerInterface $container,
         private readonly ExtensionDispatcher $extensionDispatcher,
-        private readonly ?DatabaseSalesChannelThemeLoader $salesChannelThemeLoader = null
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -102,8 +96,16 @@ class SnippetService
 
         $snippetFileCollection = $this->snippetFileCollection;
 
-        $usingThemes = $this->getUsedThemes($salesChannelId);
-        $unusedThemes = $this->getUnusedThemes($usingThemes);
+        // Create and dispatch the event
+        $event = new SnippetsThemeResolveEvent($salesChannelId);
+        $this->eventDispatcher->dispatch($event);
+
+        $unusedThemes = $event->getUnusedThemes();
+        if (!Feature::isActive('v6.8.0.0')) {
+            $usingThemes = $event->getUsedThemes();
+            $unusedThemes = $this->getUnusedThemes($usingThemes, $unusedThemes);
+        }
+
         $snippetCollection = $snippetFileCollection->filter(fn (AbstractSnippetFile $snippetFile) => !\in_array($snippetFile->getTechnicalName(), $unusedThemes, true));
 
         $fallbackSnippets = [];
@@ -249,21 +251,17 @@ class SnippetService
     }
 
     /**
+     * @deprecated tag:v6.8.0 - reason:visibility-change - will be removed
+     * Keeping this method for backwards compatibility (if it's redeclared in the child classes - child method return
+     * value will be used, otherwise value of $unusedThemes received via event is returned)
+     *
      * @param list<string> $usingThemes
      *
      * @return list<string>
      */
-    protected function getUnusedThemes(array $usingThemes = []): array
+    protected function getUnusedThemes(array $usingThemes = []/* , array $unusedThemes */): array
     {
-        if (!$this->container->has(StorefrontPluginRegistry::class)) {
-            return [];
-        }
-
-        $unusedThemes = $this->container->get(StorefrontPluginRegistry::class)->getConfigurations()->getThemes()
-            ->filter(fn (StorefrontPluginConfiguration $theme) => !\in_array($theme->getTechnicalName(), $usingThemes, true))
-            ->map(fn (StorefrontPluginConfiguration $theme) => $theme->getTechnicalName());
-
-        return array_values($unusedThemes);
+        return \func_num_args() === 2 ? \func_get_arg(1) : [];
     }
 
     /**
@@ -300,27 +298,6 @@ class SnippetService
         }
 
         return $snippets;
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function getUsedThemes(?string $salesChannelId = null): array
-    {
-        if (!$this->container->has(StorefrontPluginRegistry::class)) {
-            return [];
-        }
-
-        if (!$salesChannelId || $this->salesChannelThemeLoader === null) {
-            return [StorefrontPluginRegistry::BASE_THEME_NAME];
-        }
-
-        $usedThemes = $this->salesChannelThemeLoader->load($salesChannelId);
-
-        return array_values(array_unique([
-            ...$usedThemes,
-            StorefrontPluginRegistry::BASE_THEME_NAME, // Storefront snippets should always be loaded
-        ]));
     }
 
     /**

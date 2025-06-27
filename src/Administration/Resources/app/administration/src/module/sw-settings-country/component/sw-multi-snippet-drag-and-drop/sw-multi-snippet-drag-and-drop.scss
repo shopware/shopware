@@ -51,6 +51,10 @@ $sw-tree-item-color-text: $color-darkgray-200;
         position: absolute;
     }
 
+    &.is--droppable.is--draggable.is--drag-element {
+        position: absolute;
+    }
+
     .is--dragging {
         user-select: none;
         pointer-events: none;

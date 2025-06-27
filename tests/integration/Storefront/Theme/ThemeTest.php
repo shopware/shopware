@@ -29,6 +29,8 @@ use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
+use Shopware\Storefront\Theme\ThemeMergedConfigBuilder;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleTheme\SimpleTheme;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleThemeConfigInheritance\SimpleThemeConfigInheritance;
@@ -125,7 +127,7 @@ class ThemeTest extends TestCase
     {
         $theme = $this->themeRepository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertNotNull($theme);
-        $themeConfiguration = $this->themeService->getThemeConfiguration($theme->getId(), false, $this->context);
+        $themeConfiguration = $this->themeService->getPlainThemeConfiguration($theme->getId(), $this->context);
 
         $themeConfigFix = ThemeFixtures::getThemeConfig($this->faviconId, $this->demoStoreLogoId);
         $themeConfigFix['themeTechnicalName'] = $themeConfiguration['themeTechnicalName'];
@@ -143,8 +145,8 @@ class ThemeTest extends TestCase
         $theme = $this->themeRepository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertNotNull($theme);
 
-        $theme = $this->themeService->getThemeConfigurationStructuredFields($theme->getId(), false, $this->context);
-        static::assertSame(ThemeFixtures::getThemeStructuredFields(), $theme);
+        $theme = $this->themeService->getThemeConfigurationFieldStructure($theme->getId(), $this->context);
+        static::assertEquals(ThemeFixtures::getThemeStructuredFields(), $theme);
     }
 
     public function testChildThemeConfigStructuredFields(): void
@@ -188,7 +190,7 @@ class ThemeTest extends TestCase
         $childTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ThemeEntity::class, $childTheme);
 
-        $childThemeFields = $this->themeService->getThemeConfigurationStructuredFields($childTheme->getId(), true, $this->context);
+        $childThemeFields = $this->themeService->getThemeConfigurationFieldStructure($childTheme->getId(), $this->context);
 
         $technicalName = $childTheme->getTechnicalName();
         static::assertIsString($technicalName);
@@ -243,7 +245,7 @@ class ThemeTest extends TestCase
         $technicalName = $childTheme->getTechnicalName();
         static::assertIsString($technicalName);
 
-        $childThemeFields = $this->themeService->getThemeConfigurationStructuredFields($childTheme->getId(), true, $this->context);
+        $childThemeFields = $this->themeService->getThemeConfigurationFieldStructure($childTheme->getId(), $this->context);
         static::assertSame(
             implode('.', ['sw-theme', u($technicalName)->kebab(), 'default.themeColors.default.sw-color-brand-primary.label']),
             $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey']
@@ -287,7 +289,7 @@ class ThemeTest extends TestCase
             $this->context
         );
 
-        $theme = $this->themeService->getThemeConfiguration($childTheme->getId(), false, $this->context);
+        $theme = $this->themeService->getPlainThemeConfiguration($childTheme->getId(), $this->context);
         $themeInheritedConfig = ThemeFixtures::getThemeInheritedConfig($this->faviconId, $this->demoStoreLogoId);
 
         $someCustom = [
@@ -357,7 +359,7 @@ class ThemeTest extends TestCase
             $this->context
         );
 
-        $theme = $this->themeService->getThemeConfiguration($childTheme->getId(), false, $this->context);
+        $theme = $this->themeService->getPlainThemeConfiguration($childTheme->getId(), $this->context);
         $themeInheritedConfig = ThemeFixtures::getThemeInheritedBlankConfig($this->faviconId, $this->demoStoreLogoId);
 
         $themeInheritedConfig['themeTechnicalName'] = $theme['themeTechnicalName'];
@@ -419,7 +421,7 @@ class ThemeTest extends TestCase
             $this->context
         );
 
-        $theme = $this->themeService->getThemeConfiguration($childTheme->getId(), false, $this->context);
+        $theme = $this->themeService->getPlainThemeConfiguration($childTheme->getId(), $this->context);
         $themeInheritedConfig = ThemeFixtures::getThemeInheritedConfig($this->faviconId, $this->demoStoreLogoId);
 
         $themeInheritedConfig['blocks']['newBlock']['label'] = [
@@ -476,7 +478,7 @@ class ThemeTest extends TestCase
             $this->context
         );
 
-        $theme = $this->themeService->getThemeConfiguration($childTheme->getId(), false, $this->context);
+        $theme = $this->themeService->getPlainThemeConfiguration($childTheme->getId(), $this->context);
 
         static::assertArrayHasKey('multi', $theme['fields']);
         static::assertArrayHasKey('value', $theme['fields']['multi']);
@@ -675,7 +677,9 @@ class ThemeTest extends TestCase
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(SystemConfigService::class),
             static::getContainer()->get('messenger.default_bus'),
-            static::getContainer()->get(NotificationService::class)
+            static::getContainer()->get(NotificationService::class),
+            static::getContainer()->get(ThemeMergedConfigBuilder::class),
+            static::getContainer()->get(ThemeRuntimeConfigService::class),
         );
         $themeService->updateTheme(
             $childTheme->getId(),
@@ -720,7 +724,7 @@ class ThemeTest extends TestCase
         static::assertNotNull($updatedTheme);
         static::assertNotNull($updatedTheme->getConfigValues());
 
-        $themeServiceReturnedConfig = $this->themeService->getThemeConfiguration($updatedTheme->getId(), false, $this->context);
+        $themeServiceReturnedConfig = $this->themeService->getPlainThemeConfiguration($updatedTheme->getId(), $this->context);
 
         static::assertNotNull($themeServiceReturnedConfig['fields']['sw-logo-desktop']['value']);
         static::assertNull($themeServiceReturnedConfig['fields']['sw-logo-mobile']['value']);

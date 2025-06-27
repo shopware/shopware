@@ -77,16 +77,17 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
                 $params['track_scores'] = true;
             }
 
-            $result = $this->client->search($params);
+            $response = $this->client->search($params);
 
-            $result = $this->hydrator->hydrate($definition, $criteria, $context, $result);
+            $result = $this->hydrator->hydrate($definition, $criteria, $context, $response);
 
             $this->eventDispatcher->dispatch(new ElasticsearchEntitySearcherSearchedEvent(
                 $result,
                 $search,
                 $definition,
                 $criteria,
-                $context
+                $context,
+                $response,
             ));
 
             $result->addState(self::RESULT_STATE);

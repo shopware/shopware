@@ -49,8 +49,9 @@ export default defineComponent({
         },
 
         hasStats(): boolean {
-            return this.statsResponse?.enabled === true
-                && this.statsData !== null && this.statsData.totalMessagesProcessed > 0;
+            return (
+                this.statsResponse?.enabled === true && this.statsData !== null && this.statsData.totalMessagesProcessed > 0
+            );
         },
 
         isStatsDisabled(): boolean {
@@ -128,9 +129,10 @@ export default defineComponent({
             try {
                 this.statsResponse = await (this.messageStatsService as MessageStatsApiService).getStats();
             } catch (error) {
-                const errorMessage = error instanceof Error
-                    ? error.message
-                    : this.$t('global.notification.notificationLoadingDataErrorMessage');
+                const errorMessage =
+                    error instanceof Error
+                        ? error.message
+                        : this.$t('global.notification.notificationLoadingDataErrorMessage');
                 this.createNotificationError({
                     title: this.$tc('sw-settings-message-stats.general.errorTitle'),
                     message: errorMessage,

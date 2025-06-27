@@ -26,6 +26,7 @@ import type DirectiveFactory from 'src/core/factory/directive.factory';
 import type EntityDefinitionFactory from 'src/core/factory/entity-definition.factory';
 import type FilterFactoryData from 'src/core/data/filter-factory.data';
 import type UserApiService from 'src/core/service/api/user.api.service';
+import type UserConfigService from 'src/core/service/api/user-config.api.service';
 import type ApiServiceFactory from 'src/core/factory/api-service.factory';
 import type { ComponentInternalInstance } from 'vue';
 import type { I18n } from 'vue-i18n';
@@ -278,6 +279,7 @@ declare global {
         userActivityService: UserActivityService;
         userRecoveryService: UserRecoveryApiService;
         userService: UserApiService;
+        userConfigService: UserConfigService;
         validationService: $TSFixMe;
     }
 

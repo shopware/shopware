@@ -431,4 +431,19 @@ class DocumentConfiguration extends Struct
     {
         $this->fileTypes = $types;
     }
+
+    public function getLogo(): ?MediaEntity
+    {
+        return $this->logo;
+    }
+
+    public function setLogo(?MediaEntity $logo): void
+    {
+        $this->logo = $logo;
+    }
+
+    public function setItemsPerPage(string|int|null $itemsPerPage): void
+    {
+        $this->itemsPerPage = (int) $itemsPerPage;
+    }
 }

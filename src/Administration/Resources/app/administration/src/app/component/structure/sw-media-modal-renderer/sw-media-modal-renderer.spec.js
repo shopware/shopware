@@ -65,33 +65,42 @@ describe('src/app/component/structure/sw-media-modal-renderer', () => {
         store.openModal({
             allowMultiSelect: false,
             fileAccepted: 'image/*',
-            selectors: ['fileName', 'fileSize', 'metaData.width', 'metaData.height'],
+            selectors: [
+                'fileName',
+                'fileSize',
+                'metaData.width',
+                'metaData.height',
+            ],
             callback: jest.fn(),
         });
 
         await wrapper.vm.$nextTick();
 
         const modal = wrapper.findComponent('sw-media-modal-v2-stub');
-        modal.vm.$emit('media-modal-selection-change', [{
-            fileName: 'test.jpg',
-            fileSize: 123456,
-            mimeType: 'image/jpeg',
-            url: 'https://example.com/test.jpg',
-            id: 'media-id',
-            metaData: {
-                width: 100,
-                height: 100,
+        modal.vm.$emit('media-modal-selection-change', [
+            {
+                fileName: 'test.jpg',
+                fileSize: 123456,
+                mimeType: 'image/jpeg',
+                url: 'https://example.com/test.jpg',
+                id: 'media-id',
+                metaData: {
+                    width: 100,
+                    height: 100,
+                },
             },
-        }]);
+        ]);
 
         await wrapper.vm.$nextTick();
-        expect(wrapper.vm.mediaModal.callback).toHaveBeenCalledWith([{
-            fileName: 'test.jpg',
-            fileSize: 123456,
-            metaData: {
-                width: 100,
-                height: 100,
+        expect(wrapper.vm.mediaModal.callback).toHaveBeenCalledWith([
+            {
+                fileName: 'test.jpg',
+                fileSize: 123456,
+                metaData: {
+                    width: 100,
+                    height: 100,
+                },
             },
-        }]);
+        ]);
     });
 });

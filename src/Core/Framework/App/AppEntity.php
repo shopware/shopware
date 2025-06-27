@@ -53,6 +53,8 @@ class AppEntity extends Entity
 
     protected ?string $checkoutGatewayUrl = null;
 
+    protected ?string $contextGatewayUrl = null;
+
     protected ?string $inAppPurchasesGatewayUrl = null;
 
     /**
@@ -250,6 +252,16 @@ class AppEntity extends Entity
     public function setCheckoutGatewayUrl(?string $checkoutGatewayUrl): void
     {
         $this->checkoutGatewayUrl = $checkoutGatewayUrl;
+    }
+
+    public function getContextGatewayUrl(): ?string
+    {
+        return $this->contextGatewayUrl;
+    }
+
+    public function setContextGatewayUrl(?string $contextGatewayUrl): void
+    {
+        $this->contextGatewayUrl = $contextGatewayUrl;
     }
 
     public function getInAppPurchasesGatewayUrl(): ?string

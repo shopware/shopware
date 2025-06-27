@@ -11,9 +11,9 @@ class PromotionCartAddedInformationError extends Error
 {
     private const KEY = 'promotion-discount-added';
 
-    private string $name;
+    protected string $name;
 
-    private readonly string $discountLineItemId;
+    protected readonly string $discountLineItemId;
 
     public function __construct(LineItem $discountLineItem)
     {

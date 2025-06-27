@@ -2,9 +2,13 @@
 
 .sw-theme-list {
     .sw-theme-list__content {
-        max-width: 800px;
+        max-width: $content-width;
         position: relative;
         margin: auto;
+
+        @media screen and (max-width: 1360px) {
+            padding: 15px;
+        }
     }
 
     .sw-theme-list__actions {

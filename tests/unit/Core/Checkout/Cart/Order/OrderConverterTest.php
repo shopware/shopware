@@ -70,6 +70,7 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
@@ -675,6 +676,7 @@ class OrderConverterTest extends TestCase
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(TestDefaults::SALES_CHANNEL);
         $salesChannel->setLanguageId(Defaults::LANGUAGE_SYSTEM);
+        $salesChannel->setTaxCalculationType(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL);
 
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId('payment-method-id');
@@ -1408,6 +1410,7 @@ class OrderConverterTest extends TestCase
                 'order-rule-id-1',
                 'order-rule-id-2',
             ],
+            'taxCalculationType' => SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
             'addresses' => [
                 [
                     'city' => 'billing-address-city',

@@ -17,7 +17,7 @@ const swOrderDetailStore = Shopware.Store.register({
         return {
             order: null as EntitySchema.order | null,
             loading: {
-                order: false,         // live version id
+                order: false, // live version id
                 recalculation: false, // custom version id
                 states: false,
             },

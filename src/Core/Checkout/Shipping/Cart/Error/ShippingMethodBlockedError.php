@@ -10,7 +10,7 @@ class ShippingMethodBlockedError extends Error
 {
     private const KEY = 'shipping-method-blocked';
 
-    public function __construct(private readonly string $name)
+    public function __construct(protected readonly string $name)
     {
         $this->message = \sprintf(
             'Shipping method %s not available',

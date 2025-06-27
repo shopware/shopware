@@ -42,6 +42,8 @@ async function createWrapper(customOptions = {}) {
                 'sw-field-copyable': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
+                'mt-modal-root': true,
+                'mt-modal': true,
             },
             provide: {
                 fileValidationService: new FileValidationService(),
@@ -55,14 +57,6 @@ async function createWrapper(customOptions = {}) {
                     addUpload: () => Promise.resolve(),
                     removeByTag: () => {},
                     removeListener: () => null,
-                },
-                configService: {
-                    getConfig: () =>
-                        Promise.resolve({
-                            settings: {
-                                enableUrlFeature: true,
-                            },
-                        }),
                 },
             },
         },
@@ -80,6 +74,29 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     let wrapper;
 
     beforeEach(async () => {
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
+        }
+
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
+                app: {
+                    config: {
+                        settings: {
+                            enableUrlFeature: true,
+                        },
+                    },
+                },
+                api: {
+                    assetPath: 'http://localhost:8000/bundles/administration/',
+                    authToken: {
+                        token: 'testToken',
+                    },
+                },
+            }),
+        });
+
         wrapper = await createWrapper();
         await flushPromises();
 

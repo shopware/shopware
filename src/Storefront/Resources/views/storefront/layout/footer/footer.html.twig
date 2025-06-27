@@ -73,7 +73,7 @@
                                         {% if root.category.type == 'folder' %}
                                             {{ root.category.translated.name }}
                                         {% else %}
-                                            <a href="{{ root.category.seoLink }}"
+                                            <a href="{{ root.category.seoUrl }}"
                                                {% if root.category.shouldOpenInNewTab %}target="_blank"{% endif %}
                                                title="{{ root.category.translated.name }}">
                                                 {{ root.category.translated.name }}
@@ -122,7 +122,7 @@
                                                                         <div>{{ name }}</div>
                                                                     {% else %}
                                                                         <a class="footer-link"
-                                                                           href="{{ category.seoLink }}"
+                                                                           href="{{ category.seoUrl }}"
                                                                            {% if category.shouldOpenInNewTab %}target="_blank"{% endif %}
                                                                            title="{{ name }}">
                                                                             {{ name }}
@@ -203,7 +203,7 @@
                                 {% block layout_footer_service_menu_item %}
                                     <li class="footer-service-menu-item">
                                         <a class="footer-service-menu-link"
-                                           href="{{ serviceMenuItem.seoLink }}"
+                                           href="{{ serviceMenuItem.seoUrl }}"
                                            {% if serviceMenuItem.shouldOpenInNewTab %}target="_blank"{% endif %}
                                            title="{{ serviceMenuItem.translated.name }}">
                                             {{ serviceMenuItem.translated.name }}

@@ -76,7 +76,7 @@ class AssetServiceTest extends TestCase
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $cacheInvalidator,
             new StaticSourceResolver(),
-            new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
+            new ParameterBag(['shopware.filesystem.asset.type' => 's3', 'shopware.filesystem.asset.config' => []])
         );
 
         $assetService->copyAssetsFromBundle('ExampleBundle');
@@ -109,7 +109,7 @@ class AssetServiceTest extends TestCase
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $cacheInvalidator,
             new StaticSourceResolver(),
-            new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
+            new ParameterBag(['shopware.filesystem.asset.type' => 's3', 'shopware.filesystem.asset.config' => []])
         );
 
         $assetService->copyAssetsFromBundle('ExampleBundle');
@@ -159,7 +159,7 @@ class AssetServiceTest extends TestCase
             $pluginLoader,
             $this->createMock(CacheInvalidator::class),
             new StaticSourceResolver(),
-            new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
+            new ParameterBag(['shopware.filesystem.asset.type' => 's3', 'shopware.filesystem.asset.config' => []])
         );
 
         $assetService->copyAssetsFromBundle(ExampleBundle::class);
@@ -185,7 +185,7 @@ class AssetServiceTest extends TestCase
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $this->createMock(CacheInvalidator::class),
             new StaticSourceResolver(),
-            new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
+            new ParameterBag(['shopware.filesystem.asset.type' => 's3', 'shopware.filesystem.asset.config' => []])
         );
 
         $filesystem->write('bundles/example/test.txt', 'TEST');
@@ -224,7 +224,7 @@ class AssetServiceTest extends TestCase
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $this->createMock(CacheInvalidator::class),
             new StaticSourceResolver(),
-            new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
+            new ParameterBag(['shopware.filesystem.asset.type' => 's3', 'shopware.filesystem.asset.config' => []])
         );
 
         $assetService->copyAssetsFromBundle('ExampleBundle');
@@ -242,7 +242,7 @@ class AssetServiceTest extends TestCase
             new StaticSourceResolver([
                 'TestApp' => new StaticFilesystem(),
             ]),
-            new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
+            new ParameterBag(['shopware.filesystem.asset.type' => 's3', 'shopware.filesystem.asset.config' => []])
         );
 
         $assetService->copyAssetsFromApp('TestApp', __DIR__ . '/foo');
@@ -263,7 +263,7 @@ class AssetServiceTest extends TestCase
             new StaticSourceResolver([
                 'ExampleBundle' => new ThemeFilesystem(__DIR__ . '/../_fixtures/ExampleBundle'),
             ]),
-            new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
+            new ParameterBag(['shopware.filesystem.asset.type' => 's3', 'shopware.filesystem.asset.config' => []])
         );
 
         $assetService->copyAssetsFromApp('ExampleBundle', __DIR__ . '/_fixtures/ExampleBundle');
@@ -355,7 +355,7 @@ class AssetServiceTest extends TestCase
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $this->createMock(CacheInvalidator::class),
             new StaticSourceResolver(),
-            new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
+            new ParameterBag(['shopware.filesystem.asset.type' => 's3', 'shopware.filesystem.asset.config' => []])
         );
 
         $privateFilesystem->write('asset-manifest.json', (string) json_encode(['administration' => $manifest], \JSON_PRETTY_PRINT));
@@ -420,7 +420,7 @@ class AssetServiceTest extends TestCase
             new StaticSourceResolver([
                 'ExampleBundle' => new ThemeFilesystem(__DIR__ . '/../_fixtures/ExampleBundle'),
             ]),
-            new ParameterBag(['shopware.filesystem.asset.type' => 'local'])
+            new ParameterBag(['shopware.filesystem.asset.type' => 'local', 'shopware.filesystem.asset.config' => []])
         );
 
         $assetService->copyAssetsFromApp('ExampleBundle', __DIR__ . '/_fixtures/ExampleBundle');
@@ -483,7 +483,7 @@ class AssetServiceTest extends TestCase
             new StaticSourceResolver([
                 'ExampleBundle' => new ThemeFilesystem(__DIR__ . '/../_fixtures/ExampleBundle'),
             ]),
-            new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
+            new ParameterBag(['shopware.filesystem.asset.type' => 's3', 'shopware.filesystem.asset.config' => []])
         );
 
         $assetService->copyAssetsFromBundle('AdministrationBundle', true);

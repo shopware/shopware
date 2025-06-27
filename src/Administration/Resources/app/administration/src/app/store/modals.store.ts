@@ -48,7 +48,7 @@ const modalsStore = Shopware.Store.register({
         },
 
         closeLastModalWithoutLocationId(): void {
-            const lastModalWithoutLocationId = this.modals.filter((modal) => !modal.locationId).at(- 1);
+            const lastModalWithoutLocationId = this.modals.filter((modal) => !modal.locationId).at(-1);
 
             if (lastModalWithoutLocationId) {
                 this.modals = this.modals.filter((modal) => modal !== lastModalWithoutLocationId);

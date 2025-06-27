@@ -44,6 +44,29 @@ class RedisIncrementerTest extends TestCase
         yield ['test'];
     }
 
+    public static function deleteKeysProvider(): \Generator
+    {
+        yield 'delete keys' => [
+            ['t1', 't2'],
+            ['t3' => [
+                'key' => 't3',
+                'cluster' => 'test',
+                'pool' => 'test',
+                'count' => 1,
+            ]],
+        ];
+
+        yield 'delete all keys' => [
+            ['t1', 't2', 't3'],
+            [],
+        ];
+
+        yield 'delete whole cluster' => [
+            [],
+            [],
+        ];
+    }
+
     #[DataProvider('incrementerProvider')]
     public function testIncrement(?string $prefix): void
     {
@@ -101,6 +124,24 @@ class RedisIncrementerTest extends TestCase
         $incrementer->reset('test');
 
         static::assertEmpty($incrementer->list('test'));
+    }
+
+    /**
+     * @param array<string> $keys
+     * @param array<string, array{count: int, key: string, cluster: string, pool: string}> $expectedList
+     */
+    #[DataProvider('deleteKeysProvider')]
+    public function testDelete(array $keys, array $expectedList): void
+    {
+        $incrementer = $this->getIncrementer();
+
+        $incrementer->increment('test', 't1');
+        $incrementer->increment('test', 't2');
+        $incrementer->increment('test', 't3');
+
+        $incrementer->delete('test', $keys);
+
+        static::assertSame($expectedList, $incrementer->list('test'));
     }
 
     private function getIncrementer(?string $prefix = null): RedisIncrementer

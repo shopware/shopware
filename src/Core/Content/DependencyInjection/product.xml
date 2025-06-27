@@ -258,6 +258,7 @@
         <service id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator">
             <argument type="service" id="unit.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
 
             <tag name="kernel.reset" method="reset"/>
         </service>
@@ -419,6 +420,7 @@
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceQuantitySelector"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceQuantitySelector"/>

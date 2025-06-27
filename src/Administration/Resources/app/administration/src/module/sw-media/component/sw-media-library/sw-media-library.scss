@@ -67,4 +67,9 @@ $sw-media-library-color-background: $color-white;
         margin: 16px auto;
         grid-column: 1 / -1;
     }
+
+    &__empty-state {
+        height: calc(100% - 64px);
+        bottom: 0;
+    }
 }

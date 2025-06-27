@@ -262,6 +262,11 @@ class ThemeCompilerTest extends TestCase
                         'type' => 'media',
                         'value' => [123],
                     ],
+                    'sw-custom-url' => [
+                        'name' => 'sw-custom-url',
+                        'type' => 'url',
+                        'value' => 'https://www.shopware.com',
+                    ],
                     'sw-custom-media' => [
                         'name' => 'sw-custom-media',
                         'type' => 'media',
@@ -309,6 +314,7 @@ class ThemeCompilerTest extends TestCase
 \$sw-custom-cart: 0;
 \$sw-custom-product-box: 1;
 \$sw-custom-textarea: '123';
+\$sw-custom-url: 'https://www.shopware.com';
 \$sw-custom-media: '456';
 \$sw-asset-theme-url: 'http://localhost';
 

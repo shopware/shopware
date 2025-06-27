@@ -59,12 +59,12 @@ class ThemeException extends HttpException
         );
     }
 
-    public static function InvalidScssValue(mixed $value, string $type, string $name): self
+    public static function InvalidScssValue(mixed $value, string $type, string $name = ''): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_SCSS_VAR,
-            'SCSS Value "{{ name }}" with value "{{ value }}" is not valid for type "{{ type }}"',
+            'SCSS Value "{{ value }}" is not valid for type "{{ type }}".',
             ['name' => $name, 'value' => $value, 'type' => $type]
         );
     }
@@ -74,7 +74,7 @@ class ThemeException extends HttpException
         return new ThemeCompileException(
             $themeName,
             $message,
-            $e
+            $e,
         );
     }
 

@@ -52,10 +52,17 @@ export default Component.wrapComponentConfig({
             void Shopware.Store.get('session').setAdminLocale(navigator.language);
         }
 
-        this.loginService.getLoginTemplateConfig().then((loginConfig) => {
-            this.loginConfig = loginConfig;
-            this.loginConfigLoaded = true;
-        }).catch(() => {});
+        this.loginService
+            .getLoginTemplateConfig()
+            .then((loginConfig) => {
+                this.loginConfig = loginConfig;
+                this.loginConfigLoaded = true;
+
+                if (!loginConfig.useDefault) {
+                    window.location.href = loginConfig.url;
+                }
+            })
+            .catch(() => {});
     },
 
     methods: {

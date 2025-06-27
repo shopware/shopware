@@ -3,8 +3,8 @@
  */
 import './page/index';
 
-import deDE from "./snippet/de-DE.json";
-import enGB from "./snippet/en-GB.json";
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 /**
  * @private
@@ -37,4 +37,4 @@ Module.register('sw-sso-error', {
             path: '/sso/error',
         },
     },
-})
+});

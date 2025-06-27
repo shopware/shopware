@@ -5,7 +5,7 @@
 import './index';
 
 import { mount } from '@vue/test-utils';
-import { CookieStorage } from "cookie-storage";
+import { CookieStorage } from 'cookie-storage';
 
 const { Component } = Shopware;
 
@@ -15,23 +15,23 @@ async function createWrapper(useDefaultLogin) {
             provide: {
                 loginService: {
                     getLoginTemplateConfig: () => {
-                        return new Promise((resolve) =>  {
+                        return new Promise((resolve) => {
                             const response = {
                                 useDefault: useDefaultLogin,
                                 url: 'https://foo.bar.baz',
-                            }
+                            };
 
                             resolve(response);
                         });
                     },
 
-                    getStorage: () =>  {
+                    getStorage: () => {
                         const storage = new CookieStorage();
                         storage.setItem('user', 'foo@bar.baz');
 
                         return storage;
-                    }
-                }
+                    },
+                },
             },
         },
     });

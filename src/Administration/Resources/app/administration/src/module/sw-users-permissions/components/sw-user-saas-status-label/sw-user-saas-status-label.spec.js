@@ -16,21 +16,21 @@ async function createWrapper(user) {
                 },
             },
             props: {
-                user: user
-            }
+                user: user,
+            },
         },
     );
 }
 
 describe('module/sw-users-permissions/components/sw-user-saas-status-label', () => {
     it('should be active', async () => {
-        const wrapper = await createWrapper({active: true});
+        const wrapper = await createWrapper({ active: true });
 
         const colorBadge = await wrapper.find('.sw-color-badge');
-        expect(colorBadge.attributes('variant')).toBe('success')
+        expect(colorBadge.attributes('variant')).toBe('success');
 
         const text = await wrapper.find('span');
-        expect(text.text()).toBe('sw-users-permissions.saas.user-listing.status-label.active')
+        expect(text.text()).toBe('sw-users-permissions.saas.user-listing.status-label.active');
     });
 
     it('should be invited', async () => {
@@ -42,10 +42,10 @@ describe('module/sw-users-permissions/components/sw-user-saas-status-label', () 
         });
 
         const colorBadge = await wrapper.find('.sw-color-badge');
-        expect(colorBadge.attributes('variant')).toBe('warning')
+        expect(colorBadge.attributes('variant')).toBe('warning');
 
         const text = await wrapper.find('span');
-        expect(text.text()).toBe('sw-users-permissions.saas.user-listing.status-label.invited')
+        expect(text.text()).toBe('sw-users-permissions.saas.user-listing.status-label.invited');
     });
 
     it('should be inactive', async () => {
@@ -57,10 +57,9 @@ describe('module/sw-users-permissions/components/sw-user-saas-status-label', () 
         });
 
         const colorBadge = await wrapper.find('.sw-color-badge');
-        expect(colorBadge.attributes('variant')).toBe('danger')
+        expect(colorBadge.attributes('variant')).toBe('danger');
 
         const text = await wrapper.find('span');
-        expect(text.text()).toBe('sw-users-permissions.saas.user-listing.status-label.inactive')
+        expect(text.text()).toBe('sw-users-permissions.saas.user-listing.status-label.inactive');
     });
-
 });

@@ -99,9 +99,9 @@ async function createWrapper(
                     appAclService: appAclService,
                     saasSettingsService: {
                         isSaas: () => {
-                            return Promise.resolve(isSaas)
-                        }
-                    }
+                            return Promise.resolve(isSaas);
+                        },
+                    },
                 },
             },
         },
@@ -671,7 +671,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                 },
             },
             { isSaas: false },
-            saveFunction
+            saveFunction,
         );
         await flushPromises();
 
@@ -697,7 +697,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                 },
             },
             { isSaas: true },
-            saveFunction
+            saveFunction,
         );
         await flushPromises();
 

@@ -55,7 +55,7 @@ async function createWrapper(loginSuccessfull, useDefault = true, ssoUrl = 'http
                         return new Promise((resolve) => {
                             resolve({ useDefault: useDefault, ssoProviders: [], url: ssoUrl });
                         });
-                    }
+                    },
                 },
                 userService: {},
                 licenseViolationService: {},

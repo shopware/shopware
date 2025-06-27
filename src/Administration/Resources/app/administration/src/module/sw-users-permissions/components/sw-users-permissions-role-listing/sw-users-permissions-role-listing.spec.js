@@ -31,7 +31,7 @@ async function createWrapper(privileges = [], isSaas = { isSaas: false }, delete
                     saasSettingsService: {
                         isSaas: () => {
                             return Promise.resolve(isSaas);
-                        }
+                        },
                     },
                 },
                 mocks: {
@@ -61,7 +61,7 @@ async function createWrapper(privileges = [], isSaas = { isSaas: false }, delete
                             <slot></slot>
                             <slot name="modal-footer"></slot>
                         </div>`,
-                    }
+                    },
                 },
             },
         },
@@ -154,7 +154,14 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
 
     it('should open password confirm modal', async () => {
         const deleteFunction = jest.fn().mockReturnValue(Promise.resolve());
-        wrapper = await createWrapper(['users_and_permissions.deleter', 'users_and_permissions.editor'], { isSaas: false }, deleteFunction);
+        wrapper = await createWrapper(
+            [
+                'users_and_permissions.deleter',
+                'users_and_permissions.editor',
+            ],
+            { isSaas: false },
+            deleteFunction,
+        );
 
         await wrapper.setData({
             roles: [
@@ -175,13 +182,20 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
         await confirmButton.trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('sw-verify-user-modal-stub').exists()).toBeTruthy()
+        expect(wrapper.find('sw-verify-user-modal-stub').exists()).toBeTruthy();
         expect(deleteFunction).not.toHaveBeenCalled();
     });
 
     it('should delete role without pw confirmation', async () => {
         const deleteFunction = jest.fn().mockReturnValue(Promise.resolve());
-        wrapper = await createWrapper(['users_and_permissions.deleter', 'users_and_permissions.editor'], { isSaas: true }, deleteFunction);
+        wrapper = await createWrapper(
+            [
+                'users_and_permissions.deleter',
+                'users_and_permissions.editor',
+            ],
+            { isSaas: true },
+            deleteFunction,
+        );
 
         await wrapper.setData({
             roles: [

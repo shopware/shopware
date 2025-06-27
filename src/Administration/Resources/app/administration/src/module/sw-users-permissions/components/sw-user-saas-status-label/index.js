@@ -26,7 +26,7 @@ export default {
                 return 'invited';
             }
 
-            return 'inactive'
+            return 'inactive';
         },
 
         statusText() {
@@ -35,9 +35,12 @@ export default {
 
         variant() {
             switch (this.status) {
-                case 'active': return 'success';
-                case 'invited': return 'warning';
-                default: return 'danger';
+                case 'active':
+                    return 'success';
+                case 'invited':
+                    return 'warning';
+                default:
+                    return 'danger';
             }
         },
     },

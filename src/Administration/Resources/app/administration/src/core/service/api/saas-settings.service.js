@@ -14,14 +14,12 @@ export default class SaasSettingsService extends ApiService {
     }
 
     isSaas() {
-        return this.httpClient.get(
-            '/_info/is-saas',
-            {
+        return this.httpClient
+            .get('/_info/is-saas', {
                 headers: this.getBasicHeaders(),
-            },
-        ).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 }
-

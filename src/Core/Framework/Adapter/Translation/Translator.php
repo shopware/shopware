@@ -233,6 +233,7 @@ class Translator extends AbstractTranslator
         $this->setLocale($locale);
         $this->resolveSnippetSetId($salesChannelId, $languageId, $locale);
         $this->getCatalogue($locale);
+        $this->shouldResetInjection = true;
     }
 
     public function resetInjection(): void
@@ -245,6 +246,7 @@ class Translator extends AbstractTranslator
         $this->setLocale($this->localeBeforeInject);
         $this->snippetSetId = null;
         $this->salesChannelId = null;
+        $this->shouldResetInjection = false;
     }
 
     public function getSnippetSetId(?string $locale = null): ?string

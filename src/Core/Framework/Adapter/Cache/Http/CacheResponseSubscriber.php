@@ -70,19 +70,15 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
     public function setResponseCache(ResponseEvent $event): void
     {
-
+        if (!$this->httpCacheEnabled) {
+            return;
+        }
 
         $response = $event->getResponse();
 
         $request = $event->getRequest();
 
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-
-        $this->buildCacheHash($request, $context);
-
-        if (!$this->httpCacheEnabled) {
-            return;
-        }
 
         if (!$context instanceof SalesChannelContext) {
             return;
@@ -225,8 +221,6 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             name: ResolveRuleIdsExtension::NAME,
             extension: $ruleIdsExtension,
             function: function (Request $request, array $ruleAreas, SalesChannelContext $salesChannelContext): array {
-                var_dump($ruleAreas);
-                die;
                 if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
                     return $salesChannelContext->getRuleIdsByAreas($ruleAreas);
                 }

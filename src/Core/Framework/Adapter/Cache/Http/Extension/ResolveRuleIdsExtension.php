@@ -29,6 +29,14 @@ final class ResolveRuleIdsExtension extends Extension
         /**
          * @public
          *
+         * @description The HTTP request object
+         * @var list<string>
+         */
+        public array $ruleAreas,
+
+        /**
+         * @public
+         *
          * @description The sales channel context
          */
         public readonly SalesChannelContext $salesChannelContext,

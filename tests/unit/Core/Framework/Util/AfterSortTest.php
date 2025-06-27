@@ -147,6 +147,10 @@ class AfterSortTest extends TestCase
 
     public function testSortingByAfterIdWithMultipleNullValues(): void
     {
+        $root0 = new TestEntity();
+        $root0->setId(Uuid::randomHex());
+        $root0->setName('Root #0');
+
         $root1 = new TestEntity();
         $root1->setId(Uuid::randomHex());
         $root1->setName('Root #1');
@@ -170,13 +174,15 @@ class AfterSortTest extends TestCase
         $root5->setId(Uuid::randomHex());
         $root5->setName('Root #5');
 
-        $afterSortCollection = new AfterSortCollection([$root1, $root2, $root3, $root4, $root5]);
+        // The order of the elements is deliberately wrong
+        $afterSortCollection = new AfterSortCollection([$root0, $root1, $root3, $root2, $root4, $root5]);
 
         $afterSortCollection->sortByAfter();
 
-        $expectedNames = $afterSortCollection->map(fn (TestEntity $entity) => $entity->getName());
+        $expectedNames = array_values($afterSortCollection->map(fn (TestEntity $entity) => $entity->getName()));
+        sort($expectedNames);
 
-        $actualNames = array_map(fn (TestEntity $entity) => $entity->getName(), $afterSortCollection->getElements());
+        $actualNames = array_values(array_map(fn (TestEntity $entity) => $entity->getName(), $afterSortCollection->getElements()));
 
         static::assertSame($expectedNames, $actualNames);
     }

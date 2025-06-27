@@ -44,6 +44,8 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
     final public const IMITATING_USER_ID = 'imitatingUserId';
 
+    final public const IGNORE_SALES_CHANNEL_BOUND = 'ignore_sales_channel_bound';
+
     /**
      * @internal
      */

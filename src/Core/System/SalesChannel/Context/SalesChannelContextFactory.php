@@ -243,10 +243,12 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $source = $context->getSource();
         \assert($source instanceof SalesChannelApiSource);
 
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-            new EqualsFilter('customer.boundSalesChannelId', null),
-            new EqualsFilter('customer.boundSalesChannelId', $source->getSalesChannelId()),
-        ]));
+        if (!isset($options[SalesChannelContextService::IGNORE_SALES_CHANNEL_BOUND]) || !$options[SalesChannelContextService::IGNORE_SALES_CHANNEL_BOUND]) {
+            $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+                new EqualsFilter('customer.boundSalesChannelId', null),
+                new EqualsFilter('customer.boundSalesChannelId', $source->getSalesChannelId()),
+            ]));
+        }
 
         $customer = $this->customerRepository->search($criteria, $context)->getEntities()->get($customerId);
         if (!$customer) {

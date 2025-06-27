@@ -6,7 +6,8 @@ import { MtPopoverItem, MtModalAction } from '@shopware-ag/meteor-component-libr
 import type { ServiceDescription } from '../../service/shopware-services.service';
 import template from './sw-settings-services-service-card.html.twig';
 import './sw-settings-services-service-card.scss';
-import extractErrorMessage from '../../composables/extract-error'
+import extractErrorMessage from '../../composables/extract-error';
+import iconPlaceholder from './service-placeholder.jpg'
 
 /**
  * @private
@@ -31,10 +32,19 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             showDeactivateModal: false,
+            isLoading: false,
         };
     },
 
     computed: {
+        icon() {
+            if (this.service.icon) {
+                return `data:image/png;base64, ${this.service.icon}`;
+            }
+
+            return iconPlaceholder
+        },
+
         serviceStatus() {
             if (!this.service.active) {
                 return 'red';
@@ -56,6 +66,10 @@ export default Shopware.Component.wrapComponentConfig({
         updatedAt() {
             return (new Date(this.service.updated_at)).toLocaleDateString();
         },
+
+        readableVersion() {
+            return this.service.version.split('-')[0];
+        },
     },
 
     methods: {
@@ -65,6 +79,8 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async setActive(active: boolean, toggleFloatingUi?: () => void) {
+            this.isLoading = true;
+
             try {
                 const extensionService = Shopware.Service('shopwareExtensionService');
 
@@ -74,12 +90,14 @@ export default Shopware.Component.wrapComponentConfig({
                     await extensionService.deactivateExtension(this.service.name, 'app');
                 }
 
-                this.$emit('service-status-changed');
+                window.location.reload();
             } catch (exception) {
                 Shopware.Store.get('notification').createNotification({
                     variant: 'critical',
                     message: extractErrorMessage(exception),
                 });
+            } finally {
+                this.isLoading = false
             }
 
             if(toggleFloatingUi) {

@@ -67,7 +67,6 @@
                         v-for="service in services"
                         :key="service.name"
                         :service="service"
-                        @service-status-changed="reloadServices"
                     />
                 </ul>
             </div>
@@ -98,7 +97,6 @@
                 <sw-settings-services-deactivate-modal
                     v-if="!config.disabled"
                     :feedback-link="currentRevision.links['feedback-url']"
-                    @service-disabled="reloadServices"
                 />
             </div>
         </div>

@@ -5,7 +5,6 @@ import {
 } from '@shopware-ag/meteor-component-library';
 import template from './sw-settings-services-deactivate-modal.html.twig';
 import './sw-settings-services-deactivate-modal.scss';
-import { useShopwareServicesStore } from '../../store/shopware-services.store';
 import extractError from '../../composables/extract-error';
 
 /**
@@ -28,15 +27,22 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
+    data() {
+        return {
+            isLoading: false,
+        };
+    },
+
     methods: {
         async disableServices(done: () => void) {
+            this.isLoading = true;
+
             try {
                 const  shopwareServicesService = Shopware.Service('shopwareServicesService');
-                const shopwareServicesStore = useShopwareServicesStore();
 
-                shopwareServicesStore.config = await shopwareServicesService.disableAllServices();
+                await shopwareServicesService.disableAllServices();
 
-                this.$emit('service-disabled')
+                window.location.reload();
             } catch (exceptionResponse) {
                 Shopware.Store.get('notification').createNotification({
                     title: this.$t('global.default.error'),
@@ -44,6 +50,8 @@ export default Shopware.Component.wrapComponentConfig({
                     message: extractError(exceptionResponse),
                     autoClose: false,
                 });
+            } finally {
+                this.isLoading = false;
             }
 
             done();

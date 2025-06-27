@@ -27,6 +27,7 @@
                 <mt-modal-action
                     as="mt-button"
                     variant="critical"
+                    :is-loading="isLoading"
                     @click="disableServices"
                 >
                     {{ $t('sw-settings-services.general.deactivate') }}

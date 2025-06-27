@@ -76,7 +76,7 @@
         {% endblock %}
 
         {% block base_esi_footer %}
-            {{ render_esi(url('frontend.footer', { footerParameters: footerParameters })) }}
+            {{ render_esi(url('frontend.footer', { footerParameters: footerParameters }), { ignore_errors: false } ) }}
         {% endblock %}
 
     {% endblock %}

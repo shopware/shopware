@@ -8,4 +8,4 @@ author_github: JasperP98
 
 # Core
 
-* When rounding the cash price in `\Shopware\Core\Checkout\Cart\Price\CashRounding::mathRound` the result should always result in a positive zero.
+* Changed: When rounding the cash price in `\Shopware\Core\Checkout\Cart\Price\CashRounding::mathRound` the result should always result in a positive zero.

@@ -15,7 +15,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     data() {
         return {
-            isHidden: false,
+            isHidden: true,
             servicesGraphics,
         };
     },

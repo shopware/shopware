@@ -86,7 +86,7 @@ class ThemeController extends AbstractController
                 $config,
                 $context,
                 $this->customAllowedRegex,
-                $request->request->getBoolean('sanitize', false)
+                $request->query->getBoolean('sanitize', false)
             );
         }
 

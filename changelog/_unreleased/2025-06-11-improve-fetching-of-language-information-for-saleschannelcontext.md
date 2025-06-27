@@ -13,4 +13,5 @@ ___
 ## Improved fetching of language information for SalesChannelContext
 
 The `\Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory` now uses the language repository directly to fetch language information.
-With the next major version the query with the title `base-context-factory::sales-channel` will no longer add the `languages` association.
+With the next major version the query with the title `base-context-factory::sales-channel` will no longer add the `languages` association,
+which means the `salesChannel` property of the `BaseSalesChannelContext` no longer contains the current language object. 

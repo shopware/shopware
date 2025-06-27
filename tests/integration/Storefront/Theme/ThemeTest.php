@@ -22,6 +22,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
+use Shopware\Storefront\Theme\ScssPhpCompiler;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
@@ -558,6 +559,8 @@ class ThemeTest extends TestCase
                 })
             );
 
+        $scssCompilerMock = $this->createMock(ScssPhpCompiler::class);
+
         $kernel = new class(static::getContainer()->get('kernel')) implements KernelInterface {
             private readonly SimpleTheme $simpleTheme;
 
@@ -664,6 +667,7 @@ class ThemeTest extends TestCase
             static::getContainer()->get('theme.repository'),
             static::getContainer()->get('theme_sales_channel.repository'),
             $themeCompilerMock,
+            $scssCompilerMock,
             static::getContainer()->get('event_dispatcher'),
             new DatabaseConfigLoader(
                 static::getContainer()->get('theme.repository'),

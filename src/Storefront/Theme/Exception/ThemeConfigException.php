@@ -13,7 +13,7 @@ class ThemeConfigException extends ShopwareHttpException
     private const MESSAGE = 'There are {{ errorCount }} error(s) while validating the theme config.';
 
     /**
-     * @var \Throwable[]
+     * @var list<\Throwable>
      */
     private array $exceptions = [];
 

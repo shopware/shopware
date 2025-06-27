@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\App;
 
-use Shopware\Core\Framework\Api\Context\ContextSource;
 use GuzzleHttp\Exception\RequestException;
+use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;

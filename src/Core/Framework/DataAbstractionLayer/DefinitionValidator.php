@@ -104,6 +104,7 @@ class DefinitionValidator
         'invalidation_tags',
         'subscription_cart',
         'token_user',
+        'theme_runtime_config',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [

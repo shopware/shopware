@@ -38,10 +38,9 @@ jobs:
         with:
           project: 'Visual'
           install: 'true'
-          # TODO: Remove --pass-with-no-tests once we have visual testcases
           extra-options: >-
-            --pass-with-no-tests
             ${{ inputs.update-snapshots && ' --update-snapshots' || '' }}
-          # use-currents: ${{ inputs.nightly && 'true' || '' }} # TODO: Re-Enable at a later point when we want to report visual test results to currents
+          use-currents: ${{ inputs.nightly && 'true' || '' }} 
           currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID_VISUAL }}
           currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}
+          

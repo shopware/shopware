@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,6 +16,9 @@ class ThemeException extends HttpException
     public const INVALID_THEME_BY_ID = 'THEME__INVALID_THEME_BY_ID';
     public const INVALID_SCSS_VAR = 'THEME__INVALID_SCSS_VAR';
     public const THEME__COMPILING_ERROR = 'THEME__COMPILING_ERROR';
+    public const ERROR_LOADING_RUNTIME_CONFIG = 'THEME__ERROR_LOADING_RUNTIME_CONFIG';
+    public const ERROR_LOADING_FROM_PLUGIN_REGISTRY = 'THEME__ERROR_LOADING_THEME_FROM_PLUGIN_REGISTRY';
+    public const THEME_ASSIGNMENT = 'THEME__THEME_ASSIGNMENT';
 
     public static function themeMediaStillInUse(): self
     {
@@ -72,5 +76,90 @@ class ThemeException extends HttpException
             $message,
             $e
         );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
+     *
+     * @param array<string, array<int, string>> $themeSalesChannel
+     * @param array<string, array<int, string>> $childThemeSalesChannel
+     * @param array<string, string> $assignedSalesChannels
+     */
+    public static function themeAssignmentException(
+        string $themeName,
+        array $themeSalesChannel,
+        array $childThemeSalesChannel,
+        array $assignedSalesChannels,
+        ?\Throwable $e = null,
+    ): self|ThemeAssignmentException {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new ThemeAssignmentException(
+                $themeName,
+                $themeSalesChannel,
+                $childThemeSalesChannel,
+                $assignedSalesChannels,
+                $e,
+            );
+        }
+
+        $parameters = ['themeName' => $themeName];
+        $message = 'Unable to deactivate or uninstall theme "{{ themeName }}".';
+        $message .= ' Remove the following assignments between theme and sales channel assignments: {{ assignments }}.';
+        $assignments = '';
+        if (\count($themeSalesChannel) > 0) {
+            $assignments .= self::formatSalesChannelAssignments($themeSalesChannel, $assignedSalesChannels);
+        }
+
+        if (\count($childThemeSalesChannel) > 0) {
+            $assignments .= self::formatSalesChannelAssignments($childThemeSalesChannel, $assignedSalesChannels);
+        }
+        $parameters['assignments'] = $assignments;
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::THEME_ASSIGNMENT,
+            $message,
+            $parameters,
+            $e
+        );
+    }
+
+    public static function errorLoadingRuntimeConfig(string $themeId): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ERROR_LOADING_RUNTIME_CONFIG,
+            'Error loading runtime config for theme with id "{{ themeId }}"',
+            ['themeId' => $themeId]
+        );
+    }
+
+    public static function errorLoadingFromPluginRegistry(string $technicalName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ERROR_LOADING_FROM_PLUGIN_REGISTRY,
+            'Error loading theme with technical name "{{ technicalName }}" from plugin registry',
+            ['technicalName' => $technicalName]
+        );
+    }
+
+    /**
+     * @param array<string, array<int, string>> $assignmentMapping
+     * @param array<string, string> $assignedSalesChannels
+     */
+    private static function formatSalesChannelAssignments(array $assignmentMapping, array $assignedSalesChannels): string
+    {
+        $output = [];
+        foreach ($assignmentMapping as $themeName => $salesChannelIds) {
+            $salesChannelNames = [];
+            foreach ($salesChannelIds as $salesChannelId) {
+                $salesChannelNames[] = $assignedSalesChannels[$salesChannelId] ?? $salesChannelId;
+            }
+
+            $output[] = \sprintf('"%s" => "%s"', $themeName, implode(', ', $salesChannelNames));
+        }
+
+        return implode(', ', $output);
     }
 }

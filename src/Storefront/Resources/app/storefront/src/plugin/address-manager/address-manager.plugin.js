@@ -95,7 +95,7 @@ export default class AddressManagerPlugin extends Plugin {
     _getModal(event) {
         event.preventDefault();
 
-        this._btnLoader = new ButtonLoadingIndicatorUtil(event.currentTarget);
+        this._btnLoader = new ButtonLoadingIndicatorUtil(event.currentTarget, 'inner');
         this._btnLoader.create();
 
         fetch(this.options.addressManagerUrl, {

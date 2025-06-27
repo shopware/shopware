@@ -105,7 +105,7 @@ class SendMailAction extends FlowAction implements DelayableAction
             return;
         }
 
-        $injectedTranslator = $this->injectTranslator($flow->getContext(), $flow->getData(MailAware::SALES_CHANNEL_ID));
+        $this->translator->shouldResetInjection = $this->injectTranslator($flow->getContext(), $flow->getData(MailAware::SALES_CHANNEL_ID));
 
         $data = new DataBag();
 
@@ -160,13 +160,13 @@ class SendMailAction extends FlowAction implements DelayableAction
             ...$flow->data(),
         ];
 
-        $this->send($data, $flow->getContext(), $templateData, $extension, $injectedTranslator);
+        $this->send($data, $flow->getContext(), $templateData, $extension);
     }
 
     /**
      * @param array<string, mixed> $templateData
      */
-    private function send(DataBag $data, Context $context, array $templateData, MailSendSubscriberConfig $extension, bool $injectedTranslator): void
+    private function send(DataBag $data, Context $context, array $templateData, MailSendSubscriberConfig $extension): void
     {
         try {
             $this->emailService->send(
@@ -184,7 +184,7 @@ class SendMailAction extends FlowAction implements DelayableAction
             );
         }
 
-        if ($injectedTranslator) {
+        if ($this->translator->shouldResetInjection) {
             $this->translator->resetInjection();
         }
     }

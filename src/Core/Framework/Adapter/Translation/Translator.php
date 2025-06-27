@@ -62,6 +62,8 @@ class Translator extends AbstractTranslator
      */
     private array $snippets = [];
 
+    public bool $shouldResetInjection = false;
+
     /**
      * @internal
      */

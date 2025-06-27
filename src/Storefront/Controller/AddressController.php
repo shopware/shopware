@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextSwitchRoute;
@@ -65,7 +66,7 @@ class AddressController extends StorefrontController
         private readonly AbstractDeleteAddressRoute $deleteAddressRoute,
         private readonly AbstractChangeCustomerProfileRoute $updateCustomerProfileRoute,
         private readonly AbstractContextSwitchRoute $contextSwitchRoute,
-        private readonly SalesChannelContextService $salesChannelContextService
+        private readonly SalesChannelContextServiceInterface $salesChannelContextService
     ) {
     }
 

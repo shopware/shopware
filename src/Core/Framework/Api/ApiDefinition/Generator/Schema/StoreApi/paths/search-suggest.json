@@ -12,6 +12,15 @@
                 "operationId": "searchSuggest",
                 "parameters": [
                     {
+                        "name": "p",
+                        "in": "query",
+                        "description": "The page number to fetch.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
                         "name": "sw-language-id",
                         "in": "header",
                         "description": "Instructs Shopware to return the response in the given language.",
@@ -39,6 +48,9 @@
                                             }
                                         },
                                         "type": "object"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/ProductListingCriteria"
                                     },
                                     {
                                         "$ref": "#/components/schemas/ProductListingFlags"

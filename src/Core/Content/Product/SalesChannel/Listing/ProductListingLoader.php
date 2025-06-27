@@ -79,7 +79,7 @@ class ProductListingLoader
         $ids = $idResult->getIds();
         // no products found, no need to continue
         if (empty($ids)) {
-            return new EntitySearchResult(
+            $result = new EntitySearchResult(
                 ProductDefinition::ENTITY_NAME,
                 0,
                 new ProductCollection(),
@@ -87,6 +87,11 @@ class ProductListingLoader
                 $criteria,
                 $context->getContext()
             );
+
+            $result->addState(...$idResult->getStates());
+            $result->addExtensions($idResult->getExtensions());
+
+            return $result;
         }
 
         $mapping = $this->resolvePreviews($ids, $clone, $context);
@@ -97,6 +102,7 @@ class ProductListingLoader
 
         $result = new EntitySearchResult(ProductDefinition::ENTITY_NAME, $idResult->getTotal(), $productSearchResult->getEntities(), $aggregations, $criteria, $context->getContext());
         $result->addState(...$idResult->getStates());
+        $result->addExtensions($productSearchResult->getExtensions());
 
         return $result;
     }

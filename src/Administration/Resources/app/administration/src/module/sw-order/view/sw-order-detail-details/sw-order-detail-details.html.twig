@@ -84,6 +84,7 @@
             v-model:value="shippingCosts"
             class="sw-order-detail-details__shipping-cost"
             :disabled="!acl.can('order.editor')"
+            :min="0"
             fill-digits
             :label="$tc('sw-order.detailDeliveries.labelShippingCosts')"
         >

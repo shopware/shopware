@@ -24,6 +24,11 @@ class CountryStateCollection extends EntityCollection
         return $this->filter(fn (CountryStateEntity $countryState) => $countryState->getCountryId() === $id);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed, use sorting via SQL instead
+     *
+     * @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
+     */
     public function sortByPositionAndName(): void
     {
         uasort($this->elements, static function (CountryStateEntity $a, CountryStateEntity $b) {

@@ -45,10 +45,10 @@ final class SitemapMessageHandler
             return;
         }
 
-        $context = $this->salesChannelContextFactory->create('', $message->getLastSalesChannelId(), [SalesChannelContextService::LANGUAGE_ID => $message->getLastLanguageId()]);
+        $salesChannelContext = $this->salesChannelContextFactory->create('', $message->getLastSalesChannelId(), [SalesChannelContextService::LANGUAGE_ID => $message->getLastLanguageId()]);
 
         try {
-            $this->sitemapExporter->generate($context, true, $message->getLastProvider(), $message->getNextOffset());
+            $this->sitemapExporter->generate($salesChannelContext, true, $message->getLastProvider(), $message->getNextOffset());
         } catch (AlreadyLockedException $exception) {
             $this->logger->error(\sprintf('ERROR: %s', $exception->getMessage()));
         }

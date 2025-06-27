@@ -79,7 +79,7 @@ jobs:
   split:
     needs: build
     runs-on: ubuntu-24.04
-    environment: ${{ format('manyrepos ({0})', github.ref_type) }}
+    environment: ${{ format('manyrepos_{0}', github.ref_type) }}
     # we use this image to get an older git version, which does not suffer from a performance regression
     container: node:alpine3.19
     if: github.repository == 'shopware/shopware'

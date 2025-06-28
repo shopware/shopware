@@ -16,7 +16,7 @@ final class ResolveRuleIdsExtension extends Extension
     public const NAME = 'cache-response.resolve-rule-ids';
 
     /**
-     * @internal shopware owns the __constructor, but the properties are public API
+     * @internal Shopware owns the __constructor, but the properties are public API
      */
     public function __construct(
         /**
@@ -29,7 +29,8 @@ final class ResolveRuleIdsExtension extends Extension
         /**
          * @public
          *
-         * @description The HTTP request object
+         * @description RuleAreas which should be considered for the HTTP Cache in the context cookie
+         *
          * @var list<string>
          */
         public array $ruleAreas,

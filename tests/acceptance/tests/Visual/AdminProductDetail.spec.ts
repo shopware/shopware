@@ -21,50 +21,49 @@ test('Visual: Product Detail Page', { tag: '@Visual' }, async ({ ShopAdmin, Test
         });
 
         await ShopAdmin.goesTo(AdminProductDetail.url(product.id));
-        await AdminProductDetail.page.setViewportSize({ width: 1440, height: 2240 });       
+        await AdminProductDetail.page.setViewportSize({ width: 1440, height: 4200 });       
         await expect(AdminProductDetail.page.locator('.sw-desktop__content')).toHaveScreenshot(); 
     });
     
     await test.step('Creates a screenshot of the product detail page Specifications tab.', async () => { 
         await AdminProductDetail.specificationsTabLink.click();
-        await AdminProductDetail.page.setViewportSize({ width: 1440, height: 2240 });
+        await AdminProductDetail.page.setViewportSize({ width: 1440, height: 1700 });
         await expect(AdminProductDetail.page.locator('.sw-desktop__content')).toHaveScreenshot();  
     });
 
     await test.step('Creates a screenshot of the product detail page Advanced Pricing tab.', async () => { 
         await AdminProductDetail.advancedPricingTabLink.click();
-        await AdminProductDetail.page.setViewportSize({ width: 1440, height: 2240 });
+        await AdminProductDetail.page.setViewportSize({ width: 1440, height: 640 });
         await expect(AdminProductDetail.page.locator('.sw-desktop__content')).toHaveScreenshot();  
     });
 
     await test.step('Creates a screenshot of the product detail page Variants tab.', async () => { 
         await AdminProductDetail.variantsTabLink.click();
-        await AdminProductDetail.page.setViewportSize({ width: 1440, height: 2240 });
+        await AdminProductDetail.page.setViewportSize({ width: 1440, height: 860 });
         await expect(AdminProductDetail.page.locator('.sw-desktop__content')).toHaveScreenshot();  
     });
 
     await test.step('Creates a screenshot of the product detail page Layout tab.', async () => { 
         await AdminProductDetail.layoutTabLink.click();
-        await AdminProductDetail.page.setViewportSize({ width: 1440, height: 2240 });
+        await AdminProductDetail.page.setViewportSize({ width: 1440, height: 920 });
         await expect(AdminProductDetail.page.locator('.sw-desktop__content')).toHaveScreenshot();  
     });
 
     await test.step('Creates a screenshot of the product detail page SEO tab.', async () => { 
         await AdminProductDetail.SEOTabLink.click();
-        await AdminProductDetail.page.setViewportSize({ width: 1440, height: 2240 });
+        await AdminProductDetail.page.setViewportSize({ width: 1440, height: 1200 });
         await expect(AdminProductDetail.page.locator('.sw-desktop__content')).toHaveScreenshot();  
     });
 
     await test.step('Creates a screenshot of the product detail page Cross Selling tab.', async () => { 
         await AdminProductDetail.crossSellingTabLink.click();
-        await AdminProductDetail.page.setViewportSize({ width: 1440, height: 2240 });
+        await AdminProductDetail.page.setViewportSize({ width: 1440, height: 860 });
         await expect(AdminProductDetail.page.locator('.sw-desktop__content')).toHaveScreenshot();  
     });
 
     await test.step('Creates a screenshot of the product detail page Reviews tab.', async () => { 
         await AdminProductDetail.reviewsTabLink.click();
-        await AdminProductDetail.page.setViewportSize({ width: 1440, height: 2240 });
+        await AdminProductDetail.page.setViewportSize({ width: 1440, height: 860 });
         await expect(AdminProductDetail.page.locator('.sw-desktop__content')).toHaveScreenshot();  
     });
-
 });

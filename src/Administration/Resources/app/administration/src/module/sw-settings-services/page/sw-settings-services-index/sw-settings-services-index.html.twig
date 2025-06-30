@@ -22,7 +22,7 @@
         <div style="padding: var(--scale-size-40)">
             <sw-settings-services-grant-permissions-card
                 v-if="!consentGiven"
-                :tos-link="currentRevision.links['tos-url']"
+                :docs-link="currentRevision.links['docs-url']"
                 @service-permissions-granted="reloadServices"
             />
 

@@ -18,7 +18,7 @@ export default Shopware.Component.wrapComponentConfig({
     emits: ['service-permissions-granted'],
 
     props: {
-        tosLink: {
+        docsLink: {
             type: String,
             required: true,
         },

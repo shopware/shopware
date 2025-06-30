@@ -143,6 +143,7 @@ runs:
         branch: ${{ github.ref_name }}
         name: visual-snapshots-${{ hashFiles('.git/HEAD') }}
         path: .
+      continue-on-error: true
 
     - name: Run your tests
       shell: bash
@@ -160,6 +161,7 @@ runs:
         name: ats-${{ inputs.project }}-${{ inputs.shard }}-php${{ inputs.php-version }}-${{ inputs.major && '-major' || '' }}
         path: ${{ inputs.directory }}/test-results/
         retention-days: 3
+      continue-on-error: true
 
     - name: Upload visual testing snapshots
       if: ${{ contains(inputs.project, 'visual') && contains(inputs.extra-options, 'update-snapshots') }}
@@ -169,4 +171,5 @@ runs:
         path: |
           .gitignore
           tests/acceptance/tests/**/*-snapshots/*.png
-        retention-days: 3
+        retention-days: 90
+      continue-on-error: true

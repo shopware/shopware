@@ -13,7 +13,7 @@ use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
 #[Package('framework')]
 class FilesystemRequirementsValidator implements RequirementsValidatorInterface
 {
-    private const NEEDED_PATHS = [
+    private const NEEDED_DIRECTORY_PATHS = [
         '.',
         'var/log/',
         'var/cache/',
@@ -27,7 +27,7 @@ class FilesystemRequirementsValidator implements RequirementsValidatorInterface
 
     public function validateRequirements(RequirementsCheckCollection $checks): RequirementsCheckCollection
     {
-        foreach (self::NEEDED_PATHS as $path) {
+        foreach (self::NEEDED_DIRECTORY_PATHS as $path) {
             $absolutePath = $this->projectDir . '/' . $path;
 
             $checks->add(new PathCheck(
@@ -41,6 +41,6 @@ class FilesystemRequirementsValidator implements RequirementsValidatorInterface
 
     private function existsAndIsWritable(string $path): bool
     {
-        return file_exists($path) && is_readable($path) && is_writable($path);
+        return \is_dir($path) && \is_readable($path) && \is_writable($path);
     }
 }

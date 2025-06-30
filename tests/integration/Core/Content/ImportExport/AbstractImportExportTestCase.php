@@ -340,7 +340,7 @@ abstract class AbstractImportExportTestCase extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }

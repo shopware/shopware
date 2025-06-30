@@ -406,7 +406,7 @@ PHP_EOL;
         $projectDir = static::getContainer()->getParameter('kernel.project_dir');
         $testFolder = $projectDir . '/bla';
 
-        if (!file_exists($testFolder)) {
+        if (!\is_dir($testFolder)) {
             mkdir($testFolder);
         }
 

@@ -52,6 +52,8 @@ class MediaException extends HttpException
 
     public const MEDIA_THUMBNAIL_GENERATION_DISABLED = 'CONTENT__MEDIA_THUMBNAIL_GENERATION_DISABLED';
     public const MEDIA_UNKNOWN_LOCATION_TYPE = 'CONTENT__MEDIA_UNKNOWN_LOCATION_TYPE';
+    public const CONTENT_MEDIA_NO_FORM_DATA_FIELD_PROVIDED = 'CONTENT__MEDIA_NO_FORM_DATA_FIELD_PROVIDED';
+    public const CONTENT_MEDIA_NO_MIME_TYPE_PROVIDED = 'CONTENT__MEDIA_NO_MIME_TYPE_PROVIDED';
 
     public static function cannotBanRequest(string $url, string $error, ?\Throwable $e = null): self
     {
@@ -434,6 +436,24 @@ class MediaException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MEDIA_UNKNOWN_LOCATION_TYPE,
             'Unknown location type'
+        );
+    }
+
+    public static function fileNotProvided(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CONTENT_MEDIA_NO_FORM_DATA_FIELD_PROVIDED,
+            'No file provided in request body'
+        );
+    }
+
+    public static function mimeTypeNotProvided(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CONTENT_MEDIA_NO_MIME_TYPE_PROVIDED,
+            'mimeType is not provided'
         );
     }
 }

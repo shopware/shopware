@@ -36,7 +36,7 @@ class PermissionControllerTest extends TestCase
 
         $this->permissionsService
             ->expects($this->once())
-            ->method('grantPermissions')
+            ->method('grant')
             ->with($revision, $this->context);
 
         $response = $this->controller->grantPermissions($revision, $this->context);
@@ -52,7 +52,7 @@ class PermissionControllerTest extends TestCase
 
         $this->permissionsService
             ->expects($this->once())
-            ->method('grantPermissions')
+            ->method('grant')
             ->with($invalidRevision, $this->context)
             ->willThrowException($expectedException);
 
@@ -65,7 +65,7 @@ class PermissionControllerTest extends TestCase
     {
         $this->permissionsService
             ->expects($this->once())
-            ->method('revokePermissions')
+            ->method('revoke')
             ->with($this->context);
 
         $response = $this->controller->revokePermissions($this->context);
@@ -79,7 +79,7 @@ class PermissionControllerTest extends TestCase
 
         $this->permissionsService
             ->expects($this->once())
-            ->method('revokePermissions')
+            ->method('revoke')
             ->with($this->context)
             ->willThrowException($expectedException);
 

@@ -62,12 +62,33 @@ class LifecycleManager
         return $this->serviceInstaller->install($context);
     }
 
+    public function syncState(string $service, Context $context): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $service));
+        $criteria->addFilter(new EqualsFilter('selfManaged', true));
+        $app = $this->repository->search($criteria, $context)->first();
+        if ($app === null) {
+            throw ServiceException::serviceNotInstalled($service);
+        }
+
+        if ($this->permissionsService->areGranted()) {
+            $this->privileges->acceptAllForApps([$app->getId()], $context);
+        } else {
+            $this->privileges->revokeAllForApps([$app->getId()], $context);
+        }
+    }
+
     /**
      * This method grants requested permissions for all self-managed services (apps backing services).
      * Essentially, putting them into a state where the offered 'service' is in a working state.
      */
     public function start(Context $context): void
     {
+        if (! $this->permissionsService->areGranted()) {
+            throw ServiceException::invalidServicesState();
+        }
+
         /** @var list<string> $serviceIds */
         $serviceIds = $this->getAllServices($context)->getIds();
 
@@ -106,7 +127,7 @@ class LifecycleManager
             $this->appLifecycle->delete($service->getName(), ['id' => $service->getId()], $context);
         }
 
-        $this->permissionsService->revokePermissions($context);
+        $this->permissionsService->revoke($context);
         $this->systemConfigService->set(self::CONFIG_KEY_SERVICES_DISABLED, true);
     }
 

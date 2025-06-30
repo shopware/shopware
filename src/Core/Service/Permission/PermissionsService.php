@@ -26,7 +26,7 @@ class PermissionsService
     ) {
     }
 
-    public function grantPermissions(string $revision, Context $context): void
+    public function grant(string $revision, Context $context): void
     {
         $source = $context->getSource();
         if (!($source instanceof AdminApiSource) || $source->getUserId() === null) {
@@ -57,12 +57,28 @@ class PermissionsService
     /**
      * @throws ServiceException
      */
-    public function revokePermissions(Context $context): void
+    public function revoke(Context $context): void
     {
         $consent = PermissionsConsent::fromJsonString($this->systemConfigService->getString(self::CONFIG_KEY_ACCEPTED_PERMISSIONS_REVISION));
         $this->systemConfigService->delete(self::CONFIG_KEY_ACCEPTED_PERMISSIONS_REVISION);
 
         $this->remoteConsentLogger->log($consent, ConsentState::REVOKED);
         $this->eventDispatcher->dispatch(new PermissionsRevokedEvent($consent, $context));
+    }
+
+    public function areGranted(): bool
+    {
+        $revision = $this->systemConfigService->getString(self::CONFIG_KEY_ACCEPTED_PERMISSIONS_REVISION);
+        if ($revision === '') {
+            return false;
+        }
+
+        try {
+            PermissionsConsent::fromJsonString($revision);
+
+            return true;
+        } catch (\JsonException|ServiceException) {
+            return false;
+        }
     }
 }

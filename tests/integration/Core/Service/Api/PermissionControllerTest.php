@@ -88,7 +88,7 @@ class PermissionControllerTest extends TestCase
     public function testRevokePermissionsEndpoint(): void
     {
         $revision = '2025-06-13';
-        $this->permissionsService->grantPermissions($revision, Context::createDefaultContext(new AdminApiSource('test-user-id')));
+        $this->permissionsService->grant($revision, Context::createDefaultContext(new AdminApiSource('test-user-id')));
         static::assertNotNull($this->systemConfigService->get('core.services.acceptedPermissionsRevision'));
 
         $this->getBrowser()->request(

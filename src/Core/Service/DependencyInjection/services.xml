@@ -43,6 +43,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Manifest\ManifestFactory"/>
             <argument type="service" id="Shopware\Core\Service\ServiceSourceResolver"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Service\ServiceClientFactory">

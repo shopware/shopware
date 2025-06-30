@@ -19,6 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
+use Shopware\Core\Service\Event\ServiceInstalledEvent;
+use Shopware\Core\Service\Event\ServiceUpdatedEvent;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -39,7 +42,8 @@ class ServiceLifecycle
         private readonly LoggerInterface $logger,
         private readonly ManifestFactory $manifestFactory,
         private readonly ServiceSourceResolver $sourceResolver,
-        private readonly AppStateService $appStateService
+        private readonly AppStateService $appStateService,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -77,6 +81,8 @@ class ServiceLifecycle
             );
 
             $this->logger->debug(\sprintf('Installed service "%s"', $serviceEntry->name));
+
+            $this->eventDispatcher->dispatch(new ServiceInstalledEvent($serviceEntry->name, $context));
 
             return true;
         } catch (\Exception $e) {
@@ -130,6 +136,8 @@ class ServiceLifecycle
                 $context
             );
             $this->logger->debug(\sprintf('Installed service "%s"', $serviceEntry->name));
+
+            $this->eventDispatcher->dispatch(new ServiceUpdatedEvent($serviceName, $context));
 
             return true;
         } catch (\Exception $e) {

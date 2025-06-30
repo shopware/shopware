@@ -81,7 +81,7 @@ class PermissionsServiceTest extends TestCase
                     && $event->context === $this->context;
             }));
 
-        $this->permissionsService->grantPermissions($revision, $this->context);
+        $this->permissionsService->grant($revision, $this->context);
     }
 
     public function testGrantPermissionsWithInvalidRevisionFormat(): void
@@ -98,7 +98,7 @@ class PermissionsServiceTest extends TestCase
 
         $this->expectExceptionObject(ServiceException::invalidPermissionsRevisionFormat($invalidRevision));
 
-        $this->permissionsService->grantPermissions($invalidRevision, $this->context);
+        $this->permissionsService->grant($invalidRevision, $this->context);
     }
 
     public function testGrantPermissionsWithIncorrectDateFormat(): void
@@ -115,7 +115,7 @@ class PermissionsServiceTest extends TestCase
 
         $this->expectExceptionObject(ServiceException::invalidPermissionsRevisionFormat($invalidRevision));
 
-        $this->permissionsService->grantPermissions($invalidRevision, $this->context);
+        $this->permissionsService->grant($invalidRevision, $this->context);
     }
 
     public function testRevokePermissions(): void
@@ -149,7 +149,7 @@ class PermissionsServiceTest extends TestCase
                 return $event->context === $this->context;
             }));
 
-        $this->permissionsService->revokePermissions($this->context);
+        $this->permissionsService->revoke($this->context);
     }
 
     public function testGrantPermissionsWithNonAdminApiSource(): void
@@ -167,7 +167,7 @@ class PermissionsServiceTest extends TestCase
 
         $this->expectExceptionObject(ServiceException::invalidPermissionsContext());
 
-        $this->permissionsService->grantPermissions('2025-06-13', $context);
+        $this->permissionsService->grant('2025-06-13', $context);
     }
 
     public function testGrantPermissionsWithSystemApiSource(): void
@@ -185,7 +185,7 @@ class PermissionsServiceTest extends TestCase
 
         $this->expectExceptionObject(ServiceException::invalidPermissionsContext());
 
-        $this->permissionsService->grantPermissions('2025-06-13', $context);
+        $this->permissionsService->grant('2025-06-13', $context);
     }
 
     public function testGrantPermissionsWithAdminApiSourceButNoUserId(): void
@@ -202,7 +202,7 @@ class PermissionsServiceTest extends TestCase
             ->method('dispatch');
 
         $this->expectExceptionObject(ServiceException::invalidPermissionsContext());
-        $this->permissionsService->grantPermissions('2025-06-13', $context);
+        $this->permissionsService->grant('2025-06-13', $context);
     }
 
     public function testGrantPermissionsWithEmptyRevision(): void
@@ -217,7 +217,7 @@ class PermissionsServiceTest extends TestCase
             ->expects($this->never())
             ->method('dispatch');
         $this->expectExceptionObject(ServiceException::invalidPermissionsRevisionFormat($revision));
-        $this->permissionsService->grantPermissions($revision, $this->context);
+        $this->permissionsService->grant($revision, $this->context);
     }
 
     public function testRevokePermissionsWithEmptyConfig(): void
@@ -233,7 +233,7 @@ class PermissionsServiceTest extends TestCase
             ->method('delete');
 
         $this->expectExceptionObject(ServiceException::noCurrentPermissionsConsent());
-        $this->permissionsService->revokePermissions($this->context);
+        $this->permissionsService->revoke($this->context);
     }
 
     public function testMultipleGrantPermissionsCallsOverwritePrevious(): void
@@ -254,7 +254,73 @@ class PermissionsServiceTest extends TestCase
             ->expects($this->exactly(2))
             ->method('dispatch');
 
-        $this->permissionsService->grantPermissions($revision1, $this->context);
-        $this->permissionsService->grantPermissions($revision2, $this->context);
+        $this->permissionsService->grant($revision1, $this->context);
+        $this->permissionsService->grant($revision2, $this->context);
+    }
+
+    public function testAreGrantedReturnsTrueWhenPermissionsExist(): void
+    {
+        $validConsentJson = json_encode([
+            'identifier' => 'test-identifier',
+            'revision' => '2025-06-13T00:00:00+00:00',
+            'consentingUserId' => 'test-user-id',
+            'grantedAt' => '2025-06-13 12:00:00',
+        ]);
+
+        $this->systemConfigService
+            ->expects($this->once())
+            ->method('getString')
+            ->with('core.services.acceptedPermissionsRevision')
+            ->willReturn($validConsentJson);
+
+        $result = $this->permissionsService->areGranted();
+
+        static::assertTrue($result);
+    }
+
+    public function testAreGrantedReturnsFalseWhenNoPermissionsExist(): void
+    {
+        $this->systemConfigService
+            ->expects($this->once())
+            ->method('getString')
+            ->with('core.services.acceptedPermissionsRevision')
+            ->willReturn('');
+
+        $result = $this->permissionsService->areGranted();
+
+        static::assertFalse($result);
+    }
+
+    public function testAreGrantedReturnsFalseWhenPermissionsDataIsInvalid(): void
+    {
+        $invalidConsentJson = 'invalid-json-data';
+
+        $this->systemConfigService
+            ->expects($this->once())
+            ->method('getString')
+            ->with('core.services.acceptedPermissionsRevision')
+            ->willReturn($invalidConsentJson);
+
+        $result = $this->permissionsService->areGranted();
+
+        static::assertFalse($result);
+    }
+
+    public function testAreGrantedReturnsFalseWhenPermissionsDataIsMalformed(): void
+    {
+        $malformedConsentJson = json_encode([
+            'identifier' => 'test-identifier',
+            // Missing required fields: revision, consentingUserId, grantedAt
+        ]);
+
+        $this->systemConfigService
+            ->expects($this->once())
+            ->method('getString')
+            ->with('core.services.acceptedPermissionsRevision')
+            ->willReturn($malformedConsentJson);
+
+        $result = $this->permissionsService->areGranted();
+
+        static::assertFalse($result);
     }
 }

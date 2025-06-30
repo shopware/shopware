@@ -14,7 +14,7 @@ class ZipUtils
     {
         $stream = new \ZipArchive();
 
-        if (!file_exists($filename)) {
+        if (!\is_file($filename)) {
             throw PluginException::cannotExtractNoSuchFile($filename);
         }
 

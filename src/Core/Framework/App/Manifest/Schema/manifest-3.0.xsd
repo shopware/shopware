@@ -71,6 +71,10 @@
                             Register custom-fields your app needs.
                         </xs:documentation>
                     </xs:annotation>
+                    <xs:unique name="uniqueCustomFieldSetName">
+                        <xs:selector xpath="custom-field-set"/>
+                        <xs:field xpath="name"/>
+                    </xs:unique>
                 </xs:element>
                 <xs:element name="webhooks" type="webhooks" minOccurs="0">
                     <xs:annotation>

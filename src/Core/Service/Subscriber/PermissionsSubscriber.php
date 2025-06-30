@@ -5,7 +5,7 @@ namespace Shopware\Core\Service\Subscriber;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Event\PermissionsGrantedEvent;
 use Shopware\Core\Service\Event\PermissionsRevokedEvent;
-use Shopware\Core\Service\Manager;
+use Shopware\Core\Service\LifecycleManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -14,25 +14,25 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 #[Package('framework')]
 readonly class PermissionsSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private Manager $manager)
+    public function __construct(private LifecycleManager $manager)
     {
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            PermissionsGrantedEvent::class => 'enableServices',
-            PermissionsRevokedEvent::class => 'disableServices',
+            PermissionsGrantedEvent::class => 'startServices',
+            PermissionsRevokedEvent::class => 'stopServices',
         ];
     }
 
-    public function enableServices(PermissionsGrantedEvent $event): void
+    public function startServices(PermissionsGrantedEvent $event): void
     {
-        $this->manager->enable($event->getContext());
+        $this->manager->start($event->getContext());
     }
 
-    public function disableServices(PermissionsRevokedEvent $event): void
+    public function stopServices(PermissionsRevokedEvent $event): void
     {
-        $this->manager->disable($event->getContext());
+        $this->manager->stop($event->getContext());
     }
 }

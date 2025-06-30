@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Message\UpdateServiceMessage;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\State;
@@ -36,6 +37,7 @@ class ServiceController
         private readonly MessageBusInterface $messageBus,
         private readonly AppStateService $appStateService,
         private readonly AbstractAppLifecycle $appLifecycle,
+        private readonly LifecycleManager $manager,
     ) {
     }
 
@@ -116,6 +118,22 @@ class ServiceController
     public function list(Context $context): JsonResponse
     {
         return new JsonResponse($this->loadAllServices($context));
+    }
+
+    #[Route(path: '/api/services/disable', name: 'api.services.disable', defaults: ['auth_required' => true, '_acl' => ['system.plugin_maintain']], methods: ['POST'])]
+    public function disableServices(Context $context): Response
+    {
+        $this->manager->disable($context);
+
+        return new Response();
+    }
+
+    #[Route(path: '/api/services/enable', name: 'api.services.enable', defaults: ['auth_required' => true, '_acl' => ['system.plugin_maintain']], methods: ['POST'])]
+    public function enableServices(): Response
+    {
+        $this->manager->enable();
+
+        return new Response();
     }
 
     /**

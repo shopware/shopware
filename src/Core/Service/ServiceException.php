@@ -31,6 +31,10 @@ class ServiceException extends HttpException
 
     public const SCHEDULED_TASK_NOT_REGISTERED = 'SCHEDULED_TASK_NOT_REGISTERED';
 
+    public const SERVICES_NOT_INSTALLED = 'SERVICE__NOT_INSTALLED';
+
+    public const SERVICE_INVALID_SERVICES_STATE = 'SERVICE__INVALID_SERVICES_STATE';
+
     public static function notFound(string $field, string $value): self
     {
         return new self(
@@ -161,6 +165,25 @@ class ServiceException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::SCHEDULED_TASK_NOT_REGISTERED,
             'Could not queue task "services.install" because it is not registered.',
+        );
+    }
+
+    public static function invalidServicesState(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::SERVICE_INVALID_SERVICES_STATE,
+            'The services are in an invalid state. Cannot start if the consent is not given.',
+        );
+    }
+
+    public static function serviceNotInstalled(string $name): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SERVICES_NOT_INSTALLED,
+            'The service is not installed.',
+            ['name' => $name]
         );
     }
 }

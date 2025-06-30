@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\PermissionsService;
+use Shopware\Core\Service\ServiceException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -190,6 +191,10 @@ class LifecycleManagerTest extends TestCase
             (new AppEntity())->assign(['id' => 'service3', 'name' => 'SwagService3']),
         ]);
 
+        $this->permissionsService->expects($this->once())
+            ->method('getAcceptedPermissionsRevision')
+            ->willReturn(new \DateTime('2023-01-01'));
+
         $this->privileges
             ->expects($this->once())
             ->method('acceptAllForApps')
@@ -205,6 +210,39 @@ class LifecycleManagerTest extends TestCase
             $this->serviceInstaller,
             $this->permissionsService
         );
+
+        $manager->start($this->context);
+    }
+
+    public function testStartWithoutPermissionsConsent(): void
+    {
+        $services = new AppCollection([
+            (new AppEntity())->assign(['id' => 'service1', 'name' => 'SwagService1']),
+            (new AppEntity())->assign(['id' => 'service2', 'name' => 'SwagService2']),
+            (new AppEntity())->assign(['id' => 'service3', 'name' => 'SwagService3']),
+        ]);
+
+        $this->permissionsService->expects($this->once())
+            ->method('getAcceptedPermissionsRevision')
+            ->willReturn(null);
+
+        $this->privileges
+            ->expects($this->never())
+            ->method('acceptAllForApps');
+
+        $manager = new LifecycleManager(
+            LifecycleManager::AUTO_ENABLED,
+            'prod',
+            $this->privileges,
+            $this->systemConfigService,
+            $this->createAppRepository($services),
+            $this->appLifecycle,
+            $this->serviceInstaller,
+            $this->permissionsService
+        );
+
+        $this->expectException(ServiceException::class);
+        $this->expectExceptionMessage('The services are in an invalid state. Cannot start if the consent is not given.');
 
         $manager->start($this->context);
     }
@@ -234,6 +272,103 @@ class LifecycleManagerTest extends TestCase
         );
 
         $manager->stop($this->context);
+    }
+
+    public function testSyncStateServiceNotFound(): void
+    {
+        $serviceName = 'NonExistentService';
+
+        $manager = new LifecycleManager(
+            'true',
+            'prod',
+            $this->privileges,
+            $this->systemConfigService,
+            $this->createAppRepository(),
+            $this->appLifecycle,
+            $this->serviceInstaller,
+            $this->permissionsService
+        );
+
+        $this->expectException(ServiceException::class);
+        $this->expectExceptionMessage('The service is not installed.');
+
+        $manager->syncState($serviceName, $this->context);
+    }
+
+    public function testSyncStateWithAcceptedPermissions(): void
+    {
+        $serviceName = 'TestService';
+        $serviceId = 'service-id-123';
+
+        $service = (new AppEntity())->assign([
+            'id' => $serviceId,
+            'name' => $serviceName,
+            'selfManaged' => true,
+        ]);
+
+        $services = new AppCollection([$service]);
+
+        $this->permissionsService->expects($this->once())
+            ->method('getAcceptedPermissionsRevision')
+            ->willReturn(new \DateTime('2023-01-01'));
+
+        $this->privileges->expects($this->once())
+            ->method('acceptAllForApps')
+            ->with([$serviceId], $this->context);
+
+        $this->privileges->expects($this->never())
+            ->method('revokeAllForApps');
+
+        $manager = new LifecycleManager(
+            'true',
+            'prod',
+            $this->privileges,
+            $this->systemConfigService,
+            $this->createAppRepository($services),
+            $this->appLifecycle,
+            $this->serviceInstaller,
+            $this->permissionsService
+        );
+
+        $manager->syncState($serviceName, $this->context);
+    }
+
+    public function testSyncStateWithRevokedPermissions(): void
+    {
+        $serviceName = 'TestService';
+        $serviceId = 'service-id-123';
+
+        $service = (new AppEntity())->assign([
+            'id' => $serviceId,
+            'name' => $serviceName,
+            'selfManaged' => true,
+        ]);
+
+        $services = new AppCollection([$service]);
+
+        $this->permissionsService->expects($this->once())
+            ->method('getAcceptedPermissionsRevision')
+            ->willReturn(null);
+
+        $this->privileges->expects($this->never())
+            ->method('acceptAllForApps');
+
+        $this->privileges->expects($this->once())
+            ->method('revokeAllForApps')
+            ->with([$serviceId], $this->context);
+
+        $manager = new LifecycleManager(
+            'true',
+            'prod',
+            $this->privileges,
+            $this->systemConfigService,
+            $this->createAppRepository($services),
+            $this->appLifecycle,
+            $this->serviceInstaller,
+            $this->permissionsService
+        );
+
+        $manager->syncState($serviceName, $this->context);
     }
 
     /**

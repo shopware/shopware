@@ -4,9 +4,8 @@ namespace Shopware\Tests\Unit\Storefront\Theme\Twig;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
-use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Shopware\Storefront\Theme\ThemeRuntimeConfig;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilder;
 
 /**
@@ -19,11 +18,20 @@ class ThemeInheritanceBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->builder = new ThemeInheritanceBuilder(new TestStorefrontPluginRegistry(
-            new StorefrontPluginConfigurationCollection([
-                new StorefrontPluginConfiguration('Storefront'),
-            ])
-        ));
+        $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $runtimeConfigService
+            ->method('getActiveThemeNames')
+            ->willReturn(['Storefront']);
+
+        $runtimeConfigService
+            ->expects($this->once())
+            ->method('getRuntimeConfigByName')
+            ->willReturn(ThemeRuntimeConfig::fromArray([
+                'themeId' => 'theme-db-id',
+                'technicalName' => 'Storefront',
+            ]));
+
+        $this->builder = new ThemeInheritanceBuilder($runtimeConfigService);
     }
 
     public function testBuildPreservesThePluginOrder(): void
@@ -64,20 +72,5 @@ class ThemeInheritanceBuilderTest extends TestCase
             'Profiling' => -2,
             'Storefront' => 0,
         ], $result);
-    }
-}
-
-/**
- * @internal
- */
-class TestStorefrontPluginRegistry extends StorefrontPluginRegistry
-{
-    public function __construct(private readonly StorefrontPluginConfigurationCollection $plugins)
-    {
-    }
-
-    public function getConfigurations(): StorefrontPluginConfigurationCollection
-    {
-        return $this->plugins;
     }
 }

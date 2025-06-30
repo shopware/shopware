@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Theme\Message;
 
 use League\Flysystem\FilesystemOperator;
-use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\AbstractThemePathBuilder;
@@ -23,7 +22,6 @@ final class DeleteThemeFilesHandler
     public function __construct(
         private readonly FilesystemOperator $filesystem,
         private readonly AbstractThemePathBuilder $pathBuilder,
-        private readonly CacheInvalidator $cacheInvalidator
     ) {
     }
 
@@ -40,8 +38,5 @@ final class DeleteThemeFilesHandler
         }
 
         $this->filesystem->deleteDirectory('theme' . \DIRECTORY_SEPARATOR . $message->getThemePath());
-        $this->cacheInvalidator->invalidate([
-            'theme_scripts_' . $message->getThemePath(),
-        ]);
     }
 }

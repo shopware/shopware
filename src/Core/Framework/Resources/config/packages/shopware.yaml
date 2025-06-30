@@ -300,6 +300,8 @@ shopware:
         batchsize: 100
         custom_urls:
         excluded_urls:
+        scheduled_task:
+            enabled: true
 
     deployment:
         blue_green: '%env(bool:default:defaults_bool_true:BLUE_GREEN_DEPLOYMENT)%'

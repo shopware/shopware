@@ -1,0 +1,7 @@
+{# Render a thumbnail and omit the alt attribute explicitly by passing "false" #}
+{% sw_thumbnails 'no-alt-attr' with {
+    media: media,
+    attributes: {
+        alt: false
+    }
+} %}

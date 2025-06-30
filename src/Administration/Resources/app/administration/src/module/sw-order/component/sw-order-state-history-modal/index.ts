@@ -17,6 +17,7 @@ interface StateMachineHistoryData {
     createdAt: string;
     user?: {
         username: string;
+        email: string;
     };
     integration?: {
         label: string;
@@ -314,7 +315,7 @@ export default Component.wrapComponentConfig({
 
         getStateChangeAuthor(item: StateMachineHistoryData): string {
             if (item.user) {
-                return item.user.username;
+                return item.user.username || item.user.email;
             }
             if (item.integration) {
                 const integrationLabel = item.integration.label;

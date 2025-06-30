@@ -14,7 +14,7 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\Api\ServiceController;
-use Shopware\Core\Service\Manager;
+use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Message\UpdateServiceMessage;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -43,7 +43,7 @@ class ServiceControllerTest extends TestCase
 
     private AppLifecycle&MockObject $appLifecycle;
 
-    private Manager&MockObject $manager;
+    private LifecycleManager&MockObject $manager;
 
     protected function setUp(): void
     {
@@ -67,7 +67,7 @@ class ServiceControllerTest extends TestCase
 
         $this->appStateService = $this->createMock(AppStateService::class);
         $this->appLifecycle = $this->createMock(AppLifecycle::class);
-        $this->manager = $this->createMock(Manager::class);
+        $this->manager = $this->createMock(LifecycleManager::class);
     }
 
     public function testExceptionIsThrownIfServiceDoesNotExist(): void
@@ -273,7 +273,7 @@ class ServiceControllerTest extends TestCase
         $source = new AdminApiSource('AABB', 'EEFF');
         $context = Context::createDefaultContext($source);
 
-        $this->manager->expects($this->once())->method('disableServices');
+        $this->manager->expects($this->once())->method('disable');
         $controller->disableServices($context);
     }
 
@@ -281,7 +281,7 @@ class ServiceControllerTest extends TestCase
     {
         $controller = new ServiceController($this->appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
-        $this->manager->expects($this->once())->method('enableServices');
+        $this->manager->expects($this->once())->method('enable');
         $controller->enableServices();
     }
 }

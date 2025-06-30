@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Service\Event\PermissionsGrantedEvent;
 use Shopware\Core\Service\Event\PermissionsRevokedEvent;
-use Shopware\Core\Service\Manager;
+use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Subscriber\PermissionsSubscriber;
 
 /**
@@ -17,7 +17,7 @@ use Shopware\Core\Service\Subscriber\PermissionsSubscriber;
 #[CoversClass(PermissionsSubscriber::class)]
 class PermissionsSubscriberTest extends TestCase
 {
-    private Manager&MockObject $manager;
+    private LifecycleManager&MockObject $manager;
 
     private PermissionsSubscriber $subscriber;
 
@@ -25,7 +25,7 @@ class PermissionsSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->manager = $this->createMock(Manager::class);
+        $this->manager = $this->createMock(LifecycleManager::class);
         $this->subscriber = new PermissionsSubscriber($this->manager);
         $this->context = Context::createDefaultContext();
     }
@@ -37,7 +37,7 @@ class PermissionsSubscriberTest extends TestCase
 
         $this->manager
             ->expects($this->once())
-            ->method('startServices')
+            ->method('start')
             ->with($this->context);
 
         $this->subscriber->startServices($event);
@@ -49,7 +49,7 @@ class PermissionsSubscriberTest extends TestCase
 
         $this->manager
             ->expects($this->once())
-            ->method('stopServices')
+            ->method('stop')
             ->with($this->context);
 
         $this->subscriber->stopServices($event);

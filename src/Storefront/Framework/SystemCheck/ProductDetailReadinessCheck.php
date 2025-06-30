@@ -2,9 +2,8 @@
 
 namespace Shopware\Storefront\Framework\SystemCheck;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\BaseCheck;
 use Shopware\Core\Framework\SystemCheck\Check\Category;
@@ -63,13 +62,11 @@ class ProductDetailReadinessCheck extends BaseCheck
     private function doRun(): Result
     {
         $domains = $this->domainProvider->fetchSalesChannelDomains();
-        $salesChannelIds = $domains->getKeys();
-        $productIds = $salesChannelIds ? $this->fetchProductIds($salesChannelIds) : null;
 
         $extra = [];
         $requestStatus = [];
         foreach ($domains as $salesChannelId => $domain) {
-            $productId = $productIds[$salesChannelId] ?? null;
+            $productId = $this->fetchActiveProductIdBySalesChannelId($salesChannelId);
 
             if ($productId === null) {
                 continue;
@@ -103,30 +100,28 @@ class ProductDetailReadinessCheck extends BaseCheck
         );
     }
 
-    /**
-     * @param list<string> $salesChannelIds
-     *
-     * @return array<string, string>
-     */
-    private function fetchProductIds(array $salesChannelIds): array
+    private function fetchActiveProductIdBySalesChannelId(string $salesChannelId): ?string
     {
         $sql = <<<'SQL'
-            SELECT LOWER(HEX(`product_visibility`.`sales_channel_id`)),
-                   LOWER(HEX(`product`.`id`))
-            FROM `product`
-            INNER JOIN `product_visibility` ON `product`.`id` = `product_visibility`.`product_id`
-                AND `product`.`version_id` = `product_visibility`.`product_version_id`
-            WHERE `product`.`active` = 1
-                AND `product`.`stock` > 0
-                AND `product_visibility`.`sales_channel_id` IN (:salesChannelIds)
+            SELECT LOWER(HEX(p.id)) as product_id
+            FROM product p
+            WHERE
+                p.version_id = :versionId
+                AND p.active = 1
+                AND p.stock > 0
+                AND EXISTS (
+                    SELECT 1 FROM product_visibility pv
+                    WHERE pv.product_id = p.id
+                        AND pv.product_version_id = p.version_id
+                        AND pv.sales_channel_id = :salesChannelId
+                )
+            ORDER BY p.id
+            LIMIT 1;
         SQL;
 
-        $result = $this->connection->fetchAllAssociative(
+        return $this->connection->fetchOne(
             $sql,
-            ['salesChannelIds' => Uuid::fromHexToBytesList($salesChannelIds)],
-            ['salesChannelIds' => ArrayParameterType::BINARY]
-        );
-
-        return FetchModeHelper::keyPair($result);
+            ['salesChannelId' => Uuid::fromHexToBytes($salesChannelId), 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+        ) ?: null;
     }
 }

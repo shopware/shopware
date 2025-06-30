@@ -4,9 +4,8 @@ namespace Shopware\Tests\Unit\Core\Service\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\Command\Install;
-use Shopware\Core\Service\Manager;
+use Shopware\Core\Service\LifecycleManager;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -17,14 +16,12 @@ class InstallTest extends TestCase
 {
     public function testCommandWhenNoServicesAreInstalled(): void
     {
-        $installer = $this->createMock(AllServiceInstaller::class);
-        $installer->expects($this->once())->method('install');
+        $manager = $this->createMock(LifecycleManager::class);
+        $manager->method('enabled')
+            ->willReturn(true);
+        $manager->expects($this->once())->method('install')->willReturn([]);
 
-        $manager = $this->createMock(Manager::class);
-        $manager->method('isDisabled')
-            ->willReturn(false);
-
-        $command = new Install($installer, $manager);
+        $command = new Install($manager);
         $tester = new CommandTester($command);
         $tester->execute([]);
 
@@ -33,14 +30,11 @@ class InstallTest extends TestCase
 
     public function testCommandWhenServicesAreDisabled(): void
     {
-        $installer = $this->createMock(AllServiceInstaller::class);
-        $installer->expects($this->never())->method('install');
+        $manager = $this->createMock(LifecycleManager::class);
+        $manager->method('enabled')
+            ->willReturn(false);
 
-        $manager = $this->createMock(Manager::class);
-        $manager->method('isDisabled')
-            ->willReturn(true);
-
-        $command = new Install($installer, $manager);
+        $command = new Install($manager);
         $tester = new CommandTester($command);
         $tester->execute([]);
 
@@ -49,17 +43,15 @@ class InstallTest extends TestCase
 
     public function testCommandWritesListOfInstalledServices(): void
     {
-        $installer = $this->createMock(AllServiceInstaller::class);
-        $installer->expects($this->once())->method('install')->willReturn([
+        $manager = $this->createMock(LifecycleManager::class);
+        $manager->method('enabled')
+            ->willReturn(true);
+        $manager->expects($this->once())->method('install')->willReturn([
             'MyCoolService1',
             'MyCoolService2',
         ]);
 
-        $manager = $this->createMock(Manager::class);
-        $manager->method('isDisabled')
-            ->willReturn(false);
-
-        $command = new Install($installer, $manager);
+        $command = new Install($manager);
         $tester = new CommandTester($command);
         $tester->execute([]);
 

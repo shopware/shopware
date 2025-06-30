@@ -68,11 +68,11 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
         }
 
         .sw-field__addition {
-            border-left: 1px solid $color-crimson-500;
+            border-left: 1px solid var(--color-border-critical-default);
 
             &.is--prefix {
                 border-left: unset;
-                border-right: 1px solid $color-crimson-500;
+                border-right: 1px solid var(--color-border-critical-default);
             }
         }
     }

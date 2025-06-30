@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class File extends Struct
 {
+    protected string $bundleName = '';
+
     /**
      * @param array<string, string> $resolveMapping
      */
@@ -42,5 +44,15 @@ class File extends Struct
     public function setResolveMapping(array $resolveMapping): void
     {
         $this->resolveMapping = $resolveMapping;
+    }
+
+    public function getBundleName(): string
+    {
+        return $this->bundleName;
+    }
+
+    public function setBundleName(string $bundleName): void
+    {
+        $this->bundleName = $bundleName;
     }
 }

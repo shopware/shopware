@@ -1,0 +1,17 @@
+{
+  "name": "ThemeLevel2",
+  "author": "shopware AG",
+  "views": [
+    "@ThemeA",
+    "@ThemeB",
+    "@Plugins",
+    "@ThemeC",
+    "@ThemeLevel1"
+  ],
+  "style": [],
+  "script": [
+    "@MockStorefront",
+    "@Plugins",
+    "@ThemeLevel1"
+  ]
+}

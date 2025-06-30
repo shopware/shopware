@@ -7,15 +7,21 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\ThemeFileResolver;
 use Shopware\Storefront\Theme\ThemeFilesystemResolver;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\CircularReference\ThemeLevel1\ThemeLevel1;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\CircularReference\ThemeLevel2\ThemeLevel2;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\MockStorefront\MockStorefront;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\SimplePlugin\SimplePlugin;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\SimpleThemeWithResources\SimpleThemeWithResources;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeNotIncludingPluginJsAndCss\ThemeNotIncludingPluginJsAndCss;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithMultiInheritance\ThemeWithMultiInheritance;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithMultiInheritanceCircularReference\ThemeWithMultiInheritanceCircularReference;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithMultiInheritanceExplicitFiles\ThemeWithMultiInheritanceExplicitFiles;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithStorefrontBootstrapScss\ThemeWithStorefrontBootstrapScss;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithStorefrontSkinScss\ThemeWithStorefrontSkinScss;
 
@@ -168,6 +174,191 @@ class ThemeFileResolverTest extends TestCase
         $expected = array_unique($scriptFiles->getFilepaths());
 
         static::assertSame($expected, $actual);
+
+        $styleFiles = $resolvedFiles['style'];
+        $actualStyle = $styleFiles->getFilepaths();
+        $expectedStyle = array_unique($styleFiles->getFilepaths());
+
+        static::assertSame($expectedStyle, $actualStyle);
+    }
+
+    public function testResolvedFilesThrowExceptionOnCircularReference(): void
+    {
+        $themePluginBundle = new ThemeWithMultiInheritanceCircularReference(true, __DIR__ . '/fixtures/SimplePlugin');
+        $storefrontBundle = new MockStorefront();
+        $pluginBundle = new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin');
+
+        $sourceResolver = new StaticSourceResolver([]);
+        $factory = new StorefrontPluginConfigurationFactory(
+            $this->createMock(KernelPluginLoader::class),
+            $sourceResolver
+        );
+
+        $config = $factory->createFromBundle($themePluginBundle);
+        $storefront = $factory->createFromBundle($storefrontBundle);
+        $plugin = $factory->createFromBundle($pluginBundle);
+
+        $configCollection = new StorefrontPluginConfigurationCollection();
+        $configCollection->add($config);
+        $configCollection->add($storefront);
+        $configCollection->add($plugin);
+
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->expects($this->once())->method('getBundles')->willReturn([
+            'ThemeWithMultiInheritanceCircularReference' => $themePluginBundle,
+            'MockStorefront' => $storefrontBundle,
+            'SimplePlugin' => $pluginBundle,
+        ]);
+
+        $kernel->expects($this->any())->method('getBundle')->willReturnMap([
+            ['ThemeWithMultiInheritanceCircularReference', $themePluginBundle],
+            ['MockStorefront', $storefrontBundle],
+            ['SimplePlugin', $pluginBundle],
+        ]);
+
+        $themeFilesystemResolver = new ThemeFilesystemResolver(
+            $sourceResolver,
+            $kernel
+        );
+        $this->expectException(ThemeException::class);
+        $this->expectExceptionMessageMatches('/Circular dependency detected for theme.*/');
+
+        $resolvedFiles = (new ThemeFileResolver($themeFilesystemResolver))->resolveFiles(
+            $config,
+            $configCollection,
+            false
+        );
+    }
+
+    public function testResolvedFilesThrowExceptionOnCircularReferenceInMoreDepth(): void
+    {
+        $theme1PluginBundle = new ThemeLevel1(true, __DIR__ . '/fixtures/SimplePlugin');
+        $theme2PluginBundle = new ThemeLevel2(true, __DIR__ . '/fixtures/SimplePlugin');
+        $storefrontBundle = new MockStorefront();
+        $pluginBundle = new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin');
+
+        $sourceResolver = new StaticSourceResolver([]);
+        $factory = new StorefrontPluginConfigurationFactory(
+            $this->createMock(KernelPluginLoader::class),
+            $sourceResolver
+        );
+
+        $themeConfig1 = $factory->createFromBundle($theme1PluginBundle);
+        $themeConfig2 = $factory->createFromBundle($theme2PluginBundle);
+        $storefront = $factory->createFromBundle($storefrontBundle);
+        $plugin = $factory->createFromBundle($pluginBundle);
+
+        $configCollection = new StorefrontPluginConfigurationCollection();
+        $configCollection->add($themeConfig1);
+        $configCollection->add($themeConfig2);
+        $configCollection->add($storefront);
+        $configCollection->add($plugin);
+
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->expects($this->once())->method('getBundles')->willReturn([
+            'ThemeLevel1' => $theme1PluginBundle,
+            'ThemeLevel2' => $theme2PluginBundle,
+            'MockStorefront' => $storefrontBundle,
+            'SimplePlugin' => $pluginBundle,
+        ]);
+
+        $kernel->expects($this->any())->method('getBundle')->willReturnMap([
+            ['ThemeLevel1', $theme1PluginBundle],
+            ['ThemeLevel2', $theme2PluginBundle],
+            ['MockStorefront', $storefrontBundle],
+            ['SimplePlugin', $pluginBundle],
+        ]);
+
+        $themeFilesystemResolver = new ThemeFilesystemResolver(
+            $sourceResolver,
+            $kernel
+        );
+        $this->expectException(ThemeException::class);
+        $this->expectExceptionMessageMatches('/Circular dependency detected for theme "ThemeLevel1".*/');
+
+        $resolvedFiles = (new ThemeFileResolver($themeFilesystemResolver))->resolveFiles(
+            $themeConfig1,
+            $configCollection,
+            false
+        );
+    }
+
+    public function testResolvedFilesWithExplicitFiles(): void
+    {
+        $themePluginBundle = new ThemeWithMultiInheritanceExplicitFiles(true, __DIR__ . '/fixtures/SimplePlugin');
+        $themeBundle = new SimpleThemeWithResources();
+        $storefrontBundle = new MockStorefront();
+        $pluginBundle = new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin');
+
+        $sourceResolver = new StaticSourceResolver([]);
+        $factory = new StorefrontPluginConfigurationFactory(
+            $this->createMock(KernelPluginLoader::class),
+            $sourceResolver
+        );
+
+        $config = $factory->createFromBundle($themePluginBundle);
+        $storefront = $factory->createFromBundle($storefrontBundle);
+        $theme = $factory->createFromBundle($themeBundle);
+        $plugin = $factory->createFromBundle($pluginBundle);
+
+        $configCollection = new StorefrontPluginConfigurationCollection();
+        $configCollection->add($config);
+        $configCollection->add($storefront);
+        $configCollection->add($theme);
+        $configCollection->add($plugin);
+
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->expects($this->once())->method('getBundles')->willReturn([
+            'ThemeWithMultiInheritanceExplicitFiles' => $themePluginBundle,
+            'SimpleThemeWithResources' => $themeBundle,
+            'MockStorefront' => $storefrontBundle,
+            'SimplePlugin' => $pluginBundle,
+        ]);
+
+        $kernel->expects($this->any())->method('getBundle')->willReturnMap([
+            ['ThemeWithMultiInheritanceExplicitFiles', $themePluginBundle],
+            ['SimpleThemeWithResources', $themeBundle],
+            ['MockStorefront', $storefrontBundle],
+            ['SimplePlugin', $pluginBundle],
+        ]);
+
+        $themeFilesystemResolver = new ThemeFilesystemResolver(
+            $sourceResolver,
+            $kernel
+        );
+
+        $resolvedFiles = (new ThemeFileResolver($themeFilesystemResolver))->resolveFiles(
+            $config,
+            $configCollection,
+            false
+        );
+        $scriptFiles = $resolvedFiles['script'];
+        $actual = $scriptFiles->getFilepaths();
+        $currentPath = __DIR__ . '/fixtures/';
+        // check that the explicit files are included and at the beginning of the list
+        $expected = [
+            $currentPath . 'SimpleThemeWithResources/Resources/app/storefront/dist/storefront/js/storefront.js',
+            $currentPath . 'MockStorefront/Resources/app/storefront/dist/js/vendor-node.js',
+            $currentPath . 'MockStorefront/Resources/app/storefront/dist/js/vendor-shared.js',
+            $currentPath . 'MockStorefront/Resources/app/storefront/dist/js/runtime.js',
+            $currentPath . 'MockStorefront/Resources/app/storefront/dist/storefront/js/storefront.js',
+            $currentPath . 'SimpleThemeWithResources/Resources/app/storefront/dist/js/runtime.js',
+            $currentPath . 'SimplePlugin/Resources/app/storefront/dist/storefront/js/simple-plugin/simple-plugin.js',
+        ];
+
+        static::assertSame($expected, $actual);
+
+        $styleFiles = $resolvedFiles['style'];
+        $actualStyle = $styleFiles->getFilepaths();
+        // check that the explicit files are included and at the beginning of the list
+        $expectedStyle = [
+            $currentPath . 'SimpleThemeWithResources/Resources/app/storefront/src/scss/overrides.scss',
+            $currentPath . 'MockStorefront/Resources/app/storefront/src/scss/base.scss',
+            $currentPath . 'MockStorefront/Resources/app/storefront/src/scss/skin/shopware/_base.scss',
+            $currentPath . 'SimpleThemeWithResources/Resources/app/storefront/src/scss/base.scss',
+            $currentPath . 'SimplePlugin/Resources/app/storefront/src/scss/base.scss',
+        ];
+        static::assertSame($expectedStyle, $actualStyle);
     }
 
     public function testParentThemeIncludesPlugins(): void

@@ -85,14 +85,24 @@ class ThemeFileResolver
     /**
      * @param callable(StorefrontPluginConfiguration, bool): FileCollection $configFileResolver
      * @param array<int, string> $included
+     * @param string[] $recursionStack
      */
     private function resolve(
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,
         bool $onlySourceFiles,
         callable $configFileResolver,
-        array $included = []
+        array $included = [],
+        array $recursionStack = []
     ): FileCollection {
+        // Prevent infinite recursion
+        if (\in_array($themeConfig->getTechnicalName(), $recursionStack, true)) {
+            // add the current theme to the recursion stack to provide more context in the exception
+            $recursionStack[] = $themeConfig->getTechnicalName();
+            throw ThemeException::circularDependencyDetected($themeConfig->getTechnicalName(), $recursionStack);
+        }
+        $recursionStack[] = $themeConfig->getTechnicalName();
+
         // convertPathsToAbsolute changes the path, this should not affect the passed configuration
         $themeConfig = clone $themeConfig;
 
@@ -131,14 +141,14 @@ class ThemeFileResolver
                 );
             }
 
-            // bundle or wildcard already included? skip to prevent duplicate style/script injection
-            if (\in_array($filepath, $included, true)) {
-                continue;
-            }
-            $included[] = $filepath;
             if ($filepath === '@Plugins') {
+                // bundle or wildcard already included? skip to prevent duplicate style/script injection
+                if (\in_array($filepath, $included, true)) {
+                    continue;
+                }
+                $included[] = $filepath;
                 foreach ($configurationCollection->getNoneThemes() as $plugin) {
-                    foreach ($this->resolve($plugin, $configurationCollection, $onlySourceFiles, $configFileResolver, $nextIncluded) as $item) {
+                    foreach ($this->resolve($plugin, $configurationCollection, $onlySourceFiles, $configFileResolver, $nextIncluded, $recursionStack) as $item) {
                         $resolvedFiles->add($item);
                     }
                 }
@@ -146,6 +156,11 @@ class ThemeFileResolver
                 continue;
             }
             if ($filepath === '@StorefrontBootstrap') {
+                // bundle or wildcard already included? skip to prevent duplicate style/script injection
+                if (\in_array($filepath, $included, true)) {
+                    continue;
+                }
+                $included[] = $filepath;
                 $resolvedFiles->add(new File(
                     __DIR__ . '/../Resources/app/storefront/src/scss/base.scss',
                     ['vendor' => __DIR__ . '/../Resources/app/storefront/vendor']
@@ -155,14 +170,28 @@ class ThemeFileResolver
             }
             // Resolve @ dependencies
             $name = mb_substr($filepath, 1);
-            $configuration = $configurationCollection->getByTechnicalName($name);
+            // take the name of the bundle from the filepath
+            $bundleName = str_contains($name, '/') ? mb_substr($name, 0, mb_strpos($name, '/') ?: 0) : $name;
+            $fileName = str_contains($name, '/') ? mb_substr($name, (mb_strpos($name, '/') ?: 0) + 1) : '';
+            $configuration = $configurationCollection->getByTechnicalName($bundleName);
             if (!$configuration) {
                 throw ThemeException::couldNotFindThemeByName($name);
             }
-            foreach ($this->resolve($configuration, $configurationCollection, $onlySourceFiles, $configFileResolver, $nextIncluded) as $item) {
+            foreach ($this->resolve($configuration, $configurationCollection, $onlySourceFiles, $configFileResolver, $nextIncluded, $recursionStack) as $item) {
+                $bundleFilepath = $this->getBundleRelatedPath($item);
+
+                if (\in_array($bundleFilepath, $included, true)) {
+                    continue;
+                }
+                // if a specific file is requested, we need to only add these file
+                if ($bundleName !== $name && !str_ends_with($item->getFilepath(), $fileName)) {
+                    continue;
+                }
+                $included[] = $bundleFilepath;
                 $resolvedFiles->add($item);
             }
         }
+        array_pop($recursionStack);
 
         return $resolvedFiles;
     }
@@ -193,6 +222,29 @@ class ThemeFileResolver
             }
 
             $file->setResolveMapping($mapping);
+            $file->setBundleName($themeConfig->getTechnicalName());
         }
+    }
+
+    private function getBundleRelatedPath(File $file): string
+    {
+        $absolutePath = $file->getFilepath();
+        $bundleName = $file->getBundleName();
+        if (str_starts_with($absolutePath, '@')) {
+            // if the path starts with @, it is already relative
+            return $absolutePath;
+        }
+        if (empty($bundleName)) {
+            // if the bundle name is empty, we cannot convert the path
+            return $absolutePath;
+        }
+
+        // convert an absolute path to a relative path
+        // e.g., /var/www/html/vendor/shopware/storefront/Resources/app/storefront/src/scss/base.scss
+        // becomes @Storefront/app/storefront/src/scss/base.scss
+        // remove the Resources/ prefix from the absolute path and add the bundle Name as prefix to the relative path
+        $relativePath = mb_substr($absolutePath, mb_strpos($absolutePath, 'Resources/') ?: 0 + mb_strlen('Resources/') ?: 0);
+
+        return '@' . $bundleName . '/' . $relativePath;
     }
 }

@@ -145,6 +145,24 @@ class ThemeException extends HttpException
     }
 
     /**
+     * @param string[] $recursionStack
+     */
+    public static function circularDependencyDetected(string $technicalName, array $recursionStack): self
+    {
+        $message = \sprintf(
+            'Circular dependency detected for theme "%s". Recursion stack: %s',
+            $technicalName,
+            implode('->', $recursionStack)
+        );
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'THEME__CIRCULAR_DEPENDENCY_DETECTED',
+            $message
+        );
+    }
+
+    /**
      * @param array<string, array<int, string>> $assignmentMapping
      * @param array<string, string> $assignedSalesChannels
      */

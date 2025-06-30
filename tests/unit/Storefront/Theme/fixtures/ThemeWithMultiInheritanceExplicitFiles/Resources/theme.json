@@ -1,0 +1,22 @@
+{
+  "name": "ThemeWithMultiInheritanceExplicitFiles",
+  "author": "shopware AG",
+  "views": [
+    "@MockStorefront",
+    "@Plugins",
+    "@SimpleThemeWithResources",
+    "@ThemeWithMultiInheritanceExplicitFiles"
+  ],
+  "style": [
+    "@SimpleThemeWithResources/app/storefront/src/scss/overrides.scss",
+    "@MockStorefront",
+    "@SimpleThemeWithResources",
+    "@Plugins"
+  ],
+  "script": [
+    "@SimpleThemeWithResources/app/storefront/dist/storefront/js/storefront.js",
+    "@MockStorefront",
+    "@SimpleThemeWithResources",
+    "@Plugins"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "ThemeWithMultiInheritanceCircularReference",
+  "author": "shopware AG",
+  "views": [
+    "@ThemeA",
+    "@ThemeB",
+    "@Plugins",
+    "@ThemeC",
+    "@ThemeWithMultiInheritanceCircularReference"
+  ],
+  "style": [],
+  "script": [
+    "@MockStorefront",
+    "@Plugins",
+    "@ThemeWithMultiInheritanceCircularReference"
+  ]
+}

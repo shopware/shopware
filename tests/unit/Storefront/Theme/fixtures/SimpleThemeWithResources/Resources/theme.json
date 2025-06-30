@@ -1,0 +1,14 @@
+{
+  "name": "Simple theme With Resources",
+  "author": "Shopware AG",
+  "style": [
+    "app/storefront/src/scss/overrides.scss",
+    "app/storefront/src/scss/base.scss",
+    "@Plugins"
+  ],
+  "script": [
+    "app/storefront/dist/js/runtime.js",
+    "app/storefront/dist/storefront/js/storefront.js",
+    "@Plugins"
+  ]
+}

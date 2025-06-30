@@ -74,6 +74,7 @@
             <argument type="service" id="theme.repository"/>
             <argument type="service" id="theme_sales_channel.repository"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeCompiler"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>

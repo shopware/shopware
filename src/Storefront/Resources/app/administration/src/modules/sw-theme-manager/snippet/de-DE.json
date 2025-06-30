@@ -202,6 +202,10 @@
         "themeCompile": {
           "title": "Das Theme konnte nicht kompiliert werden",
           "message": "Das Theme konnte nicht kompiliert werden. Bitte prüfen Sie die vollständige Fehlermeldung, um dieses Problem zu beheben."
+        },
+        "invalidConfiguration": {
+          "title": "Ungültige Konfiguration",
+          "message": "Die Konfiguration ist fehlerhaft. Das Theme kann nicht gespeichert werden."
         }
       }
     },

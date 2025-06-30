@@ -125,6 +125,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartContextHasher"/>
             <argument type="service" id="lock.factory"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator">

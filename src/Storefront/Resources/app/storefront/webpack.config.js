@@ -532,3 +532,5 @@ const mergedCoreConfig = merge([
 
 // Use multi-compiler
 module.exports = [mergedCoreConfig, ...pluginConfigs];
+// Default is infinity @see https://github.com/webpack/webpack/blob/c109f97b1bf5eceb2e0e498d399f46321f40b07f/lib/MultiCompiler.js#L83
+module.exports.parallelism = process.env.SHOPWARE_BUILD_PARALLELISM ? parseInt(process.env.SHOPWARE_BUILD_PARALLELISM, 10) : Infinity;

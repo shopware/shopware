@@ -192,8 +192,8 @@ class LifecycleManagerTest extends TestCase
         ]);
 
         $this->permissionsService->expects($this->once())
-            ->method('getAcceptedPermissionsRevision')
-            ->willReturn(new \DateTime('2023-01-01'));
+            ->method('areGranted')
+            ->willReturn(true);
 
         $this->privileges
             ->expects($this->once())
@@ -223,8 +223,8 @@ class LifecycleManagerTest extends TestCase
         ]);
 
         $this->permissionsService->expects($this->once())
-            ->method('getAcceptedPermissionsRevision')
-            ->willReturn(null);
+            ->method('areGranted')
+            ->willReturn(false);
 
         $this->privileges
             ->expects($this->never())
@@ -309,8 +309,8 @@ class LifecycleManagerTest extends TestCase
         $services = new AppCollection([$service]);
 
         $this->permissionsService->expects($this->once())
-            ->method('getAcceptedPermissionsRevision')
-            ->willReturn(new \DateTime('2023-01-01'));
+            ->method('areGranted')
+            ->willReturn(true);
 
         $this->privileges->expects($this->once())
             ->method('acceptAllForApps')
@@ -347,8 +347,8 @@ class LifecycleManagerTest extends TestCase
         $services = new AppCollection([$service]);
 
         $this->permissionsService->expects($this->once())
-            ->method('getAcceptedPermissionsRevision')
-            ->willReturn(null);
+            ->method('areGranted')
+            ->willReturn(false);
 
         $this->privileges->expects($this->never())
             ->method('acceptAllForApps');

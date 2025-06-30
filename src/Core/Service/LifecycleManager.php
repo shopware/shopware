@@ -85,7 +85,7 @@ class LifecycleManager
      */
     public function start(Context $context): void
     {
-        if (! $this->permissionsService->areGranted()) {
+        if (!$this->permissionsService->areGranted()) {
             throw ServiceException::invalidServicesState();
         }
 

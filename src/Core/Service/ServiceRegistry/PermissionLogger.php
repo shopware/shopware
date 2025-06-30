@@ -19,7 +19,6 @@ class PermissionLogger implements RemoteLogger
 {
     public const CONFIG_STORE_LICENSE_HOST = 'core.store.licenseHost';
 
-
     public function __construct(
         private readonly Client $client,
         private readonly MessageBusInterface $messageBus,

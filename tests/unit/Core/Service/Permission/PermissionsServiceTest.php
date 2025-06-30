@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ShopApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\Event\PermissionsGrantedEvent;
 use Shopware\Core\Service\Event\PermissionsRevokedEvent;

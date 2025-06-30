@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Service;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Service\Event\PermissionsGrantedEvent;

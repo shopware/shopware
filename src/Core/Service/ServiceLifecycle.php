@@ -17,10 +17,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Service\ServiceRegistry\Client;
-use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Shopware\Core\Service\Event\ServiceInstalledEvent;
 use Shopware\Core\Service\Event\ServiceUpdatedEvent;
+use Shopware\Core\Service\ServiceRegistry\Client;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**

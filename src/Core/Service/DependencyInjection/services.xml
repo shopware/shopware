@@ -127,7 +127,6 @@
         <service id="Shopware\Core\Service\Permission\PermissionsService">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="system_config.repository"/>
             <argument type="service" id="Shopware\Core\Service\ServiceRegistry\PermissionLogger"/>
         </service>
 

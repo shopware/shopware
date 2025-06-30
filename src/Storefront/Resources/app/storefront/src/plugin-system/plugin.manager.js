@@ -95,8 +95,13 @@ class PluginManagerSingleton {
      */
     deregister(pluginName, selector = document) {
         if (!this._registry.has(pluginName, selector)) {
-            console.warn(`The plugin "${pluginName}" is not registered.`);
-            return;
+
+            if (!this._registry.has(pluginName)) {
+                console.warn(`The plugin "${pluginName}" is not registered.`);
+                return false;
+            }
+
+            return this._registry.delete(pluginName);
         }
 
         return this._registry.delete(pluginName, selector);
@@ -221,11 +226,6 @@ class PluginManagerSingleton {
 
         for (const [pluginName] of Object.entries(this.getPluginList())) {
             if (pluginName) {
-                if (!this._registry.has(pluginName)) {
-                    console.warn(`The plugin "${pluginName}" is not registered.`);
-                    continue;
-                }
-
                 const plugin = this._registry.get(pluginName);
 
                 if (plugin.has('registrations')) {

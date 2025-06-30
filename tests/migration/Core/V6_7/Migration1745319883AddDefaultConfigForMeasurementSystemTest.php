@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\V6_7\Migration1742199548MeasurementSystem;
 use Shopware\Core\Migration\V6_7\Migration1745319883AddDefaultConfigForMeasurementSystem;
 
 /**
@@ -21,8 +20,6 @@ class Migration1745319883AddDefaultConfigForMeasurementSystemTest extends TestCa
     private Connection $connection;
 
     private Migration1745319883AddDefaultConfigForMeasurementSystem $migration;
-
-    private Migration1742199548MeasurementSystem $migrationMeasurementSystem;
 
     protected function setUp(): void
     {
@@ -37,7 +34,6 @@ class Migration1745319883AddDefaultConfigForMeasurementSystemTest extends TestCa
             "core.measurementUnits.weight"
         )');
 
-        $this->migrationMeasurementSystem = new Migration1742199548MeasurementSystem();
         $this->migration = new Migration1745319883AddDefaultConfigForMeasurementSystem();
     }
 
@@ -48,8 +44,6 @@ class Migration1745319883AddDefaultConfigForMeasurementSystemTest extends TestCa
 
     public function testUpdate(): void
     {
-        $this->migrationMeasurementSystem->update($this->connection);
-
         // Ensure the keys do not exist before the migration
         static::assertFalse($this->configExists('core.measurementUnits.system'));
         static::assertFalse($this->configExists('core.measurementUnits.length'));

@@ -5,4 +5,5 @@ author_email: justus@devite.io
 author_github: @jgeramb
 ---
 # Core
-* Uses the LIVE version of the order to determine the credit items and then creates a new version to maintain the document state.
+* Changed the order version for determining credit items to LIVE.
+* Added a new order version before document generation to maintain the document state.

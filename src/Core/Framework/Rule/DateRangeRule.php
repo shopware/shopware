@@ -81,11 +81,7 @@ class DateRangeRule extends Rule
             return false;
         }
 
-        if ($toDate && $toDate <= $now) {
-            return false;
-        }
-
-        return true;
+        return !($toDate && $toDate <= $now);
     }
 
     public function getConstraints(): array

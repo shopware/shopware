@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Framework\Captcha;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\Blank;
-use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Package('framework')]
@@ -14,6 +13,7 @@ class HoneypotCaptcha extends AbstractCaptcha
     final public const CAPTCHA_NAME = 'honeypot';
     final public const CAPTCHA_REQUEST_PARAMETER = 'shopware_surname_confirm';
 
+    #[Blank]
     protected ?string $honeypotValue = null;
 
     /**
@@ -21,14 +21,6 @@ class HoneypotCaptcha extends AbstractCaptcha
      */
     public function __construct(private readonly ValidatorInterface $validator)
     {
-    }
-
-    /**
-     * Default method for determining constraints when using the Symfony validator.
-     */
-    public static function loadValidatorMetadata(ClassMetadata $metadata): void
-    {
-        $metadata->addPropertyConstraint('honeypotValue', new Blank());
     }
 
     /**

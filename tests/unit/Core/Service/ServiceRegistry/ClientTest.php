@@ -5,8 +5,11 @@ namespace Shopware\Tests\Unit\Core\Service\ServiceRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
+use Shopware\Core\Service\ServiceRegistry\SaveConsentRequest;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
+use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
@@ -187,6 +190,88 @@ class ClientTest extends TestCase
         static::assertSame('/app-endpoint', $entries[1]->appEndpoint);
         static::assertSame('https://www.shopware.com/api/service/?page=1&limit=10', $response1->getRequestUrl());
         static::assertSame('https://www.shopware.com/api/service/?page=2&limit=10', $response2->getRequestUrl());
+    }
+
+    public function testNetworkExceptionReturnsEmptyListOfServices(): void
+    {
+        $client = new MockHttpClient([
+            function (): void {
+                throw new TransportException('Network error');
+            },
+        ]);
+
+        $registryClient = new ServiceRegistryClient('https://example.com', $client);
+
+        static::assertSame([], $registryClient->getAll());
+    }
+
+    public function testSaveConsentSuccess(): void
+    {
+        $client = new MockHttpClient([
+            $response = new MockResponse('', ['http_code' => 200]),
+        ]);
+
+        $registryClient = new ServiceRegistryClient('https://example.com', $client);
+
+        $saveConsentRequest = new SaveConsentRequest(
+            'service-123',
+            'user-456',
+            'shop-789',
+            '2023-07-01T10:00:00Z',
+            'v1.0',
+            'https://license.example.com'
+        );
+
+        $registryClient->saveConsent($saveConsentRequest);
+
+        static::assertSame('https://example.com/api/consent/', $response->getRequestUrl());
+        static::assertSame('POST', $response->getRequestMethod());
+    }
+
+    public function testSaveConsentThrowsExceptionOnFailure(): void
+    {
+        $client = new MockHttpClient([
+            new MockResponse('', ['http_code' => 500]),
+        ]);
+
+        $registryClient = new ServiceRegistryClient('https://example.com', $client);
+
+        $saveConsentRequest = new SaveConsentRequest(
+            'service-123',
+            'user-456',
+            'shop-789',
+            '2023-07-01T10:00:00Z',
+            'v1.0'
+        );
+
+        $this->expectException(ServiceException::class);
+        $registryClient->saveConsent($saveConsentRequest);
+    }
+
+    public function testRevokeConsentSuccess(): void
+    {
+        $client = new MockHttpClient([
+            $response = new MockResponse('', ['http_code' => 200]),
+        ]);
+
+        $registryClient = new ServiceRegistryClient('https://example.com', $client);
+
+        $registryClient->revokeConsent('service-123');
+
+        static::assertSame('https://example.com/api/consent/revoke/service-123', $response->getRequestUrl());
+        static::assertSame('DELETE', $response->getRequestMethod());
+    }
+
+    public function testRevokeConsentThrowsExceptionOnFailure(): void
+    {
+        $client = new MockHttpClient([
+            new MockResponse('', ['http_code' => 500]),
+        ]);
+
+        $registryClient = new ServiceRegistryClient('https://example.com', $client);
+
+        $this->expectException(ServiceException::class);
+        $registryClient->revokeConsent('service-123');
     }
 
     public function testExtraBackslashDoesntBreakApp(): void

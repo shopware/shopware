@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Service\Permission;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\ServiceException;
 
@@ -51,7 +50,7 @@ class PermissionsConsent implements \JsonSerializable
             'identifier' => $this->identifier,
             'revision' => $this->revision,
             'consentingUserId' => $this->consentingUserId,
-            'grantedAt' => $this->grantedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'grantedAt' => $this->grantedAt->format(\DateTimeInterface::ATOM),
         ];
     }
 }

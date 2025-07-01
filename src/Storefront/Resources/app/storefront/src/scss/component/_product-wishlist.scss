@@ -17,12 +17,6 @@ $box-standard-height-img: 200px;
 .product-wishlist {
     margin-top: 10px;
 
-    .icon-wishlist {
-        svg {
-            top: 0;
-        }
-    }
-
     &-not-added {
         .icon-wishlist-added,
         .text-wishlist-remove {
@@ -97,13 +91,6 @@ $box-standard-height-img: 200px;
         position: absolute;
         right: 1.5rem;
         top: 1.5rem;
-    }
-
-    .icon-wishlist,
-    .icon-wishlist-remove {
-        svg {
-            top: 0;
-        }
     }
 
     &-btn-content {

@@ -14,10 +14,6 @@ This file contains the generic styling for all filter items.
 
 .icon.icon-filter-panel-item-toggle {
     margin-left: 8px;
-
-    > svg {
-        top: 4px;
-    }
 }
 
 .filter-panel-items-container {
@@ -135,10 +131,6 @@ This file contains the generic styling for all filter items.
 
     .icon-filter-panel-item-toggle {
         margin-left: auto;
-
-        > svg {
-            top: 0;
-        }
     }
 }
 
@@ -164,13 +156,7 @@ This file contains the generic styling for all filter items.
     width: 100%;
 
     .icon {
-        color: currentColor;
         margin-right: $spacer-sm;
-        vertical-align: text-bottom;
-
-        svg {
-            top: 0;
-        }
     }
 }
 

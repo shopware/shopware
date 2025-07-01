@@ -9,12 +9,10 @@ Credit: https://github.com/FortAwesome/Font-Awesome
 // --------------------------
 
 @mixin sw-icon-rotate($degrees, $rotation) {
-    filter: 'progid:DXImageTransform.Microsoft.BasicImage(rotation=#{$rotation})';
     transform: rotate($degrees);
 }
 
 @mixin sw-icon-flip($horiz, $vert, $rotation) {
-    filter: 'progid:DXImageTransform.Microsoft.BasicImage(rotation=#{$rotation}, mirror=1)';
     transform: scale($horiz, $vert);
 }
 
@@ -27,18 +25,12 @@ Credit: https://github.com/FortAwesome/Font-Awesome
 // --------------------------
 
 .icon {
-    @include sw-icon-size($icon-base-size);
-    display: inline-flex;
-    align-self: center;
-    font-size: inherit;
-    overflow: visible;
-    color: $icon-base-color;
+    display: inline-block;
 
     > svg {
-        width: 100%;
-        height: 100%;
-        top: 0.25em;
-        position: relative;
+        @include sw-icon-size($icon-base-size);
+        vertical-align: text-bottom;
+        display: inline-block;
         fill: currentColor;
 
         path,
@@ -90,25 +82,25 @@ Credit: https://github.com/FortAwesome/Font-Awesome
 // Icon Sizes
 // -------------------------
 
-.icon-fluid {
+.icon-fluid > svg {
     @include sw-icon-size(100%);
 }
 
-.icon-lg {
+.icon-lg > svg {
     @include sw-icon-size($icon-base-size / 3 * 4);
 }
 
 // 33% bigger icon
-.icon-sm {
+.icon-sm > svg {
     @include sw-icon-size($icon-base-size * 0.875);
 }
 
-.icon-xs {
+.icon-xs > svg {
     @include sw-icon-size($icon-base-size * 0.75);
 }
 
 @for $i from 1 through 10 {
-    .icon-#{$i}x {
+    .icon-#{$i}x > svg {
         width: $i * $icon-base-size;
         height: $i * $icon-base-size;
     }
@@ -154,22 +146,6 @@ Credit: https://github.com/FortAwesome/Font-Awesome
     }
 }
 
-// Hook for IE8-9
-// -------------------------
-
-:root {
-    .icon-rotate-90,
-    .icon-rotate-180,
-    .icon-rotate-270,
-    .icon-flip-horizontal,
-    .icon-flip-vertical,
-    .icon-flip-both {
-        svg {
-            filter: none;
-        }
-    }
-}
-
 // Make them work with bootstrap components
 // -------------------------
 
@@ -186,48 +162,5 @@ Credit: https://github.com/FortAwesome/Font-Awesome
         .icon {
             color: color-contrast($value);
         }
-    }
-}
-
-.btn {
-    .icon {
-        > svg {
-            top: 6px;
-        }
-    }
-}
-
-.pagination {
-    .icon {
-        width: 13px;
-        height: 13px;
-
-        > svg {
-            top: 2px;
-        }
-    }
-}
-
-.is-left,
-.offcanvas-start {
-    .offcanvas-close {
-        svg {
-            top: 0;
-        }
-    }
-}
-
-.is-right,
-.offcanvas-end {
-    .offcanvas-close {
-        svg {
-            top: 0.25rem;
-        }
-    }
-}
-
-.navigation-offcanvas-link-icon {
-    .icon > svg {
-        top: 0;
     }
 }

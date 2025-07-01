@@ -190,14 +190,6 @@
         color: $white;
     }
     /* stylelint-enable selector-class-pattern */
-
-    .icon {
-        color: currentColor;
-
-        svg {
-            top: 5px;
-        }
-    }
 }
 
 @include media-breakpoint-up(md) {

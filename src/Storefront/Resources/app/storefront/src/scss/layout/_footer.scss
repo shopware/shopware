@@ -18,11 +18,6 @@ Contains custom styles for the footer located at the bottom of the page.
         display: none;
     }
 
-    .icon-footer-plus > svg,
-    .icon-footer-minus > svg {
-        top: 0.25em;
-    }
-
     .footer-column-toggle[aria-expanded='true'] {
         .icon-footer-plus {
             display: none;

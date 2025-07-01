@@ -24,10 +24,6 @@
     align-self: flex-end;
     border-color: $border-color;
 
-    &.btn .icon > svg {
-        top: 0;
-    }
-
     &:hover {
         cursor: pointer;
         border-color: $primary;

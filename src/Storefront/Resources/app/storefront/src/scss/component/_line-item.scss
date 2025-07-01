@@ -255,10 +255,6 @@ $infoItemRemoveMdSpace: 1;
 
     .icon {
         height: 100%;
-
-        > svg {
-            top: 0;
-        }
     }
 }
 
@@ -284,12 +280,6 @@ $infoItemRemoveMdSpace: 1;
     margin: 0 auto;
     width: 65px;
     height: 65px;
-
-    .icon {
-        > svg {
-            top: 0;
-        }
-    }
 }
 
 .line-item-unit-price,
@@ -649,8 +639,4 @@ a.line-item-label {
     .line-item-characteristics-option {
         font-weight: $font-weight-bold;
     }
-}
-
-.line-item-remove-button .icon {
-    color: inherit;
 }

@@ -1,13 +1,4 @@
 .address-manager-modal {
-    .btn-icon-hover-white {
-        &:hover,
-        &:focus {
-            span.icon {
-                color: $white;
-            }
-        }
-    }
-
     .loader {
         color: $white;
     }

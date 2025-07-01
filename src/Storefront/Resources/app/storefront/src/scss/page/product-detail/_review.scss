@@ -6,12 +6,6 @@
 
 .product-detail-reviews {
     margin-bottom: $spacer;
-
-    .icon {
-        svg {
-            top: 2px;
-        }
-    }
 }
 
 .product-detail-review-teaser-btn {
@@ -52,10 +46,6 @@
 .product-detail-review-form-rating-input {
     display: flex;
     align-items: center;
-}
-
-.product-review-point svg {
-    top: 0;
 }
 
 .product-review-point,

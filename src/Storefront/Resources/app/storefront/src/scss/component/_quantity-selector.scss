@@ -26,6 +26,7 @@
         --#{$prefix}btn-active-border-color: #{$border-color};
         --#{$prefix}btn-hover-border-color: #{$border-color};
         --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
+        --#{$prefix}btn-color: #{$body-color};
 
         &.btn-plus {
             border-left: 0;
@@ -37,10 +38,6 @@
 
         &:disabled .icon {
             color: $gray-300;
-        }
-
-        svg {
-            top: 4px;
         }
     }
 

@@ -502,11 +502,7 @@ class ThemeMergedConfigBuilder
             return true;
         }
 
-        if (!\array_key_exists($fieldName, $configuration['fields'])) {
-            return true;
-        }
-
-        return false;
+        return !\array_key_exists($fieldName, $configuration['fields']);
     }
 
     private function buildSnippetKey(string $themeTechnicalName, bool $isHelpText, string ...$parts): string

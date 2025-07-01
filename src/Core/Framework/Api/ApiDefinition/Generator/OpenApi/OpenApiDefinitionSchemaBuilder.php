@@ -9,6 +9,7 @@ use OpenApi\Context as OpenApiContext;
 use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -89,10 +90,12 @@ class OpenApiDefinitionSchemaBuilder
         $extensions = [];
         $extensionRelationships = [];
 
+        $source = $forSalesChannel ? SalesChannelApiSource::class : AdminApiSource::class;
+
         $defaults = $definition->getDefaults();
 
         foreach ($definition->getFields() as $field) {
-            if (!$this->shouldFieldBeIncluded($field, $forSalesChannel)) {
+            if (!$this->shouldFieldBeIncluded($field, $source)) {
                 continue;
             }
 
@@ -304,9 +307,10 @@ class OpenApiDefinitionSchemaBuilder
         $schemaName = $this->getSchemaName($definition);
         $exampleDetailPath = $path . '/' . Uuid::fromStringToHex($schemaName);
         $extensions = [];
+        $source = $forSalesChannel ? SalesChannelApiSource::class : AdminApiSource::class;
 
         foreach ($definition->getFields() as $field) {
-            if (!$this->shouldFieldBeIncluded($field, $forSalesChannel) || !$field->is(Extension::class)) {
+            if (!$this->shouldFieldBeIncluded($field, $source) || !$field->is(Extension::class)) {
                 continue;
             }
 
@@ -348,7 +352,10 @@ class OpenApiDefinitionSchemaBuilder
         return $this->converter->denormalize($input);
     }
 
-    private function shouldFieldBeIncluded(Field $field, bool $forSalesChannel): bool
+    /**
+     * @param class-string<ContextSource> $source
+     */
+    private function shouldFieldBeIncluded(Field $field, string $source): bool
     {
         if ($field->getPropertyName() === 'translations'
             || preg_match('#translations$#i', $field->getPropertyName())
@@ -366,11 +373,7 @@ class OpenApiDefinitionSchemaBuilder
             return false;
         }
 
-        if (!$flag->isSourceAllowed($forSalesChannel ? SalesChannelApiSource::class : AdminApiSource::class)) {
-            return false;
-        }
-
-        return true;
+        return $flag->isSourceAllowed($source);
     }
 
     private function createToOneLinkage(ManyToOneAssociationField|OneToOneAssociationField $field, string $basePath): Property

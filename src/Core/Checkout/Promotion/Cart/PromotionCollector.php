@@ -385,11 +385,7 @@ class PromotionCollector implements CartDataCollectorInterface
         }
 
         // check if no discounts have been set
-        if (!$promotion->hasDiscount()) {
-            return false;
-        }
-
-        return true;
+        return $promotion->hasDiscount();
     }
 
     /**

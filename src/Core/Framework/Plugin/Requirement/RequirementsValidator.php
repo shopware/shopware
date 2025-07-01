@@ -101,11 +101,7 @@ class RequirementsValidator
             return false;
         }
 
-        if (\array_key_exists($composerName, $this->getPluginDependencies($plugin)['require'])) {
-            return true;
-        }
-
-        return false;
+        return \array_key_exists($composerName, $this->getPluginDependencies($plugin)['require']);
     }
 
     /**

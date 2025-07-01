@@ -202,7 +202,8 @@ class PluginManagementServiceTest extends TestCase
             false,
             false,
             static::getContainer()->get('messenger.default_bus'),
-            static::getContainer()->get('logger')
+            static::getContainer()->get('logger'),
+            static::getContainer()->get('lock.factory')
         );
     }
 

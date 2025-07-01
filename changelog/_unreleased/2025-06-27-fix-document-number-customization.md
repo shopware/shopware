@@ -5,4 +5,4 @@ author_email: justus@devite.io
 author_github: @jgeramb
 ---
 # Administration
-* Allows the auto-completed document number to be changed if a prefix/suffix is configured for the document type. This enables the creation of alternative exports (e.g. e-invoice) of invoices while preserving the same document number.
+    * Removed the value type conversion of the document number field to allow any string value. This enables document numbers with prefixes and/or suffixes.

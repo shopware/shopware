@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Service\ScheduledTask\InstallServicesTask;
+use Shopware\Core\Service\Message\InstallServicesMessage;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -31,7 +31,6 @@ class AllServiceInstaller
         private readonly ServiceLifecycle $serviceLifecycle,
         private readonly EntityRepository $appRepository,
         private readonly MessageBusInterface $messageBus,
-        private readonly EntityRepository $scheduledTaskRepository,
     ) {
     }
 
@@ -63,21 +62,7 @@ class AllServiceInstaller
 
     public function scheduleInstall(): void
     {
-        $criteria = new Criteria();
-        $criteria->setLimit(1)
-            ->addFilter(new EqualsFilter('name', 'services.install'));
-
-        $result = $this->scheduledTaskRepository->searchIds($criteria, Context::createDefaultContext());
-
-        $taskId = $result->firstId();
-        if ($taskId === null) {
-            throw ServiceException::scheduledTaskNotRegistered();
-        }
-
-        $message = new InstallServicesTask();
-        $message->setTaskId($taskId);
-
-        $this->messageBus->dispatch($message);
+        $this->messageBus->dispatch(new InstallServicesMessage());
     }
 
     /**

@@ -81,6 +81,11 @@
             <tag name="messenger.message_handler"/>
         </service>
 
+        <service id="Shopware\Core\Service\MessageHandler\InstallServicesHandler">
+            <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+
         <service id="Shopware\Core\Service\ServiceSourceResolver">
             <argument type="service" id="Shopware\Core\Service\TemporaryDirectoryFactory"/>
             <argument type="service" id="Shopware\Core\Service\ServiceClientFactory"/>

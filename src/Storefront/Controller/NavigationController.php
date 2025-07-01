@@ -35,7 +35,13 @@ class NavigationController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/', name: 'frontend.home.page', options: ['seo' => true], defaults: ['_httpCache' => true], methods: ['GET'])]
+    #[Route(
+        path: '/',
+        name: 'frontend.home.page',
+        options: ['seo' => true],
+        defaults: ['_httpCache' => true],
+        methods: ['GET'],
+    )]
     public function home(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->navigationPageLoader->load($request, $context);
@@ -45,7 +51,13 @@ class NavigationController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/navigation/{navigationId}', name: 'frontend.navigation.page', options: ['seo' => true], defaults: ['_httpCache' => true], methods: ['GET'])]
+    #[Route(
+        path: '/navigation/{navigationId}',
+        name: 'frontend.navigation.page',
+        options: ['seo' => true],
+        defaults: ['_httpCache' => true],
+        methods: ['GET'],
+    )]
     public function index(SalesChannelContext $context, Request $request): Response
     {
         $page = $this->navigationPageLoader->load($request, $context);
@@ -55,7 +67,12 @@ class NavigationController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/widgets/menu/offcanvas', name: 'frontend.menu.offcanvas', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET'])]
+    #[Route(
+        path: '/widgets/menu/offcanvas',
+        name: 'frontend.menu.offcanvas',
+        defaults: ['XmlHttpRequest' => true, '_httpCache' => true],
+        methods: ['GET'],
+    )]
     public function offcanvas(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->offcanvasLoader->load($request, $context);
@@ -72,7 +89,12 @@ class NavigationController extends StorefrontController
         return $response;
     }
 
-    #[Route(path: '/header', name: 'frontend.header', defaults: ['XmlHttpRequest' => true, '_httpCache' => true, '_esi' => true], methods: ['GET'])]
+    #[Route(
+        path: '/_esi/global/header',
+        name: 'frontend.header',
+        defaults: ['XmlHttpRequest' => true, '_httpCache' => true, '_esi' => true],
+        methods: ['GET'],
+    )]
     public function header(Request $request, SalesChannelContext $context): Response
     {
         $header = $this->headerLoader->load($request, $context);
@@ -85,7 +107,12 @@ class NavigationController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/footer', name: 'frontend.footer', defaults: ['XmlHttpRequest' => true, '_httpCache' => true, '_esi' => true], methods: ['GET'])]
+    #[Route(
+        path: '/_esi/global/footer',
+        name: 'frontend.footer',
+        defaults: ['XmlHttpRequest' => true, '_httpCache' => true, '_esi' => true],
+        methods: ['GET'],
+    )]
     public function footer(Request $request, SalesChannelContext $context): Response
     {
         $footer = $this->footerLoader->load($request, $context);

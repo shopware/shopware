@@ -96,7 +96,7 @@ class SqlQueryParser
 
         if ($query instanceof SingleFieldFilter && $query->getResolved()) {
             $result = new ParseResult();
-            $result->addWhere((string) $query->getResolved());
+            $result->addWhere($query->getResolved());
 
             return $result;
         }

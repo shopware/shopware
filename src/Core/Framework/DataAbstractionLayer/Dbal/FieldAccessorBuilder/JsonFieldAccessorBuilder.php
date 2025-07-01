@@ -61,7 +61,7 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
             'JSON_EXTRACT(%s.%s, %s)',
             EntityDefinitionQueryHelper::escape($root),
             EntityDefinitionQueryHelper::escape($field->getStorageName()),
-            (string) $this->connection->quote('$' . $jsonPath)
+            $this->connection->quote('$' . $jsonPath)
         );
 
         $embeddedField = $this->getField($jsonPath, $field->getPropertyMapping());

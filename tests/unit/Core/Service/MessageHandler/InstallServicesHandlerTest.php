@@ -13,7 +13,7 @@ use Shopware\Core\Service\MessageHandler\InstallServicesHandler;
  * @internal
  */
 #[CoversClass(InstallServicesHandler::class)]
-class InstallServiceHandlerTest extends TestCase
+class InstallServicesHandlerTest extends TestCase
 {
     public function testHandlerDelegatesToServiceLifecycle(): void
     {

@@ -95,6 +95,32 @@
                                             "checkPromotion": {
                                                 "description": "Check if the payment method of the order is still changeable.",
                                                 "type": "boolean"
+                                            },
+                                            "filter": {
+                                              "type": "array",
+                                              "description": "Pass the deepLinkCode criteria filter to allow for guest user authentification. Not required, if a user (guest or not) is already logged in.",
+                                              "items": {
+                                                "allOf": [
+                                                  {
+                                                    "type": "object",
+                                                    "properties": {
+                                                      "type": { "type": "string", "enum": ["equals"] },
+                                                      "field": { "type": "string", "enum": ["deepLinkCode"] },
+                                                      "value": { "type": "string" }
+                                                    },
+                                                    "required": ["type", "field", "value"]
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            "email": {
+                                              "description": "The email address of the customer. Pass this value to allow for guest user authentification. Not required, if a user (guest or not) is already logged in.",
+                                              "type": "string",
+                                              "format": "email"
+                                            },
+                                            "zipcode": {
+                                              "description": "The zip/postal code of the billing address of the customer. Pass this value to allow for guest user authentification. Not required, if a user (guest or not) is already logged in.",
+                                              "type": "string"
                                             }
                                         },
                                         "type": "object"

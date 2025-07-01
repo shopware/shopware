@@ -38,8 +38,8 @@ class SourceResolver implements ResetInterface
      */
     public function __construct(
         private readonly iterable $sources,
-        private EntityRepository $appRepository,
-        private NoDatabaseSourceResolver $noDbSourceResolver
+        private readonly EntityRepository $appRepository,
+        private readonly NoDatabaseSourceResolver $noDbSourceResolver,
     ) {
     }
 

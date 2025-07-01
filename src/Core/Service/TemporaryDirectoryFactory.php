@@ -12,7 +12,7 @@ use Symfony\Component\Filesystem\Path;
 #[Package('framework')]
 class TemporaryDirectoryFactory extends CoreTemporaryDirectoryFactory
 {
-    public function __construct(private string $projectDirectory)
+    public function __construct(private readonly string $projectDirectory)
     {
     }
 

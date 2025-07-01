@@ -9,26 +9,14 @@ use Shopware\Core\Framework\Struct\Struct;
 class MailSendSubscriberConfig extends Struct
 {
     /**
-     * @var array<string>
-     */
-    protected array $documentIds = [];
-
-    /**
-     * @var array<string>
-     */
-    protected array $mediaIds = [];
-
-    /**
      * @param array<string> $documentIds
      * @param array<string> $mediaIds
      */
     public function __construct(
         protected bool $skip,
-        array $documentIds = [],
-        array $mediaIds = []
+        protected array $documentIds = [],
+        protected array $mediaIds = [],
     ) {
-        $this->documentIds = $documentIds;
-        $this->mediaIds = $mediaIds;
     }
 
     public function skip(): bool

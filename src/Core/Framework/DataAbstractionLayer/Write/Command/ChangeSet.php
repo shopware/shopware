@@ -11,11 +11,6 @@ class ChangeSet extends Struct
     /**
      * @var array<string, mixed>
      */
-    protected array $state = [];
-
-    /**
-     * @var array<string, mixed>
-     */
     protected array $after = [];
 
     /**
@@ -23,18 +18,16 @@ class ChangeSet extends Struct
      * @param array<string, mixed> $payload
      */
     public function __construct(
-        array $state,
+        protected array $state,
         array $payload,
         protected bool $isDelete
     ) {
-        $this->state = $state;
-
         // calculate changes
-        $changes = array_intersect_key($payload, $state);
+        $changes = array_intersect_key($payload, $this->state);
 
         // validate data types
         foreach ($changes as $property => $after) {
-            $before = (string) $state[$property];
+            $before = (string) $this->state[$property];
             $string = (string) $after;
             if ($string === $before) {
                 continue;

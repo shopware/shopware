@@ -25,12 +25,12 @@
                     {# @deprecated tag:v6.7.0 - `<h4>` is added to cart header #}
                     {%- if feature('ACCESSIBILITY_TWEAKS') -%}
                         <div class="col">
-                            <h4>
+                            <h4 data-id="off-canvas-headline">
                             {{- 'checkout.cartHeader'|trans|sw_sanitize -}}
                             </h4>
                         </div>
                     {%- else -%}
-                        <div class="col">
+                        <div class="col" data-id="off-canvas-headline">
                             {{ 'checkout.cartHeader'|trans|sw_sanitize }}
                         </div>
                     {%- endif -%}

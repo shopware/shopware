@@ -11,10 +11,7 @@
         {% block sw_product_properties_card %}
         <sw-card
             class="sw-product-properties__card"
-            :class="{
-                'is--inherited': isInherited,
-                'is--disabled': disabled,
-            }"
+            :class="{ 'is--disabled': disabled }"
             position-identifier="sw-product-properties"
             :is-loading="isLoading"
         >

@@ -29,7 +29,7 @@ Credit: https://github.com/FortAwesome/Font-Awesome
 
     > svg {
         @include sw-icon-size($icon-base-size);
-        vertical-align: text-bottom;
+        vertical-align: middle;
         display: inline-block;
         fill: currentColor;
 
@@ -157,10 +157,6 @@ Credit: https://github.com/FortAwesome/Font-Awesome
     }
 }
 
-@each $color, $value in $theme-colors {
-    .btn-#{$color} {
-        .icon {
-            color: color-contrast($value);
-        }
-    }
+.btn .icon {
+    color: currentColor;
 }

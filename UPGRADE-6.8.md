@@ -2,19 +2,8 @@
 
 ## Introduced in 6.7.0.0
 
-* Deprecated the following snippet keys:
-    - `global.sw-condition.condition.cartTaxDisplay`
-    - `global.sw-condition.condition.lineItemOfTypeRule`
-    - `global.sw-condition.condition.promotionCodeOfTypeRule`
-    - `global.sw-condition.condition.dayOfWeekRule`
+## Settings Menu Structure was changed
 
-* Added the following keys to `sw-condition-generic`:
-    - `promotionCodeOfType`
-    - `cartLineItemProductStates`
-
-  The old keys can be used until the next major version, where they will be removed.
-  
-## Settings Menu Structure was changed 
 The menu structure on the settings page has changed from tab structure to a grid structure. The new structure groups settings into different categories for better usability. If you extend or customize the settings menu, ensure that your changes are compatible with the new structure.
 
 The new settings groups are:
@@ -40,37 +29,46 @@ New blocks have been added in `sw-settings-index.html.twig`:
 * `sw_settings_content_card_content_grid`
 * `sw_settings_content_card_view`
 * `sw_settings_content_card_view_header`
+
 ## ApiClient confidential flag
 
 * You must explicitly pass a boolean value to the `confidential` parameter  of `\Shopware\Core\Framework\Api\OAuth\Client\ApiClient`.
 * You must pass the `confidential` parameter as the third parameter of the constructor.
 * You must pass the `name` parameter as the fourth parameter of the constructor.
-```
+
 ## Storefront
+
 ### Deprecated DomAccess Helper
+
 We deprecated DomAccess Helper, because it does not add much value compared to native browser APIs and to reduce Shopware specific code complexity. You simply replace its usage with the corresponding native methods. Here are some RegEx to help you:
 
-#### hasAttribute()  
+#### hasAttribute()
+
 **RegEx**: `DomAccess\.hasAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`  
 **Replacement**: `$1.hasAttribute($2)`
 
 #### getAttribute()
+
 **RegEx**: `DomAccess\.getAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`  
 **Replacement**: `$1.getAttribute($2)`
 
 #### getDataAttribute()
+
 **RegEx**: `DomAccess\.getDataAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`  
 **Replacement**: `$1.getAttribute($2)`
 
 #### querySelector()
+
 **RegEx**: ``DomAccess\.querySelector\(\s*([^,]+)\s*,\s*((?:`[^`]*`|'[^']*'|"[^"]*")|[^,)]+)(?:,\s*[^)]+)?\)``  
 **Replacement**: `$1.querySelector($2)`
 
 #### querySelectorAll()
+
 **RegEx**: ``DomAccess\.querySelectorAll\(\s*([^,]+)\s*,\s*((?:`[^`]*`|'[^']*'|"[^"]*")|[^,)]+)(?:,\s*[^)]+)?\)``  
 **Replacement**: `$1.querySelectorAll($2)`
 
 #### getFocusableElements()
+
 This method was moved to FocusHandler Helper. Use this instead.
 
 ```JavaScript
@@ -78,6 +76,7 @@ const focusableElements = window.focusHandler.getFocusableElements();
 ```
 
 #### getFirstFocusableElement()
+
 This method was moved to FocusHandler Helper. Use this instead.
 
 ```JavaScript
@@ -85,84 +84,7 @@ const firstFocusableEl = window.focusHandler.getFirstFocusableElement();
 ```
 
 #### getLastFocusableElement()
-This method was moved to FocusHandler Helper. Use this instead.
 
-```JavaScript
-const lastFocusableEl = window.focusHandler.getLastFocusableElement();
-```
-
-## Introduced in 6.7.0.0
-## Settings Menu Structure was changed 
-The menu structure on the settings page has changed from tab structure to a grid structure. The new structure groups settings into different categories for better usability. If you extend or customize the settings menu, ensure that your changes are compatible with the new structure.
-
-The new settings groups are:
-* General
-* Customer
-* Automation
-* Localization
-* Content
-* Commerce
-* System
-* Account
-* Extensions
-
-As a result blocks have been removed in `sw-settings-index.html.twig`:
-* `sw_settings_content_tab_shop`
-* `sw_settings_content_tab_system`
-* `sw_settings_content_tab_plugins`
-* `sw_settings_content_card`
-* `sw_settings_content_header`
-* `sw_settings_content_card_content`
-
-New blocks have been added in `sw-settings-index.html.twig`:
-* `sw_settings_content_card_content_grid`
-* `sw_settings_content_card_view`
-* `sw_settings_content_card_view_header`
-## ApiClient confidential flag
-
-* You must explicitly pass a boolean value to the `confidential` parameter  of `\Shopware\Core\Framework\Api\OAuth\Client\ApiClient`.
-* You must pass the `confidential` parameter as the third parameter of the constructor.
-* You must pass the `name` parameter as the fourth parameter of the constructor.
-```
-## Storefront
-### Deprecated DomAccess Helper
-We deprecated DomAccess Helper, because it does not add much value compared to native browser APIs and to reduce Shopware specific code complexity. You simply replace its usage with the corresponding native methods. Here are some RegEx to help you:
-
-#### hasAttribute()  
-**RegEx**: `DomAccess\.hasAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`  
-**Replacement**: `$1.hasAttribute($2)`
-
-#### getAttribute()
-**RegEx**: `DomAccess\.getAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`  
-**Replacement**: `$1.getAttribute($2)`
-
-#### getDataAttribute()
-**RegEx**: `DomAccess\.getDataAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`  
-**Replacement**: `$1.getAttribute($2)`
-
-#### querySelector()
-**RegEx**: ``DomAccess\.querySelector\(\s*([^,]+)\s*,\s*((?:`[^`]*`|'[^']*'|"[^"]*")|[^,)]+)(?:,\s*[^)]+)?\)``  
-**Replacement**: `$1.querySelector($2)`
-
-#### querySelectorAll()
-**RegEx**: ``DomAccess\.querySelectorAll\(\s*([^,]+)\s*,\s*((?:`[^`]*`|'[^']*'|"[^"]*")|[^,)]+)(?:,\s*[^)]+)?\)``  
-**Replacement**: `$1.querySelectorAll($2)`
-
-#### getFocusableElements()
-This method was moved to FocusHandler Helper. Use this instead.
-
-```JavaScript
-const focusableElements = window.focusHandler.getFocusableElements();
-```
-
-#### getFirstFocusableElement()
-This method was moved to FocusHandler Helper. Use this instead.
-
-```JavaScript
-const firstFocusableEl = window.focusHandler.getFirstFocusableElement();
-```
-
-#### getLastFocusableElement()
 This method was moved to FocusHandler Helper. Use this instead.
 
 ```JavaScript
@@ -170,9 +92,11 @@ const lastFocusableEl = window.focusHandler.getLastFocusableElement();
 ```
 
 ### Remove route `widgets.account.order.detail`
+
 Remove all references to `widgets.account.order.detail` and ensure that affected components handle navigation and display correctly
 
 ### Removed `@Storefront/storefront/component/checkout/cart-alerts.html.twig`
+
 Remove all references to `@Storefront/storefront/component/checkout/cart-alerts.html.twig` and use `@Storefront/storefront/utilities/alert.html.twig` instead.
 
 **NOTE:** All the breaking changes described here can be already opted in by activating the `v6.8.0.0` [feature flag](https://developer.shopware.com/docs/resources/references/adr/2022-01-20-feature-flags-for-major-versions.html#activating-the-flag) on previous versions.
@@ -232,6 +156,7 @@ The concrete events being removed:
 - `\Shopware\Core\Content\Sitemap\Event\SitemapRouteCacheTagsEvent`
 
 ## Theme Configuration Changes
+
 As part of optimizing theme configuration loading, several changes are being made to the theme system:
 
 * The `\Shopware\Storefront\Theme\CachedResolvedConfigLoader` has been removed. This class was previously used to cache theme configurations but has been replaced by a more efficient database-based solution using the new `theme_runtime_config` table.
@@ -245,11 +170,16 @@ Use the new `Shopware\Core\Framework\Rule\RuleIdMatcher` instead.
 It allows filtering of `RuleIdAware` objects in either arrays or collections.
 
 ## Added `primaryOrderDelivery` and `primaryOrderTransaction`
+
 Currently, there are multiple order deliveries and multiple order transactions per order. If only one, the "primary", order delivery and order transaction is displayed and used in the administration, there is now an easy way in version 6.8 using the `primaryOrderDelivery` and `primaryOrderTransaction`. All existing orders will be updated with a migration so that they also have the primary values.
 From now on, the `OrderTransactionStatusRule::match` will always use the `primaryOrderTransaction` instead of the most recently successful transaction.
+
 ## Use `primaryOrderDelivery`
+
 Get the first order delivery with `primaryOrderDelivery` so you should replace methods like `deliveries.first()` or `deliveries[0]`
+
 ## Use `primaryOrderTransaction`
+
 Get the latest order transaction with `primaryOrderTransaction` so you should replace methods like `transaction.last()`
 
 </details>
@@ -274,7 +204,16 @@ The old classes are removed:
 
 ## Removed notification controller
 
-`\Shopware\Administration\Controller\NotificationController` has been moved to core: `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please refactor, it is now internal. The HTTP route is still the same. The old class has been removed.
+`\Shopware\Administration\Controller\NotificationController` has been moved to core: `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please refactor, it is now internal.
+The HTTP route is still the same. The old class has been removed.
+
+## Removal of snippets
+
+The following snippet keys have been removed:
+* `global.sw-condition.condition.cartTaxDisplay`
+* `global.sw-condition.condition.lineItemOfTypeRule`
+* `global.sw-condition.condition.promotionCodeOfTypeRule`
+* `global.sw-condition.condition.dayOfWeekRule`
 
 </details>
 
@@ -340,6 +279,7 @@ The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id
 ```
 
 ## Removal of DeleteThemeFilesMessage and its handler
+
 The `\Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage` and its handler `\Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler` are removed.
 Unused theme files are deleted by using the `\Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask` scheduled task.
 

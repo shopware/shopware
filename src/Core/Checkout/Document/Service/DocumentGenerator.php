@@ -143,7 +143,7 @@ class DocumentGenerator
                 $deepLinkCode = Random::getAlphanumericString(32);
                 $id = $operation->getDocumentId() ?? Uuid::randomHex();
 
-                $mediaId = $this->resolveMediaId($operation, $context, $document, $documentType, $rendered);
+                $mediaId = $this->resolveMediaId($operation, $context, $document);
                 $mediaIdForHtmlA11y = $this->resolveMediaIdForA11y($operation, $context, $document);
 
                 $records[] = [
@@ -311,7 +311,7 @@ class DocumentGenerator
         return $document;
     }
 
-    private function resolveMediaId(DocumentGenerateOperation $operation, Context $context, RenderedDocument $document, ?string $documentType = null, ?RendererResult $result = null): ?string
+    private function resolveMediaId(DocumentGenerateOperation $operation, Context $context, RenderedDocument $document): ?string
     {
         if ($operation->isStatic()) {
             return null;

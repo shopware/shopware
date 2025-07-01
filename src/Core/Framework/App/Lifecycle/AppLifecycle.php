@@ -138,7 +138,6 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $app = $this->updateApp(
             $manifest,
-            new AppUpdateParameters(acceptPermissions: $parameters->acceptPermissions),
             $metadata,
             $appId,
             $roleId,
@@ -166,7 +165,6 @@ class AppLifecycle extends AbstractAppLifecycle
         $metadata = $manifest->getMetadata()->toArray($defaultLocale);
         $appEntity = $this->updateApp(
             $manifest,
-            $parameters,
             $metadata,
             $app['id'],
             $app['roleId'],
@@ -211,7 +209,6 @@ class AppLifecycle extends AbstractAppLifecycle
      */
     private function updateApp(
         Manifest $manifest,
-        AppUpdateParameters $parameters,
         array $metadata,
         string $id,
         string $roleId,

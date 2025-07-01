@@ -73,10 +73,6 @@ class CacheClearer
         $this->cleanupUrlGeneratorCacheFiles();
 
         $this->cleanupOldContainerCacheDirectories();
-
-        if ($clearHttp) {
-            $this->reverseProxyCache?->banAll();
-        }
     }
 
     public function clearContainerCache(): void

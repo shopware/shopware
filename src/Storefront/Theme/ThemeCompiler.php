@@ -313,9 +313,9 @@ class ThemeCompiler implements ThemeCompilerInterface
             );
         } catch (\Throwable $exception) {
             throw ThemeException::themeCompileException(
-                $configuration->getTechnicalName(),
+                $configuration->getTechnicalName() . ' - Theme-ID: ' . $themeId,
                 $exception->getMessage(),
-                $exception
+                $exception,
             );
         }
 
@@ -404,7 +404,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             }
 
             if (
-                \in_array($data['type'], ['media', 'textarea'], true)
+                \in_array($data['type'], ['media', 'textarea', 'url'], true)
                 && \is_string($data['value'])
                 && !\str_starts_with($data['value'], '\'')
                 && !\str_ends_with($data['value'], '\'')

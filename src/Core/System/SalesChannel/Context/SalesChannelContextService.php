@@ -96,6 +96,13 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
             }
 
             $context = $this->factory->create($token, $parameters->getSalesChannelId(), $session);
+
+            if ($originalStates = $parameters->getOriginalContext()?->getStates()) {
+                foreach (array_diff($originalStates, $context->getStates()) as $state) {
+                    $context->addState($state);
+                }
+            }
+
             $this->eventDispatcher->dispatch(new SalesChannelContextCreatedEvent($context, $token, $session));
 
             // skip cart calculation on ESI sub-requests if it has already been done.

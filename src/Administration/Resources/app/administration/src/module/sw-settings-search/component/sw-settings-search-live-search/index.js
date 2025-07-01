@@ -90,6 +90,13 @@ export default {
         products() {
             return this.liveSearchResults && this.liveSearchResults.elements;
         },
+
+        productSortingCriteria() {
+            const criteria = new Criteria(1, 25);
+            criteria.addFilter(Criteria.equals('active', true));
+            criteria.addSorting(Criteria.sort('priority', 'DESC'));
+            return criteria;
+        },
     },
 
     created() {
@@ -121,12 +128,7 @@ export default {
             }
 
             this.liveSearchService
-                .search(
-                    searchParams,
-                    {},
-                    {},
-                    { 'sw-language-id': Shopware.Context.api.languageId },
-                )
+                .search(searchParams, {}, {}, { 'sw-language-id': Shopware.Context.api.languageId })
                 .then((data) => {
                     this.liveSearchResults = data.data;
                     this.searchInProgress = false;
@@ -157,12 +159,10 @@ export default {
         },
 
         fetchProductSortings() {
-            const criteria = new Criteria(1, 100);
-            criteria.addSorting(Criteria.sort('priority', 'DESC'));
-
-            this.productSortingRepository.search(criteria).then((response) => {
+            this.productSortingRepository.search(this.productSortingCriteria).then((response) => {
                 this.productSortings = response;
-                const topSearchSorting = this.productSortings.find(entry => entry.key === 'score');
+                const topSearchSorting = this.productSortings.find((entry) => entry.key === 'score');
+
                 if (topSearchSorting) {
                     this.productSortingKey = topSearchSorting.key;
                 }

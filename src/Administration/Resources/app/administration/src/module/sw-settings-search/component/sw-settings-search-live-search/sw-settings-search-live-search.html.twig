@@ -88,15 +88,15 @@
 
         </sw-simple-search-field>
 
-        <sw-single-select
-            v-model:value="productSortingKey"
+        <mt-select
+            v-model="productSortingKey"
             class="sw-settings-search-live-search__sorting-select"
             value-property="key"
             label-property="translated.label"
             :placeholder="$tc('sw-settings-search.liveSearchTab.textPlaceholderSorting')"
             :options="productSortings"
             :disabled="!isSearchEnable || undefined"
-            @update:value="searchOnStorefront"
+            @update:model-value="searchOnStorefront"
         />
     </sw-container>
     {% endblock %}

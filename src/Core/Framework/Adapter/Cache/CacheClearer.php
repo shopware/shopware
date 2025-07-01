@@ -164,10 +164,16 @@ class CacheClearer
         }
     }
 
+    /**
+     * Locks the execution of the closure to prevent concurrent executions.
+     *
+     * @see https://symfony.com/doc/current/components/lock.html
+     */
     private function lock(\Closure $closure, string $key, int $timeToLive): void
     {
         $lock = $this->lockFactory->createLock('cache-clearer::' . $key, $timeToLive);
 
+        // The execution is blocked until the key is found or the time to live is reached.
         if ($lock->acquire(true)) {
             $closure();
 

@@ -12,8 +12,10 @@ use Shopware\Core\Checkout\Cart\CartContextHasher;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
+use Shopware\Core\Checkout\Cart\Extension\CheckoutPlaceOrderExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
+use Shopware\Core\Checkout\Cart\Order\OrderPlaceResult;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -25,7 +27,10 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
@@ -78,6 +83,7 @@ class CartOrderRouteTest extends TestCase
             $this->createMock(AbstractCheckoutGatewayRoute::class),
             $this->cartContextHasher,
             $this->lockFactory,
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $this->context = Generator::generateSalesChannelContext();
@@ -320,5 +326,48 @@ class CartOrderRouteTest extends TestCase
         $this->route->order($cart, $context, $data);
         // Check if the lock is released after the exception
         static::assertTrue($this->lockFactory->createLock('cart-order-route-' . $cart->getToken())->acquire());
+    }
+
+    public function testExtensionIsDispatched(): void
+    {
+        $cart = new Cart('test');
+
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $dispatcher = new EventDispatcher();
+        $extensions = new ExtensionDispatcher($dispatcher);
+
+        $route = new CartOrderRoute(
+            $this->cartCalculator,
+            $this->orderRepository,
+            $this->orderPersister,
+            $this->createMock(AbstractCartPersister::class),
+            $this->eventDispatcher,
+            $this->createMock(PaymentProcessor::class),
+            $this->createMock(TaxProviderProcessor::class),
+            $this->createMock(AbstractCheckoutGatewayRoute::class),
+            $this->cartContextHasher,
+            $this->lockFactory,
+            $extensions
+        );
+
+        $post = $this->createMock(CallableClass::class);
+        $post->expects($this->exactly(1))->method('__invoke');
+        $dispatcher->addListener(ExtensionDispatcher::post(CheckoutPlaceOrderExtension::NAME), $post);
+
+        $dispatcher->addListener(
+            ExtensionDispatcher::pre(CheckoutPlaceOrderExtension::NAME),
+            function (CheckoutPlaceOrderExtension $extension): void {
+                $extension->stopPropagation();
+
+                $extension->result = new OrderPlaceResult(Uuid::randomHex());
+            }
+        );
+
+        // we don't care about the follow-up order process, the event listener above are already tested
+        static::expectException(CartException::class);
+        static::expectExceptionMessage('Order payment failed. The order was not stored.');
+
+        $route->order($cart, $context, new RequestDataBag());
     }
 }

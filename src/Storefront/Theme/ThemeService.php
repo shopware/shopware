@@ -20,9 +20,11 @@ use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
 use Shopware\Storefront\Theme\Exception\InvalidThemeConfigException;
+use Shopware\Storefront\Theme\Exception\ThemeConfigException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\Message\CompileThemeMessage;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
+use Shopware\Storefront\Theme\Validator\SCSSValidator;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
@@ -46,6 +48,7 @@ class ThemeService implements ResetInterface
         private readonly EntityRepository $themeRepository,
         private readonly EntityRepository $themeSalesChannelRepository,
         private readonly ThemeCompilerInterface $themeCompiler,
+        private readonly AbstractScssCompiler $scssCompiler,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly AbstractConfigLoader $configLoader,
         private readonly Connection $connection,
@@ -210,6 +213,62 @@ class ThemeService implements ResetInterface
 
         // Refresh runtime config after resetting theme config
         $this->themeRuntimeConfigService->refreshConfigValues($themeId, $context);
+    }
+
+    /**
+     * Validates if the theme config can be compiled in SCSS.
+     *
+     * @param array<string, mixed> $config
+     * @param array<int, string> $customAllowedRegex
+     *
+     * @return array<string, mixed>
+     */
+    public function validateThemeConfig(
+        string $themeId,
+        array $config,
+        Context $context,
+        array $customAllowedRegex = [],
+        bool $sanitize = false
+    ): array {
+        // Get the merged theme config including inherited parent themes.
+        $themeConfig = $this->getPlainThemeConfiguration($themeId, $context);
+
+        // Single validation errors are collected in a wrapping exception.
+        $themeConfigException = new ThemeConfigException();
+
+        foreach ($config as $name => &$field) {
+            // Lookup the field in the original theme config to get the field type.
+            $fieldConfig = $themeConfig['fields'][$name] ?? null;
+
+            // Skip fields that are not editable or excluded from SCSS compilation.
+            if (!$fieldConfig
+                || $fieldConfig['editable'] === false
+                || $fieldConfig['scss'] === false) {
+                continue;
+            }
+
+            $changedField = [
+                'name' => $name,
+                'value' => $field['value'],
+                'type' => $fieldConfig['type'],
+            ];
+
+            try {
+                $field['value'] = SCSSValidator::validate(
+                    $this->scssCompiler,
+                    $changedField,
+                    $customAllowedRegex,
+                    $sanitize
+                );
+            } catch (\Throwable $exception) {
+                $themeConfigException->add($exception);
+            }
+        }
+
+        // Check if there are any validation errors.
+        $themeConfigException->tryToThrow();
+
+        return $config;
     }
 
     /**

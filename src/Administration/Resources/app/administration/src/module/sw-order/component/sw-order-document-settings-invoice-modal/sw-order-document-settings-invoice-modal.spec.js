@@ -1,4 +1,4 @@
-import {mount} from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 /**
  * @sw-package checkout
@@ -18,58 +18,55 @@ const orderFixture = {
 };
 
 async function createWrapper() {
-    return mount(
-        await wrapTestComponent('sw-order-document-settings-invoice-modal', { sync: true, }),
-        {
-            global: {
-                stubs: {
-                    'sw-order-document-settings-modal': await wrapTestComponent('sw-order-document-settings-modal', {
-                        sync: true,
-                    }),
-                    'sw-modal': {
-                        template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
-                    },
-                    'sw-container': {
-                        template: '<div class="sw-container"><slot></slot></div>',
-                    },
-                    'sw-text-field': true,
-                    'sw-datepicker': true,
-                    'sw-checkbox-field': true,
+    return mount(await wrapTestComponent('sw-order-document-settings-invoice-modal', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-order-document-settings-modal': await wrapTestComponent('sw-order-document-settings-modal', {
+                    sync: true,
+                }),
+                'sw-modal': {
+                    template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+                },
+                'sw-container': {
+                    template: '<div class="sw-container"><slot></slot></div>',
+                },
+                'sw-text-field': true,
+                'sw-datepicker': true,
+                'sw-checkbox-field': true,
 
-                    'sw-context-button': {
-                        template: '<div class="sw-context-button"><slot></slot></div>',
-                    },
-                    'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
-                    'sw-context-menu-item': true,
-                    'sw-upload-listener': true,
-                    'sw-textarea-field': true,
-                    'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                    'sw-base-field': await wrapTestComponent('sw-base-field', {
-                        sync: true,
-                    }),
-                    'sw-field-error': true,
-                    'sw-loader': true,
-                    'sw-media-upload-v2': true,
-                    'sw-media-modal-v2': true,
-                    'sw-inheritance-switch': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-help-text': true,
-                    'router-link': true,
+                'sw-context-button': {
+                    template: '<div class="sw-context-button"><slot></slot></div>',
                 },
-                provide: {
-                    numberRangeService: {
-                        reserve: () => Promise.resolve({ number: 1337 }),
-                    },
-                },
+                'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
+                'sw-context-menu-item': true,
+                'sw-upload-listener': true,
+                'sw-textarea-field': true,
+                'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', {
+                    sync: true,
+                }),
+                'sw-field-error': true,
+                'sw-loader': true,
+                'sw-media-upload-v2': true,
+                'sw-media-modal-v2': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'router-link': true,
             },
-            props: {
-                order: orderFixture,
-                currentDocumentType: {},
-                isLoadingDocument: false,
-                isLoadingPreview: false,
+            provide: {
+                numberRangeService: {
+                    reserve: () => Promise.resolve({ number: 1337 }),
+                },
             },
         },
-    );
+        props: {
+            order: orderFixture,
+            currentDocumentType: {},
+            isLoadingDocument: false,
+            isLoadingPreview: false,
+        },
+    });
 }
 
 describe('src/module/sw-order/component/sw-order-document-settings-invoice-modal', () => {

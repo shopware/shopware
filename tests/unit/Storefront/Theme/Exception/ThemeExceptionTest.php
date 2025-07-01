@@ -67,7 +67,7 @@ class ThemeExceptionTest extends TestCase
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(ThemeException::INVALID_SCSS_VAR, $exception->getErrorCode());
-        static::assertSame('SCSS Value "primary-color" with value "invalid-value" is not valid for type "color"', $exception->getMessage());
+        static::assertSame('SCSS Value "invalid-value" is not valid for type "color".', $exception->getMessage());
         static::assertSame(['name' => $name, 'value' => $value, 'type' => $type], $exception->getParameters());
     }
 

@@ -2,6 +2,73 @@
     "openapi": "3.1.0",
     "info": [],
     "paths": {
+        "/_action/theme/{themeId}": {
+            "patch": {
+                "tags": ["Theme"],
+                "summary": "Update theme configuration",
+                "description": "Updates the configuration of a theme. The theme configuration is a collection of fields that are provided as variables in the theme's SCSS files and the templates.",
+                "operationId": "updateThemeConfiguration",
+                "parameters": [
+                    {
+                        "name": "themeId",
+                        "description": "The ID of the theme to update",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "parentThemeId",
+                        "description": "The ID of the parent theme to inherit the configuration from.",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "reset",
+                        "description": "If true, the theme configuration will be reset to the default values from the theme.json file.",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "validate",
+                        "description": "If true, the theme configuration will be validated before being updated.",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "sanitize",
+                        "description": "If true, the theme configuration will be sanitized during validation. before being updated. Only applies if validate is true.",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Theme updated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/_action/theme/{themeId}/configuration": {
             "get": {
                 "tags": ["Theme"],

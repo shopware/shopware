@@ -76,6 +76,7 @@
             <argument>%shopware.http_cache.reverse_proxy.enabled%</argument>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="lock.factory"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFoldersHandler">

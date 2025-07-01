@@ -128,7 +128,7 @@ class ProductController extends StorefrontController
                     'formViolations' => $formViolations,
                     'data' => $data,
                 ], ['productId' => $productId]);
-            } catch (ReviewNotActiveExeption $e) {
+            } catch (ReviewNotActiveExeption) {
                 throw StorefrontException::reviewNotActive();
             }
         } else {
@@ -164,7 +164,7 @@ class ProductController extends StorefrontController
         if (!Feature::isActive('v6.8.0.0')) {
             try {
                 $reviews = $this->productReviewLoader->load($request, $context, $productId, $request->get('parentId'));
-            } catch (ReviewNotActiveExeption $e) {
+            } catch (ReviewNotActiveExeption) {
                 throw StorefrontException::reviewNotActive();
             }
         } else {

@@ -22,6 +22,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class CacheClearer
 {
     private const LOCK_TTL = 30;
+    private const LOCK_KEY_CONTAINER = 'container-cache-directories';
 
     /**
      * @internal
@@ -96,7 +97,7 @@ class CacheClearer
 
         $this->lock(function () use ($containerCaches): void {
             $this->filesystem->remove($containerCaches);
-        }, __FUNCTION__, self::LOCK_TTL);
+        }, self::LOCK_KEY_CONTAINER, self::LOCK_TTL);
     }
 
     public function scheduleCacheFolderCleanup(): void
@@ -149,7 +150,7 @@ class CacheClearer
         if ($remove !== []) {
             $this->lock(function () use ($remove): void {
                 $this->filesystem->remove($remove);
-            }, __FUNCTION__, self::LOCK_TTL);
+            }, self::LOCK_KEY_CONTAINER, self::LOCK_TTL);
         }
     }
 

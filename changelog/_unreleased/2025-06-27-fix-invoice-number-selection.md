@@ -5,7 +5,7 @@ author_email: justus@devite.io
 author_github: @jgeramb
 ---
 # Administration
-* Allows the selection of invoice numbers of ZUGFeRD and embedded ZUGFeRD invoices for the creation of credit notes and storno invoices.
-
+* Changed the filter for documents to allow the selection of invoice numbers from ZUGFeRD and embedded ZUGFeRD invoices when creating credit notes and storno invoices.
+___
 # Core
-* Sets the custom config field 'invoiceNumber' for the document to the document number, so that the invoice number can be selected in the frontend.
+* Added the document number as the custom config field 'invoiceNumber' to the document, so that the invoice number can be selected in the frontend.

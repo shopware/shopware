@@ -38,13 +38,12 @@ class PermissionsService
             throw ServiceException::invalidPermissionsRevisionFormat($revision);
         }
 
-        $revisionValue = $grantedRevision->format(\DateTimeInterface::ATOM);
         $consentIdentifier = bin2hex(random_bytes(16));
         $consentingUser = $source->getUserId();
 
         $consent = new PermissionsConsent(
             identifier: $consentIdentifier,
-            revision: $revisionValue,
+            revision: $revision,
             consentingUserId: $consentingUser,
             grantedAt: new \DateTime()
         );

@@ -60,10 +60,8 @@ class PermissionsServiceTest extends TestCase
                 if (!\is_array($decodedValue) || !isset($decodedValue['revision'])) {
                     return false;
                 }
-                // Parse the revision date and compare the date part
-                $revisionDate = new \DateTimeImmutable($decodedValue['revision']);
 
-                return $revisionDate->format('Y-m-d') === $revision;
+                return $decodedValue['revision'] === $revision;
             }));
 
         $this->remoteConsentLogger
@@ -74,9 +72,7 @@ class PermissionsServiceTest extends TestCase
             ->expects($this->once())
             ->method('dispatch')
             ->with(static::callback(function (PermissionsGrantedEvent $event) use ($revision) {
-                $revisionDate = new \DateTimeImmutable($event->permissionsConsent->revision);
-
-                return $revisionDate->format('Y-m-d') === $revision
+                return $event->permissionsConsent->revision === $revision
                     && $event->context === $this->context;
             }));
 
@@ -102,7 +98,7 @@ class PermissionsServiceTest extends TestCase
 
     public function testGrantPermissionsWithIncorrectDateFormat(): void
     {
-        $invalidRevision = '13-06-2025'; // Wrong format
+        $invalidRevision = '13-06-2025';
 
         $this->systemConfigService
             ->expects($this->never())

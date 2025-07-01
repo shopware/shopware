@@ -9,6 +9,8 @@ use Shopware\Core\Service\Permission\PermissionsConsent;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class LogPermissionToRegistryMessage implements AsyncMessageInterface

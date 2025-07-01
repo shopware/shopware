@@ -60,31 +60,24 @@ class OrderAddressService
          */
         $updatedAddressIds = [];
         foreach ($addressMappings as $addressMapping) {
-            switch ($addressMapping['type']) {
-                case self::TYPE_BILLING:
-                    $newOrderAddressId = $this->handleBillingAddress(
-                        $order,
-                        $addressMapping,
-                        $addressMappings,
-                        $updatedAddressIds,
-                        $context
-                    );
-
-                    break;
-                case self::TYPE_SHIPPING:
-                    /** @var array{customerAddressId: string, type: string, deliveryId: string} $addressMapping */
-                    $newOrderAddressId = $this->handleShippingAddress(
-                        $order,
-                        $addressMapping,
-                        $addressMappings,
-                        $updatedAddressIds,
-                        $context
-                    );
-
-                    break;
-                default:
-                    throw OrderException::invalidOrderAddressMapping('Invalid type');
-            }
+            $newOrderAddressId = match ($addressMapping['type']) {
+                self::TYPE_BILLING => $this->handleBillingAddress(
+                    $order,
+                    $addressMapping,
+                    $addressMappings,
+                    $updatedAddressIds,
+                    $context
+                ),
+                /** @var array{customerAddressId: string, type: string, deliveryId: string} $addressMapping */
+                self::TYPE_SHIPPING => $this->handleShippingAddress(
+                    $order,
+                    $addressMapping,
+                    $addressMappings,
+                    $updatedAddressIds,
+                    $context
+                ),
+                default => throw OrderException::invalidOrderAddressMapping('Invalid type'),
+            };
 
             $updatedAddressIds[] = $newOrderAddressId;
         }

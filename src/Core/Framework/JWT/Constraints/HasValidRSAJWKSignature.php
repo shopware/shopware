@@ -18,7 +18,7 @@ use Shopware\Core\Framework\JWT\Struct\JWKStruct;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
-final class HasValidRSAJWKSignature implements Constraint
+final readonly class HasValidRSAJWKSignature implements Constraint
 {
     private const ALGORITHMS = ['RS256', 'RS384', 'RS512'];
 

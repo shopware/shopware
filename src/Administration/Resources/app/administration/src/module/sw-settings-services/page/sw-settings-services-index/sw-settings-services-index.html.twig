@@ -19,7 +19,7 @@
             :feedback-link="currentRevision.links['feedback-url']"
         />
 
-        <div style="padding: var(--scale-size-40)">
+        <div class="sw-settings-services-index__content">
             <sw-settings-services-grant-permissions-card
                 v-if="!consentGiven"
                 :docs-link="currentRevision.links['docs-url']"
@@ -42,7 +42,7 @@
                     <p>{{ loadingError }}</p>
                 </mt-banner>
 
-                <mt-banner
+                   <mt-banner
                     v-if="config.disabled"
                     class="sw-settings-services-index__services-deactivated-banner"
                     variant="attention"
@@ -59,11 +59,20 @@
                         {{ $t('sw-settings-services.index.services-are-disabled-button-label') }}
                     </mt-button>
                 </mt-banner>
-                <sw-empty-state
-                    v-else-if="services.length === 0"
-                >
 
-                </sw-empty-state>
+                <div
+                    v-else-if="services.length === 0"
+                    class="sw-settings-services-index__installing-card"
+                >
+                    <div class="sw-settings-services-index__installing-card-loader">
+                        <mt-loader size="var(--scale-size-32)" />
+                    </div>
+
+                    <p class="sw-settings-services-index__installing-card-title">Installing Shopware Services</p>
+
+                    <p>This might take a while. You will get a notification when all installations are finished. You can use your Shopware Administration freely in the meantime.</p>
+                </div>
+
                 <ul
                     v-else
                     class="sw-settings-services__available-services"

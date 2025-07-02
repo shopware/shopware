@@ -73,10 +73,10 @@ class Migration1742199550MeasurementDisplayUnitTable extends MigrationStep
 
         $units = [
             ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'm', 'factor' => 1000, 'precision' => 2, 'name_en' => 'Meter', 'name_de' => 'Zähler'],
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'cm', 'factor' => 10, 'precision' => 1, 'name_en' => 'Centimeter', 'name_de' => 'Zentimeter'],
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 1, 'type' => 'length', 'short_name' => 'mm', 'factor' => 1, 'precision' => 0, 'name_en' => 'Millimeter', 'name_de' => 'Millimeter'],
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 1, 'type' => 'weight', 'short_name' => 'kg', 'factor' => 1, 'precision' => 3, 'name_en' => 'Kilogram', 'name_de' => 'Kilogramm'],
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'weight', 'short_name' => 'g', 'factor' => 0.001, 'precision' => 1, 'name_en' => 'Gram', 'name_de' => 'Gramm'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'cm', 'factor' => 10, 'precision' => 2, 'name_en' => 'Centimeter', 'name_de' => 'Zentimeter'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 1, 'type' => 'length', 'short_name' => 'mm', 'factor' => 1, 'precision' => 2, 'name_en' => 'Millimeter', 'name_de' => 'Millimeter'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 1, 'type' => 'weight', 'short_name' => 'kg', 'factor' => 1, 'precision' => 2, 'name_en' => 'Kilogram', 'name_de' => 'Kilogramm'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'weight', 'short_name' => 'g', 'factor' => 0.001, 'precision' => 2, 'name_en' => 'Gram', 'name_de' => 'Gramm'],
 
             ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 1, 'type' => 'length', 'short_name' => 'in', 'factor' => 25.4, 'precision' => 2, 'name_en' => 'Inch', 'name_de' => 'Zoll'],
             ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 0, 'type' => 'length', 'short_name' => 'ft', 'factor' => 304.8, 'precision' => 2, 'name_en' => 'Foot', 'name_de' => 'Fuß'],

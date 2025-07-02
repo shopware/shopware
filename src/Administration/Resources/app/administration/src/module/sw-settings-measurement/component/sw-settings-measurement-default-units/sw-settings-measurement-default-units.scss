@@ -3,6 +3,14 @@
 .sw-settings-measurement-default-units {
     &__description {
         margin-bottom: 32px;
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-regular);
+        line-height: 20px;
+    }
+
+    &__description a.sw-internal-link {
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-regular);
         line-height: 20px;
     }
 }

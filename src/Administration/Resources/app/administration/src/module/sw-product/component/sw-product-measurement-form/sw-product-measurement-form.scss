@@ -6,4 +6,10 @@
         font-weight: var(--font-weight-regular);
         line-height: 20px;
     }
+
+    &__description-group a.sw-internal-link {
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-regular);
+        line-height: 20px;
+    }
 }

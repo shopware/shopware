@@ -85,7 +85,6 @@ trait AdminApiTestBehaviour
 
         $apiBrowser->followRedirects();
         $apiBrowser->setServerParameters([
-//            'CONTENT_TYPE' => 'application/json', // TODO: Test check if contentType is required
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
         ]);
 

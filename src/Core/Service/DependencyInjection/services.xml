@@ -146,6 +146,13 @@
             <argument type="service" id="Shopware\Core\Service\Permission\PermissionsService"/>
         </service>
 
+        <service id="Shopware\Core\Service\Subscriber\ServiceLifecycleSubscriber">
+            <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
+            <argument type="service" id="Shopware\Core\Service\Notification"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Service\Subscriber\PermissionsSubscriber">
             <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
 
@@ -154,12 +161,6 @@
 
         <service id="Shopware\Core\Service\Notification">
             <argument type="service" id="Shopware\Core\Framework\Notification\NotificationService"/>
-        </service>
-
-        <service id="Shopware\Core\Service\Subscriber\NewServicesInstalledSubscriber">
-            <argument type="service" id="Shopware\Core\Service\Notification"/>
-
-            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Service\ServiceRegistry\PermissionLogger">

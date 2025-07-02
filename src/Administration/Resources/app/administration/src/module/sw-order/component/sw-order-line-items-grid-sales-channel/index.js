@@ -50,6 +50,12 @@ export default {
             required: false,
             default: '',
         },
+
+        positionIdentifier: {
+            type: String,
+            required: false,
+            default: 'sw-order-line-items-grid-sales-channel',
+        },
     },
 
     data() {

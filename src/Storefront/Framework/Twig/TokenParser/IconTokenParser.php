@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Twig\TokenParser;
 
 use Shopware\Core\Framework\Adapter\Twig\Node\SwInclude;
 use Shopware\Core\Framework\Log\Package;
+use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Expression\ArrayExpression;
 use Twig\Node\Expression\ConstantExpression;
 use Twig\Parser;
@@ -22,25 +23,24 @@ final class IconTokenParser extends AbstractTokenParser
 
     public function parse(Token $token): SwInclude
     {
-        $expr = $this->parser->getExpressionParser()->parseExpression();
+        /** @var AbstractExpression $iconExpr */
+        $iconExpr = $this->parser->parseExpression();
 
-        $icon = $expr->getAttribute('value');
-
-        $expr->setAttribute('value', '@Storefront/storefront/utilities/icon.html.twig');
+        $expr = new ConstantExpression('@Storefront/storefront/utilities/icon.html.twig', $token->getLine());
 
         $stream = $this->parser->getStream();
 
-        $variables = new ArrayExpression([], $token->getLine());
-
         if ($stream->nextIf(Token::NAME_TYPE, 'style')) {
             /** @var ArrayExpression $variables */
-            $variables = $this->parser->getExpressionParser()->parseExpression();
+            $variables = $this->parser->parseExpression();
+        } else {
+            $variables = new ArrayExpression([], $token->getLine());
         }
 
         $stream->next();
 
         $variables->addElement(
-            new ConstantExpression($icon, $token->getLine()),
+            $iconExpr,
             new ConstantExpression('name', $token->getLine())
         );
 

@@ -22,7 +22,7 @@ final class ThumbnailTokenParser extends AbstractTokenParser
 
     public function parse(Token $token): SwInclude
     {
-        $expr = $this->parser->getExpressionParser()->parseExpression();
+        $expr = $this->parser->parseExpression();
         $stream = $this->parser->getStream();
 
         $className = $expr->getAttribute('value');
@@ -31,7 +31,7 @@ final class ThumbnailTokenParser extends AbstractTokenParser
         $variables = new ArrayExpression([], $token->getLine());
         if ($stream->nextIf(Token::NAME_TYPE, 'with')) {
             /** @var ArrayExpression $variables */
-            $variables = $this->parser->getExpressionParser()->parseExpression();
+            $variables = $this->parser->parseExpression();
         }
 
         $stream->next();

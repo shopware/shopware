@@ -128,9 +128,6 @@ class ApiRoutesHaveASchemaTest extends TestCase
                 unset($schemaRoutes[$subPath]);
                 continue;
             }
-            if (!$this->isCoreRoute($route)) {
-                continue;
-            }
             if (!$this->isAdminApi($path)) {
                 continue;
             }

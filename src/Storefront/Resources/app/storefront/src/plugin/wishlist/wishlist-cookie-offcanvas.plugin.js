@@ -19,6 +19,12 @@ export default class WishlistCookieOffcanvasPlugin extends Plugin {
 
     init() {
         this._registerEvents();
+        document.$emitter.subscribe(
+            'WishlistCookie/requestConsent',
+            ({ productId, onAccept }) => {
+                WishlistCookieOffcanvasPlugin.requestConsent(productId, onAccept);
+            }
+        );
     }
 
     /**

@@ -33,6 +33,7 @@ import (synchronously) plugins
  */
 import SetBrowserClassPlugin from 'src/plugin/set-browser-class/set-browser-class.plugin';
 import SpeculationRulesPlugin from 'src/plugin/speculation-rules/speculation-rules.plugin';
+import CookieStorageHelper from "./helper/storage/cookie-storage.helper";
 
 window.Feature = Feature;
 window.eventEmitter = new NativeEventEmitter();
@@ -126,18 +127,43 @@ if (window.useDefaultCookieConsent) {
     PluginManager.register('CookieConfiguration', () => import('src/plugin/cookie/cookie-configuration.plugin'), '[data-cookie-permission]');
 }
 
+function registerWishlistConsentPlugin() {
+    const addBtnSelector = '[data-add-to-wishlist]';
+
+    // only if add to wishlist button is present
+    if (!document.querySelector(addBtnSelector)) {
+        return;
+    }
+
+    const wishlistConsentGiven = CookieStorageHelper.getItem('wishlist-enabled') === '1';
+
+    if (window.useDefaultCookieConsent && !wishlistConsentGiven) {
+        try {
+            PluginManager.register(
+                'WishlistCookieOffcanvas',
+                () => import('src/plugin/wishlist/wishlist-cookie-offcanvas.plugin'),
+                addBtnSelector
+            );
+        } catch (e) {
+            // already registered—ignore
+        }
+    }
+}
+
 if (window.wishlistEnabled) {
     if (window.customerLoggedInState) {
         PluginManager.register('WishlistStorage', () => import('src/plugin/wishlist/persist-wishlist.plugin'), '[data-wishlist-storage]');
     } else {
         PluginManager.register('WishlistStorage', () => import('src/plugin/wishlist/local-wishlist.plugin'), '[data-wishlist-storage]');
         PluginManager.register('GuestWishlistPage', () => import('src/plugin/wishlist/guest-wishlist-page.plugin'), '[data-guest-wishlist-page]');
-        PluginManager.register('WishlistCookieOffcanvas', () => import('src/plugin/wishlist/wishlist-cookie-offcanvas.plugin'), '[data-offcanvas-wishlist-cookie]');
     }
 
     PluginManager.register('AddToWishlist', () => import('src/plugin/wishlist/add-to-wishlist.plugin'), '[data-add-to-wishlist]');
     PluginManager.register('WishlistWidget', () => import('src/plugin/header/wishlist-widget.plugin'), '[data-wishlist-widget]');
 }
+
+window.registerWishlistConsentPlugin = registerWishlistConsentPlugin;
+registerWishlistConsentPlugin();
 
 if (window.gtagActive) {
     PluginManager.register('GoogleAnalytics', () => import('src/plugin/google-analytics/google-analytics.plugin'));

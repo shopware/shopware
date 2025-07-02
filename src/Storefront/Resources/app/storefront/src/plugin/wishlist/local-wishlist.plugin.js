@@ -1,7 +1,6 @@
 import Storage from 'src/helper/storage/storage.helper';
 import BaseWishlistStoragePlugin from 'src/plugin/wishlist/base-wishlist-storage.plugin';
-import WishlistCookieOffcanvasPlugin
-    from 'src/plugin/wishlist/wishlist-cookie-offcanvas.plugin';
+import CookieStorageHelper from "../../helper/storage/cookie-storage.helper";
 
 /**
  * @package checkout
@@ -22,17 +21,17 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
 
     add(productId) {
         if (
-            !window.customerLoggedInState
-            && window.useDefaultCookieConsent
-            && !WishlistCookieOffcanvasPlugin.hasConsent()
+            !window.customerLoggedInState &&
+            window.useDefaultCookieConsent &&
+            !CookieStorageHelper.getItem('wishlist-enabled')
         ) {
-            WishlistCookieOffcanvasPlugin.requestConsent(
+            document.$emitter.publish('WishlistCookie/requestConsent', {
                 productId,
-                () => {
+                onAccept: () => {
                     super.add(productId);
                     this._save();
                 }
-            );
+            });
             return false;
         }
 
@@ -52,7 +51,7 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
      * @private
      */
     _fetch() {
-        if (window.useDefaultCookieConsent && !WishlistCookieOffcanvasPlugin.hasConsent()) {
+        if (window.useDefaultCookieConsent && CookieStorageHelper.getItem('wishlist-enabled') !== '1') {
             this.storage.removeItem(this._getStorageKey());
         }
 

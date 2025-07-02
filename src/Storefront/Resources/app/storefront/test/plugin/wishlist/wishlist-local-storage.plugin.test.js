@@ -83,13 +83,16 @@ describe('WishlistLocalStoragePlugin tests', () => {
         window.useDefaultCookieConsent = true;
         CookieStorageHelper.removeItem('wishlist-enabled');
 
+        const spyPublish = jest.spyOn(document.$emitter, 'publish');
+
         const added = wishlistStoragePlugin.add('testProduct');
         expect(added).toBe(false);
-        expect(AjaxOffCanvas.open).toHaveBeenCalledWith(
-            expect.stringContaining('wishlist/cookie-offcanvas'),
-            false,
-            expect.any(Function),
-            'left'
+        expect(spyPublish).toHaveBeenCalledWith(
+            'WishlistCookie/requestConsent',
+            expect.objectContaining({
+                productId: 'testProduct',
+                onAccept: expect.any(Function)
+            })
         );
     });
 

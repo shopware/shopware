@@ -4,7 +4,7 @@ namespace Shopware\Core\Service\Api;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Service\PermissionsService;
+use Shopware\Core\Service\Permission\PermissionsService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -23,7 +23,7 @@ readonly class PermissionController
     #[Route(path: '/api/services/permissions/grant/{revision}', name: 'api.services.permissions.grant', defaults: ['auth_required' => true, '_acl' => ['system.system_config', 'system.plugin_maintain']], methods: ['POST'])]
     public function grantPermissions(string $revision, Context $context): JsonResponse
     {
-        $this->permissionsService->grantPermissions($revision, $context);
+        $this->permissionsService->grant($revision, $context);
 
         return new JsonResponse();
     }
@@ -31,7 +31,7 @@ readonly class PermissionController
     #[Route(path: '/api/services/permissions/revoke', name: 'api.services.permissions.revoke', defaults: ['auth_required' => true, '_acl' => ['system.system_config', 'system.plugin_maintain']], methods: ['POST'])]
     public function revokePermissions(Context $context): JsonResponse
     {
-        $this->permissionsService->revokePermissions($context);
+        $this->permissionsService->revoke($context);
 
         return new JsonResponse();
     }

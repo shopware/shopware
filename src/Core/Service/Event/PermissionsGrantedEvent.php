@@ -5,6 +5,7 @@ namespace Shopware\Core\Service\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\Permission\PermissionsConsent;
 
 /**
  * @internal
@@ -13,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 readonly class PermissionsGrantedEvent implements ShopwareEvent
 {
     public function __construct(
-        public \DateTimeInterface $revision,
+        public PermissionsConsent $permissionsConsent,
         public Context $context,
     ) {
     }

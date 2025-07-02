@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\Permission\PermissionsService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -71,7 +72,7 @@ class LifecycleManager
             throw ServiceException::serviceNotInstalled($service);
         }
 
-        if ($this->permissionsService->getAcceptedPermissionsRevision()) {
+        if ($this->permissionsService->areGranted()) {
             $this->privileges->acceptAllForApps([$app->getId()], $context);
         } else {
             $this->privileges->revokeAllForApps([$app->getId()], $context);
@@ -84,7 +85,7 @@ class LifecycleManager
      */
     public function start(Context $context): void
     {
-        if ($this->permissionsService->getAcceptedPermissionsRevision() === null) {
+        if (!$this->permissionsService->areGranted()) {
             throw ServiceException::invalidServicesState();
         }
 
@@ -126,7 +127,7 @@ class LifecycleManager
             $this->appLifecycle->delete($service->getName(), ['id' => $service->getId()], $context);
         }
 
-        $this->permissionsService->revokePermissions($context);
+        $this->permissionsService->revoke($context);
         $this->systemConfigService->set(self::CONFIG_KEY_SERVICES_DISABLED, true);
     }
 

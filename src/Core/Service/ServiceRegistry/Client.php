@@ -1,8 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Service;
+namespace Shopware\Core\Service\ServiceRegistry;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\ServiceException;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Service\ResetInterface;
@@ -11,20 +13,23 @@ use Symfony\Contracts\Service\ResetInterface;
  * @internal
  */
 #[Package('framework')]
-class ServiceRegistryClient implements ResetInterface
+class Client implements ResetInterface
 {
+    private readonly string $registryUrl;
+
     /**
-     * @var array<ServiceRegistryEntry>
+     * @var array<ServiceEntry>
      */
     private ?array $services = null;
 
     public function __construct(
-        private readonly string $registryUrl,
+        string $registryUrl,
         private readonly HttpClientInterface $client,
     ) {
+        $this->registryUrl = rtrim($registryUrl, '/');
     }
 
-    public function get(string $name): ServiceRegistryEntry
+    public function get(string $name): ServiceEntry
     {
         $services = $this->getAll();
 
@@ -38,7 +43,7 @@ class ServiceRegistryClient implements ResetInterface
     }
 
     /**
-     * @return array<ServiceRegistryEntry>
+     * @return array<ServiceEntry>
      */
     public function getAll(): array
     {
@@ -60,7 +65,7 @@ class ServiceRegistryClient implements ResetInterface
         } while ($page <= ($response['pagination']['pages'] ?? 1));
 
         $this->services = array_map(
-            static fn (array $service) => new ServiceRegistryEntry(
+            static fn (array $service) => new ServiceEntry(
                 $service['name'],
                 $service['label'],
                 $service['host'],
@@ -79,13 +84,49 @@ class ServiceRegistryClient implements ResetInterface
         $this->services = null;
     }
 
+    public function saveConsent(SaveConsentRequest $saveConsentRequest): void
+    {
+        try {
+            $response = $this->client->request('POST', \sprintf('%s/api/consent/', $this->registryUrl), [
+                'headers' => [
+                    'Accept' => 'application/json',
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => json_encode($saveConsentRequest),
+            ]);
+
+            if ($response->getStatusCode() !== Response::HTTP_ACCEPTED) {
+                throw ServiceException::consentSaveFailed('Unexpected response status code: ' . $response->getStatusCode());
+            }
+        } catch (ExceptionInterface $e) {
+            throw ServiceException::consentSaveFailed($e->getMessage());
+        }
+    }
+
+    public function revokeConsent(string $identifier): void
+    {
+        try {
+            $response = $this->client->request('DELETE', \sprintf('%s/api/consent/revoke/%s', $this->registryUrl, $identifier), [
+                'headers' => [
+                    'Accept' => 'application/json',
+                ],
+            ]);
+
+            if ($response->getStatusCode() !== Response::HTTP_ACCEPTED) {
+                throw ServiceException::consentRevokeFailed('Unexpected response status code: ' . $response->getStatusCode());
+            }
+        } catch (ExceptionInterface $e) {
+            throw ServiceException::consentRevokeFailed($e->getMessage());
+        }
+    }
+
     /**
      * @return array<mixed>
      */
     private function fetchServices(int $page): ?array
     {
         try {
-            $response = $this->client->request('GET', rtrim($this->registryUrl, '/') . '/api/service/', [
+            $response = $this->client->request('GET', \sprintf('%s/api/service/', $this->registryUrl), [
                 'headers' => [
                     'Accept' => 'application/json',
                 ],

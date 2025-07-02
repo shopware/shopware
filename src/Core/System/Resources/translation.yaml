@@ -13,12 +13,15 @@ plugins: [
     'SwagCmsExtensions',
     'SwagCommercial',
     'SwagCustomizedProducts',
-    'SwagEnterpriseSearch',
     'SwagMigrationAssistant',
     'SwagMigrationMagento',
-    'SwagPaypal',
+    'SwagPayPal',
     'SwagSocialShopping',
 ]
+
+plugin-name-mapping:
+    - plugin: 'SwagPublisher'
+      name: 'PluginPublisher'
 
 languages:
   - name: 'Bosanski'

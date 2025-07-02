@@ -116,7 +116,9 @@ class TranslationLoader
     private function downloadFile(string $url, string $destination): void
     {
         try {
-            $this->client->request('GET', $url, ['sink' => $destination]);
+            $response = $this->client->request('GET', $url);
+
+            file_put_contents($destination, $response->getBody());
         } catch (GuzzleException $e) {
             if ($e->getCode() === 404) {
                 // If the file does not exist, we can skip it

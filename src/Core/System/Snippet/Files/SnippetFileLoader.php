@@ -8,12 +8,15 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 #[Package('discovery')]
 class SnippetFileLoader implements SnippetFileLoaderInterface
 {
+    private const SNIPPET_FILE_NAMES = ['core.json', 'storefront.json'];
+
     /**
      * @internal
      */
@@ -21,7 +24,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         private readonly KernelInterface $kernel,
         private readonly Connection $connection,
         private readonly AppSnippetFileLoader $appSnippetFileLoader,
-        private readonly ActiveAppsLoader $activeAppsLoader
+        private readonly ActiveAppsLoader $activeAppsLoader,
     ) {
     }
 
@@ -30,8 +33,49 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         $this->loadPluginSnippets($snippetFileCollection);
 
         $this->loadAppSnippets($snippetFileCollection);
+
+        $this->loadCoreSnippets($snippetFileCollection);
     }
 
+    private function loadCoreSnippets(SnippetFileCollection $snippetFileCollection): void
+    {
+        $finder = new Finder();
+        $finder->in(TranslationLoader::TRANSLATION_DESTINATION)
+            ->files()
+            ->name(self::SNIPPET_FILE_NAMES)
+            ->ignoreDotFiles(true)
+            ->ignoreVCS(true)
+            ->ignoreUnreadableDirs();
+
+        foreach ($finder->getIterator() as $fileInfo) {
+            $relativePath = $fileInfo->getRelativePath();
+            $parts = explode(DIRECTORY_SEPARATOR, $relativePath);
+
+            if ($parts[1] === 'Plugins') {
+                $technicalName = $parts[2];
+            } else {
+                $technicalName = 'Platform';
+            }
+
+            $locale = $parts[0];
+            $isBase = $fileInfo->getFilenameWithoutExtension() === 'core';
+
+            $snippetFile = new GenericSnippetFile(
+                $fileInfo->getFilename(),
+                $fileInfo->getPathname(),
+                $locale,
+                'Shopware',
+                $isBase,
+                $technicalName,
+            );
+
+            $snippetFileCollection->add($snippetFile);
+        }
+    }
+
+    /*
+     * todo: rename this method to a generic scope because it loads also shopware snippets
+     */
     private function loadPluginSnippets(SnippetFileCollection $snippetFileCollection): void
     {
         try {
@@ -45,8 +89,10 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
             $authors = [];
         }
 
-        foreach ($this->kernel->getBundles() as $bundle) {
-            if (!$bundle instanceof Bundle) {
+        foreach ($this->kernel->getBundles() as $name => $bundle) {
+            // todo: use constants or enums
+            // skip Administration bundle because we are in the storefront scope
+            if (!$bundle instanceof Bundle || $name === 'Administration') {
                 continue;
             }
 
@@ -84,6 +130,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
      */
     private function loadSnippetFilesInDir(string $snippetDir, Bundle $bundle, array $authors): array
     {
+        // load snippets
         $finder = new Finder();
         $finder->in($snippetDir)
             ->exclude('node_modules')

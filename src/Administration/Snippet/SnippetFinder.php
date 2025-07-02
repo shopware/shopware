@@ -45,19 +45,28 @@ class SnippetFinder implements SnippetFinderInterface
     private function findSnippetFiles(string $locale): array
     {
         $paths = [];
-        // todo: init new translations
+
+        // todo: make the code more pretty and check if the other load path methods are still required if new translations exist
 
         // platform
-        $paths[] = sprintf(TranslationLoader::TRANSLATION_DESTINATION . '/%s/Platform', $locale);
+        $path = sprintf(TranslationLoader::TRANSLATION_DESTINATION . '/%s/Platform', $locale);
+
+        if (file_exists($path)) {
+            $paths[] = $path;
+        }
 
         // plugins
         $activePlugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();
 
         foreach ($activePlugins as $plugin) {
             $name = $plugin->getName();
+
+            if ($name === 'SwagPublisher') {
+                $name = 'PluginPublisher'; // todo: use the config instead or rename the plugin in the LanguagePack
+            }
+
             $path = sprintf(TranslationLoader::TRANSLATION_DESTINATION . '/%s/Plugins/%s', $locale, $name);
 
-            // todo: publisher plugin has a different name (PluginPublisher) as the official plugin name (SwagPublisher)
             if (!file_exists($path)) {
                 continue;
             }

@@ -44,6 +44,12 @@ export default {
             type: Boolean,
             default: false,
         },
+
+        title: {
+            type: String,
+            required: false,
+            default: '',
+        },
     },
 
     data() {

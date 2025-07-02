@@ -1,4 +1,4 @@
-name: Send reminders for stale pull requests
+name: Manage stale pull requests
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
     - cron: "0 12 * * *" # Every day at 12:00 UTC
 
 jobs:
-  reminder:
+  manage-stale-prs:
     runs-on: ubuntu-24.04
     permissions:
       id-token: write

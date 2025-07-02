@@ -4,12 +4,12 @@ import { Product } from '@shopware-ag/acceptance-test-suite';
 test('Product is visible in listing and storefront search when set to "Visible".', { tag: '@Product' }, async ({
     ShopCustomer,
     TestDataService,
-    StorefrontHome,
     DefaultSalesChannel,
     SearchForTerm,
     StorefrontSearchSuggest,
     IdProvider,
     StorefrontProductDetail,
+    CheckVisibilityInHome,
 }) => {
     let product: Product;
     await test.step('Create a product with "Visible" visibility in the default sales channel.', async () => {
@@ -24,15 +24,7 @@ test('Product is visible in listing and storefront search when set to "Visible".
         });
     });
 
-    await ShopCustomer.expects(async () => {
-        await test.step('Verify the product appears in the Home category listing.', async () => {
-            await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
-            const productLocators = await StorefrontHome.getListingItemByProductName(product.name);
-            await ShopCustomer.expects(productLocators.productName).toBeVisible();
-        });
-    }).toPass({
-        intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
-    });
+    await CheckVisibilityInHome(product.name)();
 
     await test.step('Verify the product appears in storefront search results.', async () => {
         await ShopCustomer.attemptsTo(SearchForTerm(product.name));

@@ -8,8 +8,10 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -175,7 +177,12 @@ class ThemeLifecycleHandlerTest extends TestCase
             )
         );
 
-        $this->expectException(ThemeAssignmentException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(ThemeAssignmentException::class);
+        } else {
+            $this->expectException(ThemeException::class);
+        }
+        $this->expectExceptionMessageMatches('/^Unable to deactivate or uninstall theme/');
 
         $this->themeLifecycleHandler->handleThemeUninstall(
             $themeConfig,
@@ -215,7 +222,12 @@ class ThemeLifecycleHandlerTest extends TestCase
             )
         );
 
-        $this->expectException(ThemeAssignmentException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(ThemeAssignmentException::class);
+        } else {
+            $this->expectException(ThemeException::class);
+        }
+        $this->expectExceptionMessageMatches('/^Unable to deactivate or uninstall theme/');
 
         $this->themeLifecycleHandler->handleThemeUninstall(
             $themeConfig,

@@ -1,4 +1,96 @@
 # 6.8.0.0
+
+## Introduced in 6.7.0.0
+
+* Deprecated the following snippet keys:
+    - `global.sw-condition.condition.cartTaxDisplay`
+    - `global.sw-condition.condition.lineItemOfTypeRule`
+    - `global.sw-condition.condition.promotionCodeOfTypeRule`
+    - `global.sw-condition.condition.dayOfWeekRule`
+
+* Added the following keys to `sw-condition-generic`:
+    - `promotionCodeOfType`
+    - `cartLineItemProductStates`
+
+  The old keys can be used until the next major version, where they will be removed.
+  
+## Settings Menu Structure was changed 
+The menu structure on the settings page has changed from tab structure to a grid structure. The new structure groups settings into different categories for better usability. If you extend or customize the settings menu, ensure that your changes are compatible with the new structure.
+
+The new settings groups are:
+* General
+* Customer
+* Automation
+* Localization
+* Content
+* Commerce
+* System
+* Account
+* Extensions
+
+As a result blocks have been removed in `sw-settings-index.html.twig`:
+* `sw_settings_content_tab_shop`
+* `sw_settings_content_tab_system`
+* `sw_settings_content_tab_plugins`
+* `sw_settings_content_card`
+* `sw_settings_content_header`
+* `sw_settings_content_card_content`
+
+New blocks have been added in `sw-settings-index.html.twig`:
+* `sw_settings_content_card_content_grid`
+* `sw_settings_content_card_view`
+* `sw_settings_content_card_view_header`
+## ApiClient confidential flag
+
+* You must explicitly pass a boolean value to the `confidential` parameter  of `\Shopware\Core\Framework\Api\OAuth\Client\ApiClient`.
+* You must pass the `confidential` parameter as the third parameter of the constructor.
+* You must pass the `name` parameter as the fourth parameter of the constructor.
+```
+## Storefront
+### Deprecated DomAccess Helper
+We deprecated DomAccess Helper, because it does not add much value compared to native browser APIs and to reduce Shopware specific code complexity. You simply replace its usage with the corresponding native methods. Here are some RegEx to help you:
+
+#### hasAttribute()  
+**RegEx**: `DomAccess\.hasAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`  
+**Replacement**: `$1.hasAttribute($2)`
+
+#### getAttribute()
+**RegEx**: `DomAccess\.getAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`  
+**Replacement**: `$1.getAttribute($2)`
+
+#### getDataAttribute()
+**RegEx**: `DomAccess\.getDataAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`  
+**Replacement**: `$1.getAttribute($2)`
+
+#### querySelector()
+**RegEx**: ``DomAccess\.querySelector\(\s*([^,]+)\s*,\s*((?:`[^`]*`|'[^']*'|"[^"]*")|[^,)]+)(?:,\s*[^)]+)?\)``  
+**Replacement**: `$1.querySelector($2)`
+
+#### querySelectorAll()
+**RegEx**: ``DomAccess\.querySelectorAll\(\s*([^,]+)\s*,\s*((?:`[^`]*`|'[^']*'|"[^"]*")|[^,)]+)(?:,\s*[^)]+)?\)``  
+**Replacement**: `$1.querySelectorAll($2)`
+
+#### getFocusableElements()
+This method was moved to FocusHandler Helper. Use this instead.
+
+```JavaScript
+const focusableElements = window.focusHandler.getFocusableElements();
+```
+
+#### getFirstFocusableElement()
+This method was moved to FocusHandler Helper. Use this instead.
+
+```JavaScript
+const firstFocusableEl = window.focusHandler.getFirstFocusableElement();
+```
+
+#### getLastFocusableElement()
+This method was moved to FocusHandler Helper. Use this instead.
+
+```JavaScript
+const lastFocusableEl = window.focusHandler.getLastFocusableElement();
+```
+
 ## Introduced in 6.7.0.0
 ## Settings Menu Structure was changed 
 The menu structure on the settings page has changed from tab structure to a grid structure. The new structure groups settings into different categories for better usability. If you extend or customize the settings menu, ensure that your changes are compatible with the new structure.
@@ -138,6 +230,13 @@ The concrete events being removed:
 - `\Shopware\Core\Checkout\Shipping\Event\ShippingMethodRouteCacheTagsEvent`
 - `\Shopware\Core\Content\Sitemap\Event\SitemapRouteCacheKeyEvent`
 - `\Shopware\Core\Content\Sitemap\Event\SitemapRouteCacheTagsEvent`
+
+## Theme Configuration Changes
+As part of optimizing theme configuration loading, several changes are being made to the theme system:
+
+* The `\Shopware\Storefront\Theme\CachedResolvedConfigLoader` has been removed. This class was previously used to cache theme configurations but has been replaced by a more efficient database-based solution using the new `theme_runtime_config` table.
+* The `\Shopware\Storefront\Theme\Exception\ThemeAssignmentException` has been removed. Instead, use `\Shopware\Storefront\Theme\Exception\ThemeException::themeAssignmentException` for handling theme assignment errors.
+* The `\Shopware\Storefront\Theme\ThemeLifecycleService` is now marked as final and cannot be extended. Additionally, its `refreshTheme` method now accepts an optional `$configurationCollection` parameter.
 
 ## `filterByActiveRules` in Payment- and ShippingMethodCollection removed
 

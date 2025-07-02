@@ -10,7 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\Event\NewServicesInstalledEvent;
 use Shopware\Core\Service\Message\InstallServicesMessage;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -29,6 +31,7 @@ class AllServiceInstaller
         private readonly ServiceLifecycle $serviceLifecycle,
         private readonly EntityRepository $appRepository,
         private readonly MessageBusInterface $messageBus,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -53,6 +56,10 @@ class AllServiceInstaller
             if ($result) {
                 $installedServices[] = $service->name;
             }
+        }
+
+        if (!empty($installedServices)) {
+            $this->eventDispatcher->dispatch(new NewServicesInstalledEvent());
         }
 
         return $installedServices;

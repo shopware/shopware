@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\Message\InstallServicesMessage;
@@ -15,6 +14,7 @@ use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceRegistryClient;
 use Shopware\Core\Service\ServiceRegistryEntry;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -29,12 +29,14 @@ class AllServiceInstallerTest extends TestCase
         $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
         $messageBus = $this->createMock(MessageBusInterface::class);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
             $this->buildAppRepository(),
             $messageBus,
+            $eventDispatcher
         );
 
         $serviceRegistryClient->expects($this->once())
@@ -57,6 +59,8 @@ class AllServiceInstallerTest extends TestCase
                 return true;
             });
 
+        $eventDispatcher->expects($this->once())->method('dispatch');
+
         $serviceInstaller->install(Context::createDefaultContext());
     }
 
@@ -69,12 +73,14 @@ class AllServiceInstallerTest extends TestCase
         $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
         $messageBus = $this->createMock(MessageBusInterface::class);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
             $this->buildAppRepository([$app1]),
             $messageBus,
+            $eventDispatcher
         );
 
         $serviceRegistryClient->expects($this->once())
@@ -92,6 +98,8 @@ class AllServiceInstallerTest extends TestCase
                 return true;
             });
 
+        $eventDispatcher->expects($this->once())->method('dispatch');
+
         $serviceInstaller->install(Context::createDefaultContext());
     }
 
@@ -107,12 +115,14 @@ class AllServiceInstallerTest extends TestCase
         $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
         $messageBus = $this->createMock(MessageBusInterface::class);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
             $this->buildAppRepository([$app1, $app2]),
             $messageBus,
+            $eventDispatcher,
         );
 
         $serviceRegistryClient->expects($this->once())
@@ -125,6 +135,8 @@ class AllServiceInstallerTest extends TestCase
         $serviceLifeCycle->expects($this->never())
             ->method('install');
 
+        $eventDispatcher->expects($this->never())->method('dispatch');
+
         $serviceInstaller->install(Context::createDefaultContext());
     }
 
@@ -133,12 +145,14 @@ class AllServiceInstallerTest extends TestCase
         $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
         $messageBus = $this->createMock(MessageBusInterface::class);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
             $this->buildAppRepository(),
             $messageBus,
+            $eventDispatcher
         );
 
         $envelope = new Envelope(new \stdClass());
@@ -157,13 +171,14 @@ class AllServiceInstallerTest extends TestCase
         $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
         $messageBus = $this->createMock(MessageBusInterface::class);
-        $scheduledTaskRepository = $this->createMock(EntityRepository::class);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
             $this->buildAppRepository(),
             $messageBus,
+            $eventDispatcher,
         );
 
         $serviceRegistryClient->expects($this->once())
@@ -183,12 +198,14 @@ class AllServiceInstallerTest extends TestCase
         $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
         $messageBus = $this->createMock(MessageBusInterface::class);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
             $this->buildAppRepository(),
             $messageBus,
+            $eventDispatcher,
         );
 
         $serviceRegistryClient->expects($this->once())
@@ -219,12 +236,14 @@ class AllServiceInstallerTest extends TestCase
         $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
         $messageBus = $this->createMock(MessageBusInterface::class);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
             $this->buildAppRepository(),
             $messageBus,
+            $eventDispatcher,
         );
 
         $serviceRegistryClient->expects($this->once())

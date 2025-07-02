@@ -387,4 +387,72 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
 
         expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
     });
+
+    it('should refresh media item in items and selectedItems arrays', async () => {
+        const wrapper = await createWrapper();
+
+        const mockMediaItems = [
+            {
+                id: 'test-media-id-foo',
+                getEntityName: () => 'media',
+                title: 'Foo Title',
+            },
+            {
+                id: 'test-media-id-bar',
+                getEntityName: () => 'media',
+                title: 'Bar Title',
+            },
+        ];
+
+        wrapper.vm.items.push(...mockMediaItems);
+        wrapper.vm.selectedItems.push(...mockMediaItems);
+
+        const refreshMediaItem = {
+            id: 'test-media-id-foo',
+            getEntityName: () => 'media',
+            title: 'New Title',
+        };
+
+        wrapper.vm.mediaRepository.get = jest.fn().mockResolvedValue(refreshMediaItem);
+
+        await wrapper.vm.refreshItem(refreshMediaItem.id);
+
+        expect(wrapper.vm.mediaRepository.get).toHaveBeenCalledWith(refreshMediaItem.id, expect.any(Object));
+        expect(wrapper.vm.items).toContainEqual(refreshMediaItem);
+        expect(wrapper.vm.selectedItems).toContainEqual(refreshMediaItem);
+    });
+
+    it('should handle refreshItem when media item not found in arrays', async () => {
+        const wrapper = await createWrapper();
+
+        const mockMediaItems = [
+            {
+                id: 'test-media-id-foo',
+                getEntityName: () => 'media',
+                title: 'Foo Title',
+            },
+            {
+                id: 'test-media-id-bar',
+                getEntityName: () => 'media',
+                title: 'Bar Title',
+            },
+        ];
+
+        wrapper.vm.items.push(...mockMediaItems);
+        wrapper.vm.selectedItems.push(...mockMediaItems);
+
+        const refreshMediaItem = {
+            id: 'test-media-id-new',
+            getEntityName: () => 'media',
+            title: 'New Title',
+        };
+
+        wrapper.vm.mediaRepository.get = jest.fn().mockResolvedValue(refreshMediaItem);
+
+        await wrapper.vm.refreshItem(refreshMediaItem.id);
+
+        expect(wrapper.vm.mediaRepository.get).toHaveBeenCalledWith(refreshMediaItem.id, expect.any(Object));
+        expect(wrapper.vm.items).not.toContainEqual(refreshMediaItem);
+        expect(wrapper.vm.selectedItems).not.toContainEqual(refreshMediaItem);
+    });
 });

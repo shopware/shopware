@@ -24,7 +24,7 @@ export default class PluginRegistry {
         }
 
         if (!this._registry.has(name)) {
-            this._registry.set(name, new Map());
+            return false;
         }
 
         const pluginMap = this._registry.get(name);
@@ -81,7 +81,7 @@ export default class PluginRegistry {
      * @param {string} name
      * @param {string} selector
      *
-     * @returns {PluginRegistry}
+     * @returns {boolean}
      */
     delete(name, selector) {
         if (!selector) {
@@ -92,11 +92,13 @@ export default class PluginRegistry {
         if (!pluginMap) return true;
 
         const registrationMap = pluginMap.get('registrations');
-        if (!registrationMap) return true;
 
-        registrationMap.delete(selector);
+        // If the only registration should be deleted, delete the whole plugin entry.
+        if (!registrationMap || registrationMap.size <= 1) {
+            return this._registry.delete(name);
+        }
 
-        return this;
+        return registrationMap.delete(selector);
     }
 
     /**

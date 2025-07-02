@@ -56,12 +56,12 @@ class SnippetFinder implements SnippetFinderInterface
 
         foreach ($activePlugins as $plugin) {
             $pluginPath = $plugin->getPath() . '/Resources/app/administration/src';
-            if (file_exists($pluginPath)) {
+            if (\is_dir($pluginPath)) {
                 $paths[] = $pluginPath;
             }
 
             $meteorPluginPath = $plugin->getPath() . '/Resources/app/meteor-app';
-            if (file_exists($meteorPluginPath)) {
+            if (\is_dir($meteorPluginPath)) {
                 $paths[] = $meteorPluginPath;
             }
         }
@@ -94,12 +94,12 @@ class SnippetFinder implements SnippetFinderInterface
             $meteorBundlePath = $bundle->getPath() . '/Resources/app/meteor-app';
 
             // Add the bundle path if it exists
-            if (file_exists($bundlePath)) {
+            if (\is_dir($bundlePath)) {
                 $paths[] = $bundlePath;
             }
 
             // Add the meteor bundle path if it exists
-            if (file_exists($meteorBundlePath)) {
+            if (\is_dir($meteorBundlePath)) {
                 $paths[] = $meteorBundlePath;
             }
         }

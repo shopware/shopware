@@ -1,3 +1,8 @@
+# 6.7.0.1
+## ESI render errors are not ignored anymore
+When rendering the `/header` and `/footer` ESI tags, errors will now be thrown instead of ignored. This change is intended to help developers identify and fix issues with ESI includes more easily.
+If you want to keep the old behaviour you need to overwrite the template blocks and remove the `ignore_errors: false` option from the `render_esi` function call.
+
 # 6.7.0.0 Upgrade Guide
 
 # Notable Changes
@@ -10,6 +15,13 @@ This means that when your plugins depends on a custom `webpack.config.js` file, 
 Additionally, this means that you will need to distribute a separate plugin version starting for 6.7, when you extend the administration to distribute the correct build files.
 For more information please take a look at the [docs](https://developer.shopware.com/docs/guides/plugins/plugins/administration/system-updates/vite.html).
 
+# Making all administration components async
+We are making all administration components async by default with this PR: https://github.com/shopware/shopware/pull/9129. This means that all components will be loaded asynchronously and not synchronously.
+This can lead to some issues when accessing components directly in the template with a `ref`. If you run into this issue you need to check before accessing the component if it is available. A good pattern for this is to use the `@vue:mounted` event to check if the component is mounted.
+
+Some components are still synchronously loaded, like the `sw-alert` component. This is because they are used in a lot of places and we want to avoid loading them asynchronously everywhere. You can see the full list of components in this file:
+
+`src/Administration/Resources/app/administration/src/app/adapter/view/vue.adapter.ts` (method: `initDependencies`)
 # Making all administration components async
 We are making all administration components async by default with this PR: https://github.com/shopware/shopware/pull/9129. This means that all components will be loaded asynchronously and not synchronously.
 This can lead to some issues when accessing components directly in the template with a `ref`. If you run into this issue you need to check before accessing the component if it is available. A good pattern for this is to use the `@vue:mounted` event to check if the component is mounted.
@@ -575,6 +587,8 @@ The default payment method "Direct debit" will no longer automatically change th
 The `technicalName` property will be required for payment and shipping methods in the API.
 The `technical_name` column will be made non-nullable for the `payment_method` and `shipping_method` tables in the database.
 
+Plugin developers will be required to supply a `technicalName` for their payment and shipping methods.  
+**If no technical name is specified before the migration is run, a temporary placeholder `temporary_<method-id>` will be used instead.**
 Plugin developers will be required to supply a `technicalName` for their payment and shipping methods.  
 **If no technical name is specified before the migration is run, a temporary placeholder `temporary_<method-id>` will be used instead.**
 
@@ -2607,6 +2621,44 @@ Example:
 </template>
 ```
 
+
+### Deprecated admin notification entity + related classes
+
+We have moved the notification entity, collection and definition to core. You should update your code to reference the new classes. The old classes are deprecated.
+
+* `Shopware\Administration\Notification\NotificationCollection` -> `Shopware\Core\Framework\Notification\NotificationCollection`
+* `Shopware\Administration\Notification\NotificationDefinition` -> `Shopware\Core\Framework\Notification\NotificationDefinition`
+* `Shopware\Administration\Notification\NotificationEntity` -> `Shopware\Core\Framework\Notification\NotificationEntity`
+
+### Deprecated notification controller
+
+`\Shopware\Administration\Controller\NotificationController` is now moved to core `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please update it. The HTTP route is still the same. The old class is deprecated.
+
+### Mitigate Meteor components migration with deprecated components
+
+To support extension developers and ensure compatibility between Shopware 6.6 and Shopware 6.7, a new prop called `deprecated` has been added to Shopware components.
+
+- **Prop Name**: `deprecated`
+- **Default Value**: `false` (uses the new Meteor Components by default)
+- **Purpose**:
+    - When `deprecated` is set to `true`, the component will render the old (deprecated) version instead of the new Meteor Component.
+    - This allows extension developers to maintain a single codebase compatible with both Shopware 6.6 and 6.7 without being forced to immediately migrate to Meteor Components.
+
+Example:
+
+```html
+<!-- Uses mt-button in 6.7 and sw-button-deprecated in 6.6 -->
+<template>
+  <sw-button />
+</template>
+
+
+<!-- Uses sw-button-deprecated in 6.6 and 6.7 -->
+<template>
+  <sw-button deprecated />
+</template>
+```
+
 </details>
 
 # Storefront
@@ -2620,6 +2672,11 @@ We made some changes in the Storefront, which might affect your plugins and them
   Extend `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader` or `\Shopware\Storefront\Pagelet\Footer\FooterPageletLoader` instead.
 * The properties `header`, `footer`, `salesChannelShippingMethods` and `salesChannelPaymentMethods` and their getter and setter Methods in `\Shopware\Storefront\Page\Page` were removed.
   Extend `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` or `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
+  Use the following alternatives in templates instead:
+    * `context.currency` instead of `page.header.activeCurrency`
+    * `shopware.navigation.id` instead of `page.header.navigation.active.id`
+    * `shopware.navigation.pathIdList` instead of `page.header.navigation.active.path`
+    * `context.languageInfo` instead of `page.header.activeLanguage`
   Use the following alternatives in templates instead:
     * `context.currency` instead of `page.header.activeCurrency`
     * `shopware.navigation.id` instead of `page.header.navigation.active.id`
@@ -2650,6 +2707,11 @@ We made some changes in the Storefront, which might affect your plugins and them
 * The template variables `activeId` and `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/categories.html.twig` were removed.
 * The template variable `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig` was removed.
 * The parameter `activeResult` of `src/Storefront/Resources/views/storefront/layout/sidebar/category-navigation.html.twig` was removed.
+* The global `showStagingBanner` Twig variable was removed. Use `shopware.showStagingBanner` instead.
+
+## FooterPagelet changes
+The former optional parameter `serviceMenu` of type `\Shopware\Core\Content\Category\CategoryCollection` in `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` is now required.
+Make sure to pass it to the constructor.
 * The global `showStagingBanner` Twig variable was removed. Use `shopware.showStagingBanner` instead.
 
 ## FooterPagelet changes

@@ -82,7 +82,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -125,7 +125,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -166,7 +166,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -210,7 +210,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -254,7 +254,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -302,7 +302,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -342,7 +342,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -663,7 +663,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -709,7 +709,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }

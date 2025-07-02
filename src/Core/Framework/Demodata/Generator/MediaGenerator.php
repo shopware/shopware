@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -74,6 +75,7 @@ class MediaGenerator implements DemodataGeneratorInterface
                         'mediaFolderId' => $isDownloadFile ? $downloadFolderId : $mediaFolderId,
                         'private' => $isDownloadFile,
                         'tags' => $this->getTags($tags),
+                        'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
                     ],
                 ],
                 $writeContext

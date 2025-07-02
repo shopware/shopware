@@ -8,12 +8,6 @@ $sw-field--radio-color-border: $color-gray-300;
         margin: 0;
     }
 
-    &__empty-state {
-        .sw-empty-state__element {
-            padding: 60px 0;
-        }
-    }
-
     .mt-card__toolbar {
         display: grid;
         grid-template-columns: 1fr auto;

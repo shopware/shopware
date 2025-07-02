@@ -1,7 +1,8 @@
-
 import template from './sw-user-saas-invitation-modal.html.twig';
 
-const { Data: { Criteria } } = Shopware;
+const {
+    Data: { Criteria },
+} = Shopware;
 const { ShopwareError } = Shopware.Classes;
 
 /**
@@ -74,10 +75,9 @@ export default {
         },
 
         loadLanguages() {
-            this.languageRepository.search(this.languageCriteria, Shopware.Context.api)
-                .then((languages) => {
-                    this.languages = languages;
-                });
+            this.languageRepository.search(this.languageCriteria, Shopware.Context.api).then((languages) => {
+                this.languages = languages;
+            });
         },
 
         sendInvitation() {
@@ -90,11 +90,13 @@ export default {
 
             const localeId = this.languages.get(this.languageId).localeId;
 
-            this.invitationService.inviteUser(this.email, localeId)
+            this.invitationService
+                .inviteUser(this.email, localeId)
                 .then(() => {
                     this.$emit('user-invited');
                     this.closeModal();
-                }).catch((errorResponse) => {
+                })
+                .catch((errorResponse) => {
                     this.$emit('invitation-failed', errorResponse);
                 });
         },

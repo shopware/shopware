@@ -2,7 +2,7 @@
  * @internal
  * @sw-package after-sales
  */
-import {mount} from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 const createDefaultUser = function () {
     return {
@@ -21,22 +21,24 @@ const createDefaultUser = function () {
             aclRoles: {
                 data: [],
                 links: {
-                    related: "http://localhost/"
+                    related: 'http://localhost/',
                 },
             },
             accessKeys: {
-                data: [{
-                    id: '12',
-                    accessKey: 'accessKey',
-                    secretAccessKey: 'secretAccessKey'
-                }],
+                data: [
+                    {
+                        id: '12',
+                        accessKey: 'accessKey',
+                        secretAccessKey: 'secretAccessKey',
+                    },
+                ],
                 links: {
-                    related: "http://localhost/"
+                    related: 'http://localhost/',
                 },
-            }
+            },
         },
     };
-}
+};
 
 const responses = global.repositoryFactoryMock.responses;
 responses.addResponse({
@@ -54,8 +56,8 @@ responses.addResponse({
                     locale: {
                         id: 'locale1',
                         translated: {
-                            name: 'localeOne'
-                        }
+                            name: 'localeOne',
+                        },
                     },
                 },
                 relationships: [],
@@ -69,8 +71,8 @@ responses.addResponse({
                     locale: {
                         id: 'locale2',
                         translated: {
-                            name: 'localeTwo'
-                        }
+                            name: 'localeTwo',
+                        },
                     },
                 },
                 relationships: [],
@@ -88,7 +90,7 @@ responses.addResponse({
             {
                 id: 'YourId',
                 attributes: {
-                    id: 'YourId'
+                    id: 'YourId',
                 },
                 relationships: [],
             },
@@ -102,12 +104,12 @@ Shopware.Service().register('timezoneService', () => {
             return [
                 {
                     id: '111',
-                    name: 'tz111'
+                    name: 'tz111',
                 },
                 {
                     id: '112',
                     name: 'tz112',
-                }
+                },
             ];
         },
     };
@@ -123,7 +125,7 @@ async function createWrapper(user) {
         response: {
             included: [],
             data: [
-                userResult
+                userResult,
             ],
         },
     });
@@ -192,14 +194,10 @@ async function createWrapper(user) {
                         },
                     },
                     mediaService: {
-                        addListener: () => {
-                        },
-                        removeListener: () => {
-                        },
-                        mediaService: () => {
-                        },
-                        getDefaultFolderId: () => {
-                        }
+                        addListener: () => {},
+                        removeListener: () => {},
+                        mediaService: () => {},
+                        getDefaultFolderId: () => {},
                     },
                     userService: {
                         getUser: () => {
@@ -210,25 +208,27 @@ async function createWrapper(user) {
                                 },
                                 relationships: {
                                     accessKeys: {
-                                        data: [{
-                                            id: '12',
-                                            accessKey: 'accessKey',
-                                            secretAccessKey: 'secretAccessKey'
-                                        }],
+                                        data: [
+                                            {
+                                                id: '12',
+                                                accessKey: 'accessKey',
+                                                secretAccessKey: 'secretAccessKey',
+                                            },
+                                        ],
                                         links: {
-                                            related: "http://localhost/"
+                                            related: 'http://localhost/',
                                         },
-                                    }
+                                    },
                                 },
                             });
-                        }
-                    }
+                        },
+                    },
                 },
 
                 mocks: {
                     $route: {
                         params: {
-                            id: '1'
+                            id: '1',
                         },
                         meta: {
                             $module: {
@@ -264,7 +264,9 @@ describe('module/sw-users-permissions/page/sw-saas-users-permission-user-detail'
 
         const invitationBanner = wrapper.find('.sw-saas-user-invitation-info');
         expect(invitationBanner.exists()).toBeTruthy();
-        expect(invitationBanner.find('.mt-banner__message').text()).toBe('sw-users-permissions.saas.invitationNotYetAccepted');
+        expect(invitationBanner.find('.mt-banner__message').text()).toBe(
+            'sw-users-permissions.saas.invitationNotYetAccepted',
+        );
     });
 
     it('should not be possible to edit fistName, lastName, email', async () => {

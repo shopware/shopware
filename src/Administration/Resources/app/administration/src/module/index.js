@@ -35,4 +35,4 @@ export const ssoError = () => {
     });
 
     return Object.values(context);
-}
+};

@@ -17,7 +17,7 @@ responses.addResponse({
                 localeId: 'localeIdOne',
                 name: 'languageOne',
                 attributes: {
-                    id: 'idOne'
+                    id: 'idOne',
                 },
                 relationships: [],
             },
@@ -26,7 +26,7 @@ responses.addResponse({
                 localeId: 'localeIdTwo',
                 name: 'languageTwo',
                 attributes: {
-                    id: 'idTwo'
+                    id: 'idTwo',
                 },
                 relationships: [],
             },
@@ -70,7 +70,7 @@ async function createWrapper() {
                     },
                     invitationService: {
                         inviteUser: () => {},
-                    }
+                    },
                 },
             },
         },

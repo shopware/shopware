@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(privileges = [], isSaas = {isSaas: false}) {
+async function createWrapper(privileges = [], isSaas = { isSaas: false }) {
     return mount(
         await wrapTestComponent('sw-users-permissions-user-listing', {
             sync: true,
@@ -30,8 +30,8 @@ async function createWrapper(privileges = [], isSaas = {isSaas: false}) {
                     loginService: {},
                     searchRankingService: {},
                     saasSettingsService: {
-                        isSaas: () => Promise.resolve(isSaas)
-                    }
+                        isSaas: () => Promise.resolve(isSaas),
+                    },
                 },
                 mocks: {
                     $route: { query: '' },
@@ -221,14 +221,14 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         await flushPromises();
 
         const addUserButton = wrapper.find('.sw-users-permissions-user-listing__add-user-button');
-        expect(addUserButton.find('span').text()).toBe('sw-users-permissions.users.general.labelCreateNewUser')
+        expect(addUserButton.find('span').text()).toBe('sw-users-permissions.users.general.labelCreateNewUser');
     });
 
     it('should show the invite user button', async () => {
-        wrapper = await createWrapper(['users_and_permissions.creator'], {isSaas: true});
+        wrapper = await createWrapper(['users_and_permissions.creator'], { isSaas: true });
         await flushPromises();
 
         const addUserButton = wrapper.find('.sw-users-permissions-user-listing__add-user-button');
-        expect(addUserButton.find('span').text()).toBe('sw-users-permissions.saas.inviteButtonLabel')
+        expect(addUserButton.find('span').text()).toBe('sw-users-permissions.saas.inviteButtonLabel');
     });
 });

@@ -39,7 +39,7 @@
 
                 {% block element_product_slider_slider %}
                     <div
-                        class="base-slider product-slider{% if sliderConfig.border.value %} has-border{% endif %}{% if sliderConfig.navigationArrows.value == "outside" %} has-nav-outside{% endif %}{% if sliderConfig.navigation.value %} has-nav{% endif %}"
+                        class="base-slider product-slider{% if sliderConfig.border.value %} has-border{% endif %}{% if sliderConfig.navigationArrows.value == "outside" %} has-nav-outside{% endif %}{% if sliderConfig.navigationArrows.value %} has-nav{% endif %}"
                         data-product-slider="true"
                         data-product-slider-options="{{ productSliderOptions|json_encode }}"
                         role="region"

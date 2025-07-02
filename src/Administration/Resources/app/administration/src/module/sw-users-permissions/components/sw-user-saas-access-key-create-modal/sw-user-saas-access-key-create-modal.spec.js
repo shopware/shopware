@@ -63,8 +63,8 @@ describe('module/sw-users-permissions/components/sw-user-saas-access-key-create-
 
         expect(accessKeyField.find('input').attributes('value')).toBe('abdcefghi');
 
-        expect(secretAccessKeyField.attributes('copyable')).toBeDefined()
-        expect(secretAccessKeyField.attributes('copyable')).toBe('false')
+        expect(secretAccessKeyField.attributes('copyable')).toBeDefined();
+        expect(secretAccessKeyField.attributes('copyable')).toBe('false');
 
         const secretAccessKeyFieldInput = secretAccessKeyField.find('input');
         expect(secretAccessKeyFieldInput.attributes('type')).toBe('password');
@@ -101,8 +101,8 @@ describe('module/sw-users-permissions/components/sw-user-saas-access-key-create-
 
         expect(accessKeyField.find('input').attributes('value')).toBe('abdcefghi');
         expect(secretAccessKeyField.find('input').attributes('value')).toBe('123456789');
-        expect(bannerMessage.text()).toBe('sw-users-permissions.users.user-detail.modal.secretHelpText')
-        expect(generateAccessKeyButton.exists()).toBeFalsy()
+        expect(bannerMessage.text()).toBe('sw-users-permissions.users.user-detail.modal.secretHelpText');
+        expect(generateAccessKeyButton.exists()).toBeFalsy();
 
         await cancelButton.trigger('click');
         expect(wrapper.emitted('access-key-modal-create:cancel')).toBeTruthy();
@@ -125,8 +125,8 @@ describe('module/sw-users-permissions/components/sw-user-saas-access-key-create-
 
         expect(accessKeyField.find('input').attributes('value')).toBe('abdcefghi');
         expect(secretAccessKeyField.find('input').attributes('value')).toBe('123456789');
-        expect(bannerMessage.text()).toBe('sw-users-permissions.users.user-detail.modal.secretHelpText')
-        expect(generateAccessKeyButton.exists()).toBeFalsy()
+        expect(bannerMessage.text()).toBe('sw-users-permissions.users.user-detail.modal.secretHelpText');
+        expect(generateAccessKeyButton.exists()).toBeFalsy();
 
         await cancelButton.trigger('click');
         expect(wrapper.emitted('access-key-modal-create:cancel')).toBeTruthy();

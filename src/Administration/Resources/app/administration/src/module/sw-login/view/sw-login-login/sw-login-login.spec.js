@@ -5,7 +5,7 @@
 import { mount } from '@vue/test-utils';
 import useSystem from '../../../../app/composables/use-system';
 
-async function createWrapper(loginSuccessfull) {
+async function createWrapper(loginSuccessfull, useDefault = true, ssoUrl = 'https://sso.test') {
     const wrapper = mount(await wrapTestComponent('sw-login-login', { sync: true }), {
         global: {
             mocks: {
@@ -53,9 +53,9 @@ async function createWrapper(loginSuccessfull) {
                     },
                     getLoginTemplateConfig: () => {
                         return new Promise((resolve) => {
-                            resolve({ useDefault: true, ssoProviders: [] });
+                            resolve({ useDefault: useDefault, ssoProviders: [], url: ssoUrl });
                         });
-                    }
+                    },
                 },
                 userService: {},
                 licenseViolationService: {},
@@ -82,6 +82,10 @@ async function createWrapper(loginSuccessfull) {
 
     await flushPromises();
 
+    if (!useDefault) {
+        return { wrapper };
+    }
+
     const passwordInput = wrapper.findByLabel('["sw-login.index.labelPassword"]');
     const usernameInput = wrapper.get('#sw-field--username');
     const rememberMeCheckbox = wrapper.find('.mt-field--checkbox__container input');
@@ -90,8 +94,18 @@ async function createWrapper(loginSuccessfull) {
 }
 
 describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
+    let originalLocation;
+
     beforeAll(() => {
         useSystem().locales.value.push(navigator.language);
+
+        originalLocation = window.location;
+        delete window.location;
+        window.location = { href: '' };
+    });
+
+    afterAll(() => {
+        window.location = originalLocation;
     });
 
     it('should be a Vue.js component', async () => {
@@ -146,5 +160,11 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         const rememberMeDuration = Number(localStorage.getItem('rememberMe'));
         expect(rememberMeDuration).toBeGreaterThan(1600000);
         expect(rememberMeDuration).toBeLessThanOrEqual(+expectedDuration);
+    });
+
+    it('should redirect for SSO login', async () => {
+        await createWrapper(true, false, 'https://sso.test');
+
+        expect(window.location.href).toBe('https://sso.test');
     });
 });

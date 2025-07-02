@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -28,15 +27,14 @@ use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\Message\CompileThemeMessage;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeEntity;
+use Shopware\Storefront\Theme\ThemeMergedConfigBuilder;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Storefront\Theme\ThemeService;
-use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeFixtures;
-use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeFixtures_6_7;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBus;
@@ -61,6 +59,8 @@ class ThemeServiceTest extends TestCase
 
     private EventDispatcher&MockObject $eventDispatcherMock;
 
+    private ThemeMergedConfigBuilder&MockObject $mergedConfigBuilderMock;
+
     private ThemeService $themeService;
 
     private Context $context;
@@ -81,6 +81,7 @@ class ThemeServiceTest extends TestCase
         $this->context = Context::createDefaultContext();
         $this->systemConfigMock = $this->createMock(SystemConfigService::class);
         $this->messageBusMock = $this->createMock(MessageBus::class);
+        $this->mergedConfigBuilderMock = $this->createMock(ThemeMergedConfigBuilder::class);
 
         $this->themeService = new ThemeService(
             $this->storefrontPluginRegistryMock,
@@ -92,7 +93,9 @@ class ThemeServiceTest extends TestCase
             $this->connectionMock,
             $this->systemConfigMock,
             $this->messageBusMock,
-            $this->createMock(NotificationService::class)
+            $this->createMock(NotificationService::class),
+            $this->mergedConfigBuilderMock,
+            $this->createMock(ThemeRuntimeConfigService::class),
         );
     }
 
@@ -491,156 +494,6 @@ class ThemeServiceTest extends TestCase
         $this->themeService->resetTheme($themeId, $this->context);
     }
 
-    public function testGetPlainThemeConfigurationNoTheme(): void
-    {
-        $themeId = Uuid::randomHex();
-
-        $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
-                1,
-                new ThemeCollection(
-                    [
-                        (new ThemeEntity())->assign(
-                            [
-                                '_uniqueIdentifier' => 'no',
-                                'salesChannels' => new SalesChannelCollection(),
-                            ]
-                        ),
-                    ]
-                ),
-                null,
-                new Criteria(),
-                $this->context
-            )
-        );
-
-        $this->expectException(ThemeException::class);
-        $this->expectExceptionMessage(\sprintf('Could not find theme with id "%s"', $themeId));
-
-        $this->themeService->getPlainThemeConfiguration($themeId, $this->context);
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 Will be removed, use testGetPlainThemeConfiguration instead
-     *
-     * @param array<string, mixed> $ids
-     * @param array<string, mixed>|null $expected
-     * @param array<string, mixed>|null $expectedStructured
-     */
-    #[DataProviderExternal(ThemeFixtures_6_7::class, 'getThemeCollectionForThemeConfiguration')]
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testGetPlainThemeConfigurationWithTranslations(
-        array $ids,
-        ThemeCollection $themeCollection,
-        ?array $expected = null,
-        ?array $expectedStructured = null,
-    ): void {
-        $this->testGetPlainThemeConfiguration($ids, $themeCollection, $expected, $expectedStructured);
-    }
-
-    /**
-     * @param array<string, mixed> $ids
-     * @param array<string, mixed>|null $expected
-     * @param array<string, mixed>|null $expectedStructured
-     */
-    #[DataProviderExternal(ThemeFixtures::class, 'getThemeCollectionForThemeConfiguration')]
-    public function testGetPlainThemeConfiguration(
-        array $ids,
-        ThemeCollection $themeCollection,
-        ?array $expected = null,
-        ?array $expectedStructured = null,
-    ): void {
-        $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
-                1,
-                $themeCollection,
-                null,
-                new Criteria(),
-                $this->context
-            )
-        );
-
-        $storefrontPlugin = new StorefrontPluginConfiguration('Test');
-        $storefrontPlugin->setThemeConfig(ThemeFixtures::getThemeJsonConfig());
-
-        $this->storefrontPluginRegistryMock->method('getConfigurations')->willReturn(
-            new StorefrontPluginConfigurationCollection(
-                [
-                    $storefrontPlugin,
-                ]
-            )
-        );
-
-        $config = $this->themeService->getPlainThemeConfiguration($ids['themeId'], $this->context, true);
-
-        static::assertArrayHasKey('fields', $config);
-        static::assertArrayHasKey('currentFields', $config);
-        static::assertArrayHasKey('baseThemeFields', $config);
-        static::assertEquals($expected, $config);
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 Will be removed, use testGetThemeConfigurationFieldStructure instead
-     *
-     * @param array<string, mixed> $ids
-     * @param array<string, mixed>|null $expected
-     * @param array<string, mixed>|null $expectedStructured
-     */
-    #[DataProviderExternal(ThemeFixtures_6_7::class, 'getThemeCollectionForThemeConfiguration')]
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testGetThemeConfigurationFieldStructureWithTranslations(
-        array $ids,
-        ThemeCollection $themeCollection,
-        ?array $expected = null,
-        ?array $expectedStructured = null,
-    ): void {
-        $this->testGetThemeConfigurationFieldStructure($ids, $themeCollection, $expected, $expectedStructured);
-    }
-
-    /**
-     * @param array<string, mixed> $ids
-     * @param array<string, mixed>|null $expected
-     * @param array<string, mixed>|null $expectedStructured
-     */
-    #[DataProviderExternal(ThemeFixtures::class, 'getThemeCollectionForThemeConfiguration')]
-    public function testGetThemeConfigurationFieldStructure(
-        array $ids,
-        ThemeCollection $themeCollection,
-        ?array $expected = null,
-        ?array $expectedStructured = null,
-    ): void {
-        $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
-                1,
-                $themeCollection,
-                null,
-                new Criteria(),
-                $this->context
-            )
-        );
-
-        $storefrontPlugin = new StorefrontPluginConfiguration('Test');
-        $storefrontPlugin->setThemeConfig(ThemeFixtures::getThemeJsonConfig());
-
-        $this->storefrontPluginRegistryMock->method('getConfigurations')->willReturn(
-            new StorefrontPluginConfigurationCollection(
-                [
-                    $storefrontPlugin,
-                ]
-            )
-        );
-
-        $config = $this->themeService->getThemeConfigurationFieldStructure($ids['themeId'], $this->context, true);
-
-        static::assertArrayHasKey('tabs', $config);
-        static::assertArrayHasKey('default', $config['tabs']);
-        static::assertArrayHasKey('blocks', $config['tabs']['default']);
-        static::assertEquals($expectedStructured, $config);
-    }
-
     public function testAsyncCompilationIsSkippedWhenUsingStaticConfigLoader(): void
     {
         $themeId = Uuid::randomHex();
@@ -661,7 +514,9 @@ class ThemeServiceTest extends TestCase
             $this->connectionMock,
             $this->systemConfigMock,
             $this->messageBusMock,
-            $this->createMock(NotificationService::class)
+            $this->createMock(NotificationService::class),
+            $this->mergedConfigBuilderMock,
+            $this->createMock(ThemeRuntimeConfigService::class),
         );
 
         $this->systemConfigMock->expects($this->never())->method('get');
@@ -677,5 +532,77 @@ class ThemeServiceTest extends TestCase
         );
 
         $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
+    }
+
+    public function testGetPlainThemeConfiguration(): void
+    {
+        $themeId = Uuid::randomHex();
+        $expectedConfig = ['key' => 'value'];
+
+        $this->mergedConfigBuilderMock
+            ->expects($this->once())
+            ->method('getPlainThemeConfiguration')
+            ->with($themeId, $this->context)
+            ->willReturn($expectedConfig);
+
+        $result = $this->themeService->getPlainThemeConfiguration($themeId, $this->context);
+
+        static::assertSame($expectedConfig, $result);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 will be removed
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetPlainThemeConfigurationWithTranslationFlag(): void
+    {
+        $themeId = Uuid::randomHex();
+        $expectedConfig = ['key' => 'value'];
+
+        $this->mergedConfigBuilderMock
+            ->expects($this->once())
+            ->method('getPlainThemeConfiguration')
+            ->with($themeId, $this->context, true)
+            ->willReturn($expectedConfig);
+
+        $result = $this->themeService->getPlainThemeConfiguration($themeId, $this->context, true);
+
+        static::assertSame($expectedConfig, $result);
+    }
+
+    public function testGetThemeConfigurationFieldStructure(): void
+    {
+        $themeId = Uuid::randomHex();
+        $expectedConfig = ['structuredKey' => 'structuredValue'];
+
+        $this->mergedConfigBuilderMock
+            ->expects($this->once())
+            ->method('getThemeConfigurationFieldStructure')
+            ->with($themeId, $this->context)
+            ->willReturn($expectedConfig);
+
+        $result = $this->themeService->getThemeConfigurationFieldStructure($themeId, $this->context);
+
+        static::assertSame($expectedConfig, $result);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 will be removed
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetThemeConfigurationFieldStructureWithTranslationFlag(): void
+    {
+        $themeId = Uuid::randomHex();
+        $expectedConfig = ['structuredKey' => 'structuredValue'];
+
+        $this->mergedConfigBuilderMock
+            ->expects($this->once())
+            ->method('getThemeConfigurationFieldStructure')
+            ->with($themeId, $this->context, true)
+            ->willReturn($expectedConfig);
+
+        $result = $this->themeService->getThemeConfigurationFieldStructure($themeId, $this->context, true);
+
+        static::assertSame($expectedConfig, $result);
     }
 }

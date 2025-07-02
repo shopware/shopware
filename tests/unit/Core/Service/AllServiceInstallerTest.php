@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\Message\InstallServicesMessage;
 use Shopware\Core\Service\ServiceLifecycle;
-use Shopware\Core\Service\ServiceRegistryClient;
-use Shopware\Core\Service\ServiceRegistryEntry;
+use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\Envelope;
@@ -42,14 +42,14 @@ class AllServiceInstallerTest extends TestCase
         $serviceRegistryClient->expects($this->once())
             ->method('getAll')
             ->willReturn([
-                new ServiceRegistryEntry('Service1', 'https://service1.example.com', 'Service 1', ''),
-                new ServiceRegistryEntry('Service2', 'https://service2.example.com', 'Service 2', ''),
+                new ServiceEntry('Service1', 'https://service1.example.com', 'Service 1', ''),
+                new ServiceEntry('Service2', 'https://service2.example.com', 'Service 2', ''),
             ]);
 
         $matcher = $this->exactly(2);
         $serviceLifeCycle->expects($matcher)
             ->method('install')
-            ->willReturnCallback(function (ServiceRegistryEntry $serviceRegistryEntry) use ($matcher): bool {
+            ->willReturnCallback(function (ServiceEntry $serviceRegistryEntry) use ($matcher): bool {
                 match ($matcher->numberOfInvocations()) {
                     1 => $this->assertSame('Service1', $serviceRegistryEntry->name),
                     2 => $this->assertSame('Service2', $serviceRegistryEntry->name),
@@ -86,13 +86,13 @@ class AllServiceInstallerTest extends TestCase
         $serviceRegistryClient->expects($this->once())
             ->method('getAll')
             ->willReturn([
-                new ServiceRegistryEntry('Service1', 'Service 1', 'https://service1.example.com', '/app-endpoint'),
-                new ServiceRegistryEntry('Service2', 'Service 2', 'https://service2.example.com', '/app-endpoint'),
+                new ServiceEntry('Service1', 'Service 1', 'https://service1.example.com', '/app-endpoint'),
+                new ServiceEntry('Service2', 'Service 2', 'https://service2.example.com', '/app-endpoint'),
             ]);
 
         $serviceLifeCycle->expects($this->exactly(1))
             ->method('install')
-            ->willReturnCallback(function (ServiceRegistryEntry $serviceRegistryEntry): bool {
+            ->willReturnCallback(function (ServiceEntry $serviceRegistryEntry): bool {
                 $this->assertSame('Service2', $serviceRegistryEntry->name);
 
                 return true;
@@ -128,8 +128,8 @@ class AllServiceInstallerTest extends TestCase
         $serviceRegistryClient->expects($this->once())
             ->method('getAll')
             ->willReturn([
-                new ServiceRegistryEntry('Service1', 'Service 1', 'https://service1.example.com', '/app-endpoint'),
-                new ServiceRegistryEntry('Service2', 'Service 2', 'https://service2.example.com', '/app-endpoint'),
+                new ServiceEntry('Service1', 'Service 1', 'https://service1.example.com', '/app-endpoint'),
+                new ServiceEntry('Service2', 'Service 2', 'https://service2.example.com', '/app-endpoint'),
             ]);
 
         $serviceLifeCycle->expects($this->never())
@@ -211,8 +211,8 @@ class AllServiceInstallerTest extends TestCase
         $serviceRegistryClient->expects($this->once())
             ->method('getAll')
             ->willReturn([
-                new ServiceRegistryEntry('SuccessfulService', 'https://successful.example.com', 'Service 1', ''),
-                new ServiceRegistryEntry('FailingService', 'https://failing.example.com', 'Service 2', ''),
+                new ServiceEntry('SuccessfulService', 'https://successful.example.com', 'Service 1', ''),
+                new ServiceEntry('FailingService', 'https://failing.example.com', 'Service 2', ''),
             ]);
 
         $matcher = $this->exactly(2);
@@ -249,9 +249,9 @@ class AllServiceInstallerTest extends TestCase
         $serviceRegistryClient->expects($this->once())
             ->method('getAll')
             ->willReturn([
-                new ServiceRegistryEntry('Service1', 'https://service1.example.com', 'Service 1', ''),
-                new ServiceRegistryEntry('Service2', 'https://service2.example.com', 'Service 2', ''),
-                new ServiceRegistryEntry('Service3', 'https://service3.example.com', 'Service 3', ''),
+                new ServiceEntry('Service1', 'https://service1.example.com', 'Service 1', ''),
+                new ServiceEntry('Service2', 'https://service2.example.com', 'Service 2', ''),
+                new ServiceEntry('Service3', 'https://service3.example.com', 'Service 3', ''),
             ]);
 
         $matcher = $this->exactly(3);

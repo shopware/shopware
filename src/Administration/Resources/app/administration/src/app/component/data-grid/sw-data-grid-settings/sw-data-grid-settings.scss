@@ -35,10 +35,6 @@
         display: flex;
         align-items: center;
 
-        &:not(:last-child) {
-            margin-bottom: 10px;
-        }
-
         .sw-data-grid__settings-column-item-controls {
             margin-left: auto;
             flex-shrink: 0;

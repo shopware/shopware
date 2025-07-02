@@ -47,7 +47,8 @@
                         },
                         "required": [
                             "gross",
-                            "net"
+                            "net",
+                            "linked"
                         ]
                     },
                     "regulationPrice": {
@@ -73,14 +74,16 @@
                         },
                         "required": [
                             "gross",
-                            "net"
+                            "net",
+                            "linked"
                         ]
                     }
                 },
                 "required": [
                     "currencyId",
                     "gross",
-                    "net"
+                    "net",
+                    "linked"
                 ]
             }
         }

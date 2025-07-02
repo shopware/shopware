@@ -144,6 +144,26 @@ export default {
             });
         },
 
+        async onSave() {
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
+
+            try {
+                await this.mediaRepository.save(this.item, Context.api);
+                this.isSaveSuccessful = true;
+            } catch (error) {
+                this.createNotificationError({
+                    message: error.message,
+                });
+            } finally {
+                this.isLoading = false;
+                Shopware.Utils.EventBus.emit('sw-media-library-item-updated', this.item.id);
+            }
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Use `onSave` instead
+         */
         async onSaveCustomFields(item) {
             this.isSaveSuccessful = false;
             this.isLoading = true;
@@ -174,24 +194,16 @@ export default {
             }
         },
 
-        async onSubmitTitle(value) {
+        onSubmitTitle(value) {
             this.item.title = value;
 
-            try {
-                await this.mediaRepository.save(this.item, Context.api);
-            } catch {
-                this.$refs.inlineEditFieldTitle.cancelSubmit();
-            }
+            return this.onSave();
         },
 
-        async onSubmitAltText(value) {
+        onSubmitAltText(value) {
             this.item.alt = value;
 
-            try {
-                await this.mediaRepository.save(this.item, Context.api);
-            } catch {
-                this.$refs.inlineEditFieldAlt.cancelSubmit();
-            }
+            return this.onSave();
         },
 
         async onChangeFileName(value) {

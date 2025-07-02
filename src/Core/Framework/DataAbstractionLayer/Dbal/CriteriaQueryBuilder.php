@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\CriteriaPartResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
@@ -170,7 +170,40 @@ class CriteriaQueryBuilder
 
         \assert($primary instanceof StorageAware);
 
+        $distincts = [];
+
+        foreach ($criteria->getQueries() as $scoreQuery) {
+            if (!$scoreQuery->getScoreField() || \array_key_exists($scoreQuery->getScoreField(), $distincts)) {
+                continue;
+            }
+
+            $associatedDefinition = $this->helper->getAssociatedDefinition($definition, $scoreQuery->getScoreField());
+
+            if ($associatedDefinition === $definition) {
+                continue;
+            }
+
+            $associationPath = $this->helper->getAssociationPath($scoreQuery->getScoreField(), $definition);
+            $associationPrimary = $associatedDefinition->getPrimaryKeys()->first();
+
+            \assert($associationPrimary instanceof StorageAware);
+
+            $field = $this->helper->getFieldAccessor(
+                \sprintf('%s.%s', $associationPath, $associationPrimary->getPropertyName()),
+                $definition,
+                $definition->getEntityName(),
+                $context
+            );
+
+            $distincts[$scoreQuery->getScoreField()] = \sprintf('COUNT(DISTINCT %s)', $field);
+        }
+
         $select = 'SUM(' . implode(' + ', $queries->getWheres()) . ') / ' . \sprintf('COUNT(%s.%s)', $definition->getEntityName(), $primary->getStorageName());
+
+        if (!empty($distincts)) {
+            $select .= ' * (' . implode(' + ', $distincts) . ')';
+        }
+
         $query->addSelect($select . ' as _score');
         $this->addConditions($criteria->getQueries(), $definition, $query, $context);
 
@@ -271,7 +304,7 @@ class CriteriaQueryBuilder
     private function validateSortingDirection(string $direction): void
     {
         if (!\in_array(mb_strtoupper($direction), [FieldSorting::ASCENDING, FieldSorting::DESCENDING], true)) {
-            throw new InvalidSortingDirectionException($direction);
+            throw DataAbstractionLayerException::invalidSortingDirection($direction);
         }
     }
 }

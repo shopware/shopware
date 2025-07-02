@@ -2321,8 +2321,8 @@ class ProductRepositoryTest extends TestCase
         $blue = $configuratorSettings->get($blueId);
         $red = $configuratorSettings->get($redId);
 
-        static::assertSame(['net' => 25, 'gross' => 50, 'linked' => false, 'currencyId' => Defaults::CURRENCY], $red->getPrice());
-        static::assertSame(['net' => 90, 'gross' => 100, 'linked' => false, 'currencyId' => Defaults::CURRENCY], $blue->getPrice());
+        static::assertEquals(['net' => 25, 'gross' => 50, 'linked' => false, 'currencyId' => Defaults::CURRENCY], $red->getPrice());
+        static::assertEquals(['net' => 90, 'gross' => 100, 'linked' => false, 'currencyId' => Defaults::CURRENCY], $blue->getPrice());
 
         $redOption = $red->getOption();
         static::assertInstanceOf(PropertyGroupOptionEntity::class, $redOption);

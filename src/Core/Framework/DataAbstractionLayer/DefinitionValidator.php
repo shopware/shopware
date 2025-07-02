@@ -96,12 +96,14 @@ class DefinitionValidator
         'elasticsearch_index_task',
         'increment',
         'messenger_messages',
+        'messenger_stats',
         'payment_token',
         'refresh_token',
         'usage_data_entity_deletion',
         'one_time_tasks',
         'invalidation_tags',
         'subscription_cart',
+        'theme_runtime_config',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [

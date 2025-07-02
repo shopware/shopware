@@ -34,7 +34,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 
@@ -163,8 +162,13 @@ class RegisterRouteTest extends TestCase
     }
 
     #[DataProvider('customerBoundToSalesChannelProvider')]
-    public function testRegistrationWithCustomerScope(bool $isCustomerScoped, bool $hasGlobalAccount, bool $hasBoundAccount, bool $requestOnSameSalesChannel, int $expectedStatus): void
-    {
+    public function testRegistrationWithCustomerScope(
+        bool $isCustomerScoped,
+        bool $hasGlobalAccount,
+        bool $hasBoundAccount,
+        bool $requestOnSameSalesChannel,
+        int $expectedStatus
+    ): void {
         static::getContainer()->get(SystemConfigService::class)->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', $isCustomerScoped);
 
         if ($hasGlobalAccount || $hasBoundAccount) {
@@ -464,7 +468,6 @@ class RegisterRouteTest extends TestCase
         $systemConfig->set('core.loginRegistration.doubleOptInRegistration', true);
         $systemConfig->set('core.loginRegistration.confirmationUrl', '/confirm/custom/%%HASHEDEMAIL%%/%%SUBSCRIBEHASH%%');
 
-        /** @var EventDispatcherInterface $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $this->addEventListener(
@@ -494,7 +497,6 @@ class RegisterRouteTest extends TestCase
                 json_encode($this->getRegistrationData(), \JSON_THROW_ON_ERROR)
             );
 
-        /** @var CustomerDoubleOptInRegistrationEvent $caughtEvent */
         static::assertInstanceOf(CustomerDoubleOptInRegistrationEvent::class, $caughtEvent);
         static::assertStringStartsWith('http://localhost/confirm/custom/', $caughtEvent->getConfirmUrl());
     }
@@ -628,8 +630,8 @@ class RegisterRouteTest extends TestCase
 
         static::assertSame('customer', $response['apiAlias']);
 
-        /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search(new Criteria([$response['id']]), Context::createDefaultContext())->first();
+        static::assertInstanceOf(CustomerEntity::class, $customer);
 
         static::assertSame($this->ids->get('group'), $customer->getRequestedGroupId());
     }
@@ -715,7 +717,6 @@ class RegisterRouteTest extends TestCase
 
     public function testRegistrationWithAllowedAccountType(): void
     {
-        /** @var string[] $accountTypes */
         $accountTypes = static::getContainer()->getParameter('customer.account_types');
         static::assertIsArray($accountTypes);
         $accountType = $accountTypes[array_rand($accountTypes)];
@@ -768,7 +769,6 @@ class RegisterRouteTest extends TestCase
 
     public function testRegistrationWithWrongAccountType(): void
     {
-        /** @var string[] $accountTypes */
         $accountTypes = static::getContainer()->getParameter('customer.account_types');
         static::assertIsArray($accountTypes);
         $notAllowedAccountType = implode('', $accountTypes);

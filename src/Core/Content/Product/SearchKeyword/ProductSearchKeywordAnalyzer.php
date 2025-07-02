@@ -35,6 +35,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
             $ranking = (int) $configField['ranking'];
 
             $values = array_filter($this->resolveEntityValue($product, $path));
+            ksort($values);
 
             if ($isTokenize) {
                 $nonScalarValues = array_filter($values, static fn ($value) => !\is_scalar($value));

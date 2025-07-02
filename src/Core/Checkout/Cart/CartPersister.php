@@ -60,6 +60,7 @@ class CartPersister extends AbstractCartPersister
 
         $cart->setToken($token);
         $cart->setRuleIds(json_decode((string) $content['rule_ids'], true, 512, \JSON_THROW_ON_ERROR) ?? []);
+        $cart->setErrorHash($cart->getErrors()->getUniqueHash());
 
         $this->eventDispatcher->dispatch(new CartLoadedEvent($cart, $context));
 
@@ -149,9 +150,11 @@ class CartPersister extends AbstractCartPersister
     private function serializeCart(Cart $cart): array
     {
         $errors = $cart->getErrors();
-        $data = $cart->getData();
+        if (!$cart->getBehavior()?->hasPermission(static::PERSIST_CART_ERROR_PERMISSION)) {
+            $cart->setErrors(new ErrorCollection());
+        }
 
-        $cart->setErrors(new ErrorCollection());
+        $data = $cart->getData();
         $cart->setData(null);
 
         $this->cartSerializationCleaner->cleanupCart($cart);

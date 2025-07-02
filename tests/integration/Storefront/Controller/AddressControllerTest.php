@@ -176,7 +176,7 @@ class AddressControllerTest extends TestCase
         $dataBag->set('type', 'shipping');
         $dataBag->set('id', $newDefaultShippingAddress);
 
-        $controller->checkoutSwitchDefaultAddress($dataBag, $context, $customer);
+        $controller->checkoutSwitchDefaultAddress($request, $dataBag, $context, $customer);
 
         /** @var EntityRepository<CustomerCollection> $repo */
         $repo = static::getContainer()->get('customer.repository');
@@ -283,7 +283,7 @@ class AddressControllerTest extends TestCase
         $dataBag->set('type', 'billing');
         $dataBag->set('id', $newDefaultBillingAddress);
 
-        $controller->checkoutSwitchDefaultAddress($dataBag, $context, $customer);
+        $controller->checkoutSwitchDefaultAddress($request, $dataBag, $context, $customer);
 
         /** @var EntityRepository<CustomerCollection> $repo */
         $repo = static::getContainer()->get('customer.repository');
@@ -321,7 +321,7 @@ class AddressControllerTest extends TestCase
 
         static::expectException(RoutingException::class);
 
-        $controller->checkoutSwitchDefaultAddress($dataBag, $context, $customer);
+        $controller->checkoutSwitchDefaultAddress($request, $dataBag, $context, $customer);
     }
 
     public function testSwitchDefaultAddressWithInvalidUuid(): void
@@ -488,11 +488,9 @@ class AddressControllerTest extends TestCase
         static::getContainer()->get('request_stack')->push($request);
 
         $newActiveAddress = $this->createCustomerAddress($id1);
+        $request->request->set(SalesChannelContextService::SHIPPING_ADDRESS_ID, $newActiveAddress);
 
-        $dataBag = new RequestDataBag();
-        $dataBag->set(SalesChannelContextService::SHIPPING_ADDRESS_ID, $newActiveAddress);
-
-        $controller->addressManagerSwitch($dataBag, $context);
+        $controller->addressManagerSwitch($request, $context);
 
         $newContext = static::getContainer()->get(SalesChannelContextPersister::class)->load($context->getToken(), TestDefaults::SALES_CHANNEL);
 
@@ -522,11 +520,9 @@ class AddressControllerTest extends TestCase
         static::getContainer()->get('request_stack')->push($request);
 
         $newActiveAddress = $this->createCustomerAddress($id1);
+        $request->request->set(SalesChannelContextService::BILLING_ADDRESS_ID, $newActiveAddress);
 
-        $dataBag = new RequestDataBag();
-        $dataBag->set(SalesChannelContextService::BILLING_ADDRESS_ID, $newActiveAddress);
-
-        $controller->addressManagerSwitch($dataBag, $context);
+        $controller->addressManagerSwitch($request, $context);
 
         $newContext = static::getContainer()->get(SalesChannelContextPersister::class)->load($context->getToken(), TestDefaults::SALES_CHANNEL);
 

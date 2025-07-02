@@ -20,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -37,6 +37,9 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductCrossSellingCollection> $crossSellingRepository
+     * @param SalesChannelRepository<ProductCollection> $productRepository
      */
     public function __construct(
         private readonly EntityRepository $crossSellingRepository,
@@ -60,7 +63,12 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         return EntityCacheKeyGenerator::buildProductTag($id);
     }
 
-    #[Route(path: '/store-api/product/{productId}/cross-selling', name: 'store-api.product.cross-selling', methods: ['POST'], defaults: ['_entity' => 'product'])]
+    #[Route(
+        path: '/store-api/product/{productId}/cross-selling',
+        name: 'store-api.product.cross-selling',
+        defaults: ['_entity' => 'product'],
+        methods: ['POST']
+    )]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductCrossSellingRouteResponse
     {
         $this->dispatcher->dispatch(new AddCacheTagEvent(self::buildName($productId)));
@@ -99,26 +107,18 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
             new ProductCrossSellingCriteriaLoadEvent($criteria, $context)
         );
 
-        /** @var ProductCrossSellingCollection $crossSellings */
-        $crossSellings = $this->crossSellingRepository
-            ->search($criteria, $context->getContext())
-            ->getEntities();
-
-        return $crossSellings;
+        return $this->crossSellingRepository->search($criteria, $context->getContext())->getEntities();
     }
 
     private function loadByStream(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context, Criteria $criteria): CrossSellingElement
     {
-        /** @var string $productStreamId */
         $productStreamId = $crossSelling->getProductStreamId();
+        \assert(\is_string($productStreamId));
 
-        $filters = $this->productStreamBuilder->buildFilters(
-            $productStreamId,
-            $context->getContext()
-        );
+        $filters = $this->productStreamBuilder->buildFilters($productStreamId, $context->getContext());
 
         $criteria->addFilter(...$filters)
-            ->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('product.id', $crossSelling->getProductId())]))
+            ->addFilter(new NotEqualsFilter('product.id', $crossSelling->getProductId()))
             ->setOffset(0)
             ->setLimit($crossSelling->getLimit())
             ->addSorting($crossSelling->getSorting());
@@ -129,10 +129,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
             new ProductCrossSellingStreamCriteriaEvent($crossSelling, $criteria, $context)
         );
 
-        $searchResult = $this->listingLoader->load($criteria, $context);
-
-        /** @var ProductCollection $products */
-        $products = $searchResult->getEntities();
+        $products = $this->listingLoader->load($criteria, $context)->getEntities();
 
         $element = new CrossSellingElement();
         $element->setCrossSelling($crossSelling);
@@ -178,11 +175,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
             new ProductCrossSellingIdsCriteriaEvent($crossSelling, $criteria, $context)
         );
 
-        $result = $this->productRepository
-            ->search($criteria, $context);
-
-        /** @var ProductCollection $products */
-        $products = $result->getEntities();
+        $products = $this->productRepository->search($criteria, $context)->getEntities();
 
         $ids = $criteria->getIds();
         $products->sortByIdArray($ids);

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\Context;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\RuleLoaderResult;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -42,6 +43,9 @@ class SalesChannelContextServiceTest extends TestCase
 
         $expiredToken = Uuid::randomHex();
 
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('withPermissions')->willReturn($this->createMock(RuleLoaderResult::class));
+
         $factory->expects($this->once())
             ->method('create')
             ->with(
@@ -52,7 +56,7 @@ class SalesChannelContextServiceTest extends TestCase
                     'expired' => true,
                 ]
             )
-            ->willReturn($this->createMock(SalesChannelContext::class));
+            ->willReturn($context);
 
         $service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $expiredToken, Defaults::LANGUAGE_SYSTEM));
     }
@@ -74,6 +78,9 @@ class SalesChannelContextServiceTest extends TestCase
         $persister->method('load')->willReturn(['expired' => false, SalesChannelContextService::CUSTOMER_ID => $customerId]);
         $noneExpiringToken = Uuid::randomHex();
 
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('withPermissions')->willReturn($this->createMock(RuleLoaderResult::class));
+
         $factory->expects($this->once())
             ->method('create')
             ->with(
@@ -85,7 +92,7 @@ class SalesChannelContextServiceTest extends TestCase
                     'expired' => false,
                 ]
             )
-            ->willReturn($this->createMock(SalesChannelContext::class));
+            ->willReturn($context);
 
         $service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $noneExpiringToken, Defaults::LANGUAGE_SYSTEM));
     }
@@ -94,6 +101,7 @@ class SalesChannelContextServiceTest extends TestCase
     {
         $token = 'test-token';
         $context = $this->createMock(SalesChannelContext::class);
+        $context->method('withPermissions')->willReturn($this->createMock(RuleLoaderResult::class));
         $session = [
             'foo' => 'bar',
         ];

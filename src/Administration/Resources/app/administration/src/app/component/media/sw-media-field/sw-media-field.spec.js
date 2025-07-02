@@ -140,7 +140,7 @@ describe('src/app/component/media/sw-media-field', () => {
         await wrapper.setData({ showPicker: true });
 
         const el = wrapper.element;
-        el.closest = jest.fn(selector => selector === '.mt-modal' ? el : null);
+        el.closest = jest.fn((selector) => (selector === '.mt-modal' ? el : null));
 
         const config = wrapper.vm.$options.computed.popoverConfig.call(wrapper.vm);
         expect(config).toEqual({

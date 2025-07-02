@@ -265,6 +265,14 @@ export default {
             this.$refs.dataGrid.resetSelection();
         },
 
+        onDeleteItem(item) {
+            if (item.label === '') {
+                Store.get('swOrder').removeEmptyLineItem(item.id);
+            } else {
+                this.$emit('on-remove-items', [item.id]);
+            }
+        },
+
         itemCreatedFromProduct(item) {
             return item._isNew && item.type === this.lineItemTypes.PRODUCT;
         },

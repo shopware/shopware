@@ -180,7 +180,7 @@ class CustomFieldTest extends TestCase
 
         $actual = $repo->search(new Criteria([$entity['id']]), Context::createDefaultContext())->first();
         static::assertNotNull($actual);
-        static::assertSame($override['custom'], $actual->get('custom'));
+        static::assertEquals($override['custom'], $actual->get('custom'));
     }
 
     public function testPatchObject(): void

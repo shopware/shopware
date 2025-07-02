@@ -144,4 +144,16 @@ class ManifestTest extends TestCase
 
         static::assertSame(['test' => 'test'], $manifest->getSourceConfig());
     }
+
+    public function testDuplicateCustomFieldSetNamesAreNotAllowed(): void
+    {
+        $file = __DIR__ . '/_fixtures/duplicate-custom-field-set-name.xml';
+        $fileContent = file_get_contents($file);
+        static::assertIsString($fileContent);
+
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessageMatches("/Element \'custom-field-set\'\: Duplicate key-sequence \[\'duplicated_custom_field_set\'\] in unique identity-constraint \'uniqueCustomFieldSetName\'/");
+
+        Manifest::validate($fileContent, $file);
+    }
 }

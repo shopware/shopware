@@ -17,16 +17,14 @@ use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
+use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\EqualTo;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -46,9 +44,9 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
         private readonly EntityRepository $customerRecoveryRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly DataValidator $validator,
-        private readonly SystemConfigService $systemConfigService,
         private readonly RequestStack $requestStack,
-        private readonly RateLimiter $rateLimiter
+        private readonly RateLimiter $rateLimiter,
+        private readonly DataValidationFactoryInterface $passwordValidationFactory,
     ) {
     }
 
@@ -111,9 +109,8 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
     {
         $definition = new DataValidationDefinition('customer.password.update');
 
-        $minPasswordLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
-
-        $definition->add('newPassword', new NotBlank(), new Length(['min' => $minPasswordLength]), new EqualTo(['propertyPath' => 'newPasswordConfirm']));
+        $passwordDefinition = $this->passwordValidationFactory->update($context);
+        $definition->add('newPassword', new EqualTo(['propertyPath' => 'newPasswordConfirm']), ...$passwordDefinition->getProperty('password'));
 
         $this->dispatchValidationEvent($definition, $data, $context->getContext());
 

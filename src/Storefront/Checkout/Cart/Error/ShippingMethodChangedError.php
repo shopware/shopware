@@ -11,8 +11,8 @@ class ShippingMethodChangedError extends Error
     private const KEY = 'shipping-method-changed';
 
     public function __construct(
-        private readonly string $oldShippingMethodName,
-        private readonly string $newShippingMethodName
+        protected readonly string $oldShippingMethodName,
+        protected readonly string $newShippingMethodName
     ) {
         $this->message = \sprintf(
             '%s shipping is not available for your current cart, the shipping was changed to %s',

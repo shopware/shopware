@@ -135,7 +135,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
 
         $scriptPath = $path . \sprintf('/Resources/app/storefront/dist/storefront/js/%s/%s.js', $assetName, $assetName);
 
-        if (file_exists($scriptPath)) {
+        if (\is_file($scriptPath)) {
             $config->setScriptFiles(FileCollection::createFromArray([$this->stripBasePath($scriptPath, $path . '/Resources')]));
 
             return $config;
@@ -191,11 +191,11 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
     {
         $path = rtrim($path, '/') . '/Resources/app/storefront/src';
 
-        if (file_exists($path . '/main.ts')) {
+        if (\is_file($path . '/main.ts')) {
             return 'app/storefront/src/main.ts';
         }
 
-        if (file_exists($path . '/main.js')) {
+        if (\is_file($path . '/main.js')) {
             return 'app/storefront/src/main.js';
         }
 

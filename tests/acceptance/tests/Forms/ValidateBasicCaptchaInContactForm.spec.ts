@@ -24,7 +24,6 @@ test(
             await StorefrontContactForm.subjectInput.fill('Test: Product question');
             await StorefrontContactForm.commentInput.fill('Test: Hello, I have a question about your products.');
             await StorefrontContactForm.basicCaptchaInput.fill('1234');
-            await StorefrontContactForm.privacyPolicyCheckbox.click();
         });
 
         await test.step('Validate the basic captcha is available.', async () => {

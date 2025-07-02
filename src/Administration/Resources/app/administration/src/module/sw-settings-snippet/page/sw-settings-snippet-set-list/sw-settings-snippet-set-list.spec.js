@@ -160,12 +160,16 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
         const wrapper = await createWrapper(['snippet.creator']);
         await flushPromises();
 
-        expect(saveSpy).not.toHaveBeenCalledWith(expect.objectContaining({ name: 'sw-settings-snippet.setList.newSnippetName' }));
+        expect(saveSpy).not.toHaveBeenCalledWith(
+            expect.objectContaining({ name: 'sw-settings-snippet.setList.newSnippetName' }),
+        );
 
         const createSetButton = wrapper.findByText('button', 'sw-settings-snippet.setList.buttonAddSet');
         await createSetButton.trigger('click');
 
-        expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({ name: 'sw-settings-snippet.setList.newSnippetName' }));
+        expect(saveSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ name: 'sw-settings-snippet.setList.newSnippetName' }),
+        );
     });
 
     it('should add a new snippet set twice with unique names', async () => {
@@ -186,6 +190,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
         const createSetButton = wrapper.findByText('button', 'sw-settings-snippet.setList.buttonAddSet');
         await createSetButton.trigger('click');
 
-        expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({ name: `sw-settings-snippet.setList.newSnippetName (2)` }));
+        expect(saveSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ name: `sw-settings-snippet.setList.newSnippetName (2)` }),
+        );
     });
 });

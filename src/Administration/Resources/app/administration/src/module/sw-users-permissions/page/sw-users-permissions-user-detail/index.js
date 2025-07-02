@@ -265,7 +265,7 @@ export default {
         },
 
         loadUser() {
-            this.userId = this.$route.params.id;
+            this.userId = this.$route.params.id?.toLowerCase();
 
             return this.userRepository.get(this.userId, Shopware.Context.api, this.userCriteria).then((user) => {
                 this.user = user;

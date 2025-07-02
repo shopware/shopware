@@ -55,7 +55,7 @@ export default {
 
     computed: {
         locale() {
-            return this.$root.$i18n.locale;
+            return this.$root.$i18n.locale.value;
         },
 
         defaultContextMenuClass() {
@@ -74,6 +74,12 @@ export default {
 
         fileSizeFilter() {
             return Shopware.Filter.getByName('fileSize');
+        },
+
+        extensionSdkButtons() {
+            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
+                return button.entity === 'media' && button.view === 'item';
+            });
         },
     },
 
@@ -212,6 +218,22 @@ export default {
 
             this.$nextTick(() => {
                 this.$emit('media-item-replaced');
+            });
+        },
+
+        runAppAction(action, item) {
+            if (typeof action.callback !== 'function') {
+                return;
+            }
+
+            const { fileName, mimeType, fileSize, url, id } = item;
+
+            action.callback({
+                id,
+                url,
+                fileName,
+                mimeType,
+                fileSize,
             });
         },
     },

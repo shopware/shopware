@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -41,5 +42,44 @@ class SalesChannelContextTest extends TestCase
         static::assertSame([$idA, $idB], $salesChannelContext->getRuleIdsByAreas(['a', 'c']));
         static::assertSame([$idC], $salesChannelContext->getRuleIdsByAreas(['d']));
         static::assertSame([], $salesChannelContext->getRuleIdsByAreas(['f']));
+    }
+
+    public function testWithPermissions(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        static::assertEmpty($salesChannelContext->getPermissions());
+
+        $called = false;
+        $salesChannelContext->withPermissions(
+            [AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => true],
+            function (SalesChannelContext $context) use (&$called): void {
+                $called = true;
+
+                static::assertTrue($context->hasPermission(AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION));
+            },
+        );
+
+        static::assertTrue($called);
+        static::assertEmpty($salesChannelContext->getPermissions());
+    }
+
+    public function testWithPermissionsWithLockedPermissions(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $salesChannelContext->lockPermissions();
+        static::assertEmpty($salesChannelContext->getPermissions());
+
+        $called = false;
+        $salesChannelContext->withPermissions(
+            [AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => true],
+            function (SalesChannelContext $context) use (&$called): void {
+                $called = true;
+
+                static::assertEmpty($context->getPermissions());
+            },
+        );
+
+        static::assertTrue($called);
+        static::assertEmpty($salesChannelContext->getPermissions());
     }
 }

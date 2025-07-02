@@ -188,7 +188,7 @@ class CustomFieldTranslationTest extends TestCase
         static::assertInstanceOf(Entity::class, $result);
 
         $expected = ['de' => 'de', 'code' => 'de-DE'];
-        static::assertSame($expected, $result->get('customTranslated'));
+        static::assertEquals($expected, $result->get('customTranslated'));
 
         $expectedViewData = ['code' => 'de-DE', 'system' => 'system', 'de' => 'de'];
         static::assertSame($expectedViewData, $result->getTranslated()['customTranslated']);

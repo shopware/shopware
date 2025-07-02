@@ -89,7 +89,7 @@ class CartExtension extends Struct
         return $this->blockedPromotionIds;
     }
 
-    public function merge(self $extension): self
+    public function merge(self $extension): static
     {
         $new = clone $this;
 

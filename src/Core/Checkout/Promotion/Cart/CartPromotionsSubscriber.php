@@ -27,10 +27,8 @@ class CartPromotionsSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var CartExtension $guestPromotions */
-        $guestPromotions = $guestCart->getExtension(CartExtension::KEY);
-        /** @var CartExtension $customerPromotions */
-        $customerPromotions = $customerCart->getExtension(CartExtension::KEY) ?? new CartExtension();
+        $guestPromotions = $guestCart->getExtensionOfType(CartExtension::KEY, CartExtension::class) ?? new CartExtension();
+        $customerPromotions = $customerCart->getExtensionOfType(CartExtension::KEY, CartExtension::class) ?? new CartExtension();
 
         $customerCart->addExtension(CartExtension::KEY, $customerPromotions->merge($guestPromotions));
     }

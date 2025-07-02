@@ -428,7 +428,9 @@ export default {
                 true,
             ]);
 
-            this.order.lineItems = this.order.lineItems.filter(item => item.type !== 'promotion' && item.promotionId !== removedItem.promotionId);
+            this.order.lineItems = this.order.lineItems.filter(
+                item => item.type !== 'promotion' && item.promotionId !== removedItem.promotionId,
+            );
 
             await this.$emit('save-and-recalculate');
         },

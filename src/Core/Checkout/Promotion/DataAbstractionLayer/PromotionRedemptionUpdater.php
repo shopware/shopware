@@ -63,7 +63,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
             return;
         }
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             SELECT LOWER(HEX(`promotion_id`)) FROM `order_line_item`
             WHERE `promotion_id` IS NOT NULL AND `type` = :type AND `id` IN (:ids);
         SQL;

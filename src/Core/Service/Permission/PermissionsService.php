@@ -5,6 +5,7 @@ namespace Shopware\Core\Service\Permission;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Service\Event\PermissionsGrantedEvent;
 use Shopware\Core\Service\Event\PermissionsRevokedEvent;
 use Shopware\Core\Service\ServiceException;
@@ -38,7 +39,7 @@ class PermissionsService
             throw ServiceException::invalidPermissionsRevisionFormat($revision);
         }
 
-        $consentIdentifier = bin2hex(random_bytes(16));
+        $consentIdentifier = Random::getAlphanumericString(32);
         $consentingUser = $source->getUserId();
 
         $consent = new PermissionsConsent(
@@ -76,7 +77,7 @@ class PermissionsService
             PermissionsConsent::fromJsonString($revision);
 
             return true;
-        } catch (\JsonException|ServiceException) {
+        } catch (ServiceException) {
             return false;
         }
     }

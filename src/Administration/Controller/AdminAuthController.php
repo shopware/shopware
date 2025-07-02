@@ -44,8 +44,6 @@ class AdminAuthController extends AbstractController
     #[Route(path: '/api/oauth/sso/code', name: 'api.oauth.sso.code', defaults: ['auth_required' => false], methods: ['GET'])]
     public function code(Request $request): Response
     {
-        // TODO: NEXT-40530 Ensure request comes only from Alfred!?
-        // TODO: NEXT-40530 Ensure Alfred accepts only requests from Ory
         $this->stateValidator->validateRequest($request);
 
         $psr7Request = $this->psrHttpFactory->createRequest($request);

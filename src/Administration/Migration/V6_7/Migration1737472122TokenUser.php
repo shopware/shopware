@@ -30,7 +30,7 @@ class Migration1737472122TokenUser extends MigrationStep
                 `updated_at` DATETIME(3),
                 PRIMARY KEY (`id`),
                 CONSTRAINT `fk.user_token.user_id` FOREIGN KEY (`user_id`)
-                    REFERENCES `user` (`id`),
+                    REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
                 KEY `idx.user_token.user_sub` (`user_sub`)
             )
         ');

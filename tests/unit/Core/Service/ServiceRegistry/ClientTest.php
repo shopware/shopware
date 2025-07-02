@@ -208,7 +208,7 @@ class ClientTest extends TestCase
     public function testSaveConsentSuccess(): void
     {
         $client = new MockHttpClient([
-            $response = new MockResponse('', ['http_code' => 200]),
+            $response = new MockResponse('', ['http_code' => 202]), // Changed from 200 to 202 (HTTP_ACCEPTED)
         ]);
 
         $registryClient = new ServiceRegistryClient('https://example.com', $client);
@@ -248,10 +248,31 @@ class ClientTest extends TestCase
         $registryClient->saveConsent($saveConsentRequest);
     }
 
+    public function testSaveConsentThrowsExceptionOnNonAcceptedStatusCode(): void
+    {
+        $client = new MockHttpClient([
+            new MockResponse('', ['http_code' => 200]), // 200 is not HTTP_ACCEPTED (202)
+        ]);
+
+        $registryClient = new ServiceRegistryClient('https://example.com', $client);
+
+        $saveConsentRequest = new SaveConsentRequest(
+            'service-123',
+            'user-456',
+            'shop-789',
+            '2023-07-01T10:00:00Z',
+            'v1.0'
+        );
+
+        $this->expectException(ServiceException::class);
+        $this->expectExceptionMessage('Unexpected response status code: 200');
+        $registryClient->saveConsent($saveConsentRequest);
+    }
+
     public function testRevokeConsentSuccess(): void
     {
         $client = new MockHttpClient([
-            $response = new MockResponse('', ['http_code' => 200]),
+            $response = new MockResponse('', ['http_code' => 202]), // Changed from 200 to 202 (HTTP_ACCEPTED)
         ]);
 
         $registryClient = new ServiceRegistryClient('https://example.com', $client);
@@ -271,6 +292,19 @@ class ClientTest extends TestCase
         $registryClient = new ServiceRegistryClient('https://example.com', $client);
 
         $this->expectException(ServiceException::class);
+        $registryClient->revokeConsent('service-123');
+    }
+
+    public function testRevokeConsentThrowsExceptionOnNonAcceptedStatusCode(): void
+    {
+        $client = new MockHttpClient([
+            new MockResponse('', ['http_code' => 200]), // 200 is not HTTP_ACCEPTED (202)
+        ]);
+
+        $registryClient = new ServiceRegistryClient('https://example.com', $client);
+
+        $this->expectException(ServiceException::class);
+        $this->expectExceptionMessage('Unexpected response status code: 200');
         $registryClient->revokeConsent('service-123');
     }
 

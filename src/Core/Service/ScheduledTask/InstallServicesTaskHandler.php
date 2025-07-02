@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\Service\LifecycleManager;
+use Shopware\Core\Service\Notification;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
@@ -21,12 +22,17 @@ final class InstallServicesTaskHandler extends ScheduledTaskHandler
         EntityRepository $repository,
         LoggerInterface $logger,
         private readonly LifecycleManager $manager,
+        private readonly Notification $notification,
     ) {
         parent::__construct($repository, $logger);
     }
 
     public function run(): void
     {
-        $this->manager->install(Context::createCLIContext());
+        $installed = $this->manager->install(Context::createCLIContext());
+
+        if (!empty($installed)) {
+            $this->notification->newServicesInstalled();
+        }
     }
 }

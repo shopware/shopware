@@ -71,6 +71,7 @@
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
+            <argument type="service" id="Shopware\Core\Service\Notification"/>
 
             <tag name="messenger.message_handler"/>
         </service>
@@ -83,6 +84,7 @@
 
         <service id="Shopware\Core\Service\MessageHandler\InstallServicesHandler">
             <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
+            <argument type="service" id="Shopware\Core\Service\Notification"/>
             <tag name="messenger.message_handler"/>
         </service>
 
@@ -149,6 +151,10 @@
             <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
 
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Service\Notification">
+            <argument type="service" id="Shopware\Core\Framework\Notification\NotificationService"/>
         </service>
     </services>
 </container>

@@ -33,7 +33,7 @@ import (synchronously) plugins
  */
 import SetBrowserClassPlugin from 'src/plugin/set-browser-class/set-browser-class.plugin';
 import SpeculationRulesPlugin from 'src/plugin/speculation-rules/speculation-rules.plugin';
-import CookieStorageHelper from "./helper/storage/cookie-storage.helper";
+import CookieStorageHelper from './helper/storage/cookie-storage.helper';
 
 window.Feature = Feature;
 window.eventEmitter = new NativeEventEmitter();
@@ -128,12 +128,23 @@ if (window.useDefaultCookieConsent) {
 }
 
 function registerWishlistConsentPlugin() {
-    const addBtnSelector = '[data-add-to-wishlist]';
+    const addBtnSelector    = '[data-add-to-wishlist]';
+    const offcanvasSelector = '[data-offcanvas-wishlist-cookie]';
 
     // only if add to wishlist button is present
     if (!document.querySelector(addBtnSelector)) {
         return;
     }
+
+    document.$emitter.subscribe(
+        'WishlistCookie/requestConsent',
+        async ({ productId, onAccept }) => {
+            const { default: WishlistCookieOffcanvasPlugin } =
+                await import('src/plugin/wishlist/wishlist-cookie-offcanvas.plugin');
+
+            WishlistCookieOffcanvasPlugin.requestConsent(productId, onAccept);
+        }
+    );
 
     const wishlistConsentGiven = CookieStorageHelper.getItem('wishlist-enabled') === '1';
 
@@ -142,7 +153,7 @@ function registerWishlistConsentPlugin() {
             PluginManager.register(
                 'WishlistCookieOffcanvas',
                 () => import('src/plugin/wishlist/wishlist-cookie-offcanvas.plugin'),
-                addBtnSelector
+                `${addBtnSelector}, ${offcanvasSelector}`
             );
         } catch (e) {
             // already registered—ignore
@@ -162,8 +173,9 @@ if (window.wishlistEnabled) {
     PluginManager.register('WishlistWidget', () => import('src/plugin/header/wishlist-widget.plugin'), '[data-wishlist-widget]');
 }
 
-window.registerWishlistConsentPlugin = registerWishlistConsentPlugin;
-registerWishlistConsentPlugin();
+if (window.wishlistEnabled && !window.customerLoggedInState) {
+    registerWishlistConsentPlugin();
+}
 
 if (window.gtagActive) {
     PluginManager.register('GoogleAnalytics', () => import('src/plugin/google-analytics/google-analytics.plugin'));

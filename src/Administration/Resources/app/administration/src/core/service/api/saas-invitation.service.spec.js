@@ -26,10 +26,12 @@ describe('core/service/api/saas-invitation.service.js', () => {
     it('should be successfully', async () => {
         const { service, clientMock } = createSaasInvitationService();
 
-        clientMock.onPost('/api/_action/saas/invite-user', {
-            email: 'test@example.com',
-            localeId: 'anyLocaleId',
-        }).reply(200)
+        clientMock
+            .onPost('/api/_action/saas/invite-user', {
+                email: 'test@example.com',
+                localeId: 'anyLocaleId',
+            })
+            .reply(200);
 
         const result = await service.inviteUser('test@example.com', 'anyLocaleId');
 

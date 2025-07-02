@@ -37,7 +37,11 @@ export default {
 
         mode: {
             validator(value) {
-                return ['view', 'edit', 'create'].includes(value)
+                return [
+                    'view',
+                    'edit',
+                    'create',
+                ].includes(value);
             },
         },
     },

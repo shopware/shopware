@@ -5,11 +5,7 @@ import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import TimezoneService from 'src/core/service/timezone.service';
 
-async function createWrapper(
-    privileges = [],
-    isSaas = { isSaas: false },
-    saveFunction = () => Promise.resolve({}),
-) {
+async function createWrapper(privileges = [], isSaas = { isSaas: false }, saveFunction = () => Promise.resolve({})) {
     return mount(await wrapTestComponent('sw-profile-index', { sync: true }), {
         global: {
             stubs: {
@@ -100,9 +96,9 @@ async function createWrapper(
                 },
                 saasSettingsService: {
                     isSaas: () => {
-                        return Promise.resolve(isSaas)
-                    }
-                }
+                        return Promise.resolve(isSaas);
+                    },
+                },
             },
         },
     });
@@ -248,11 +244,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
     it('should show the password confirm modal', async () => {
         const updateFunction = jest.fn(() => Promise.resolve({}));
-        const wrapper = await createWrapper(
-            ['user.update_profile'],
-            { isSaas: false },
-            updateFunction,
-        );
+        const wrapper = await createWrapper(['user.update_profile'], { isSaas: false }, updateFunction);
         await flushPromises();
 
         const saveButton = wrapper.find('.sw-profile__save-action');
@@ -267,11 +259,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
     it('should update the user', async () => {
         const updateFunction = jest.fn(() => Promise.resolve({}));
-        const wrapper = await createWrapper(
-            ['user.update_profile'],
-            { isSaas: true },
-            updateFunction,
-        );
+        const wrapper = await createWrapper(['user.update_profile'], { isSaas: true }, updateFunction);
         await flushPromises();
 
         const saveButton = wrapper.find('.sw-profile__save-action');

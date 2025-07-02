@@ -77,10 +77,10 @@
             {% endblock %}
         </template>
 
-        <div v-if="loginConfig.url">
+        <div v-if="!loginConfig.useDefault && loginConfig.url">
             <a
                 class="sw-button sw-button--primary sw-button--small"
-                :disabled="isLoading"
+                :disabled="!loginConfigLoaded"
                 :href="loginConfig.url"
             >
                 {{ $tc('sw-login.index.buttonSsoLogin') }}

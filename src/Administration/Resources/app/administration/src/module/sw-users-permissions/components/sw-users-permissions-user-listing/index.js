@@ -97,7 +97,7 @@ export default {
                         property: 'status',
                         label: this.$tc('sw-users-permissions.users.user-grid.status'),
                     },
-                ]
+                ];
             }
 
             return [

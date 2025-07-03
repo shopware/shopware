@@ -74,6 +74,7 @@ export default {
             criteria.addFilter(
                 Criteria.equalsAny('documentType.technicalName', [
                     'invoice',
+                    'zugferd_invoice',
                     'zugferd_embedded_invoice',
                 ]),
             );

@@ -207,7 +207,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
             <argument type="service" id="Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway"/>
-            <argument type="service" id="Shopware\Core\Framework\Rule\RuleIdMatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Gateway\Command\Registry\CheckoutGatewayCommandRegistry">

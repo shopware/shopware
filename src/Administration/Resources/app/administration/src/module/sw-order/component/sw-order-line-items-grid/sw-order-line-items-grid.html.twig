@@ -200,7 +200,7 @@
 
             {% block sw_order_line_items_grid_grid_columns_unit_price_inline_edit %}
             <mt-number-field
-                v-if="isInlineEdit && !itemCreatedFromProduct(item.id)"
+                v-if="isInlineEdit && !itemCreatedFromProduct(item.id) && item.priceDefinition"
                 v-model="item.priceDefinition.price"
                 name="sw-field--item-priceDefinition-price"
                 placeholder="0"

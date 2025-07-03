@@ -59,26 +59,34 @@ class PermissionsService
      */
     public function revoke(Context $context): void
     {
-        $consent = PermissionsConsent::fromJsonString($this->systemConfigService->getString(self::CONFIG_KEY_ACCEPTED_PERMISSIONS_REVISION));
+        $consent = $this->fetchConsent();
+        // either a valid consent exists or it does not. we can safely delete the config key anyway.
         $this->systemConfigService->delete(self::CONFIG_KEY_ACCEPTED_PERMISSIONS_REVISION);
 
-        $this->remoteConsentLogger->log($consent, ConsentState::REVOKED);
-        $this->eventDispatcher->dispatch(new PermissionsRevokedEvent($consent, $context));
+        if ($consent !== null) {
+            // a valid consent exists, log the revocation
+            $this->remoteConsentLogger->log($consent, ConsentState::REVOKED);
+            $this->eventDispatcher->dispatch(new PermissionsRevokedEvent($consent, $context));
+        }
     }
 
     public function areGranted(): bool
     {
+        return $this->fetchConsent() !== null;
+    }
+
+    private function fetchConsent(): ?PermissionsConsent
+    {
         $revision = $this->systemConfigService->getString(self::CONFIG_KEY_ACCEPTED_PERMISSIONS_REVISION);
         if ($revision === '') {
-            return false;
+            return null;
         }
 
         try {
-            PermissionsConsent::fromJsonString($revision);
-
-            return true;
+            return PermissionsConsent::fromJsonString($revision);
         } catch (ServiceException) {
-            return false;
         }
+
+        return null;
     }
 }

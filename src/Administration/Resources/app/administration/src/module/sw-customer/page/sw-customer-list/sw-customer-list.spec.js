@@ -107,6 +107,7 @@ async function createWrapper(privileges = []) {
                 'sw-sidebar-item': true,
                 'sw-sidebar-filter-panel': true,
                 'sw-sidebar': true,
+                'sw-time-ago': true,
             },
         },
     });

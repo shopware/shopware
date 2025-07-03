@@ -109,7 +109,7 @@ describe('Administration meta tests', () => {
 
     describe('check extension sdk public api', () => {
         it('should not break position identifiers', () => {
-            const result = [];
+            let result = [];
             templateFiles.forEach((file) => {
                 const fileContent = fs.readFileSync(file, {
                     encoding: 'utf-8',

@@ -1,6 +1,6 @@
 import type { PropType } from 'vue';
 import template from './sw-time-ago.html.twig';
-import { useUpdateClock } from './updateClock';
+import useUpdateClock from './updateClock';
 
 /**
  * @private

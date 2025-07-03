@@ -93,7 +93,7 @@ describe('src/app/component/utils/sw-time-ago', () => {
             date: '2025-06-24T15:00:00.000+00:00',
         });
 
-        const wrapper2 = await createWrapper({
+        await createWrapper({
             date: '2025-06-24T15:00:00.000+00:00',
         });
 

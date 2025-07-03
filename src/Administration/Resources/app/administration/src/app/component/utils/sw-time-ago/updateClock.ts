@@ -3,7 +3,11 @@ import { onUnmounted } from 'vue';
 let timer: ReturnType<typeof setInterval> | null = null;
 const subscribers = new Set<() => void>();
 
-export function useUpdateClock(onTick: () => void) {
+/**
+ * @sw-package checkout
+ * @private
+ */
+export default function useUpdateClock(onTick: () => void) {
   if (subscribers.size === 0) {
     timer = setInterval(() => {
       subscribers.forEach(cb => cb());

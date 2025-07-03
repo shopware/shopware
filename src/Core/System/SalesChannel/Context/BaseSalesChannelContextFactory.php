@@ -27,6 +27,7 @@ use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCoun
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingEntity;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\BaseSalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -148,6 +149,12 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
             $itemRounding
         );
 
+        if (!Feature::isActive('v6.8.0.0')) {
+            $languageInfo = $this->getLanguageInfoDeprecated($salesChannel->getLanguages(), $context->getLanguageId());
+        } else {
+            $languageInfo = $this->getLanguageInfo($context);
+        }
+
         return new BaseSalesChannelContext(
             $context,
             $salesChannel,
@@ -159,7 +166,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
             $shippingLocation,
             $itemRounding,
             $totalRounding,
-            $this->getLanguageInfo($context),
+            $languageInfo,
         );
     }
 
@@ -306,6 +313,22 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         return new LanguageInfo(
             $currentLanguage->get('name'),
             $locale->get('code'),
+        );
+    }
+
+    private function getLanguageInfoDeprecated(?LanguageCollection $languages, string $currentLanguageId): LanguageInfo
+    {
+        $currentLanguage = $languages?->get($currentLanguageId);
+        if ($currentLanguage === null) {
+            throw SalesChannelException::languageNotFound($currentLanguageId);
+        }
+
+        $locale = $currentLanguage->getTranslationCode() ?? $currentLanguage->getLocale();
+        \assert($locale !== null, 'At least the localeId is required, so the fallback should never be null');
+
+        return new LanguageInfo(
+            $currentLanguage->getTranslation('name') ?? $currentLanguage->getName(),
+            $locale->getCode(),
         );
     }
 }

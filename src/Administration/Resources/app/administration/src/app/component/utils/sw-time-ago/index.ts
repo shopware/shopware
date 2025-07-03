@@ -25,6 +25,7 @@ export default Shopware.Component.wrapComponentConfig({
         dateTimeFormat: {
             type: Object as PropType<Intl.DateTimeFormatOptions>,
             required: false,
+            default: {},
         },
     },
 

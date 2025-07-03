@@ -97,6 +97,19 @@ export default {
             criteria.addSorting(Criteria.sort('priority', 'DESC'));
             return criteria;
         },
+
+        searchParams() {
+            const params = {
+                salesChannelId: this.salesChannelId,
+                search: this.liveSearchTerm,
+            };
+
+            if (this.productSortingKey) {
+                params.order = this.productSortingKey;
+            }
+
+            return params;
+        },
     },
 
     created() {
@@ -118,17 +131,8 @@ export default {
 
             this.searchInProgress = true;
 
-            const searchParams = {
-                salesChannelId: this.salesChannelId,
-                search: this.liveSearchTerm,
-            };
-
-            if (this.productSortingKey) {
-                searchParams.order = this.productSortingKey;
-            }
-
             this.liveSearchService
-                .search(searchParams, {}, {}, { 'sw-language-id': Shopware.Context.api.languageId })
+                .search(this.searchParams, {}, {}, { 'sw-language-id': Shopware.Context.api.languageId })
                 .then((data) => {
                     this.liveSearchResults = data.data;
                     this.searchInProgress = false;

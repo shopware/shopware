@@ -374,11 +374,11 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         searchSpy.mockClear();
 
         const sortingSelect = wrapper.find('.sw-settings-search-live-search__sorting-select');
-        await sortingSelect.find('.sw-select__selection').trigger('click');
+        await sortingSelect.find('.mt-select__selection').trigger('click');
         await flushPromises();
 
         // The component sorts by priority, so 'score' (10) is first, 'name-asc' (2) is second.
-        await sortingSelect.find('.sw-select-option--1').trigger('click');
+        await sortingSelect.find('.mt-select-option--1').trigger('click');
         await flushPromises();
         jest.runAllTimers();
         await flushPromises();

@@ -4,9 +4,11 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
+use Shopware\Core\Framework\MessageQueue\DeduplicatableMessageInterface;
+use Shopware\Core\Framework\Util\Hasher;
 
 #[Package('framework')]
-class FullEntityIndexerMessage implements AsyncMessageInterface
+class FullEntityIndexerMessage implements AsyncMessageInterface, DeduplicatableMessageInterface
 {
     /**
      * @internal
@@ -34,5 +36,25 @@ class FullEntityIndexerMessage implements AsyncMessageInterface
     public function getOnly(): array
     {
         return $this->only;
+    }
+
+    public function deduplicationId(): ?string
+    {
+        $sortedSkip = $this->skip;
+        sort($sortedSkip);
+
+        $sortedOnly = $this->only;
+        sort($sortedOnly);
+
+        $data = json_encode([
+            $sortedSkip,
+            $sortedOnly,
+        ]);
+
+        if ($data === false) {
+            return null;
+        }
+
+        return Hasher::hash($data);
     }
 }

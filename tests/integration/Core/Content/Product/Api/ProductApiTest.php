@@ -64,7 +64,7 @@ class ProductApiTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertIsString($response->getContent());
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
@@ -103,7 +103,7 @@ class ProductApiTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('PATCH', '/api/product/' . $id, [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('PATCH', '/api/product/' . $id, $data);
         $response = $this->getBrowser()->getResponse();
         static::assertIsString($response->getContent());
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
@@ -139,7 +139,7 @@ class ProductApiTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('PATCH', '/api/product/' . $id, [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('PATCH', '/api/product/' . $id, $data);
         $response = $this->getBrowser()->getResponse();
         static::assertIsString($response->getContent());
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
@@ -179,12 +179,12 @@ class ProductApiTest extends TestCase
             'description' => $description,
         ];
 
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->request('POST', '/api/product', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertIsString($response->getContent());
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
-        $this->getBrowser()->request('GET', '/api/product/' . $id, [], [], [
+        $this->getBrowser()->jsonRequest('GET', '/api/product/' . $id, [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
 

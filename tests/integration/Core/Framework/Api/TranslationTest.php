@@ -350,10 +350,10 @@ class TranslationTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame($translated['name'], $responseData['data']['name']);
+        static::assertSame($translated['name'], $responseData['data']['attributes']['name']);
         static::assertNull($responseData['data']['attributes']['territory']);
 
-        static::assertSame($notTranslated['territory'], $responseData['data']['translated']['territory']);
+        static::assertSame($notTranslated['territory'], $responseData['data']['attributes']['translated']['territory']);
     }
 
     public function testDelete(): void
@@ -385,12 +385,12 @@ class TranslationTest extends TestCase
         $this->getBrowser()->jsonRequest('GET', $baseResource . '/' . $id, [], [$headerName => Defaults::LANGUAGE_SYSTEM]);
         $response = $this->getBrowser()->getResponse();
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame($name, $responseData['data']['name']);
+        static::assertSame($name, $responseData['data']['attributes']['name']);
 
         $this->getBrowser()->jsonRequest('GET', $baseResource . '/' . $id, [], [$headerName => $langId]);
         $response = $this->getBrowser()->getResponse();
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame($translatedName, $responseData['data']['name']);
+        static::assertSame($translatedName, $responseData['data']['attributes']['name']);
 
         $this->getBrowser()->jsonRequest('DELETE', $baseResource . '/' . $id . '/translations/' . $langId);
         $response = $this->getBrowser()->getResponse();
@@ -399,7 +399,7 @@ class TranslationTest extends TestCase
         $this->getBrowser()->jsonRequest('GET', $baseResource . '/' . $id, [], [$headerName => $langId]);
         $response = $this->getBrowser()->getResponse();
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertNull($responseData['data']['name']);
+        static::assertNull($responseData['data']['attributes']['name']);
     }
 
     public function testDeleteSystemLanguageViolation(): void

@@ -38,7 +38,6 @@ class AppUrlChangeControllerTest extends TestCase
     public function testResolveWithExistingStrategy(): void
     {
         $url = '/api/app-system/app-url-change/resolve';
-        static::assertNotFalse($json);
 
         $this->getBrowser()->jsonRequest(
             'POST',

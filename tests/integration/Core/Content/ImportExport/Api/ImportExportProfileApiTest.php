@@ -89,7 +89,9 @@ class ImportExportProfileApiTest extends TestCase
                 $this->repository->create(array_values($data), $this->context);
             }
 
-            $this->getBrowser()->jsonRequest('GET', $this->prepareRoute());
+            $this->getBrowser()->jsonRequest('GET', $this->prepareRoute(), [], [
+                'HTTP_ACCEPT' => 'application/json',
+            ]);
 
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_OK, $response->getStatusCode());
@@ -138,14 +140,14 @@ class ImportExportProfileApiTest extends TestCase
             $expectData[$id] = $data[$idx];
             unset($data[$idx]['id']);
 
-            $this->getBrowser()->jsonRequest('PATCH', $this->prepareRoute() . $id, $data[$idx], [
-                'HTTP_ACCEPT' => 'application/json',
-            ]);
+            $this->getBrowser()->jsonRequest('PATCH', $this->prepareRoute() . $id, $data[$idx]);
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         }
 
-        $this->getBrowser()->jsonRequest('GET', $this->prepareRoute());
+        $this->getBrowser()->jsonRequest('GET', $this->prepareRoute(), [], [
+            'HTTP_ACCEPT' => 'application/json',
+        ]);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertNotFalse($response->getContent());
@@ -199,7 +201,9 @@ class ImportExportProfileApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
-            $this->getBrowser()->jsonRequest('GET', $this->prepareRoute() . $id);
+            $this->getBrowser()->jsonRequest('GET', $this->prepareRoute() . $id, [], [
+                'HTTP_ACCEPT' => 'application/json',
+            ]);
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_OK, $response->getStatusCode());
             static::assertNotFalse($response->getContent());
@@ -295,7 +299,9 @@ class ImportExportProfileApiTest extends TestCase
 
                 // Search call
                 $filter['filter'][$key] = $value;
-                $this->getBrowser()->jsonRequest('POST', $this->prepareRoute(true), $filter);
+                $this->getBrowser()->jsonRequest('POST', $this->prepareRoute(true), $filter, [
+                    'HTTP_ACCEPT' => 'application/json',
+                ]);
                 $response = $this->getBrowser()->getResponse();
                 static::assertSame(Response::HTTP_OK, $response->getStatusCode());
                 static::assertNotFalse($response->getContent());
@@ -317,19 +323,19 @@ class ImportExportProfileApiTest extends TestCase
             $deleteId = $profile['id'];
 
             // Test request
-            $this->getBrowser()->request('GET', $this->prepareRoute() . $deleteId);
+            $this->getBrowser()->jsonRequest('GET', $this->prepareRoute() . $deleteId);
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
             // Delete call with invalid id.
-            $this->getBrowser()->request('DELETE', $this->prepareRoute() . Uuid::randomHex());
+            $this->getBrowser()->jsonRequest('DELETE', $this->prepareRoute() . Uuid::randomHex());
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
             $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
             static::assertCount($num - $deleted, $records);
 
             // Delete call with valid id.
-            $this->getBrowser()->request('DELETE', $this->prepareRoute() . $deleteId);
+            $this->getBrowser()->jsonRequest('DELETE', $this->prepareRoute() . $deleteId);
             $response = $this->getBrowser()->getResponse();
 
             if ($profile['systemDefault']) {

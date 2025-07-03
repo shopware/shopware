@@ -10,7 +10,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Service\ScheduledTask\InstallServicesTask;
+use Shopware\Core\Service\Event\NewServicesInstalledEvent;
+use Shopware\Core\Service\Message\InstallServicesMessage;
+use Shopware\Core\Service\ServiceRegistry\Client;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -25,11 +29,11 @@ class AllServiceInstaller
      * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(
-        private readonly ServiceRegistryClient $serviceRegistryClient,
+        private readonly Client $serviceRegistryClient,
         private readonly ServiceLifecycle $serviceLifecycle,
         private readonly EntityRepository $appRepository,
         private readonly MessageBusInterface $messageBus,
-        private readonly EntityRepository $scheduledTaskRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -56,32 +60,22 @@ class AllServiceInstaller
             }
         }
 
+        if (!empty($installedServices)) {
+            $this->eventDispatcher->dispatch(new NewServicesInstalledEvent());
+        }
+
         return $installedServices;
     }
 
     public function scheduleInstall(): void
     {
-        $criteria = new Criteria();
-        $criteria->setLimit(1)
-            ->addFilter(new EqualsFilter('name', 'services.install'));
-
-        $result = $this->scheduledTaskRepository->searchIds($criteria, Context::createDefaultContext());
-
-        $taskId = $result->firstId();
-        if ($taskId === null) {
-            throw ServiceException::scheduledTaskNotRegistered();
-        }
-
-        $message = new InstallServicesTask();
-        $message->setTaskId($taskId);
-
-        $this->messageBus->dispatch($message);
+        $this->messageBus->dispatch(new InstallServicesMessage());
     }
 
     /**
      * @param EntitySearchResult<AppCollection> $installedServices
      *
-     * @return array<ServiceRegistryEntry>
+     * @return array<ServiceEntry>
      */
     private function getNewServices(EntitySearchResult $installedServices): array
     {
@@ -89,7 +83,7 @@ class AllServiceInstaller
 
         return array_filter(
             $this->serviceRegistryClient->getAll(),
-            static fn (ServiceRegistryEntry $service) => !\in_array($service->name, $names, true)
+            static fn (ServiceEntry $service) => !\in_array($service->name, $names, true)
         );
     }
 }

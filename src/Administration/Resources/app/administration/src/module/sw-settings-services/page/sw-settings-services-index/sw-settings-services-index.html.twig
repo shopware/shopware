@@ -21,7 +21,7 @@
 
         <div class="sw-settings-services-index__content">
             <sw-settings-services-grant-permissions-card
-                v-if="!consentGiven"
+                v-if="!consentGiven && !config.disabled"
                 :docs-link="currentRevision.links['docs-url']"
                 @service-permissions-granted="reloadServices"
             />

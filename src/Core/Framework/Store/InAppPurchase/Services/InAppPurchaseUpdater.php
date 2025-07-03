@@ -41,13 +41,18 @@ class InAppPurchaseUpdater
 
     private function fetchFromStore(Context $context): void
     {
+        // without authentication headers the request will fail anyway
+        if (!$headers = $this->storeRequestOptionsProvider->getAuthenticationHeader($context)) {
+            return;
+        }
+
         try {
             $response = $this->client->request(
                 Request::METHOD_GET,
                 $this->fetchEndpoint,
                 [
                     'query' => $this->storeRequestOptionsProvider->getDefaultQueryParameters($context),
-                    'headers' => $this->storeRequestOptionsProvider->getAuthenticationHeader($context),
+                    'headers' => $headers,
                 ],
             );
 

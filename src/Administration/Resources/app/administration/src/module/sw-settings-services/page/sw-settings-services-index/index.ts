@@ -83,7 +83,6 @@ export default Shopware.Component.wrapComponentConfig({
                     title: this.$t('sw-settings-services.index.services-enabled'),
                     variant: 'positive',
                     message: this.$t('sw-settings-services.index.services-scheduled'),
-                    autoClose: false,
                 });
             } catch (exceptionResponse) {
                 Shopware.Store.get('notification').createNotification({

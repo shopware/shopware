@@ -262,8 +262,8 @@ jobs:
       BLUE_GREEN_DEPLOYMENT: 1
       SHOPWARE_DISABLE_UPDATE_CHECK: "0"
       SHOPWARE_UPDATE_FROM: ${{ matrix.update.version }}
-      SW_RECOVERY_NEXT_VERSION: "6.7.9999999.9999999"
-      SW_RECOVERY_NEXT_BRANCH: "6.7.9999999.9999999"
+      SW_RECOVERY_NEXT_VERSION: "6.8.0.0"
+      SW_RECOVERY_NEXT_BRANCH: "6.8.0.0"
       SW_RECOVERY_REPOSITORY: '{"type": "path", "url": "${{ github.workspace }}/new-shopware/src/*", "options": { "symlink": true } }'
     steps:
       - name: Create shopware dirs
@@ -271,7 +271,7 @@ jobs:
       - name: Setup new Shopware
         uses: shopware/setup-shopware@main
         env:
-          COMPOSER_ROOT_VERSION: 6.7.9999999-dev
+          COMPOSER_ROOT_VERSION: 6.8.0.0
         with:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}

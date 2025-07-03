@@ -212,6 +212,6 @@ class SalesChannelContextServiceTest extends TestCase
         yield 'esi request with cart => false' => [new Request(attributes: ['_sw_esi' => true]), true, false];
         yield 'esi request without cart => true' => [new Request(attributes: ['_sw_esi' => true]), false, true];
         yield 'no esi request but cart => true' => [new Request(), true, true];
-        yield 'no esi request and cart => true' => [new Request(), false, true];
+        yield 'no esi request and no cart => true' => [new Request(), false, true];
     }
 }

@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Extension\CanonicalRedirectExtension;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -15,8 +17,19 @@ class CanonicalRedirectService
     /**
      * @internal
      */
-    public function __construct(private readonly SystemConfigService $configService)
+    public function __construct(
+        private readonly SystemConfigService $configService,
+        private readonly ExtensionDispatcher $extensions,
+    ) {
+    }
+
+    public function getRedirect(Request $request): ?Response
     {
+        return $this->extensions->publish(
+            name: CanonicalRedirectExtension::NAME,
+            extension: new CanonicalRedirectExtension($request),
+            function: $this->_getRedirect(...),
+        );
     }
 
     /**
@@ -25,7 +38,7 @@ class CanonicalRedirectService
      * configuration option is active, it returns a redirect response to indicate, that
      * the request should be redirected to the canonical URL.
      */
-    public function getRedirect(Request $request): ?Response
+    private function _getRedirect(Request $request): ?Response
     {
         // This attribute has been set by the RequestTransformer if the requested URL was superseded.
         $canonical = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK);

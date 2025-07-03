@@ -28,6 +28,10 @@ export default {
             from: 'swOrderDetailOnSaveAndReload',
             default: null,
         },
+        swOrderDetailOnSaveAndRecalculate: {
+            from: 'swOrderDetailOnSaveAndRecalculate',
+            default: null,
+        },
         swOrderDetailHandleCartErrors: {
             from: 'swOrderDetailHandleCartErrors',
             default: null,
@@ -249,6 +253,18 @@ export default {
         },
 
         /**
+         * To prevent losing unsaved changes on recalculate the order,
+         * we need to save the **versioned** order beforehand.
+         */
+        async saveAndRecalculate(afterRecalculateFn = null) {
+            if (this.swOrderDetailOnSaveAndRecalculate) {
+                await this.swOrderDetailOnSaveAndRecalculate(afterRecalculateFn);
+            } else {
+                this.$emit('save-and-recalculate', afterRecalculateFn);
+            }
+        },
+
+        /**
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         handleUnsavedOrderChangesResponse() {
@@ -429,10 +445,10 @@ export default {
             ]);
 
             this.order.lineItems = this.order.lineItems.filter(
-                item => item.type !== 'promotion' && item.promotionId !== removedItem.promotionId,
+                item => item.type !== 'promotion' || item.promotionId !== removedItem.promotionId,
             );
 
-            await this.$emit('save-and-recalculate');
+            await this.saveAndRecalculate();
         },
 
         dismissPromotionUpdates() {

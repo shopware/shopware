@@ -65,15 +65,17 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
 
         $sql = <<<'SQL'
             SELECT LOWER(HEX(`promotion_id`)) FROM `order_line_item`
-            WHERE `promotion_id` IS NOT NULL AND `type` = :type AND `id` IN (:ids);
+            WHERE `promotion_id` IS NOT NULL AND `type` = :type AND `id` IN (:ids) AND `version_id` = :versionId;
         SQL;
 
         $this->promotionIds = $this->connection->fetchFirstColumn(
             $sql,
             [
                 'type' => PromotionProcessor::LINE_ITEM_TYPE,
-                'ids' => Uuid::fromHexToBytesList($lineItemsIds)],
-            ['ids' => ArrayParameterType::BINARY]
+                'ids' => Uuid::fromHexToBytesList($lineItemsIds),
+                'versionId' => Uuid::fromHexToBytes($event->getContext()->getVersionId()),
+            ],
+            ['ids' => ArrayParameterType::BINARY],
         );
     }
 
@@ -89,10 +91,14 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
 
     public function lineItemCreated(EntityWrittenEvent $event): void
     {
+        if ($event->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
+            return;
+        }
+
         $promotionIds = [];
         foreach ($event->getWriteResults() as $writeResult) {
             $type = $writeResult->getPayload()['type'] ?? null;
-            if ($writeResult->getOperation() === EntityWriteResult::OPERATION_INSERT && $type === PromotionProcessor::LINE_ITEM_TYPE) {
+            if ($writeResult->getOperation() !== EntityWriteResult::OPERATION_DELETE && $type === PromotionProcessor::LINE_ITEM_TYPE) {
                 $promotionIds[] = $writeResult->getPayload()['promotionId'] ?? null;
             }
         }
@@ -112,30 +118,23 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
         }
 
         $sql = <<<'SQL'
-            SELECT LOWER(HEX(promotion.id)) as promotion_id,
+            SELECT LOWER(HEX(order_line_item.promotion_id)) as promotion_id,
                    COUNT(DISTINCT order_line_item.order_id) as total,
                    LOWER(HEX(order_customer.customer_id)) as customer_id
-            FROM promotion
-                     LEFT JOIN order_line_item
-                               ON (promotion.id = order_line_item.promotion_id AND order_line_item.type = :type AND
-                                   order_line_item.version_id = :versionId)
+            FROM order_line_item
                      LEFT JOIN order_customer
                                ON (order_customer.order_id = order_line_item.order_id
                                    AND order_customer.version_id = order_line_item.version_id)
-            WHERE promotion.id IN (:ids)
+            WHERE order_line_item.promotion_id IN (:ids) AND order_line_item.version_id = :versionId AND order_line_item.type = :type
             GROUP BY order_line_item.promotion_id, order_customer.customer_id
         SQL;
 
-        /** @var list<array{promotion_id: string, total: int, customer_id: ?string}> $promotions */
+        /** @var list<array{promotion_id: string, total: numeric-string, customer_id: ?string}> $promotions */
         $promotions = $this->connection->fetchAllAssociative(
             $sql,
             ['type' => PromotionProcessor::LINE_ITEM_TYPE, 'ids' => Uuid::fromHexToBytesList($ids), 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
             ['ids' => ArrayParameterType::BINARY]
         );
-
-        if (empty($promotions)) {
-            return;
-        }
 
         $update = new RetryableQuery(
             $this->connection,
@@ -143,9 +142,9 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
         );
 
         // group the promotions to update each promotion with a single update statement
-        $promotions = $this->groupByPromotion($promotions);
+        $promotionsGrouped = array_merge(array_fill_keys($ids, []), $this->groupByPromotion($promotions));
 
-        foreach ($promotions as $id => $totals) {
+        foreach ($promotionsGrouped as $id => $totals) {
             $update->execute([
                 'id' => Uuid::fromHexToBytes($id),
                 'count' => (int) array_sum($totals),
@@ -155,7 +154,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
     }
 
     /**
-     * @param non-empty-list<array{promotion_id: string, total: int, customer_id: ?string}> $promotions
+     * @param list<array{promotion_id: string, total: numeric-string, customer_id: ?string}> $promotions
      *
      * @return array<string, array<string, int>>
      */
@@ -163,11 +162,10 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
     {
         $grouped = [];
         foreach ($promotions as $promotion) {
-            $customerId = $promotion['customer_id'];
-            if (!$customerId) {
-                $grouped[$promotion['promotion_id']] ??= [];
-            } else {
-                $grouped[$promotion['promotion_id']][$customerId] = (int) $promotion['total'];
+            $grouped[$promotion['promotion_id']] ??= [];
+
+            if ($promotion['customer_id']) {
+                $grouped[$promotion['promotion_id']][$promotion['customer_id']] = (int) $promotion['total'];
             }
         }
 

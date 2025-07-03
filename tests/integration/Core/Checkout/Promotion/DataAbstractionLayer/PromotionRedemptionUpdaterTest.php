@@ -71,6 +71,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
                 $this->ids->get('voucherA'),
                 $this->ids->get('voucherB'),
                 $this->ids->get('voucherD'),
+                Uuid::randomHex(), // Test an invalid promotionId
             ],
             Context::createDefaultContext()
         );

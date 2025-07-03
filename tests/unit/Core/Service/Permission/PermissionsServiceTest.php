@@ -223,11 +223,20 @@ class PermissionsServiceTest extends TestCase
             ->with('core.services.acceptedPermissionsRevision')
             ->willReturn('');
 
+        // Expect that the delete method is called even if there is no existing consent
         $this->systemConfigService
-            ->expects($this->never())
-            ->method('delete');
+            ->expects($this->once())
+            ->method('delete')
+            ->with('core.services.acceptedPermissionsRevision');
 
-        $this->expectExceptionObject(ServiceException::noCurrentPermissionsConsent());
+        $this->remoteConsentLogger
+            ->expects($this->never())
+            ->method('log');
+
+        $this->eventDispatcher
+            ->expects($this->never())
+            ->method('dispatch');
+
         $this->permissionsService->revoke($this->context);
     }
 

@@ -1962,7 +1962,7 @@ EOF;
 
         $seoUrl = $data[0];
         static::assertSame('seo_url', $seoUrl['type']);
-        static::assertSame('test', $seoUrl['routeName']);
+        static::assertSame('test', $seoUrl['attributes']['routeName']);
     }
 
     public function testCanWriteExtensionWithoutExtensionKey(): void

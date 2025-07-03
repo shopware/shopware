@@ -3,12 +3,7 @@ import useSession from 'src/app/composables/use-session';
 import { useShopwareServicesStore } from '../../store/shopware-services.store';
 import template from './sw-settings-services-index.html.twig';
 import './sw-settings-services-index.scss';
-import grantPermissionsCardBackground from
-        // eslint-disable-next-line import/no-unresolved
-    '../../component/sw-settings-services-grant-permissions-modal/assets/grant-permissions-background.svg?no-inline';
-
 import type { ServiceDescription } from '../../service/shopware-services.service';
-import extractErrorMessage from '../../composables/extract-error';
 import extractError from '../../composables/extract-error';
 
 type SwSettingsPageData = {
@@ -30,8 +25,11 @@ export default Shopware.Component.wrapComponentConfig({
     inject: ['acl'],
 
     data(): SwSettingsPageData {
+        const assetFilter = Shopware.Filter.getByName('asset');
+
         return {
-            grantPermissionsCardBackground,
+            grantPermissionsCardBackground:
+                assetFilter('/administration/administration/static/img/services/grant-permissions-background.svg'),
             services: [],
             suspended: true,
             loadingError: '',
@@ -61,7 +59,7 @@ export default Shopware.Component.wrapComponentConfig({
         ]).then(() => {
             this.suspended = false;
         }).catch((exception) =>  {
-            const errorMessage = extractErrorMessage(exception);
+            const errorMessage = extractError(exception);
 
             Shopware.Store.get('notification').createNotification({
                 variant: 'critical',
@@ -100,7 +98,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 this.services = await shopwareServicesService.getInstalledServices();
             } catch(exception) {
-                this.loadingError = extractErrorMessage(exception);
+                this.loadingError = extractError(exception);
 
                 Shopware.Store.get('notification').createNotification({
                     variant: 'critical',

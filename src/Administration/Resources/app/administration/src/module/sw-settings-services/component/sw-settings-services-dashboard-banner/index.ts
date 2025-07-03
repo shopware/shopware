@@ -3,7 +3,6 @@
  */
 import template from './sw-settings-services-dashboard-banner.html.twig';
 import './sw-settings-services-dashboard-banner.scss';
-import servicesGraphics from './assets/services-graphic.png'
 
 /**
  * @private
@@ -14,9 +13,13 @@ export default Shopware.Component.wrapComponentConfig({
     template,
 
     data() {
+        const assetFilter = Shopware.Filter.getByName('asset');
+
         return {
             isHidden: true,
-            servicesGraphics,
+            servicesGraphics: assetFilter(
+                '/administration/administration/static/img/services/services-graphic.png',
+            ),
         };
     },
 

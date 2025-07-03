@@ -4,11 +4,6 @@
 
 import template from './sw-settings-services-hero.html.twig'
 import './sw-settings-services-hero.scss';
-/* eslint-disable import/no-unresolved */
-import imageEditor from './assets/image-editor.svg?no-inline';
-import previewGenerator from './assets/3d-preview-generator.svg?no-inline';
-import copilot from './assets/copilot.svg?no-inline';
-/* eslint-enable import/no-unresolved */
 import swSettingsServicesFramedIcon from '../sw-settings-services-framed-icon';
 
 /**
@@ -35,11 +30,13 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     data() {
+        const assetFilter = Shopware.Filter.getByName('asset');
+
         return {
             assets: {
-                imageEditor,
-                previewGenerator,
-                copilot,
+                imageEditor: assetFilter('/administration/administration/static/img/services/image-editor.svg'),
+                previewGenerator: assetFilter('/administration/administration/static/img/services/3d-preview-generator.svg'),
+                copilot: assetFilter('/administration/administration/static/img/services/copilot.svg'),
             },
         };
     },

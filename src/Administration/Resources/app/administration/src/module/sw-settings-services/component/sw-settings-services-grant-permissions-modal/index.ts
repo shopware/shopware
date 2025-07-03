@@ -5,8 +5,6 @@ import { MtModalAction, MtModalClose } from '@shopware-ag/meteor-component-libra
 import useSession from 'src/app/composables/use-session';
 import template from './sw-settings-services-grant-permissions-modal.html.twig'
 import './sw-settings-services-grant-permissions-modal.scss';
-// eslint-disable-next-line import/no-unresolved
-import grantPermissionsBackground from './assets/grant-permissions-background.svg?no-inline';
 import { useShopwareServicesStore} from '../../store/shopware-services.store';
 
 /**
@@ -22,8 +20,12 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     data() {
+        const assetFilter = Shopware.Filter.getByName('asset');
+
         return {
-            grantPermissionsBackground,
+            grantPermissionsBackground: assetFilter(
+                '/administration/administration/static/img/services/grant-permissions-background.svg',
+            ),
         };
     },
 

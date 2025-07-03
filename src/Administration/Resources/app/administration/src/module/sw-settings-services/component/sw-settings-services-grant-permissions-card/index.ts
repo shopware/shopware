@@ -2,9 +2,7 @@
  * @sw-package framework
  */
 import template from './sw-settings-services-grant-permissions-card.html.twig';
-import './sw-settings-services-grant-permissions-card.scss'
-// eslint-disable-next-line
-import grantPermissionsCardBackground from '../sw-settings-services-grant-permissions-modal/assets/grant-permissions-background.svg?no-inline';
+import './sw-settings-services-grant-permissions-card.scss';
 import { useShopwareServicesStore } from '../../store/shopware-services.store';
 import extractErrorMessage from '../../composables/extract-error';
 
@@ -25,8 +23,12 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     data() {
+        const assetFilter = Shopware.Filter.getByName('asset');
+
         return {
-            grantPermissionsCardBackground,
+            grantPermissionsCardBackground: assetFilter(
+                '/administration/administration/static/img/services/grant-permissions-background.svg',
+            ),
             isLoading: false,
         };
     },

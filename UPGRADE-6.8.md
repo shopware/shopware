@@ -184,7 +184,7 @@ Get the latest order transaction with `primaryOrderTransaction` so you should re
 
 ## Improved fetching of language information for SalesChannelContext
 
-The `\Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory` uses the language repository directly to fetch language information.
+The `\Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory` now uses the language repository directly to fetch language information.
 As a consequence the query with the title `base-context-factory::sales-channel` no longer adds the `languages` association,
 which means the `salesChannel` property of the `BaseSalesChannelContext` no longer contains the current language object. 
 

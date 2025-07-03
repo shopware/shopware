@@ -69,6 +69,7 @@ class AdministrationControllerTest extends TestCase
 
     private string $shopwareCoreDir;
 
+    private string $serviceRegistryUrl;
     private string $refreshTokenTtl;
 
     protected function setUp(): void
@@ -82,6 +83,7 @@ class AdministrationControllerTest extends TestCase
         $this->htmlSanitizer = $this->createMock(HtmlSanitizer::class);
         $this->parameterBag = $this->createMock(ParameterBagInterface::class);
         $this->shopwareCoreDir = __DIR__ . '/../../../../src/Core/';
+        $this->serviceRegistryUrl = 'https://https://registry.services.shopware.io';
         $this->refreshTokenTtl = 'P1W';
     }
 
@@ -111,6 +113,7 @@ class AdministrationControllerTest extends TestCase
                     'cspNonce' => null,
                     'adminEsEnable' => true,
                     'storefrontEsEnable' => true,
+                    'serviceRegistryUrl' => $this->serviceRegistryUrl,
                     'refreshTokenTtl' => 7 * 86400 * 1000,
                 ]
             );
@@ -488,6 +491,7 @@ class AdministrationControllerTest extends TestCase
                 'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => $isCustomerBoundToSalesChannel,
             ]),
             $this->fileSystemOperator,
+            $this->serviceRegistryUrl,
             $this->refreshTokenTtl,
         );
     }

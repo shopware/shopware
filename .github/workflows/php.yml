@@ -29,7 +29,7 @@ jobs:
           cat composer.json
           composer validate --no-check-publish --no-check-lock
 
-      - uses: ramsey/composer-install@a2636af0004d1c0499ffca16ac0b4cc94df70565 # 3.1.0
+      - uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # 3.1.1
         with:
           custom-cache-key: ${{ runner.os }}-setup-shopware-composer-8.2-${{ hashFiles('composer.json', 'custom/plugins/**/composer.json') }}
           working-directory: ""
@@ -41,7 +41,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
 
       - name: Cache CS Fixer
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # 4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # 4
         with:
           path: ./var/cache/cs_fixer
           key: ${{ runner.os }}-cs-fixer-${{ hashFiles('composer.json') }}
@@ -71,7 +71,7 @@ jobs:
         run: composer run framework:schema:dump
 
       - name: "Restore result cache"
-        uses: actions/cache/restore@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: var/cache/phpstan
           key: "phpstan-result-cache-${{ github.run_id }}"
@@ -82,7 +82,7 @@ jobs:
         run: composer run phpstan -- --error-format=table --no-progress
 
       - name: "Save result cache"
-        uses: actions/cache/save@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
+        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         if: always()
         with:
           path: var/cache/phpstan
@@ -150,7 +150,7 @@ jobs:
           api-gen loadSchema --apiType=store && api-gen generate --apiType=store
 
       - name: Upload OpenApi StoreAPI schema
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # 4.6.1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # 4.6.2
         with:
           name: storeApiSchema.json
           path: ./api-types/storeApiSchema.json
@@ -166,7 +166,7 @@ jobs:
           redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
 
       - name: Upload OpenApi AdminAPI schema
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # 4.6.1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # 4.6.2
         with:
           name: adminApiSchema.json
           path: ./api-types/adminApiSchema.json
@@ -233,7 +233,7 @@ jobs:
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite }}" --coverage-cobertura coverage.xml --log-junit junit.xml
 
       - name: Upload coverage
-        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # 5
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # 5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
@@ -242,7 +242,7 @@ jobs:
 
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@f2dba722c67b86c6caa034178c6e4d35335f6706 # 1
+        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # 1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 

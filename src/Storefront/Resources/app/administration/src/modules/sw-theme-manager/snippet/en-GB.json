@@ -202,6 +202,10 @@
         "themeCompile": {
           "title": "Error compiling theme",
           "message": "The theme could not be compiled. Please check the full error message to resolve this issue."
+        },
+        "invalidConfiguration": {
+          "title": "Invalid configuration",
+          "message": "The configuration is faulty. The theme cannot be saved."
         }
       }
     },

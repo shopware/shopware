@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
 use Shopware\Core\Framework\Log\Package;
@@ -106,6 +107,7 @@ class FlowGenerator implements DemodataGeneratorInterface
                 'eventName' => $event->getName(),
                 'priority' => $i + 1,
                 'active' => true,
+                'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
             ];
 
             $sequenceTreeCount = random_int(1, $maxSequenceTree);

@@ -207,6 +207,18 @@
     </card>
 
     <card>
+        <title>Rules for robots.txt</title>
+        <title lang="de-DE">Regeln für robots.txt </title>
+        <input-field type="textarea">
+            <name>robotsRules</name>
+            <label>Domain specific robots.txt Allow/Disallow rules</label>
+            <label lang="de-DE">Domain spezifische robots.txt Allow/Disallow Regeln</label>
+            <helpText>Rules which will be prepended by the corresponding domain path</helpText>
+            <helpText lang="de-DE">Regeln bei denen der entsprechende Domain Pfad vorangestellt wird</helpText>
+        </input-field>
+    </card>
+
+    <card>
         <title>CAPTCHA</title>
         <title lang="de-DE">CAPTCHA</title>
 

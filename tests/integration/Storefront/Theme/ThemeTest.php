@@ -22,6 +22,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
+use Shopware\Storefront\Theme\ScssPhpCompiler;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
@@ -29,6 +30,8 @@ use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
+use Shopware\Storefront\Theme\ThemeMergedConfigBuilder;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleTheme\SimpleTheme;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleThemeConfigInheritance\SimpleThemeConfigInheritance;
@@ -556,6 +559,8 @@ class ThemeTest extends TestCase
                 })
             );
 
+        $scssCompilerMock = $this->createMock(ScssPhpCompiler::class);
+
         $kernel = new class(static::getContainer()->get('kernel')) implements KernelInterface {
             private readonly SimpleTheme $simpleTheme;
 
@@ -662,6 +667,7 @@ class ThemeTest extends TestCase
             static::getContainer()->get('theme.repository'),
             static::getContainer()->get('theme_sales_channel.repository'),
             $themeCompilerMock,
+            $scssCompilerMock,
             static::getContainer()->get('event_dispatcher'),
             new DatabaseConfigLoader(
                 static::getContainer()->get('theme.repository'),
@@ -675,7 +681,9 @@ class ThemeTest extends TestCase
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(SystemConfigService::class),
             static::getContainer()->get('messenger.default_bus'),
-            static::getContainer()->get(NotificationService::class)
+            static::getContainer()->get(NotificationService::class),
+            static::getContainer()->get(ThemeMergedConfigBuilder::class),
+            static::getContainer()->get(ThemeRuntimeConfigService::class),
         );
         $themeService->updateTheme(
             $childTheme->getId(),

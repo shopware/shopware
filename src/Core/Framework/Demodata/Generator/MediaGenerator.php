@@ -17,7 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Finder\Finder;
 
@@ -73,6 +75,7 @@ class MediaGenerator implements DemodataGeneratorInterface
                         'mediaFolderId' => $isDownloadFile ? $downloadFolderId : $mediaFolderId,
                         'private' => $isDownloadFile,
                         'tags' => $this->getTags($tags),
+                        'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
                     ],
                 ],
                 $writeContext
@@ -83,7 +86,8 @@ class MediaGenerator implements DemodataGeneratorInterface
                     $file,
                     (string) mime_content_type($file),
                     pathinfo($file, \PATHINFO_EXTENSION),
-                    (int) filesize($file)
+                    (int) filesize($file),
+                    Hasher::hashFile($file, 'md5')
                 ),
                 $this->fileNameProvider->provide(
                     pathinfo($file, \PATHINFO_FILENAME),

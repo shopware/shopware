@@ -217,7 +217,7 @@ export default {
             const ignoreFields = ['createdAt'];
             const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields('customer_address'));
 
-            return requiredAddressFields.every((field) => ignoreFields.indexOf(field) !== -1 || required(address[field]));
+            return requiredAddressFields.every((field) => ignoreFields.includes(field) || required(address[field]));
         },
 
         onChangeDefaultAddress(data) {

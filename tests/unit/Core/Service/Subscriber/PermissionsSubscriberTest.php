@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Service\Event\PermissionsGrantedEvent;
 use Shopware\Core\Service\Event\PermissionsRevokedEvent;
 use Shopware\Core\Service\LifecycleManager;
+use Shopware\Core\Service\Permission\PermissionsConsent;
 use Shopware\Core\Service\Subscriber\PermissionsSubscriber;
 
 /**
@@ -32,8 +33,13 @@ class PermissionsSubscriberTest extends TestCase
 
     public function testEnableServices(): void
     {
-        $revision = new \DateTimeImmutable('2025-06-13');
-        $event = new PermissionsGrantedEvent($revision, $this->context);
+        $consent = new PermissionsConsent(
+            identifier: 'test-identifier',
+            revision: '2025-06-13T00:00:00+00:00',
+            consentingUserId: 'test-user-id',
+            grantedAt: new \DateTime('2025-06-13')
+        );
+        $event = new PermissionsGrantedEvent($consent, $this->context);
 
         $this->manager
             ->expects($this->once())
@@ -45,7 +51,13 @@ class PermissionsSubscriberTest extends TestCase
 
     public function testDisableServices(): void
     {
-        $event = new PermissionsRevokedEvent($this->context);
+        $consent = new PermissionsConsent(
+            identifier: 'test-identifier',
+            revision: '2025-06-13T00:00:00+00:00',
+            consentingUserId: 'test-user-id',
+            grantedAt: new \DateTime('2025-06-13')
+        );
+        $event = new PermissionsRevokedEvent($consent, $this->context);
 
         $this->manager
             ->expects($this->once())

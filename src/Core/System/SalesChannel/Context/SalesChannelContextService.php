@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextCreatedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -97,10 +98,8 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
             $context = $this->factory->create($token, $parameters->getSalesChannelId(), $session);
 
-            if ($originalStates = $parameters->getOriginalContext()?->getStates()) {
-                foreach (array_diff($originalStates, $context->getStates()) as $state) {
-                    $context->addState($state);
-                }
+            if ($parameters->getOriginalContext()?->hasState(ElasticsearchEntitySearcher::EXPLAIN_MODE)) {
+                $context->addState(ElasticsearchEntitySearcher::EXPLAIN_MODE);
             }
 
             $this->eventDispatcher->dispatch(new SalesChannelContextCreatedEvent($context, $token, $session));

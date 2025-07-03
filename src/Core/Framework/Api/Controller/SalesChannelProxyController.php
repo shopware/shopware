@@ -61,6 +61,8 @@ class SalesChannelProxyController extends AbstractController
 
     private const SALES_CHANNEL_ID = 'salesChannelId';
 
+    private const SEARCH_ROUTE = 'search';
+
     private const ADMIN_ORDER_PERMISSIONS = [
         ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
     ];
@@ -255,7 +257,7 @@ class SalesChannelProxyController extends AbstractController
 
         $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $subrequest, $context);
 
-        if ($path === 'search') {
+        if ($path === self::SEARCH_ROUTE) {
             $salesChannelContext->getContext()->addState(ElasticsearchEntitySearcher::EXPLAIN_MODE);
         }
 

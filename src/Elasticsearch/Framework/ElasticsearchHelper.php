@@ -170,10 +170,12 @@ class ElasticsearchHelper
         foreach ($queries as $query) {
             $parsed = $this->parser->parseFilter($query->getQuery(), $definition, $definition->getEntityName(), $context);
 
-            if ($parsed instanceof MatchQuery) {
+            if ($query->getScore() && method_exists($parsed, 'addParameter')) {
                 $score = (string) $query->getScore();
-
                 $parsed->addParameter('boost', $score);
+            }
+
+            if ($parsed instanceof MatchQuery) {
                 $parsed->addParameter('fuzziness', '2');
             }
 

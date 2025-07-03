@@ -59,7 +59,7 @@
             <argument type="service" id="Shopware\Core\Service\ServiceLifecycle"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="messenger.bus.default"/>
-            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="event_dispatcher"/>
 
         </service>
 
@@ -146,10 +146,21 @@
             <argument type="service" id="Shopware\Core\Service\Permission\PermissionsService"/>
         </service>
 
+        <service id="Shopware\Core\Service\Subscriber\ServiceLifecycleSubscriber">
+            <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
+            <argument type="service" id="Shopware\Core\Service\Notification"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Service\Subscriber\PermissionsSubscriber">
             <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
 
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Service\Notification">
+            <argument type="service" id="Shopware\Core\Framework\Notification\NotificationService"/>
         </service>
 
         <service id="Shopware\Core\Service\ServiceRegistry\PermissionLogger">

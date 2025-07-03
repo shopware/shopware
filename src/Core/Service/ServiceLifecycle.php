@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Event\ServiceInstalledEvent;
 use Shopware\Core\Service\Event\ServiceUpdatedEvent;
+use Shopware\Core\Service\Permission\PermissionsService;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -44,6 +45,7 @@ class ServiceLifecycle
         private readonly ServiceSourceResolver $sourceResolver,
         private readonly AppStateService $appStateService,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly PermissionsService $permissionsService,
     ) {
     }
 
@@ -76,7 +78,7 @@ class ServiceLifecycle
         try {
             $this->appLifecycle->install(
                 $manifest,
-                new AppInstallParameters(activate: $serviceEntry->activateOnInstall),
+                new AppInstallParameters($serviceEntry->activateOnInstall, $this->permissionsService->areGranted()),
                 Context::createDefaultContext()
             );
 

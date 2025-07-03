@@ -44,6 +44,7 @@
             <argument type="service" id="Shopware\Core\Service\ServiceSourceResolver"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Service\Permission\PermissionsService"/>
         </service>
 
         <service id="Shopware\Core\Service\ServiceClientFactory">

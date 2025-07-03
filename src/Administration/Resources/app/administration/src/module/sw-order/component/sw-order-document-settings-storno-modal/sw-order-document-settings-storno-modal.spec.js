@@ -127,14 +127,18 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-order/component/sw-order-document-settings-storno-modal', () => {
+    let wrapper;
+
+    beforeEach(async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+    });
+
     it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show only invoice numbers in invoice number select field', async () => {
-        const wrapper = await createWrapper();
-
         const invoiceSelect = wrapper.find('.mt-select input');
         await invoiceSelect.trigger('click');
 
@@ -146,8 +150,6 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
     });
 
     it('should disable create button if there is no selected invoice', async () => {
-        const wrapper = await createWrapper();
-
         const createButton = wrapper.find('.sw-order-document-settings-modal__create');
         expect(createButton.attributes().disabled).toBeDefined();
 
@@ -156,8 +158,6 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
     });
 
     it('should enable create button if there is at least one selected invoice', async () => {
-        const wrapper = await createWrapper();
-
         await selectMtSelectOptionByText(wrapper, '1001', '.sw-order-document-settings-storno-modal__invoice-select input');
 
         const createButton = wrapper.find('.sw-order-document-settings-modal__create');
@@ -165,5 +165,13 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
 
         const createContextMenu = wrapper.find('.sw-context-button');
         expect(createContextMenu.attributes().disabled).toBeUndefined();
+    });
+
+    it('should allow any text input in the document number field', async () => {
+        const documentNumberFieldInput = wrapper.findByLabel('sw-order.documentModal.labelDocumentStornoNumber');
+        expect(documentNumberFieldInput.exists()).toBeTruthy();
+
+        await documentNumberFieldInput.setValue('Prefix-1000-Suffix');
+        expect(documentNumberFieldInput.element.value).toBe('Prefix-1000-Suffix');
     });
 });

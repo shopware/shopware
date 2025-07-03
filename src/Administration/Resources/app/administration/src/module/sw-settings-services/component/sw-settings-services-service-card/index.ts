@@ -43,7 +43,9 @@ export default Shopware.Component.wrapComponentConfig({
                 return `data:image/png;base64, ${this.service.icon}`;
             }
 
-            return iconPlaceholder
+            const assetFilter = Shopware.Filter.getByName('asset');
+
+            return assetFilter('/administration/administration/static/img/services/extension-icon-placeholder.svg');
         },
 
         serviceStatus() {

@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import {
     MtModalTrigger,
     MtModalAction,
@@ -6,7 +5,6 @@ import {
 } from '@shopware-ag/meteor-component-library';
 import template from './sw-settings-services-revoke-permissions-modal.html.twig';
 import './sw-settings-services-revoke-permissions-modal.scss';
-import type { ServiceDescription } from '../../service/shopware-services.service';
 import { useShopwareServicesStore } from '../../store/shopware-services.store';
 import extractErrorMessage from '../../composables/extract-error';
 

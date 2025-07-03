@@ -22,6 +22,10 @@ export default Shopware.Component.wrapComponentConfig({
             ] as PropType<Date | string>,
             required: true,
         },
+        dateTimeFormat: {
+            type: Object as PropType<Intl.DateTimeFormatOptions>,
+            required: false,
+        }
     },
 
     data(): {
@@ -51,7 +55,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         fullDatetime(): string {
-            return this.dateFilter(this.dateObject.toString());
+            return this.dateFilter(this.dateObject.toString(), this.dateTimeFormat);
         },
 
         lessThanOneMinute(): boolean {
@@ -146,7 +150,7 @@ export default Shopware.Component.wrapComponentConfig({
                 });
             }
 
-            return this.dateFilter(this.dateObject.toString());
+            return this.dateFilter(this.dateObject.toString(), this.dateTimeFormat);
         },
     },
 });

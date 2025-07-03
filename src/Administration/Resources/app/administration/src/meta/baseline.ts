@@ -316,7 +316,6 @@ const missingTests = [
     'src/module/sw-order/component/sw-order-create-promotion-modal/index.js',
     'src/module/sw-order/component/sw-order-customer-comment/index.js',
     'src/module/sw-order/component/sw-order-document-settings-delivery-note-modal/index.js',
-    'src/module/sw-order/component/sw-order-document-settings-invoice-modal/index.js',
     'src/module/sw-order/component/sw-order-inline-field/index.js',
     'src/module/sw-order/component/sw-order-leave-page-modal/index.js',
     'src/module/sw-order/component/sw-order-nested-line-items-row/index.js',

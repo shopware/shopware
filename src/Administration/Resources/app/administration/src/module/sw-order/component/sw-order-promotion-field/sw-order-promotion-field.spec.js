@@ -19,7 +19,8 @@ const orderFixture = {
             payload: {
                 code: 'Redeem3456',
             },
-        },{
+        },
+        {
             id: '11111111-1111-1111-1111-111111111111',
             type: 'test',
             referencedId: '50669d0c-b1d2-470a-bb80-ac5ffa06ef10',
@@ -277,11 +278,13 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         expect(wrapper.emitted('error')).toBeUndefined();
 
         expect(wrapper.vm.order.lineItems).toHaveLength(3);
-        expect(wrapper.vm.order.lineItems.map(item => item.id).sort()).toEqual([
-            '11111111-1111-1111-1111-111111111111',
-            '6066b693-97ce-4b91-a3e2-e015f0ddfb79',
-            '05b5decd-072f-437e-84a3-8be5fb5e5fa7'
-        ].sort());
+        expect(wrapper.vm.order.lineItems.map((item) => item.id).sort()).toEqual(
+            [
+                '11111111-1111-1111-1111-111111111111',
+                '6066b693-97ce-4b91-a3e2-e015f0ddfb79',
+                '05b5decd-072f-437e-84a3-8be5fb5e5fa7',
+            ].sort(),
+        );
     });
 
     it('should disable the fields with missing roles', async () => {

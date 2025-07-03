@@ -445,7 +445,7 @@ export default {
             ]);
 
             this.order.lineItems = this.order.lineItems.filter(
-                item => item.type !== 'promotion' || item.promotionId !== removedItem.promotionId,
+                (item) => item.type !== 'promotion' || item.promotionId !== removedItem.promotionId,
             );
 
             await this.saveAndRecalculate();

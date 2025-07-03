@@ -23,6 +23,12 @@ class CanonicalRedirectService
     ) {
     }
 
+    /**
+     * getRedirect takes a request processed by the RequestTransformer and checks,
+     * whether it points to a SEO-URL which has been superseded. In case the corresponding
+     * configuration option is active, it returns a redirect response to indicate, that
+     * the request should be redirected to the canonical URL.
+     */
     public function getRedirect(Request $request): ?Response
     {
         return $this->extensions->publish(
@@ -32,12 +38,6 @@ class CanonicalRedirectService
         );
     }
 
-    /**
-     * getRedirect takes a request processed by the RequestTransformer and checks,
-     * whether it points to a SEO-URL which has been superseded. In case the corresponding
-     * configuration option is active, it returns a redirect response to indicate, that
-     * the request should be redirected to the canonical URL.
-     */
     private function _getRedirect(Request $request): ?Response
     {
         // This attribute has been set by the RequestTransformer if the requested URL was superseded.

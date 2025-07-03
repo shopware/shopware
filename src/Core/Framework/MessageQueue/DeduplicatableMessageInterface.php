@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
  *   - not exceed 64 ASCII characters
  *   - should not include message types or class names - that will be accounted for by the middleware/transport
  *
- * @experimental stableVersion:v6.8.0
+ * @experimental stableVersion:v6.8.0 feature:DEDUPLICATABLE_MESSAGES
  */
 #[Package('framework')]
 interface DeduplicatableMessageInterface

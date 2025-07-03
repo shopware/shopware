@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
@@ -12,9 +13,9 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('framework')]
 class ApiRouteScope extends AbstractRouteScope implements ApiContextRouteScopeDependant
 {
-    final public const ID = 'api';
+    final public const ID = DefinitionService::API;
 
-    protected array $allowedPaths = ['api', 'sw-domain-hash.html'];
+    protected array $allowedPaths = [self::ID, 'sw-domain-hash.html'];
 
     public function isAllowed(Request $request): bool
     {

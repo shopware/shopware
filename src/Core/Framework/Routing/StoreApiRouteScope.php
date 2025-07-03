@@ -15,7 +15,7 @@ class StoreApiRouteScope extends AbstractRouteScope implements SalesChannelConte
 {
     final public const ID = DefinitionService::STORE_API;
 
-    protected array $allowedPaths = [DefinitionService::STORE_API];
+    protected array $allowedPaths = [self::ID];
 
     public function isAllowed(Request $request): bool
     {
@@ -35,6 +35,6 @@ class StoreApiRouteScope extends AbstractRouteScope implements SalesChannelConte
 
     public function getId(): string
     {
-        return static::ID;
+        return self::ID;
     }
 }

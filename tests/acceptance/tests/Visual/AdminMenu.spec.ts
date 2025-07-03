@@ -3,6 +3,7 @@ import { test, expect } from '@fixtures/AcceptanceTest';
 test('Visual: Administration menu', { tag: '@Visual' }, async ({
 ShopAdmin,
 AdminDashboard,
+HideElementsForScreenshot
 }) => {
 
     await test.step('Creates a screenshot of the fully expanded admin menu.', async () => {
@@ -15,7 +16,12 @@ AdminDashboard,
         await AdminDashboard.page.locator('.sw-extension').click();
         await AdminDashboard.page.locator('.sw-admin-menu__user-actions-indicator').click();
         await AdminDashboard.page.setViewportSize({ width: 1280, height: 2048});
-        await AdminDashboard.page.addStyleTag({content: `.sw-admin-menu__user-name,.sw-avatar {display: none !important;}`});
+
+        await HideElementsForScreenshot(AdminDashboard.page, [
+            '.sw-admin-menu__user-name',
+            '.sw-avatar',
+        ]);
+        
         await expect(AdminDashboard.page.locator('.sw-admin-menu')).toHaveScreenshot();
     });
 });

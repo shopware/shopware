@@ -99,7 +99,7 @@ trait AdminApiTestBehaviour
     {
         $url = '/api/' . implode('/', $params);
 
-        $browser->request('GET', $url);
+        $browser->jsonRequest('GET', $url);
 
         TestCase::assertSame(
             Response::HTTP_OK,
@@ -112,7 +112,7 @@ trait AdminApiTestBehaviour
     {
         $url = '/api/' . implode('/', $params);
 
-        $browser->request('GET', $url);
+        $browser->jsonRequest('GET', $url);
 
         TestCase::assertSame(
             Response::HTTP_NOT_FOUND,

@@ -152,6 +152,7 @@ async function createWrapper() {
                 'sw-sidebar-collapse': true,
                 'sw-entity-multi-select': true,
                 'sw-sidebar': true,
+                'sw-time-ago': true,
             },
             provide: {
                 repositoryFactory: {
@@ -309,11 +310,5 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
-    });
-
-    it('should return filters from filter registry', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
     });
 });

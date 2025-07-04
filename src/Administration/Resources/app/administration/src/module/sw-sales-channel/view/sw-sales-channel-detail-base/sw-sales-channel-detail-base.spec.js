@@ -47,6 +47,7 @@ async function createWrapper() {
                 'sw-custom-field-set-renderer': true,
                 'mt-banner': true,
                 'sw-sales-channel-measurement': true,
+                'sw-time-ago': true,
             },
             provide: {
                 salesChannelService: {},
@@ -1001,12 +1002,6 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
                 ]),
             }),
         );
-    });
-
-    it('should return filters from filter registry', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
     });
 
     it('"changeInterval" also updates cronjob config', async () => {

@@ -239,7 +239,7 @@
             </dt>
             <dd class="sw-customer-base__label-last-login">
                 <template v-if="customer.lastLogin">
-                    {{ dateFilter(customer.lastLogin) }}
+                    <sw-time-ago :date="customer.lastLogin" />
                 </template>
                 <template v-else>
                     {{ $tc('sw-customer.baseInfo.emptyTextLogin') }}

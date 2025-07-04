@@ -150,6 +150,7 @@ async function createWrapper(defaultFolderId, privileges = []) {
                 'sw-media-modal-folder-dissolve': true,
                 'sw-media-modal-move': true,
                 'sw-media-modal-delete': true,
+                'sw-time-ago': true,
             },
         },
     });
@@ -251,7 +252,6 @@ describe('components/media/sw-media-folder-item', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
     });
 
     it('onBlur doesnt update the entity if the value did not change', async () => {

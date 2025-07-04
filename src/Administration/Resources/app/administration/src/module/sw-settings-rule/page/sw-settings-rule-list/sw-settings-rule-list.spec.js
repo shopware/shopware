@@ -35,6 +35,7 @@ async function createWrapper(privileges = []) {
                 'sw-sidebar-filter-panel': true,
                 'sw-sidebar': true,
                 'router-link': true,
+                'sw-time-ago': true,
             },
             provide: {
                 repositoryFactory: {
@@ -208,13 +209,6 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         expect(Object.keys(listFilters)).toContain('conditions');
         expect(Object.keys(listFilters)).toContain('assignments');
         expect(Object.keys(listFilters)).toContain('tags');
-    });
-
-    it('should return filters from filter registry', async () => {
-        const { wrapper } = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
     });
 
     it('should consider criteria filters via updateCriteria (triggered by sw-sidebar-filter-panel)', async () => {

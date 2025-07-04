@@ -58,6 +58,7 @@ async function createWrapper() {
                     'sw-empty-state': true,
                     'sw-extension-component-section': true,
                     'sw-ai-copilot-badge': true,
+                    'sw-time-ago': true,
                 },
                 provide: {
                     ruleConditionDataProviderService: {
@@ -172,12 +173,5 @@ describe('components/sw-advanced-selection-rule', () => {
         const counts = wrapper.vm.getCounts('1', aggregations);
 
         expect(counts.productPrices).toBe(100);
-    });
-
-    it('should return filters from filter registry', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
     });
 });

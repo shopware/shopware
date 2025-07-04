@@ -811,6 +811,7 @@ const createWrapper = async (options = {}) => {
                 'router-link': true,
                 'sw-ai-copilot-badge': true,
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },
+                'sw-time-ago': await wrapTestComponent('sw-time-ago'),
             },
             mocks: {
                 $tc: (key, _, pluralization) => {

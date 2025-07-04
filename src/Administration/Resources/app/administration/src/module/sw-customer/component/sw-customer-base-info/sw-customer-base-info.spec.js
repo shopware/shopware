@@ -46,6 +46,7 @@ async function createWrapper() {
                 'sw-help-text': true,
                 'sw-datepicker': true,
                 'sw-text-field': true,
+                'sw-time-ago': true,
             },
             provide: {
                 repositoryFactory: {

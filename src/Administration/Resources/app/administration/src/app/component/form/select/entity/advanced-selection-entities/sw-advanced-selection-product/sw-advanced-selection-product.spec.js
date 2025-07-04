@@ -331,6 +331,7 @@ async function createWrapper() {
                         'sw-context-menu': true,
                         'sw-entity-advanced-selection-modal-grid': true,
                         'sw-ai-copilot-badge': true,
+                        'sw-time-ago': true,
                     },
                 },
             },
@@ -412,7 +413,6 @@ describe('components/sw-advanced-selection-product', () => {
 
     it('should return filters from filter registry', () => {
         expect(wrapper.vm.currencyFilter).toEqual(expect.any(Function));
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
         expect(wrapper.vm.stockColorVariantFilter).toEqual(expect.any(Function));
     });
 });

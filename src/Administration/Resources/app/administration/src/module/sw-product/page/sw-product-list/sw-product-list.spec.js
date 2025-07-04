@@ -353,6 +353,7 @@ async function createWrapper() {
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
                     'sw-provide': { template: '<slot/>', inheritAttrs: false },
+                    'sw-time-ago': true,
                 },
             },
         }),
@@ -695,7 +696,6 @@ describe('module/sw-product/page/sw-product-list', () => {
     it('should return filters from filter registry', async () => {
         expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
         expect(wrapper.vm.currencyFilter).toEqual(expect.any(Function));
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
         expect(wrapper.vm.stockColorVariantFilter).toEqual(expect.any(Function));
     });
 

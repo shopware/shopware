@@ -209,6 +209,7 @@ async function createWrapper(props = defaultProps, sendingSucceds = true, mailTe
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
                 'sw-field-error': true,
+                'sw-time-ago': await wrapTestComponent('sw-time-ago'),
             },
             provide: {
                 repositoryFactory: {

@@ -48,7 +48,7 @@
     {% block sw_media_media_item_metadata %}
     <template #metadata="{ item }">
         <div class="sw-media-media-item__metadata">
-            {{ dateFilter(item.uploadedAt) }}, {{ fileSizeFilter(item.fileSize, locale) }}
+            <span v-if="item.uploadedAt"><sw-time-ago :date="item.uploadedAt" />, </span>{{ fileSizeFilter(item.fileSize, locale) }}
         </div>
     </template>
     {% endblock %}

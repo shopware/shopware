@@ -104,6 +104,7 @@ async function createWrapper(extension) {
                 'sw-loader-deprecated': true,
                 'i18n-t': true,
                 'sw-label': true,
+                'sw-time-ago': await wrapTestComponent('sw-time-ago'),
             },
             provide: {
                 extensionStoreActionService: Shopware.Service('extensionStoreActionService'),

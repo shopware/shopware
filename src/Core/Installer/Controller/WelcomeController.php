@@ -10,15 +10,15 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  */
 #[Package('framework')]
-class SelectLanguagesController extends InstallerController
+class WelcomeController extends InstallerController
 {
     public function __construct()
     {
     }
 
-    #[Route(path: '/installer', name: 'installer.language-selection', methods: ['GET'])]
-    public function languageSelection(): Response
+    #[Route(path: '/installer', name: 'installer.welcome', methods: ['GET'])]
+    public function welcome(): Response
     {
-        return $this->renderInstaller('@Installer/installer/language-selection.html.twig');
+        return $this->renderInstaller('@Installer/installer/welcome.html.twig');
     }
 }

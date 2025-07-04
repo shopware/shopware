@@ -1,6 +1,6 @@
 shopware.installer:
     header_title: Installation
-    menuitem_language-selection: Start
+    menuitem_welcome: Start
     menuitem_requirements: Systemkrav
     menuitem_database-configuration: 'Database konfiguration'
     menuitem_database-import: Installation
@@ -29,10 +29,10 @@ shopware.installer:
     select_language_pl: Polsk
     select_language_pt-PT: Portugisisk
     select_language_sv-SE: Svensk
-    language-selection_welcome_title: 'Velkommen til Shopware 6'
+    welcome_title: 'Velkommen til Shopware 6'
     language-selection_select_language: 'Installationsguidens sprog'
-    language-selection_header: 'Din Shopware installation'
-    language-selection_welcome_message: 'Vi er glade for at du vil være en del af vores fantastiske Shopware Community! Vi vil nu guide dig igennem vores installationsproces. Hvis du har spørgsmål, så se på vores <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">forum</a>, kontakt os på telefonnummer <a class="is--nowrap" href="tel:0080074676260">00 800 746 7626 0 (gratis)</a> eller send os en <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.'
+    welcome_header: 'Din Shopware installation'
+    welcome_message: 'Vi er glade for at du vil være en del af vores fantastiske Shopware Community! Vi vil nu guide dig igennem vores installationsproces. Hvis du har spørgsmål, så se på vores <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">forum</a>, kontakt os på telefonnummer <a class="is--nowrap" href="tel:0080074676260">00 800 746 7626 0 (gratis)</a> eller send os en <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.'
     requirements_header: Systemkrav
     requirements_header_files: 'Filer og mapper'
     requirements_header_system: System

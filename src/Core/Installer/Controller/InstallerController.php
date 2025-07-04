@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 abstract class InstallerController extends AbstractController
 {
     private const ROUTES = [
-        'installer.language-selection' => 'language-selection',
+        'installer.welcome' => 'welcome',
         'installer.requirements' => 'requirements',
         'installer.license' => 'license',
         'installer.database-configuration' => 'database-configuration',

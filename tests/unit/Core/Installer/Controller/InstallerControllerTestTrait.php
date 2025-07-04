@@ -11,7 +11,7 @@ use Twig\Environment;
 
 /**
  * @internal
- * @phpstan-import-type SupportedLanguages from \Shopware\Core\Installer\Controller\SelectLanguagesController
+ * @phpstan-import-type SupportedLanguages from \Shopware\Core\Installer\Controller\WelcomeController
  */
 trait InstallerControllerTestTrait
 {

@@ -1,6 +1,6 @@
 shopware.installer:
     header_title: Installatie
-    menuitem_language-selection: Start
+    menuitem_welcome: Start
     menuitem_requirements: Systeemvereisten
     menuitem_database-configuration: 'Configuratie databank'
     menuitem_database-import: Installatie
@@ -29,10 +29,10 @@ shopware.installer:
     select_language_pl: Pools
     select_language_pt-PT: Portugees
     select_language_sv-SE: Zweeds
-    language-selection_welcome_title: 'Welkom bij Shopware 6'
+    welcome_title: 'Welkom bij Shopware 6'
     language-selection_select_language: 'Taal van de installatie-assistent'
-    language-selection_header: 'Je Shopware-installatie'
-    language-selection_welcome_message: 'We zijn blij dat je deel wilt uitmaken van onze wereldwijde Shopware-community! Nu begeleiden we je stap voor stap door het installatieproces. Ga voor vragen naar ons <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">forum</a>, bel ons op <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> of schrijf een <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.'
+    welcome_header: 'Je Shopware-installatie'
+    welcome_message: 'We zijn blij dat je deel wilt uitmaken van onze wereldwijde Shopware-community! Nu begeleiden we je stap voor stap door het installatieproces. Ga voor vragen naar ons <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">forum</a>, bel ons op <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> of schrijf een <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.'
     requirements_header: Systeemvereisten
     requirements_header_files: 'Bestanden en mappen'
     requirements_header_system: Systeem

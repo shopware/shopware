@@ -1,6 +1,6 @@
 shopware.installer:
     header_title: Installazione
-    menuitem_language-selection: Avvia
+    menuitem_welcome: Avvia
     menuitem_requirements: 'Requisiti di sistema'
     menuitem_database-configuration: 'Configurazione database'
     menuitem_database-import: Installazione
@@ -29,10 +29,10 @@ shopware.installer:
     select_language_pl: Polacco
     select_language_pt-PT: Portoghese
     select_language_sv-SE: Svedese
-    language-selection_welcome_title: 'Benvenuto in Shopware 6'
+    welcome_title: 'Benvenuto in Shopware 6'
     language-selection_select_language: 'Lingua dell’assistente di installazione'
-    language-selection_header: 'La tua installazione Shopware'
-    language-selection_welcome_message: 'Siamo contenti di accoglierti nella nostra grandiosa Shopware Community mondiale! Ti accompagneremo passo passo lungo il processo di installazione. Per eventuali domande, ti preghiamo di consultare prima il nostro <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">forum</a>, di contattarci telefonicamente allo <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> o di inviarci una <a class="is--nowrap" href="mailto:info@shopware.com">mail</a>.'
+    welcome_header: 'La tua installazione Shopware'
+    welcome_message: 'Siamo contenti di accoglierti nella nostra grandiosa Shopware Community mondiale! Ti accompagneremo passo passo lungo il processo di installazione. Per eventuali domande, ti preghiamo di consultare prima il nostro <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">forum</a>, di contattarci telefonicamente allo <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> o di inviarci una <a class="is--nowrap" href="mailto:info@shopware.com">mail</a>.'
     requirements_header: 'Requisiti di sistema'
     requirements_header_files: 'File e directory'
     requirements_header_system: Sistema

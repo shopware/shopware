@@ -102,6 +102,9 @@ class EntityIndexingMessage implements AsyncMessageInterface, DeduplicatableMess
         return !\in_array($name, $this->getSkip(), true);
     }
 
+    /**
+     * @experimental stableVersion:v6.8.0 feature:DEDUPLICATABLE_MESSAGES
+     */
     public function deduplicationId(): ?string
     {
         $data = $this->data;

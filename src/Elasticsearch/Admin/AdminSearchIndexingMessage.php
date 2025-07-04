@@ -51,6 +51,9 @@ final class AdminSearchIndexingMessage implements AsyncMessageInterface, Dedupli
         return $this->ids;
     }
 
+    /**
+     * @experimental stableVersion:v6.8.0 feature:DEDUPLICATABLE_MESSAGES
+     */
     public function deduplicationId(): ?string
     {
         $sortedIds = $this->ids;

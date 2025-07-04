@@ -38,6 +38,9 @@ class FullEntityIndexerMessage implements AsyncMessageInterface, DeduplicatableM
         return $this->only;
     }
 
+    /**
+     * @experimental stableVersion:v6.8.0 feature:DEDUPLICATABLE_MESSAGES
+     */
     public function deduplicationId(): ?string
     {
         $sortedSkip = $this->skip;

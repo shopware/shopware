@@ -36,6 +36,9 @@ class ElasticsearchIndexingMessage implements AsyncMessageInterface, Deduplicata
         return $this->context;
     }
 
+    /**
+     * @experimental stableVersion:v6.8.0 feature:DEDUPLICATABLE_MESSAGES
+     */
     public function deduplicationId(): ?string
     {
         $ids = $this->data->getIds();

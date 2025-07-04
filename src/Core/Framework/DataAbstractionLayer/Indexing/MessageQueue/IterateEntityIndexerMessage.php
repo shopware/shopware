@@ -52,6 +52,9 @@ class IterateEntityIndexerMessage implements AsyncMessageInterface, Deduplicatab
         return $this->skip;
     }
 
+    /**
+     * @experimental stableVersion:v6.8.0 feature:DEDUPLICATABLE_MESSAGES
+     */
     public function deduplicationId(): ?string
     {
         $sortedSkip = $this->skip;

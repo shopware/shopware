@@ -25,6 +25,9 @@ class InvalidateCacheTask extends ScheduledTask implements DeduplicatableMessage
         return true;
     }
 
+    /**
+     * @experimental stableVersion:v6.8.0 feature:DEDUPLICATABLE_MESSAGES
+     */
     public function deduplicationId(): ?string
     {
         return 'invalidate-cache-task';

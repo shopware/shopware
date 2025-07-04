@@ -21,7 +21,6 @@
     },
     "index": {
       "available-services": "Available services",
-      "available-services-tooltip": "Additional features that go beyond the core to enable advanced use cases, such as artificial intelligence, while supporting a wide range of business needs.",
       "services-are-disabled": "Shopware Services are deactivated",
       "services-are-disabled-cta": "You are currently missing out on all Shopware Services, including advanced AI tools and much more. Activate Shopware Services to take advantage of all the current and future Services we have to offer.",
       "services-are-disabled-button-label": "Activate Services",

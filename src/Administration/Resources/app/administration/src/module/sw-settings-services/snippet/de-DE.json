@@ -21,7 +21,6 @@
     },
     "index": {
       "available-services": "Verfügbare Services",
-      "available-services-tooltip": "Zusätzliche Funktionen, die über den Kern hinausgehen, um erweiterte Anwendungsfälle wie künstliche Intelligenz zu ermöglichen und eine Vielzahl von Geschäftsanforderungen zu unterstützen.",
       "services-are-disabled": "Shopware Services sind deaktiviert",
       "services-are-disabled-cta": "Dir entgehen derzeit alle Shopware Services, einschließlich fortschrittlicher KI-Tools und vielem mehr. Aktiviere Shopware Services, um alle aktuellen und zukünftigen Services nutzen zu können.",
       "services-are-disabled-button-label": "Services aktivieren",

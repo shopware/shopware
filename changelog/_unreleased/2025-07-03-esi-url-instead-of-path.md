@@ -1,6 +1,5 @@
 ---
 title: Use path() instead of url() for ESI includes to avoid HTTPS issues with Varnish
-issue: 
 author: Stefan Poensgen
 author_email: mail@stefanpoensgen.de
 author_github: @stefanpoensgen

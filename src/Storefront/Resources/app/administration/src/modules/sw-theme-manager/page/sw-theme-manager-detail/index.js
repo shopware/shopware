@@ -47,6 +47,7 @@ Component.register('sw-theme-manager-detail', {
             removedSalesChannels: [],
             showMediaModal: false,
             activeMediaField: null,
+            themeConfigErrors: {},
         };
     },
 
@@ -404,13 +405,13 @@ Component.register('sw-theme-manager-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return Promise.all([this.saveSalesChannels(), this.saveThemeConfig(clean)]).finally(() => {
+            return Promise.all([this.saveSalesChannels(), this.saveThemeConfig(clean)]).then(() => {
                 this.getTheme();
+                this.themeConfigErrors = {};
             }).catch((error) => {
-                this.isLoading = false;
 
                 const errorObject = error.response.data.errors[0];
-                if (errorObject.code === 'THEME__COMPILING_ERROR' || errorObject.code === 'THEME__INVALID_SCSS_VAR') {
+                if (errorObject.code === 'THEME__COMPILING_ERROR') {
                     this.createNotificationError({
                         title: this.$t('sw-theme-manager.detail.error.themeCompile.title'),
                         message: this.$t('sw-theme-manager.detail.error.themeCompile.message'),
@@ -426,10 +427,35 @@ Component.register('sw-theme-manager-detail', {
                     return;
                 }
 
+                if (errorObject.code === 'THEME__INVALID_SCSS_VAR') {
+                    this.createNotificationError({
+                        title: this.$t('sw-theme-manager.detail.error.invalidConfiguration.title'),
+                        message: this.$t('sw-theme-manager.detail.error.invalidConfiguration.message'),
+                        autoClose: true,
+                    });
+
+                    error.response.data.errors.forEach((error) => {
+                        const fieldName = error.meta.parameters.name;
+
+                        error.detail = this.$t('global.error-codes.THEME__INVALID_SCSS_VAR', {
+                            value: error.meta.parameters.value,
+                            type: error.meta.parameters.type,
+                        });
+
+                        if (fieldName) {
+                            this.themeConfigErrors[fieldName] = error;
+                        }
+                    });
+
+                    return;
+                }
+
                 this.createNotificationError({
                     message: errorObject.detail ?? error.toString(),
                     autoClose: true,
                 });
+            }).finally(() => {
+                this.isLoading = false;
             });
         },
 
@@ -547,7 +573,7 @@ Component.register('sw-theme-manager-detail', {
             this.removeInheritedFromChangeset(allValues);
 
             // Theme has to be reset, because inherited fields needs to be removed from the set
-            return this.themeService.updateTheme(this.themeId, { config: allValues }, { reset: true });
+            return this.themeService.updateTheme(this.themeId, { config: allValues }, { reset: true, validate: true });
         },
 
         saveFinish() {

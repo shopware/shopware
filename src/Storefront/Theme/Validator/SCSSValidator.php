@@ -31,10 +31,16 @@ class SCSSValidator
             return $data['value'];
         }
 
+        /**
+         * The types textarea, url and media are not validated, because
+         * the textarea and url fields are wrapped as strings in the SCSS compiler,
+         * and the media field is just using the media url as a string.
+         */
         return match ($data['type'] ?? 'text') {
             'checkbox', 'switch' => self::validateTypeCheckbox($data['value']),
             'color' => self::validateTypeColor($compiler, $sanitize, $data['value'], $data['name'] ?? 'undefined', $data['type'] ?? 'undefined'),
             'fontFamily' => self::validateFontFamily($compiler, $sanitize, $data['value'], $data['name'] ?? 'undefined', $data['type'] ?? 'undefined'),
+            'text' => self::validateTypeText($compiler, $sanitize, $data['value'], $data['name'] ?? 'undefined', $data['type'] ?? 'undefined'),
             default => $data['value'],
         };
     }
@@ -74,20 +80,27 @@ class SCSSValidator
     {
         try {
             $css = self::initVariables($value, '#000') . \PHP_EOL;
-            $css .= 'body{background-color: ' . $value . ';color: darken(' . $value . ', 10%)}';
-            $parsed = $compiler->compileString(new CompilerConfiguration(['outputStyle' => OutputStyle::COMPRESSED, 'importPaths' => []]), $css);
+            $css .= 'body{background-color:' . $value . ';color: darken(' . $value . ', 10%)}';
+
+            $parsed = $compiler->compileString(
+                new CompilerConfiguration(
+                    ['outputStyle' => OutputStyle::COMPRESSED, 'importPaths' => []]
+                ),
+                $css
+            );
+
             preg_match('/body\{background-color:(.*);/i', $parsed, $parsedValue);
 
             if (
                 !self::isValidColorName($value)
                 || !isset($parsedValue[1])
-                || $parsedValue[1] !== $value
+                || trim($parsedValue[1]) !== $value
             ) {
                 if (
                     !empty($parsedValue[1])
-                    && $parsedValue[1] !== $value
+                    && trim($parsedValue[1]) !== $value
                 ) {
-                    return $parsedValue[1];
+                    return trim($parsedValue[1]);
                 }
 
                 throw ThemeException::InvalidScssValue($value, $type, $name);
@@ -106,9 +119,14 @@ class SCSSValidator
     private static function validateFontFamily(AbstractScssCompiler $compiler, bool $sanitize, mixed $value, string $name, string $type): mixed
     {
         $value = str_replace('\'', '"', $value);
-        $css = 'body{font-family: ' . $value . ';--my-font: ' . $value . '}';
+        $css = 'body{font-family:' . $value . ';--my-font: ' . $value . '}';
         try {
-            $parsed = $compiler->compileString(new CompilerConfiguration(['outputStyle' => OutputStyle::COMPRESSED, 'importPaths' => []]), $css);
+            $parsed = $compiler->compileString(
+                new CompilerConfiguration(
+                    ['outputStyle' => OutputStyle::COMPRESSED, 'importPaths' => []]
+                ),
+                $css
+            );
             preg_match('/body\{font-family:(.*);/i', $parsed, $parsedValue);
 
             if (
@@ -126,6 +144,28 @@ class SCSSValidator
         } catch (\Throwable $exception) {
             if ($sanitize !== true) {
                 throw ThemeException::InvalidScssValue($value, $type, $name);
+            }
+
+            return 'inherit';
+        }
+    }
+
+    private static function validateTypeText(AbstractScssCompiler $compiler, bool $sanitize, mixed $value, string $name, string $type): mixed
+    {
+        $css = '$' . $name . ': ' . $value . ';';
+
+        try {
+            $compiler->compileString(
+                new CompilerConfiguration(
+                    ['outputStyle' => OutputStyle::COMPRESSED, 'importPaths' => []]
+                ),
+                $css
+            );
+
+            return $value;
+        } catch (\Throwable $exception) {
+            if ($sanitize !== true) {
+                throw ThemeException::InvalidScssValue(addslashes($value), $type, $name);
             }
 
             return 'inherit';

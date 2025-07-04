@@ -503,6 +503,10 @@
     "filters": {
       "fromPlaceholder": "Startwert eingeben ...",
       "toPlaceholder": "Endwert eingeben ...",
+      "productNumberFilter": {
+        "label": "Produktnummer",
+        "placeholder": "Gib eine Produktnummer ein ..."
+      },
       "activeFilter": {
         "label": "Aktiv",
         "placeholder": "Wähle einen Status ..."

@@ -16,7 +16,8 @@ export default class Plugin {
      */
     constructor(el, options = {}, pluginName = false) {
         if (!(el instanceof Node)) {
-            throw new Error('There is no valid element given.');
+            console.warn(`There is no valid element given while trying to create a plugin instance for "${pluginName}".`);
+            return;
         }
 
         this.el = el;
@@ -33,7 +34,7 @@ export default class Plugin {
      * this function gets executed when the plugin is initialized
      */
     init() {
-        throw new Error(`The "init" method for the plugin "${this._pluginName}" is not defined.`);
+        console.warn(`The "init" method for the plugin "${this._pluginName}" is not defined. The plugin will not be initialized.`);
     }
 
     /**

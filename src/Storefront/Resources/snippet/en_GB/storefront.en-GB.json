@@ -793,6 +793,7 @@
     "save": "Save",
     "acceptAll": "Accept all cookies",
     "headline": "Cookie preferences",
+    "close": "Close cookie preferences",
     "groupRequired": "Technically required",
     "groupRequiredDescription": "Cookies required for this shop to function:",
     "groupRequiredSession": "Session",

@@ -58,8 +58,6 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         grantPermissions(done: () => void) {
-            console.log('Grant permissions');
-
             done();
         },
     },

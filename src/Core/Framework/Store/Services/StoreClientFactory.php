@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Store\Services;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
+use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -30,7 +30,7 @@ class StoreClientFactory
         $stack = HandlerStack::create();
 
         foreach ($middlewares as $middleware) {
-            $stack->push(Middleware::mapResponse($middleware));
+            $stack->push(self::mapResponse($middleware));
         }
 
         $config = $this->getClientBaseConfig();
@@ -51,5 +51,17 @@ class StoreClientFactory
                 'Accept' => 'application/vnd.api+json,application/json',
             ],
         ];
+    }
+
+    /**
+     * Similar to {@see Middleware::mapResponse} but does also include the request.
+     */
+    private static function mapResponse(callable $fn): callable
+    {
+        return static function (callable $handler) use ($fn): callable {
+            return static function (RequestInterface $request, array $options) use ($handler, $fn) {
+                return $handler($request, $options)->then(fn ($response) => $fn($response, $request));
+            };
+        };
     }
 }

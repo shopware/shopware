@@ -174,4 +174,14 @@ describe('components/sw-advanced-selection-rule', () => {
 
         expect(counts.productPrices).toBe(100);
     });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        }
+    });
 });

@@ -211,6 +211,16 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         expect(Object.keys(listFilters)).toContain('tags');
     });
 
+    it('should return filters from filter registry', async () => {
+        const { wrapper } = await createWrapper();
+        await flushPromises();
+
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        }
+    });
+
     it('should consider criteria filters via updateCriteria (triggered by sw-sidebar-filter-panel)', async () => {
         const { wrapper } = await createWrapper();
         await flushPromises();

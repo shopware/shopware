@@ -252,6 +252,10 @@ describe('components/media/sw-media-folder-item', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        }
     });
 
     it('onBlur doesnt update the entity if the value did not change', async () => {

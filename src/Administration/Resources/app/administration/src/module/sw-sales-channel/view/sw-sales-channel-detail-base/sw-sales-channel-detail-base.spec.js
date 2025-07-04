@@ -1004,6 +1004,15 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         );
     });
 
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        }
+    });
+
     it('"changeInterval" also updates cronjob config', async () => {
         const wrapper = await createWrapper();
 

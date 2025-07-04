@@ -17,7 +17,7 @@ export default function (exception: unknown): string {
         message = exception.response?.data.errors[0]?.detail ?? 'unknown error';
     }
 
-    return message
+    return message;
 }
 
 function isAxiosError(exception: unknown): exception is AxiosError<unknown> {
@@ -25,5 +25,5 @@ function isAxiosError(exception: unknown): exception is AxiosError<unknown> {
 }
 
 function isShopwareHttpErrorResponse(exception: unknown): exception is AxiosError<{ errors: ShopwareHttpError[] }> {
-    return isAxiosError((exception)) && typeof exception.response !== 'undefined';
+    return isAxiosError(exception) && typeof exception.response !== 'undefined';
 }

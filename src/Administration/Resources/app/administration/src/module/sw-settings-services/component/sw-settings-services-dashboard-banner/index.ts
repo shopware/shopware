@@ -17,9 +17,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         return {
             isHidden: true,
-            servicesGraphics: assetFilter(
-                '/administration/administration/static/img/services/services-graphic.png',
-            ),
+            servicesGraphics: assetFilter('/administration/administration/static/img/services/services-graphic.png'),
         };
     },
 
@@ -32,18 +30,20 @@ export default Shopware.Component.wrapComponentConfig({
                     return;
                 }
 
-                this.isHidden = (response.data['core.show-services-dashboard-banner']?.[0] as boolean|undefined) ?? false;
-            }).catch(() => { this.isHidden = false; });
+                this.isHidden = (response.data['core.show-services-dashboard-banner']?.[0] as boolean | undefined) ?? false;
+            })
+            .catch(() => {
+                this.isHidden = false;
+            });
     },
 
     methods: {
         async hideBanner() {
-            await Shopware.Service('userConfigService')
-                .upsert({
-                    'core.show-services-dashboard-banner': [true],
-                });
+            await Shopware.Service('userConfigService').upsert({
+                'core.show-services-dashboard-banner': [true],
+            });
 
             this.isHidden = true;
         },
     },
-})
+});

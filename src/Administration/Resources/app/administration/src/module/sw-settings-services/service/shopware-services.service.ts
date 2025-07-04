@@ -12,22 +12,22 @@ import type { PermissionsConsent, ServiceConfiguration } from '../store/shopware
  * @private
  */
 export type ServiceDescription = {
-    id: string,
-    active: boolean,
-    name: string,
-    label: string,
-    icon: string,
-    description: string,
-    updated_at: Date,
-    version: string
-    requested_privileges: string[],
-    privileges: string[],
-}
+    id: string;
+    active: boolean;
+    name: string;
+    label: string;
+    icon: string;
+    description: string;
+    updated_at: Date;
+    version: string;
+    requested_privileges: string[];
+    privileges: string[];
+};
 
 type ServiceConfigurationConfigValues = {
-    'core.services.disabled'?: boolean,
-    'core.services.permissionsConsent'?: string,
-}
+    'core.services.disabled'?: boolean;
+    'core.services.permissionsConsent'?: string;
+};
 
 /**
  * API service for service handling
@@ -46,57 +46,80 @@ export default class ShopwareServicesService extends ApiService {
     }
 
     getInstalledServices(): Promise<ServiceDescription[]> {
-        return this.httpClient.get('service/list', {
-            headers: this.getBasicHeaders(),
-        }).then((response) => {
-            return response.data as ServiceDescription[];
-        });
+        return this.httpClient
+            .get('service/list', {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return response.data as ServiceDescription[];
+            });
     }
 
     async getServicesContext(): Promise<ServiceConfiguration> {
-        const configValues = await this.systemConfigService.getValues('core.services') as ServiceConfigurationConfigValues;
+        const configValues = (await this.systemConfigService.getValues('core.services')) as ServiceConfigurationConfigValues;
 
         return {
             disabled: configValues['core.services.disabled'],
-            permissionsConsent: typeof configValues['core.services.permissionsConsent'] === 'string'
-                ? JSON.parse(configValues['core.services.permissionsConsent']) as PermissionsConsent
-                : undefined,
+            permissionsConsent:
+                typeof configValues['core.services.permissionsConsent'] === 'string'
+                    ? (JSON.parse(configValues['core.services.permissionsConsent']) as PermissionsConsent)
+                    : undefined,
         };
     }
 
     acceptRevision(revision: string): Promise<ServiceConfiguration> {
-        return this.httpClient.post(
-            `services/permissions/grant/${revision}`, {}, {
-                headers: this.getBasicHeaders(),
-            }).then(() => {
+        return this.httpClient
+            .post(
+                `services/permissions/grant/${revision}`,
+                {},
+                {
+                    headers: this.getBasicHeaders(),
+                },
+            )
+            .then(() => {
                 return this.getServicesContext();
             });
     }
 
     revokePermissions(): Promise<ServiceConfiguration> {
-        return this.httpClient.post(
-            `services/permissions/revoke`, {}, {
-                headers: this.getBasicHeaders(),
-            }).then(() => {
+        return this.httpClient
+            .post(
+                `services/permissions/revoke`,
+                {},
+                {
+                    headers: this.getBasicHeaders(),
+                },
+            )
+            .then(() => {
                 return this.getServicesContext();
             });
     }
 
     enableAllServices(): Promise<ServiceConfiguration> {
-        return this.httpClient.post(
-            'services/enable', {}, {
-                headers: this.getBasicHeaders(),
-            }).then(() => {
+        return this.httpClient
+            .post(
+                'services/enable',
+                {},
+                {
+                    headers: this.getBasicHeaders(),
+                },
+            )
+            .then(() => {
                 return this.getServicesContext();
             });
     }
 
     disableAllServices(): Promise<ServiceConfiguration> {
-        return this.httpClient.post(
-            'services/disable', {}, {
-                headers: this.getBasicHeaders(),
-            }).then(() => {
-            return this.getServicesContext();
-        });
+        return this.httpClient
+            .post(
+                'services/disable',
+                {},
+                {
+                    headers: this.getBasicHeaders(),
+                },
+            )
+            .then(() => {
+                return this.getServicesContext();
+            });
     }
 }

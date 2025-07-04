@@ -7,10 +7,10 @@ import type { ServiceDescription } from '../../service/shopware-services.service
 import extractError from '../../composables/extract-error';
 
 type SwSettingsPageData = {
-    grantPermissionsCardBackground: string,
-    services: ServiceDescription[]
-    suspended: boolean,
-    loadingError: string,
+    grantPermissionsCardBackground: string;
+    services: ServiceDescription[];
+    suspended: boolean;
+    loadingError: string;
 };
 
 /**
@@ -28,8 +28,9 @@ export default Shopware.Component.wrapComponentConfig({
         const assetFilter = Shopware.Filter.getByName('asset');
 
         return {
-            grantPermissionsCardBackground:
-                assetFilter('/administration/administration/static/img/services/grant-permissions-background.svg'),
+            grantPermissionsCardBackground: assetFilter(
+                '/administration/administration/static/img/services/grant-permissions-background.svg',
+            ),
             services: [],
             suspended: true,
             loadingError: '',
@@ -37,7 +38,11 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        ...mapState(useShopwareServicesStore, ['config', 'currentRevision', 'consentGiven']),
+        ...mapState(useShopwareServicesStore, [
+            'config',
+            'currentRevision',
+            'consentGiven',
+        ]),
     },
 
     created() {
@@ -56,23 +61,25 @@ export default Shopware.Component.wrapComponentConfig({
                 .then((serviceRevisions) => {
                     shopwareServicesStore.revisions = serviceRevisions;
                 }),
-        ]).then(() => {
-            this.suspended = false;
-        }).catch((exception) =>  {
-            const errorMessage = extractError(exception);
+        ])
+            .then(() => {
+                this.suspended = false;
+            })
+            .catch((exception) => {
+                const errorMessage = extractError(exception);
 
-            Shopware.Store.get('notification').createNotification({
-                variant: 'critical',
-                title: this.$t('global.default.error'),
-                message: errorMessage,
+                Shopware.Store.get('notification').createNotification({
+                    variant: 'critical',
+                    title: this.$t('global.default.error'),
+                    message: errorMessage,
+                });
             });
-        });
     },
 
     methods: {
         async activateServices() {
             try {
-                const  shopwareServicesService = Shopware.Service('shopwareServicesService');
+                const shopwareServicesService = Shopware.Service('shopwareServicesService');
                 const shopwareServicesStore = useShopwareServicesStore();
 
                 shopwareServicesStore.config = await shopwareServicesService.enableAllServices();
@@ -97,7 +104,7 @@ export default Shopware.Component.wrapComponentConfig({
                 const shopwareServicesService = Shopware.Service('shopwareServicesService');
 
                 this.services = await shopwareServicesService.getInstalledServices();
-            } catch(exception) {
+            } catch (exception) {
                 this.loadingError = extractError(exception);
 
                 Shopware.Store.get('notification').createNotification({

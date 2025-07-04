@@ -1,20 +1,13 @@
-
-import './service'
+import './service';
 /**
  * @private
  */
-Shopware.Component.register(
-    'sw-settings-services-index',
-    () => import('./page/sw-settings-services-index'),
-);
+Shopware.Component.register('sw-settings-services-index', () => import('./page/sw-settings-services-index'));
 
 /**
  * @private
  */
-Shopware.Component.register(
-    'sw-settings-services-hero',
-    () => import('./component/sw-settings-services-hero'),
-    );
+Shopware.Component.register('sw-settings-services-hero', () => import('./component/sw-settings-services-hero'));
 
 /**
  * @private

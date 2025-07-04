@@ -45,11 +45,11 @@ export default Shopware.Component.wrapComponentConfig({
 
                 this.isLoading = true;
 
-                shopwareServiceStore.config = await Shopware.Service('shopwareServicesService')
-                    .acceptRevision(currentRevision);
+                shopwareServiceStore.config =
+                    await Shopware.Service('shopwareServicesService').acceptRevision(currentRevision);
 
                 this.$emit('service-permissions-granted');
-            } catch(exception) {
+            } catch (exception) {
                 Shopware.Store.get('notification').createNotification({
                     variant: 'critical',
                     title: this.$t('global.default.error'),
@@ -60,4 +60,4 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
     },
-})
+});

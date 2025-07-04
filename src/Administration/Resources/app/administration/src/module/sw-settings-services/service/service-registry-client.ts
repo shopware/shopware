@@ -6,20 +6,20 @@
  * @private
  */
 export type ServicesRevision = {
-    revision: string,
+    revision: string;
     links: {
-        'feedback-url': string,
-        'docs-url': string,
-        'tos-url': string,
-    }
-}
+        'feedback-url': string;
+        'docs-url': string;
+        'tos-url': string;
+    };
+};
 
 /**
  * @private
  */
 export type RevisionData = {
-    'latest-revision': string,
-    'available-revisions': ServicesRevision[],
+    'latest-revision': string;
+    'available-revisions': ServicesRevision[];
 };
 
 /**
@@ -33,17 +33,14 @@ export default class {
     }
 
     async getCurrentRevision(locale: string): Promise<RevisionData> {
-        const response = await fetch(
-            new URL('/api/service/permission-revisions', this.registryUrl),
-            {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'Accept-Language': locale,
-                },
-                mode: 'cors',
+        const response = await fetch(new URL('/api/service/permission-revisions', this.registryUrl), {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Accept-Language': locale,
             },
-        );
+            mode: 'cors',
+        });
 
         const content: unknown = await response.json();
 

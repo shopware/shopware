@@ -8,7 +8,7 @@ import ServiceRegistryClient from './service-registry-client';
 declare global {
     interface ServiceContainer extends SubContainer<'service'> {
         shopwareServicesService: ShopwareServicesService;
-        serviceRegistryClient: ServiceRegistryClient,
+        serviceRegistryClient: ServiceRegistryClient;
     }
 }
 
@@ -28,4 +28,4 @@ Shopware.Service().register('shopwareServicesService', () => {
  */
 Shopware.Service().register('serviceRegistryClient', () => {
     return new ServiceRegistryClient(Shopware.Context.api.serviceRegistryUrl!);
-})
+});

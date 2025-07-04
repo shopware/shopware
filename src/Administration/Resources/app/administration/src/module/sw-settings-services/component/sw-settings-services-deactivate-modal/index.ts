@@ -1,8 +1,4 @@
-import {
-    MtModalTrigger,
-    MtModalAction,
-    MtModalClose,
-} from '@shopware-ag/meteor-component-library';
+import { MtModalTrigger, MtModalAction, MtModalClose } from '@shopware-ag/meteor-component-library';
 import template from './sw-settings-services-deactivate-modal.html.twig';
 import './sw-settings-services-deactivate-modal.scss';
 import extractError from '../../composables/extract-error';
@@ -38,7 +34,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.isLoading = true;
 
             try {
-                const  shopwareServicesService = Shopware.Service('shopwareServicesService');
+                const shopwareServicesService = Shopware.Service('shopwareServicesService');
 
                 await shopwareServicesService.disableAllServices();
 
@@ -57,4 +53,4 @@ export default Shopware.Component.wrapComponentConfig({
             done();
         },
     },
-})
+});

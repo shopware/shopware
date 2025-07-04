@@ -8,25 +8,25 @@ import type { RevisionData, ServicesRevision } from '../service/service-registry
  * @private
  */
 export type PermissionsConsent = {
-    identifier: string,
-    revision: string,
-    consentingUserId: string,
-    grantedAt: string,
-}
+    identifier: string;
+    revision: string;
+    consentingUserId: string;
+    grantedAt: string;
+};
 
 /**
  * @private
  */
 export type ServiceConfiguration = {
-    'permissionsConsent'?: PermissionsConsent,
-    'disabled'?: boolean,
-}
+    permissionsConsent?: PermissionsConsent;
+    disabled?: boolean;
+};
 
 type ShopwareServicesState = {
-    config: ServiceConfiguration | null,
-    revisions: RevisionData | null,
-    showGrantPermissionsModal: boolean,
-}
+    config: ServiceConfiguration | null;
+    revisions: RevisionData | null;
+    showGrantPermissionsModal: boolean;
+};
 
 /* eslint-disable import/prefer-default-export */
 /**
@@ -61,9 +61,11 @@ export const useShopwareServicesStore = defineStore('shopwareServices', {
                 return null;
             }
 
-            return this.revisions['available-revisions'].find((revision) => {
-                return revision.revision === this.revisions!['latest-revision'];
-            }) ?? null;
+            return (
+                this.revisions['available-revisions'].find((revision) => {
+                    return revision.revision === this.revisions!['latest-revision'];
+                }) ?? null
+            );
         },
     },
 });

@@ -3,9 +3,9 @@
  */
 import { MtModalAction, MtModalClose } from '@shopware-ag/meteor-component-library';
 import useSession from 'src/app/composables/use-session';
-import template from './sw-settings-services-grant-permissions-modal.html.twig'
+import template from './sw-settings-services-grant-permissions-modal.html.twig';
 import './sw-settings-services-grant-permissions-modal.scss';
-import { useShopwareServicesStore} from '../../store/shopware-services.store';
+import { useShopwareServicesStore } from '../../store/shopware-services.store';
 
 /**
  * @private
@@ -49,7 +49,8 @@ export default Shopware.Component.wrapComponentConfig({
             this.showGrantPermissionsModal = isOpen;
 
             if (this.showGrantPermissionsModal && !this.feedbackLink) {
-                Shopware.Service('serviceRegistryClient').getCurrentRevision(useSession().currentLocale.value as string)
+                Shopware.Service('serviceRegistryClient')
+                    .getCurrentRevision(useSession().currentLocale.value as string)
                     .then((revisions) => {
                         useShopwareServicesStore().revisions = revisions;
                     })

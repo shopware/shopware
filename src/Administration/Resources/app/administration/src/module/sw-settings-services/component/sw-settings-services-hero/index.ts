@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import template from './sw-settings-services-hero.html.twig'
+import template from './sw-settings-services-hero.html.twig';
 import './sw-settings-services-hero.scss';
 import swSettingsServicesFramedIcon from '../sw-settings-services-framed-icon';
 

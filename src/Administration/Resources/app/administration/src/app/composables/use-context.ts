@@ -71,7 +71,7 @@ export interface ContextState {
         currencyId: null | string;
         versionId: null | string;
         refreshTokenTtl: null | string;
-        serviceRegistryUrl: null | string,
+        serviceRegistryUrl: null | string;
     };
 }
 

@@ -49,9 +49,9 @@
             </mt-popover>
         </div>
 
-        <div class="sw-settings-services-service-card__description"
-             v-html="service.description"
-        ></div>
+        <div class="sw-settings-services-service-card__description">
+            {{ service.description }}
+        </div>
 
         <div class="sw-settings-services-service-card__footer">
             {{  $t('sw-settings-services.service-card.updated-at-label', { updatedAt: updatedAt }) }}

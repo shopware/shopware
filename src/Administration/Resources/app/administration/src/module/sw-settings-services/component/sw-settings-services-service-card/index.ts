@@ -56,8 +56,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         statusText() {
             switch (this.serviceStatus) {
-                case 'green': return 'sw-settings-services.service-card.status-active';
-                case 'orange': return 'sw-settings-services.service-card.status-awaiting-permissions';
+                case 'green':
+                    return 'sw-settings-services.service-card.status-active';
+                case 'orange':
+                    return 'sw-settings-services.service-card.status-awaiting-permissions';
                 case 'red':
                 default:
                     return 'sw-settings-services.service-card.status-inactive';
@@ -65,7 +67,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         updatedAt() {
-            return (new Date(this.service.updated_at)).toLocaleDateString();
+            return new Date(this.service.updated_at).toLocaleDateString();
         },
 
         readableVersion() {
@@ -98,12 +100,12 @@ export default Shopware.Component.wrapComponentConfig({
                     message: extractErrorMessage(exception),
                 });
             } finally {
-                this.isLoading = false
+                this.isLoading = false;
             }
 
-            if(toggleFloatingUi) {
+            if (toggleFloatingUi) {
                 toggleFloatingUi();
             }
         },
     },
-})
+});

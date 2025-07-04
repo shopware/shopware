@@ -12,7 +12,10 @@
         {% endblock %}
         {% block sw_notification_center_item_header_timestamp %}
         <p class="sw-notification-center-item__timestamp">
-            <sw-time-ago :date="notification.timestamp" />
+            <sw-time-ago
+                :date="notification.timestamp"
+                :date-time-format="{ month: '2-digit', day: '2-digit' }"
+            />
         </p>
         {% endblock %}
         {% block sw_notification_center_item_header_delete %}

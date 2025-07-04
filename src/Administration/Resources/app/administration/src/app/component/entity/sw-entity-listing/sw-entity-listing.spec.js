@@ -53,7 +53,6 @@ async function createWrapper(propsData = {}) {
                 'router-link': true,
                 'sw-button-group': true,
                 'sw-provide': true,
-                'sw-time-ago': await wrapTestComponent('sw-time-ago', { sync: true }),
             },
         },
     });

@@ -75,7 +75,7 @@ describe('module/sw-import-export/components/sw-import-export-activity-log-info-
         [
             'date',
             '.sw-import-export-activity-log-info-modal__item-date dd',
-            '5 November 2021 at 09:08',
+            '05/11/2021, 09:08',
         ],
         [
             'user',

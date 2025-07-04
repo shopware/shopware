@@ -55,10 +55,7 @@
                 #column-createdAt="{ item }"
             >
                 {% block sw_settings_logging_list_column_created_at %}
-                <sw-time-ago
-                    :date="item.createdAt"
-                    :date-time-format="{ hour: '2-digit', minute: '2-digit' }"
-                />
+                <sw-time-ago :date="item.createdAt" />
                 {% endblock %}
             </template>
 

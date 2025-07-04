@@ -32,7 +32,7 @@
                 {{ $tc('sw-order.generalTab.info.summary.on') }}
                 <sw-time-ago
                     :date="order.orderDateTime"
-                    :date-time-format="{ hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }"
+                    :date-time-format="{ month: '2-digit', day: '2-digit' }"
                 />
                 <template v-if="transaction">
                     {{ $tc('sw-order.generalTab.info.summary.with') }}
@@ -54,7 +54,7 @@
                     {{ $tc('sw-order.generalTab.info.summary.lastChanged') }}:
                     <sw-time-ago
                         :date="lastChangedDateTime"
-                        :date-time-format="{ hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }"
+                        :date-time-format="{ month: '2-digit', day: '2-digit' }"
                     />
                 </div>
                 {% endblock %}

@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\LanguageAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Event\TimezoneAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -124,6 +125,7 @@ class SendMailAction extends FlowAction implements DelayableAction
         $data->set('senderName', $mailTemplate->getTranslation('senderName'));
         $data->set('salesChannelId', $flow->getData(MailAware::SALES_CHANNEL_ID));
         $data->set('languageId', $flow->getData(LanguageAware::LANGUAGE_ID));
+        $data->set('timezone', $flow->getData(TimezoneAware::TIMEZONE));
 
         $data->set('templateId', $mailTemplate->getId());
         $data->set('customFields', $mailTemplate->getCustomFields());

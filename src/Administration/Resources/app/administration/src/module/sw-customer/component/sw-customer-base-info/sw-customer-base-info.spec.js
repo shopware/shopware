@@ -46,7 +46,7 @@ async function createWrapper() {
                 'sw-help-text': true,
                 'sw-datepicker': true,
                 'sw-text-field': true,
-                'sw-time-ago': true,
+                'sw-time-ago': await wrapTestComponent('sw-time-ago', { sync: true }),
             },
             provide: {
                 repositoryFactory: {

@@ -38,6 +38,7 @@ async function createWrapper(logEntity = getLogEntityMock()) {
                     </div>`,
                     },
                     'sw-color-badge': true,
+                    'sw-time-ago': await wrapTestComponent('sw-time-ago', { sync: true }),
                 },
             },
             props: {

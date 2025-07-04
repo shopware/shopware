@@ -28,7 +28,9 @@
       "services-enabled": "Services enabled",
       "services-scheduled": "Services are scheduled to be installed and activated. This can take a moment.",
       "label-documentation-link": "Documentation",
-      "label-tos-link": "Terms & Conditions"
+      "label-tos-link": "Terms & Conditions",
+      "installing-services-title": "Installing Shopware Services",
+      "installing-services-description": "This might take a while. You will be notified as soon as the installations are complete. In the meantime you can freely use your Shopware administration."
     },
     "service-card": {
       "status-active": "Active",

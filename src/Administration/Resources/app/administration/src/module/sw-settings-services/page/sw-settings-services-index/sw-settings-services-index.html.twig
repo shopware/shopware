@@ -42,7 +42,7 @@
                     <p>{{ loadingError }}</p>
                 </mt-banner>
 
-                   <mt-banner
+                <mt-banner
                     v-if="config.disabled"
                     class="sw-settings-services-index__services-deactivated-banner"
                     variant="attention"
@@ -52,9 +52,9 @@
                     <p>{{ $t('sw-settings-services.index.services-are-disabled-cta') }}</p>
 
                     <mt-button
-                            variant="primary"
-                            size="small"
-                            @click="activateServices"
+                        variant="primary"
+                        size="small"
+                        @click="activateServices"
                     >
                         {{ $t('sw-settings-services.index.services-are-disabled-button-label') }}
                     </mt-button>
@@ -68,9 +68,9 @@
                         <mt-loader size="var(--scale-size-32)" />
                     </div>
 
-                    <p class="sw-settings-services-index__installing-card-title">Installing Shopware Services</p>
+                    <p class="sw-settings-services-index__installing-card-title">{{ $t('sw-settings-services.index.installing-services-title') }}</p>
 
-                    <p>This might take a while. You will get a notification when all installations are finished. You can use your Shopware Administration freely in the meantime.</p>
+                    <p>{{ $t('sw-settings-services.index.installing-services-description') }}</p>
                 </div>
 
                 <ul

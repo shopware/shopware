@@ -28,7 +28,9 @@
       "services-enabled": "Services aktiviert",
       "services-scheduled": "Services sind zur Installation und Aktivierung eingeplant. Dies kann einen Moment dauern.",
       "label-documentation-link": "Dokumentation",
-      "label-tos-link": "AGB"
+      "label-tos-link": "AGB",
+      "installing-services-title": "Shopware Services werden installiert",
+      "installing-services-description": "Dies kann eine Weile dauern. Du wirst benachrichtigt, sobald die Installationen abgeschlossen sind. In der Zwischenzeit kannst Du Deine Shopware Administration frei nutzen."
     },
     "service-card": {
       "status-active": "Aktiv",

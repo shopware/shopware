@@ -685,41 +685,36 @@ export default {
         },
 
         /* eslint-disable no-unused-vars */
-        async onConfirmDelete() {
+        onConfirmDelete() {
             this.modalLoading = true;
             this.showDeleteModal = false;
             const variantIds = this.toBeDeletedVariantIds.map((variant) => variant.id);
 
-            const canBeDeleted = await this.canVariantBeDeleted();
-            if (!canBeDeleted) {
-                this.modalLoading = false;
-                this.toBeDeletedVariantIds = [];
+            this.canVariantBeDeleted().then((canBeDeleted) => {
+                if (!canBeDeleted) {
+                    this.modalLoading = false;
+                    this.toBeDeletedVariantIds = [];
 
-                this.createNotificationError({
-                    message: this.$tc('sw-product.variations.generatedListMessageDeleteErrorCanonicalUrl'),
+                    this.createNotificationError({
+                        message: this.$tc('sw-product.variations.generatedListMessageDeleteErrorCanonicalUrl'),
+                    });
+
+                    return;
+                }
+
+                this.updateVariantListingConfig(variantIds);
+
+                this.productRepository.syncDeleted(variantIds).then(() => {
+                    this.modalLoading = false;
+                    this.toBeDeletedVariantIds = [];
+
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-product.variations.generatedListMessageDeleteSuccess'),
+                    });
+
+                    this.$refs.variantGrid.resetSelection();
+                    this.getList();
                 });
-
-                return;
-            }
-
-            const productEntity = await this.productRepository.get(this.product.id);
-            const mainVariantId = productEntity.variantListingConfig?.mainVariantId;
-
-            if (mainVariantId && variantIds.includes(mainVariantId)) {
-                productEntity.variantListingConfig.mainVariantId = null;
-                await this.productRepository.save(productEntity);
-            }
-
-            this.productRepository.syncDeleted(variantIds).then(() => {
-                this.modalLoading = false;
-                this.toBeDeletedVariantIds = [];
-
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-product.variations.generatedListMessageDeleteSuccess'),
-                });
-
-                this.$refs.variantGrid.resetSelection();
-                this.getList();
             });
         },
 

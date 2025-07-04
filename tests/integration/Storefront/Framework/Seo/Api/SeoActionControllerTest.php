@@ -266,6 +266,7 @@ class SeoActionControllerTest extends TestCase
         static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
 
         $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
+
         static::assertCount(1, $seoUrls);
         $seoUrl = $seoUrls[0]['attributes'];
         static::assertTrue($seoUrl['isModified']);
@@ -383,10 +384,7 @@ class SeoActionControllerTest extends TestCase
                 ],
             ];
         }
-        $this->getBrowser()->request('GET', '/api/product/' . $id . '/seoUrls', $params, server: [
-            'CONTENT_TYPE' => 'application/json',
-            'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
-        ]);
+        $this->getBrowser()->request('GET', '/api/product/' . $id . '/seoUrls', $params);
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         $content = $this->getBrowser()->getResponse()->getContent();

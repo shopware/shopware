@@ -68,6 +68,8 @@ class SearchKeywordUpdaterTest extends TestCase
     #[DataProvider('productKeywordProvider')]
     public function testItUpdatesKeywordsForAvailableLanguagesOnly(array $productData, IdsCollection $ids, array $englishKeywords, array $germanKeywords, array $additionalDictionaries = []): void
     {
+        $this->connection->executeStatement('DELETE FROM product');
+
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();

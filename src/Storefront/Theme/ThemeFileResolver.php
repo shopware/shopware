@@ -138,7 +138,7 @@ class ThemeFileResolver
             
             // Handle direct file paths (not starting with @)
             if (!$this->isInclude($filepath)) {
-                if (file_exists($filepath)) {
+                if (\is_file($filepath)) {
                     $resolvedFiles->add($file);
 
                     continue;

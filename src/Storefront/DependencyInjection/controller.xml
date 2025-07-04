@@ -189,6 +189,8 @@
             <argument type="service" id="Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryUrlGenerator"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -342,5 +344,12 @@
             </call>
         </service>
 
+        <service id="Shopware\Storefront\Controller\RobotsController" public="true">
+            <argument type="service" id="Shopware\Storefront\Page\Robots\RobotsPageLoader"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
     </services>
 </container>

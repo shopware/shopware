@@ -77,7 +77,7 @@ export default {
             if (!this.$route.params.id) {
                 return;
             }
-            this.countryId = this.$route.params.id;
+            this.countryId = this.$route.params.id.toLowerCase();
             this.loadCurrencies();
         },
 

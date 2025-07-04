@@ -12,11 +12,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Storefront;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -222,25 +224,20 @@ class ThemeLifecycleHandlerTest extends TestCase
         $this->themeLifecycleHandler->handleThemeInstallOrUpdate($uninstalledConfig, $configs, Context::createDefaultContext());
         $this->assignThemeToDefaultSalesChannel('SimpleTheme');
 
-        $wasThrown = false;
-
         $scCollection = new ThemeSalesChannelCollection();
         $scCollection->add(new ThemeSalesChannel(Uuid::randomHex(), Uuid::randomHex()));
         $this->themeServiceMock->expects($this->once())
             ->method('getThemeDependencyMapping')
             ->willReturn($scCollection);
 
-        try {
-            $this->themeLifecycleHandler->handleThemeUninstall($uninstalledConfig, Context::createDefaultContext());
-        } catch (ThemeAssignmentException $e) {
-            static::assertSame(
-                [TestDefaults::SALES_CHANNEL],
-                array_keys($e->getAssignedSalesChannels() ?? [])
-            );
-            $wasThrown = true;
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(ThemeAssignmentException::class);
+        } else {
+            $this->expectException(ThemeException::class);
         }
+        $this->expectExceptionMessage('Unable to deactivate or uninstall theme "Simple theme". Remove the following assignments between theme and sales channel assignments: "Simple theme" => "Headless".');
 
-        static::assertTrue($wasThrown);
+        $this->themeLifecycleHandler->handleThemeUninstall($uninstalledConfig, Context::createDefaultContext());
     }
 
     private function assignThemeToDefaultSalesChannel(?string $themeName = null): void

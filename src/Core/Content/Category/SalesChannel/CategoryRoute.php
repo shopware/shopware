@@ -54,6 +54,7 @@ class CategoryRoute extends AbstractCategoryRoute
         if ($navigationId === self::HOME) {
             $navigationId = $context->getSalesChannel()->getNavigationCategoryId();
             $request->attributes->set('navigationId', $navigationId);
+
             $routeParams = $request->attributes->get('_route_params', []);
             $routeParams['navigationId'] = $navigationId;
             $request->attributes->set('_route_params', $routeParams);
@@ -63,6 +64,10 @@ class CategoryRoute extends AbstractCategoryRoute
 
         $categoryHasContentlessPageType = \in_array($category->getType(), [CategoryDefinition::TYPE_FOLDER, CategoryDefinition::TYPE_LINK], true);
         if ($categoryHasContentlessPageType && $context->getSalesChannel()->getNavigationCategoryId() !== $navigationId) {
+            if ($category->getType() === CategoryDefinition::TYPE_LINK) {
+                return new CategoryRouteResponse($category);
+            }
+
             throw CategoryException::categoryNotFound($navigationId);
         }
 

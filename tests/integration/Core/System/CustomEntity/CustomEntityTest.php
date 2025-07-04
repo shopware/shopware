@@ -12,7 +12,10 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -163,7 +166,63 @@ class CustomEntityTest extends TestCase
 
         static::getContainer()->get(Connection::class)->rollBack();
 
-        self::cleanUp($container);
+        $this->cleanupAppData(static::getContainer());
+    }
+
+    public function testRestrictDeleteDoesNotPreventUninstallWhenEmpty(): void
+    {
+        $this->initBlogEntity();
+
+        // allow disable is still false if it has entities with restrict delete
+        // however you should still be able to uninstall the app if there are no entities
+        $this->testAllowDisable(false);
+
+        $appLifecycle = static::getContainer()->get(AppLifecycle::class);
+        /** @var EntityRepository<AppCollection> $appRepository */
+        $appRepository = static::getContainer()->get('app.repository');
+        $context = Context::createDefaultContext();
+
+        foreach ($appRepository->search(new Criteria(), $context)->getEntities() as $installedApp) {
+            // we keep user data, uninstall with removing user data is tested in the cleanupAppData() method
+            $appLifecycle->delete($installedApp->getName(), ['id' => $installedApp->getId()], $context, true);
+        }
+
+        // with keepUserData=true the custom entity schema is not removed during app uninstall,
+        // therefore we need to clean up the custom entity schema manually
+        self::cleanUp(static::getContainer());
+    }
+
+    public function testRestrictDeleteDoesPreventUninstallWhenDataIsStillThere(): void
+    {
+        $container = $this->initBlogEntity();
+
+        $ids = new IdsCollection();
+        $blog = self::blog('blog-2', $ids);
+        $blog['topSellerRestrict'] = (new ProductBuilder($ids, 'top-seller-restrict'))->price(100)->build();
+
+        $repository = $container->get('custom_entity_blog.repository');
+        static::assertInstanceOf(EntityRepository::class, $repository);
+
+        $repository->create([$blog], Context::createDefaultContext());
+
+        $appLifecycle = static::getContainer()->get(AppLifecycle::class);
+        /** @var EntityRepository<AppCollection> $appRepository */
+        $appRepository = static::getContainer()->get('app.repository');
+        $context = Context::createDefaultContext();
+
+        $exceptionThrown = false;
+        try {
+            foreach ($appRepository->search(new Criteria(), $context)->getEntities() as $installedApp) {
+                $appLifecycle->delete($installedApp->getName(), ['id' => $installedApp->getId()], $context, true);
+            }
+        } catch (AppException $e) {
+            static::assertSame(AppException::APP_RESTRICT_DELETE_PREVENTS_DEACTIVATION, $e->getErrorCode());
+            $exceptionThrown = true;
+        } finally {
+            $this->cleanupAppData(static::getContainer());
+        }
+
+        static::assertTrue($exceptionThrown);
     }
 
     public function testSchemaUpdate(): void
@@ -209,7 +268,7 @@ class CustomEntityTest extends TestCase
 
         $this->testAllowDisable(true);
 
-        self::cleanUp(static::getContainer());
+        $this->cleanupAppData(static::getContainer());
     }
 
     public function testDoesNotRegisterCustomEntitiesIfAppIsInactive(): void
@@ -221,7 +280,7 @@ class CustomEntityTest extends TestCase
         static::assertFalse($schema->hasTable('custom_entity_blog_product'));
         static::assertFalse($schema->hasTable('custom_entity_to_remove'));
 
-        self::cleanUp(static::getContainer());
+        $this->cleanupAppData(static::getContainer());
     }
 
     public function testInvalidDefaultTypesParsedCorrectly(): void
@@ -264,7 +323,7 @@ class CustomEntityTest extends TestCase
             static::assertSame($defaultValue, $entityValue);
         }
 
-        self::cleanUp(static::getContainer());
+        $this->cleanupAppData(static::getContainer());
     }
 
     public function testPersistsCustomEntitiesIfSchemaContainsEnumColumns(): void
@@ -288,7 +347,7 @@ class CustomEntityTest extends TestCase
         static::assertTrue($schema->hasTable('ce_blog_comment'));
         static::assertSame($columns, $connection->executeQuery('DESCRIBE test_with_enum_column')->fetchAllAssociative());
 
-        self::cleanUp(static::getContainer());
+        $this->cleanupAppData(static::getContainer());
     }
 
     private function testStorage(ContainerInterface $container): void
@@ -1062,6 +1121,31 @@ class CustomEntityTest extends TestCase
         );
 
         $container->get(CustomEntitySchemaUpdater::class)->update();
+    }
+
+    private function cleanupAppData(ContainerInterface $container): void
+    {
+        $appLifecycle = $container->get(AppLifecycle::class);
+        /** @var EntityRepository<AppCollection> $appRepository */
+        $appRepository = $container->get('app.repository');
+        $context = Context::createDefaultContext();
+
+        foreach ($appRepository->search(new Criteria(), $context)->getEntities() as $installedApp) {
+            $appLifecycle->delete($installedApp->getName(), ['id' => $installedApp->getId()], $context);
+        }
+
+        $connection = $container->get(Connection::class);
+
+        $count = $connection->fetchOne('SELECT COUNT(*) FROM custom_entity');
+        static::assertSame('0', $count, 'Custom entity table should be empty after app uninstall');
+
+        static::assertFalse(
+            $connection->createSchemaManager()->tablesExist(['custom_entity_blog']),
+            'Custom entity table should not exist after app uninstall'
+        );
+
+        $connection->executeStatement('DELETE FROM category WHERE `type` = :type', ['type' => self::CATEGORY_TYPE]);
+        $connection->executeStatement('DELETE FROM product');
     }
 
     private function testDefinition(ContainerInterface $container): void

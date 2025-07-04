@@ -12,6 +12,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
+use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -26,6 +27,7 @@ use Shopware\Storefront\Framework\SystemCheck\ProductListingReadinessCheck;
 #[CoversClass(ProductListingReadinessCheck::class)]
 class ProductListingReadinessCheckTest extends TestCase
 {
+    use CacheTestBehaviour;
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
     use SalesChannelApiTestBehaviour;
@@ -93,7 +95,7 @@ class ProductListingReadinessCheckTest extends TestCase
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'currencyId' => Defaults::CURRENCY,
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-                    'url' => 'https://test.to',
+                    'url' => 'http://example.com',
                 ],
             ],
         ]);
@@ -104,7 +106,7 @@ class ProductListingReadinessCheckTest extends TestCase
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'currencyId' => Defaults::CURRENCY,
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-                    'url' => 'https://foo.to',
+                    'url' => 'http://shop.test',
                 ],
             ],
         ]);

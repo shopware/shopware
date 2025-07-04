@@ -90,7 +90,11 @@ abstract class AbstractDocumentRenderer
             return false;
         }
 
-        $orderDelivery = $order->getDeliveries()?->first();
+        $orderDelivery = $order->getPrimaryOrderDelivery();
+        if (!Feature::isActive('v6.8.0.0')) {
+            $orderDelivery = $order->getDeliveries()?->first();
+        }
+
         if (!$orderDelivery) {
             return false;
         }

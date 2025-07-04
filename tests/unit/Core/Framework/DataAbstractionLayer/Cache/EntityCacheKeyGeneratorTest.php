@@ -23,10 +23,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
-use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -158,7 +158,7 @@ class DummyContext extends SalesChannelContext
             new CustomerEntity(),
             new CashRoundingConfig(2, 0.01, true),
             new CashRoundingConfig(2, 0.01, true),
-            new LanguageInfo('English', 'en-GB'),
+            Generator::createLanguageInfo(),
         );
     }
 
@@ -177,7 +177,7 @@ class DummyContext extends SalesChannelContext
     }
 
     /**
-     * @param list<string> $chain
+     * @param non-empty-list<string> $chain
      */
     public function setLanguageChain(array $chain): self
     {

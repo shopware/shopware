@@ -188,6 +188,7 @@
                 class="sw-product-category-form__search-keyword-field"
                 :value="currentValue ? currentValue : []"
                 :placeholder="$tc('sw-product.categoryForm.placeholderSearchKeywords')"
+                :disabled="isInherited || !allowEdit"
                 @update:value="updateCurrentValue"
             >
                 <template #message-add-data>

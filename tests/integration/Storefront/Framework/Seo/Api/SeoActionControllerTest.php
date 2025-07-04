@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
+use function Psl\Async\series;
 
 /**
  * @internal
@@ -275,7 +276,7 @@ class SeoActionControllerTest extends TestCase
             'id' => $id,
             'name' => 'unused name',
         ];
-        $this->getBrowser()->jsonRequest('PATCH', '/api/product/' . $id, $productUpdate);
+        $this->getBrowser()->request('PATCH', '/api/product/' . $id, $productUpdate);
 
         // seo url is not updated with the product
         $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
@@ -383,7 +384,10 @@ class SeoActionControllerTest extends TestCase
                 ],
             ];
         }
-        $this->getBrowser()->jsonRequest('GET', '/api/product/' . $id . '/seoUrls', $params);
+        $this->getBrowser()->request('GET', '/api/product/' . $id . '/seoUrls', $params, server: [
+            'CONTENT_TYPE' => 'application/json',
+            'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
+        ]);
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         $content = $this->getBrowser()->getResponse()->getContent();

@@ -6,6 +6,7 @@
  "category-detail-custom-entity",
  "positionIdentifier",
  "positionIdentifier",
+ "positionIdentifier",
  "positionIdentifier + '__after'",
  "positionIdentifier + '__after'",
  "positionIdentifier + '__before'",
@@ -289,10 +290,6 @@
  "sw-settings-rule-detail-base-content",
  "sw-settings-rule-detail-base-custom-field-sets",
  "sw-settings-rule-preview-mode-switch",
- "sw-settings-saas-user-detail-content-card-information",
- "sw-settings-saas-user-detail-content-card-integrations",
- "sw-settings-saas-user-detail-content-card-rolesAndPermission",
- "sw-settings-saas-user-detail-content-card-userinterface",
  "sw-settings-salutation-detail-content",
  "sw-settings-salutation-detail-custom-fields",
  "sw-settings-salutation-list-content",
@@ -331,7 +328,6 @@
  "sw-shopware-updates-info",
  "sw-shopware-updates-plugins",
  "sw-shopware-updates-requirements",
- "sw-sso-error-card",
  "sw-system-config-content",
  "sw-tax-rule",
  "sw-user-card",
@@ -346,5 +342,10 @@
  "sw-users-permissions-user-detail-integrations",
  "sw-users-permissions-user-listing",
  "sw-variant-card-tabs",
- "tabExtension.componentSectionId"
+ "tabExtension.componentSectionId",
+  "sw-settings-saas-user-detail-content-card-information",
+  "sw-settings-saas-user-detail-content-card-integrations",
+  "sw-settings-saas-user-detail-content-card-rolesAndPermission",
+  "sw-settings-saas-user-detail-content-card-userinterface",
+  "sw-sso-error-card"
 ]

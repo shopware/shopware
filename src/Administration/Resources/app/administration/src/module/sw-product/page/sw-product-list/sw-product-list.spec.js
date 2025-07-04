@@ -63,7 +63,7 @@ function mockCriteria() {
 }
 
 function getProductData(criteria) {
-    const products = [
+    let products = [
         {
             active: true,
             stock: 333,
@@ -120,7 +120,7 @@ function getProductData(criteria) {
     ];
 
     // check if grid is sorting for currency
-    const sortingForCurrency = criteria.sortings.some((sortAttr) => sortAttr.field.startsWith('price'));
+    const sortingForCurrency = criteria.sortings?.some((sortAttr) => sortAttr.field.startsWith('price'));
 
     if (sortingForCurrency) {
         const sortBy = criteria.sortings[0].field;
@@ -141,7 +141,7 @@ function getProductData(criteria) {
     }
 
     // check if grid is sorting for name
-    const sortingForName = criteria.sortings.some((sortAttr) => sortAttr.field.startsWith('name'));
+    const sortingForName = criteria.sortings?.some((sortAttr) => sortAttr.field.startsWith('name'));
 
     if (sortingForName) {
         const sortDirection = criteria.sortings[0].order;
@@ -158,7 +158,7 @@ function getProductData(criteria) {
     }
 
     // check if grid is sorting for manufacturer name
-    const sortingForManufacturer = criteria.sortings.some((sortAttr) => sortAttr.field.startsWith('manufacturer'));
+    const sortingForManufacturer = criteria.sortings?.some((sortAttr) => sortAttr.field.startsWith('manufacturer'));
 
     if (sortingForManufacturer) {
         const sortDirection = criteria.sortings[0].order;
@@ -172,6 +172,12 @@ function getProductData(criteria) {
 
             return nameA < nameB ? -1 : 1;
         });
+    }
+
+    const filterProductNumber = criteria.filters?.find((filter) => filter.field === 'productNumber');
+    if (filterProductNumber) {
+        const productNumber = filterProductNumber.value;
+        products = products.filter((product) => product.productNumber.includes(productNumber));
     }
 
     products.sortings = [];
@@ -704,5 +710,15 @@ describe('module/sw-product/page/sw-product-list', () => {
                 (association) => association.association === 'configuratorSettings',
             ),
         ).toBeFalsy();
+    });
+
+    it('should filter products by product number filter input', async () => {
+        wrapper.vm.filterCriteria.push(Criteria.equals('productNumber', 'SW10001'));
+
+        const productCriteria = wrapper.vm.productCriteria;
+        const products = getProductData(productCriteria);
+
+        expect(products).toHaveLength(1);
+        expect(products[0].productNumber).toBe('SW10001');
     });
 });

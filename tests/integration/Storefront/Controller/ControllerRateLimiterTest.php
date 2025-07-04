@@ -64,6 +64,8 @@ class ControllerRateLimiterTest extends TestCase
     use RateLimiterTestTrait;
     use StorefrontControllerTestBehaviour;
 
+    public static string $customCacheId;
+
     private Context $context;
 
     private IdsCollection $ids;
@@ -76,18 +78,14 @@ class ControllerRateLimiterTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        DisableRateLimiterCompilerPass::disableNoLimit();
-        KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
-    }
-
-    public static function tearDownAfterClass(): void
-    {
-        DisableRateLimiterCompilerPass::enableNoLimit();
-        KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
+        self::$customCacheId = Uuid::randomHex();
     }
 
     protected function setUp(): void
     {
+        DisableRateLimiterCompilerPass::disableNoLimit();
+        KernelLifecycleManager::bootKernel(true, self::$customCacheId);
+
         $this->context = Context::createDefaultContext();
         $this->ids = new IdsCollection();
 
@@ -106,6 +104,12 @@ class ControllerRateLimiterTest extends TestCase
         $session->getFlashBag()->clear();
 
         $this->translator = static::getContainer()->get('translator');
+    }
+
+    protected function tearDown(): void
+    {
+        DisableRateLimiterCompilerPass::enableNoLimit();
+        KernelLifecycleManager::bootKernel(true, self::$customCacheId);
     }
 
     public function testGenerateAccountRecoveryRateLimit(): void

@@ -366,12 +366,12 @@ EOF;
 
         $this->getBrowser()->jsonRequest('GET', '/api/product/' . $id . '/manufacturer');
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertArrayHasKey('meta', $responseData);
-        static::assertArrayHasKey('total', $responseData['meta']);
-        static::assertSame(1, $responseData['meta']['total']);
+        static::assertArrayHasKey('data', $responseData, (string) $this->getBrowser()->getResponse()->getContent());
+        static::assertArrayHasKey(0, $responseData['data'], (string) $this->getBrowser()->getResponse()->getContent());
 
         static::assertSame($data['name'], $responseData['data'][0]['attributes']['name']);
-        static::assertSame($data['shortCode'], $responseData['data'][0]['attributes']['shortCode']);
+        static::assertSame($data['link'], $responseData['data'][0]['attributes']['link']);
+        static::assertSame($data['id'], $responseData['data'][0]['id']);
     }
 
     public function testManyToOneInsertWithoutPermission(): void

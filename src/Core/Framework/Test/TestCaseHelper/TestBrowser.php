@@ -21,10 +21,14 @@ class TestBrowser extends KernelBrowser
      *
      * Shopware often wants to use that accept header with a value of `application/vnd.api+json,application/json`
      * see e.g. \Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour::createClient
+     *
+     * @param array<int|string, mixed> $parameters
+     * @param array<string, string> $server
      */
     public function jsonRequest(string $method, string $uri, array $parameters = [], array $server = [], bool $changeHistory = true): Crawler
     {
         $content = json_encode($parameters, \JSON_PRESERVE_ZERO_FRACTION);
+        \assert(\is_string($content));
 
         $this->setServerParameter('CONTENT_TYPE', 'application/json');
 

@@ -166,6 +166,12 @@ export default {
                     align: 'right',
                     width: '120px',
                 },
+                {
+                    property: 'type',
+                    dataIndex: 'type',
+                    label: 'sw-order.detailBase.columnType',
+                    allowResize: false,
+                },
             ];
         },
 

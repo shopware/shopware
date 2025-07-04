@@ -793,6 +793,7 @@
     "save": "Speichern",
     "acceptAll": "Alle Cookies akzeptieren",
     "headline": "Cookie-Voreinstellungen",
+    "close": "Cookie-Voreinstellungen schließen",
     "groupRequired": "Technisch erforderlich",
     "groupRequiredDescription": "Für die Funktion des Shops erforderliche Cookies:",
     "groupRequiredSession": "Sitzung",

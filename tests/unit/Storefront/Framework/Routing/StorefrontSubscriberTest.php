@@ -207,7 +207,11 @@ class StorefrontSubscriberTest extends TestCase
         );
 
         if ($expected) {
-            $this->expectExceptionObject(RoutingException::accessDeniedForXmlHttpRequest());
+            $route = $request->attributes->get('_route');
+            $url = $request->getUri();
+            $referer = $request->headers->get('referer');
+
+            $this->expectExceptionObject(RoutingException::accessDeniedForXmlHttpRequest($route, $url, $referer));
         } else {
             static::assertTrue($event->isMainRequest());
         }

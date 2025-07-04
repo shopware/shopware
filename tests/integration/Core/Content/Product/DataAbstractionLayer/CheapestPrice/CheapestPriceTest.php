@@ -1292,4 +1292,65 @@ class CheapestPriceTest extends TestCase
         yield 'With rule a+b' => ['min' => '60.0000', 'max' => '220.0000', 'rules' => ['rule-a', 'rule-b']];
         yield 'With rule b+a' => ['min' => '60.0000', 'max' => '220.0000', 'rules' => ['rule-b', 'rule-a']];
     }
+
+    public function testNoFromPriceWhenInheritanceDisabledButPricesEqual(): void
+    {
+        $context = Context::createDefaultContext();
+        $parentId = Uuid::randomHex();
+        $variant1Id = Uuid::randomHex();
+        $variant2Id = Uuid::randomHex();
+        $price = [[
+            'currencyId' => Defaults::CURRENCY,
+            'gross' => 100,
+            'net' => 90,
+            'linked' => false,
+        ]];
+
+        // Create parent and two variants, one with inheritance disabled but same price
+        $products = [
+            [
+                'id' => $parentId,
+                'productNumber' => 'PARENT-1',
+                'stock' => 10,
+                'name' => 'Parent',
+                'price' => $price,
+                'taxId' => $this->getValidTaxId(),
+                'active' => true,
+                'childCount' => 2,
+                'visibilities' => [[
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                    'visibility' => 30,
+                ]],
+            ],
+            [
+                'id' => $variant1Id,
+                'parentId' => $parentId,
+                'productNumber' => 'VARIANT-1',
+                'stock' => 10,
+                'name' => 'Variant 1',
+                'price' => $price, // inherited
+                'taxId' => $this->getValidTaxId(),
+                'active' => true,
+            ],
+            [
+                'id' => $variant2Id,
+                'parentId' => $parentId,
+                'productNumber' => 'VARIANT-2',
+                'stock' => 10,
+                'name' => 'Variant 2',
+                'price' => $price, // inheritance disabled, but same price
+                'taxId' => $this->getValidTaxId(),
+                'active' => true,
+            ],
+        ];
+        static::getContainer()->get('product.repository')->create($products, $context);
+
+        $criteria = new Criteria([$parentId]);
+        $criteria->addAssociation('children');
+        $product = static::getContainer()->get('sales_channel.product.repository')->search($criteria, $context)->get($parentId);
+        static::assertInstanceOf(SalesChannelProductEntity::class, $product);
+        $cheapest = $product->getCalculatedCheapestPrice();
+        static::assertFalse($cheapest->hasRange(), 'hasRange should be false when all prices are equal, even if inheritance is disabled.');
+        static::assertEquals(100, $cheapest->getUnitPrice(), 'Cheapest price should be 100.');
+    }
 }

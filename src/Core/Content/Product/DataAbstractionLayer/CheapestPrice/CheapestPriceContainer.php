@@ -72,9 +72,7 @@ class CheapestPriceContainer extends Struct
 
         $reference = $this->getPriceValue($cheapest, $context);
 
-        $hasRange = (bool) $cheapest['is_ranged'];
-
-        // @codeCoverageIgnoreStart - This is covered randomly
+        $hasRange = false;
         foreach ($prices as $price) {
             $current = $this->getPriceValue($price, $context);
 
@@ -82,16 +80,12 @@ class CheapestPriceContainer extends Struct
                 continue;
             }
 
-            if ($current !== $reference || $price['is_ranged']) {
+            // Only set hasRange if the price value is different
+            if ($current != $reference) {
                 $hasRange = true;
-            }
-
-            if ($current < $reference) {
-                $reference = $current;
-                $cheapest = $price;
+                break;
             }
         }
-        // @codeCoverageIgnoreEnd
 
         $object = new CheapestPrice();
         $object->setRuleId($cheapest['rule_id']);

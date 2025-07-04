@@ -6,12 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Notification\NotificationCollection;
-use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Service\LifecycleManager;
-use Shopware\Core\Service\Notification;
 use Shopware\Core\Service\ScheduledTask\InstallServicesTaskHandler;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
@@ -23,21 +19,14 @@ class InstallServicesTaskHandlerTest extends TestCase
     {
         $manager = $this->createMock(LifecycleManager::class);
         $manager->expects($this->once())
-            ->method('install')
-            ->willReturn(['some-service']);
-
-        /** @var StaticEntityRepository<NotificationCollection> $notificationRepo */
-        $notificationRepo = new StaticEntityRepository([]);
+            ->method('install');
 
         $handler = new InstallServicesTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
             $manager,
-            new Notification(new NotificationService($notificationRepo)),
         );
 
         $handler->run();
-
-        static::assertNotEmpty($notificationRepo->creates[0]);
     }
 }

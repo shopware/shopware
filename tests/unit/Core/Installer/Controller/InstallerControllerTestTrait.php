@@ -11,6 +11,7 @@ use Twig\Environment;
 
 /**
  * @internal
+ * @phpstan-import-type SupportedLanguages from \Shopware\Core\Installer\Controller\SelectLanguagesController
  */
 trait InstallerControllerTestTrait
 {
@@ -24,7 +25,8 @@ trait InstallerControllerTestTrait
         $requestStack = new RequestStack();
         $requestStack->push(new Request([], [], ['_route' => 'installer.language-selection']));
         $container->set('request_stack', $requestStack);
-        $container->setParameter('shopware.installer.supportedLanguages', ['en' => 'en-GB', 'de' => 'de-DE']);
+        $container->setParameter('shopware.installer.supportedLanguages', $this->getSupportedLanguages());
+        $container->setParameter('shopware.installer.configurationPreselection', $this->getSupportedPreselection());
         $container->setParameter('kernel.shopware_version', Kernel::SHOPWARE_FALLBACK_VERSION);
 
         foreach ($services as $id => $service) {
@@ -77,10 +79,34 @@ trait InstallerControllerTestTrait
                     'isCompleted' => false,
                 ],
             ],
-            'supportedLanguages' => ['en', 'de'],
+            'supportedLanguages' => $this->getSupportedLanguages(),
             'shopware' => [
                 'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
             ],
+        ];
+    }
+
+    /**
+     * @return SupportedLanguages
+     */
+    private function getSupportedLanguages(): array
+    {
+        return [
+            'de' => ['id' => 'de-DE', 'label' => 'Deutsch'],
+            'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
+            'en' => ['id' => 'en-GB', 'label' => 'English (UK)'],
+        ];
+    }
+
+    /**
+     * @return array<string, array{currency: string}>
+     */
+    private function getSupportedPreselection(): array
+    {
+        return [
+            'de' => ['currency' => 'EUR'],
+            'en-US' => ['currency' => 'USD'],
+            'en' => ['currency' => 'GBP'],
         ];
     }
 }

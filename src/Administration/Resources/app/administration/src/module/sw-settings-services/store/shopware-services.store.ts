@@ -18,7 +18,7 @@ export type PermissionsConsent = {
  * @private
  */
 export type ServiceConfiguration = {
-    'acceptedPermissionsRevision'?: PermissionsConsent,
+    'permissionsConsent'?: PermissionsConsent,
     'disabled'?: boolean,
 }
 
@@ -42,7 +42,7 @@ export const useShopwareServicesStore = defineStore('shopwareServices', {
 
     getters: {
         consentGiven(): boolean {
-            const permissionsConsent = this.config?.acceptedPermissionsRevision ?? false;
+            const permissionsConsent = this.config?.permissionsConsent ?? false;
 
             if (permissionsConsent === false) {
                 return false;

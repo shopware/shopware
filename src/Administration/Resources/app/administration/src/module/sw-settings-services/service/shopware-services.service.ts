@@ -26,7 +26,7 @@ export type ServiceDescription = {
 
 type ServiceConfigurationConfigValues = {
     'core.services.disabled'?: boolean,
-    'core.services.acceptedPermissionsRevision'?: string,
+    'core.services.permissionsConsent'?: string,
 }
 
 /**
@@ -58,8 +58,8 @@ export default class ShopwareServicesService extends ApiService {
 
         return {
             disabled: configValues['core.services.disabled'],
-            acceptedPermissionsRevision: typeof configValues['core.services.acceptedPermissionsRevision'] === 'string'
-                ? JSON.parse(configValues['core.services.acceptedPermissionsRevision']) as PermissionsConsent
+            permissionsConsent: typeof configValues['core.services.permissionsConsent'] === 'string'
+                ? JSON.parse(configValues['core.services.permissionsConsent']) as PermissionsConsent
                 : undefined,
         };
     }

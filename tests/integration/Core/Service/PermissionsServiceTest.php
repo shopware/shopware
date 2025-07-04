@@ -38,7 +38,7 @@ class PermissionsServiceTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->systemConfigService->delete('core.services.acceptedPermissionsRevision');
+        $this->systemConfigService->delete('core.services.permissionsConsent');
     }
 
     public function testGrantPermissionsIntegration(): void
@@ -47,7 +47,7 @@ class PermissionsServiceTest extends TestCase
 
         $this->permissionsService->grant($revision, $this->context);
 
-        $storedRevision = $this->systemConfigService->getString('core.services.acceptedPermissionsRevision');
+        $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
         static::assertNotEmpty($storedRevision);
 
         // Verify the stored data contains the expected revision
@@ -72,12 +72,12 @@ class PermissionsServiceTest extends TestCase
         $this->permissionsService->grant($revision, $this->context);
 
         // Verify permissions were granted
-        $storedRevision = $this->systemConfigService->getString('core.services.acceptedPermissionsRevision');
+        $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
         static::assertNotEmpty($storedRevision);
 
         $this->permissionsService->revoke($this->context);
 
-        $storedRevision = $this->systemConfigService->getString('core.services.acceptedPermissionsRevision');
+        $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
         static::assertSame('', $storedRevision);
 
         $calledListeners = $this->eventDispatcher->getCalledListeners();
@@ -95,7 +95,7 @@ class PermissionsServiceTest extends TestCase
         $this->expectException(ServiceException::class);
         $this->expectExceptionMessage('The provided permissions revision "invalid-date" is not in the correct format Y-m-d.');
         $this->permissionsService->grant($invalidRevision, $this->context);
-        $storedRevision = $this->systemConfigService->getString('core.services.acceptedPermissionsRevision');
+        $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
         static::assertSame('', $storedRevision);
     }
 
@@ -106,14 +106,14 @@ class PermissionsServiceTest extends TestCase
 
         $this->permissionsService->grant($firstRevision, $this->context);
 
-        $storedRevision = $this->systemConfigService->getString('core.services.acceptedPermissionsRevision');
+        $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
         $decodedData = json_decode($storedRevision, true);
         $storedDate = new \DateTimeImmutable($decodedData['revision']);
         static::assertSame($firstRevision, $storedDate->format('Y-m-d'));
 
         $this->permissionsService->grant($secondRevision, $this->context);
 
-        $storedRevision = $this->systemConfigService->getString('core.services.acceptedPermissionsRevision');
+        $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
         $decodedData = json_decode($storedRevision, true);
         $storedDate = new \DateTimeImmutable($decodedData['revision']);
         static::assertSame($secondRevision, $storedDate->format('Y-m-d'));
@@ -140,13 +140,13 @@ class PermissionsServiceTest extends TestCase
 
     public function testAreGrantedReturnsFalseWhenNoPermissionsExist(): void
     {
-        $this->systemConfigService->delete('core.services.acceptedPermissionsRevision');
+        $this->systemConfigService->delete('core.services.permissionsConsent');
         static::assertFalse($this->permissionsService->areGranted());
     }
 
     public function testAreGrantedReturnsFalseWithCorruptedPermissionsData(): void
     {
-        $this->systemConfigService->set('core.services.acceptedPermissionsRevision', 'invalid-json-data');
+        $this->systemConfigService->set('core.services.permissionsConsent', 'invalid-json-data');
         static::assertFalse($this->permissionsService->areGranted());
     }
 
@@ -155,7 +155,7 @@ class PermissionsServiceTest extends TestCase
         $incompleteData = json_encode([
             'identifier' => 'test-identifier',
         ]);
-        $this->systemConfigService->set('core.services.acceptedPermissionsRevision', $incompleteData);
+        $this->systemConfigService->set('core.services.permissionsConsent', $incompleteData);
         static::assertFalse($this->permissionsService->areGranted());
     }
 }

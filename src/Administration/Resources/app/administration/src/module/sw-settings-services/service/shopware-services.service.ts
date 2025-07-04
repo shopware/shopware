@@ -6,8 +6,7 @@ import type { AxiosInstance } from 'axios';
 import type { LoginService } from 'src/core/service/login.service';
 import ApiService from 'src/core/service/api.service';
 import type SystemConfigApiService from 'src/core/service/api/system-config.api.service';
-
-import type { ServiceConfiguration } from '../store/shopware-services.store';
+import type { PermissionsConsent, ServiceConfiguration } from '../store/shopware-services.store';
 
 /**
  * @private
@@ -27,7 +26,7 @@ export type ServiceDescription = {
 
 type ServiceConfigurationConfigValues = {
     'core.services.disabled'?: boolean,
-    'core.services.acceptedPermissionsRevision'?: string,
+    'core.services.permissionsConsent'?: string,
 }
 
 /**
@@ -59,7 +58,9 @@ export default class ShopwareServicesService extends ApiService {
 
         return {
             disabled: configValues['core.services.disabled'],
-            acceptedPermissionsRevision: configValues['core.services.acceptedPermissionsRevision'],
+            permissionsConsent: typeof configValues['core.services.permissionsConsent'] === 'string'
+                ? JSON.parse(configValues['core.services.permissionsConsent']) as PermissionsConsent
+                : undefined,
         };
     }
 

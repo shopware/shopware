@@ -70,6 +70,7 @@ class AdministrationControllerTest extends TestCase
     private string $shopwareCoreDir;
 
     private string $serviceRegistryUrl;
+
     private string $refreshTokenTtl;
 
     protected function setUp(): void

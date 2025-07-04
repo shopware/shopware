@@ -101,7 +101,7 @@
                 </a>
 
                 <sw-settings-services-revoke-permissions-modal
-                    v-if="config.acceptedPermissionsRevision"
+                    v-if="config.permissionsConsent"
                     @service-permissions-revoked="reloadServices"
                 />
 

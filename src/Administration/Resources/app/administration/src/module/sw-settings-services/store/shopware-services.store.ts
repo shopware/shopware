@@ -7,8 +7,18 @@ import type { RevisionData, ServicesRevision } from '../service/service-registry
 /**
  * @private
  */
+export type PermissionsConsent = {
+    identifier: string,
+    revision: string,
+    consentingUserId: string,
+    grantedAt: string,
+}
+
+/**
+ * @private
+ */
 export type ServiceConfiguration = {
-    'acceptedPermissionsRevision'?: string,
+    'permissionsConsent'?: PermissionsConsent,
     'disabled'?: boolean,
 }
 
@@ -32,9 +42,9 @@ export const useShopwareServicesStore = defineStore('shopwareServices', {
 
     getters: {
         consentGiven(): boolean {
-            const isConsentGiven = this.config?.acceptedPermissionsRevision ?? false;
+            const permissionsConsent = this.config?.permissionsConsent ?? false;
 
-            if (isConsentGiven === false) {
+            if (permissionsConsent === false) {
                 return false;
             }
 
@@ -44,7 +54,7 @@ export const useShopwareServicesStore = defineStore('shopwareServices', {
                 return false;
             }
 
-            return currentRevision === isConsentGiven;
+            return currentRevision === permissionsConsent.revision;
         },
         currentRevision(): ServicesRevision | null {
             if (!this.revisions) {

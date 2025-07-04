@@ -252,15 +252,11 @@ export default {
             }
         },
 
-        /**
-         * To prevent losing unsaved changes on recalculate the order,
-         * we need to save the **versioned** order beforehand.
-         */
-        async saveAndRecalculate(afterRecalculateFn = null) {
+        async saveAndRecalculate() {
             if (this.swOrderDetailOnSaveAndRecalculate) {
-                await this.swOrderDetailOnSaveAndRecalculate(afterRecalculateFn);
+                await this.swOrderDetailOnSaveAndRecalculate();
             } else {
-                this.$emit('save-and-recalculate', afterRecalculateFn);
+                this.$emit('save-and-recalculate');
             }
         },
 

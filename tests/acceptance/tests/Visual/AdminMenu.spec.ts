@@ -3,7 +3,8 @@ import { test, expect } from '@fixtures/AcceptanceTest';
 test('Visual: Administration menu', { tag: '@Visual' }, async ({
 ShopAdmin,
 AdminDashboard,
-HideElementsForScreenshot
+HideElementsForScreenshot,
+ReplaceElementsForScreenshot,
 }) => {
 
     await test.step('Creates a screenshot of the fully expanded admin menu.', async () => {
@@ -18,8 +19,11 @@ HideElementsForScreenshot
         await AdminDashboard.page.setViewportSize({ width: 1280, height: 2048});
 
         await HideElementsForScreenshot(AdminDashboard.page, [
-            '.sw-admin-menu__user-name',
             '.sw-avatar',
+        ]);
+
+        await ReplaceElementsForScreenshot(AdminDashboard.page, [
+            '.sw-admin-menu__user-name',
         ]);
         
         await expect(AdminDashboard.page.locator('.sw-admin-menu')).toHaveScreenshot();

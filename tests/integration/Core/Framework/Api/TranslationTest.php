@@ -313,7 +313,6 @@ class TranslationTest extends TestCase
         );
     }
 
-
     public function testWithOverrideInPatch(): void
     {
         $baseResource = '/api/locale';

@@ -218,7 +218,7 @@ class ProductApiTest extends TestCase
         static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
-        $this->getBrowser()->jsonRequest('POST', '/api/search/product',[
+        $this->getBrowser()->jsonRequest('POST', '/api/search/product', [
             'includes' => [
                 'product' => ['id', 'name'],
             ],

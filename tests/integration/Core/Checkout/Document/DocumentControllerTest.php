@@ -383,7 +383,7 @@ class DocumentControllerTest extends TestCase
         $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/order/document/download',
-[
+            [
                 'documentIds' => [Uuid::randomHex()],
             ]
         );
@@ -462,7 +462,7 @@ class DocumentControllerTest extends TestCase
         $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/order/document/download',
-[
+            [
                 'documentIds' => [$documentId],
             ]
         );

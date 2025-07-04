@@ -113,7 +113,6 @@ class ScriptApiRouteTest extends TestCase
             'limit' => 1,
         ];
 
-
         $this->kernelBrowser = null;
         $browser = $this->getBrowser();
         $browser->jsonRequest('POST', '/api/script/repository-test', $criteria);

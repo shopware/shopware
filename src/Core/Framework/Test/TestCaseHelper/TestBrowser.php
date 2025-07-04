@@ -43,6 +43,4 @@ class TestBrowser extends KernelBrowser
             }
         }
     }
-
-
 }

@@ -80,7 +80,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $browser->jsonRequest(
             'POST',
             '/api/product',
-           $this->getProductData($productId, $context)
+            $this->getProductData($productId, $context)
         );
         $response = $browser->getResponse();
 
@@ -105,7 +105,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $browser->jsonRequest(
             'POST',
             '/api/product',
-           $this->getProductData($productId, $context)
+            $this->getProductData($productId, $context)
         );
 
         static::assertSame(204, $browser->getResponse()->getStatusCode());

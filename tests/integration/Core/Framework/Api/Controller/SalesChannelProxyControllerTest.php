@@ -1316,7 +1316,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $browser->jsonRequest(
             'POST',
             $this->getUrl($salesChannelId, 'checkout/cart/line-item'),
-[
+            [
                 'items' => [
                     [
                         'type' => 'product',

@@ -63,7 +63,7 @@ class ImportExportLogApiTest extends TestCase
                 $this->logRepository->create(array_values($data), $this->context);
             }
 
-            $this->getBrowser()->jsonRequest('GET', $this->prepareRoute(), [],[
+            $this->getBrowser()->jsonRequest('GET', $this->prepareRoute(), [], [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
 
@@ -113,7 +113,7 @@ class ImportExportLogApiTest extends TestCase
             static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
         }
 
-        $this->getBrowser()->jsonRequest('GET', $this->prepareRoute(), [],[
+        $this->getBrowser()->jsonRequest('GET', $this->prepareRoute(), [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
         $response = $this->getBrowser()->getResponse();

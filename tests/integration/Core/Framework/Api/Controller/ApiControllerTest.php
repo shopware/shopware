@@ -38,7 +38,6 @@ use Symfony\Component\Routing\Exception\InvalidParameterException;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouterInterface;
-use function Psl\Type\float;
 
 /**
  * @internal
@@ -535,7 +534,7 @@ EOF;
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
         ];
 
-        $this->getBrowser()->jsonRequest('POST', '/api/product',$data);
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
@@ -816,7 +815,7 @@ EOF;
         ];
 
         $browser = $this->getBrowser();
-        $browser->jsonRequest('POST', '/api/product',$data);
+        $browser->jsonRequest('POST', '/api/product', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));

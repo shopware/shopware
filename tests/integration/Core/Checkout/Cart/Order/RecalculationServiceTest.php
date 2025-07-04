@@ -1986,7 +1986,7 @@ class RecalculationServiceTest extends TestCase
         // add promotion item to order
         $this->getBrowser()->jsonRequest(
             'POST',
-            \sprintf( '/api/_action/order/%s/applyAutomaticPromotions', $orderId),
+            \sprintf('/api/_action/order/%s/applyAutomaticPromotions', $orderId),
             $data,
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,

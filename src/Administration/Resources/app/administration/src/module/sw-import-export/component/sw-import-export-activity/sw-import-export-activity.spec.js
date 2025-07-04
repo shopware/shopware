@@ -923,7 +923,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
             type: 'import',
             username: 'username',
             records: 1,
-            createdAt: new Date('2020-04-03T12:23:02+00:00'),
+            createdAt: '2020-04-03T12:23:02+00:00',
             state: 'succeeded',
         };
 

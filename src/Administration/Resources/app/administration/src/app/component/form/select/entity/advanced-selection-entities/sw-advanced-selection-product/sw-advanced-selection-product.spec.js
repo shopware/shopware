@@ -331,7 +331,6 @@ async function createWrapper() {
                         'sw-context-menu': true,
                         'sw-entity-advanced-selection-modal-grid': true,
                         'sw-ai-copilot-badge': true,
-                        'sw-time-ago': true,
                     },
                 },
             },
@@ -413,10 +412,7 @@ describe('components/sw-advanced-selection-product', () => {
 
     it('should return filters from filter registry', () => {
         expect(wrapper.vm.currencyFilter).toEqual(expect.any(Function));
-        if (!Shopware.Feature.isActive('V6_8_0_0')) {
-            // eslint-disable-next-line jest/no-conditional-expect
-            expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
-        }
+        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
         expect(wrapper.vm.stockColorVariantFilter).toEqual(expect.any(Function));
     });
 });

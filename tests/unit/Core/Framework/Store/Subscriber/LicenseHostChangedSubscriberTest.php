@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseUpdater;
 use Shopware\Core\Framework\Store\Subscriber\LicenseHostChangedSubscriber;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -69,7 +68,7 @@ class LicenseHostChangedSubscriberTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())->method('executeStatement')->with('UPDATE user SET store_token = NULL');
 
-        $subscriber = new LicenseHostChangedSubscriber($config, $connection, $this->createMock(InAppPurchaseUpdater::class));
+        $subscriber = new LicenseHostChangedSubscriber($config, $connection);
 
         $event = new BeforeSystemConfigChangedEvent('core.store.licenseHost', 'otherhost', null);
         $subscriber->onLicenseHostChanged($event);

@@ -42,7 +42,9 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
     {
         $originalTerm = mb_strtolower((string) $criteria->getTerm());
 
-        $tokens = $this->tokenizer->tokenize($originalTerm);
+        $config = $this->configLoader->loadFilterConfig($context->getLanguageId());
+
+        $tokens = $this->tokenizer->tokenize($originalTerm, $config['minSearchLength'] ?? null);
         $tokens = $this->tokenFilter->filter($tokens, $context);
 
         if (empty(array_filter($tokens))) {

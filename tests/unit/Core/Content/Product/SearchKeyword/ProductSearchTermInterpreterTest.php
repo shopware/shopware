@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
+use Shopware\Elasticsearch\Product\SearchConfigLoader;
 
 /**
  * @internal
@@ -26,8 +27,12 @@ class ProductSearchTermInterpreterTest extends TestCase
             static::createMock(Connection::class),
             new Tokenizer(3),
             static::createMock(LoggerInterface::class),
-            new TokenFilter(static::createMock(Connection::class)),
+            new TokenFilter(
+                static::createMock(Connection::class),
+                static::createMock(SearchConfigLoader::class),
+            ),
             static::createMock(KeywordLoader::class),
+            static::createMock(SearchConfigLoader::class),
         );
 
         $pattern = $interpreter->interpret($term, Context::createDefaultContext());
@@ -43,8 +48,12 @@ class ProductSearchTermInterpreterTest extends TestCase
             static::createMock(Connection::class),
             static::createMock(Tokenizer::class),
             static::createMock(LoggerInterface::class),
-            new TokenFilter(static::createMock(Connection::class)),
+            new TokenFilter(
+                static::createMock(Connection::class),
+                static::createMock(SearchConfigLoader::class),
+            ),
             static::createMock(KeywordLoader::class),
+            static::createMock(SearchConfigLoader::class),
         );
 
         $pattern = $interpreter->interpret($term, Context::createDefaultContext());
@@ -78,8 +87,12 @@ class ProductSearchTermInterpreterTest extends TestCase
             static::createMock(Connection::class),
             new Tokenizer(3),
             static::createMock(LoggerInterface::class),
-            new TokenFilter(static::createMock(Connection::class)),
+            new TokenFilter(
+                static::createMock(Connection::class),
+                static::createMock(SearchConfigLoader::class),
+            ),
             $keywordLoader,
+            static::createMock(SearchConfigLoader::class),
         );
 
         $interpreter->interpret($term, Context::createDefaultContext());
@@ -104,8 +117,12 @@ class ProductSearchTermInterpreterTest extends TestCase
             $this->createMock(Connection::class),
             new Tokenizer(3),
             $this->createMock(LoggerInterface::class),
-            new TokenFilter(static::createMock(Connection::class)),
+            new TokenFilter(
+                static::createMock(Connection::class),
+                static::createMock(SearchConfigLoader::class),
+            ),
             $keywordLoader,
+            static::createMock(SearchConfigLoader::class),
         );
 
         $actualScoring = $interpreter->interpret($term, Context::createDefaultContext());

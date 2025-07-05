@@ -99,7 +99,12 @@ class ProductSearchQueryBuilderTest extends TestCase
     #[DataProvider('buildSingleLanguageProvider')]
     public function testBuildSingleLanguage(array $config, string $term, array $expected): void
     {
-        $builder = $this->getBuilder($config);
+        $builder = $this->getBuilder(
+            $config,
+            [
+                'minSearchLength' => 2,
+            ]
+        );
 
         $criteria = new Criteria();
         $criteria->setTerm($term);
@@ -378,11 +383,13 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     /**
      * @param array{array{and_logic: string, field: string, tokenize: int, ranking: float}}|null $config
+     * @param array{excludedTerms: array<string>, minSearchLength: int}|null $filterConfig
      */
-    private function getBuilder(?array $config): ProductSearchQueryBuilder
+    private function getBuilder(?array $config, ?array $filterConfig = null): ProductSearchQueryBuilder
     {
         $configLoader = $this->createMock(SearchConfigLoader::class);
         $configLoader->method('load')->willReturn($config ?? []);
+        $configLoader->method('loadFilterConfig')->willReturn($filterConfig ?? []);
 
         $tokenFilter = $this->createMock(AbstractTokenFilter::class);
         $tokenFilter->method('filter')->willReturnArgument(0);

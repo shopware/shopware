@@ -10,5 +10,5 @@ interface TokenizerInterface
     /**
      * @return list<string>
      */
-    public function tokenize(string $string): array;
+    public function tokenize(string $string, ?int $tokenMinimumLength = null): array;
 }

@@ -8,7 +8,7 @@ import './sw-settings-services-dashboard-banner.scss';
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({
-    name: 'sw-usage-data-consent-banner',
+    name: 'sw-settings-services-dashboard-banner',
 
     template,
 
@@ -17,20 +17,25 @@ export default Shopware.Component.wrapComponentConfig({
 
         return {
             isHidden: true,
-            servicesGraphics: assetFilter('/administration/administration/static/img/services/services-graphic.png'),
+            servicesGraphics: assetFilter('/administration/administration/static/img/services/services-graphic.svg'),
         };
     },
 
     created() {
         Shopware.Service('userConfigService')
-            .search(['core.show-services-dashboard-banner'])
+            .search(['core.hide-services-dashboard-banner'])
             .then((response) => {
                 if (typeof response === 'undefined') {
                     this.isHidden = false;
                     return;
                 }
 
-                this.isHidden = (response.data['core.show-services-dashboard-banner']?.[0] as boolean | undefined) ?? false;
+                if (!response.data) {
+                    this.isHidden = false;
+                    return
+                }
+
+                this.isHidden = (response.data['core.hide-services-dashboard-banner']?.[0] as boolean | undefined) ?? false;
             })
             .catch(() => {
                 this.isHidden = false;
@@ -40,7 +45,7 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         async hideBanner() {
             await Shopware.Service('userConfigService').upsert({
-                'core.show-services-dashboard-banner': [true],
+                'core.hide-services-dashboard-banner': [true],
             });
 
             this.isHidden = true;

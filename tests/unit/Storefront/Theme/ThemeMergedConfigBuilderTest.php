@@ -111,16 +111,42 @@ class ThemeMergedConfigBuilderTest extends TestCase
         ?array $expected = null,
         ?array $expectedStructured = null,
     ): void {
-        $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
-                1,
-                $themeCollection,
-                null,
-                new Criteria(),
-                $this->context
-            )
+        // Set up the mock to handle both the main search and the parent theme search
+        $this->themeRepositoryMock->method('search')->willReturnCallback(
+            function (Criteria $criteria) use ($themeCollection) {
+                // If the criteria has a filter for a specific ID, find that theme
+                $filters = $criteria->getFilters();
+                foreach ($filters as $filter) {
+                    if ($filter instanceof \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter
+                        && $filter->getField() === 'id') {
+                        $searchId = (string) $filter->getValue();
+                        $foundTheme = $themeCollection->get($searchId);
+
+                        if ($foundTheme) {
+                            return new EntitySearchResult(
+                                'theme',
+                                1,
+                                new ThemeCollection([$foundTheme]),
+                                null,
+                                $criteria,
+                                $this->context
+                            );
+                        }
+                    }
+                }
+
+                // Default: return the full collection for the main search
+                return new EntitySearchResult(
+                    'theme',
+                    $themeCollection->count(),
+                    $themeCollection,
+                    null,
+                    $criteria,
+                    $this->context
+                );
+            }
         );
+
 
         $storefrontPlugin = new StorefrontPluginConfiguration('Test');
         $storefrontPlugin->setThemeConfig(ThemeFixtures::getThemeJsonConfig());
@@ -171,15 +197,40 @@ class ThemeMergedConfigBuilderTest extends TestCase
         ?array $expected = null,
         ?array $expectedStructured = null,
     ): void {
-        $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
-                1,
-                $themeCollection,
-                null,
-                new Criteria(),
-                $this->context
-            )
+        // Set up the mock to handle both the main search and the parent theme search
+        $this->themeRepositoryMock->method('search')->willReturnCallback(
+            function (Criteria $criteria) use ($themeCollection) {
+                // If the criteria has a filter for a specific ID, find that theme
+                $filters = $criteria->getFilters();
+                foreach ($filters as $filter) {
+                    if ($filter instanceof \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter
+                        && $filter->getField() === 'id') {
+                        $searchId = (string) $filter->getValue();
+                        $foundTheme = $themeCollection->get($searchId);
+
+                        if ($foundTheme) {
+                            return new EntitySearchResult(
+                                'theme',
+                                1,
+                                new ThemeCollection([$foundTheme]),
+                                null,
+                                $criteria,
+                                $this->context
+                            );
+                        }
+                    }
+                }
+
+                // Default: return the full collection for the main search
+                return new EntitySearchResult(
+                    'theme',
+                    $themeCollection->count(),
+                    $themeCollection,
+                    null,
+                    $criteria,
+                    $this->context
+                );
+            }
         );
 
         $storefrontPlugin = new StorefrontPluginConfiguration('Test');

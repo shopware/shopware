@@ -6,10 +6,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\Exception\InvalidThemeConfigException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
+use Shopware\Storefront\Theme\ThemeEntity;
 
 use function Symfony\Component\String\u;
 
@@ -279,6 +281,25 @@ class ThemeMergedConfigBuilder
             return $mainTheme->getBaseConfig()['configInheritance'];
         }
 
+        // For database copies (child themes), inherit config from parent theme.
+        if ($mainTheme->getBaseConfig() === null && 
+            $mainTheme->getTechnicalName() === null && 
+            $mainTheme->getParentThemeId() !== null) {
+
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('id', $mainTheme->getParentThemeId()));
+
+            $parentTheme = $this->themeRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+
+            if ($parentTheme instanceof ThemeEntity) {
+                $parentConfigInheritance = $this->getConfigInheritance($parentTheme);
+                if (!empty($parentConfigInheritance)) {
+                    return $parentConfigInheritance;
+                }
+            }
+        }
+
+        // Fallback: ensure every theme (except base theme) inherits from Storefront by default
         if ($mainTheme->getTechnicalName() !== StorefrontPluginRegistry::BASE_THEME_NAME) {
             return [
                 '@' . StorefrontPluginRegistry::BASE_THEME_NAME,
@@ -496,7 +517,7 @@ class ThemeMergedConfigBuilder
     {
         $custom = $custom ?? null;
 
-        if ($custom && \is_array($custom['options'])) {
+        if ($custom && isset($custom['options']) && \is_array($custom['options'])) {
             foreach ($custom['options'] as $optionIndex => &$option) {
                 $option['labelSnippetKey'] = $this->buildSnippetKey(
                     $themeTechnicalName,

@@ -47,7 +47,6 @@
                     <div class="select-wrapper">
                         <select name="config_shop_language" id="config_shop_language">
                             {% for iso, language in languageIsos %}
-                                {{ language. }}
                                 <option value="{{ language.id }}" {% if parameters.config_shop_language == language.id %}selected{% endif %}>
                                     {{ ("shopware.installer.select_language_" ~ iso) |trans }}
                                 </option>

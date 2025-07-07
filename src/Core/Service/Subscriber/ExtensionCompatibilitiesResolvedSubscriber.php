@@ -5,8 +5,8 @@ namespace Shopware\Core\Service\Subscriber;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\ExtensionCompatibilitiesResolvedEvent;
 use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
-use Shopware\Core\Service\ServiceRegistryClient;
-use Shopware\Core\Service\ServiceRegistryEntry;
+use Shopware\Core\Service\ServiceRegistry\Client;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -15,7 +15,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 #[Package('framework')]
 class ExtensionCompatibilitiesResolvedSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly ServiceRegistryClient $serviceRegistryClient)
+    public function __construct(private readonly Client $serviceRegistryClient)
     {
     }
 
@@ -29,7 +29,7 @@ class ExtensionCompatibilitiesResolvedSubscriber implements EventSubscriberInter
     public function markAppsWithServiceAsCompatible(ExtensionCompatibilitiesResolvedEvent $event): void
     {
         $services = $this->serviceRegistryClient->getAll();
-        $serviceNames = array_map(fn (ServiceRegistryEntry $entry) => $entry->name, $services);
+        $serviceNames = array_map(fn (ServiceEntry $entry) => $entry->name, $services);
 
         $compatibilities = [];
         foreach ($event->compatibilities as $compatibility) {

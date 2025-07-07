@@ -1,49 +1,56 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Storefront\Framework\Routing;
+namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Routing\Router;
+use Symfony\Bundle\FrameworkBundle\Routing\Router as SymfonyRouter;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\RouteCollection;
 
 /**
  * @internal
  */
+#[CoversClass(Router::class)]
 class RouterTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
     #[DataProvider('urlCases')]
     public function testUrls(UrlCase $case): void
     {
         $request = new Request();
         $request->attributes->set(RequestTransformer::SALES_CHANNEL_BASE_URL, $case->baseUrl);
 
-        $stack = static::getContainer()->get('request_stack');
+        $stack = new RequestStack([
+            $request,
+        ]);
 
-        // remove all request from stack
-        while ($stack->pop()) {
-        }
+        $symfonyRouter = new SymfonyRouter(new Container(), null);
+        \Closure::bind(function (): void {
+            $routeCollection = new RouteCollection();
+            $routeCollection->add('frontend.home.page', new Route('/', ['_controller' => 'Shopware\Storefront\Controller\HomeController::index']));
+            $routeCollection->add('frontend.navigation.page', new Route('/navigation/{navigationId}', ['_controller' => 'Shopware\Storefront\Controller\NavigationController::index']));
 
-        $stack->push($request);
+            $this->collection = $routeCollection;
+        }, $symfonyRouter, SymfonyRouter::class)();
 
-        $router = static::getContainer()->get('router');
-        $context = $router->getContext();
+        $router = new Router(
+            $symfonyRouter,
+            $stack
+        );
         $router->setContext(new RequestContext('', 'GET', $case->host));
 
         $url = $router->generate($case->route, $case->params, $case->type);
 
         static::assertSame($case->expected, $url);
-
-        while ($stack->pop()) {
-        }
-
-        $router->setContext($context);
     }
 
     /**

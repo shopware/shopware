@@ -1,6 +1,13 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.7.0.1
+*  [#10518 - Press ESC key in the modal will go back listing page](./changelog/release-6-7-0-1/2025-06-17-press-esc-key-in-the-modal-will-go-back-listing-page.md) ([Le Nguyen](https://github.com/Le Nguyen))
+*  [#10667 - Fix stacking line items does not recalculate advanced prices](./changelog/release-6-7-0-1/2025-06-26-fix-stacking-line-items-does-not-recalculate-advanced-prices.md)
+*  [#10682 - Live search page broken if the data is empty](./changelog/release-6-7-0-1/2025-06-18-live-search-page-broken-if-the-data-is-empty.md) ([Le Nguyen](https://github.com/Le Nguyen))
+*  [#10868 - Don't ignore ESI render errors](./changelog/release-6-7-0-1/2025-06-27-dont-ignore-esi-render-errors.md)
+*  [10394 - manufacturer replace media sidebar to media modal](./changelog/release-6-7-0-1/2025-06-11-manufacturer-replace-media-sidebar-to-media-modal.md) ([Le Nguyen](https://github.com/Le Nguyen))
+
 ## 6.7.0.0
 *  [#10006 - Product variants empty state list position doesn't correct](./changelog/release-6-7-0-0/2025-06-05-product-variants-empty-state-list-position-doesn-t-correct.md)
 *  [#10192 - Improve listing of customerGroup registration form SEO URLs](./changelog/release-6-7-0-0/2025-06-06-improve-listing-of-customergroup-registration-form-seo-urls.md)

@@ -8,10 +8,13 @@ use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
+use Shopware\Core\Checkout\Cart\Order\IdStruct;
+use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -93,7 +96,14 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
                     return $delivery->getShippingCosts()->getTotalPrice() >= 0;
                 });
 
-                $firstDelivery = $deliveries->first();
+                $firstDelivery = $original->getDeliveries()->getPrimaryDelivery(
+                    $original->getExtensionOfType(OrderConverter::ORIGINAL_PRIMARY_ORDER_DELIVERY, IdStruct::class)?->getId()
+                );
+
+                if (!Feature::isActive('v6.8.0.0')) {
+                    $firstDelivery = $deliveries->first();
+                }
+
                 if ($firstDelivery === null) {
                     return;
                 }

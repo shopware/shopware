@@ -9,8 +9,8 @@ on:
         description: 'Update snapshots?'
         type: boolean
         default: false
-      nightly:
-        description: 'Running as part of the nightly build?'
+      currents:
+        description: 'Report to currents?'
         type: boolean
         default: false
 
@@ -20,8 +20,8 @@ on:
         description: 'Update snapshots?'
         type: boolean
         default: false
-      nightly:
-        description: 'Running as part of the nightly build?'
+      currents:
+        description: 'Report to currents?'
         type: boolean
         default: false
 
@@ -40,7 +40,7 @@ jobs:
           install: 'true'
           extra-options: >-
             ${{ inputs.update-snapshots && ' --update-snapshots' || '' }}
-          use-currents: ${{ inputs.nightly && 'true' || '' }} 
+          use-currents: ${{ inputs.currents && 'true' || '' }}
           currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID_VISUAL }}
           currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}
-          
+        continue-on-error: true

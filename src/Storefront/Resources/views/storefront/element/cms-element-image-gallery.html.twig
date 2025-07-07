@@ -644,7 +644,9 @@
                                                                          aria-label="zoom actions">
 
                                                                         {% block element_image_gallery_inner_zoom_modal_action_zoom_out %}
-                                                                            <button class="btn btn-light image-zoom-btn js-image-zoom-out">
+                                                                            <button type="button"
+                                                                                    class="btn btn-light image-zoom-btn js-image-zoom-out"
+                                                                                    aria-label="{{ 'component.cms.imageGallery.zoomOut'|trans }}">
                                                                                 {% block element_image_gallery_inner_zoom_modal_action_zoom_out_icon %}
                                                                                     {% sw_icon 'minus-circle' %}
                                                                                 {% endblock %}
@@ -652,7 +654,9 @@
                                                                         {% endblock %}
 
                                                                         {% block element_image_gallery_inner_zoom_modal_action_zoom_reset %}
-                                                                            <button class="btn btn-light image-zoom-btn js-image-zoom-reset">
+                                                                            <button type="button"
+                                                                                    class="btn btn-light image-zoom-btn js-image-zoom-reset"
+                                                                                    aria-label="{{ 'component.cms.imageGallery.zoomReset'|trans }}">
                                                                                 {% block element_image_gallery_inner_zoom_modal_action_zoom_reset_icon %}
                                                                                     {% sw_icon 'screen-minimize' %}
                                                                                 {% endblock %}
@@ -660,7 +664,9 @@
                                                                         {% endblock %}
 
                                                                         {% block element_image_gallery_inner_zoom_modal_action_zoom_in %}
-                                                                            <button class="btn btn-light image-zoom-btn js-image-zoom-in">
+                                                                            <button type="button"
+                                                                                    class="btn btn-light image-zoom-btn js-image-zoom-in"
+                                                                                    aria-label="{{ 'component.cms.imageGallery.zoomIn'|trans }}">
                                                                                 {% block element_image_gallery_inner_zoom_modal_action_zoom_in_icon %}
                                                                                     {% sw_icon 'plus-circle' %}
                                                                                 {% endblock %}

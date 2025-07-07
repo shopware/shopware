@@ -220,6 +220,7 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Routing\CanonicalRedirectService" public="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
         </service>
 
         <service id="Shopware\Core\Framework\Routing\RouteEventSubscriber">

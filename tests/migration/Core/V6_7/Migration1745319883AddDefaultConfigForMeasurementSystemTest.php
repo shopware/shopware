@@ -60,8 +60,6 @@ class Migration1745319883AddDefaultConfigForMeasurementSystemTest extends TestCa
         $this->migration->update($this->connection);
         $this->migration->update($this->connection);
 
-        $metricId = $this->connection->fetchOne('SELECT technical_name FROM `measurement_system` WHERE `technical_name` = "metric"');
-        static::assertNotFalse($metricId);
         $this->assertConfigValue('core.measurementUnits.system', \sprintf('{"_value": "%s"}', 'metric'));
 
         $units = $this->connection->fetchAllKeyValue('SELECT short_name, type FROM `measurement_display_unit` WHERE short_name IN (:names)', [

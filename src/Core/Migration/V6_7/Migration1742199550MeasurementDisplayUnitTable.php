@@ -43,6 +43,7 @@ class Migration1742199550MeasurementDisplayUnitTable extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
+              UNIQUE KEY `uniq.measurement_display_unit.short_name` (`short_name`),
               CONSTRAINT `fk.measurement_display_unit.measurement_system_id` FOREIGN KEY (`measurement_system_id`)
                 REFERENCES `measurement_system` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
           ) ENGINE = InnoDB');
@@ -65,14 +66,14 @@ class Migration1742199550MeasurementDisplayUnitTable extends MigrationStep
 
     private function addDefaultMeasurementUnits(Connection $connection): void
     {
-        $metricId = Uuid::fromHexToBytes(Uuid::fromStringToHex('metric'));
-        $imperialId = Uuid::fromHexToBytes(Uuid::fromStringToHex('imperial'));
+        $metricId = $connection->fetchOne('SELECT `id` FROM `measurement_system` WHERE `technical_name` = :technicalName', ['technicalName' => 'metric']);
+        $imperialId = $connection->fetchOne('SELECT `id` FROM `measurement_system` WHERE `technical_name` = :technicalName', ['technicalName' => 'imperial']);
 
         $units = [
             ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'm', 'factor' => 1000, 'precision' => 2, 'name_en' => 'Meter', 'name_de' => 'Zähler'],
             ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'cm', 'factor' => 10, 'precision' => 1, 'name_en' => 'Centimeter', 'name_de' => 'Zentimeter'],
-            ['id' => Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-mm')), 'measurement_system_id' => $metricId, 'default' => 1, 'type' => 'length', 'short_name' => 'mm', 'factor' => 1, 'precision' => 0, 'name_en' => 'Millimeter', 'name_de' => 'Millimeter'],
-            ['id' => Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-kg')), 'measurement_system_id' => $metricId, 'default' => 1, 'type' => 'weight', 'short_name' => 'kg', 'factor' => 1, 'precision' => 3, 'name_en' => 'Kilogram', 'name_de' => 'Kilogramm'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 1, 'type' => 'length', 'short_name' => 'mm', 'factor' => 1, 'precision' => 0, 'name_en' => 'Millimeter', 'name_de' => 'Millimeter'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 1, 'type' => 'weight', 'short_name' => 'kg', 'factor' => 1, 'precision' => 3, 'name_en' => 'Kilogram', 'name_de' => 'Kilogramm'],
             ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'weight', 'short_name' => 'g', 'factor' => 0.001, 'precision' => 1, 'name_en' => 'Gram', 'name_de' => 'Gramm'],
 
             ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 1, 'type' => 'length', 'short_name' => 'in', 'factor' => 25.4, 'precision' => 2, 'name_en' => 'Inch', 'name_de' => 'Zoll'],

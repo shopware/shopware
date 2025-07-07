@@ -45,6 +45,7 @@ class Migration1742199552SalesChannelMeasurementUnits extends MigrationStep
         $connection->executeStatement('
             UPDATE `sales_channel`
             SET `measurement_units` = \'' . $defaultUnits . '\'
+            WHERE `measurement_units` IS NULL
         ');
     }
 }

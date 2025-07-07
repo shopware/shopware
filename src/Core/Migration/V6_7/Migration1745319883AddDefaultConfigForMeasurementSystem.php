@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Migration\V6_7;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -28,30 +27,25 @@ class Migration1745319883AddDefaultConfigForMeasurementSystem extends MigrationS
                     configuration_key = :configKey,
                     created_at = :createdAt;';
 
-        $metricId = $connection->fetchOne('SELECT id FROM `measurement_system` WHERE `technical_name` = "metric"');
-        if ($metricId) {
-            $connection->executeStatement($query, [
-                'id' => Uuid::randomBytes(),
-                'configKey' => 'core.measurementUnits.system',
-                'configValue' => \sprintf('{"_value": "%s"}', 'metric'),
-                'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ]);
-        }
-
-        $units = $connection->fetchAllKeyValue('SELECT short_name, type FROM `measurement_display_unit` WHERE short_name IN (:names)', [
-            'names' => ['mm', 'kg'],
-        ], [
-            'names' => ArrayParameterType::BINARY,
+        $connection->executeStatement($query, [
+            'id' => Uuid::randomBytes(),
+            'configKey' => 'core.measurementUnits.system',
+            'configValue' => \sprintf('{"_value": "%s"}', 'metric'),
+            'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        foreach ($units as $shortName => $unitType) {
-            $configKey = $unitType === 'length' ? 'core.measurementUnits.length' : 'core.measurementUnits.weight';
-            $connection->executeStatement($query, [
-                'id' => Uuid::randomBytes(),
-                'configKey' => $configKey,
-                'configValue' => \sprintf('{"_value": "%s"}', $shortName),
-                'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ]);
-        }
+        $connection->executeStatement($query, [
+            'id' => Uuid::randomBytes(),
+            'configKey' => 'core.measurementUnits.length',
+            'configValue' => \sprintf('{"_value": "%s"}', 'mm'),
+            'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $connection->executeStatement($query, [
+            'id' => Uuid::randomBytes(),
+            'configKey' => 'core.measurementUnits.weight',
+            'configValue' => \sprintf('{"_value": "%s"}', 'kg'),
+            'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
     }
 }

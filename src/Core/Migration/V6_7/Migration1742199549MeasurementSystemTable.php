@@ -37,7 +37,8 @@ class Migration1742199549MeasurementSystemTable extends MigrationStep
               `technical_name` VARCHAR(255) NOT NULL,
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
-              PRIMARY KEY (`id`)
+              PRIMARY KEY (`id`),
+              UNIQUE KEY `uniq.measurement_system.technical_name` (`technical_name`)
           ) ENGINE = InnoDB');
 
         $connection->executeStatement('
@@ -58,10 +59,10 @@ class Migration1742199549MeasurementSystemTable extends MigrationStep
 
     private function addDefaultMeasurementSystems(Connection $connection): void
     {
-        $metricId = Uuid::fromHexToBytes(Uuid::fromStringToHex('metric'));
-        $imperialId = Uuid::fromHexToBytes(Uuid::fromStringToHex('imperial'));
+        $metricId = Uuid::randomBytes();
+        $imperialId = Uuid::randomBytes();
 
-        $metricExists = $connection->fetchOne('SELECT 1 FROM `measurement_system` WHERE `id` = :id', ['id' => $metricId]);
+        $metricExists = $connection->fetchOne('SELECT 1 FROM `measurement_system` WHERE `technical_name` = :technicalName', ['technicalName' => 'metric']);
         if (!$metricExists) {
             $connection->insert(
                 'measurement_system',
@@ -82,7 +83,7 @@ class Migration1742199549MeasurementSystemTable extends MigrationStep
             );
         }
 
-        $imperialExists = $connection->fetchOne('SELECT 1 FROM `measurement_system` WHERE `id` = :id', ['id' => $imperialId]);
+        $imperialExists = $connection->fetchOne('SELECT 1 FROM `measurement_system` WHERE `technical_name` = :technicalName', ['technicalName' => 'imperial']);
         if (!$imperialExists) {
             $connection->insert(
                 'measurement_system',

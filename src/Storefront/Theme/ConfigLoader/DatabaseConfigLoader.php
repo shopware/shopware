@@ -309,9 +309,9 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         }
 
         // For database copies (child themes), inherit config from parent theme.
-        if ($mainTheme->getBaseConfig() === null && 
-            $mainTheme->getTechnicalName() === null && 
-            $mainTheme->getParentThemeId() !== null) {
+        if ($mainTheme->getBaseConfig() === null
+            && $mainTheme->getTechnicalName() === null
+            && $mainTheme->getParentThemeId() !== null) {
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('id', $mainTheme->getParentThemeId()));
 

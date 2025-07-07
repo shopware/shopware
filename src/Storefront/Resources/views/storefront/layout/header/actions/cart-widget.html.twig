@@ -8,4 +8,15 @@
     <span class="header-cart-total d-none d-sm-inline-block ms-sm-2">
         {{ page.cart.price.positionPrice|currency }}
     </span>
+
+    {# Live updates of the cart will be shown by the offcanvas #}
+    <span
+        class="visually-hidden"
+        id="cart-widget-aria-label"
+    >
+        {{ 'checkout.cartScreenReaderUpdate'|trans({
+                '%count%': page.cart.lineItems|length,
+                '%total%': page.cart.price.positionPrice|currency,
+            })|sw_sanitize }}
+    </span>
 {% endblock %}

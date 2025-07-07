@@ -312,7 +312,6 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         if ($mainTheme->getBaseConfig() === null && 
             $mainTheme->getTechnicalName() === null && 
             $mainTheme->getParentThemeId() !== null) {
-
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('id', $mainTheme->getParentThemeId()));
 

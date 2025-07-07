@@ -147,7 +147,6 @@ class ThemeMergedConfigBuilderTest extends TestCase
             }
         );
 
-
         $storefrontPlugin = new StorefrontPluginConfiguration('Test');
         $storefrontPlugin->setThemeConfig(ThemeFixtures::getThemeJsonConfig());
 

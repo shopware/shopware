@@ -9,6 +9,7 @@ import './sw-settings-services-framed-icon.scss';
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({
+    name: 'sw-settings-services-framed-icon',
     template,
 
     props: {

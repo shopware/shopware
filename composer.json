@@ -167,7 +167,6 @@
         "symfony/validator": "~7.2.0",
         "symfony/var-exporter": "~7.2.0",
         "symfony/yaml": "~7.2.0",
-        "tecnickcom/tcpdf": "^6.7.7",
         "twig/intl-extra": "^3.10.0",
         "twig/string-extra": "^3.10.0",
         "twig/twig": "^3.19.0",

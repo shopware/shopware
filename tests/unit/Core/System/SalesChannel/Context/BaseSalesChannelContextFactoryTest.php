@@ -18,6 +18,8 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -32,9 +34,7 @@ use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCoun
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Currency\CurrencyEntity;
-use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\ContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -89,6 +89,8 @@ class BaseSalesChannelContextFactoryTest extends TestCase
         $countryStateRepository = new StaticEntityRepository([new CountryStateCollection($entitySearchResult[CountryStateDefinition::ENTITY_NAME] ?? [])]);
         /** @var StaticEntityRepository<CurrencyCountryRoundingCollection> $currencyCountryRepository */
         $currencyCountryRepository = new StaticEntityRepository([new CurrencyCountryRoundingCollection($entitySearchResult[CurrencyCountryRoundingDefinition::ENTITY_NAME] ?? [])]);
+        /** @var StaticEntityRepository<EntityCollection<PartialEntity>> $languageRepository */
+        $languageRepository = new StaticEntityRepository([new EntityCollection($entitySearchResult[LanguageDefinition::ENTITY_NAME] ?? [])]);
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())->method('fetchAssociative')->willReturn($fetchDataResult);
@@ -121,7 +123,8 @@ class BaseSalesChannelContextFactoryTest extends TestCase
             $shippingMethodRepository,
             $countryStateRepository,
             $currencyCountryRepository,
-            $contextProvider
+            $contextProvider,
+            $languageRepository,
         );
 
         $factory->create(TestDefaults::SALES_CHANNEL, $options);
@@ -141,22 +144,11 @@ class BaseSalesChannelContextFactoryTest extends TestCase
         $countryId = Uuid::randomHex();
         $anotherLanguageId = Uuid::randomHex();
 
-        $locale = new LocaleEntity();
-        $locale->setCode('en-GB');
-
-        $language = new LanguageEntity();
-        $language->setId(Defaults::LANGUAGE_SYSTEM);
-        $language->setUniqueIdentifier(Defaults::LANGUAGE_SYSTEM);
-        $language->setName('English');
-        $language->setLocale($locale);
-        $language->setTranslationCode($locale);
-
         $salesChannelEntity = new SalesChannelEntity();
         $salesChannelEntity->setUniqueIdentifier(TestDefaults::SALES_CHANNEL);
         $salesChannelEntity->setCustomerGroupId($customerGroupId);
         $salesChannelEntity->setPaymentMethodId($paymentMethodId);
         $salesChannelEntity->setShippingMethodId($shippingMethodId);
-        $salesChannelEntity->setLanguages(new LanguageCollection([$language]));
         $salesChannelEntity->setCurrencyId(Defaults::CURRENCY);
 
         $currency = new CurrencyEntity();
@@ -184,6 +176,16 @@ class BaseSalesChannelContextFactoryTest extends TestCase
 
         $customerGroup = new CustomerGroupEntity();
         $customerGroup->setUniqueIdentifier($customerGroupId);
+
+        $language = new PartialEntity([
+            'id' => Defaults::LANGUAGE_SYSTEM,
+            'uniqueIdentifier' => Defaults::LANGUAGE_SYSTEM,
+            'name' => 'English',
+            'translationCode' => new PartialEntity([
+                'id' => Uuid::randomHex(),
+                'code' => 'en-GB',
+            ]),
+        ]);
 
         yield 'no context data' => [
             'options' => [],
@@ -586,6 +588,9 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                 ],
                 CustomerGroupDefinition::ENTITY_NAME => [
                     $customerGroupId => $customerGroup,
+                ],
+                LanguageDefinition::ENTITY_NAME => [
+                    Defaults::LANGUAGE_SYSTEM => $language,
                 ],
             ],
             'exceptionMessage' => null,

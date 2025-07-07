@@ -691,6 +691,7 @@
     "product_review.productVersionId",
     "product_review.salesChannelId",
     "product_review.languageId",
+    "product_review.externalUser",
     "product_review.title",
     "product_review.content",
     "product_review.points",

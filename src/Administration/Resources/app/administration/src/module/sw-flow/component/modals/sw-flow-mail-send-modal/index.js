@@ -313,6 +313,18 @@ export default {
             return invalidItemIndex >= 0;
         },
 
+        buildConfig() {
+            return {
+                mailTemplateId: this.mailTemplateId,
+                documentTypeIds: this.documentTypeIds,
+                recipient: {
+                    type: this.mailRecipient,
+                    data: this.getRecipientData(),
+                },
+                replyTo: this.replyTo,
+            }
+        },
+
         onAddAction() {
             this.mailTemplateIdError = this.mailTemplateError(this.mailTemplateId);
             if (this.showReplyToField) {
@@ -328,15 +340,7 @@ export default {
 
             const sequence = {
                 ...this.sequence,
-                config: {
-                    mailTemplateId: this.mailTemplateId,
-                    documentTypeIds: this.documentTypeIds,
-                    recipient: {
-                        type: this.mailRecipient,
-                        data: this.getRecipientData(),
-                    },
-                    replyTo: this.replyTo,
-                },
+                config: this.buildConfig(),
             };
 
             this.$nextTick(() => {

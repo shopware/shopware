@@ -30,7 +30,8 @@
               "listingPrices": "Product listing price",
               "cheapestPrice": "Cheapest product price",
               "price": "Default price",
-              "sales": "Units sold"
+              "sales": "Units sold",
+              "createdAt": "Creation date"
             },
             "customField": "Custom field",
             "_score": "_score"

@@ -13,9 +13,10 @@
     <span
         class="visually-hidden"
         id="cart-widget-aria-label"
-        aria-label="{{ 'checkout.cartScreenReaderUpdate'|trans({
-            '%count%': page.cart.lineItems|length,
-            '%total%': page.cart.price.positionPrice|currency,
-        })|sw_sanitize }}"
-    ></span>
+    >
+        {{ 'checkout.cartScreenReaderUpdate'|trans({
+                '%count%': page.cart.lineItems|length,
+                '%total%': page.cart.price.positionPrice|currency,
+            })|sw_sanitize }}
+    </span>
 {% endblock %}

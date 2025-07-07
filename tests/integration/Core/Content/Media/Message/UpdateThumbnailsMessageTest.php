@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Content\Media\Message;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**

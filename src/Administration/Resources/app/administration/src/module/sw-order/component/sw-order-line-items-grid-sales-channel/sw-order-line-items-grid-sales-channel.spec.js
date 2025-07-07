@@ -161,7 +161,6 @@ async function createWrapper() {
                     },
                 },
                 stubs: {
-                    'sw-container': await wrapTestComponent('sw-container'),
                     'sw-button-group': {
                         template: '<div class="sw-button-group"><slot></slot></div>',
                     },
@@ -183,7 +182,9 @@ async function createWrapper() {
                             size: 'default',
                         },
                     },
-                    'sw-card-filter': true,
+                    'sw-card-filter': {
+                        template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
+                    },
                     'sw-data-grid': await wrapTestComponent('sw-data-grid', {
                         sync: true,
                     }),

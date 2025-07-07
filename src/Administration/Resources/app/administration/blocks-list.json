@@ -1642,6 +1642,7 @@
  "sw_customer_list_grid_columns_active_content",
  "sw_customer_list_grid_columns_active_inline_edit",
  "sw_customer_list_grid_columns_boundSalesChannel",
+ "sw_customer_list_grid_columns_createdAt",
  "sw_customer_list_grid_columns_group",
  "sw_customer_list_grid_columns_name",
  "sw_customer_list_grid_columns_name_guest_label",

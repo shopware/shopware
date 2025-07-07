@@ -140,6 +140,7 @@ class CacheClearer
         if (!$finder->hasResults()) {
             return;
         }
+
         $remove = [];
         foreach ($finder->getIterator() as $directory) {
             if ($directory->getPathname() !== $this->cacheDir) {

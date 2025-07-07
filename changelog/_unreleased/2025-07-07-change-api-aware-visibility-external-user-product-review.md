@@ -5,5 +5,5 @@ author_email: Discord.Benjamin@web.de
 author_github: gecolay
 ---
 # Core
-* Changed `ApiAware` field visibility of the `Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition`
+* Changed `externalUser` field ApiAware visibility in `Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition`
 * Removed `ProductReview` schema override from the store api schema list

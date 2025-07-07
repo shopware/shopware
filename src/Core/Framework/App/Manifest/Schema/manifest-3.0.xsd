@@ -140,6 +140,11 @@
                 </xs:element>
                 <xs:element name="gateways" type="gateways" minOccurs="0"/>
             </xs:all>
+            <xs:attribute name="validates-permissions" use="optional">
+                <xs:simpleType>
+                    <xs:restriction base="xs:boolean"/>
+                </xs:simpleType>
+            </xs:attribute>
         </xs:complexType>
     </xs:element>
     <xs:complexType name="meta">

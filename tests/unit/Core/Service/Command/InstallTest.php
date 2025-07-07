@@ -4,8 +4,8 @@ namespace Shopware\Tests\Unit\Core\Service\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\Command\Install;
+use Shopware\Core\Service\LifecycleManager;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -16,25 +16,42 @@ class InstallTest extends TestCase
 {
     public function testCommandWhenNoServicesAreInstalled(): void
     {
-        $installer = $this->createMock(AllServiceInstaller::class);
-        $installer->expects($this->once())->method('install');
+        $manager = $this->createMock(LifecycleManager::class);
+        $manager->method('enabled')
+            ->willReturn(true);
+        $manager->expects($this->once())->method('install')->willReturn([]);
 
-        $command = new Install($installer);
+        $command = new Install($manager);
         $tester = new CommandTester($command);
         $tester->execute([]);
 
         static::assertStringContainsString('No services were installed', $tester->getDisplay());
     }
 
+    public function testCommandWhenServicesAreDisabled(): void
+    {
+        $manager = $this->createMock(LifecycleManager::class);
+        $manager->method('enabled')
+            ->willReturn(false);
+
+        $command = new Install($manager);
+        $tester = new CommandTester($command);
+        $tester->execute([]);
+
+        static::assertStringContainsString('Services are disabled. Please enable them to install services.', $tester->getDisplay());
+    }
+
     public function testCommandWritesListOfInstalledServices(): void
     {
-        $installer = $this->createMock(AllServiceInstaller::class);
-        $installer->expects($this->once())->method('install')->willReturn([
+        $manager = $this->createMock(LifecycleManager::class);
+        $manager->method('enabled')
+            ->willReturn(true);
+        $manager->expects($this->once())->method('install')->willReturn([
             'MyCoolService1',
             'MyCoolService2',
         ]);
 
-        $command = new Install($installer);
+        $command = new Install($manager);
         $tester = new CommandTester($command);
         $tester->execute([]);
 

@@ -38,7 +38,15 @@ trait InstallerControllerTestTrait
     }
 
     /**
-     * @return array{menu: array{label: string, active: bool, isCompleted: bool}[], supportedLanguages: string[], shopware: array{version: string}}
+     * @return array{
+     *     menu: array{
+     *       label: string,
+     *       active: bool,
+     *       isCompleted: bool
+     *     }[],
+     *     supportedLanguages: SupportedLanguages,
+     *     shopware: array{version: string}
+     *   }
      */
     private function getDefaultViewParams(): array
     {

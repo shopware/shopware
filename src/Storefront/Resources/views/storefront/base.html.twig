@@ -36,7 +36,7 @@
         {% endblock %}
 
         {% if feature('cache_rework') %}
-            {{ render_esi(url('frontend.header')) }}
+            {{ render_esi(path('frontend.header')) }}
 
             {% block base_navigation_styling %}
                 {% sw_include '@Storefront/storefront/layout/navigation/active-styling.html.twig' %}
@@ -112,7 +112,7 @@
 
 
         {% if feature('cache_rework') %}
-            {{ render_esi(url('frontend.footer')) }}
+            {{ render_esi(path('frontend.footer')) }}
         {% else %}
             {# @deprecated tag:v6.7.0 - Block will be moved to storefront/layout/footer.html.twig #}
             {% block base_footer %}

@@ -25,7 +25,7 @@
             >
 
                 {% block sw_notifications_item_content %}
-                <div v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'br'], ALLOWED_ATTR: ['href', 'target'] })"></div>
+                <div v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'strong', 'em', 'br'], ALLOWED_ATTR: ['href', 'target'] })"></div>
                 {% endblock %}
 
                 {% block sw_notifications_item_actions_slot %}

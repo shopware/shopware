@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @property ContainerInterface $container
+ *
  * @internal
  *
  * @phpstan-type SupportedLanguages array<string, array{id: string, label: string}>

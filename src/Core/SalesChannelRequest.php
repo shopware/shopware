@@ -9,6 +9,8 @@ final class SalesChannelRequest
 {
     public const ATTRIBUTE_IS_SALES_CHANNEL_REQUEST = '_is_sales_channel';
 
+    public const ATTRIBUTE_IS_HEALTH_CHECK = '_is_health_check';
+
     public const ATTRIBUTE_THEME_ID = 'theme-id';
     public const ATTRIBUTE_THEME_NAME = 'theme-name';
     public const ATTRIBUTE_THEME_BASE_NAME = 'theme-base-name';

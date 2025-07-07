@@ -106,6 +106,7 @@ readonly class SalesChannelDomainUtil
             ++$redirectCount;
 
             $currentRequest = Request::create($response->getTargetUrl());
+            $currentRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_HEALTH_CHECK, true);
         }
 
         if ($redirectCount > self::MAX_REDIRECTS) {

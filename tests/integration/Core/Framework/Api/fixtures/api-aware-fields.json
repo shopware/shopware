@@ -1165,6 +1165,7 @@
     "customer_wishlist.id",
     "customer_wishlist.customerId",
     "customer_wishlist.customFields",
+    "customer_wishlist.products",
     "customer_wishlist.createdAt",
     "customer_wishlist.updatedAt",
     "customer_wishlist_product.id",

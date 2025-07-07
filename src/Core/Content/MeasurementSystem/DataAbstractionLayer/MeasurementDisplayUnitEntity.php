@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
  * @internal
  */
 #[Package('inventory')]
-#[Entity('measurement_display_unit', since: '6.7.0.0')]
+#[Entity('measurement_display_unit', since: '6.7.1.0')]
 class MeasurementDisplayUnitEntity extends EntityStruct
 {
     #[PrimaryKey]

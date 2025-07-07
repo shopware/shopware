@@ -15,6 +15,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @internal
+ */
 #[Package('inventory')]
 class MeasurementUnitsFieldSerializer extends JsonFieldSerializer
 {

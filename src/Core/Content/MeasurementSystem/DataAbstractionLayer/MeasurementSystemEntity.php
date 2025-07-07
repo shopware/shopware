@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
  * @internal
  */
 #[Package('inventory')]
-#[Entity('measurement_system', since: '6.7.0.0')]
+#[Entity('measurement_system', since: '6.7.1.0')]
 class MeasurementSystemEntity extends EntityStruct
 {
     #[PrimaryKey]

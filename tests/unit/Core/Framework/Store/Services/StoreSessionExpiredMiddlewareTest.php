@@ -7,6 +7,7 @@ use GuzzleHttp\Psr7\Request as Psr7Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Constraint\IsType;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -88,7 +89,7 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $connection
             ->expects($this->once())
             ->method('executeStatement')
-            ->with(static::isString(), ['token' => $token]);
+            ->with(static::isType(IsType::TYPE_STRING), ['token' => $token]);
 
         $middleware = new StoreSessionExpiredMiddleware($connection, $requestStack);
 

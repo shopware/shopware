@@ -11,7 +11,7 @@ use Twig\Environment;
 
 /**
  * @internal
- * @phpstan-import-type SupportedLanguages from \Shopware\Core\Installer\Controller\WelcomeController
+ * @phpstan-import-type SupportedLanguages from \Shopware\Core\Installer\Controller\InstallerController
  */
 trait InstallerControllerTestTrait
 {
@@ -23,7 +23,7 @@ trait InstallerControllerTestTrait
         $container = new ContainerBuilder();
         $container->set('twig', $twig);
         $requestStack = new RequestStack();
-        $requestStack->push(new Request([], [], ['_route' => 'installer.language-selection']));
+        $requestStack->push(new Request([], [], ['_route' => 'installer.welcome']));
         $container->set('request_stack', $requestStack);
         $container->setParameter('shopware.installer.supportedLanguages', $this->getSupportedLanguages());
         $container->setParameter('shopware.installer.configurationPreselection', $this->getSupportedPreselection());
@@ -44,7 +44,7 @@ trait InstallerControllerTestTrait
         return [
             'menu' => [
                 [
-                    'label' => 'language-selection',
+                    'label' => 'welcome',
                     'active' => true,
                     'isCompleted' => false,
                 ],

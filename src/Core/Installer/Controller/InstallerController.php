@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
  * @phpstan-type SupportedLanguages array<string, array{id: string, label: string}>
  */
 #[Package('framework')]

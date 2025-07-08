@@ -6,6 +6,12 @@ import './sw-settings-services-index.scss';
 import type { ServiceDescription } from '../../service/shopware-services.service';
 import extractError from '../../composables/extract-error';
 
+import SwSettingsServicesHero from '../../component/sw-settings-services-hero';
+import SwSettingsServicesGrantPermissionsCard from '../../component/sw-settings-services-grant-permissions-card';
+import SwSettingsServicesRevokePermissionsModal from '../../component/sw-settings-services-revoke-permissions-modal';
+import SwSettingsServicesDeactivateModal from '../../component/sw-settings-services-deactivate-modal';
+import SwSettingsServicesServiceCard from '../../component/sw-settings-services-service-card';
+
 type SwSettingsPageData = {
     grantPermissionsCardBackground: string;
     services: ServiceDescription[];
@@ -23,6 +29,14 @@ export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: ['acl'],
+
+    components: {
+        SwSettingsServicesHero,
+        SwSettingsServicesGrantPermissionsCard,
+        SwSettingsServicesRevokePermissionsModal,
+        SwSettingsServicesDeactivateModal,
+        SwSettingsServicesServiceCard,
+    },
 
     data(): SwSettingsPageData {
         const assetFilter = Shopware.Filter.getByName('asset');

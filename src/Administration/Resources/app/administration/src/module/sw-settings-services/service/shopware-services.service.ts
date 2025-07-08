@@ -46,9 +46,18 @@ export default class ShopwareServicesService extends ApiService {
     }
 
     getInstalledServices(): Promise<ServiceDescription[]> {
+        let languageId = Shopware.Store.get('session').languageId;
+        if (!languageId) {
+            languageId = Shopware.Context.api.languageId!;
+        }
+
+        const additionalHeaders = {
+            'sw-language-id': languageId,
+        };
+
         return this.httpClient
             .get('service/list', {
-                headers: this.getBasicHeaders(),
+                headers: this.getBasicHeaders(additionalHeaders),
             })
             .then((response) => {
                 return response.data as ServiceDescription[];

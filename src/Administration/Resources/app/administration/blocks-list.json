@@ -3866,6 +3866,8 @@
  "sw_order_line_items_grid_grid_columns_tax_inline_edit",
  "sw_order_line_items_grid_grid_columns_total_price",
  "sw_order_line_items_grid_grid_columns_total_price_content",
+ "sw_order_line_items_grid_grid_columns_type",
+ "sw_order_line_items_grid_grid_columns_type_content",
  "sw_order_line_items_grid_grid_columns_unit_price",
  "sw_order_line_items_grid_grid_columns_unit_price_content",
  "sw_order_line_items_grid_grid_columns_unit_price_inline_edit",

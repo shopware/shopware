@@ -203,6 +203,7 @@
       "columnTotalPriceGross": "Subtotal",
       "columnTax": "VAT",
       "columnProductNumber": "Product number",
+      "columnType": "Type",
       "contextMenuShowProduct": "Show product",
       "contextMenuDelete": "Remove from order",
       "summaryLabelAmount": "Subtotal",
@@ -265,6 +266,14 @@
       "textDeleteLineItemConfirm": "Are you sure you want to delete the position ({label})?",
       "helpTextCustomerComment": "Customers can submit this comment, and any changes will be visible to them.",
       "helpTextInternalComment": "This comment is for internal use only and will not be presented to customers."
+    },
+    "lineItemType": {
+      "credit": "Credit",
+      "product": "Product",
+      "custom": "Custom",
+      "promotion": "Promotion",
+      "discount": "Discount",
+      "container": "Container"
     },
     "nestedLineItemsModal": {
       "titlePrefix": "Item: {lineItemLabel} - {price}",

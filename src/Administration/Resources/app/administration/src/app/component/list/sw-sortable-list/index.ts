@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import template from './sw-sortable-list.html.twig';
 import './sw-sortable-list.scss';
 

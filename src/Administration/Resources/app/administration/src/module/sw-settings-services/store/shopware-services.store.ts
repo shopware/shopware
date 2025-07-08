@@ -1,7 +1,6 @@
 /**
  * @sw-package framework
  */
-import { defineStore } from 'pinia';
 import type { RevisionData, ServicesRevision } from '../service/service-registry-client';
 
 /**
@@ -33,7 +32,7 @@ type ShopwareServicesState = {
  * @private
  *
  */
-export const useShopwareServicesStore = defineStore('shopwareServices', {
+export const useShopwareServicesStore = Shopware.Store.register('shopwareServices', {
     state: (): ShopwareServicesState => ({
         config: null,
         revisions: null,

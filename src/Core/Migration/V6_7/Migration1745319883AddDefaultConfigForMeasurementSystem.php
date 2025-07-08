@@ -30,21 +30,21 @@ class Migration1745319883AddDefaultConfigForMeasurementSystem extends MigrationS
         $connection->executeStatement($query, [
             'id' => Uuid::randomBytes(),
             'configKey' => 'core.measurementUnits.system',
-            'configValue' => \sprintf('{"_value": "%s"}', 'metric'),
+            'configValue' => '{"_value": "metric"}',
             'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->executeStatement($query, [
             'id' => Uuid::randomBytes(),
             'configKey' => 'core.measurementUnits.length',
-            'configValue' => \sprintf('{"_value": "%s"}', 'mm'),
+            'configValue' => '{"_value": "mm"}',
             'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->executeStatement($query, [
             'id' => Uuid::randomBytes(),
             'configKey' => 'core.measurementUnits.weight',
-            'configValue' => \sprintf('{"_value": "%s"}', 'kg'),
+            'configValue' => '{"_value": "kg"}',
             'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

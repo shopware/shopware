@@ -28,24 +28,9 @@ class Migration1742199552SalesChannelMeasurementUnits extends MigrationStep
             return;
         }
 
-        $defaultUnits = \json_encode([
-            'system' => 'metric',
-            'units' => [
-                'weight' => 'kg',
-                'length' => 'mm',
-            ],
-        ]);
-
         $connection->executeStatement('
             ALTER TABLE `sales_channel`
             ADD COLUMN `measurement_units` JSON NULL;
-        ');
-
-        // Set default measurement units for existing sales channels
-        $connection->executeStatement('
-            UPDATE `sales_channel`
-            SET `measurement_units` = \'' . $defaultUnits . '\'
-            WHERE `measurement_units` IS NULL
         ');
     }
 }

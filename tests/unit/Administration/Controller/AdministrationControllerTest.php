@@ -84,7 +84,7 @@ class AdministrationControllerTest extends TestCase
         $this->htmlSanitizer = $this->createMock(HtmlSanitizer::class);
         $this->parameterBag = $this->createMock(ParameterBagInterface::class);
         $this->shopwareCoreDir = __DIR__ . '/../../../../src/Core/';
-        $this->serviceRegistryUrl = 'https://https://registry.services.shopware.io';
+        $this->serviceRegistryUrl = 'https://registry.services.shopware.io';
         $this->refreshTokenTtl = 'P1W';
     }
 

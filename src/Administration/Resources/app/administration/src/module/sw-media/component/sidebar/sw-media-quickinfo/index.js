@@ -56,6 +56,8 @@ export default {
             fileNameError: null,
             arReady: false,
             defaultArReady: false,
+            arPlacement: 'ar-placement-horizontal',
+            defaultArPlacement: 'ar-placement-horizontal',
         };
     },
 
@@ -90,6 +92,27 @@ export default {
             // we need to check the media url since media.fileExtension is set directly after upload
             return this.item?.fileExtension === 'glb' || !!this.item?.url?.endsWith('.glb');
         },
+
+        arPlacementOptions() {
+            this.systemConfigApiService.getConfig('core.media').then((config) => {
+                config
+                    .flat()[0]
+                    .elements.filter((element) => element.name === 'core.media.defaultARPlacement')
+                    .forEach((element) => {
+                        return element.config.options.map((option) => {
+                            return {
+                                id: option.id,
+                                name: option.name,
+                            };
+                        });
+                    });
+            });
+
+            return [
+                { id: 1, value: 'ar-placement-horizontal', label: 'Horizontal' },
+                { id: 2, value: 'ar-placement-vertical', label: 'Vertical' },
+            ];
+        },
     },
 
     watch: {
@@ -117,10 +140,12 @@ export default {
         fetchSpatialItemConfig() {
             this.systemConfigApiService.getValues('core.media').then((values) => {
                 this.defaultArReady = values['core.media.defaultEnableAugmentedReality'];
+                this.defaultArPlacement = values['core.media.defaultARPlacement'];
             });
 
             this.mediaRepository.get(this.item.id, Shopware.Context.api).then((entity) => {
                 this.arReady = entity?.config?.spatial?.arReady;
+                this.arPlacement = entity?.config?.spatial?.arPlacement;
             });
         },
 
@@ -305,6 +330,28 @@ export default {
             const newSpatialConfig = {
                 spatial: {
                     arReady: newValue,
+                    arPlacement: this.arPlacement,
+                    updatedAt: Date.now(),
+                },
+            };
+            const newItemConfig = {
+                config: {
+                    ...this.item.config,
+                    ...newSpatialConfig,
+                },
+            };
+
+            this.$emit('update:item', { ...this.item, ...newItemConfig });
+        },
+
+        /**
+         * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
+         */
+        changeARPlacement(newPlacement) {
+            const newSpatialConfig = {
+                spatial: {
+                    arReady: this.arReady,
+                    arPlacement: newPlacement,
                     updatedAt: Date.now(),
                 },
             };

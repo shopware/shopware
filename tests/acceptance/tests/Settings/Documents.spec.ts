@@ -32,12 +32,12 @@ test('As an admin, I want to create documents and make sure they contain certain
 
     await test.step('Go to order detail page and check for credit item', async () => {
         await ShopAdmin.goesTo(AdminOrderDetail.url(order.id, 'general'));
-        await ShopAdmin.expects(AdminOrderDetail.firstLineItem).toContainText('CreditItem');
+        await ShopAdmin.expects(AdminOrderDetail.lineItem.nth(2)).toContainText('CreditItem');
         });
 
     await test.step('Go to documents tab and send invoice', async () => {
         await ShopAdmin.goesTo(AdminOrderDetail.url(orderId, 'documents'));
-        await ShopAdmin.expects(AdminOrderDetail.lineItems).toContainText('Invoice');
+        await ShopAdmin.expects(AdminOrderDetail.documentType).toContainText('Invoice');
         await AdminOrderDetail.contextMenuButton.click();
         await ShopAdmin.expects(AdminOrderDetail.contextMenu).toBeVisible();
         await AdminOrderDetail.contextMenuSendDocument.click();
@@ -51,9 +51,8 @@ test('As an admin, I want to create documents and make sure they contain certain
         await ShopCustomer.goesTo(StorefrontAccountOrder.url());
         await ShopCustomer.expects(StorefrontAccountOrder.orderExpandButton).toBeVisible();
         await StorefrontAccountOrder.orderExpandButton.click();
-        await ShopCustomer.expects(StorefrontAccountOrder.documentDetails).toBeVisible();
+        await ShopCustomer.expects(StorefrontAccountOrder.orderDetails).toBeVisible();
         await StorefrontAccountOrder.invoiceHTML.click();
         await ShopCustomer.expects(StorefrontAccountOrder.creditItem).toContainText('-€1.00');
     });
 });
-

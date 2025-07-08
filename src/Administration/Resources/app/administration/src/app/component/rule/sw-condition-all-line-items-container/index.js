@@ -43,15 +43,13 @@ export default {
 
             return this.children.first().type;
         },
+
+        childrenLength() {
+            return this.condition.children.length;
+        },
     },
 
     watch: {
-        children() {
-            if (this.children.length === 0) {
-                this.removeNodeFromTree(this.parentCondition, this.condition);
-            }
-        },
-
         childType(type) {
             if (!type) {
                 return;
@@ -64,6 +62,12 @@ export default {
                 this.unwrapCondition(this.children.first());
             }
             this.setConditionValue();
+        },
+
+        childrenLength(length) {
+            if (length === 0) {
+                this.removeNodeFromTree(this.parentCondition, this.condition);
+            }
         },
     },
 

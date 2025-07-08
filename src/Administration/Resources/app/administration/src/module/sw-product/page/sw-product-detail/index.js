@@ -8,7 +8,7 @@ import errorConfiguration from './error.cfg.json';
 import './sw-product-detail.scss';
 import '../../page/sw-product-detail/store';
 
-const { Context, Mixin } = Shopware;
+const { Context, Mixin, EntityDefinition } = Shopware;
 const { Criteria, ChangesetGenerator } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
@@ -384,6 +384,39 @@ export default {
 
         currentPage() {
             return Shopware.Store.get('cmsPage').currentPage;
+        },
+
+        languageRepository() {
+            return this.repositoryFactory.create('language');
+        },
+
+        language() {
+            return Shopware.Store.get('context').api.language;
+        },
+
+        translateFields() {
+            if (!this.product) {
+                return null;
+            }
+
+            return Object.keys(EntityDefinition.getTranslatedFields(this.product.getEntityName()));
+        },
+
+        ignoreFieldsValidation() {
+            if (!this.language?.parentId) {
+                return [];
+            }
+
+            const productData = { ...this.product };
+
+            // This filter identifies fields in a child language that are null, undefined, or empty.
+            // These specific fields might be inheriting their values from the parent language,
+            // so they are intentionally ignored during validation.
+            return (this.translateFields || []).filter((field) => {
+                const value = productData[field];
+
+                return value === null || value === undefined || value === '';
+            });
         },
     },
 
@@ -844,6 +877,8 @@ export default {
 
         onChangeLanguage(languageId) {
             Shopware.Store.get('context').setApiLanguageId(languageId);
+            this.loadLanguage(languageId);
+
             this.initState();
         },
 
@@ -888,7 +923,7 @@ export default {
                 this.product.slotConfig = cloneDeep(pageOverrides);
             }
 
-            if (!this.entityValidationService.validate(this.product, this.customValidate)) {
+            if (!this.entityValidationService.validate(this.product, this.customValidate, this.ignoreFieldsValidation)) {
                 const titleSaveError = this.$tc('global.default.error');
                 const messageSaveError = this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid');
 
@@ -1229,6 +1264,13 @@ export default {
                         });
                     });
                 });
+            });
+        },
+
+        async loadLanguage(newLanguageId) {
+            Shopware.Store.get('context').api.language = await this.languageRepository.get(newLanguageId, {
+                ...Shopware.Context.api,
+                inheritance: true,
             });
         },
     },

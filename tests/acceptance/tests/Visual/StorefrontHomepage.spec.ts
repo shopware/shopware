@@ -1,6 +1,6 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
-test('Visual: Homepage in the Storefront.', { tag: '@Visual' }, async ({
+test('Creates a screenshot of the Storefront Homepage.', { tag: '@Visual' }, async ({
     ShopCustomer,
     StorefrontHome,
     Login,

@@ -1,5 +1,4 @@
 import type { RouteLocationNamedRaw } from 'vue-router';
-import type { PropType } from 'vue';
 import template from './sw-meteor-navigation.html.twig';
 import './sw-meteor-navigation.scss';
 

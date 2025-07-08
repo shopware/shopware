@@ -150,10 +150,10 @@
       "placeholderBasicUnit": "e.g. 1...",
       "placeholderPackagingUnit": "e.g. Bottle...",
       "placeholderPackagingUnitPlural": "e.g. Bottles...",
-      "helpTextBasicUnit": "Required to calculate the product's unit price. The base value to be entered depends on the selected product unit.<br><br>Unit price = (product price * basic unit) / selling unit.<br><br>Unit price not displayed, if selling unit and basic unit have the same value.",
+      "helpTextBasicUnit": "Required to calculate the product's unit price. The base value to be entered depends on the selected scale unit.<ul><li>Unit price = (product price * basic unit) / selling unit.</li></ul>Unit price not displayed, if selling unit and basic unit have the same value.",
       "helpTextPackUnit": "Type of packing: e.g. bottle, crate, tin...",
       "helpTextPackUnitPlural": "Type of packing (plural): e.g. bottles, crates, tins...",
-      "helpTextSellingUnit": "Required to calculate the product's unit price. The value to be entered depends on the selected product unit.<br><br>Unit price = (product price * basic unit) / selling unit.<br><br>Unit price not displayed, if selling unit and basic unit have the same value."
+      "helpTextSellingUnit": "Required to calculate the product's unit price. The value to be entered depends on the selected scale unit.<ul><li>Unit price = (product price * basic unit) / selling unit.</li></ul>Unit price not displayed, if selling unit and basic unit have the same value."
     },
     "detailBase": {
       "cardTitleDeliverabilityInfo": "Deliverability",

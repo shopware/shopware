@@ -5,15 +5,15 @@ namespace Shopware\Tests\Unit\Core\Installer\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Controller\InstallerController;
-use Shopware\Core\Installer\Controller\SelectLanguagesController;
+use Shopware\Core\Installer\Controller\WelcomeController;
 use Twig\Environment;
 
 /**
  * @internal
  */
-#[CoversClass(SelectLanguagesController::class)]
+#[CoversClass(WelcomeController::class)]
 #[CoversClass(InstallerController::class)]
-class SelectLanguagesControllerTest extends TestCase
+class WelcomeControllerTest extends TestCase
 {
     use InstallerControllerTestTrait;
 
@@ -21,13 +21,13 @@ class SelectLanguagesControllerTest extends TestCase
     {
         $twig = $this->createMock(Environment::class);
         $twig->expects($this->once())->method('render')
-            ->with('@Installer/installer/language-selection.html.twig', $this->getDefaultViewParams())
+            ->with('@Installer/installer/welcome.html.twig', $this->getDefaultViewParams())
             ->willReturn('languages');
 
-        $controller = new SelectLanguagesController();
+        $controller = new WelcomeController();
         $controller->setContainer($this->getInstallerContainer($twig));
 
-        $response = $controller->languageSelection();
+        $response = $controller->welcome();
         static::assertSame('languages', $response->getContent());
     }
 }

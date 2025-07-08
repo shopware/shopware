@@ -1,6 +1,6 @@
 shopware.installer:
     header_title: Installation
-    menuitem_language-selection: Start
+    menuitem_welcome: Start
     menuitem_requirements: Systemkrav
     menuitem_database-configuration: Databas-Konfiguration
     menuitem_database-import: Installation
@@ -16,24 +16,23 @@ shopware.installer:
     forward: Vidare
     start: Start
     start_installation: 'Starta installation'
-    select_language_de: Tyska
-    select_language_en: Engelska (Storbritannien)
-    select_language_us: Engelska (Förenta staterna)
-    select_language_nl: Nederländska
-    select_language_it: Italienska
-    select_language_fr: Franska
-    select_language_es: Spanska
-    select_language_pt: Portugisiska
-    select_language_pl: Putsa
     select_language_cs: Tjeck
-    select_language_sv: Svenska
-    select_language_da: Danska
-    select_language_nb: Norska
-    language-selection_welcome_title: 'Välkommen till Shopware 6'
+    select_language_da-DK: Danska
+    select_language_de: Tyska
+    select_language_en-US: Engelska (Förenta staterna)
+    select_language_en: Engelska (Storbritannien)
+    select_language_es-ES: Spanska
+    select_language_fr: Franska
+    select_language_it: Italienska
+    select_language_nl: Nederländska
+    select_language_no: Norska
+    select_language_pl: Putsa
+    select_language_pt-PT: Portugisiska
+    select_language_sv-SE: Svenska
+    welcome_title: 'Välkommen till Shopware 6'
     language-selection_select_language: 'Installationsguidens språk'
-    language-selection_header: 'Din Shopware-installation'
-    language-selection_info_message: 'Detta val gäller endast för språket i installationsguiden. Du kan definiera systemets standardspråk i din butik senare.'
-    language-selection_welcome_message: 'Vi är glada över att du vill vara en del av vår världsomspännande Shopware Community! Nu följer vi dig steg för steg genom installationsprocessen. Om du har frågor, vänligen se först efter svar i vårt <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">Forum</a>, kontakta oss på telefon på telefonnummer <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> eller skriv till oss via <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.'
+    welcome_header: 'Din Shopware-installation'
+    welcome_message: 'Vi är glada över att du vill vara en del av vår världsomspännande Shopware Community! Nu följer vi dig steg för steg genom installationsprocessen. Om du har frågor, vänligen se först efter svar i vårt <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">Forum</a>, kontakta oss på telefon på telefonnummer <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> eller skriv till oss via <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.'
     requirements_header: Systemkrav
     requirements_header_files: 'Filer och kataloger'
     requirements_header_system: System

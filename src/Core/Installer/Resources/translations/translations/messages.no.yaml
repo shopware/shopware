@@ -1,6 +1,6 @@
 shopware.installer:
     header_title: Installasjon
-    menuitem_language-selection: Start
+    menuitem_welcome: Start
     menuitem_requirements: Systemkrav
     menuitem_database-configuration: 'Database konfigurasjon'
     menuitem_database-import: Installasjon
@@ -16,24 +16,23 @@ shopware.installer:
     forward: Videre
     start: Start
     start_installation: 'Start installasjonen'
-    select_language_de: Tysk
-    select_language_en: Engelsk (Storbritannia)
-    select_language_us: Engelsk (Amerikas forente stater)
-    select_language_nl: Nederlandsk
-    select_language_it: Italiensk
-    select_language_fr: Fransk
-    select_language_es: Spansk
-    select_language_pt: Portugisisk
-    select_language_pl: Polsk
     select_language_cs: Tjekkisk
-    select_language_sv: Svensk
-    select_language_da: Dansk
-    select_language_nb: Norsk
-    language-selection_welcome_title: 'Velkommen til Shopware 6'
+    select_language_da-DK: Dansk
+    select_language_de: Tysk
+    select_language_en-US: Engelsk (Amerikas forente stater)
+    select_language_en: Engelsk (Storbritannia)
+    select_language_es-ES: Spansk
+    select_language_fr: Fransk
+    select_language_it: Italiensk
+    select_language_nl: Nederlandsk
+    select_language_no: Norsk
+    select_language_pl: Polsk
+    select_language_pt-PT: Portugisisk
+    select_language_sv-SE: Svensk
+    welcome_title: 'Velkommen til Shopware 6'
     language-selection_select_language: 'Installasjonsveiledningens språk'
-    language-selection_header: 'Din Shopware installasjon'
-    language-selection_info_message: 'Språket som blir valgt her gjelder kun for installasjonsveiledningen. Du kan definere systemets standardspråk senere.'
-    language-selection_welcome_message: 'Vi er glade for at du vil bli en del av vårt fantastiske Shopware Community! Vi vil nå guide deg igjennom installasjonsprosessen. Hvis du har spørsmål, se på våres <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">forum</a>, kontakt oss på telefonnummer <a class="is--nowrap" href="tel:0080074676260">00 800 746 7626 0 (gratis)</a> eller send oss en <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.'
+    welcome_header: 'Din Shopware installasjon'
+    welcome_message: 'Vi er glade for at du vil bli en del av vårt fantastiske Shopware Community! Vi vil nå guide deg igjennom installasjonsprosessen. Hvis du har spørsmål, se på våres <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">forum</a>, kontakt oss på telefonnummer <a class="is--nowrap" href="tel:0080074676260">00 800 746 7626 0 (gratis)</a> eller send oss en <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.'
     requirements_header: Systemkrav
     requirements_header_files: 'Filer og mapper'
     requirements_header_system: 'System'

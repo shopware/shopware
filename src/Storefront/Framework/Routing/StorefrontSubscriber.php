@@ -32,21 +32,15 @@ use Symfony\Component\Routing\RouterInterface;
 #[Package('framework')]
 class StorefrontSubscriber implements EventSubscriberInterface
 {
-    private readonly string $sessionName;
-
     /**
      * @internal
-     *
-     * @param array<string, mixed> $sessionOptions
      */
     public function __construct(
         private readonly RequestStack $requestStack,
         private readonly RouterInterface $router,
         private readonly MaintenanceModeResolver $maintenanceModeResolver,
         private readonly SystemConfigService $systemConfigService,
-        array $sessionOptions = [],
     ) {
-        $this->sessionName = $sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME;
     }
 
     public static function getSubscribedEvents(): array

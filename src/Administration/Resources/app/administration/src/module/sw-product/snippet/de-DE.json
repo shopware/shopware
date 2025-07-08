@@ -153,7 +153,7 @@
       "helpTextBasicUnit": "Notwendig für die Grundpreisberechnung. Der einzugebende Grundwert ist abhängig von der gewählten Maßeinheit.<ul><li>Grundpreis = (Produktpreis * Grundeinheit) / Verkaufseinheit.</li></ul>Der Grundpreis wird nicht angezeigt, wenn Verkaufseinheit und Grundeinheit den gleichen Wert haben.",
       "helpTextPackUnit": "Art der Verpackung: z. B. Flasche, Kiste, Tiegel ...",
       "helpTextPackUnitPlural": "Art der Verpackung (Mehrzahl): z. B. Flaschen, Kisten, Tiegel ...",
-      "helpTextSellingUnit": "Notwendig für die Grundpreisberechnung. Der einzugebende Wert ist abhängig von der gewählten Maßeinheit.<ul><li>Grundpreis = (Produktpreis * Grundeinheit) / Verkaufseinheit.</li></ul>Der Grundpreis wird nicht angezeigt, wenn Verkaufseinheit und Grundeinheit den gleichen Wert haben.",
+      "helpTextSellingUnit": "Notwendig für die Grundpreisberechnung. Der einzugebende Wert ist abhängig von der gewählten Maßeinheit.<ul><li>Grundpreis = (Produktpreis * Grundeinheit) / Verkaufseinheit.</li></ul>Der Grundpreis wird nicht angezeigt, wenn Verkaufseinheit und Grundeinheit den gleichen Wert haben."
     },
     "detailBase": {
       "cardTitleDeliverabilityInfo": "Lieferbarkeit",

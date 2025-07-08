@@ -78,8 +78,8 @@
       "advancedPrices": {
         "cardTitle": "Erweiterte Preise",
         "changeLabel": "Ändern: Erweiterte Preise",
-        "selectRule": "Select pricing rule ...",
-        "newAdvancedPrices": "Create new Advanced Prices ({count})"
+        "selectRule": "Preisregel auswählen ...",
+        "newAdvancedPrices": "{count} neue erweiterte Preise erstellen"
       },
       "property": {
         "cardTitle": "Eigenschaften",

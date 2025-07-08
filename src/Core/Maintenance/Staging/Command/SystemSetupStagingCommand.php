@@ -30,10 +30,10 @@ class SystemSetupStagingCommand extends Command
      * @param list<DomainRewriteRule> $domainMappings
      */
     public function __construct(
-        readonly private EventDispatcherInterface $eventDispatcher,
-        readonly private SystemConfigService $systemConfigService,
-        readonly bool $disableMailDelivery,
-        readonly array $domainMappings,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemConfigService $systemConfigService,
+        public readonly bool $disableMailDelivery,
+        public readonly array $domainMappings,
     ) {
         parent::__construct();
     }

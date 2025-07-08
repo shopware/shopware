@@ -183,9 +183,6 @@ class ThemeMergedConfigBuilderTest extends TestCase
         static::assertEquals($expectedStructured, $config);
     }
 
-    /**
-     * @param ThemeCollection $themeCollection
-     */
     private function mockThemeRepositorySearch(ThemeCollection $themeCollection): void
     {
         // Set up the mock to handle both the main search and the parent theme search

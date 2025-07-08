@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\Exception\InvalidThemeConfigException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
-use Shopware\Storefront\Theme\ThemeEntity;
 
 use function Symfony\Component\String\u;
 

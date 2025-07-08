@@ -52,9 +52,7 @@ class ThemeMergedConfigBuilder
         $themes = $this->themeRepository->search($criteria, $context)->getEntities();
 
         $theme = $themes->get($themeId);
-        \assert($theme instanceof ThemeEntity);
-
-        if (!$theme) {
+        if (!($theme instanceof ThemeEntity)) {
             throw ThemeException::couldNotFindThemeById($themeId);
         }
 
@@ -112,7 +110,6 @@ class ThemeMergedConfigBuilder
         }
 
         $themeConfig['themeTechnicalName'] = u($theme->getTechnicalName() ?? $theme->getName())->kebab();
-        $themeConfig['inheritedThemeTechnicalNames'] = [];
 
         // Check if the theme is a database copy of a physical theme.
         // If so, use the technical name of the parent theme.
@@ -126,6 +123,7 @@ class ThemeMergedConfigBuilder
             $themeConfig['themeTechnicalName'] = $theme->getTechnicalName();
         }
 
+        $themeConfig['inheritedThemeTechnicalNames'] = [];
         $currentTheme = $theme;
         while (true) {
             $parentThemeId = $currentTheme->getParentThemeId();
@@ -229,7 +227,7 @@ class ThemeMergedConfigBuilder
         // Reversing the array prioritizes removing duplicate children instead of duplicate parents.
         $outputStructure['inheritedThemeNames'] = array_reverse(array_unique([
             u(StorefrontPluginRegistry::BASE_THEME_NAME)->kebab(),
-            ...$themeConfig['inheritedThemeTechnicalNames'],
+            ...array_reverse($themeConfig['inheritedThemeTechnicalNames']),
             $themeTechnicalName,
         ]));
 

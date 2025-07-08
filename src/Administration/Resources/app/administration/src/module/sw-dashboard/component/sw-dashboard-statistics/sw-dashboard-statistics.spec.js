@@ -38,7 +38,6 @@ async function createWrapper(privileges = [], repository = {}) {
                 'sw-ai-copilot-badge': true,
                 'sw-context-button': true,
                 'sw-inheritance-switch': true,
-                'sw-settings-services-dashboard-banner': true,
             },
             mocks: {
                 $tc: (...args) => JSON.stringify([...args]),

@@ -103,7 +103,7 @@
                 </a>
 
                 <sw-settings-services-revoke-permissions-modal
-                    v-if="config.permissionsConsent"
+                    v-if="!config.disabled && config.permissionsConsent"
                     @service-permissions-revoked="reloadServices"
                 />
 

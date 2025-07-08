@@ -7,35 +7,6 @@ Shopware.Component.register('sw-settings-services-index', () => import('./page/s
 /**
  * @private
  */
-Shopware.Component.register('sw-settings-services-hero', () => import('./component/sw-settings-services-hero'));
-
-/**
- * @private
- */
-Shopware.Component.register(
-    'sw-settings-services-service-card',
-    () => import('./component/sw-settings-services-service-card'),
-);
-
-/**
- * @private
- */
-Shopware.Component.register(
-    'sw-settings-services-revoke-permissions-modal',
-    () => import('./component/sw-settings-services-revoke-permissions-modal'),
-);
-
-/**
- * @private
- */
-Shopware.Component.register(
-    'sw-settings-services-deactivate-modal',
-    () => import('./component/sw-settings-services-deactivate-modal'),
-);
-
-/**
- * @private
- */
 Shopware.Component.register(
     'sw-settings-services-dashboard-banner',
     () => import('./component/sw-settings-services-dashboard-banner'),
@@ -47,14 +18,6 @@ Shopware.Component.register(
 Shopware.Component.register(
     'sw-settings-services-grant-permissions-modal',
     () => import('./component/sw-settings-services-grant-permissions-modal'),
-);
-
-/**
- * @private
- */
-Shopware.Component.register(
-    'sw-settings-services-grant-permissions-card',
-    () => import('./component/sw-settings-services-grant-permissions-card'),
 );
 
 /**

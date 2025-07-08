@@ -40,10 +40,4 @@ export default Shopware.Component.wrapComponentConfig({
             },
         };
     },
-
-    computed: {
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
-        },
-    },
 });

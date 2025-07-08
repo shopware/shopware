@@ -1,4 +1,4 @@
-import { MtModalTrigger, MtModalAction, MtModalClose } from '@shopware-ag/meteor-component-library';
+import { MtModalRoot, MtModal, MtModalTrigger, MtModalAction, MtModalClose } from '@shopware-ag/meteor-component-library';
 import template from './sw-settings-services-deactivate-modal.html.twig';
 import './sw-settings-services-deactivate-modal.scss';
 import extractError from '../../composables/extract-error';
@@ -12,6 +12,8 @@ export default Shopware.Component.wrapComponentConfig({
     template,
 
     components: {
+        MtModalRoot,
+        MtModal,
         MtModalAction,
         MtModalTrigger,
         MtModalClose,

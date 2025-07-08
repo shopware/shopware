@@ -92,10 +92,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $session = $mainRequest->getSession();
 
         if (!$session->isStarted()) {
-            if (session_status() !== \PHP_SESSION_ACTIVE) {
-                $session->setName($this->sessionName);
-                $session->start();
-            }
+            $session->start();
             $session->set('sessionId', $session->getId());
         }
 

@@ -300,16 +300,18 @@ class DatabaseConfigLoader extends AbstractConfigLoader
      */
     private function getConfigInheritance(ThemeEntity $mainTheme): array
     {
-        if (\is_array($mainTheme->getBaseConfig())
-            && \array_key_exists('configInheritance', $mainTheme->getBaseConfig())
-            && \is_array($mainTheme->getBaseConfig()['configInheritance'])
-            && !empty($mainTheme->getBaseConfig()['configInheritance'])
+        $baseConfig = $mainTheme->getBaseConfig();
+
+        if (\is_array($baseConfig)
+            && \array_key_exists('configInheritance', $baseConfig)
+            && \is_array($baseConfig['configInheritance'])
+            && !empty($baseConfig['configInheritance'])
         ) {
-            return $mainTheme->getBaseConfig()['configInheritance'];
+            return $baseConfig['configInheritance'];
         }
 
         // For database copies (child themes), inherit config from parent theme.
-        if ($mainTheme->getBaseConfig() === null
+        if ($baseConfig === null
             && $mainTheme->getTechnicalName() === null
             && $mainTheme->getParentThemeId() !== null) {
             $criteria = new Criteria();

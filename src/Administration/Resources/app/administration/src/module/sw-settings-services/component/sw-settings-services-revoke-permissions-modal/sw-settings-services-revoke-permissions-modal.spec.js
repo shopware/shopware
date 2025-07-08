@@ -1,13 +1,13 @@
 import { mount } from '@vue/test-utils';
-import { MtModalAction, MtModalClose, MtModal} from '@shopware-ag/meteor-component-library';
-import SwSettingsServicesRevokePermissionsModal from "./index";
+import { MtModalAction, MtModalClose, MtModal } from '@shopware-ag/meteor-component-library';
+import SwSettingsServicesRevokePermissionsModal from './index';
 
 describe('src/module/sw-settings-services/component/sw-settings-services-revoke-permissions-modal', () => {
     beforeAll(() => {
         Shopware.Service().register('shopwareServicesService', () => ({
             revokePermissions: jest.fn(),
         }));
-    })
+    });
 
     it('can be opened and closed', async () => {
         const revokePermissionsModal = await mount(SwSettingsServicesRevokePermissionsModal);
@@ -49,7 +49,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-revoke-
 
         expect(notificationSpy).not.toHaveBeenCalled();
         expect(revokePermissionsModal.emitted('service-permissions-revoked')).toHaveLength(1);
-    })
+    });
 
     it('shows notification if permissions request fails', async () => {
         const notificationStore = Shopware.Store.get('notification');
@@ -72,5 +72,5 @@ describe('src/module/sw-settings-services/component/sw-settings-services-revoke-
             message: 'Revoke Permissions failed',
         });
         expect(revokePermissionsModal.emitted('service-permissions-revoked')).toBeUndefined();
-    })
+    });
 });

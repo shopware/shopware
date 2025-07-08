@@ -1,21 +1,23 @@
 import { mount } from '@vue/test-utils';
-import { MtModal, MtModalClose, MtModalAction } from "@shopware-ag/meteor-component-library";
-import SwSettingsServicesGrantPermissionsModal from "./index";
-import {useShopwareServicesStore} from "../../store/shopware-services.store";
+import { MtModal, MtModalClose, MtModalAction } from '@shopware-ag/meteor-component-library';
+import SwSettingsServicesGrantPermissionsModal from './index';
+import { useShopwareServicesStore } from '../../store/shopware-services.store';
 
 describe('src/module/sw-settings-services/component/sw-settings-services-grant-permissions-modal', () => {
     beforeAll(() => {
         Shopware.Service().register('serviceRegistryClient', () => ({
             getCurrentRevision: jest.fn(async () => ({
                 'latest-revision': '2025-06-25',
-                'available-revisions': [{
-                    revision: '2025-06-25',
-                    links: {
-                        'feedback-url': 'https://shopware.com/feedback',
-                        'docs-url': 'https://docs.shopware.com/services',
-                        'tos-url': 'https://shopware.com/agb',
-                    }
-                }],
+                'available-revisions': [
+                    {
+                        revision: '2025-06-25',
+                        links: {
+                            'feedback-url': 'https://shopware.com/feedback',
+                            'docs-url': 'https://docs.shopware.com/services',
+                            'tos-url': 'https://shopware.com/agb',
+                        },
+                    },
+                ],
             })),
         }));
 
@@ -27,7 +29,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-grant-p
                     revision: '2025-06-25',
                     consentingUserId: 'user-id',
                     grantedAt: '2025-07-08',
-                }
+                },
             })),
         }));
     });
@@ -46,14 +48,16 @@ describe('src/module/sw-settings-services/component/sw-settings-services-grant-p
 
         expect(shopwareServicesStore.revisions).toEqual({
             'latest-revision': '2025-06-25',
-            'available-revisions': [{
-                revision: '2025-06-25',
-                links: {
-                    'feedback-url': 'https://shopware.com/feedback',
-                    'docs-url': 'https://docs.shopware.com/services',
-                    'tos-url': 'https://shopware.com/agb',
-                }
-            }],
+            'available-revisions': [
+                {
+                    revision: '2025-06-25',
+                    links: {
+                        'feedback-url': 'https://shopware.com/feedback',
+                        'docs-url': 'https://docs.shopware.com/services',
+                        'tos-url': 'https://shopware.com/agb',
+                    },
+                },
+            ],
         });
 
         await modal.getComponent(MtModalClose).trigger('click');
@@ -84,7 +88,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-grant-p
                 revision: '2025-06-25',
                 consentingUserId: 'user-id',
                 grantedAt: '2025-07-08',
-            }
+            },
         });
     });
 
@@ -106,8 +110,8 @@ describe('src/module/sw-settings-services/component/sw-settings-services-grant-p
         expect(notificationSpy).toHaveBeenCalledWith({
             variant: 'critical',
             title: 'global.default.error',
-            message: 'No revision available'
+            message: 'No revision available',
         });
         expect(Shopware.Service('shopwareServicesService').acceptRevision).not.toHaveBeenCalled();
     });
-})
+});

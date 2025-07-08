@@ -1,17 +1,14 @@
 import { mount } from '@vue/test-utils';
 import { MtModal, MtModalClose, MtModalAction } from '@shopware-ag/meteor-component-library';
-import SwSettingsServicesDeactivateModal from "./index";
+import SwSettingsServicesDeactivateModal from './index';
 
 describe('src/module/sw-settings-services/component/sw-settings-services-deactivate-modal', () => {
     const location = window.location;
 
     beforeAll(() => {
-        Shopware.Service().register(
-            'shopwareServicesService',
-            () => ({
-                disableAllServices: jest.fn(),
-            })
-        )
+        Shopware.Service().register('shopwareServicesService', () => ({
+            disableAllServices: jest.fn(),
+        }));
     });
 
     beforeEach(() => {
@@ -19,13 +16,13 @@ describe('src/module/sw-settings-services/component/sw-settings-services-deactiv
             configurable: true,
             value: { reload: jest.fn() },
         });
-    })
+    });
 
     afterEach(() => {
         Object.defineProperty(window, 'location', { configurable: true, value: location });
-    })
+    });
 
-    it ('can be opened and closed', async () => {
+    it('can be opened and closed', async () => {
         const deactivateModal = await mount(SwSettingsServicesDeactivateModal);
         await flushPromises();
 
@@ -73,7 +70,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-deactiv
 
         Shopware.Service('shopwareServicesService').disableAllServices.mockImplementationOnce(() => {
             throw new Error('Deactivation failed');
-        })
+        });
 
         const deactivateModal = await mount(SwSettingsServicesDeactivateModal);
         await flushPromises();
@@ -90,5 +87,5 @@ describe('src/module/sw-settings-services/component/sw-settings-services-deactiv
             message: 'Deactivation failed',
             autoClose: false,
         });
-    })
+    });
 });

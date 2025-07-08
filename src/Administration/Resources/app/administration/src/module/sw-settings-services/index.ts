@@ -2,11 +2,7 @@ import './service';
 /**
  * @private
  */
-Shopware.Component.register(
-    'sw-settings-services-index',
-    () => import('./page/sw-settings-services-index'),
-);
-
+Shopware.Component.register('sw-settings-services-index', () => import('./page/sw-settings-services-index'));
 
 /**
  * @private

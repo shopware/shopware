@@ -1,21 +1,21 @@
-import { mount } from '@vue/test-utils'
-import MockAdapter from "axios-mock-adapter";
-import createHTTPClient from "../../../../core/factory/http.factory";
-import createLoginService from "../../../../core/service/login.service";
-import UserConfigService from "../../../../core/service/api/user-config.api.service";
-import SwSettingsServicesDashboardBanner from "./index";
+import { mount } from '@vue/test-utils';
+import MockAdapter from 'axios-mock-adapter';
+import createHTTPClient from '../../../../core/factory/http.factory';
+import createLoginService from '../../../../core/service/login.service';
+import UserConfigService from '../../../../core/service/api/user-config.api.service';
+import SwSettingsServicesDashboardBanner from './index';
 
 describe('src/module/sw-settings-services/component/sw-settings-services-dashboard-banner', () => {
     let axiosMock;
 
     beforeAll(() => {
-        const httpClient =  createHTTPClient();
+        const httpClient = createHTTPClient();
         const loginService = createLoginService(httpClient, Shopware.Context.api);
 
         axiosMock = new MockAdapter(httpClient);
 
-        Shopware.Service().register('userConfigService', () => new UserConfigService(httpClient, loginService))
-    })
+        Shopware.Service().register('userConfigService', () => new UserConfigService(httpClient, loginService));
+    });
 
     it('shows banner if user config is not set', async () => {
         axiosMock.onGet('_info/config-me').replyOnce(204);
@@ -53,9 +53,11 @@ describe('src/module/sw-settings-services/component/sw-settings-services-dashboa
             data: {},
         });
 
-        axiosMock.onPost('_info/config-me', {
-            'core.hide-services-dashboard-banner': [true],
-        }).replyOnce(204);
+        axiosMock
+            .onPost('_info/config-me', {
+                'core.hide-services-dashboard-banner': [true],
+            })
+            .replyOnce(204);
 
         const dashboardBanner = await mount(SwSettingsServicesDashboardBanner);
         await flushPromises();
@@ -74,21 +76,18 @@ describe('src/module/sw-settings-services/component/sw-settings-services-dashboa
 
         const routerMock = { push: jest.fn() };
 
-        const dashboardBanner = await mount(
-            SwSettingsServicesDashboardBanner,
-            {
-                global: {
-                    mocks: {
-                        $router: routerMock,
-                    },
-                }
+        const dashboardBanner = await mount(SwSettingsServicesDashboardBanner, {
+            global: {
+                mocks: {
+                    $router: routerMock,
+                },
             },
-        );
+        });
         await flushPromises();
 
         const exploreNowButton = dashboardBanner.get('.mt-button.mt-button--primary');
         await exploreNowButton.trigger('click');
 
         expect(routerMock.push).toHaveBeenCalled();
-    })
+    });
 });

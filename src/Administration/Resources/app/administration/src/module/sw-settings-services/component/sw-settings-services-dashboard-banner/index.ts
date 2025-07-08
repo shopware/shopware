@@ -32,7 +32,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 if (!response.data) {
                     this.isHidden = false;
-                    return
+                    return;
                 }
 
                 this.isHidden = (response.data['core.hide-services-dashboard-banner']?.[0] as boolean | undefined) ?? false;

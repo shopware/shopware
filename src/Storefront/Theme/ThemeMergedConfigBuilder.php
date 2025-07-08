@@ -110,7 +110,18 @@ class ThemeMergedConfigBuilder
             }
         }
 
-        $themeConfig['themeTechnicalName'] = $theme->getTechnicalName();
+        // Check if the theme is a database copy of a physical theme.
+        // If so, use the technical name of the parent theme.
+        if ($theme->getTechnicalName() === null && $theme->getParentThemeId() !== null) {
+            $parentTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getId() === $theme->getParentThemeId())->first();
+
+            if ($parentTheme instanceof ThemeEntity) {
+                $themeConfig['themeTechnicalName'] = $parentTheme->getTechnicalName();
+            }
+        } else {
+            $themeConfig['themeTechnicalName'] = $theme->getTechnicalName();
+        }
+
         $themeConfig['fields'] = $configFields;
         $themeConfig['currentFields'] = [];
         $themeConfig['baseThemeFields'] = [];

@@ -816,10 +816,10 @@ class ThemeFixtures
                 'currentFields' => self::getExtractedCurrentFields9(),
                 'baseThemeFields' => self::getExtractedBaseThemeFields9(),
                 'name' => 'test',
-                'themeTechnicalName' => null,
+                'themeTechnicalName' => 'Test',
             ],
             'expectedStructured' => [
-                'tabs' => self::getExtractedTabs10(),
+                'tabs' => self::getExtractedTabs11(),
             ],
         ];
     }
@@ -2809,6 +2809,64 @@ class ThemeFixtures
                                         'custom' => null,
                                         'fullWidth' => null,
                                     ],
+                                    'parent-custom-config' => [
+                                        'labelSnippetKey' => 'sw-theme.test.default.default.default.parent-custom-config.label',
+                                        'helpTextSnippetKey' => 'sw-theme.test.default.default.default.parent-custom-config.helpText',
+                                        'type' => 'int',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                    'extend-parent-custom-config' => [
+                                        'labelSnippetKey' => 'sw-theme.test.default.default.default.extend-parent-custom-config.label',
+                                        'helpTextSnippetKey' => 'sw-theme.test.default.default.default.extend-parent-custom-config.helpText',
+                                        'type' => 'int',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function getExtractedTabs11(): array
+    {
+        return [
+            'default' => [
+                'labelSnippetKey' => 'sw-theme.test.default.label',
+                'blocks' => [
+                    'themeColors' => [
+                        'labelSnippetKey' => 'sw-theme.test.default.themeColors.label',
+                        'sections' => self::getExtractedSectionsThemeColors(),
+                    ],
+                    'statusColors' => [
+                        'labelSnippetKey' => 'sw-theme.test.default.statusColors.label',
+                        'sections' => self::getExtractedSectionsStatusColors(),
+                    ],
+                    'typography' => [
+                        'labelSnippetKey' => 'sw-theme.test.default.typography.label',
+                        'sections' => self::getExtractedSectionsTypography(),
+                    ],
+                    'eCommerce' => [
+                        'labelSnippetKey' => 'sw-theme.test.default.eCommerce.label',
+                        'sections' => self::getExtractedSectionsECommerce(),
+                    ],
+                    'media' => [
+                        'labelSnippetKey' => 'sw-theme.test.default.media.label',
+                        'sections' => self::getExtractedSectionsMediaNoHelpTexts(),
+                    ],
+                    'default' => [
+                        'labelSnippetKey' => 'sw-theme.test.default.default.label',
+                        'sections' => [
+                            'default' => [
+                                'labelSnippetKey' => 'sw-theme.test.default.default.default.label',
+                                'fields' => [
                                     'parent-custom-config' => [
                                         'labelSnippetKey' => 'sw-theme.test.default.default.default.parent-custom-config.label',
                                         'helpTextSnippetKey' => 'sw-theme.test.default.default.default.parent-custom-config.helpText',

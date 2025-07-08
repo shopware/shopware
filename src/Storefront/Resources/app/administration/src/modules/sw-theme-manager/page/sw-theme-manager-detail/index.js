@@ -212,7 +212,13 @@ Component.register('sw-theme-manager-detail', {
 
             this.themeService.getStructuredFields(this.themeId).then((fields) => {
                 this.structuredThemeFields = fields;
-                this.inheritedThemeNames = fields.inheritedThemeNames;
+
+                const configInheritance = fields.configInheritance || [];
+                this.inheritedSnippetPrefixes = configInheritance.reverse().reduce((accumulator, name) => {
+                    accumulator.push(name.replace('@', ''));
+
+                    return accumulator;
+                }, [fields.themeTechnicalName]);
             });
 
             this.themeService.getConfiguration(this.themeId).then((config) => {
@@ -691,7 +697,7 @@ Component.register('sw-theme-manager-detail', {
          * @deprecated tag:v6.8.0 - `fallback` will be removed and method will return `null` instead, since theme config labels & helpTexts will be removed entirely.
          */
         getSnippet(key, fallback = '') {
-            for (let themeName of this.inheritedThemeNames) {
+            for (let themeName of this.inheritedSnippetPrefixes) {
                 const snippetKey = `sw-theme.${themeName}.${key}`;
                 const snippet = this.$t(snippetKey);
 
@@ -700,7 +706,7 @@ Component.register('sw-theme-manager-detail', {
                 }
             }
 
-            console.warn(`[DEPRECATED] v6.8.0 - Theme config labels & helpTexts will be removed entirely, use snippet translation for key "sw-theme.${this.inheritedThemeNames[0]}.${key}" instead.`);
+            console.warn(`[DEPRECATED] v6.8.0 - Theme config labels & helpTexts will be removed entirely, use snippet translation for key "sw-theme.${this.inheritedSnippetPrefixes[0]}.${key}" instead.`);
 
             return fallback;
         },

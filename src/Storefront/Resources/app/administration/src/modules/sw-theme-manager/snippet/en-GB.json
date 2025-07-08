@@ -1,33 +1,12 @@
 {
   "sw-theme": {
-    "zenit-app-stratus": {
-      "default": {
-        "layout": {
-          "layoutStyle": {
-            "zen-layout-style": {
-              "label": "##snippet label",
-              "helpText": "##snippet helptext"
-            },
-            "zen-header-style-mobile": {
-              "xlabel": "##snippet label2",
-              "helpText": "##snippet helptext2"
-            }
-          }
-        }
-      },
-      "header.topBar.topBarBasic.zen-top-bar-service-navigation": {
-        "label": "##rofl",
-        "helpText": "##asdf"
-      }
-    },
-    "storefront": {
+    "Storefront": {
       "default": {
         "themeColors": {
           "label": "Theme colours",
           "default": {
             "sw-color-brand-primary": {
-              "label": "Primary colour",
-              "helpText": "###FakeHelpText"
+              "label": "Primary colour"
             },
             "sw-color-brand-secondary": {
               "label": "Secondary colour"

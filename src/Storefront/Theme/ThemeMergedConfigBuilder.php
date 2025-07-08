@@ -52,6 +52,8 @@ class ThemeMergedConfigBuilder
         $themes = $this->themeRepository->search($criteria, $context)->getEntities();
 
         $theme = $themes->get($themeId);
+        \assert($theme instanceof ThemeEntity);
+
         if (!$theme) {
             throw ThemeException::couldNotFindThemeById($themeId);
         }
@@ -109,6 +111,9 @@ class ThemeMergedConfigBuilder
             }
         }
 
+        $themeConfig['themeTechnicalName'] = u($theme->getTechnicalName() ?? $theme->getName())->kebab();
+        $themeConfig['inheritedThemeTechnicalNames'] = [];
+
         // Check if the theme is a database copy of a physical theme.
         // If so, use the technical name of the parent theme.
         if ($theme->getTechnicalName() === null && $theme->getParentThemeId() !== null) {
@@ -119,6 +124,23 @@ class ThemeMergedConfigBuilder
             }
         } else {
             $themeConfig['themeTechnicalName'] = $theme->getTechnicalName();
+        }
+
+        $currentTheme = $theme;
+        while (true) {
+            $parentThemeId = $currentTheme->getParentThemeId();
+            if (!$parentThemeId) {
+                break;
+            }
+
+            $parentTheme = $themes->get($parentThemeId);
+            if (!$parentTheme) {
+                break;
+            }
+
+            $currentParentTechnicalName = $parentTheme->getTechnicalName() ?? $parentTheme->getName();
+            $themeConfig['inheritedThemeTechnicalNames'][] = u($currentParentTechnicalName)->kebab();
+            $currentTheme = $parentTheme;
         }
 
         $themeConfig['fields'] = $configFields;
@@ -203,6 +225,13 @@ class ThemeMergedConfigBuilder
             $outputStructure['tabs'][$tab]['blocks'][$block]['sections'][$section]['fields'][$fieldName] =
                 $this->buildField($fieldConfig, $custom, $themeTechnicalName, $tab, $block, $section, $fieldName);
         }
+
+        // Reversing the array prioritizes removing duplicate children instead of duplicate parents.
+        $outputStructure['inheritedThemeNames'] = array_reverse(array_unique([
+            u(StorefrontPluginRegistry::BASE_THEME_NAME)->kebab(),
+            ...$themeConfig['inheritedThemeTechnicalNames'],
+            $themeTechnicalName,
+        ]));
 
         return $outputStructure;
     }
@@ -510,8 +539,6 @@ class ThemeMergedConfigBuilder
         return implode(
             '.',
             [
-                'sw-theme',
-                u($themeTechnicalName)->kebab(),
                 ...$parts,
                 $isHelpText ? 'helpText' : 'label',
             ],
@@ -524,8 +551,14 @@ class ThemeMergedConfigBuilder
      *
      * @return ?array<string, mixed>
      */
-    private function buildCustom(?array $custom, mixed $themeTechnicalName, string $tab, string $block, string $section, string $fieldName): ?array
-    {
+    private function buildCustom(
+        ?array $custom,
+        mixed $themeTechnicalName,
+        string $tab,
+        string $block,
+        string $section,
+        string $fieldName
+    ): ?array {
         $custom = $custom ?? null;
 
         if ($custom && isset($custom['options']) && \is_array($custom['options'])) {
@@ -552,8 +585,14 @@ class ThemeMergedConfigBuilder
      *
      * @return array<string, mixed>
      */
-    private function addTranslations(array $outputStructure, string $themeTechnicalName, string $tab, string $block, string $section, array $translations): array
-    {
+    private function addTranslations(
+        array $outputStructure,
+        string $themeTechnicalName,
+        string $tab,
+        string $block,
+        string $section,
+        array $translations,
+    ): array {
         $tabSnippetKey = $this->buildSnippetKey($themeTechnicalName, false, $tab);
         $blockSnippetKey = $this->buildSnippetKey($themeTechnicalName, false, $tab, $block);
         $sectionSnippetKey = $this->buildSnippetKey($themeTechnicalName, false, $tab, $block, $section);

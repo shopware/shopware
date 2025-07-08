@@ -1,12 +1,33 @@
 {
   "sw-theme": {
+    "zenit-app-stratus": {
+      "default": {
+        "layout": {
+          "layoutStyle": {
+            "zen-layout-style": {
+              "label": "##snippet label",
+              "helpText": "##snippet helptext"
+            },
+            "zen-header-style-mobile": {
+              "xlabel": "##snippet label2",
+              "helpText": "##snippet helptext2"
+            }
+          }
+        }
+      },
+      "header.topBar.topBarBasic.zen-top-bar-service-navigation": {
+        "label": "##rofl",
+        "helpText": "##asdf"
+      }
+    },
     "storefront": {
       "default": {
         "themeColors": {
           "label": "Theme colours",
           "default": {
             "sw-color-brand-primary": {
-              "label": "Primary colour"
+              "label": "Primary colour",
+              "helpText": "###FakeHelpText"
             },
             "sw-color-brand-secondary": {
               "label": "Secondary colour"
@@ -128,7 +149,6 @@
       "textDuplicateInfo": "If you create a duplicate, you can use the theme with a different colour configuration for additional Sales Channels.",
       "labelDuplicateThemeName": "Name of the duplicate",
       "placeholderDuplicateThemeName": "Enter name",
-      "buttonDuplicateTheme": "Create duplicate",
       "modalTitleRename": "Rename",
       "textRenameInfo": "Enter a new name for the theme.",
       "labelRenameThemeName": "New theme name",
@@ -161,7 +181,6 @@
       "validate": "Validate",
       "validateToolTip": "Validate the whole configuration. Changes will stay unsaved!",
       "rename": "Rename",
-      "duplicate": "Create duplicate",
       "useImageAs": "Use image as",
       "buttonReset": "Reset to default",
       "buttonUseTheme": "Use theme",

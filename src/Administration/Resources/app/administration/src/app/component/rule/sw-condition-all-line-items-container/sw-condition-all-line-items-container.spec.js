@@ -113,20 +113,17 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
         expect(wrapper.vm.childrenLength).toBe(1);
 
         const updatedCondition = { ...wrapper.props().condition };
-        updatedCondition.children = new EntityCollection(
-            '',
-            'rule_condition',
-            Shopware.Context.api,
-            null,
-            []
-        );
+        updatedCondition.children = new EntityCollection('', 'rule_condition', Shopware.Context.api, null, []);
         await wrapper.setProps({ condition: updatedCondition });
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.childrenLength).toBe(0);
         expect(removeNodeFromTree).toHaveBeenCalledTimes(1);
 
-        const [parentCondition, condition] = removeNodeFromTree.mock.calls[0];
+        const [
+            parentCondition,
+            condition,
+        ] = removeNodeFromTree.mock.calls[0];
         expect(parentCondition).toEqual({ id: 'foo' });
         expect(condition.type).toBe('allLineItemsContainer');
     });

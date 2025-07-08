@@ -18,7 +18,7 @@ export type ServiceDescription = {
     label: string;
     icon: string;
     description: string;
-    updated_at: Date;
+    updated_at: string;
     version: string;
     requested_privileges: string[];
     privileges: string[];

@@ -397,8 +397,8 @@
           "productStreamSortingOptions": {
             "nameAsc": "Name aufsteigend",
             "nameDesc": "Name absteigend",
-            "priceAsc": "Price aufsteigend",
-            "priceDesc": "Price absteigend",
+            "priceAsc": "Preis aufsteigend",
+            "priceDesc": "Preis absteigend",
             "creationDateAsc": "Erstellungsdatum aufsteigend",
             "creationDateDesc": "Erstellungsdatum absteigend",
             "releaseDateAsc": "Erscheinungsdatum aufsteigend",

@@ -79,7 +79,7 @@
         "cardTitle": "Advanced pricing",
         "changeLabel": "Change: Advanced pricing",
         "selectRule": "Select pricing rule ...",
-        "newAdvancedPrices": "Create new Advanced Prices ({count})"
+        "newAdvancedPrices": "Create {count} new advanced prices"
       },
       "property": {
         "cardTitle": "Properties",

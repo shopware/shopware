@@ -1,4 +1,5 @@
 import template from './sw-time-ago.html.twig';
+import useUpdateClock from './updateClock';
 
 /**
  * @private
@@ -98,22 +99,14 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     mounted() {
-        this.formattedRelativeTime = this.formatRelativeTime();
-
-        // update the formatted date every 30 seconds
-        this.interval = setInterval(() => {
+        // subscriber to the updater, which updates the formatted date every 30 seconds
+        useUpdateClock(() => {
             // we have to set a new date, as vue does not react to changes in the date object
             // and does not invalidate the computed cache
             // this would lead to a wrong time string, if the component is active for more than 1 minute e.g.
             this.now = Date.now();
             this.formattedRelativeTime = this.formatRelativeTime();
-        }, 30000);
-    },
-
-    beforeUnmount() {
-        if (this.interval) {
-            clearInterval(this.interval);
-        }
+        });
     },
 
     methods: {

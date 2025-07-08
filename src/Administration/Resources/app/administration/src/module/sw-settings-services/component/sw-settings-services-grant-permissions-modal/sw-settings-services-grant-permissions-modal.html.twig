@@ -1,5 +1,4 @@
 <mt-modal-root
-    class="sw-settings-services-grant-permissions-modal"
     :is-open="showGrantPermissionsModal"
     @change="prepareRevisions"
 >
@@ -41,6 +40,7 @@
                     as="mt-button"
                     variant="primary"
                     size="small"
+                    :is-loading="isLoading"
                     @click="grantPermissions"
                 >
                     {{ $t('sw-settings-services.grant-permissions.label-button-grant-permissions') }}

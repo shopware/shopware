@@ -9,5 +9,4 @@ author_github: gecolay
 ___
 # Storefront
 * Changed `Framework\Cookie\CookieProvider` to correctly use the session name from the session options instead of a hardcoded string
-* Changed `Framework\Routing\StorefrontSubscriber` to correctly use the session name from the session options instead of a hardcoded string
-* Changed `Framework\Routing\StorefrontSubscriber` to no longer modify an already active session, which previously could cause an exception
+* Changed `Framework\Routing\StorefrontSubscriber` to no longer modify the session name

@@ -3,6 +3,7 @@ import MockAdapter from "axios-mock-adapter";
 import createHTTPClient from "../../../../core/factory/http.factory";
 import createLoginService from "../../../../core/service/login.service";
 import UserConfigService from "../../../../core/service/api/user-config.api.service";
+import SwSettingsServicesDashboardBanner from "./index";
 
 describe('src/module/sw-settings-services/component/sw-settings-services-dashboard-banner', () => {
     let axiosMock;
@@ -19,12 +20,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-dashboa
     it('shows banner if user config is not set', async () => {
         axiosMock.onGet('_info/config-me').replyOnce(204);
 
-        const dashboardBanner = await mount(
-            await wrapTestComponent(
-                'sw-settings-services-dashboard-banner',
-                { sync: true, },
-            ),
-        );
+        const dashboardBanner = await mount(SwSettingsServicesDashboardBanner);
         await flushPromises();
 
         expect(dashboardBanner.get('.mt-banner')).toBeTruthy();
@@ -35,12 +31,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-dashboa
             data: { 'core.hide-services-dashboard-banner': [false] },
         });
 
-        const dashboardBanner = await mount(
-            await wrapTestComponent(
-                'sw-settings-services-dashboard-banner',
-                { sync: true, },
-            ),
-        );
+        const dashboardBanner = await mount(SwSettingsServicesDashboardBanner);
         await flushPromises();
 
         expect(dashboardBanner.get('.mt-banner')).toBeTruthy();
@@ -51,12 +42,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-dashboa
             data: { 'core.hide-services-dashboard-banner': [true] },
         });
 
-        const dashboardBanner = await mount(
-            await wrapTestComponent(
-                'sw-settings-services-dashboard-banner',
-                { sync: true, },
-            ),
-        );
+        const dashboardBanner = await mount(SwSettingsServicesDashboardBanner);
         await flushPromises();
 
         expect(dashboardBanner.find('.mt-banner').exists()).toBe(false);
@@ -71,12 +57,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-dashboa
             'core.hide-services-dashboard-banner': [true],
         }).replyOnce(204);
 
-        const dashboardBanner = await mount(
-            await wrapTestComponent(
-                'sw-settings-services-dashboard-banner',
-                { sync: true, },
-            ),
-        );
+        const dashboardBanner = await mount(SwSettingsServicesDashboardBanner);
         await flushPromises();
 
         const closeButton = dashboardBanner.get('button.mt-banner__close');
@@ -94,10 +75,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-dashboa
         const routerMock = { push: jest.fn() };
 
         const dashboardBanner = await mount(
-            await wrapTestComponent(
-                'sw-settings-services-dashboard-banner',
-                { sync: true, },
-            ),
+            SwSettingsServicesDashboardBanner,
             {
                 global: {
                     mocks: {

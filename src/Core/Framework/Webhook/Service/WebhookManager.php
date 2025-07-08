@@ -365,13 +365,21 @@ class WebhookManager implements ResetInterface
                 return true;
             }
 
+            $isVersioned = false;
+
             foreach ($event->getWebhookPayload() as $writeResult) {
                 if (isset($writeResult['versionId']) && $writeResult['versionId'] === Defaults::LIVE_VERSION) {
                     return true;
                 }
+
+                if (isset($writeResult['versionId'])) {
+                    $isVersioned = true;
+                }
             }
 
-            return false;
+            // If the event is not versioned we should send the webhook,
+            // only if it is versioned all results are not in the live version we skip it
+            return !$isVersioned;
         }));
     }
 }

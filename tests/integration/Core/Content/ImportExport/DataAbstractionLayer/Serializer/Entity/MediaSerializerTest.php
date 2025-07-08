@@ -142,7 +142,7 @@ class MediaSerializerTest extends TestCase
         unset($expected['url']);
 
         // other properties are written
-        static::assertEquals($expected, $result);
+        static::assertSame($expected, $result);
 
         $writtenResult = new EntityWriteResult($mediaId, $result, 'media', 'insert');
         $writtenEvent = new EntityWrittenEvent('media', [$writtenResult], $context);

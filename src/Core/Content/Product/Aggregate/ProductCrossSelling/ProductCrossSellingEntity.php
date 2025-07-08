@@ -32,7 +32,7 @@ class ProductCrossSellingEntity extends Entity
 
     protected ?ProductEntity $product = null;
 
-    protected string $productStreamId;
+    protected ?string $productStreamId = null;
 
     protected ?ProductStreamEntity $productStream = null;
 

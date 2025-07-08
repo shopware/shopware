@@ -1,14 +1,12 @@
 import template from './sw-tree-item.html.twig';
 import './sw-tree-item.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  */
-Component.register('sw-tree-item', {
+export default {
     template,
 
     inject: {
@@ -625,4 +623,4 @@ Component.register('sw-tree-item', {
             return this.$slots.actions({ item, openTreeItem });
         },
     },
-});
+};

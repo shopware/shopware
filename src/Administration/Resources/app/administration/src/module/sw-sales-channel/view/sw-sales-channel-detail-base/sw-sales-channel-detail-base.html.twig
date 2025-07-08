@@ -435,6 +435,8 @@
             :label="$tc('sw-sales-channel.detail.productComparison.encoding')"
             :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderSelectEncoding')"
             :options="getEncodingOptions"
+            label-property="label"
+            value-property="id"
             :disabled="!acl.can('sales_channel.editor') || undefined"
             required
             :error="productExportEncodingError"
@@ -447,6 +449,8 @@
             :label="$tc('sw-sales-channel.detail.productComparison.fileFormat')"
             :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderSelectFileFormat')"
             :options="getFileFormatOptions"
+            label-property="label"
+            value-property="id"
             required
             :disabled="!acl.can('sales_channel.editor') || undefined"
             :error="productExportFileFormatError"
@@ -468,7 +472,7 @@
             :model-value="productExport.interval"
             :label="$tc('sw-sales-channel.detail.productComparison.interval')"
             :options="getIntervalOptions"
-            label-property="name"
+            label-property="label"
             value-property="id"
             :disabled="!acl.can('sales_channel.editor') || undefined"
             @update:model-value="changeInterval"

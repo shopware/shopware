@@ -172,7 +172,9 @@ export default {
         },
 
         disabledCountryVariant() {
-            return this.disabledCountries.find((country) => country.id === this.salesChannel.countryId) ? 'warning' : 'info';
+            return this.disabledCountries.find((country) => country.id === this.salesChannel.countryId)
+                ? 'attention'
+                : 'info';
         },
 
         disabledPaymentMethods() {
@@ -183,7 +185,7 @@ export default {
             return this.disabledPaymentMethods.find(
                 (paymentMethod) => paymentMethod.id === this.salesChannel.paymentMethodId,
             )
-                ? 'warning'
+                ? 'attention'
                 : 'info';
         },
 
@@ -195,7 +197,7 @@ export default {
             return this.disabledShippingMethods.find(
                 (shippingMethod) => shippingMethod.id === this.salesChannel.shippingMethodId,
             )
-                ? 'warning'
+                ? 'attention'
                 : 'info';
         },
 
@@ -211,7 +213,7 @@ export default {
 
         unservedLanguageVariant() {
             return this.unservedLanguages.find((language) => language.id === this.salesChannel.languageId)
-                ? 'warning'
+                ? 'attention'
                 : 'info';
         },
 
@@ -567,7 +569,7 @@ export default {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('themes');
 
-            this.salesChannelRepository.get(this.$route.params.id, Context.api, criteria).then((entity) => {
+            this.salesChannelRepository.get(this.$route.params.id.toLowerCase(), Context.api, criteria).then((entity) => {
                 if (entity.extensions.themes !== undefined && entity.extensions.themes.length >= 1) {
                     return;
                 }
@@ -744,7 +746,7 @@ export default {
                 paymentSettingsLink: routeData.href,
             };
 
-            return this.$tc(snippet, collection.length, data);
+            return this.$t(snippet, data, collection.length);
         },
 
         buildDisabledShippingAlert(snippet, collection, property = 'name') {
@@ -752,11 +754,11 @@ export default {
                 name: collection.first().translated[property].replaceAll('|', '&vert;'),
                 addition:
                     collection.length > 2
-                        ? this.$tc('sw-sales-channel.detail.warningDisabledAddition', { amount: collection.length - 1 }, 1)
+                        ? this.$t('sw-sales-channel.detail.warningDisabledAddition', { amount: collection.length - 1 }, 1)
                         : collection.last().translated[property].replaceAll('|', '&vert;'),
             };
 
-            return this.$tc(snippet, collection.length, data);
+            return this.$t(snippet, data, collection.length);
         },
 
         buildUnservedLanguagesAlert(snippet, collection, property = 'name') {
@@ -764,7 +766,7 @@ export default {
                 list: collection.map((item) => item[property]).join(', '),
             };
 
-            return this.$tc(snippet, collection.length, data);
+            return this.$t(snippet, data, collection.length);
         },
 
         isFavorite() {

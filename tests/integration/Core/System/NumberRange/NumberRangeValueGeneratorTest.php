@@ -42,25 +42,25 @@ class NumberRangeValueGeneratorTest extends TestCase
     public function testGenerateStandardPattern(): void
     {
         $value = $this->getGenerator('Pre_{n}_suf')->getValue(ProductDefinition::class, $this->context, null);
-        static::assertEquals('Pre_5_suf', $value);
+        static::assertSame('Pre_5_suf', $value);
     }
 
     public function testGenerateDatePattern(): void
     {
         $value = $this->getGenerator('Pre_{date}_suf')->getValue(ProductDefinition::class, $this->context, null);
-        static::assertEquals('Pre_' . date(ValueGeneratorPatternDate::STANDARD_FORMAT) . '_suf', $value);
+        static::assertSame('Pre_' . date(ValueGeneratorPatternDate::STANDARD_FORMAT) . '_suf', $value);
     }
 
     public function testGenerateDateWithFormatPattern(): void
     {
         $value = $this->getGenerator('Pre_{date_ymd}_suf')->getValue(ProductDefinition::class, $this->context, null);
-        static::assertEquals('Pre_' . date('ymd') . '_suf', $value);
+        static::assertSame('Pre_' . date('ymd') . '_suf', $value);
     }
 
     public function testGenerateAllPatterns(): void
     {
         $value = $this->getGenerator('Pre_{date}_{date_ymd}_{n}_suf')->getValue(ProductDefinition::class, $this->context, null);
-        static::assertEquals(
+        static::assertSame(
             'Pre_' . date(ValueGeneratorPatternDate::STANDARD_FORMAT) . '_' . date('ymd') . '_5_suf',
             $value
         );
@@ -69,7 +69,7 @@ class NumberRangeValueGeneratorTest extends TestCase
     public function testGenerateExtraCharsAllPatterns(): void
     {
         $value = $this->getGenerator('Pre_!"§$%&/()=_{date}_{date_ymd}_{n}_suf')->getValue(ProductDefinition::class, $this->context, null);
-        static::assertEquals(
+        static::assertSame(
             'Pre_!"§$%&/()=_' . date(ValueGeneratorPatternDate::STANDARD_FORMAT) . '_' . date('ymd') . '_5_suf',
             $value
         );
@@ -80,25 +80,25 @@ class NumberRangeValueGeneratorTest extends TestCase
         /** @var NumberRangeValueGenerator $realGenerator */
         $realGenerator = static::getContainer()->get(NumberRangeValueGeneratorInterface::class);
         $value = $realGenerator->getValue('product', $this->context, Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
-        static::assertEquals('SW10000', $value);
+        static::assertSame('SW10000', $value);
         $value = $realGenerator->getValue('product', $this->context, Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
-        static::assertEquals('SW10001', $value);
+        static::assertSame('SW10001', $value);
         $value = $realGenerator->getValue('product', $this->context, Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
-        static::assertEquals('SW10002', $value);
+        static::assertSame('SW10002', $value);
 
         $value = $realGenerator->getValue('order', $this->context, Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
-        static::assertEquals('10000', $value);
+        static::assertSame('10000', $value);
         $value = $realGenerator->getValue('order', $this->context, Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
-        static::assertEquals('10001', $value);
+        static::assertSame('10001', $value);
         $value = $realGenerator->getValue('order', $this->context, Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
-        static::assertEquals('10002', $value);
+        static::assertSame('10002', $value);
 
         $value = $realGenerator->getValue('customer', $this->context, Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
-        static::assertEquals('10000', $value);
+        static::assertSame('10000', $value);
         $value = $realGenerator->getValue('customer', $this->context, Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
-        static::assertEquals('10001', $value);
+        static::assertSame('10001', $value);
         $value = $realGenerator->getValue('customer', $this->context, Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
-        static::assertEquals('10002', $value);
+        static::assertSame('10002', $value);
     }
 
     public function testIncreaseStartNumberInConfiguration(): void
@@ -107,7 +107,7 @@ class NumberRangeValueGeneratorTest extends TestCase
         $realGenerator = static::getContainer()->get(NumberRangeValueGeneratorInterface::class);
 
         $value = $realGenerator->getValue('order', $this->context, Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
-        static::assertEquals('10000', $value);
+        static::assertSame('10000', $value);
 
         /** @var EntityRepository<NumberRangeTypeCollection> $numberRange */
         $numberRange = static::getContainer()->get('number_range_type.repository');
@@ -133,7 +133,7 @@ class NumberRangeValueGeneratorTest extends TestCase
         ]], $this->context);
 
         $value = $realGenerator->getValue('order', $this->context, Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
-        static::assertEquals('20000', $value);
+        static::assertSame('20000', $value);
     }
 
     private function getGenerator(string $pattern): NumberRangeValueGenerator

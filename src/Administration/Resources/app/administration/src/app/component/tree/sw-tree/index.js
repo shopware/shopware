@@ -1,7 +1,6 @@
 import template from './sw-tree.html.twig';
 import './sw-tree.scss';
 
-const { Component } = Shopware;
 const { debounce, sort } = Shopware.Utils;
 
 /**
@@ -42,7 +41,7 @@ const { debounce, sort } = Shopware.Utils;
  * </sw-tree>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-tree', {
+export default {
     template,
 
     inject: ['feature'],
@@ -1013,4 +1012,4 @@ Component.register('sw-tree', {
             this.toDeleteItem = null;
         },
     },
-});
+};

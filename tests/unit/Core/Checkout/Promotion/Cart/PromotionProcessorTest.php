@@ -93,7 +93,7 @@ class PromotionProcessorTest extends TestCase
 
         $promotionProcessor->process($data, $originalCart, $toCalculateCart, $context, $behavior);
 
-        static::assertEquals(0, $toCalculateCart->getErrors()->count());
+        static::assertCount(0, $toCalculateCart->getErrors());
     }
 
     public function testProcessWithCartZeroPriceAndPromotionIsNotGlobal(): void
@@ -123,7 +123,7 @@ class PromotionProcessorTest extends TestCase
 
         $promotionProcessor->process($data, $originalCart, $toCalculateCart, $context, $behavior);
 
-        static::assertEquals(1, $toCalculateCart->getErrors()->count());
+        static::assertCount(1, $toCalculateCart->getErrors());
         static::assertInstanceOf(PromotionsOnCartPriceZeroError::class, $toCalculateCart->getErrors()->first());
     }
 }

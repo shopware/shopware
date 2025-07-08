@@ -33,12 +33,12 @@ class CustomFieldTypeFactoryTest extends TestCase
         static::assertCount(1, $customFieldSet->getFields());
 
         $field = $customFieldSet->getFields()[0];
-        static::assertEquals('bool_field', $field->getName());
-        static::assertEquals([
+        static::assertSame('bool_field', $field->getName());
+        static::assertSame([
             'en-GB' => 'Test bool field',
             'de-DE' => 'Test bool field',
         ], $field->getLabel());
-        static::assertEquals([
+        static::assertSame([
             'en-GB' => 'Help text',
             'de-DE' => 'Help text',
         ], $field->getHelpText());

@@ -22,12 +22,12 @@ class FeatureTest extends TestCase
     use EnvTestBehaviour;
 
     /**
-     * @var array<mixed>
+     * @var array<string, mixed>
      */
     private array $serverVarsBackup;
 
     /**
-     * @var array<mixed>
+     * @var array<string, mixed>
      */
     private array $envVarsBackup;
 
@@ -53,18 +53,19 @@ class FeatureTest extends TestCase
 
     public function testFakeFeatureFlagsAreClean(): void
     {
-        $_SERVER['FEATURE_ALL'] = true;
-        $_SERVER['FEATURE_NEXT_0000'] = true;
-        $_ENV['FEATURE_NEXT_0000'] = true;
-        $_SERVER['V6_4_5_0'] = true;
+        $this->setEnvVars([
+            'FEATURE_ALL' => true,
+            'FEATURE_NEXT_0000' => true,
+            'V6_4_5_0' => true,
+        ]);
 
-        Feature::fake([], function (): void {
+        Feature::fake([], static function (): void {
             static::assertFalse(Feature::isActive('FEATURE_ALL'));
             static::assertFalse(Feature::isActive('FEATURE_NEXT_0000'));
             static::assertFalse(Feature::isActive('v6.4.5.0'));
         });
 
-        Feature::fake([], function (): void {
+        Feature::fake([], static function (): void {
             $_SERVER['FEATURE_ALL'] = true;
             Feature::registerFeature('FEATURE_ONE', [
                 'name' => 'Feature 1',
@@ -119,7 +120,7 @@ class FeatureTest extends TestCase
         $beforeFeatureFlagConfig = Feature::getRegisteredFeatures();
         $beforeServerEnv = $_SERVER;
 
-        Feature::fake([], function (): void {
+        Feature::fake([], static function (): void {
             $_SERVER = ['asdf' => 'foo'];
             Feature::resetRegisteredFeatures();
             Feature::registerFeature('foobar');
@@ -134,7 +135,7 @@ class FeatureTest extends TestCase
         static::assertArrayNotHasKey('FEATURE_NEXT_0000', $_SERVER);
         static::assertArrayNotHasKey('V6_4_5_0', $_SERVER);
 
-        Feature::fake(['FEATURE_NEXT_0000', 'v6.4.5.0'], function (): void {
+        Feature::fake(['FEATURE_NEXT_0000', 'v6.4.5.0'], static function (): void {
             static::assertArrayHasKey('FEATURE_NEXT_0000', $_SERVER);
             static::assertTrue($_SERVER['FEATURE_NEXT_0000']);
             static::assertTrue(Feature::isActive('FEATURE_NEXT_0000'));
@@ -184,8 +185,8 @@ class FeatureTest extends TestCase
 
     public function testSetActiveOnUnregisteredFeature(): void
     {
-        static::expectException(FeatureException::class);
-        static::expectExceptionMessage('Feature "FEATURE_TWO" is not registered.');
+        $this->expectException(FeatureException::class);
+        $this->expectExceptionMessage('Feature "FEATURE_TWO" is not registered.');
 
         Feature::resetRegisteredFeatures();
         Feature::registerFeatures([

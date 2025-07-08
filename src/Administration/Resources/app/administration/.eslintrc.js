@@ -121,6 +121,7 @@ module.exports = {
             rules: {
                 ...baseRules,
                 'sw-core-rules/require-explicit-emits': 'error',
+                'sw-core-rules/enforce-async-component-registers': 'error',
                 'vue/require-prop-types': 'error',
                 'vue/require-default-prop': 'error',
                 'vue/no-mutating-props': 'error',
@@ -329,6 +330,7 @@ module.exports = {
                 ],
                 '@typescript-eslint/prefer-promise-reject-errors': 'warn',
                 'sw-deprecation-rules/no-compat-conditions': ['error'],
+                'sw-core-rules/enforce-async-component-registers': 'error',
                 'sw-deprecation-rules/no-empty-listeners': ['error', 'enableFix'],
                 'sw-deprecation-rules/no-vue-options-api': 'off',
             },

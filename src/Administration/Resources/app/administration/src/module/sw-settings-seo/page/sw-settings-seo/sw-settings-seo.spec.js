@@ -30,6 +30,7 @@ async function createWrapper() {
                     'sw-ignore-class': true,
                     'sw-loader': true,
                     'sw-app-actions': true,
+                    'sw-context-menu-item': true,
                     'sw-extension-component-section': true,
                     'sw-skeleton': true,
                     'sw-error-summary': true,

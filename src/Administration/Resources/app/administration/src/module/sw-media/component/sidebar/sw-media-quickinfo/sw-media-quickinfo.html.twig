@@ -152,12 +152,15 @@
                 <template #content="props">
 
                     <mt-switch
-                        :map-inheritance="props"
+                        :is-inheritance-field="props.isInheritField"
+                        :is-inherited="props.isInherited"
                         :help-text="buildAugmentedRealityTooltip('sw-media.sidebar.actions.arHelpText')"
                         :label="$tc('sw-media.sidebar.actions.ar')"
                         :disabled="props.isInherited || !editable"
                         :model-value="props.currentValue"
                         class="sw-media-sidebar__quickactions-switch ar-ready-toggle"
+                        @inheritance-restore="props.restoreInheritance"
+                        @inheritance-remove="props.removeInheritance"
                         @update:model-value="props.updateCurrentValue"
                     />
                 </template>
@@ -235,7 +238,6 @@
                     :label-name="$tc('sw-media.sidebar.metadata.altText')"
                     :truncated="false"
                 >
-
                     <sw-confirm-field
                         v-if="editable"
                         ref="inlineEditFieldAlt"
@@ -244,7 +246,8 @@
                         :placeholder="placeholder(item, 'alt', $tc('sw-media.sidebar.metadata.altText'))"
                         :value="item.alt"
                         @input="onSubmitAltText"
-                    /><template v-else>
+                    />
+                    <template v-else>
                         {{ placeholder(item, 'alt') }}
                     </template>
                 </sw-media-quickinfo-metadata-item>
@@ -254,16 +257,16 @@
                     :label-name="$tc('sw-media.sidebar.metadata.title')"
                     :truncated="false"
                 >
-
                     <sw-confirm-field
                         v-if="editable"
                         ref="inlineEditFieldTitle"
                         :disabled="!acl.can('media.editor')"
                         compact
-                        :value="item.title"
                         :placeholder="placeholder(item, 'title', $tc('sw-media.sidebar.metadata.title'))"
+                        :value="item.title"
                         @input="onSubmitTitle"
-                    /><template v-else>
+                    />
+                    <template v-else>
                         {{ placeholder(item, 'title') }}
                     </template>
                 </sw-media-quickinfo-metadata-item>
@@ -375,7 +378,7 @@
         :sets="customFieldSets"
         :is-loading="isLoading"
         :is-save-successful="isSaveSuccessful"
-        @save="onSaveCustomFields(item)"
+        @save="onSave"
         @process-finish="saveFinish"
     />
     {% endblock %}

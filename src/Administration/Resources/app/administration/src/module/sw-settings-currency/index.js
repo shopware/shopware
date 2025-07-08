@@ -45,7 +45,7 @@ Module.register('sw-settings-currency', {
             props: {
                 default(route) {
                     return {
-                        currencyId: route.params.id,
+                        currencyId: route.params.id.toLowerCase(),
                     };
                 },
             },

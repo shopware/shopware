@@ -375,8 +375,7 @@ class CheckoutControllerTest extends TestCase
             [
                 new ErrorCollection(
                     [
-                        new PaymentMethodChangedError('Paid in advance', 'Direct Debit'),
-                        new PaymentMethodChangedError('Direct Debit', 'Invoice'),
+                        new PaymentMethodChangedError('Paid in advance', 'Invoice'),
                         new PaymentMethodChangedError('Invoice', 'Cash On Delivery'),
                         new PaymentMethodChangedError('Cash On Delivery', 'Paid in advance'),
                     ]
@@ -490,7 +489,7 @@ class CheckoutControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $content = json_decode((string) $response->getContent(), true);
 
@@ -543,7 +542,7 @@ class CheckoutControllerTest extends TestCase
         $request = $this->createRequest($salesChannelContext);
 
         $response = static::getContainer()->get(CheckoutController::class)->info($request, $salesChannelContext);
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertStringContainsString((string) $cart->getPrice()->getTotalPrice(), (string) $response->getContent());
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
@@ -561,7 +560,7 @@ class CheckoutControllerTest extends TestCase
         $request = $this->createRequest($salesChannelContext);
 
         $response = static::getContainer()->get(CheckoutController::class)->info($request, $salesChannelContext);
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         static::assertEmpty($response->getContent());
     }
 

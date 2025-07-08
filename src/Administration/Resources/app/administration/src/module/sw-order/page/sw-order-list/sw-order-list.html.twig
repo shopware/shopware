@@ -149,7 +149,7 @@
 
                 {% block sw_order_list_grid_columns_delivery_address %}
                 <template #column-deliveries.id="{ item }">
-                    <template v-if="item.deliveries && item.deliveries[0] && item.deliveries[0].shippingOrderAddress">
+                    <template v-if="getDelivery(item) && getDelivery(item).shippingOrderAddress">
                         <div
                             v-tooltip="{
                                 showDelay: 300,
@@ -159,10 +159,10 @@
                             }"
                             class="sw-order-list__delivery_address"
                         >
-                            <span v-if="item.deliveries[0].shippingOrderAddress.company">{{ item.deliveries[0].shippingOrderAddress.company }}<span v-if="item.deliveries[0].shippingOrderAddress.department"> - {{ item.deliveries[0].shippingOrderAddress.department }}</span>,</span>
-                            {{ item.deliveries[0].shippingOrderAddress.street }},
-                            {{ item.deliveries[0].shippingOrderAddress.zipcode }}
-                            {{ item.deliveries[0].shippingOrderAddress.city }}
+                            <span v-if="getDelivery(item).shippingOrderAddress.company">{{ getDelivery(item).shippingOrderAddress.company }}<span v-if="getDelivery(item).shippingOrderAddress.department"> - {{ getDelivery(item).shippingOrderAddress.department }}</span>,</span>
+                            {{ getDelivery(item).shippingOrderAddress.street }},
+                            {{ getDelivery(item).shippingOrderAddress.zipcode }}
+                            {{ getDelivery(item).shippingOrderAddress.city }}
                         </div>
                     </template>
 
@@ -210,16 +210,16 @@
                 {% block sw_order_list_grid_columns_delivery_state %}
                 <template #column-deliveries[0].stateMachineState.name="{ item }">
                     <div
-                        v-if="item.deliveries && item.deliveries[0]"
+                        v-if="getDelivery(item)"
                         class="sw-order-list__state"
                     >
                         <sw-color-badge
-                            v-if="item.deliveries && item.deliveries[0]"
+                            v-if="getDelivery(item)"
                             :color="getVariantFromDeliveryState(item)"
                             rounded
                         />
 
-                        {{ item.deliveries[0].stateMachineState.translated.name }}
+                        {{ getDelivery(item).stateMachineState.translated.name }}
                     </div>
                 </template>
                 {% endblock %}
@@ -408,19 +408,19 @@
                                 :variant="getVariantFromPaymentState(item)"
                                 appearance="pill"
                             >
-                                {{ item.transactions.last().stateMachineState.translated.name }}
+                                {{ transaction(item).stateMachineState.translated.name }}
                             </sw-label>
                         </template>
                         {% endblock %}
 
                         {% block sw_order_list_bulk_edit_grid_columns_delivery_state %}
-                        <template #column-deliveries[0].stateMachineState.name="{ item }">
+                        <template #column-getDelivery(item).stateMachineState.name="{ item }">
                             <sw-label
-                                v-if="item.deliveries && item.deliveries[0]"
+                                v-if="getDelivery(item)"
                                 :variant="getVariantFromDeliveryState(item)"
                                 appearance="pill"
                             >
-                                {{ item.deliveries[0].stateMachineState.translated.name }}
+                                {{ getDelivery(item).stateMachineState.translated.name }}
                             </sw-label>
                         </template>
                         {% endblock %}

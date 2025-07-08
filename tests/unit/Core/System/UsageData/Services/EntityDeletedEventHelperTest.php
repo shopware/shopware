@@ -102,7 +102,7 @@ class EntityDeletedEventHelperTest extends TestCase
             ->prepare();
         $entityIds = $eventHelper->getEntityIds();
         static::assertArrayHasKey(EntityWithSinglePrimaryKey::ENTITY_NAME, $entityIds);
-        static::assertEquals(
+        static::assertSame(
             [
                 [
                     'id' => $idsCollection->get('first-product'),

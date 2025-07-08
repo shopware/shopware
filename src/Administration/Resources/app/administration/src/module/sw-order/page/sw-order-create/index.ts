@@ -142,9 +142,7 @@ export default Shopware.Component.wrapComponentConfig({
                     .finally(() => {
                         this.isLoading = false;
                     });
-            }
-
-            if (this.invalidPromotionCodes.length > 0) {
+            } else if (this.invalidPromotionCodes.length > 0) {
                 this.openInvalidCodeModal();
             } else {
                 this.showError();

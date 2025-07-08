@@ -5,7 +5,6 @@
 import template from './sw-radio-panel.html.twig';
 import './sw-radio-panel.scss';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -22,7 +21,7 @@ const utils = Shopware.Utils;
  *     icon="regular-exclamation-triangle"
  * ></sw-radio-panel>
  */
-Component.register('sw-radio-panel', {
+export default {
     template,
 
     inject: ['feature'],
@@ -85,4 +84,4 @@ Component.register('sw-radio-panel', {
             this.$emit('update:modelValue', this.value);
         },
     },
-});
+};

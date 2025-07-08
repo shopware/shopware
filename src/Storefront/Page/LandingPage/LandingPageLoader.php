@@ -3,7 +3,9 @@
 namespace Shopware\Storefront\Page\LandingPage;
 
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
+use Shopware\Core\Content\LandingPage\LandingPageException;
 use Shopware\Core\Content\LandingPage\SalesChannel\AbstractLandingPageRoute;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -28,9 +30,6 @@ class LandingPageLoader
     ) {
     }
 
-    /**
-     * @throws PageNotFoundException
-     */
     public function load(Request $request, SalesChannelContext $context): LandingPage
     {
         $landingPageId = $request->attributes->get('landingPageId');
@@ -41,7 +40,12 @@ class LandingPageLoader
         $landingPage = $this->landingPageRoute->load($landingPageId, $request, $context)->getLandingPage();
 
         if ($landingPage->getCmsPage() === null) {
-            throw new PageNotFoundException($landingPageId);
+            // @deprecated tag:v6.8.0 - remove this if block
+            if (!Feature::isActive('v6.8.0.0')) {
+                throw new PageNotFoundException($landingPageId); // @phpstan-ignore shopware.domainException
+            }
+
+            throw LandingPageException::notFound($landingPageId);
         }
 
         $page = $this->genericPageLoader->load($request, $context);
@@ -49,11 +53,14 @@ class LandingPageLoader
 
         $page->setLandingPage($landingPage);
 
+        $metaTitle = $landingPage->getTranslation('metaTitle') ?? $landingPage->getTranslation('name');
+        $metaDescription = $landingPage->getTranslation('metaDescription');
+        $metaKeywords = $landingPage->getTranslation('keywords');
+
         $metaInformation = new MetaInformation();
-        $metaTitle = $landingPage->getMetaTitle() ?? $landingPage->getName();
-        $metaInformation->setMetaTitle($metaTitle ?? '');
-        $metaInformation->setMetaDescription($landingPage->getMetaDescription() ?? '');
-        $metaInformation->setMetaKeywords($landingPage->getKeywords() ?? '');
+        $metaInformation->setMetaTitle((string) $metaTitle);
+        $metaInformation->setMetaDescription((string) $metaDescription);
+        $metaInformation->setMetaKeywords((string) $metaKeywords);
         $page->setMetaInformation($metaInformation);
 
         $this->eventDispatcher->dispatch(

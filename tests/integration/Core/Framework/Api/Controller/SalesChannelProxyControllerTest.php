@@ -90,7 +90,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals('FRAMEWORK__INVALID_SALES_CHANNEL', $response['errors'][0]['code'] ?? null);
+        static::assertSame('FRAMEWORK__INVALID_SALES_CHANNEL', $response['errors'][0]['code'] ?? null);
     }
 
     public function testProxyCallToSalesChannelApi(): void
@@ -122,12 +122,12 @@ class SalesChannelProxyControllerTest extends TestCase
             ]
         );
 
-        static::assertEquals($uuid, $this->getBrowser()->getRequest()->headers->get('sw-context-token'));
-        static::assertEquals($uuid, $this->getBrowser()->getRequest()->headers->get('sw-language-id'));
-        static::assertEquals($uuid, $this->getBrowser()->getRequest()->headers->get('sw-version-id'));
-        static::assertEquals($uuid, $this->getBrowser()->getResponse()->headers->get('sw-context-token'));
-        static::assertEquals($uuid, $this->getBrowser()->getResponse()->headers->get('sw-language-id'));
-        static::assertEquals($uuid, $this->getBrowser()->getResponse()->headers->get('sw-version-id'));
+        static::assertSame($uuid, $this->getBrowser()->getRequest()->headers->get('sw-context-token'));
+        static::assertSame($uuid, $this->getBrowser()->getRequest()->headers->get('sw-language-id'));
+        static::assertSame($uuid, $this->getBrowser()->getRequest()->headers->get('sw-version-id'));
+        static::assertSame($uuid, $this->getBrowser()->getResponse()->headers->get('sw-context-token'));
+        static::assertSame($uuid, $this->getBrowser()->getResponse()->headers->get('sw-language-id'));
+        static::assertSame($uuid, $this->getBrowser()->getResponse()->headers->get('sw-version-id'));
     }
 
     public function testOnlyDefinedHeadersAreCopied(): void
@@ -144,7 +144,7 @@ class SalesChannelProxyControllerTest extends TestCase
             ]
         );
 
-        static::assertEquals('foo', $this->getBrowser()->getRequest()->headers->get('sw-custom-header'));
+        static::assertSame('foo', $this->getBrowser()->getRequest()->headers->get('sw-custom-header'));
         static::assertArrayNotHasKey('sw-custom-header', $this->getBrowser()->getResponse()->headers->all());
     }
 
@@ -233,7 +233,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals('FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING', $response['errors'][0]['code'] ?? null);
+        static::assertSame('FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING', $response['errors'][0]['code'] ?? null);
     }
 
     public function testSwitchCustomerWithInvalidChannelId(): void
@@ -252,7 +252,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals('FRAMEWORK__INVALID_SALES_CHANNEL', $response['errors'][0]['code'] ?? null);
+        static::assertSame('FRAMEWORK__INVALID_SALES_CHANNEL', $response['errors'][0]['code'] ?? null);
     }
 
     public function testSwitchCustomerWithoutCustomerId(): void
@@ -267,7 +267,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals('FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING', $response['errors'][0]['code'] ?? null);
+        static::assertSame('FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING', $response['errors'][0]['code'] ?? null);
     }
 
     public function testSwitchCustomerWithInvalidCustomerId(): void
@@ -306,13 +306,13 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $contextTokenHeaderName = $this->getContextTokenHeaderName();
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        static::assertEquals($browser->getServerParameter($contextTokenHeaderName), $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame($browser->getServerParameter($contextTokenHeaderName), $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         static::assertIsString($salesChannel['id']);
         // assert customer is updated in database
         $payload = $this->contextPersister->load($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN, ''), $salesChannel['id']);
         static::assertArrayHasKey('customerId', $payload);
-        static::assertEquals($customerId, $payload['customerId']);
+        static::assertSame($customerId, $payload['customerId']);
         static::assertArrayHasKey('permissions', $payload);
         static::assertArrayHasKey('allowProductPriceOverwrites', $payload['permissions']);
         static::assertTrue($payload['permissions']['allowProductPriceOverwrites']);
@@ -368,7 +368,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals('FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING', $response['errors'][0]['code'] ?? null);
+        static::assertSame('FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING', $response['errors'][0]['code'] ?? null);
     }
 
     public function testModifyShippingCostsWithoutShippingCosts(): void
@@ -446,10 +446,10 @@ class SalesChannelProxyControllerTest extends TestCase
 
         // assert shipping costs in cart
         static::assertArrayHasKey('unitPrice', $cart['deliveries'][0]['shippingCosts']);
-        static::assertEquals(20, $cart['deliveries'][0]['shippingCosts']['unitPrice']);
+        static::assertSame(20, $cart['deliveries'][0]['shippingCosts']['unitPrice']);
 
         static::assertArrayHasKey('totalPrice', $cart['deliveries'][0]['shippingCosts']);
-        static::assertEquals(20, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
+        static::assertSame(20, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
 
         // create a new shipping method and request to change
         $shippingMethodId = $this->createShippingMethod();
@@ -474,13 +474,13 @@ class SalesChannelProxyControllerTest extends TestCase
 
         // assert shipping method in cart is changed but shipping costs in cart is not changed
         static::assertArrayHasKey('name', $cart['deliveries'][0]['shippingMethod']);
-        static::assertEquals('Test shipping method', $cart['deliveries'][0]['shippingMethod']['name']);
+        static::assertSame('Test shipping method', $cart['deliveries'][0]['shippingMethod']['name']);
 
         static::assertArrayHasKey('unitPrice', $cart['deliveries'][0]['shippingCosts']);
-        static::assertEquals(20, $cart['deliveries'][0]['shippingCosts']['unitPrice']);
+        static::assertSame(20, $cart['deliveries'][0]['shippingCosts']['unitPrice']);
 
         static::assertArrayHasKey('totalPrice', $cart['deliveries'][0]['shippingCosts']);
-        static::assertEquals(20, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
+        static::assertSame(20, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
     }
 
     public function testModifyShippingWith0Costs(): void
@@ -532,13 +532,13 @@ class SalesChannelProxyControllerTest extends TestCase
 
         // assert shipping method in cart is changed but shipping costs in cart is not changed
         static::assertArrayHasKey('name', $cart['deliveries'][0]['shippingMethod']);
-        static::assertEquals('Example shipping', $cart['deliveries'][0]['shippingMethod']['name']);
+        static::assertSame('Example shipping', $cart['deliveries'][0]['shippingMethod']['name']);
 
         static::assertArrayHasKey('unitPrice', $cart['deliveries'][0]['shippingCosts']);
-        static::assertEquals(5, $cart['deliveries'][0]['shippingCosts']['unitPrice']);
+        static::assertSame(5, $cart['deliveries'][0]['shippingCosts']['unitPrice']);
 
         static::assertArrayHasKey('totalPrice', $cart['deliveries'][0]['shippingCosts']);
-        static::assertEquals(5, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
+        static::assertSame(5, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
 
         $browser->request(
             'PATCH',
@@ -565,10 +565,10 @@ class SalesChannelProxyControllerTest extends TestCase
 
         // assert shipping costs in cart
         static::assertArrayHasKey('unitPrice', $cart['deliveries'][0]['shippingCosts']);
-        static::assertEquals(0, $cart['deliveries'][0]['shippingCosts']['unitPrice']);
+        static::assertSame(0, $cart['deliveries'][0]['shippingCosts']['unitPrice']);
 
         static::assertArrayHasKey('totalPrice', $cart['deliveries'][0]['shippingCosts']);
-        static::assertEquals(0, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
+        static::assertSame(0, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
     }
 
     public function testModifyShippingCostsManuallyInCaseCartIsEmpty(): void
@@ -626,14 +626,14 @@ class SalesChannelProxyControllerTest extends TestCase
 
         // shipping costs are now based on manual value, tax rate will be mixed
         static::assertArrayHasKey('unitPrice', $shippingCosts);
-        static::assertEquals(20, $shippingCosts['unitPrice']);
+        static::assertSame(20, $shippingCosts['unitPrice']);
 
         static::assertArrayHasKey('totalPrice', $shippingCosts);
-        static::assertEquals(20, $shippingCosts['totalPrice']);
+        static::assertSame(20, $shippingCosts['totalPrice']);
 
         static::assertCount(2, $shippingCosts['calculatedTaxes']);
-        static::assertEquals(19, $shippingCosts['calculatedTaxes'][0]['taxRate']);
-        static::assertEquals(10, $shippingCosts['calculatedTaxes'][1]['taxRate']);
+        static::assertSame(19, $shippingCosts['calculatedTaxes'][0]['taxRate']);
+        static::assertSame(10, $shippingCosts['calculatedTaxes'][1]['taxRate']);
 
         // using store-api through proxy to remove all items in cart
         $this->storeAPIRemoveLineItems($browser, [$firstProductId, $secondProductId], $salesChannelContext->getToken());
@@ -664,13 +664,13 @@ class SalesChannelProxyControllerTest extends TestCase
         $shippingCosts = $cart['deliveries'][0]['shippingCosts'];
 
         static::assertArrayHasKey('unitPrice', $shippingCosts);
-        static::assertEquals(20, $shippingCosts['unitPrice']);
+        static::assertSame(20, $shippingCosts['unitPrice']);
 
         static::assertArrayHasKey('totalPrice', $shippingCosts);
-        static::assertEquals(20, $shippingCosts['totalPrice']);
+        static::assertSame(20, $shippingCosts['totalPrice']);
 
         static::assertCount(1, $shippingCosts['calculatedTaxes']);
-        static::assertEquals(19, $shippingCosts['calculatedTaxes'][0]['taxRate']);
+        static::assertSame(19, $shippingCosts['calculatedTaxes'][0]['taxRate']);
     }
 
     public function testModifyShippingCostsManuallyInCaseCartIsNotEmpty(): void
@@ -724,13 +724,13 @@ class SalesChannelProxyControllerTest extends TestCase
 
         // shipping costs are now based on manual value, there is one tax rate
         static::assertArrayHasKey('unitPrice', $shippingCosts);
-        static::assertEquals(20, $shippingCosts['unitPrice']);
+        static::assertSame(20, $shippingCosts['unitPrice']);
 
         static::assertArrayHasKey('totalPrice', $shippingCosts);
-        static::assertEquals(20, $shippingCosts['totalPrice']);
+        static::assertSame(20, $shippingCosts['totalPrice']);
 
         static::assertCount(1, $shippingCosts['calculatedTaxes']);
-        static::assertEquals(19, $shippingCosts['calculatedTaxes'][0]['taxRate']);
+        static::assertSame(19, $shippingCosts['calculatedTaxes'][0]['taxRate']);
 
         // using store-api through proxy to remove Product item in cart, keep Credit item.
         $this->storeAPIRemoveLineItems($browser, [$firstProductId], $salesChannelContext->getToken());
@@ -757,13 +757,13 @@ class SalesChannelProxyControllerTest extends TestCase
         // shipping costs is still based on manual value
         $shippingCosts = $cart['deliveries'][0]['shippingCosts'];
         static::assertArrayHasKey('unitPrice', $shippingCosts);
-        static::assertEquals(20, $shippingCosts['unitPrice']);
+        static::assertSame(20, $shippingCosts['unitPrice']);
 
         static::assertArrayHasKey('totalPrice', $shippingCosts);
-        static::assertEquals(20, $shippingCosts['totalPrice']);
+        static::assertSame(20, $shippingCosts['totalPrice']);
 
         static::assertCount(1, $shippingCosts['calculatedTaxes']);
-        static::assertEquals(19, $shippingCosts['calculatedTaxes'][0]['taxRate']);
+        static::assertSame(19, $shippingCosts['calculatedTaxes'][0]['taxRate']);
     }
 
     public function testSwitchDeliveryMethodAndPriceWillBeCalculated(): void
@@ -778,7 +778,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         // assert shipping cost in cart is default from sales channel
         static::assertArrayHasKey('totalPrice', $cart['deliveries'][0]['shippingCosts']);
-        static::assertEquals(0, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
+        static::assertSame(0, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
 
         // create a new shipping method and request to change
         $shippingMethodId = $this->createShippingMethod();
@@ -795,10 +795,10 @@ class SalesChannelProxyControllerTest extends TestCase
 
         // assert shipping method and cost are changed
         static::assertArrayHasKey('name', $cart['deliveries'][0]['shippingMethod']);
-        static::assertEquals('Test shipping method', $cart['deliveries'][0]['shippingMethod']['name']);
+        static::assertSame('Test shipping method', $cart['deliveries'][0]['shippingMethod']['name']);
 
         static::assertArrayHasKey('totalPrice', $cart['deliveries'][0]['shippingCosts']);
-        static::assertEquals(30, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
+        static::assertSame(30, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
     }
 
     public function testCreditItemProcessorTakeCustomItemIntoAccount(): void
@@ -908,7 +908,7 @@ class SalesChannelProxyControllerTest extends TestCase
             $this->getRootProxyUrl('/disable-automatic-promotions'),
             ['salesChannelId' => $salesChannelContext->getSalesChannelId()]
         );
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         // There is 1 line item in cart. It is product
         $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
@@ -947,7 +947,7 @@ class SalesChannelProxyControllerTest extends TestCase
             ['salesChannelId' => $salesChannelContext->getSalesChannelId()]
         );
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         // Check automatic promotion code is disabled and exist the promotion code in cart
         $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
@@ -979,7 +979,7 @@ class SalesChannelProxyControllerTest extends TestCase
             ['salesChannelId' => $salesChannelContext->getSalesChannelId()]
         );
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         // Check automatic promotion is disabled
         $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
@@ -993,7 +993,7 @@ class SalesChannelProxyControllerTest extends TestCase
             ['salesChannelId' => $salesChannelContext->getSalesChannelId()]
         );
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         // Check automatic promotion is enabled
         $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
@@ -1010,7 +1010,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals('FRAMEWORK__INVALID_SALES_CHANNEL', $response['errors'][0]['code'] ?? null);
+        static::assertSame('FRAMEWORK__INVALID_SALES_CHANNEL', $response['errors'][0]['code'] ?? null);
     }
 
     public function testProxyCreateOrderPrivileges(): void
@@ -1088,7 +1088,7 @@ class SalesChannelProxyControllerTest extends TestCase
                 $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
                 static::assertArrayHasKey('errors', $response, print_r($response, true));
-                static::assertEquals('FRAMEWORK__MISSING_PRIVILEGE_ERROR', $response['errors'][0]['code'] ?? null);
+                static::assertSame('FRAMEWORK__MISSING_PRIVILEGE_ERROR', $response['errors'][0]['code'] ?? null);
                 static::assertStringContainsString(
                     $testOrderOnly ? CreditOrderLineItemListener::ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE : 'order_line_item:create',
                     $response['errors'][0]['detail'] ?? ''
@@ -1126,12 +1126,12 @@ class SalesChannelProxyControllerTest extends TestCase
             ]
         );
 
-        static::assertEquals($uuid, $this->getBrowser()->getRequest()->headers->get('sw-context-token'));
-        static::assertEquals($uuid, $this->getBrowser()->getRequest()->headers->get('sw-language-id'));
-        static::assertEquals($uuid, $this->getBrowser()->getRequest()->headers->get('sw-version-id'));
-        static::assertEquals($uuid, $this->getBrowser()->getResponse()->headers->get('sw-context-token'));
-        static::assertEquals($uuid, $this->getBrowser()->getResponse()->headers->get('sw-language-id'));
-        static::assertEquals($uuid, $this->getBrowser()->getResponse()->headers->get('sw-version-id'));
+        static::assertSame($uuid, $this->getBrowser()->getRequest()->headers->get('sw-context-token'));
+        static::assertSame($uuid, $this->getBrowser()->getRequest()->headers->get('sw-language-id'));
+        static::assertSame($uuid, $this->getBrowser()->getRequest()->headers->get('sw-version-id'));
+        static::assertSame($uuid, $this->getBrowser()->getResponse()->headers->get('sw-context-token'));
+        static::assertSame($uuid, $this->getBrowser()->getResponse()->headers->get('sw-language-id'));
+        static::assertSame($uuid, $this->getBrowser()->getResponse()->headers->get('sw-version-id'));
     }
 
     private function getLangHeaderName(): string
@@ -1160,7 +1160,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->getBrowser()->request('POST', $baseResource, [], [], [], json_encode($categoryData, \JSON_THROW_ON_ERROR) ?: '');
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(204, $response->getStatusCode());
+        static::assertSame(204, $response->getStatusCode());
 
         $this->assertEntityExists($this->getBrowser(), 'category', $categoryData['id']);
 
@@ -1177,10 +1177,10 @@ class SalesChannelProxyControllerTest extends TestCase
 
         foreach ($expectedTranslations as $key => $expectedTranslation) {
             if (!\is_array($expectedTranslations[$key])) {
-                static::assertEquals($expectedTranslations[$key], $responseData[$key]);
+                static::assertSame($expectedTranslations[$key], $responseData[$key]);
             } else {
                 foreach ($expectedTranslations[$key] as $key2 => $expectedTranslation2) {
-                    static::assertEquals($expectedTranslation[$key2], $responseData[$key][$key2]);
+                    static::assertSame($expectedTranslation[$key2], $responseData[$key][$key2]);
                 }
             }
         }
@@ -1204,7 +1204,7 @@ class SalesChannelProxyControllerTest extends TestCase
                 'translationCodeId' => $fallbackLocaleId,
             ];
             $this->getBrowser()->request('POST', $baseUrl . '/language', [], [], [], json_encode($parentLanguageData, \JSON_THROW_ON_ERROR) ?: '');
-            static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());
+            static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
         }
 
         $localeId = Uuid::randomHex();
@@ -1225,7 +1225,7 @@ class SalesChannelProxyControllerTest extends TestCase
         ];
 
         $this->getBrowser()->request('POST', $baseUrl . '/language', [], [], [], json_encode($languageData, \JSON_THROW_ON_ERROR) ?: '');
-        static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
 
         $this->getBrowser()->request('GET', $baseUrl . '/language/' . $langId);
     }
@@ -1312,7 +1312,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $browser = clone $this->getBrowser();
         $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?: '');

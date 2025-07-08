@@ -63,7 +63,11 @@ class OrderRoute extends AbstractOrderRoute
             ->addFilter(new EqualsFilter('config.displayInCustomerAccount', 'true'))
             ->addFilter(new EqualsFilter('sent', true));
 
-        $criteria->addAssociations(['billingAddress', 'orderCustomer.customer']);
+        $criteria->addAssociations(['billingAddress', 'orderCustomer.customer', 'primaryOrderDelivery']);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $criteria->addAssociation('deliveries');
+        }
 
         $deepLinkFilter = \current(array_filter($criteria->getFilters(), static fn (Filter $filter) => \in_array('order.deepLinkCode', $filter->getFields(), true)
             || \in_array('deepLinkCode', $filter->getFields(), true))) ?: null;
@@ -228,10 +232,10 @@ class OrderRoute extends AbstractOrderRoute
 
         // Verify email and zip code with this order
         if ($request->get('email', false) && $request->get('zipcode', false)) {
-            $billingAddress = $order->getBillingAddress();
-            if ($billingAddress === null
-                || $request->get('email') !== $orderCustomer->getEmail()
-                || $request->get('zipcode') !== $billingAddress->getZipcode()) {
+            $zipCode = $order->getBillingAddress()?->getZipcode();
+            if ($zipCode === null
+                || strtolower($request->get('email')) !== strtolower($orderCustomer->getEmail())
+                || strtoupper($request->get('zipcode')) !== strtoupper($zipCode)) {
                 throw OrderException::wrongGuestCredentials();
             }
         } else {

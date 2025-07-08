@@ -5,8 +5,6 @@
 import template from './sw-version.html.twig';
 import './sw-version.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  * @description Shows the header in the administration main menu
@@ -17,7 +15,7 @@ const { Component } = Shopware;
  *     <sw-version class="collapsible-text"></sw-version>
  * </div>
  */
-Component.register('sw-version', {
+export default {
     template,
 
     computed: {
@@ -85,4 +83,4 @@ Component.register('sw-version', {
             return text;
         },
     },
-});
+};

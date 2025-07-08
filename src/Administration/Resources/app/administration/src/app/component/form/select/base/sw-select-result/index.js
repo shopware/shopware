@@ -1,8 +1,6 @@
 import './sw-select-result.scss';
 import template from './sw-select-result.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -11,7 +9,7 @@ const { Component } = Shopware;
  * @description Base component for select results.
  * @example-type code-only
  */
-Component.register('sw-select-result', {
+export default {
     template,
 
     inject: [
@@ -129,4 +127,4 @@ Component.register('sw-select-result', {
             this.setActiveItemIndex(this.index);
         },
     },
-});
+};

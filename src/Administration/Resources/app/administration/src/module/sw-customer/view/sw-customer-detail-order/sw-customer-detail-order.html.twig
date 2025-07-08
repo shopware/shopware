@@ -1,6 +1,7 @@
 {% block sw_customer_detail_order_card %}
 <mt-card
     class="sw-customer-detail-order"
+    :title="$tc('sw-customer.detailOrder.ordersTitle')"
     position-identifier="sw-customer-detail-order"
 >
     {% block sw_customer_detail_order_card_toolbar %}
@@ -37,11 +38,9 @@
     {% endblock %}
 
     {% block sw_customer_detail_order_card_grid %}
-    <template
-        v-if="(orders && orders.total > 0) || term"
-        #grid
-    >
+    <template #grid>
         <sw-entity-listing
+            v-if="(orders && orders.total > 0) || term"
             :columns="orderColumns"
             :repository="orderRepository"
             :items="orders"

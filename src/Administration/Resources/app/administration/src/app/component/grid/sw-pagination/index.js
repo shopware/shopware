@@ -1,8 +1,6 @@
 import './sw-pagination.scss';
 import template from './sw-pagination.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -13,7 +11,7 @@ const { Component } = Shopware;
  * <sw-pagination :total="500" :limit="25" :page="1"></sw-pagination>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-pagination', {
+export default {
     template,
 
     emits: ['page-change'],
@@ -228,4 +226,4 @@ Component.register('sw-pagination', {
             this.pageChange();
         },
     },
-});
+};

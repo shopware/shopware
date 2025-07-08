@@ -24,7 +24,11 @@
         margin-top: 20px;
     }
 
-    &__advanced-mode.sw-field--switch {
-        margin: 0;
+    &__item {
+        margin-bottom: 12px;
+    }
+
+    &__advanced-mode.mt-switch {
+        margin: 8px 0 12px;
     }
 }

@@ -4,7 +4,6 @@
 import template from './sw-tabs-item.html.twig';
 import './sw-tabs-item.scss';
 
-const { Component } = Shopware;
 const types = Shopware.Utils.types;
 
 /**
@@ -25,7 +24,7 @@ const types = Shopware.Utils.types;
  *
  * </sw-tabs>
  */
-Component.register('sw-tabs-item', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -221,4 +220,4 @@ Component.register('sw-tabs-item', {
             });
         },
     },
-});
+};

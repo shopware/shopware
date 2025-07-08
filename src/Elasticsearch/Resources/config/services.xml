@@ -94,6 +94,7 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexMappingProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand">
@@ -365,6 +366,7 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer"/>
             <argument type="service" id="messenger.default_bus"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexMappingUpdater"/>
 
             <tag name="kernel.event_listener"/>
         </service>

@@ -124,6 +124,8 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor"/>
             <argument type="service" id="Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartContextHasher"/>
+            <argument type="service" id="lock.factory"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator">
@@ -205,7 +207,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
             <argument type="service" id="Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway"/>
-            <argument type="service" id="Shopware\Core\Framework\Rule\RuleIdMatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Gateway\Command\Registry\CheckoutGatewayCommandRegistry">

@@ -18,11 +18,6 @@ parameters:
         consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/console-application.php
 
     excludePaths:
-        - src/WebInstaller/Resources/
-        - src/WebInstaller/stub.php
-        - src/WebInstaller/vendor(?)
-        - src/WebInstaller/Tests/_fixtures
-
         # vendor patches over autoload files
         - src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php
 
@@ -43,6 +38,9 @@ parameters:
         # Compatibility traits for Redis can be removed, once we are requiring Redis 6.0.0
         - src/Core/Test/Stub/Redis/RedisCompatibility.php
         - src/Core/Test/Stub/Redis/RedisMultiCompatibility.php
+
+    universalObjectCratesClasses:
+        - Shopware\Core\Content\Product\Hook\Pricing\ProductProxy
 
     ignoreErrors:
         # The symfony extension checks against the "normal" container, not the test container
@@ -88,13 +86,16 @@ parameters:
             paths:
                 - src/Core/Content/Test/ImportExport/MockRepository.php
                 - src/Core/Test/Stub/DataAbstractionLayer/StaticEntityRepository.php
+        -
+            message: '#.*extends @final class Shopware\\Core\\System\\SalesChannel\\Entity\\SalesChannelRepository.#'
+            paths:
+                - src/Core/Test/Stub/DataAbstractionLayer/StaticSalesChannelRepository.php
 
         # Route scopes for controllers
         -
            message: '#.* has no route scope defined.*#'
            paths:
             - **/*Test.php
-            - src/WebInstaller
             - src/Core/Installer
             - src/Core/Checkout/Payment/Controller/PaymentController.php
 

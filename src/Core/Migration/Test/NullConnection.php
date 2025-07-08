@@ -20,8 +20,7 @@ class NullConnection extends Connection
     private Connection $originalConnection;
 
     /**
-     * @phpstan-ignore-next-line DBAL Connection uses psalm-consistent-constructor annotation,
-     * therefore deriving classes should not change the constructor args, as we are in tests we ignore the error
+     * @phpstan-ignore parameter.missing, parameter.missing, parameter.missing
      */
     public function __construct()
     {

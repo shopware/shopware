@@ -3,7 +3,6 @@ import type RepositoryType from 'src/core/data/repository.data';
 import template from './sw-text-editor-link-menu.html.twig';
 import './sw-text-editor-link-menu.scss';
 
-const { Component } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 type ButtonVariant = 'primary' | 'primary-sm' | 'secondary' | 'secondary-sm';
@@ -27,7 +26,7 @@ interface TextEditorLinkMenuConfig {
  *
  * @private
  */
-Component.register('sw-text-editor-link-menu', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: [

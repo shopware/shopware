@@ -103,6 +103,7 @@ async function createWrapper() {
                 'sw-extension-component-section': true,
                 'router-link': true,
                 'sw-loader': true,
+                'sw-number-field-deprecated': true,
             },
             mocks: {
                 $tc: (key, value) => {
@@ -128,7 +129,6 @@ async function createWrapper() {
         },
         props: {
             orderId: '1a2b3c',
-            isSaveSuccessful: false,
         },
     });
 }

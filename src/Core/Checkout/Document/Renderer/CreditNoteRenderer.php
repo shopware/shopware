@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('after-sales')]
@@ -42,6 +43,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         private readonly ReferenceInvoiceLoader $referenceInvoiceLoader,
         private readonly Connection $connection,
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -138,7 +140,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                     'intraCommunityDelivery' => $this->isAllowIntraCommunityDelivery(
                         $config->jsonSerialize(),
                         $order,
-                    ),
+                    ) && $this->isValidVat($order, $this->validator),
                 ]);
 
                 if ($operation->isStatic()) {

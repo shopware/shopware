@@ -70,7 +70,7 @@ class SqlQueryParserTest extends TestCase
             $this->ids->get('product2-without-category'),
         ];
 
-        static::assertEquals($productsWithoutCategory, $result->getIds());
+        static::assertSame($productsWithoutCategory, $result->getIds());
     }
 
     public function testFindProductsWithCategory(): void
@@ -84,7 +84,7 @@ class SqlQueryParserTest extends TestCase
             $this->ids->get('product1-with-category'),
         ];
 
-        static::assertEquals($productsWithoutCategory, $result->getIds());
+        static::assertSame($productsWithoutCategory, $result->getIds());
     }
 
     #[DataProvider('whenToUseNullSafeOperatorProvider')]
@@ -101,7 +101,7 @@ class SqlQueryParserTest extends TestCase
             $has = $has || str_contains((string) $where, '<=>');
         }
 
-        static::assertEquals($expected, $has);
+        static::assertSame($expected, $has);
     }
 
     /**

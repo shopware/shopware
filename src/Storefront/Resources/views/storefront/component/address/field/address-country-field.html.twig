@@ -1,5 +1,7 @@
 {% block component_address_field_country %}
-    {% set initialCountryId = context.salesChannel.countryId %}
+    {% if initialCountryId is not defined %}
+        {% set initialCountryId = context.salesChannel.countryId %}
+    {% endif %}
 
     {% if data.get('countryId') %}
         {% set initialCountryId = data.get('countryId') %}

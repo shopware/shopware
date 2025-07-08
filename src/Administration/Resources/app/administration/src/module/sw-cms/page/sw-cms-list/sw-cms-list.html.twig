@@ -308,7 +308,12 @@
                                             class="sw-cms-list__context-menu-item-edit"
                                             :disabled="!acl.can('cms.editor') || undefined"
                                         >
-                                            {{ $tc('sw-cms.components.cmsListItem.edit') }}
+                                            <template v-if="item.locked">
+                                                {{ $tc('sw-cms.components.cmsListItem.view') }}
+                                            </template>
+                                            <template v-else>
+                                                {{ $tc('sw-cms.components.cmsListItem.edit') }}
+                                            </template>
                                         </sw-context-menu-item>
                                         {% endblock %}
 
@@ -421,7 +426,7 @@
                 v-if="showLayoutSetAsDefaultModal"
                 class="sw-cms-list__confirm-set-as-default-modal"
                 :title="$tc('sw-cms.components.setDefaultLayoutModal.title')"
-                :text="$tc('sw-cms.components.setDefaultLayoutModal.infoText', newDefaultLayout.type === 'product_detail')"
+                :text="$tc('sw-cms.components.setDefaultLayoutModal.infoText', {}, newDefaultLayout.type === 'product_detail')"
                 @confirm="onConfirmLayoutSetAsDefault"
                 @cancel="onCloseLayoutSetAsDefault"
                 @close="onCloseLayoutSetAsDefault"

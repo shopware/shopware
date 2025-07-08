@@ -20,7 +20,7 @@
             {{ $tc('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
-                size="16px"
+                size="12px"
             />
             {{ $tc('sw-settings-customer-group.general.mainMenuItemGeneral') }}
             {% endblock %}
@@ -132,7 +132,7 @@
                         {% block sw_settings_customer_group_list_grid_column_display_gross %}
                         <template #column-displayGross="{ item }">
                             {% block sw_settings_customer_group_list_grid_column_display_gross_inner %}
-                            {{ $tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', +item.displayGross) }}
+                            {{ $tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', {}, +item.displayGross) }}
                                 {% endblock %}
                         </template>
                         {% endblock %}

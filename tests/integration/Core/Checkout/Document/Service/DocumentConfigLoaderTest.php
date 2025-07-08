@@ -76,7 +76,7 @@ class DocumentConfigLoaderTest extends TestCase
 
         $config = $config->jsonSerialize();
 
-        static::assertEquals('Test corp.', $config['companyName']);
+        static::assertSame('Test corp.', $config['companyName']);
         static::assertTrue($config['displayCompanyAddress']);
         static::assertNotNull($config['logo']);
         static::assertInstanceOf(MediaEntity::class, $config['logo']);
@@ -106,9 +106,9 @@ class DocumentConfigLoaderTest extends TestCase
 
         $config = $config->jsonSerialize();
 
-        static::assertEquals('Custom corp.', $config['companyName']);
+        static::assertSame('Custom corp.', $config['companyName']);
         static::assertFalse($config['displayCompanyAddress']);
-        static::assertEquals('a5', $config['pageSize']);
+        static::assertSame('a5', $config['pageSize']);
     }
 
     private function addLogoToDocument(string $configName): void

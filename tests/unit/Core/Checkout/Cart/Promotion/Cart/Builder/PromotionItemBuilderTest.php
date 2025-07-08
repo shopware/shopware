@@ -79,7 +79,7 @@ class PromotionItemBuilderTest extends TestCase
 
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 'C1', $currencyFactor);
 
-        static::assertEquals(PromotionProcessor::LINE_ITEM_TYPE, $item->getType());
+        static::assertSame(PromotionProcessor::LINE_ITEM_TYPE, $item->getType());
     }
 
     /**
@@ -108,7 +108,7 @@ class PromotionItemBuilderTest extends TestCase
 
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 'C1', $currencyFactor);
 
-        static::assertEquals('D5', $item->getId());
+        static::assertSame('D5', $item->getId());
     }
 
     /**
@@ -134,7 +134,7 @@ class PromotionItemBuilderTest extends TestCase
 
         $item = (new PromotionItemBuilder())->buildDiscountLineItem('individual-123', $this->promotion, $discount, 'C1', $currencyFactor);
 
-        static::assertEquals('individual-123', $item->getReferencedId());
+        static::assertSame('individual-123', $item->getReferencedId());
     }
 
     /**

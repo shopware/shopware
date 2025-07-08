@@ -138,7 +138,7 @@ class ThemeCompilerEnrichScssVarSubscriberTest extends TestCase
 
     public function testgetSubscribedEventsReturnsOnlyOneTypeOfEvent(): void
     {
-        static::assertEquals(
+        static::assertSame(
             [
                 ThemeCompilerEnrichScssVariablesEvent::class => 'enrichExtensionVars',
             ],

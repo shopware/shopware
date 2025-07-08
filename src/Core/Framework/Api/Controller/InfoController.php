@@ -11,12 +11,15 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Api\Route\RouteInfo;
+use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Kernel;
@@ -56,8 +59,10 @@ class InfoController extends AbstractController
         private readonly SystemConfigService $systemConfigService,
         private readonly ApiRouteInfoResolver $apiRouteInfoResolver,
         private readonly InAppPurchase $inAppPurchase,
-        private readonly ViteFileAccessorDecorator $viteFileAccessorDecorator,
+        private readonly ?ViteFileAccessorDecorator $viteFileAccessorDecorator,
         private readonly Filesystem $filesystem,
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly StatsService $messageStatsService,
     ) {
     }
 
@@ -98,6 +103,16 @@ class InfoController extends AbstractController
             'name' => $entry['key'],
             'size' => (int) $entry['count'],
         ], array_values($entries)));
+    }
+
+    #[Route(path: '/api/_info/message-stats.json', name: 'api.info.message-stats', methods: ['GET'])]
+    public function messageStats(): JsonResponse
+    {
+        $response = new JsonResponse();
+        $response->setEncodingOptions($response->getEncodingOptions() | \JSON_PRESERVE_ZERO_FRACTION);
+        $response->setData($this->messageStatsService->getStats());
+
+        return $response;
     }
 
     #[Route(
@@ -162,6 +177,7 @@ class InfoController extends AbstractController
     {
         return new JsonResponse([
             'version' => $this->getShopwareVersion(),
+            'shopId' => $this->getShopId(),
             'versionRevision' => $this->params->get('kernel.shopware_version_revision'),
             'adminWorker' => [
                 'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
@@ -236,6 +252,11 @@ class InfoController extends AbstractController
 
         foreach ($this->kernel->getBundles() as $bundle) {
             if (!$bundle instanceof Bundle) {
+                continue;
+            }
+
+            if (!$this->viteFileAccessorDecorator) {
+                // Admin bundle is not there, admin assets are not available
                 continue;
             }
 
@@ -351,5 +372,14 @@ WHERE app.active = 1 AND app.base_app_url is not null');
     private function getTechnicalBundleName(Bundle $bundle): string
     {
         return str_replace('_', '-', $bundle->getContainerPrefix());
+    }
+
+    private function getShopId(): string
+    {
+        try {
+            return $this->shopIdProvider->getShopId();
+        } catch (AppUrlChangeDetectedException $e) {
+            return $e->getShopId();
+        }
     }
 }

@@ -58,9 +58,9 @@ class PromotionProcessorTest extends TestCase
         $processor->process($data, $cart, $new, $context, new CartBehavior());
 
         if ($expectedError === null) {
-            static::assertEquals(0, $new->getErrors()->count());
+            static::assertCount(0, $new->getErrors());
         } else {
-            static::assertEquals(1, $new->getErrors()->filterInstance($expectedError::class)->count());
+            static::assertCount(1, $new->getErrors()->filterInstance($expectedError::class));
         }
     }
 
@@ -92,9 +92,9 @@ class PromotionProcessorTest extends TestCase
         $processor->process($data, $cart, $new, $context, new CartBehavior());
 
         if ($expectedError) {
-            static::assertEquals(1, $new->getErrors()->filterInstance(PromotionsOnCartPriceZeroError::class)->count());
+            static::assertCount(1, $new->getErrors()->filterInstance(PromotionsOnCartPriceZeroError::class));
         } else {
-            static::assertEquals(0, $new->getErrors()->count());
+            static::assertCount(0, $new->getErrors());
         }
     }
 

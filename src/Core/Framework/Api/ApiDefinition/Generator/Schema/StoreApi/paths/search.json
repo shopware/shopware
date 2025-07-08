@@ -44,7 +44,6 @@
                             "schema": {
                                 "allOf": [
                                     {
-                                        "required": ["search"],
                                         "properties": {
                                             "search": {
                                                 "description": "Using the search parameter, the server performs a text search on all records based on their data model and weighting as defined in the entity definition using the SearchRanking flag.",

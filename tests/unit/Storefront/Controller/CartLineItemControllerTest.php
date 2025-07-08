@@ -390,7 +390,7 @@ class CartLineItemControllerTest extends TestCase
 
         $response = $this->controller->addProductByNumber($request, $context);
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
     }
@@ -660,7 +660,7 @@ class CartLineItemControllerTest extends TestCase
                 $expectedLineitem = new LineItem($id1, LineItem::PRODUCT_LINE_ITEM_TYPE);
                 $expectedLineitem2 = new LineItem($id2, LineItem::PRODUCT_LINE_ITEM_TYPE);
                 $expectedLineitems = [$expectedLineitem, $expectedLineitem2];
-                static::assertEquals($expectedLineitems, $lineItems);
+                static::assertSame($expectedLineitems, $lineItems);
 
                 return $cart;
             });

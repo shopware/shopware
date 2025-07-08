@@ -56,4 +56,17 @@ describe('src/plugin/cms-gdpr-video-element/cms-gdpr-video-element.plugin', () =
         expect(CookieStorageHelper.getItem(cmsGdprVideoElement.options.cookieName)).toBe('1');
         expect(document.$emitter.publish).toHaveBeenCalledWith(CMS_GDPR_VIDEO_ELEMENT_REPLACE_ELEMENT_WITH_VIDEO);
     });
+
+    test('should set allowfullscreen attribute on iframe', () => {
+        const videoUrl = 'https://www.youtube.com/embed/test';
+        const iframeTitle = 'Test Video';
+        const options = { videoUrl, iframeTitle, iframeClasses: [] };
+
+        cmsGdprVideoElement = initPlugin(options);
+        cmsGdprVideoElement._replaceElementWithVideo();
+
+        const iframe = document.querySelector('iframe');
+        expect(iframe).not.toBeNull();
+        expect(iframe.getAttribute('allowfullscreen')).toBe('allowfullscreen');
+    });
 });

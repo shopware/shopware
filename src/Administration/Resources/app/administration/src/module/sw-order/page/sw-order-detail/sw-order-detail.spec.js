@@ -121,7 +121,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         Shopware.Store.get('swOrderDetail').order = {
             orderNumber: 1,
-            createdById: '2'
+            createdById: '2',
         };
         await nextTick();
 
@@ -383,6 +383,9 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     it('should handle order address update', async () => {
         wrapper = await createWrapper({
             id: 'order123',
+            primaryOrderDelivery: {
+                id: 'delivery123',
+            },
             deliveries: [
                 {
                     id: 'delivery123',
@@ -496,5 +499,23 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         Shopware.Store.get('swOrderDetail').savedSuccessful = true;
         expect(await promise).toBe(true);
         expect(onSaveEditsSpy).toHaveBeenCalled();
+    });
+
+    it('should call afterSaveFn of saveAndReload', async () => {
+        wrapper = await createWrapper();
+
+        let promiseResolved = false;
+        const afterSaveFn = jest.fn(() =>
+            new Promise((r) => {
+                r();
+            }).then(() => {
+                promiseResolved = true;
+            }),
+        );
+
+        await wrapper.vm.saveAndReload(afterSaveFn);
+
+        expect(afterSaveFn).toHaveBeenCalledTimes(1);
+        expect(promiseResolved).toBe(true);
     });
 });

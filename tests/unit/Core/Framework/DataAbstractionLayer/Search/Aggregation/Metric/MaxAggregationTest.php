@@ -29,8 +29,8 @@ class MaxAggregationTest extends TestCase
         $aggregation = new MaxAggregation('foo', 'bar');
         $clone = clone $aggregation;
 
-        static::assertEquals('foo', $clone->getName());
-        static::assertEquals('bar', $clone->getField());
+        static::assertSame('foo', $clone->getName());
+        static::assertSame('bar', $clone->getField());
         static::assertEquals($aggregation->jsonSerialize(), $clone->jsonSerialize());
     }
 }

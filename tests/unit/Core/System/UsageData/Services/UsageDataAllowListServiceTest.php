@@ -112,7 +112,10 @@ class ProductMockEntityDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        // @phpstan-ignore-next-line
-        return $this->fields;
+        if ($this->fields !== null) {
+            return $this->fields;
+        }
+
+        return new FieldCollection();
     }
 }

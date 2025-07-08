@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -80,6 +82,12 @@ class RegisterController extends StorefrontController
             return $this->redirectToRoute('frontend.account.home.page');
         }
 
+        // Add '_httpCache' => true, to defaults in Route and remove _noStore
+        if (Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('v6.8.0.0')) {
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
+            $request->attributes->remove(PlatformRequest::ATTRIBUTE_NO_STORE);
+        }
+
         $redirect = $request->query->get('redirectTo', 'frontend.account.home.page');
         $errorRoute = $request->attributes->get('_route');
 
@@ -105,6 +113,12 @@ class RegisterController extends StorefrontController
 
         if ($context->getCustomer()) {
             return $this->redirectToRoute('frontend.account.home.page');
+        }
+
+        // Add '_httpCache' => true, to defaults in Route and remove _noStore
+        if (Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('v6.8.0.0')) {
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
+            $request->attributes->remove(PlatformRequest::ATTRIBUTE_NO_STORE);
         }
 
         $redirect = $request->query->get('redirectTo', 'frontend.account.home.page');

@@ -44,11 +44,11 @@ class DatabaseSalesChannelThemeLoaderTest extends TestCase
         $salesChannelId = Uuid::randomHex();
 
         $actualTheme = $this->themeLoader->load($salesChannelId);
-        static::assertEquals($expectedTheme, $actualTheme);
+        static::assertSame($expectedTheme, $actualTheme);
 
         $otherSalesChannelId = Uuid::randomHex();
         $secondAttempt = $this->themeLoader->load($otherSalesChannelId);
-        static::assertEquals([], $secondAttempt);
+        static::assertSame([], $secondAttempt);
     }
 
     public function testLoadMultiple(): void
@@ -84,10 +84,10 @@ class DatabaseSalesChannelThemeLoaderTest extends TestCase
         $salesChannelId = Uuid::randomHex();
 
         $actualTheme = $this->themeLoader->load($salesChannelId);
-        static::assertEquals($expectedTheme, $actualTheme);
+        static::assertSame($expectedTheme, $actualTheme);
 
         $otherSalesChannelId = Uuid::randomHex();
         $secondAttempt = $this->themeLoader->load($otherSalesChannelId);
-        static::assertEquals([], $secondAttempt);
+        static::assertSame([], $secondAttempt);
     }
 }

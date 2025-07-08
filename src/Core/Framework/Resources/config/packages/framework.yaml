@@ -76,6 +76,10 @@ framework:
                     delay: 1000
                     multiplier: 2
                     max_delay: 0
+        buses:
+            messenger.bus.default:
+                middleware:
+                    - Shopware\Core\Framework\Adapter\Messenger\Middleware\QueuedTimeMiddleware
 
         routing:
             'Shopware\Core\Framework\MessageQueue\AsyncMessageInterface': async

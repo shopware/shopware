@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
+use Shopware\Core\Framework\Util\FloatComparator;
 
 /**
  * @extends Collection<CalculatedPrice>
@@ -30,7 +31,12 @@ class PriceCollection extends Collection
         $rules = new TaxRuleCollection([]);
 
         foreach ($this->getIterator() as $price) {
-            $rules = $rules->merge($price->getTaxRules());
+            // logic from "rules->merge". But "merge" will create a new object each time
+            foreach ($price->getTaxRules() as $taxRule) {
+                if (!$rules->exists($taxRule)) {
+                    $rules->add($taxRule);
+                }
+            }
         }
 
         return $rules;
@@ -40,7 +46,7 @@ class PriceCollection extends Collection
     {
         return new CalculatedPrice(
             $this->getUnitPriceAmount(),
-            $this->getAmount(),
+            $this->getTotalPriceAmount(),
             $this->getCalculatedTaxes(),
             $this->getTaxRules()
         );
@@ -80,22 +86,22 @@ class PriceCollection extends Collection
         return 'cart_price_collection';
     }
 
-    protected function getExpectedClass(): ?string
-    {
-        return CalculatedPrice::class;
-    }
-
-    private function getUnitPriceAmount(): float
+    public function getUnitPriceAmount(): float
     {
         $prices = $this->map(fn (CalculatedPrice $price) => $price->getUnitPrice());
 
-        return array_sum($prices);
+        return FloatComparator::cast(array_sum($prices));
     }
 
-    private function getAmount(): float
+    public function getTotalPriceAmount(): float
     {
         $prices = $this->map(fn (CalculatedPrice $price) => $price->getTotalPrice());
 
-        return array_sum($prices);
+        return FloatComparator::cast(array_sum($prices));
+    }
+
+    protected function getExpectedClass(): ?string
+    {
+        return CalculatedPrice::class;
     }
 }

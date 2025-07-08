@@ -55,7 +55,7 @@ class GoodsPriceRule extends FilterRule
             });
         }
 
-        return RuleComparison::numeric($goods->getPrices()->sum()->getTotalPrice(), $this->amount, $this->operator);
+        return RuleComparison::numeric($goods->getPrices()->getTotalPriceAmount(), $this->amount, $this->operator);
     }
 
     public function getConstraints(): array

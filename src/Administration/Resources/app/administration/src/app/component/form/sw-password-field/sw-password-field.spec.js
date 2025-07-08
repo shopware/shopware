@@ -7,6 +7,11 @@ import { mount } from '@vue/test-utils';
 async function createWrapper(additionalOptions = {}) {
     return mount(await wrapTestComponent('sw-password-field', { sync: true }), {
         props: {},
+        global: {
+            stubs: {
+                'sw-password-field-deprecated': true,
+            },
+        },
         ...additionalOptions,
     });
 }

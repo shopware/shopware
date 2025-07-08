@@ -78,7 +78,7 @@ class MaintenanceModeResolverTest extends TestCase
     #[DataProvider('maintenanceModeActiveProvider')]
     public function testIsMaintenanceRequest(Request $request, bool $expected): void
     {
-        static::assertEquals(
+        static::assertSame(
             (new MaintenanceModeResolver($this->getRequestStack($request), new CoreMaintenanceModeResolver(new EventDispatcher())))->isMaintenanceRequest($request),
             $expected
         );

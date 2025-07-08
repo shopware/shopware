@@ -7,6 +7,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
@@ -27,11 +28,15 @@ class ThemeEntity extends Entity
 
     /**
      * @var array<string, mixed>|null
+     *
+     * @deprecated tag:v6.8.0 - Will be removed. Use helpText label keys from structured fields instead
      */
     protected ?array $labels = null;
 
     /**
      * @var array<string, string>|null
+     *
+     * @deprecated tag:v6.8.0 - Will be removed. Use helpText snippet keys from structured fields instead
      */
     protected ?array $helpTexts = null;
 
@@ -108,33 +113,49 @@ class ThemeEntity extends Entity
 
     /**
      * @return array<string, mixed>|null
+     *
+     * @deprecated tag:v6.8.0 - Will be removed. Use label snippet keys from structured fields instead
      */
     public function getLabels(): ?array
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'ThemeConfigField::getLabelSnippetKey'));
+
         return $this->labels;
     }
 
     /**
      * @param array<string, mixed>|null $labels
+     *
+     * @deprecated tag:v6.8.0 - Will be removed. Use label snippet keys from structured fields instead
      */
     public function setLabels(?array $labels): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'));
+
         $this->labels = $labels;
     }
 
     /**
      * @return array<string, string>|null
+     *
+     * @deprecated tag:v6.8.0 - Will be removed. Use helpText snippet keys from structured fields instead
      */
     public function getHelpTexts(): ?array
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'ThemeConfigField::getHelpTextSnippetKey'));
+
         return $this->helpTexts;
     }
 
     /**
      * @param array<string, string>|null $helpTexts
+     *
+     * @deprecated tag:v6.8.0 - Will be removed. Use helpText snippet keys from structured fields instead
      */
     public function setHelpTexts(?array $helpTexts): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'));
+
         $this->helpTexts = $helpTexts;
     }
 

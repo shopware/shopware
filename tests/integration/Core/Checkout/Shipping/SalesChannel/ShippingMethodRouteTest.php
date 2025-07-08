@@ -108,7 +108,7 @@ class ShippingMethodRouteTest extends TestCase
 
         $ids = array_column($response['elements'], 'id');
 
-        static::assertEquals(
+        static::assertSame(
             [
                 $this->ids->get('shipping'),    // position  1 (selected method & sales-channel default)
                 $this->ids->get('shipping3'),   // position -3
@@ -138,7 +138,7 @@ class ShippingMethodRouteTest extends TestCase
 
         $ids = array_column($response['elements'], 'id');
 
-        static::assertEquals(
+        static::assertSame(
             [
                 $this->ids->get('shipping'),    // position  1 (sales-channel default)
                 $this->ids->get('shipping3'),   // position -3

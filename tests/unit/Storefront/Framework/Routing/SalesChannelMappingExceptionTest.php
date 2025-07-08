@@ -15,8 +15,8 @@ class SalesChannelMappingExceptionTest extends TestCase
     public function testException(): void
     {
         $exception = new SalesChannelMappingException('test');
-        static::assertEquals('Unable to find a matching sales channel for the request: "test". Please make sure the domain mapping is correct.', $exception->getMessage());
-        static::assertEquals('FRAMEWORK__INVALID_SALES_CHANNEL_MAPPING', $exception->getErrorCode());
-        static::assertEquals(404, $exception->getStatusCode());
+        static::assertSame('Unable to find a matching sales channel for the request: "test". Please make sure the domain mapping is correct.', $exception->getMessage());
+        static::assertSame('FRAMEWORK__INVALID_SALES_CHANNEL_MAPPING', $exception->getErrorCode());
+        static::assertSame(404, $exception->getStatusCode());
     }
 }

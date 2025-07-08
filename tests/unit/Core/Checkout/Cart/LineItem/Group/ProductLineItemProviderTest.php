@@ -34,13 +34,13 @@ class ProductLineItemProviderTest extends TestCase
     {
         $cart = $this->getCart();
 
-        static::assertEquals(4, $cart->getLineItems()->count());
+        static::assertCount(4, $cart->getLineItems());
 
         $lineItems = $this->provider->getProducts($cart);
 
-        static::assertEquals(1, $lineItems->count());
+        static::assertCount(1, $lineItems);
         static::assertNotNull($lineItems->first());
-        static::assertEquals(LineItem::PRODUCT_LINE_ITEM_TYPE, $lineItems->first()->getType());
+        static::assertSame(LineItem::PRODUCT_LINE_ITEM_TYPE, $lineItems->first()->getType());
     }
 
     public function testItThrowsDecorationPatternException(): void

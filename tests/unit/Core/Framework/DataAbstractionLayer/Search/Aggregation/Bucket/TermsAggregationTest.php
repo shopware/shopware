@@ -30,8 +30,8 @@ class TermsAggregationTest extends TestCase
     {
         $aggregation = new TermsAggregation('foo', 'name');
         $clone = clone $aggregation;
-        static::assertEquals($aggregation->getName(), $clone->getName());
-        static::assertEquals($aggregation->getFields(), $clone->getFields());
-        static::assertEquals($aggregation->jsonSerialize(), $clone->jsonSerialize());
+        static::assertSame($aggregation->getName(), $clone->getName());
+        static::assertSame($aggregation->getFields(), $clone->getFields());
+        static::assertSame($aggregation->jsonSerialize(), $clone->jsonSerialize());
     }
 }

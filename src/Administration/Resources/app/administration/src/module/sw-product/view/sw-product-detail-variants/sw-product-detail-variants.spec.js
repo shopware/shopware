@@ -71,9 +71,9 @@ async function createWrapper(privileges = []) {
                   </div>
                 `,
                 },
-                'sw-empty-state': await Shopware.Component.build('sw-empty-state'),
+                'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                 'sw-context-menu-item': true,
-                'sw-loader': await Shopware.Component.build('sw-loader'),
+                'sw-loader': await wrapTestComponent('sw-loader'),
                 'sw-modal': true,
                 'sw-skeleton': true,
                 'sw-product-variants-overview': true,
@@ -249,9 +249,7 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         });
         await flushPromises();
         const criteria = new Criteria(1, 500);
-        criteria
-            .addFields('name')
-            .addFilter(
+        criteria.addFields('name').addFilter(
             Criteria.equalsAny('id', [
                 'id-1',
                 'id-2',
@@ -279,32 +277,35 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
             .mockResolvedValueOnce({
                 total: 12,
                 length: 5,
-                map: (fn) => [
-                    { id: '1', name: 'group-1' },
-                    { id: '2', name: 'group-2' },
-                    { id: '3', name: 'group-3' },
-                    { id: '4', name: 'group-4' },
-                    { id: '5', name: 'group-5' },
-                ].map(fn),
+                map: (fn) =>
+                    [
+                        { id: '1', name: 'group-1' },
+                        { id: '2', name: 'group-2' },
+                        { id: '3', name: 'group-3' },
+                        { id: '4', name: 'group-4' },
+                        { id: '5', name: 'group-5' },
+                    ].map(fn),
             })
             .mockResolvedValueOnce({
                 total: 7,
                 length: 5,
-                map: (fn) => [
-                    { id: '6', name: 'group-6' },
-                    { id: '7', name: 'group-7' },
-                    { id: '8', name: 'group-8' },
-                    { id: '9', name: 'group-9' },
-                    { id: '10', name: 'group-10' },
-                ].map(fn),
+                map: (fn) =>
+                    [
+                        { id: '6', name: 'group-6' },
+                        { id: '7', name: 'group-7' },
+                        { id: '8', name: 'group-8' },
+                        { id: '9', name: 'group-9' },
+                        { id: '10', name: 'group-10' },
+                    ].map(fn),
             })
             .mockResolvedValueOnce({
                 total: 2,
                 length: 2,
-                map: (fn) => [
-                    { id: '11', name: 'group-11' },
-                    { id: '12', name: 'group-12' },
-                ].map(fn),
+                map: (fn) =>
+                    [
+                        { id: '11', name: 'group-11' },
+                        { id: '12', name: 'group-12' },
+                    ].map(fn),
             });
 
         wrapper.vm.loadConfigSettingGroups = jest.fn();
@@ -324,11 +325,12 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         wrapper.vm.groupRepository.search = jest.fn().mockResolvedValueOnce({
             total: 3,
             length: 3,
-            map: (fn) => [
-                { id: '1', name: 'group-1' },
-                { id: '2', name: 'group-2' },
-                { id: '3', name: 'group-3' },
-            ].map(fn),
+            map: (fn) =>
+                [
+                    { id: '1', name: 'group-1' },
+                    { id: '2', name: 'group-2' },
+                    { id: '3', name: 'group-3' },
+                ].map(fn),
         });
 
         wrapper.vm.loadConfigSettingGroups = jest.fn();

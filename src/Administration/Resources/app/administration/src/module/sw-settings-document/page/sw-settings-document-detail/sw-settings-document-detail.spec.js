@@ -54,6 +54,14 @@ const documentBaseConfigRepositoryMock = {
             });
         }
 
+        if (id === 'documentConfigWithoutDocumentFileTypesArray') {
+            return Promise.resolve({
+                id: id,
+                documentTypeId: 'documentTypeId',
+                config: {},
+            });
+        }
+
         return Promise.resolve({
             id: id,
             documentTypeId: 'documentTypeId',
@@ -466,5 +474,27 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         expect(multiSelect).toBeTruthy();
         expect(multiSelect.attributes().value).toBe('pdf,html');
+    });
+
+    it('should be possible to select fileTypes without fileTypes property in config', async () => {
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithoutDocumentFileTypesArray' },
+            },
+            ['document.editor'],
+        );
+
+        await flushPromises();
+
+        const multiSelect = wrapper.find('.sw-settings-document-detail__multi-select');
+
+        expect(multiSelect).toBeTruthy();
+        expect(multiSelect.attributes().value).toBe('');
+
+        await wrapper.vm.onAddDocumentType({ id: 'html' });
+        expect(multiSelect.attributes().value).toBe('html');
+
+        await wrapper.vm.onAddDocumentType({ id: 'pdf' });
+        expect(multiSelect.attributes().value).toBe('html,pdf');
     });
 });

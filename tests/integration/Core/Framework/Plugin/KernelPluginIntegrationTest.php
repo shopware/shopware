@@ -44,15 +44,13 @@ class KernelPluginIntegrationTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;
 
-    private ?Kernel $kernel = null;
+    private Kernel $kernel;
 
     protected function tearDown(): void
     {
-        if ($this->kernel) {
-            $serviceContainer = $this->kernel->getContainer()->get('test.service_container');
-            static::assertInstanceOf(TestContainer::class, $serviceContainer);
-            $serviceContainer->get('cache.object')->clear();
-        }
+        $serviceContainer = $this->kernel->getContainer()->get('test.service_container');
+        static::assertInstanceOf(TestContainer::class, $serviceContainer);
+        $serviceContainer->get('cache.object')->clear();
     }
 
     public function testWithDisabledPlugins(): void
@@ -339,7 +337,6 @@ class KernelPluginIntegrationTest extends TestCase
         );
         $this->makeKernel($loader);
         $kernel = $this->kernel;
-        static::assertNotNull($kernel);
         $kernel->boot();
 
         $criteria = new Criteria();
@@ -368,7 +365,6 @@ class KernelPluginIntegrationTest extends TestCase
     private function makePluginLifecycleService(): PluginLifecycleService
     {
         $kernel = $this->kernel;
-        static::assertNotNull($kernel);
         $container = $kernel->getContainer();
 
         $emptyPluginCollection = new PluginCollection();

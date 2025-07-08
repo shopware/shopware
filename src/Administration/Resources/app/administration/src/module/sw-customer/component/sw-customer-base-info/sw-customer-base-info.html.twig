@@ -76,7 +76,7 @@
                 v-if="!customerEditMode"
                 class="sw-customer-base__label-is-active"
             >
-                {{ $tc('sw-customer.baseInfo.contentActive', customer.active ? 1 : 2) }}
+                {{ $tc('sw-customer.baseInfo.contentActive', {}, customer.active ? 1 : 2) }}
             </dd>
             {% endblock %}
 
@@ -107,7 +107,7 @@
                 v-if="!customerEditMode"
                 class="sw-customer-base__label-is-confirmed"
             >
-                {{ $tc('sw-customer.baseInfo.contentConfirmed', customer.doubleOptInConfirmDate ? 1 : 2) }}
+                {{ $tc('sw-customer.baseInfo.contentConfirmed', {}, customer.doubleOptInConfirmDate ? 1 : 2) }}
             </dd>
             {% endblock %}
 

@@ -109,7 +109,7 @@ export default {
             // eslint-disable-next-line max-len
             const cardSectionSecondaryHeight = `${this.$refs?.category?.$refs?.cardSectionSecondary?.$el?.offsetHeight ?? 0}px`;
 
-            this.productContainerStyle['grid-template-rows'] =
+            this.categoryContainerStyle['grid-template-rows'] =
                 `auto calc(${this.tabContentHeight} - (${tabContentGutter} + ${alertHeight} + ${
                     cardSectionSecondaryHeight
                 }))`;
@@ -121,7 +121,7 @@ export default {
             // eslint-disable-next-line max-len
             const cardSectionSecondaryHeight = `${this.$refs?.productGroup?.$refs?.cardSectionSecondary?.$el?.offsetHeight ?? 0}px`;
 
-            this.productContainerStyle['grid-template-rows'] =
+            this.productGroupContainerStyle['grid-template-rows'] =
                 `auto calc(${this.tabContentHeight} - (${tabContentGutter} + ${alertHeight} + ${
                     cardSectionSecondaryHeight
                 }))`;

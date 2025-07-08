@@ -81,8 +81,8 @@ class OrderServiceTest extends TestCase
             static::assertInstanceOf(ConstraintViolationException::class, $exception);
             $errors = iterator_to_array($exception->getErrors());
             static::assertCount(1, $errors);
-            static::assertEquals('VIOLATION::IS_BLANK_ERROR', $errors[0]['code']);
-            static::assertEquals('/revocation', $errors[0]['source']['pointer']);
+            static::assertSame('VIOLATION::IS_BLANK_ERROR', $errors[0]['code']);
+            static::assertSame('/revocation', $errors[0]['source']['pointer']);
         }
 
         $dataBag->set('revocation', true);

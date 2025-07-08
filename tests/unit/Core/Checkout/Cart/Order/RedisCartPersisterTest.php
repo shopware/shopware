@@ -5,13 +5,16 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartCompressor;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
+use Shopware\Core\Content\Product\Cart\ProductNotFoundError;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -234,7 +237,7 @@ class RedisCartPersisterTest extends TestCase
 
         $movedCart = $persister->load($newToken, $context);
 
-        static::assertEquals(['test'], $movedCart->getRuleIds());
+        static::assertSame(['test'], $movedCart->getRuleIds());
     }
 
     public function testInvalidCartReplace(): void
@@ -275,5 +278,56 @@ class RedisCartPersisterTest extends TestCase
         $persister->save($cart, $context);
 
         static::assertSame(90 * 86400, $redis->ttl(RedisCartPersister::PREFIX . $token));
+    }
+
+    public function testSaveCartWithoutErrorCleanup(): void
+    {
+        $token = Uuid::randomHex();
+        $cart = new Cart($token);
+        $cart->add(new LineItem('test', 'test'));
+        $cart->addErrors(new ProductNotFoundError(Uuid::randomHex()));
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $dispatcher = $this->createMock(EventDispatcher::class);
+        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
+        $redis = new RedisStub();
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), 90);
+
+        $persister->save($cart, $context);
+
+        $cart = $persister->load($cart->getToken(), $context);
+
+        static::assertNotEmpty($cart->getLineItems());
+        static::assertEmpty($cart->getErrors());
+    }
+
+    public function testSaveCartWithPersistCartErrorPermission(): void
+    {
+        $token = Uuid::randomHex();
+        $cart = new Cart($token);
+        $cart->add(new LineItem('test', 'test'));
+
+        $productId = Uuid::randomHex();
+        $cart->addErrors(new ProductNotFoundError($productId));
+
+        $cart->setBehavior(new CartBehavior([
+            AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => true,
+        ]));
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $dispatcher = $this->createMock(EventDispatcher::class);
+        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
+        $redis = new RedisStub();
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), 90);
+
+        $persister->save($cart, $context);
+        $cart = $persister->load($cart->getToken(), $context);
+
+        static::assertNotEmpty($cart->getLineItems());
+        static::assertNotEmpty($cart->getErrors());
+
+        $error = $cart->getErrors()->first();
+        static::assertInstanceOf(ProductNotFoundError::class, $error);
+        static::assertEquals(['id' => $productId], $error->getParameters());
     }
 }

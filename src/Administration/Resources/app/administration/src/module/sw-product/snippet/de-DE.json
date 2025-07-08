@@ -141,10 +141,10 @@
     "packagingForm": {
       "labelUnit": "Maßeinheit",
       "placeholderUnit": "Wähle aus ...",
-      "referenceUnitHelpText": "Notwendig für die Grundpreisberechnung. Der einzugebende Grundwert ist abhängig von der gewählten Maßeinheit.<br><br>Grundpreis = (Produktpreis * Grundeinheit) / Verkaufseinheit.<br><br>Der Grundpreis wird nicht angezeigt, wenn Verkaufseinheit und Grundeinheit den gleichen Wert haben.",
+      "referenceUnitHelpText": "Notwendig für die Grundpreisberechnung. Der einzugebende Grundwert ist abhängig von der gewählten Maßeinheit.<ul><li>Grundpreis = (Produktpreis * Grundeinheit) / Verkaufseinheit.</li></ul>Der Grundpreis wird nicht angezeigt, wenn Verkaufseinheit und Grundeinheit den gleichen Wert haben.",
       "packUnitHelpText": "Art der Verpackung: z.B. Flasche, Kiste, Tiegel ...",
       "packUnitPluralHelpText": "Art der Verpackung (Mehrzahl): z.B. Flaschen, Kisten, Tiegel ...",
-      "purchaseUnitHelpText": "Notwendig für die Grundpreisberechnung. Der einzugebende Wert ist abhängig von der gewählten Maßeinheit.<br><br>Grundpreis = (Produktpreis * Grundeinheit) / Verkaufseinheit.<br><br>Der Grundpreis wird nicht angezeigt, wenn Verkaufseinheit und Grundeinheit den gleichen Wert haben."
+      "purchaseUnitHelpText": "Notwendig für die Grundpreisberechnung. Der einzugebende Wert ist abhängig von der gewählten Maßeinheit.<ul><li>Grundpreis = (Produktpreis * Grundeinheit) / Verkaufseinheit.</li></ul>Der Grundpreis wird nicht angezeigt, wenn Verkaufseinheit und Grundeinheit den gleichen Wert haben."
     },
     "detailBase": {
       "cardTitleDeliverabilityInfo": "Lieferbarkeit",
@@ -444,6 +444,7 @@
     "crossselling": {
       "cardTitleCrossSelling": "Cross Selling",
       "buttonAddCrossSelling": "Neues Cross Selling hinzufügen",
+      "newCrossSellingTitle": "Neues Cross Selling",
       "buttonAddCrossSellingLanguageWarning": "Du kannst neue Cross-Sellings nur in Deiner Standardsprache erstellen",
       "buttonDeleteCrossSelling": "Löschen",
       "inputCrossSellingTitle": "Titel",
@@ -453,6 +454,7 @@
       "inputCrossSellingSorting": "Sortierung",
       "inputCrossSellingProductStream": "Produktgruppe",
       "inputCrossSellingProductList": "Produkt-Zuordnung",
+      "inputCrossSellingProductListPlaceholder": "Produkte durchsuchen und zuweisen ...",
       "inputCrossSellingTitlePlaceholder": "Gib einen Namen ein ...",
       "inputCrossSellingPositionPlaceholder": "Wähle eine Position ...",
       "inputCrossSellingProductStreamPlaceholder": "Wähle eine Produktgruppe ...",
@@ -472,7 +474,7 @@
       "emptyStateDescription": "Für dieses Produkt existiert noch keine Cross-Selling-Konfiguration.",
       "inheritedEmptyStateDescription": "Dieses Produkt hat vererbte Cross Sellings vom Hauptprodukt.",
       "notInheritedEmptyStateDescription": "Du kannst jetzt benutzerdefinierte Cross-Selling-Konfigurationen für diese Variante verwenden.",
-      "assignEmptyStateDescription": "Das Cross Selling muss zunächst gespeichert werden, bevor Du Produkte hinzufügen kannst.",
+      "assignEmptyStateTitle": "Noch keine Produkte zugewiesen",
       "assignPlaceholder": "Durchsuche Produkte ...",
       "linkCrossSellingsOfParent": "Zeige die Cross Sellings des Hauptprodukts",
       "inheritSwitchLabel": "Nutze die Cross Sellings des Hauptprodukts",
@@ -501,6 +503,10 @@
     "filters": {
       "fromPlaceholder": "Startwert eingeben ...",
       "toPlaceholder": "Endwert eingeben ...",
+      "productNumberFilter": {
+        "label": "Produktnummer",
+        "placeholder": "Gib eine Produktnummer ein ..."
+      },
       "activeFilter": {
         "label": "Aktiv",
         "placeholder": "Wähle einen Status ..."

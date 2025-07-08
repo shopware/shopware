@@ -203,6 +203,7 @@
       "columnPriceNet": "Nettopreis",
       "columnTotalPriceNet": "Gesamt",
       "columnProductNumber": "Produktnummer",
+      "columnType": "Typ",
       "contextMenuShowProduct": "Produkt anzeigen",
       "contextMenuDelete": "Aus Bestellung entfernen",
       "summaryLabelAmount": "Summe",
@@ -266,6 +267,14 @@
       "helpTextCustomerComment": "Dieser Kommentar wird von Kunden hinterlassen und Änderungen sind für sie sichtbar.",
       "helpTextInternalComment": "Dieser Kommentar ist nur für interne Zwecke und wird Kunden nicht angezeigt."
     },
+    "lineItemType": {
+      "credit": "Gutschrift",
+      "product": "Produkt",
+      "custom": "Individuell",
+      "promotion": "Rabattaktion",
+      "discount": "Rabatt",
+      "container": "Container"
+    },
     "nestedLineItemsModal": {
       "titlePrefix": "Position: {lineItemLabel} - {price}",
       "headerLabel": "Name",
@@ -326,7 +335,9 @@
       "labelErrorStateChange": "Beim Setzen des Status ist ein Fehler aufgetreten:",
       "labelErrorNoAction": "Kein neuer Zustand gewählt.",
       "labelNoTransactionState": "Keine Transaktionen vorhanden",
-      "labelNoDeliveryState": "Keine Lieferungen vorhanden"
+      "labelNoDeliveryState": "Keine Lieferungen vorhanden",
+      "labelLastEditedByIntegration": "Zuletzt geändert von {integrationName} (Integration)",
+      "labelIntegration": "Integration"
     },
     "assignMailTemplateCard": {
       "cardTitle": "E-Mail-Template zuweisen",
@@ -445,6 +456,7 @@
     "stateHistoryModal": {
       "modalTitle": "Statusverlauf",
       "labelSystemUser": "System",
+      "labelIntegration": "Integration",
       "column": {
         "createdAt": "Datum",
         "entity": "Geändert",

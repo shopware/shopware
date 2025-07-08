@@ -287,6 +287,13 @@ class Configuration implements ConfigurationInterface
                     ->min(1)
                     ->defaultValue(100)
                 ->end()
+                ->arrayNode('scheduled_task')
+                    ->children()
+                        ->booleanNode('enabled')
+                            ->defaultTrue()
+                        ->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $rootNode;
@@ -921,6 +928,11 @@ class Configuration implements ConfigurationInterface
                     ->scalarPrototype()->end()
                 ->end()
                 ->booleanNode('enforce_message_size')->defaultFalse()->end()
+                ->arrayNode('stats')
+                    ->children()
+                        ->booleanNode('enabled')->defaultTrue()->end()
+                        ->integerNode('time_span')->defaultValue(300)->end()
+                    ->end()
             ->end();
 
         return $rootNode;

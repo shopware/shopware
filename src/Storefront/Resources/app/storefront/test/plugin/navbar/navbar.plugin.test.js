@@ -1,4 +1,5 @@
 import NavbarPlugin from 'src/plugin/navbar/navbar.plugin';
+import FocusHandler from 'src/helper/focus-handler.helper';
 
 describe('NavbarPlugin', () => {
     let navbarPlugin;
@@ -188,19 +189,19 @@ describe('NavbarPlugin', () => {
         expect(mockDropdown.hide).toHaveBeenCalled();
     });
 
-    test('_setAriaCurrentPage should be called on load event', () => {
+    test('current page is applied on load event', () => {
         const mockEvent = new Event('load');
-        jest.spyOn(navbarPlugin, '_setAriaCurrentPage'); // Spy on the method
+        jest.spyOn(navbarPlugin, '_setCurrentPage'); // Spy on the method
 
         window.addEventListener('load', () => {
-            navbarPlugin._setAriaCurrentPage();
+            navbarPlugin._setCurrentPage();
         });
         window.dispatchEvent(mockEvent);
 
-        expect(navbarPlugin._setAriaCurrentPage).toHaveBeenCalled();
+        expect(navbarPlugin._setCurrentPage).toHaveBeenCalled();
     });
 
-    test('if aria-current is set for one nav-item', () => {
+    test('active class and aria-current is set for one nav-item', () => {
         const mockLink = document.createElement('a');
         mockLink.classList.add('nav-item-1-link');
         mockLink.setAttribute('href', 'https://example.com');
@@ -208,8 +209,51 @@ describe('NavbarPlugin', () => {
 
         window.activeNavigationId = 1; // Set the activeNavigationId
 
-        navbarPlugin._setAriaCurrentPage();
+        navbarPlugin._setCurrentPage();
 
         expect(mockLink.getAttribute('aria-current')).toBe('page');
+        expect(mockLink.classList.contains('active')).toBe(true);
+    });
+
+    test('_restoreFocusAfterBtnClose should focus related dropdown top level link', () => {
+        window.focusHandler = new FocusHandler();
+
+        const mockNavItem = document.createElement('div');
+        mockNavItem.classList.add('nav-item');
+        const mockLink = document.createElement('a');
+        mockLink.classList.add('main-navigation-link');
+        mockLink.focus = jest.fn();
+        mockNavItem.appendChild(mockLink);
+        const mockDropdown = document.createElement('div');
+        mockNavItem.appendChild(mockDropdown);
+
+        const mockEvent = {
+            target: mockDropdown,
+            relatedTarget: null,
+        };
+
+        navbarPlugin._restoreFocusAfterBtnClose(mockEvent);
+
+        expect(mockLink.focus).toHaveBeenCalled();
+    });
+
+    test('_restoreFocusAfterBtnClose should skip events dispatched for top level links', () => {
+        window.focusHandler = new FocusHandler();
+
+        const mockNavItem = document.createElement('div');
+        mockNavItem.classList.add('nav-item');
+        const mockLink = document.createElement('a');
+        mockLink.classList.add('main-navigation-link');
+        mockLink.focus = jest.fn();
+        mockNavItem.appendChild(mockLink);
+
+        const mockEvent = {
+            target: mockLink,
+            relatedTarget: null,
+        };
+
+        navbarPlugin._restoreFocusAfterBtnClose(mockEvent);
+
+        expect(mockLink.focus).not.toHaveBeenCalled();
     });
 });

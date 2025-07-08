@@ -115,7 +115,7 @@ class OrderStateChangeEventListenerTest extends TestCase
             ->method('dispatch')
             ->with(static::callback(function ($event) use ($expectedEvent): bool {
                 if ($event instanceof OrderStateMachineStateChangeEvent) {
-                    static::assertEquals($expectedEvent->getOrder(), $event->getOrder());
+                    static::assertSame($expectedEvent->getOrder(), $event->getOrder());
                 }
 
                 return true;
@@ -285,7 +285,7 @@ class OrderStateChangeEventListenerTest extends TestCase
             ->method('dispatch')
             ->with(static::callback(function ($event) use ($expectedEvent): bool {
                 if ($event instanceof OrderStateMachineStateChangeEvent) {
-                    static::assertEquals($expectedEvent->getOrder(), $event->getOrder());
+                    static::assertSame($expectedEvent->getOrder(), $event->getOrder());
                 }
 
                 return true;
@@ -491,7 +491,7 @@ class OrderStateChangeEventListenerTest extends TestCase
             ->method('dispatch')
             ->with(static::callback(function ($event) use ($expectedEvent): bool {
                 if ($event instanceof OrderStateMachineStateChangeEvent) {
-                    static::assertEquals($expectedEvent->getOrder(), $event->getOrder());
+                    static::assertSame($expectedEvent->getOrder(), $event->getOrder());
                 }
 
                 return true;

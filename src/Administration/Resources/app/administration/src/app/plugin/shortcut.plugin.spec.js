@@ -360,17 +360,17 @@ describe('app/plugins/shortcut.plugin', () => {
             global: {
                 plugins: [shortcutPlugin],
                 stubs: {
-                    'sw-text-editor': await Shopware.Component.build('sw-text-editor'),
-                    'sw-text-editor-toolbar': await Shopware.Component.build('sw-text-editor-toolbar'),
-                    'sw-text-editor-toolbar-button': await Shopware.Component.build('sw-text-editor-toolbar-button'),
-                    'sw-text-field': await Shopware.Component.build('sw-text-field'),
-                    'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-                    'sw-block-field': await Shopware.Component.build('sw-block-field'),
-                    'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                    'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+                    'sw-text-editor': await wrapTestComponent('sw-text-editor'),
+                    'sw-text-editor-toolbar': await wrapTestComponent('sw-text-editor-toolbar'),
+                    'sw-text-editor-toolbar-button': await wrapTestComponent('sw-text-editor-toolbar-button'),
+                    'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
 
                     'sw-field-error': true,
-                    'sw-container': await Shopware.Component.build('sw-container'),
+                    'sw-container': await wrapTestComponent('sw-container'),
                     'sw-text-editor-table-toolbar': true,
                     'sw-code-editor': true,
                     'sw-text-editor-link-menu': true,
@@ -405,5 +405,62 @@ describe('app/plugins/shortcut.plugin', () => {
 
         expect(onSaveMock).toHaveBeenCalledWith();
         expect(testString).toBe('foobar');
+    });
+
+    it('should call the onEsc method when Escape key is pressed outside a modal', async () => {
+        const onEscMock = jest.fn();
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                Escape: 'onEsc',
+            },
+            methods: {
+                onEsc() {
+                    onEscMock();
+                },
+            },
+        });
+
+        expect(onEscMock).not.toHaveBeenCalled();
+
+        // Simulate Escape keydown event outside a modal
+        await wrapper.trigger('keydown', {
+            key: 'Escape',
+        });
+
+        expect(onEscMock).toHaveBeenCalledWith();
+    });
+
+    it('should NOT call the onEsc method when Escape key is pressed inside a modal', async () => {
+        const onEscMock = jest.fn();
+
+        // Create a modal element in the DOM
+        const modal = document.createElement('div');
+        modal.className = 'sw-modal';
+        document.body.appendChild(modal);
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                Escape: 'onEsc',
+            },
+            methods: {
+                onEsc() {
+                    onEscMock();
+                },
+            },
+        });
+
+        expect(onEscMock).not.toHaveBeenCalled();
+
+        // Simulate Escape keydown event with the target inside the modal
+        const event = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
+        Object.defineProperty(event, 'target', { value: modal, enumerable: true });
+
+        document.dispatchEvent(event);
+
+        expect(onEscMock).not.toHaveBeenCalled();
+
+        // Clean up
+        document.body.removeChild(modal);
     });
 });

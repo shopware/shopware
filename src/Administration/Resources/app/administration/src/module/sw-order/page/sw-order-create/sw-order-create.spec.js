@@ -75,6 +75,8 @@ describe('src/module/sw-order/page/sw-order-create', () => {
             'sw-help-center': true,
             'sw-search-bar': true,
             'sw-language-switch': true,
+            'sw-context-menu-item': true,
+            'sw-context-button': true,
             'sw-card-view': await wrapTestComponent('sw-card-view', {
                 sync: true,
             }),

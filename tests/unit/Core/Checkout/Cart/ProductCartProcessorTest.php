@@ -308,8 +308,8 @@ class ProductCartProcessorTest extends TestCase
         static::assertCount(2, $toCalculateCart->getLineItems());
         static::assertNotNull($toCalculateCart->get('A'));
         static::assertNotNull($toCalculateCart->get('B'));
-        static::assertEquals(200, $toCalculateCart->get('A')->getPrice()?->getTotalPrice());
-        static::assertEquals(200, $toCalculateCart->get('B')->getPrice()?->getTotalPrice());
+        static::assertSame(200.0, $toCalculateCart->get('A')->getPrice()?->getTotalPrice());
+        static::assertSame(200.0, $toCalculateCart->get('B')->getPrice()?->getTotalPrice());
 
         static::assertTrue($toCalculateCart->get('A')->isShippingCostAware());
         static::assertFalse($toCalculateCart->get('B')->isShippingCostAware());

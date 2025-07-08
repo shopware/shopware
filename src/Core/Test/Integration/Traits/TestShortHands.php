@@ -26,6 +26,8 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @codeCoverageIgnore
+ *
  * @internal
  */
 trait TestShortHands
@@ -92,7 +94,7 @@ trait TestShortHands
 
         static::assertInstanceOf(CalculatedPrice::class, $item->getPrice(), \sprintf('Line item with id %s has no price', $id));
 
-        static::assertEquals($price, $item->getPrice()->getTotalPrice(), \sprintf('Line item with id %s has wrong total price', $id));
+        static::assertSame($price, $item->getPrice()->getTotalPrice(), \sprintf('Line item with id %s has wrong total price', $id));
     }
 
     protected function assertLineItemUnitPrice(Cart $cart, string $id, float $price): void
@@ -103,7 +105,7 @@ trait TestShortHands
 
         static::assertInstanceOf(CalculatedPrice::class, $item->getPrice(), \sprintf('Line item with id %s has no price', $id));
 
-        static::assertEquals($price, $item->getPrice()->getUnitPrice(), \sprintf('Line item with id %s has wrong unit price', $id));
+        static::assertSame($price, $item->getPrice()->getUnitPrice(), \sprintf('Line item with id %s has wrong unit price', $id));
     }
 
     protected function assertLineItemInCart(Cart $cart, string $id): void
@@ -171,8 +173,8 @@ trait TestShortHands
 
         static::assertNotEmpty($stocks, \sprintf('Product with id %s not found', $productId));
 
-        static::assertEquals($stock, (int) $stocks['stock'], \sprintf('Product with id %s has wrong stock', $productId));
+        static::assertSame($stock, (int) $stocks['stock'], \sprintf('Product with id %s has wrong stock', $productId));
 
-        static::assertEquals($available, $stocks['available_stock'], \sprintf('Product with id %s has wrong available stock', $productId));
+        static::assertSame($available, (int) $stocks['available_stock'], \sprintf('Product with id %s has wrong available stock', $productId));
     }
 }

@@ -114,8 +114,10 @@ class AccountProfilePageLoaderTest extends TestCase
         $page = $this->pageLoader->load(new Request(), $salesChannelContext);
 
         static::assertSame($salutationsSorted, $page->getSalutations());
-        static::assertEquals('translated | testshop', $page->getMetaInformation()?->getMetaTitle());
-        static::assertEquals('noindex,follow', $page->getMetaInformation()?->getRobots());
+        $metaInformation = $page->getMetaInformation();
+        static::assertNotNull($metaInformation);
+        static::assertSame('translated | testshop', $metaInformation->getMetaTitle());
+        static::assertSame('noindex,follow', $metaInformation->getRobots());
 
         $events = $this->eventDispatcher->getEvents();
         static::assertCount(2, $events);

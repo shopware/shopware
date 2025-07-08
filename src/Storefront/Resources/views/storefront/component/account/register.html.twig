@@ -105,18 +105,20 @@
                                             })|sw_sanitize %}
                                         {% endif %}
 
-                                        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
-                                            type: 'password',
-                                            label: 'account.personalPasswordLabel'|trans|sw_sanitize,
-                                            id: 'personalPassword',
-                                            name: 'password',
-                                            autocomplete: 'new-password',
-                                            description: passwordFieldDescription,
-                                            violationPath: '/password',
-                                            validationRules: 'required,minLength',
-                                            minlength: config('core.loginRegistration.passwordMinLength'),
-                                            additionalClass: 'col-sm-6 js-form-field-toggle-guest-mode',
-                                        } %}
+                                        {% block component_account_register_personal_password_input %}
+                                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                                type: 'password',
+                                                label: 'account.personalPasswordLabel'|trans|sw_sanitize,
+                                                id: 'personalPassword',
+                                                name: 'password',
+                                                autocomplete: 'new-password',
+                                                description: passwordFieldDescription,
+                                                violationPath: '/password',
+                                                validationRules: 'required,minLength',
+                                                minlength: config('core.loginRegistration.passwordMinLength'),
+                                                additionalClass: 'col-sm-6 js-form-field-toggle-guest-mode',
+                                            } %}
+                                        {% endblock %}
                                     {% endblock %}
                                 {% endset %}
 

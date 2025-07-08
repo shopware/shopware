@@ -479,12 +479,12 @@ class FirstRunWizardServiceTest extends TestCase
 
         $currentLicenseDomain = $licenseDomains->first();
         static::assertInstanceOf(LicenseDomainStruct::class, $currentLicenseDomain);
-        static::assertEquals('täst.de', $currentLicenseDomain->getDomain());
+        static::assertSame('täst.de', $currentLicenseDomain->getDomain());
         static::assertTrue($currentLicenseDomain->isActive());
 
         $otherLicenseDomain = $licenseDomains->last();
         static::assertInstanceOf(LicenseDomainStruct::class, $otherLicenseDomain);
-        static::assertEquals('shopware.swag', $otherLicenseDomain->getDomain());
+        static::assertSame('shopware.swag', $otherLicenseDomain->getDomain());
         static::assertFalse($otherLicenseDomain->isActive());
     }
 

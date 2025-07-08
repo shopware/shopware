@@ -265,7 +265,7 @@ export default {
         },
 
         loadUser() {
-            this.userId = this.$route.params.id;
+            this.userId = this.$route.params.id?.toLowerCase();
 
             return this.userRepository.get(this.userId, Shopware.Context.api, this.userCriteria).then((user) => {
                 this.user = user;
@@ -303,19 +303,33 @@ export default {
             });
         },
 
-        checkEmail() {
+        async checkEmail() {
             if (!this.user.email) {
-                return Promise.resolve();
+                return true;
             }
 
-            return this.userValidationService
-                .checkUserEmail({
-                    email: this.user.email,
-                    id: this.user.id,
-                })
-                .then(({ emailIsUnique }) => {
-                    this.isEmailAlreadyInUse = !emailIsUnique;
+            const { emailIsUnique } = await this.userValidationService.checkUserEmail({
+                email: this.user.email,
+                id: this.user.id,
+            });
+
+            this.isEmailAlreadyInUse = !emailIsUnique;
+
+            if (this.isEmailAlreadyInUse) {
+                const expression = `user.${this.user.id}.email`;
+                const error = new ShopwareError({
+                    code: 'USER_EMAIL_ALREADY_EXISTS',
+                    detail: this.$tc('sw-users-permissions.users.user-detail.errorEmailUsed'),
                 });
+
+                Shopware.Store.get('error').addApiError({
+                    expression,
+                    error,
+                });
+                return false;
+            }
+
+            return true;
         },
 
         checkUsername() {
@@ -378,80 +392,54 @@ export default {
             this.confirmPasswordModal = true;
         },
 
-        saveUser(context) {
+        async saveUser(context) {
             this.isSaveSuccessful = false;
             this.isLoading = true;
-            let promises = [];
 
             if (this.currentUser.id === this.user.id) {
-                promises = [
-                    Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId),
-                ];
+                await Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
             }
 
-            return Promise.all(promises).then(
-                this.checkEmail()
-                    .then(() => {
-                        if (this.isEmailAlreadyInUse) {
-                            const expression = `user.${this.user.id}.email`;
-                            const error = new ShopwareError({
-                                code: 'USER_EMAIL_ALREADY_EXISTS',
-                                detail: this.$tc('sw-users-permissions.users.user-detail.errorEmailUsed'),
-                            });
+            const isEmailValid = await this.checkEmail();
 
-                            Shopware.Store.get('error').addApiError({
-                                expression,
-                                error,
-                            });
+            if (!isEmailValid) {
+                return;
+            }
 
-                            return Promise.resolve();
-                        }
+            this.isLoading = true;
 
-                        this.isLoading = true;
-                        const titleSaveError = this.$tc('global.default.error');
-                        const messageSaveError = this.$tc(
-                            'sw-users-permissions.users.user-detail.notification.saveError.message',
-                            { name: this.fullName },
-                            0,
-                        );
+            try {
+                await this.userRepository.save(this.user, context);
 
-                        return this.userRepository
-                            .save(this.user, context)
-                            .then(() => {
-                                return this.updateCurrentUser();
-                            })
-                            .then(() => {
-                                this.createdComponent();
+                if (this.user.password) {
+                    await this.updateAuthToken();
+                }
+                await this.updateCurrentUser();
+                this.createdComponent();
 
-                                this.confirmPasswordModal = false;
-                                this.isSaveSuccessful = true;
-                            })
-                            .catch((exception) => {
-                                this.createNotificationError({
-                                    title: titleSaveError,
-                                    message: messageSaveError,
-                                });
-                                warn(this._name, exception.message, exception.response);
-                                this.isLoading = false;
-                                throw exception;
-                            })
-                            .finally(() => {
-                                this.isLoading = false;
-                            });
-                    })
-                    .catch(() => Promise.reject())
-                    .finally(() => {
-                        this.isLoading = false;
-                    }),
-            );
+                this.confirmPasswordModal = false;
+                this.isSaveSuccessful = true;
+            } catch (exception) {
+                this.createNotificationError({
+                    title: this.$tc('global.default.error'),
+                    message: this.$tc(
+                        'sw-users-permissions.users.user-detail.notification.saveError.message',
+                        { name: this.fullName },
+                        0,
+                    ),
+                });
+                warn(this._name, exception.message, exception.response);
+                throw exception;
+            } finally {
+                this.isLoading = false;
+            }
         },
 
-        updateCurrentUser() {
-            return this.userService.getUser().then((response) => {
+        async updateCurrentUser() {
+            await this.userService.getUser().then((response) => {
                 const data = response.data;
                 delete data.password;
-
-                return Shopware.Store.get('session').setCurrentUser(data);
+                Shopware.Store.get('session').setCurrentUser(data);
             });
         },
 
@@ -510,6 +498,16 @@ export default {
 
         onCloseConfirmPasswordModal() {
             this.confirmPasswordModal = false;
+        },
+
+        async updateAuthToken() {
+            const verifiedToken = await this.loginService.verifyUserToken(this.user.password);
+            Shopware.Store.get('context').api.authToken.access = verifiedToken;
+            const authObject = {
+                ...this.loginService.getBearerAuthentication(),
+                access: verifiedToken,
+            };
+            this.loginService.setBearerAuthentication(authObject);
         },
     },
 };

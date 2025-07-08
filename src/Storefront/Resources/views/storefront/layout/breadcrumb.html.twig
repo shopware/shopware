@@ -2,10 +2,10 @@
 
 {% block layout_breadcrumb_inner %}
     {% if category %}
-        {% set breadcrumbCategories = sw_breadcrumb_full(category, context.context) %}
+        {% set breadcrumbCategories = sw_breadcrumb_full(category, context) %}
         {% set categoryId = category.id %}
     {% elseif categoryId %}
-        {% set breadcrumbCategories = sw_breadcrumb_full_by_id(categoryId, context.context) %}
+        {% set breadcrumbCategories = sw_breadcrumb_full_by_id(categoryId, context) %}
     {% else %}
         {% return %}
     {% endif %}
@@ -21,7 +21,7 @@
                     {% for breadcrumbCategory in breadcrumbCategories %}
                         {% set key = breadcrumbCategory.id %}
                         {% set name = breadcrumbCategory.translated.name %}
-                        {% set categoryUrl = category_url(breadcrumbCategory) %}
+                        {% set categoryUrl = breadcrumbCategory.seoUrl %}
 
                         {% block layout_breadcrumb_list_item %}
                             <li class="breadcrumb-item"
@@ -37,7 +37,7 @@
                                     <a href="{{ categoryUrl }}"
                                        class="breadcrumb-link {% if key is same as(categoryId) %} is-active{% endif %}"
                                        title="{{ name }}"
-                                       {% if category_linknewtab(breadcrumbCategory) %}target="_blank"{% endif %}
+                                       {% if breadcrumbCategory.shouldOpenInNewTab %}target="_blank"{% endif %}
                                        itemprop="item">
                                         <link itemprop="url"
                                               href="{{ categoryUrl }}">

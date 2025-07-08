@@ -21,7 +21,7 @@ class ProductStatesChangedEventTest extends TestCase
 
         $event = new ProductStatesChangedEvent($updatedStates, $context);
 
-        static::assertEquals($updatedStates, $event->getUpdatedStates());
-        static::assertEquals($context, $event->getContext());
+        static::assertSame($updatedStates, $event->getUpdatedStates());
+        static::assertSame($context, $event->getContext());
     }
 }

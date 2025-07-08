@@ -162,10 +162,10 @@ class DocumentControllerTest extends TestCase
         $this->getBrowser()->request('GET', $baseResource . '_action/document/' . $response['documentId'] . '/' . $response['documentDeepLink']);
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
-        static::assertEquals($expectedFileContent, $response->getContent());
-        static::assertEquals($expectedContentType, $response->headers->get('content-type'));
+        static::assertSame($expectedFileContent, $response->getContent());
+        static::assertSame($expectedContentType, $response->headers->get('content-type'));
     }
 
     public function testPreview(): void
@@ -180,26 +180,26 @@ class DocumentControllerTest extends TestCase
         $endpoint = \sprintf('/api/_action/order/%s/%s/document/invoice/preview', Uuid::randomHex(), $order->getDeepLinkCode());
         $this->getBrowser()->request('GET', $endpoint);
 
-        static::assertEquals($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_NOT_FOUND);
+        static::assertSame($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_NOT_FOUND);
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotEmpty($response['errors']);
-        static::assertEquals('DOCUMENT__GENERATION_ERROR', $response['errors'][0]['code']);
+        static::assertSame('DOCUMENT__GENERATION_ERROR', $response['errors'][0]['code']);
 
         $endpoint = \sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, 'wrong deep link code');
         $this->getBrowser()->request('GET', $endpoint);
 
-        static::assertEquals($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_NOT_FOUND);
+        static::assertSame($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_NOT_FOUND);
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotEmpty($response['errors']);
-        static::assertEquals('DOCUMENT__GENERATION_ERROR', $response['errors'][0]['code']);
+        static::assertSame('DOCUMENT__GENERATION_ERROR', $response['errors'][0]['code']);
 
         $endpoint = \sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, $order->getDeepLinkCode());
 
         $this->getBrowser()->request('GET', $endpoint);
 
-        static::assertEquals($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_OK);
+        static::assertSame($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_OK);
         static::assertNotNull($this->getBrowser()->getResponse()->getContent());
-        static::assertEquals(PdfRenderer::FILE_CONTENT_TYPE, $this->getBrowser()->getResponse()->headers->get('content-type'));
+        static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $this->getBrowser()->getResponse()->headers->get('content-type'));
     }
 
     public function testPreviewPermission(): void
@@ -220,10 +220,10 @@ class DocumentControllerTest extends TestCase
 
         $this->getBrowser()->request('GET', $endpoint);
 
-        static::assertEquals(Response::HTTP_FORBIDDEN, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_FORBIDDEN, $this->getBrowser()->getResponse()->getStatusCode());
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotEmpty($response['errors']);
-        static::assertEquals($response['errors'][0]['code'], 'FRAMEWORK__MISSING_PRIVILEGE_ERROR');
+        static::assertSame($response['errors'][0]['code'], 'FRAMEWORK__MISSING_PRIVILEGE_ERROR');
 
         TestUser::createNewTestUser(
             static::getContainer()->get(Connection::class),
@@ -232,9 +232,9 @@ class DocumentControllerTest extends TestCase
 
         $this->getBrowser()->request('GET', $endpoint);
 
-        static::assertEquals($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_OK);
+        static::assertSame($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_OK);
         static::assertNotNull($this->getBrowser()->getResponse()->getContent());
-        static::assertEquals(PdfRenderer::FILE_CONTENT_TYPE, $this->getBrowser()->getResponse()->headers->get('content-type'));
+        static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $this->getBrowser()->getResponse()->headers->get('content-type'));
     }
 
     public function testCreateDocuments(): void
@@ -305,7 +305,7 @@ class DocumentControllerTest extends TestCase
             );
 
             $response = $this->getBrowser()->getResponse();
-            static::assertEquals(200, $response->getStatusCode());
+            static::assertSame(200, $response->getStatusCode());
             $response = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
             static::assertArrayHasKey('data', $response);
             static::assertNotEmpty($data = $response['data']);
@@ -343,9 +343,9 @@ class DocumentControllerTest extends TestCase
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertNotEmpty($response['errors']);
-        static::assertEquals('DOCUMENT__INVALID_RENDERER_TYPE', $response['errors'][0]['code']);
+        static::assertSame('DOCUMENT__INVALID_RENDERER_TYPE', $response['errors'][0]['code']);
     }
 
     public function testCreateStornoDocumentsWithoutInvoiceDocument(): void
@@ -372,9 +372,9 @@ class DocumentControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         $response = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals('DOCUMENT__GENERATION_ERROR', $response['errors'][$order->getId()][0]['code']);
+        static::assertSame('DOCUMENT__GENERATION_ERROR', $response['errors'][$order->getId()][0]['code']);
     }
 
     public function testDownloadWithoutDocuments(): void
@@ -391,9 +391,9 @@ class DocumentControllerTest extends TestCase
         static::assertIsString($this->getBrowser()->getResponse()->getContent());
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals('FRAMEWORK__INVALID_REQUEST_PARAMETER', $response['errors'][0]['code']);
+        static::assertSame('FRAMEWORK__INVALID_REQUEST_PARAMETER', $response['errors'][0]['code']);
 
         $this->getBrowser()->request(
             'POST',
@@ -406,7 +406,7 @@ class DocumentControllerTest extends TestCase
             ])
         );
 
-        static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
     public function testDownload(): void
@@ -441,8 +441,8 @@ class DocumentControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(200, $response->getStatusCode());
-        static::assertEquals('application/pdf', $response->headers->get('Content-Type'));
+        static::assertSame(200, $response->getStatusCode());
+        static::assertSame('application/pdf', $response->headers->get('Content-Type'));
     }
 
     public function testDownloadPermission(): void
@@ -454,10 +454,10 @@ class DocumentControllerTest extends TestCase
 
         $this->getBrowser()->request('POST', '/api/_action/order/document/download');
 
-        static::assertEquals($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_FORBIDDEN);
+        static::assertSame($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_FORBIDDEN);
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotEmpty($response['errors']);
-        static::assertEquals($response['errors'][0]['code'], 'FRAMEWORK__MISSING_PRIVILEGE_ERROR');
+        static::assertSame($response['errors'][0]['code'], 'FRAMEWORK__MISSING_PRIVILEGE_ERROR');
 
         TestUser::createNewTestUser(
             static::getContainer()->get(Connection::class),
@@ -492,8 +492,8 @@ class DocumentControllerTest extends TestCase
         );
 
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(200, $response->getStatusCode());
-        static::assertEquals('application/pdf', $response->headers->get('Content-Type'));
+        static::assertSame(200, $response->getStatusCode());
+        static::assertSame('application/pdf', $response->headers->get('Content-Type'));
     }
 
     private function createOrder(string $customerId, Context $context): OrderEntity

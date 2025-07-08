@@ -12,9 +12,11 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -22,6 +24,8 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 use Shopware\Core\System\StateMachine\StateMachineException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
+use Shopware\Core\Test\Integration\Builder\Order\OrderBuilder;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -95,9 +99,9 @@ EOF;
         $stateMachine = $this->stateMachineRegistry->getStateMachine($this->stateMachineName, $context);
 
         static::assertNotNull($stateMachine->getStates());
-        static::assertEquals(3, $stateMachine->getStates()->count());
+        static::assertCount(3, $stateMachine->getStates());
         static::assertNotNull($stateMachine->getTransitions());
-        static::assertEquals(4, $stateMachine->getTransitions()->count());
+        static::assertCount(4, $stateMachine->getTransitions());
     }
 
     public function testStateMachineAvailableTransitionShouldIncludeReOpenAndReTourTransition(): void
@@ -115,12 +119,12 @@ EOF;
         foreach ($availableTransitions as $transition) {
             if ($transition->getActionName() === 'reopen') {
                 $reopenActionExisted = true;
-                static::assertEquals(OrderDeliveryStates::STATE_OPEN, $transition->getToStateMachineState()?->getTechnicalName());
+                static::assertSame(OrderDeliveryStates::STATE_OPEN, $transition->getToStateMachineState()?->getTechnicalName());
             }
 
             if ($transition->getActionName() === 'retour') {
                 $retourActionExisted = true;
-                static::assertEquals(OrderDeliveryStates::STATE_RETURNED, $transition->getToStateMachineState()?->getTechnicalName());
+                static::assertSame(OrderDeliveryStates::STATE_RETURNED, $transition->getToStateMachineState()?->getTechnicalName());
             }
         }
 
@@ -139,8 +143,8 @@ EOF;
         static::assertNotEmpty($stateCollection->get('toPlace'));
         $fromPlace = $stateCollection->get('fromPlace');
         $toPlace = $stateCollection->get('toPlace');
-        static::assertEquals(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $fromPlace->getTechnicalName());
-        static::assertEquals(OrderDeliveryStates::STATE_RETURNED, $toPlace->getTechnicalName());
+        static::assertSame(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $fromPlace->getTechnicalName());
+        static::assertSame(OrderDeliveryStates::STATE_RETURNED, $toPlace->getTechnicalName());
     }
 
     public function testStateMachineRegistryUnnecessaryTransition(): void
@@ -154,8 +158,62 @@ EOF;
         static::assertNotEmpty($stateCollection->get('toPlace'));
         $fromPlace = $stateCollection->get('fromPlace');
         $toPlace = $stateCollection->get('toPlace');
-        static::assertEquals(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $fromPlace->getTechnicalName());
-        static::assertEquals(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $toPlace->getTechnicalName());
+        static::assertSame(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $fromPlace->getTechnicalName());
+        static::assertSame(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $toPlace->getTechnicalName());
+    }
+
+    public function testStateMachineTransitionStoresUserAndIntegrationId(): void
+    {
+        $ids = new IdsCollection();
+
+        $userRepo = self::getContainer()->get('user.repository');
+        static::assertInstanceOf(EntityRepository::class, $userRepo);
+
+        $userId = $userRepo->searchIds((new Criteria())->setLimit(1), Context::createDefaultContext())->firstId();
+
+        $integration = [
+            'id' => $ids->get('integration-1'),
+            'label' => 'Integration 1',
+            'accessKey' => 'test123',
+            'secretAccessKey' => TestDefaults::HASHED_PASSWORD,
+        ];
+
+        $integrationRepo = self::getContainer()->get('integration.repository');
+        static::assertInstanceOf(EntityRepository::class, $integrationRepo);
+        $integrationRepo->create([$integration], Context::createDefaultContext());
+
+        static::assertNotNull($userId);
+
+        $orderBuilder = new OrderBuilder($ids, 'o-1');
+
+        $orderRepo = self::getContainer()->get('order.repository');
+        static::assertInstanceOf(EntityRepository::class, $orderRepo);
+        $orderRepo->create([$orderBuilder->build()], Context::createCLIContext());
+
+        $context = new Context(
+            new AdminApiSource($userId, $ids->get('integration-1'))
+        );
+
+        $stateMachineRegistry = self::getContainer()->get(StateMachineRegistry::class);
+        static::assertInstanceOf(StateMachineRegistry::class, $stateMachineRegistry);
+        $stateMachineRegistry->transition(
+            new Transition('order', $ids->get('o-1'), 'process', 'stateId'),
+            $context
+        );
+
+        $connection = self::getContainer()->get(Connection::class);
+        static::assertInstanceOf(Connection::class, $connection);
+
+        $historyData = $connection->fetchAssociative('SELECT LOWER(HEX(integration_id)) as integration_id, LOWER(HEX(user_id)) as user_id FROM `state_machine_history` WHERE referenced_id = :id AND referenced_version_id = :version ORDER BY created_at DESC LIMIT 1', [
+            'id' => Uuid::fromHexToBytes($ids->get('o-1')),
+            'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+        ]);
+
+        static::assertNotFalse($historyData);
+        static::assertSame([
+            'integration_id' => $ids->get('integration-1'),
+            'user_id' => $userId,
+        ], $historyData);
     }
 
     private function createOrderWithPartiallyReturnedDeliveryState(): string

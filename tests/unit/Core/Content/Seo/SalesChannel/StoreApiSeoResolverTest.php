@@ -80,6 +80,47 @@ class StoreApiSeoResolverTest extends TestCase
         static::assertNotEmpty($productEntity->getSeoUrls());
     }
 
+    public function testAddSeoInformationWithExtensions(): void
+    {
+        $request = new Request();
+        $request->headers->set(PlatformRequest::HEADER_INCLUDE_SEO_URLS, 'true');
+        $request->attributes->set(
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT,
+            $this->createMock(SalesChannelContext::class),
+        );
+
+        $searchResult = new EntitySearchResult(
+            'product',
+            0,
+            new ProductCollection([]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext(),
+        );
+
+        $product = $this->createProductEntity();
+
+        $result = new MockSeoUrlAwareExtension();
+        $result->addSearchResult($product);
+
+        $searchResult->addExtension('multiSearchResult', $result);
+        $response = new ProductListResponse($searchResult);
+
+        $event = new ResponseEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $response
+        );
+
+        static::assertEmpty($product->getSeoUrls());
+
+        $storeApiSeoResolver = $this->createStoreApiSeoResolver();
+        $storeApiSeoResolver->addSeoInformation($event);
+
+        static::assertNotEmpty($product->getSeoUrls());
+    }
+
     public function testResponseIsNotStoreApiResponse(): void
     {
         $event = new ResponseEvent(
@@ -97,7 +138,7 @@ class StoreApiSeoResolverTest extends TestCase
 
     public function testRequestHeaderDoesNotIncludeSeoUrls(): void
     {
-        // @phpstan-ignore-next-line > Ignore PHPStan error, to be able to assert that this method has not been called
+        /** @phpstan-ignore shopware.mockingSimpleObjects (for test purpose) */
         $attributes = $this->createMock(ParameterBag::class);
         $attributes
             ->expects($this->never())

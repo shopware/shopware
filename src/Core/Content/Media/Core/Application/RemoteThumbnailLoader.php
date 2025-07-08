@@ -7,7 +7,9 @@ use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
+use Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\Service\ResetInterface;
@@ -32,6 +34,7 @@ class RemoteThumbnailLoader implements ResetInterface
         private readonly AbstractMediaUrlGenerator $generator,
         private readonly Connection $connection,
         private readonly FilesystemOperator $filesystem,
+        private readonly ExtensionDispatcher $extensions,
         private readonly string $pattern = ''
     ) {
     }
@@ -167,20 +170,33 @@ class RemoteThumbnailLoader implements ResetInterface
 
     private function getUrl(string $mediaUrl, string $mediaPath, string $width, string $height, ?\DateTimeInterface $mediaUpdatedAt): string
     {
-        $replacements = [
-            str_starts_with($mediaPath, 'http') ? '' : $mediaUrl,
-            $mediaPath,
-            $width,
-            $height,
-            (string) $mediaUpdatedAt?->getTimestamp() ?: '',
-        ];
+        return $this->extensions->publish(
+            name: ResolveRemoteThumbnailUrlExtension::NAME,
+            extension: new ResolveRemoteThumbnailUrlExtension(
+                $mediaUrl,
+                $mediaPath,
+                $width,
+                $height,
+                $this->pattern,
+                $mediaUpdatedAt
+            ),
+            function: function (string $mediaUrl, string $mediaPath, string $width, string $height, string $pattern, ?\DateTimeInterface $mediaUpdatedAt) {
+                $replacements = [
+                    str_starts_with($mediaPath, 'http') ? '' : $mediaUrl,
+                    $mediaPath,
+                    $width,
+                    $height,
+                    (string) $mediaUpdatedAt?->getTimestamp() ?: '',
+                ];
 
-        $url = str_replace(
-            ['{mediaUrl}', '{mediaPath}', '{width}', '{height}', '{mediaUpdatedAt}'],
-            $replacements,
-            $this->pattern
+                $url = str_replace(
+                    ['{mediaUrl}', '{mediaPath}', '{width}', '{height}', '{mediaUpdatedAt}'],
+                    $replacements,
+                    $pattern
+                );
+
+                return str_starts_with($mediaPath, 'http') ? ltrim($url, '/') : $url;
+            }
         );
-
-        return str_starts_with($mediaPath, 'http') ? ltrim($url, '/') : $url;
     }
 }

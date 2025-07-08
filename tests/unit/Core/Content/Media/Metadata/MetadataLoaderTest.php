@@ -172,6 +172,6 @@ class MetadataLoaderTest extends TestCase
 
         $metadata = $metadataLoader->loadFromFile($file, $type);
 
-        static::assertEquals($expected, $metadata);
+        static::assertSame($expected, $metadata);
     }
 }

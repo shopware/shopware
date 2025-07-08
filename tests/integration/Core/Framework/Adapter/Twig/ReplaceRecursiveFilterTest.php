@@ -66,7 +66,7 @@ class ReplaceRecursiveFilterTest extends TestCase
 
         $result = $this->replaceRecursiveFilter->replaceRecursive($arrayOne, $arrayTwo);
 
-        static::assertEquals($expect, $result);
+        static::assertSame($expect, $result);
     }
 
     public function testReplaceRecursiveThreeObjects(): void
@@ -118,6 +118,6 @@ class ReplaceRecursiveFilterTest extends TestCase
 
         $result = $this->replaceRecursiveFilter->replaceRecursive($arrayOne, $arrayTwo, $arrayThree);
 
-        static::assertEquals($expect, $result);
+        static::assertSame($expect, $result);
     }
 }

@@ -25,8 +25,8 @@ class SymfonySystemConfigServiceTest extends TestCase
 
         $service = new SymfonySystemConfigService($config);
 
-        static::assertEquals($config['default'], $service->getConfig());
-        static::assertEquals($config['salesChannelId'], $service->getConfig('salesChannelId'));
+        static::assertSame($config['default'], $service->getConfig());
+        static::assertSame($config['salesChannelId'], $service->getConfig('salesChannelId'));
     }
 
     public function testGet(): void
@@ -42,8 +42,8 @@ class SymfonySystemConfigServiceTest extends TestCase
 
         $service = new SymfonySystemConfigService($config);
 
-        static::assertEquals('value', $service->get('key'));
-        static::assertEquals('value2', $service->get('key', 'salesChannelId'));
+        static::assertSame('value', $service->get('key'));
+        static::assertSame('value2', $service->get('key', 'salesChannelId'));
         static::assertTrue($service->has('key'));
         static::assertFalse($service->has('nonExistentKey'));
         static::assertNull($service->get('nonExistentKey'));
@@ -85,9 +85,9 @@ class SymfonySystemConfigServiceTest extends TestCase
             'key' => null,
         ];
 
-        static::assertEquals(['key' => 'value', 'onlyDefault' => 'value'], $service->override($merged, null, inherit: false, nesting: false));
-        static::assertEquals(['key' => 'value2'], $service->override($merged, 'salesChannelId', inherit: false, nesting: false));
-        static::assertEquals(['key' => 'value2', 'onlyDefault' => 'value'], $service->override($merged, 'salesChannelId', nesting: false));
+        static::assertSame(['key' => 'value', 'onlyDefault' => 'value'], $service->override($merged, null, inherit: false, nesting: false));
+        static::assertSame(['key' => 'value2'], $service->override($merged, 'salesChannelId', inherit: false, nesting: false));
+        static::assertSame(['key' => 'value2', 'onlyDefault' => 'value'], $service->override($merged, 'salesChannelId', nesting: false));
     }
 
     public function testOverrideNested(): void
@@ -114,8 +114,8 @@ class SymfonySystemConfigServiceTest extends TestCase
             ],
         ];
 
-        static::assertEquals(['key' => 'value', 'nested' => ['key' => 'value'], 'first' => ['key' => 'test']], $service->override($merged, null, inherit: false));
-        static::assertEquals(['key' => 'value2', 'nested' => ['key' => 'value2'], 'second' => ['key' => 'test']], $service->override($merged, 'salesChannelId', inherit: false));
-        static::assertEquals(['key' => 'value2', 'nested' => ['key' => 'value2'], 'first' => ['key' => 'test'], 'second' => ['key' => 'test']], $service->override($merged, 'salesChannelId'));
+        static::assertSame(['key' => 'value', 'nested' => ['key' => 'value'], 'first' => ['key' => 'test']], $service->override($merged, null, inherit: false));
+        static::assertSame(['key' => 'value2', 'nested' => ['key' => 'value2'], 'second' => ['key' => 'test']], $service->override($merged, 'salesChannelId', inherit: false));
+        static::assertSame(['key' => 'value2', 'nested' => ['key' => 'value2'], 'first' => ['key' => 'test'], 'second' => ['key' => 'test']], $service->override($merged, 'salesChannelId'));
     }
 }

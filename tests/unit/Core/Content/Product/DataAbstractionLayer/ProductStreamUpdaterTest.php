@@ -11,12 +11,16 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -27,6 +31,40 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[CoversClass(ProductStreamUpdater::class)]
 class ProductStreamUpdaterTest extends TestCase
 {
+    public function testUpdaterCanBeDisabled(): void
+    {
+        $connectionMock = $this->createMock(Connection::class);
+        $connectionMock->expects($this->never())->method(static::anything());
+
+        $messageBusMock = $this->createMock(MessageBusInterface::class);
+        $messageBusMock->expects($this->never())->method(static::anything());
+
+        /** @var StaticEntityRepository<ProductCollection> $repo */
+        $repo = new StaticEntityRepository([]);
+
+        $updater = new ProductStreamUpdater(
+            $connectionMock,
+            new ProductDefinition(),
+            $repo,
+            $messageBusMock,
+            $this->createMock(ManyToManyIdFieldUpdater::class),
+            false
+        );
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createCLIContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('product_stream', [
+                    new EntityWriteResult('product-1', [], 'test', EntityWriteResult::OPERATION_UPDATE),
+                ], Context::createCLIContext()),
+            ]),
+            []
+        );
+
+        $updater->updateProducts(['1', '2'], Context::createDefaultContext());
+        $updater->update($containerEvent);
+    }
+
     /**
      * @param string[] $ids
      * @param array<int, array<string, bool|string>> $filters
@@ -59,7 +97,8 @@ class ProductStreamUpdaterTest extends TestCase
             new ProductDefinition(),
             $repository,
             $this->createMock(MessageBusInterface::class),
-            $this->createMock(ManyToManyIdFieldUpdater::class)
+            $this->createMock(ManyToManyIdFieldUpdater::class),
+            true
         );
 
         $updater->updateProducts($ids, $context);
@@ -117,7 +156,8 @@ class ProductStreamUpdaterTest extends TestCase
             $definition,
             $repository,
             $this->createMock(MessageBusInterface::class),
-            $manyToManyFieldUpdater
+            $manyToManyFieldUpdater,
+            true
         );
 
         $updater->handle($message);

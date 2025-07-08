@@ -10,6 +10,7 @@ use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
+use Shopware\Elasticsearch\Framework\Indexing\IndexMappingUpdater;
 use Shopware\Elasticsearch\Framework\SystemUpdateListener;
 
 /**
@@ -22,10 +23,16 @@ class SystemUpdateListenerTest extends TestCase
     {
         $messageBus = new CollectingMessageBus();
 
+        $mappingUpdater = $this->createMock(IndexMappingUpdater::class);
+        $mappingUpdater
+            ->expects($this->once())
+            ->method('update');
+
         $listener = new SystemUpdateListener(
             $this->createMock(AbstractKeyValueStorage::class),
             $this->createMock(ElasticsearchIndexer::class),
-            $messageBus
+            $messageBus,
+            $mappingUpdater
         );
 
         $listener($this->createMock(UpdatePostFinishEvent::class));
@@ -36,6 +43,11 @@ class SystemUpdateListenerTest extends TestCase
     public function testShouldScheduleWithValues(): void
     {
         $messageBus = new CollectingMessageBus();
+
+        $mappingUpdater = $this->createMock(IndexMappingUpdater::class);
+        $mappingUpdater
+            ->expects($this->once())
+            ->method('update');
 
         $storage = $this->createMock(AbstractKeyValueStorage::class);
         $storage
@@ -58,7 +70,8 @@ class SystemUpdateListenerTest extends TestCase
         $listener = new SystemUpdateListener(
             $storage,
             $indexer,
-            $messageBus
+            $messageBus,
+            $mappingUpdater
         );
 
         $listener($this->createMock(UpdatePostFinishEvent::class));

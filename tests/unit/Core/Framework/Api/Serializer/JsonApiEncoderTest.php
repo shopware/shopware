@@ -54,7 +54,7 @@ class JsonApiEncoderTest extends TestCase
             static::assertIsArray($relationship['data']);
 
             if ($key === 'customer') {
-                static::assertEquals([
+                static::assertSame([
                     'type' => 'customer',
                     'id' => 'customer-id',
                 ], $relationship['data']);
@@ -62,7 +62,7 @@ class JsonApiEncoderTest extends TestCase
 
             if ($key === 'products') {
                 static::assertCount(1, $relationship['data']);
-                static::assertEquals([
+                static::assertSame([
                     'type' => 'product',
                     'id' => 'product-id',
                 ], $relationship['data'][0]);

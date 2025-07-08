@@ -92,7 +92,7 @@ class MediaDefinition extends EntityDefinition
             new FkField('user_id', 'userId', UserDefinition::class),
             new FkField('media_folder_id', 'mediaFolderId', MediaFolderDefinition::class),
             (new StringField('mime_type', 'mimeType'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING)),
-            (new StringField('file_extension', 'fileExtension'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new StringField('file_extension', 'fileExtension'))->addFlags(new ApiAware()),
             (new DateTimeField('uploaded_at', 'uploadedAt'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new LongTextField('file_name', 'fileName'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new IntField('file_size', 'fileSize'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE)),

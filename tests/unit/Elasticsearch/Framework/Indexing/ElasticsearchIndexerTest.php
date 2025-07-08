@@ -126,7 +126,7 @@ class ElasticsearchIndexerTest extends TestCase
 
         $eventDispatcher->addListener(ElasticsearchIndexIteratorEvent::class, function (ElasticsearchIndexIteratorEvent $event) use (&$eventDispatched, $query): void {
             $eventDispatched = true;
-            static::assertEquals($query, $event->iterator);
+            static::assertSame($query, $event->iterator);
         });
 
         $indexer = $this->getIndexer(eventDispatcher: $eventDispatcher);
@@ -326,9 +326,16 @@ class ElasticsearchIndexerTest extends TestCase
             ->method('error')
             ->with('failed to parse');
 
-        $indexer = $this->getIndexer($logger);
+        $this->helper->expects($this->once())->method('logAndThrowException')->with(ElasticsearchException::indexingError([
+            [
+                'index' => 'foo',
+                'id' => '1',
+                'type' => 'mapper_parsing_exception',
+                'reason' => 'failed to parse',
+            ],
+        ]));
 
-        static::expectException(ElasticsearchException::class);
+        $indexer = $this->getIndexer($logger);
 
         $indexer($message);
     }

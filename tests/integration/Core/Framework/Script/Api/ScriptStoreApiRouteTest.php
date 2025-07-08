@@ -48,7 +48,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
-        static::assertEquals('bar', $response['foo']);
+        static::assertSame('bar', $response['foo']);
         static::assertSame('store_api_simple_script_response', $response['apiAlias']);
     }
 
@@ -70,7 +70,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
-        static::assertEquals('bar', $response['foo']);
+        static::assertSame('bar', $response['foo']);
         static::assertSame('store_api_simple_script_response', $response['apiAlias']);
     }
 
@@ -146,7 +146,7 @@ class ScriptStoreApiRouteTest extends TestCase
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals('Forbidden', $response['errors'][0]['title']);
+        static::assertSame('Forbidden', $response['errors'][0]['title']);
         static::assertStringContainsString('store-api-insufficient-permissions', $response['errors'][0]['detail']);
         static::assertStringContainsString('Missing privilege', $response['errors'][0]['detail']);
     }
@@ -162,10 +162,10 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
         static::assertArrayHasKey('foo', $response);
-        static::assertEquals('bar', $response['foo']);
+        static::assertSame('bar', $response['foo']);
 
         static::assertTrue($this->browser->getResponse()->headers->has('test'));
-        static::assertEquals('value', $this->browser->getResponse()->headers->get('test'));
+        static::assertSame('value', $this->browser->getResponse()->headers->get('test'));
     }
 
     public function testRedirectResponse(): void
@@ -208,7 +208,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
-        static::assertEquals('bar', $response['foo']);
+        static::assertSame('bar', $response['foo']);
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
 
         static::assertFalse($this->browser->getResponse()->headers->has(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
@@ -227,7 +227,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
-        static::assertEquals('bar', $response['foo']);
+        static::assertSame('bar', $response['foo']);
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
 
         static::assertFalse($this->browser->getResponse()->headers->has(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
@@ -246,7 +246,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
-        static::assertEquals('bar', $response['foo']);
+        static::assertSame('bar', $response['foo']);
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
     }
 
@@ -268,7 +268,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
-        static::assertEquals('bar', $response['foo']);
+        static::assertSame('bar', $response['foo']);
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
 
         $this->browser->request('GET', '/store-api/script/cache-script');
@@ -285,7 +285,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
-        static::assertEquals('bar', $response['foo']);
+        static::assertSame('bar', $response['foo']);
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
 
         // invalidate the custom cache tag
@@ -306,7 +306,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
-        static::assertEquals('bar', $response['foo']);
+        static::assertSame('bar', $response['foo']);
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
     }
 
@@ -328,7 +328,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
-        static::assertEquals('bar', $response['foo']);
+        static::assertSame('bar', $response['foo']);
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
 
         $this->browser->request('GET', '/store-api/script/cache-script');
@@ -345,7 +345,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
-        static::assertEquals('bar', $response['foo']);
+        static::assertSame('bar', $response['foo']);
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
 
         // Login to get the `logged-in` invalidation state
@@ -365,7 +365,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
-        static::assertEquals('bar', $response['foo']);
+        static::assertSame('bar', $response['foo']);
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
     }
 

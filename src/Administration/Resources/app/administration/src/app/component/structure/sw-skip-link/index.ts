@@ -8,7 +8,7 @@ import './sw-skip-link.scss';
 /**
  * @private - Only to be used by the Shopware Admin
  */
-Shopware.Component.register('sw-skip-link', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     data(): {

@@ -5,6 +5,8 @@ namespace Shopware\Core\Content\Category\Subscriber;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryEvents;
+use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
+use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
@@ -20,49 +22,64 @@ class CategorySubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly SystemConfigService $systemConfigService)
-    {
+    public function __construct(
+        private readonly SystemConfigService $systemConfigService,
+        private readonly AbstractCategoryUrlGenerator $categoryUrlGenerator,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            CategoryEvents::CATEGORY_LOADED_EVENT => 'entityLoaded',
-            'sales_channel.' . CategoryEvents::CATEGORY_LOADED_EVENT => 'entityLoaded',
+            CategoryEvents::CATEGORY_LOADED_EVENT => 'categoryLoaded',
+            'sales_channel.' . CategoryEvents::CATEGORY_LOADED_EVENT => 'salesChannelCategoryLoaded',
         ];
     }
 
     /**
-     * @param EntityLoadedEvent<CategoryEntity> $event
+     * @param EntityLoadedEvent<covariant CategoryEntity> $event
      */
-    public function entityLoaded(EntityLoadedEvent $event): void
+    public function categoryLoaded(EntityLoadedEvent $event): void
     {
-        $salesChannelId = $event instanceof SalesChannelEntityLoadedEvent ? $event->getSalesChannelContext()->getSalesChannelId() : null;
+        $systemDefaultLayout = $this->systemConfigService->getString(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY);
+        if ($systemDefaultLayout === '') {
+            return;
+        }
 
         foreach ($event->getEntities() as $category) {
-            $categoryCmsPageId = $category->getCmsPageId();
+            if (!$category->getCmsPageId()) {
+                $category->setCmsPageId($systemDefaultLayout);
+                $category->setCmsPageIdSwitched(true);
+            }
+        }
+    }
 
-            // continue if cms page is given and was not set in the subscriber
-            if ($categoryCmsPageId !== null && !$category->getCmsPageIdSwitched()) {
+    /**
+     * @param SalesChannelEntityLoadedEvent<SalesChannelCategoryEntity> $event
+     */
+    public function salesChannelCategoryLoaded(SalesChannelEntityLoadedEvent $event): void
+    {
+        $salesChannel = $event->getSalesChannelContext()->getSalesChannel();
+        $salesChannelId = $salesChannel->getId();
+
+        $systemDefaultLayout = $this->systemConfigService->getString(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY);
+        $salesChannelDefaultLayout = $this->systemConfigService->getString(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY, $salesChannelId);
+
+        foreach ($event->getEntities() as $category) {
+            $category->assign([
+                'seoUrl' => $this->categoryUrlGenerator->generate($category, $salesChannel),
+            ]);
+
+            if ($salesChannelDefaultLayout === '') {
                 continue;
             }
 
-            // continue if cms page is given and not the overall default
-            if ($categoryCmsPageId !== null && $categoryCmsPageId !== $this->systemConfigService->get(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY)) {
+            // continue if layout is given and was not set in the `category.loaded` event and has not been modified in between
+            if ($category->getCmsPageId() !== null && (!$category->getCmsPageIdSwitched() || $category->getCmsPageId() !== $systemDefaultLayout)) {
                 continue;
             }
 
-            $userDefault = $this->systemConfigService->get(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY, $salesChannelId);
-
-            // cms page is not given in system config
-            if ($userDefault === null) {
-                continue;
-            }
-
-            /** @var string $userDefault */
-            $category->setCmsPageId($userDefault);
-
-            // mark cms page as set in the subscriber
+            $category->setCmsPageId($salesChannelDefaultLayout);
             $category->setCmsPageIdSwitched(true);
         }
     }

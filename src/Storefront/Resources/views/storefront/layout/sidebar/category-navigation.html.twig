@@ -14,8 +14,8 @@
                 {% set categoryId = item.category.id %}
                 {% set categoryName = item.category.translated.name %}
                 {% set categoryType = item.category.type %}
-                {% set categoryUrl = category_url(item.category) %}
-                {% set categoryLinkNewTab = category_linknewtab(item.category) %}
+                {% set categoryUrl = item.category.seoUrl %}
+                {% set categoryLinkNewTab = item.category.shouldOpenInNewTab %}
 
                 {% block layout_navigation_categories_list_entry %}
                     <li class="category-navigation-entry">
@@ -37,7 +37,7 @@
                             {% endif %}
 
                             {% block layout_navigation_categories_recoursion %}
-                                {% if level < navigationMaxDepth %}
+                                {% if level < navigationMaxDepth and item.children %}
                                     {% sw_include '@Storefront/storefront/layout/sidebar/category-navigation.html.twig' with {
                                         navigationTree: item.children,
                                         level: level + 1

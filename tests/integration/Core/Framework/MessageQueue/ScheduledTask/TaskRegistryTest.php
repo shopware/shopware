@@ -52,10 +52,10 @@ class TaskRegistryTest extends TestCase
         /** @var ScheduledTaskEntity $task */
         $task = $tasks->first();
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
-        static::assertEquals(TestTask::class, $task->getScheduledTaskClass());
-        static::assertEquals(TestTask::getDefaultInterval(), $task->getRunInterval());
-        static::assertEquals(TestTask::getTaskName(), $task->getName());
-        static::assertEquals(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
+        static::assertSame(TestTask::class, $task->getScheduledTaskClass());
+        static::assertSame(TestTask::getDefaultInterval(), $task->getRunInterval());
+        static::assertSame(TestTask::getTaskName(), $task->getName());
+        static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
     }
 
     public function testUpdatesRunIntervalOnAlreadyRegisteredTaskWhenRunIntervalMatchesDefault(): void
@@ -81,11 +81,11 @@ class TaskRegistryTest extends TestCase
         /** @var ScheduledTaskEntity $task */
         $task = $tasks->first();
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
-        static::assertEquals(TestTask::class, $task->getScheduledTaskClass());
-        static::assertEquals(1, $task->getRunInterval());
-        static::assertEquals(1, $task->getDefaultRunInterval());
-        static::assertEquals('test', $task->getName());
-        static::assertEquals(ScheduledTaskDefinition::STATUS_FAILED, $task->getStatus());
+        static::assertSame(TestTask::class, $task->getScheduledTaskClass());
+        static::assertSame(1, $task->getRunInterval());
+        static::assertSame(1, $task->getDefaultRunInterval());
+        static::assertSame('test', $task->getName());
+        static::assertSame(ScheduledTaskDefinition::STATUS_FAILED, $task->getStatus());
     }
 
     public function testDoesNotUpdateRunIntervalOnAlreadyRegisteredTaskWhenRunIntervalWasChanged(): void
@@ -111,11 +111,11 @@ class TaskRegistryTest extends TestCase
         /** @var ScheduledTaskEntity $task */
         $task = $tasks->first();
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
-        static::assertEquals(TestTask::class, $task->getScheduledTaskClass());
-        static::assertEquals(5, $task->getRunInterval());
-        static::assertEquals(1, $task->getDefaultRunInterval());
-        static::assertEquals('test', $task->getName());
-        static::assertEquals(ScheduledTaskDefinition::STATUS_FAILED, $task->getStatus());
+        static::assertSame(TestTask::class, $task->getScheduledTaskClass());
+        static::assertSame(5, $task->getRunInterval());
+        static::assertSame(1, $task->getDefaultRunInterval());
+        static::assertSame('test', $task->getName());
+        static::assertSame(ScheduledTaskDefinition::STATUS_FAILED, $task->getStatus());
     }
 
     public function testWithWrongClass(): void
@@ -126,7 +126,7 @@ class TaskRegistryTest extends TestCase
             FooMessage::class
         ));
         $registry = new TaskRegistry(
-            /** @phpstan-ignore-next-line we want to test the exception that phpstan also reports */
+            /** @phpstan-ignore argument.type (for test purpose) */
             [
                 new FooMessage(),
             ],

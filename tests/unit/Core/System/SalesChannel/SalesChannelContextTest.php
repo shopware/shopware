@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -34,12 +35,51 @@ class SalesChannelContextTest extends TestCase
 
         $salesChannelContext->setAreaRuleIds($areaRuleIds);
 
-        static::assertEquals($areaRuleIds, $salesChannelContext->getAreaRuleIds());
+        static::assertSame($areaRuleIds, $salesChannelContext->getAreaRuleIds());
 
-        static::assertEquals([$idA, $idB], $salesChannelContext->getRuleIdsByAreas(['a']));
-        static::assertEquals([$idA, $idB, $idC, $idD], $salesChannelContext->getRuleIdsByAreas(['a', 'b']));
-        static::assertEquals([$idA, $idB], $salesChannelContext->getRuleIdsByAreas(['a', 'c']));
-        static::assertEquals([$idC], $salesChannelContext->getRuleIdsByAreas(['d']));
-        static::assertEquals([], $salesChannelContext->getRuleIdsByAreas(['f']));
+        static::assertSame([$idA, $idB], $salesChannelContext->getRuleIdsByAreas(['a']));
+        static::assertSame([$idA, $idB, $idC, $idD], $salesChannelContext->getRuleIdsByAreas(['a', 'b']));
+        static::assertSame([$idA, $idB], $salesChannelContext->getRuleIdsByAreas(['a', 'c']));
+        static::assertSame([$idC], $salesChannelContext->getRuleIdsByAreas(['d']));
+        static::assertSame([], $salesChannelContext->getRuleIdsByAreas(['f']));
+    }
+
+    public function testWithPermissions(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        static::assertEmpty($salesChannelContext->getPermissions());
+
+        $called = false;
+        $salesChannelContext->withPermissions(
+            [AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => true],
+            function (SalesChannelContext $context) use (&$called): void {
+                $called = true;
+
+                static::assertTrue($context->hasPermission(AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION));
+            },
+        );
+
+        static::assertTrue($called);
+        static::assertEmpty($salesChannelContext->getPermissions());
+    }
+
+    public function testWithPermissionsWithLockedPermissions(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $salesChannelContext->lockPermissions();
+        static::assertEmpty($salesChannelContext->getPermissions());
+
+        $called = false;
+        $salesChannelContext->withPermissions(
+            [AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => true],
+            function (SalesChannelContext $context) use (&$called): void {
+                $called = true;
+
+                static::assertEmpty($context->getPermissions());
+            },
+        );
+
+        static::assertTrue($called);
+        static::assertEmpty($salesChannelContext->getPermissions());
     }
 }

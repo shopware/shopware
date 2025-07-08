@@ -1,10 +1,7 @@
-import type { PropType } from 'vue';
 import type { RouteLocationNamedRaw } from 'vue-router';
 import type { ModuleManifest } from 'src/core/factory/module.factory';
 import template from './sw-meteor-page.html.twig';
 import './sw-meteor-page.scss';
-
-const { Component } = Shopware;
 
 type ComponentData = {
     module: ModuleManifest | null;
@@ -16,7 +13,7 @@ type ComponentData = {
  *
  * @private
  */
-Component.register('sw-meteor-page', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {

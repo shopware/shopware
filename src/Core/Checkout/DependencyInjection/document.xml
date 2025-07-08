@@ -63,6 +63,7 @@
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry" />
+            <argument type="service" id="validator" />
 
             <tag name="document.renderer"/>
         </service>
@@ -86,6 +87,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader" />
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry" />
+            <argument type="service" id="validator" />
 
             <tag name="document.renderer"/>
         </service>
@@ -98,6 +100,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader" />
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry" />
+            <argument type="service" id="validator" />
 
             <tag name="document.renderer"/>
         </service>
@@ -128,6 +131,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\MediaService" />
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator" />
             <argument type="service" id="pdf.merger" />
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\Controller\DocumentController" public="true">
@@ -177,6 +181,7 @@
 
         <service id="Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder">
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator"/>
         </service>
     </services>
 </container>

@@ -84,6 +84,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-ignore-class': true,
+                    'sw-context-menu-item': true,
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),

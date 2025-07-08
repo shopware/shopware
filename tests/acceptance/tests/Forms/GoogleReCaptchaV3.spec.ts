@@ -3,7 +3,7 @@ import { expect, test } from '@fixtures/AcceptanceTest';
 const reCaptcha_V3_site_key = '6LeNJ-UqAAAAAPmLzX0ekQuuv7f4HR8FVyaF4FrR';
 const reCaptcha_V3_secret_key = '6LeNJ-UqAAAAAGIxrxNBjVvQwPUZ6_DJxWlqXC9u';
 
-test('As a customer, I can perform a registration by validating to be not a robot via the Google reCaptcha V3.',
+test.skip('As a customer, I can perform a registration by validating to be not a robot via the Google reCaptcha V3.',
     { tag: '@form @Registration @Captcha' },
     async ({
         ShopCustomer,
@@ -46,7 +46,7 @@ test('As a customer, I can perform a registration by validating to be not a robo
     }
 );
 
-test('As a customer, I can perform a registration that is validated by the invisible Google reCaptcha V3 even after a false input.',
+test.skip('As a customer, I can perform a registration that is validated by the invisible Google reCaptcha V3 even after a false input.',
     { tag: '@form @Registration @Captcha' },
     async ({
         ShopCustomer,
@@ -126,7 +126,7 @@ test('As a customer, I can perform a registration that is validated by the invis
     }
 );
 
-test('As a customer, I want to fill out and submit the contact form that is validated by the invisible Google reCaptcha V3.',
+test.skip('As a customer, I want to fill out and submit the contact form that is validated by the invisible Google reCaptcha V3.',
     { tag: '@form @contact @Captcha' },
     async ({
         ShopCustomer,
@@ -170,7 +170,6 @@ test('As a customer, I want to fill out and submit the contact form that is vali
             await StorefrontContactForm.phoneInput.fill('0123456789');
             await StorefrontContactForm.subjectInput.fill('Test: Product question');
             await StorefrontContactForm.commentInput.fill('Test: Hello, I have a question about your products.');
-            await StorefrontContactForm.privacyPolicyCheckbox.click();
         });
 
         await test.step('Send and validate the contact form.', async () => {

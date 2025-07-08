@@ -45,12 +45,12 @@ class ExtensionStoreLicensesServiceTest extends TestCase
 
         $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertNotNull($lastRequest);
-        static::assertEquals(
+        static::assertSame(
             '/swplatform/pluginlicenses/1/cancel',
             $lastRequest->getUri()->getPath()
         );
 
-        static::assertEquals(
+        static::assertSame(
             [
                 'shopwareVersion' => '___VERSION___',
                 'language' => 'en-GB',

@@ -39,6 +39,7 @@ class ImportExportException extends HttpException
     final public const DESERIALIZE_FAILED = 'CONTENT__IMPORT_EXPORT__DESERIALIZE_FAILED';
 
     final public const INVALID_INSTANCE_TYPE = 'CONTENT__IMPORT_EXPORT__INVALID_INSTANCE_TYPE';
+    final public const SERIALIZER_NOT_FOUND = 'CONTENT__IMPORT_EXPORT__SERIALIZER_NOT_FOUND';
 
     public static function invalidFileAccessToken(): ShopwareHttpException
     {
@@ -281,6 +282,16 @@ class ImportExportException extends HttpException
             self::INVALID_INSTANCE_TYPE,
             'Expected "{{ argument }}" to be an instance of "{{ expected }}".',
             ['argument' => $argument, 'expected' => $expected],
+        );
+    }
+
+    public static function serializerNotFound(string $entityOrField): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SERIALIZER_NOT_FOUND,
+            'Serializer for "{{ entityOrField }}" not found.',
+            ['entityOrField' => $entityOrField],
         );
     }
 }

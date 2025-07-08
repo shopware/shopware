@@ -128,6 +128,7 @@ async function createWrapper() {
                 'sw-admin-menu': true,
                 'router-view': true,
                 'sw-app-app-url-changed-modal': true,
+                'sw-sidebar-renderer': true,
                 'sw-error-boundary': true,
             },
             provide: {

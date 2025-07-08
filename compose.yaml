@@ -7,10 +7,11 @@ services:
             - 9998:9998
             - 9999:9999
         environment:
+            COMPOSER_ROOT_VERSION: 6.7.9999999-dev
             HOST: '0.0.0.0'
             APP_URL: http://localhost:8000
             DATABASE_URL: mysql://root:root@database/shopware
-            MAILER_DSN: smtp://smtp:1025
+            MAILER_DSN: smtp://mailer:1025
             OPENSEARCH_URL: http://opensearch:9200
             ADMIN_OPENSEARCH_URL: http://opensearch:9200
         volumes:
@@ -42,6 +43,7 @@ services:
         healthcheck:
             test: [ "CMD", "mariadb-admin" ,"ping", "-h", "localhost", "-proot" ]
             start_interval: 3s
+            start_period: 10s
             interval: 5s
             timeout: 1s
             retries: 10

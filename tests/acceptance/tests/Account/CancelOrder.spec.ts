@@ -1,8 +1,5 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-// Annotate entire file as serial run.
-test.describe.configure({ mode: 'serial' });
-
 test('Customers are able to cancel orders in storefront account.', { tag: '@Order @Account' }, async ({
     ShopCustomer,
     StorefrontAccountOrder,

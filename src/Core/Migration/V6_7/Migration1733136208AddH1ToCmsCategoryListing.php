@@ -76,6 +76,7 @@ class Migration1733136208AddH1ToCmsCategoryListing extends MigrationStep
             'id' => Uuid::randomBytes(),
             'locked' => 1,
             'cms_block_id' => $categoryNameBlock['id'],
+            'cms_block_version_id' => $sectionVersionId,
             'type' => 'text',
             'slot' => 'content',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),

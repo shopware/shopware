@@ -133,7 +133,7 @@ class CountryStateControllerTest extends TestCase
 
         static::assertArrayHasKey(CountryStateDataPageletLoadedHook::HOOK_NAME, $traces);
 
-        static::assertEquals(['16'], $traces['country-state-data-pagelet-loaded'][0]['output']);
+        static::assertSame([16], $traces['country-state-data-pagelet-loaded'][0]['output']);
     }
 }
 

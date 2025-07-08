@@ -102,7 +102,7 @@ class AffiliateCodeRuleTest extends TestCase
 
         $scope = new CheckoutRuleScope($salesChannelContext);
         $match = $rule->match($scope);
-        static::assertEquals($match, $isMatching);
+        static::assertSame($match, $isMatching);
     }
 
     /**

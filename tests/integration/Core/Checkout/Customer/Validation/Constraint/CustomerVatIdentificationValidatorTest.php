@@ -93,14 +93,14 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         /** @var ConstraintViolationList $violations */
         $violations = $this->executionContext->getViolations();
 
-        static::assertSame($violations->count(), $count);
+        static::assertCount($count, $violations);
 
         static::assertNotNull($violation = $violations->get(0));
         static::assertInstanceOf(ConstraintViolation::class, $violation);
 
-        static::assertEquals('Invalid VAT ID', $violation->getMessage());
-        static::assertEquals($violation->getParameters(), ['{{ vatId }}' => '"' . $vatIds[0] . '"']);
-        static::assertEquals(CustomerVatIdentification::VAT_ID_FORMAT_NOT_CORRECT, $violation->getCode());
+        static::assertSame('Invalid VAT ID', $violation->getMessage());
+        static::assertSame($violation->getParameters(), ['{{ vatId }}' => '"' . $vatIds[0] . '"']);
+        static::assertSame(CustomerVatIdentification::VAT_ID_FORMAT_NOT_CORRECT, $violation->getCode());
     }
 
     public function testDoesNotValidateWhenVatIdsIsNull(): void

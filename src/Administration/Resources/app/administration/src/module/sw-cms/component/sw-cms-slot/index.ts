@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-slot.html.twig';
 import './sw-cms-slot.scss';
 import { type CmsElementConfig } from '../../service/cms.service';
@@ -158,6 +157,8 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onCloseSettingsModal() {
+            if (!this.showElementSettings) return;
+
             const childComponent = this.$refs.elementComponentRef as {
                 handleUpdateContent: () => void;
             };

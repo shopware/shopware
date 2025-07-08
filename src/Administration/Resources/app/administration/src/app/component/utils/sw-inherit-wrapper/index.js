@@ -1,8 +1,6 @@
 import './sw-inherit-wrapper.scss';
 import template from './sw-inherit-wrapper.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -36,7 +34,7 @@ const { Component } = Shopware;
  * </sw-inherit-wrapper>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-inherit-wrapper', {
+export default {
     template,
 
     inject: ['feature'],
@@ -259,4 +257,4 @@ Component.register('sw-inherit-wrapper', {
             this.$emit('update:value', newValue);
         },
     },
-});
+};

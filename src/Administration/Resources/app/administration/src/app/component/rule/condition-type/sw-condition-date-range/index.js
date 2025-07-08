@@ -13,7 +13,8 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  * @component-example
  * <sw-condition-date-range :condition="condition" :level="0"></sw-condition-date-range>
  */
-Component.extend('sw-condition-date-range', 'sw-condition-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     computed: {
@@ -108,4 +109,4 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
             return date.split('T')[0].concat('T'.concat(dateModifier));
         },
     },
-});
+};

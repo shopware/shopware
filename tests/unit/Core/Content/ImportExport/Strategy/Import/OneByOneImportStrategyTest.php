@@ -46,9 +46,9 @@ class OneByOneImportStrategyTest extends ImportStrategyTestCase
 
         $result = $this->strategy->import($record, [], $config, $progress, Context::createDefaultContext());
 
-        static::assertEquals([$writeResult], $result->results);
-        static::assertEquals([], $result->failedRecords);
-        static::assertEquals(1, $progress->getProcessedRecords());
+        static::assertSame([$writeResult], $result->results);
+        static::assertSame([], $result->failedRecords);
+        static::assertSame(1, $progress->getProcessedRecords());
     }
 
     public function testFailedImport(): void
@@ -85,8 +85,8 @@ class OneByOneImportStrategyTest extends ImportStrategyTestCase
 
         $result = $this->strategy->import($record, [], $config, $progress, Context::createDefaultContext());
 
-        static::assertEquals([], $result->results);
-        static::assertEquals([
+        static::assertSame([], $result->results);
+        static::assertSame([
             ['some' => 'data', '_error' => 'Error'],
         ], $result->failedRecords);
     }
@@ -98,7 +98,7 @@ class OneByOneImportStrategyTest extends ImportStrategyTestCase
 
         $result = $this->strategy->commit($config, $progress, Context::createDefaultContext());
 
-        static::assertEquals([], $result->results);
-        static::assertEquals([], $result->failedRecords);
+        static::assertSame([], $result->results);
+        static::assertSame([], $result->failedRecords);
     }
 }

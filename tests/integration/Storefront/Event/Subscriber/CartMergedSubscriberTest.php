@@ -71,7 +71,7 @@ class CartMergedSubscriberTest extends TestCase
 
         static::assertNotEmpty($infoFlash = $session->getFlashBag()->get('info'));
 
-        static::assertEquals('checkout.cart-merged-hint', $infoFlash[0]);
+        static::assertSame('checkout.cart-merged-hint', $infoFlash[0]);
     }
 
     /**

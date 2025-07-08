@@ -34,7 +34,7 @@ class LineItemStockRuleTest extends TestCase
 {
     public function testItReturnsTheCorrectName(): void
     {
-        static::assertEquals('cartLineItemStock', (new LineItemStockRule())->getName());
+        static::assertSame('cartLineItemStock', (new LineItemStockRule())->getName());
     }
 
     public function testRulesDoesNotMatchIfScopeNoLineItemScopeNorCartRuleScope(): void
@@ -113,7 +113,7 @@ class LineItemStockRuleTest extends TestCase
 
         $rule = new LineItemStockRule($operator, 5);
 
-        static::assertEquals($matches, $rule->match($ruleScope));
+        static::assertSame($matches, $rule->match($ruleScope));
     }
 
     #[DataProvider('provideLineItemTestCases')]
@@ -128,7 +128,7 @@ class LineItemStockRuleTest extends TestCase
 
         $rule = new LineItemStockRule($operator, 5);
 
-        static::assertEquals($matches, $rule->match($ruleScope));
+        static::assertSame($matches, $rule->match($ruleScope));
     }
 
     public function testNoMatchWithEmptyCartRuleScope(): void
@@ -236,7 +236,7 @@ class LineItemStockRuleTest extends TestCase
         $configData = $config->getData();
 
         static::assertArrayHasKey('operatorSet', $configData);
-        static::assertEquals([
+        static::assertSame([
             'operators' => RuleConfig::OPERATOR_SET_NUMBER,
             'isMatchAny' => false,
         ], $configData['operatorSet']);
@@ -249,7 +249,7 @@ class LineItemStockRuleTest extends TestCase
 
         static::assertArrayHasKey('fields', $configData);
         static::assertCount(1, $configData['fields']);
-        static::assertEquals([
+        static::assertSame([
             'name' => 'stock',
             'type' => 'int',
             'config' => [],

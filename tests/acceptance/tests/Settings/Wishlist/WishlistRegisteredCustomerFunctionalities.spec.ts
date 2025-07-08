@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Customers can add or remove products from their wishlist.',{ tag: '@Wishlist' }, async ({
+test('Customers can add or remove products from their wishlist.', { tag: '@Wishlist' }, async ({
     TestDataService,
     ShopCustomer,
     StorefrontHome,
@@ -10,12 +10,11 @@ test('Customers can add or remove products from their wishlist.',{ tag: '@Wishli
     StorefrontWishlist,
     AddProductToCartFromWishlist,
     StorefrontOffCanvasCart,
+    HomeProducts,
 }) => {
     await TestDataService.setSystemConfig({ 'core.cart.wishlistEnabled': true });
 
-    const product1 = await TestDataService.createBasicProduct();
-    const product2 = await TestDataService.createBasicProduct();
-    const product3 = await TestDataService.createBasicProduct();
+    const [product1, product2, product3] = HomeProducts;
 
     const product1Locators = await StorefrontHome.getListingItemByProductName(product1.name);
     const product2Locators = await StorefrontHome.getListingItemByProductName(product2.name);

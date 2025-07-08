@@ -69,6 +69,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-search-bar': true,
                     'sw-datepicker': true,
                     'sw-text-editor': true,
+                    'sw-context-menu-item': true,
                     'sw-language-switch': true,
                     'sw-notification-center': true,
                     'sw-help-center': true,

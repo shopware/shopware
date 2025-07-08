@@ -272,7 +272,10 @@ export default {
 
             const results = await Promise.all(promises);
 
-            return [initialResult, ...results].flatMap((result) => result);
+            return [
+                initialResult,
+                ...results,
+            ].flatMap((result) => result);
         },
     },
 };

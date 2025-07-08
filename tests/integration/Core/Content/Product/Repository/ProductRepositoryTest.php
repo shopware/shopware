@@ -1427,7 +1427,7 @@ class ProductRepositoryTest extends TestCase
         $ids = $productMedia->map(fn (ProductMediaEntity $a) => $a->getId());
 
         $order = [$a, $b, $c];
-        static::assertEquals($order, array_values($ids));
+        static::assertSame($order, array_values($ids));
 
         $criteria = new Criteria([$id]);
         $criteria->getAssociation('media')
@@ -1442,7 +1442,7 @@ class ProductRepositoryTest extends TestCase
         $ids = $productMedia->map(fn (ProductMediaEntity $a) => $a->getId());
 
         $order = [$d, $c, $b];
-        static::assertEquals($order, array_values($ids));
+        static::assertSame($order, array_values($ids));
     }
 
     public function testVariantInheritanceWithMedia(): void
@@ -1688,6 +1688,80 @@ class ProductRepositoryTest extends TestCase
         $row = $this->connection->fetchAssociative('SELECT category_tree, categories FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
         static::assertContains($greenCategory, json_decode($row['category_tree'], true, 512, \JSON_THROW_ON_ERROR));
         static::assertSame($greenId, Uuid::fromBytesToHex($row['categories']));
+    }
+
+    public function testVariantInheritanceWithCategoriesAndFilters(): void
+    {
+        $redId = Uuid::randomHex();
+        $greenId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
+
+        $parentCategory = Uuid::randomHex();
+        $greenCategory = Uuid::randomHex();
+
+        $products = [
+            [
+                'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'name' => 'T-shirt',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                'manufacturer' => ['name' => 'test'],
+                'categories' => [
+                    ['id' => $parentCategory, 'name' => 'parent'],
+                ],
+            ],
+            [
+                'id' => $redId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'parentId' => $parentId,
+                'name' => 'red',
+            ],
+            [
+                'id' => $greenId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'parentId' => $parentId,
+                'name' => 'green',
+                'categories' => [
+                    ['id' => $greenCategory, 'name' => 'green'],
+                ],
+            ],
+        ];
+
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $this->repository->create($products, $context);
+
+        $criteria = new Criteria([$redId, $greenId]);
+        $categoryCriteria = $criteria->getAssociation('categories');
+        $categoryCriteria->setLimit(1);
+        $products = $this->repository->search($criteria, $context)->getEntities();
+
+        $criteria = new Criteria([$parentId]);
+        $criteria->addAssociation('categories');
+        $parents = $this->repository->search($criteria, $context)->getEntities();
+
+        static::assertTrue($parents->has($parentId));
+        static::assertTrue($products->has($redId));
+        static::assertTrue($products->has($greenId));
+
+        $parent = $parents->get($parentId);
+        $green = $products->get($greenId);
+        $red = $products->get($redId);
+
+        $parentCategories = $parent->getCategories();
+        static::assertInstanceOf(CategoryCollection::class, $parentCategories);
+        static::assertSame([$parentCategory], array_values($parentCategories->getIds()));
+        $redCategories = $red->getCategories();
+        static::assertInstanceOf(CategoryCollection::class, $redCategories);
+        static::assertSame([$parentCategory], array_values($redCategories->getIds()));
+        $greenCategories = $green->getCategories();
+        static::assertInstanceOf(CategoryCollection::class, $greenCategories);
+        static::assertSame([$greenCategory], array_values($greenCategories->getIds()));
     }
 
     public function testSearchByInheritedName(): void
@@ -2527,7 +2601,7 @@ class ProductRepositoryTest extends TestCase
 
         $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(
+        static::assertSame(
             array_values($ids->getList(['d', 'b', 'c', 'a'])),
             $result->getIds()
         );
@@ -2537,7 +2611,7 @@ class ProductRepositoryTest extends TestCase
 
         $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(
+        static::assertSame(
             array_values($ids->getList(['a', 'c', 'b', 'd'])),
             $result->getIds()
         );
@@ -2583,7 +2657,7 @@ class ProductRepositoryTest extends TestCase
 
             $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
 
-            static::assertEquals(
+            static::assertSame(
                 array_values($ids->getList(['a', 'd', 'b', 'e', 'c'])),
                 $result->getIds()
             );
@@ -2593,7 +2667,7 @@ class ProductRepositoryTest extends TestCase
 
             $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
 
-            static::assertEquals(
+            static::assertSame(
                 array_values($ids->getList(['c', 'e', 'b', 'd', 'a'])),
                 $result->getIds()
             );
@@ -2607,7 +2681,7 @@ class ProductRepositoryTest extends TestCase
 
         $result = $this->repository->searchIds($criteria, $context);
 
-        static::assertEquals(
+        static::assertSame(
             array_values($ids->getList(['a', 'd', 'b', 'e', 'c'])),
             $result->getIds()
         );
@@ -3218,8 +3292,8 @@ class ProductRepositoryTest extends TestCase
         static::assertIsArray($variantBProperties);
         sort($variantBProperties);
 
-        static::assertEquals($productProperties, $variantAProperties);
-        static::assertEquals($productProperties, $variantBProperties);
+        static::assertSame($productProperties, $variantAProperties);
+        static::assertSame($productProperties, $variantBProperties);
 
         $data = [
             'properties' => [
@@ -3257,8 +3331,8 @@ class ProductRepositoryTest extends TestCase
         static::assertIsArray($variantBProperties);
         sort($variantBProperties);
 
-        static::assertEquals($productProperties, $variantAProperties);
-        static::assertEquals($productProperties, $variantBProperties);
+        static::assertSame($productProperties, $variantAProperties);
+        static::assertSame($productProperties, $variantBProperties);
     }
 
     public function testInheritanceUpdateOnDeleteRelation(): void
@@ -3279,7 +3353,7 @@ class ProductRepositoryTest extends TestCase
 
         foreach ($expected as $key => $value) {
             static::assertArrayHasKey($key, $event->getList());
-            static::assertEquals($value, $event->getList()[$key]);
+            static::assertSame($value, $event->getList()[$key]);
         }
     }
 

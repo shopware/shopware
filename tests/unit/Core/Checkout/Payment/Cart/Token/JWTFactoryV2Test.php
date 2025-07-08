@@ -46,9 +46,9 @@ class JWTFactoryV2Test extends TestCase
         static::assertNotEmpty($token);
         $tokenStruct = $this->tokenFactory->parseToken($token);
 
-        static::assertEquals($transaction->getId(), $tokenStruct->getTransactionId());
-        static::assertEquals($transaction->getPaymentMethodId(), $tokenStruct->getPaymentMethodId());
-        static::assertEquals($token, $tokenStruct->getToken());
+        static::assertSame($transaction->getId(), $tokenStruct->getTransactionId());
+        static::assertSame($transaction->getPaymentMethodId(), $tokenStruct->getPaymentMethodId());
+        static::assertSame($token, $tokenStruct->getToken());
         static::assertEqualsWithDelta(time() + $expiration, $tokenStruct->getExpires(), 1);
         static::assertSame($expired, $tokenStruct->isExpired());
     }

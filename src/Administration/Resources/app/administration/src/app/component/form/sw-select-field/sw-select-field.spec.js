@@ -9,6 +9,11 @@ async function createWrapper() {
         props: {
             options: [],
         },
+        global: {
+            stubs: {
+                'sw-select-field-deprecated': true,
+            },
+        },
     });
 }
 

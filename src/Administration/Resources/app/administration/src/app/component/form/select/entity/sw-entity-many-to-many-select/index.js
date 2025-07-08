@@ -12,7 +12,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 /**
  * @private
  */
-Component.register('sw-entity-many-to-many-select', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -494,4 +494,4 @@ Component.register('sw-entity-many-to-many-select', {
             });
         },
     },
-});
+};

@@ -120,8 +120,8 @@ class DeliveryNoteRendererTest extends TestCase
         yield 'render delivery_note with document number' => [
             'DELIVERY_NOTE_9999',
             function (string $deliveryNoteNumber, string $orderNumber, RenderedDocument $rendered): void {
-                static::assertEquals('DELIVERY_NOTE_9999', $rendered->getNumber());
-                static::assertEquals('delivery_note_DELIVERY_NOTE_9999', $rendered->getName());
+                static::assertSame('DELIVERY_NOTE_9999', $rendered->getNumber());
+                static::assertSame('delivery_note_DELIVERY_NOTE_9999', $rendered->getName());
 
                 static::assertStringContainsString("Delivery note $deliveryNoteNumber for Order $orderNumber", $rendered->getContent());
                 static::assertStringContainsString("Delivery note $deliveryNoteNumber for Order $orderNumber", $rendered->getContent());
@@ -129,14 +129,14 @@ class DeliveryNoteRendererTest extends TestCase
         ];
     }
 
-    public function testNotCreatingNewOrderVersionId(): void
+    public function testCreatingNewOrderVersionId(): void
     {
         $cart = $this->generateDemoCart(1);
         $orderId = $this->persistCart($cart);
 
         $operationDelivery = new DocumentGenerateOperation($orderId);
 
-        static::assertEquals($operationDelivery->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertSame($operationDelivery->getOrderVersionId(), Defaults::LIVE_VERSION);
 
         $this->deliveryNoteRenderer->render(
             [$orderId => $operationDelivery],
@@ -144,6 +144,6 @@ class DeliveryNoteRendererTest extends TestCase
             new DocumentRendererConfig()
         );
 
-        static::assertEquals($operationDelivery->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertNotSame($operationDelivery->getOrderVersionId(), Defaults::LIVE_VERSION);
     }
 }

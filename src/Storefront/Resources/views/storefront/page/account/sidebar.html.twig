@@ -35,10 +35,12 @@
                             {% endblock %}
 
                             {% block page_account_sidebar_link_address %}
+                                {# Using "starts with" here to determine the active state because there are multiple routes under "frontend.account.address". #}
+                                {# Addresses menu item should also be active for "edit" or "create". #}
                                 <a href="{{ path('frontend.account.address.page') }}"
                                    title="{{ 'account.addressLink'|trans|striptags }}"
-                                   class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.address.page') %} is-active{% endif %}"
-                                   {% if activeRoute is same as('frontend.account.address.page') %} aria-current="page"{% endif %}>
+                                   class="list-group-item list-group-item-action account-aside-item{% if activeRoute starts with('frontend.account.address') %} is-active{% endif %}"
+                                   {% if activeRoute starts with('frontend.account.address.page') %} aria-current="page"{% endif %}>
                                     {{ 'account.addressLink'|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}

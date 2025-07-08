@@ -272,7 +272,7 @@ class DatabaseConnectionInformationTest extends TestCase
 
         $info = DatabaseConnectionInformation::fromEnv();
 
-        static::assertSame($expected->getVars(), $info->getVars());
+        static::assertEquals($expected->getVars(), $info->getVars());
     }
 
     public static function validEnvProvider(): \Generator

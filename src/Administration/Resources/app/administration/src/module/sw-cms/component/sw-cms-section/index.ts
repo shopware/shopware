@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-section.html.twig';
 import './sw-cms-section.scss';
 import type CmsVisibility from '../../shared/CmsVisibility';

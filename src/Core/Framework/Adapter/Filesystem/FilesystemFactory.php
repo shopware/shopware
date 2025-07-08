@@ -18,19 +18,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class FilesystemFactory
 {
     /**
-     * @var AdapterFactoryInterface[]
-     */
-    private readonly iterable $adapterFactories;
-
-    /**
-     * @param AdapterFactoryInterface[]|iterable $adapterFactories
+     * @param iterable<AdapterFactoryInterface> $adapterFactories
      *
      * @internal
      */
-    public function __construct(iterable $adapterFactories)
+    public function __construct(private readonly iterable $adapterFactories)
     {
         $this->checkDuplicates($adapterFactories);
-        $this->adapterFactories = $adapterFactories;
     }
 
     /**
@@ -90,18 +84,18 @@ class FilesystemFactory
     }
 
     /**
-     * @param AdapterFactoryInterface[]|iterable $adapterFactories
+     * @param iterable<AdapterFactoryInterface> $adapterFactories
      */
     private function checkDuplicates(iterable $adapterFactories): void
     {
-        $dupes = [];
+        $duplicates = [];
         foreach ($adapterFactories as $adapter) {
             $type = mb_strtolower($adapter->getType());
-            if (\array_key_exists($type, $dupes)) {
+            if (\array_key_exists($type, $duplicates)) {
                 throw AdapterException::duplicateFilesystemFactory($type);
             }
 
-            $dupes[$type] = 1;
+            $duplicates[$type] = true;
         }
     }
 

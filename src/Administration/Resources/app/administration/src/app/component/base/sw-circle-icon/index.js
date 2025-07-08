@@ -1,8 +1,6 @@
 import template from './sw-circle-icon.html.twig';
 import './sw-circle-icon.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -20,7 +18,7 @@ const { Component } = Shopware;
  *     <sw-circle-icon size="50" variant="info" iconName="regular-times-hexagon">
  * </div>
  */
-Component.register('sw-circle-icon', {
+export default {
     template,
 
     props: {
@@ -67,4 +65,4 @@ Component.register('sw-circle-icon', {
             };
         },
     },
-});
+};

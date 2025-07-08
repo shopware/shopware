@@ -82,7 +82,7 @@ class ProductApiTest extends TestCase
 
         $price = $product->getPrices()->first();
         static::assertInstanceOf(ProductPriceEntity::class, $price);
-        static::assertEquals($ruleA, $price->getRuleId());
+        static::assertSame($ruleA, $price->getRuleId());
 
         $data = [
             'id' => $id,
@@ -119,11 +119,11 @@ class ProductApiTest extends TestCase
 
         $price = $product->getPrices()->get($id);
         static::assertInstanceOf(ProductPriceEntity::class, $price);
-        static::assertEquals($ruleA, $price->getRuleId());
+        static::assertSame($ruleA, $price->getRuleId());
         static::assertEquals(new Price(Defaults::CURRENCY, 4000, 5000, false), $price->getPrice()->get(Defaults::CURRENCY));
 
-        static::assertEquals(1, $price->getQuantityStart());
-        static::assertEquals(20, $price->getQuantityEnd());
+        static::assertSame(1, $price->getQuantityStart());
+        static::assertSame(20, $price->getQuantityEnd());
 
         $id3 = Uuid::randomHex();
 
@@ -155,10 +155,10 @@ class ProductApiTest extends TestCase
 
         $price = $product->getPrices()->get($id3);
         static::assertInstanceOf(ProductPriceEntity::class, $price);
-        static::assertEquals($ruleB, $price->getRuleId());
+        static::assertSame($ruleB, $price->getRuleId());
         static::assertEquals(new Price(Defaults::CURRENCY, 50, 50, false), $price->getPrice()->get(Defaults::CURRENCY));
 
-        static::assertEquals(1, $price->getQuantityStart());
+        static::assertSame(1, $price->getQuantityStart());
         static::assertNull($price->getQuantityEnd());
     }
 
@@ -289,7 +289,7 @@ class ProductApiTest extends TestCase
         static::assertArrayHasKey('tax', $product['relationships']);
 
         static::assertCount(1, $products['included']);
-        static::assertEquals('tax', $products['included'][0]['type']);
+        static::assertSame('tax', $products['included'][0]['type']);
     }
 
     public function testInvalidCrossSelling(): void

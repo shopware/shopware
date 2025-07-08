@@ -40,8 +40,8 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 
         $config = $configurationFactory->createFromBundle($themePluginBundle);
 
-        static::assertEquals('TestTheme', $config->getName());
-        static::assertEquals(
+        static::assertSame('TestTheme', $config->getName());
+        static::assertSame(
             [
                 'name' => 'TestTheme',
                 'author' => 'Shopware AG',

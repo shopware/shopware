@@ -84,7 +84,7 @@ class StorefrontCartFacadeTest extends TestCase
 
         $controlCart = $this->getCart();
         $controlCart->setErrors($this->getCartErrorCollection(true));
-        static::assertNotEquals($controlCart, $returnedCart);
+        static::assertNotSame($controlCart, $returnedCart);
     }
 
     public function testGetBlockedPaymentMethodAllowFallback(): void
@@ -123,7 +123,7 @@ class StorefrontCartFacadeTest extends TestCase
 
         $controlCart = $this->getCart();
         $controlCart->setErrors($this->getCartErrorCollection(false, true));
-        static::assertNotEquals($controlCart, $returnedCart);
+        static::assertNotSame($controlCart, $returnedCart);
     }
 
     public function testGetBlockedPaymentAndShippingMethodAllowFallback(): void
@@ -174,7 +174,7 @@ class StorefrontCartFacadeTest extends TestCase
 
         $controlCart = $this->getCart();
         $controlCart->setErrors($this->getCartErrorCollection(true, true));
-        static::assertNotEquals($controlCart, $returnedCart);
+        static::assertNotSame($controlCart, $returnedCart);
     }
 
     public function testGetBlockedShippingMethodNoFallback(): void

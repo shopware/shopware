@@ -9,6 +9,11 @@ async function createWrapper() {
         props: {
             name: 'regular-circle-download',
         },
+        global: {
+            stubs: {
+                'sw-icon-deprecated': true,
+            },
+        },
     });
 }
 

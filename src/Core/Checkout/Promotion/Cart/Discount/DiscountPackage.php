@@ -55,6 +55,7 @@ class DiscountPackage
     public function setCartItems(LineItemFlatCollection $items): void
     {
         $this->cartItems = $items;
+        $this->hashMap = null;
     }
 
     /**

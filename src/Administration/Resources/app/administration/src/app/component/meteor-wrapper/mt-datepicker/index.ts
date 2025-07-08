@@ -1,5 +1,4 @@
 import { MtDatepicker as MtDatepickerOriginal } from '@shopware-ag/meteor-component-library';
-import type { PropType } from 'vue';
 // eslint-disable-next-line max-len
 import type { DateTimeOptions } from 'vue-i18n';
 import template from './mt-datepicker.html.twig';
@@ -12,7 +11,7 @@ import template from './mt-datepicker.html.twig';
  * @description Wrapper component for mt-datepicker. Replaces the
  * datepicker with automatic language and formatting for the admin user.
  */
-Shopware.Component.register('mt-datepicker', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     components: {

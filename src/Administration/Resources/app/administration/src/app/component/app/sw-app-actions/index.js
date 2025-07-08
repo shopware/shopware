@@ -5,7 +5,7 @@
 import template from './sw-app-actions.html.twig';
 import './sw-app-actions.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { hasOwnProperty } = Shopware.Utils.object;
 
@@ -28,7 +28,7 @@ const IFRAME_KEY = 'app.action_button.iframe';
 /**
  * @private
  */
-Component.register('sw-app-actions', {
+export default {
     template,
 
     extensionApiDevtoolInformation: {
@@ -242,4 +242,4 @@ Component.register('sw-app-actions', {
             });
         },
     },
-});
+};

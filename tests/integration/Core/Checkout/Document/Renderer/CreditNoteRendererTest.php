@@ -193,7 +193,7 @@ class CreditNoteRendererTest extends TestCase
         static::assertNotEmpty($errors = $processedTemplate->getErrors());
         static::assertArrayHasKey($orderId, $errors);
         static::assertInstanceOf(DocumentException::class, $errors[$orderId]);
-        static::assertEquals(
+        static::assertSame(
             "Unable to generate document. Can not generate credit note document because no invoice document exists. OrderId: $orderId",
             $errors[$orderId]->getMessage()
         );
@@ -232,7 +232,7 @@ class CreditNoteRendererTest extends TestCase
                 static::assertNotEmpty($errors);
                 static::assertArrayHasKey($orderId, $errors);
                 static::assertInstanceOf(\Throwable::class, $errors[$orderId]);
-                static::assertEquals(
+                static::assertSame(
                     "Unable to generate document. Can not generate credit note document because no credit line items exists. OrderId: $orderId",
                     $errors[$orderId]->getMessage()
                 );
@@ -243,8 +243,8 @@ class CreditNoteRendererTest extends TestCase
             [7, 19, 22],
             [-100, -200, -300],
             function (RenderedDocument $rendered): void {
-                static::assertEquals('CREDIT_NOTE_9999', $rendered->getNumber());
-                static::assertEquals('credit_note_CREDIT_NOTE_9999', $rendered->getName());
+                static::assertSame('CREDIT_NOTE_9999', $rendered->getNumber());
+                static::assertSame('credit_note_CREDIT_NOTE_9999', $rendered->getName());
             },
             null,
             [
@@ -256,8 +256,8 @@ class CreditNoteRendererTest extends TestCase
             [7, 19, 22],
             [-100, -200, -300],
             function (RenderedDocument $rendered): void {
-                static::assertEquals('1000', $rendered->getNumber());
-                static::assertEquals('credit_note_1000', $rendered->getName());
+                static::assertSame('1000', $rendered->getNumber());
+                static::assertSame('credit_note_1000', $rendered->getName());
                 $config = $rendered->getConfig();
                 static::assertArrayHasKey('custom', $config);
                 static::assertArrayHasKey('invoiceNumber', $config['custom']);
@@ -274,8 +274,8 @@ class CreditNoteRendererTest extends TestCase
             [7, 19, 22],
             [-100, -200, -300],
             function (RenderedDocument $rendered): void {
-                static::assertEquals('1000', $rendered->getNumber());
-                static::assertEquals('credit_note_1000', $rendered->getName());
+                static::assertSame('1000', $rendered->getNumber());
+                static::assertSame('credit_note_1000', $rendered->getName());
                 $config = $rendered->getConfig();
                 static::assertArrayHasKey('custom', $config);
                 static::assertNotEmpty($config['custom']['invoiceNumber']);
@@ -312,7 +312,7 @@ class CreditNoteRendererTest extends TestCase
 
         $operationCreditNote = new DocumentGenerateOperation($orderId);
 
-        static::assertEquals($operationCreditNote->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertSame($operationCreditNote->getOrderVersionId(), Defaults::LIVE_VERSION);
         static::assertTrue($this->orderVersionExists($orderId, $operationCreditNote->getOrderVersionId()));
 
         $this->creditNoteRenderer->render(
@@ -404,8 +404,8 @@ class CreditNoteRendererTest extends TestCase
                 static::assertNotNull($lineItems = $order->getLineItems());
                 $taxAmount = $lineItems->getPrices()->sum()->getCalculatedTaxes()->getAmount();
 
-                static::assertEquals($order->getPrice()->getTotalPrice(), 100);
-                static::assertEquals($order->getAmountNet(), -(-100 - $taxAmount));
+                static::assertSame(100.0, $order->getPrice()->getTotalPrice());
+                static::assertSame(-(-100.0 - $taxAmount), $order->getAmountNet());
             },
         ];
 
@@ -414,8 +414,8 @@ class CreditNoteRendererTest extends TestCase
             [7],
             [-100],
             function (OrderEntity $order): void {
-                static::assertEquals($order->getPrice()->getTotalPrice(), \abs(7) + \abs(-100));
-                static::assertEquals($order->getAmountNet(), \abs(-100));
+                static::assertSame($order->getPrice()->getTotalPrice(), \abs(7.0) + \abs(-100.0));
+                static::assertSame($order->getAmountNet(), \abs(-100.0));
             },
         ];
     }

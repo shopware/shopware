@@ -104,7 +104,7 @@
             v-if="!isLoading && hasAdditionalErrors"
             v-model:checked="shouldSaveSelection"
             class="sw-duplicated-media-v2__additional-error-count"
-            :label="$tc('global.sw-duplicated-media-v2.labelSaveSelection', additionalErrorCount)"
+            :label="$tc('global.sw-duplicated-media-v2.labelSaveSelection', { count: additionalErrorCount })"
         />
         {% endblock %}
 

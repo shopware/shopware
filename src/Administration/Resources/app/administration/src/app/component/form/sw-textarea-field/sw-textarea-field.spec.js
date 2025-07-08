@@ -9,6 +9,7 @@ async function createWrapper(additionalOptions = {}) {
         global: {
             stubs: {
                 'mt-textarea': true,
+                'sw-textarea-field-deprecated': true,
             },
         },
         props: {},

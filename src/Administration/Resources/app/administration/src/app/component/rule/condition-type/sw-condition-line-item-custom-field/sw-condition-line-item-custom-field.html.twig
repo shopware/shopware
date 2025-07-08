@@ -28,7 +28,15 @@
 
                 <template #description>
                     {% block sw_condition_line_item_custom_field_field_description %}
-                    {{ truncateFilter((getInlineSnippet(item.customFieldSet.config.label) || item.customFieldSet.name), 20) }}
+                    <span
+                        v-if="getFieldDescription(item).length > 20"
+                        :title="getFieldDescription(item)"
+                    >
+                        {{ truncateFilter(getFieldDescription(item), 20) }}
+                    </span>
+                    <template v-else>
+                        {{ getFieldDescription(item) }}
+                    </template>
                     {% endblock %}
                 </template>
             </sw-select-result>

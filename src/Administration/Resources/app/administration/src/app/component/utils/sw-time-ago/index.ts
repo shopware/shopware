@@ -1,7 +1,5 @@
-import type { PropType } from 'vue';
 import template from './sw-time-ago.html.twig';
-
-const { Component } = Shopware;
+import useUpdateClock from './updateClock';
 
 /**
  * @private
@@ -13,7 +11,7 @@ const { Component } = Shopware;
  * <sw-time-ago date=""2021-08-25T11:08:48.940+00:00""></sw-time-ago>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-time-ago', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {
@@ -23,6 +21,11 @@ Component.register('sw-time-ago', {
                 String,
             ] as PropType<Date | string>,
             required: true,
+        },
+        dateTimeFormat: {
+            type: Object as PropType<Intl.DateTimeFormatOptions>,
+            required: false,
+            default: {},
         },
     },
 
@@ -53,7 +56,7 @@ Component.register('sw-time-ago', {
         },
 
         fullDatetime(): string {
-            return this.dateFilter(this.dateObject.toString());
+            return this.dateFilter(this.dateObject.toString(), this.dateTimeFormat);
         },
 
         lessThanOneMinute(): boolean {
@@ -96,22 +99,14 @@ Component.register('sw-time-ago', {
     },
 
     mounted() {
-        this.formattedRelativeTime = this.formatRelativeTime();
-
-        // update the formatted date every 30 seconds
-        this.interval = setInterval(() => {
+        // subscriber to the updater, which updates the formatted date every 30 seconds
+        useUpdateClock(() => {
             // we have to set a new date, as vue does not react to changes in the date object
             // and does not invalidate the computed cache
             // this would lead to a wrong time string, if the component is active for more than 1 minute e.g.
             this.now = Date.now();
             this.formattedRelativeTime = this.formatRelativeTime();
-        }, 30000);
-    },
-
-    beforeUnmount() {
-        if (this.interval) {
-            clearInterval(this.interval);
-        }
+        });
     },
 
     methods: {
@@ -148,7 +143,7 @@ Component.register('sw-time-ago', {
                 });
             }
 
-            return this.dateFilter(this.dateObject.toString());
+            return this.dateFilter(this.dateObject.toString(), this.dateTimeFormat);
         },
     },
 });

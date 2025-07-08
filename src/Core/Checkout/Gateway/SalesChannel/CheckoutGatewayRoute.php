@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Rule\RuleIdMatcher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -29,7 +28,6 @@ class CheckoutGatewayRoute extends AbstractCheckoutGatewayRoute
         private readonly AbstractPaymentMethodRoute $paymentMethodRoute,
         private readonly AbstractShippingMethodRoute $shippingMethodRoute,
         private readonly CheckoutGatewayInterface $checkoutGateway,
-        private readonly RuleIdMatcher $ruleIdMatcher,
     ) {
     }
 
@@ -47,13 +45,11 @@ class CheckoutGatewayRoute extends AbstractCheckoutGatewayRoute
         $paymentCriteria->addAssociation('appPaymentMethod.app');
         $shippingCriteria->addAssociation('appShippingMethod.app');
 
+        // Only load available payment and shipping methods from the routes
         $request->query->set('onlyAvailable', '1');
 
-        $result = $this->paymentMethodRoute->load($request, $context, $paymentCriteria);
-        $paymentMethods = $this->ruleIdMatcher->filterCollection($result->getPaymentMethods(), $context->getRuleIds());
-
-        $result = $this->shippingMethodRoute->load($request, $context, $shippingCriteria);
-        $shippingMethods = $this->ruleIdMatcher->filterCollection($result->getShippingMethods(), $context->getRuleIds());
+        $paymentMethods = $this->paymentMethodRoute->load($request, $context, $paymentCriteria)->getPaymentMethods();
+        $shippingMethods = $this->shippingMethodRoute->load($request, $context, $shippingCriteria)->getShippingMethods();
 
         $payload = new CheckoutGatewayPayloadStruct($cart, $context, $paymentMethods, $shippingMethods);
         $response = $this->checkoutGateway->process($payload);

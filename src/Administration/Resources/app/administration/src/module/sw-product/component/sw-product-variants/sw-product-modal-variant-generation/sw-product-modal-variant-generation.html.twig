@@ -150,14 +150,14 @@
         {{ $tc('sw-product.variations.configuratorModal.uploadInfoBoxHeader') }}
         <div class="sw-product-modal-variant-generation__infoBoxContent">
             <span class="sw-product-modal-variant-generation__variant-amount">
-                {{ $tc('sw-product.variations.configuratorModal.uploadInfoBoxCount', variantGenerationQueue.createQueue.length, { count: variantGenerationQueue.createQueue.length }) }}
+                {{ $tc('sw-product.variations.configuratorModal.uploadInfoBoxCount', { count: variantGenerationQueue.createQueue.length }, variantGenerationQueue.createQueue.length) }}
             </span>
-            {{ $tc('sw-product.variations.configuratorModal.uploadInfoBoxCreateLabel', variantGenerationQueue.createQueue.length, { count: variantGenerationQueue.createQueue.length }) }}
+            {{ $tc('sw-product.variations.configuratorModal.uploadInfoBoxCreateLabel', { count: variantGenerationQueue.createQueue.length }, variantGenerationQueue.createQueue.length) }}
 
             <span class="sw-product-modal-variant-generation__variant-amount">
-                {{ $tc('sw-product.variations.configuratorModal.uploadInfoBoxCount', variantGenerationQueue.deleteQueue.length, { count: variantGenerationQueue.deleteQueue.length }) }}
+                {{ $tc('sw-product.variations.configuratorModal.uploadInfoBoxCount', { count: variantGenerationQueue.deleteQueue.length }, variantGenerationQueue.deleteQueue.length) }}
             </span>
-            {{ $tc('sw-product.variations.configuratorModal.uploadInfoBoxDeleteLabel', variantGenerationQueue.deleteQueue.length, { count: variantGenerationQueue.deleteQueue.length }) }}
+            {{ $tc('sw-product.variations.configuratorModal.uploadInfoBoxDeleteLabel', { count: variantGenerationQueue.deleteQueue.length }, variantGenerationQueue.deleteQueue.length) }}
         </div>
     </div>
 
@@ -286,6 +286,7 @@
             :disabled="isGenerateButtonDisabled"
             class="sw-product-variant-generation__generate-action"
             :variant="buttonVariant"
+            :is-loading="isLoading"
             size="small"
             @click="generateVariants()"
         >
@@ -301,7 +302,8 @@
             >
                 <mt-progress-bar
                     class="generate-variant-progress-bar"
-                    :model-value="progressInPercentage"
+                    :model-value="actualProgress"
+                    :max-value="maxProgress"
                 />
 
                 <span class="generate-variant-progress-bar__description">

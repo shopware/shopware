@@ -113,7 +113,7 @@ class ThumbnailServiceTest extends TestCase
 
         $deleted = $this->thumbnailRepository->deletes[0][0] ?? [];
         static::assertArrayHasKey('id', $deleted);
-        static::assertEquals($expected, $deleted);
+        static::assertSame($expected, $deleted);
         static::assertSame(1, $result);
     }
 
@@ -228,7 +228,7 @@ class ThumbnailServiceTest extends TestCase
         $this->thumbnailService->deleteThumbnails($mediaEntity, $this->context);
 
         $deleted = $this->thumbnailRepository->deletes[0][0] ?? [];
-        static::assertEquals($expected, $deleted);
+        static::assertSame($expected, $deleted);
     }
 
     public function testDeleteThumbnailThrowsMediaContainsNoThumbnailException(): void
@@ -260,7 +260,7 @@ class ThumbnailServiceTest extends TestCase
         $method = ReflectionHelper::getMethod(ThumbnailService::class, 'calculateThumbnailSize');
         $calculatedSize = $method->invokeArgs($this->thumbnailService, [$imageSize, $thumbnailSizeEntity, $mediaFolderConfigEntity]);
 
-        static::assertEquals($expectedSize, $calculatedSize);
+        static::assertSame($expectedSize, $calculatedSize);
     }
 
     /**

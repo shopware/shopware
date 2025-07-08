@@ -1,7 +1,7 @@
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { dom, types } = Shopware.Utils;
 
 /**
@@ -9,7 +9,7 @@ const { dom, types } = Shopware.Utils;
  *
  * @private
  */
-Component.register('sw-admin-menu', {
+export default {
     template,
 
     inject: [
@@ -738,4 +738,4 @@ The admin menu only supports up to three levels of nesting.`,
             return types.isEqual(entry, firstPluginEntry);
         },
     },
-});
+};

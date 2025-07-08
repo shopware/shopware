@@ -13,6 +13,7 @@ use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCompilerInterface;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -31,20 +32,30 @@ final class CompileThemeHandler
         private readonly AbstractConfigLoader $configLoader,
         private readonly StorefrontPluginRegistry $extensionRegistry,
         private readonly NotificationService $notificationService,
-        private readonly EntityRepository $saleschannelRepository
+        private readonly EntityRepository $saleschannelRepository,
+        private readonly ThemeRuntimeConfigService $runtimeConfigService,
     ) {
     }
 
     public function __invoke(CompileThemeMessage $message): void
     {
         $message->getContext()->addState(ThemeService::STATE_NO_QUEUE);
+        $themeConfig = $this->configLoader->load($message->getThemeId(), $message->getContext());
         $this->themeCompiler->compileTheme(
             $message->getSalesChannelId(),
             $message->getThemeId(),
-            $this->configLoader->load($message->getThemeId(), $message->getContext()),
+            $themeConfig,
             $this->extensionRegistry->getConfigurations(),
             $message->isWithAssets(),
             $message->getContext()
+        );
+
+        $this->runtimeConfigService->refreshRuntimeConfig(
+            $message->getThemeId(),
+            $themeConfig,
+            $message->getContext(),
+            false,
+            $this->extensionRegistry->getConfigurations(),
         );
 
         if ($message->getContext()->getScope() !== Context::USER_SCOPE) {

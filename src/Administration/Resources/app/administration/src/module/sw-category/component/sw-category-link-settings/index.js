@@ -1,5 +1,4 @@
 import template from './sw-category-link-settings.html.twig';
-import './sw-category-link-settings.scss';
 
 const { Criteria } = Shopware.Data;
 
@@ -125,9 +124,11 @@ export default {
 
         categoryLinkHelpText() {
             return this.$t('sw-category.base.link.categoryHelpText', {
-                types: this.allowedCategoryTypes.map((type) => {
-                    return this.$t(`sw-category.base.general.types.${type}`);
-                }).join(', '),
+                types: this.allowedCategoryTypes
+                    .map((type) => {
+                        return this.$t(`sw-category.base.general.types.${type}`);
+                    })
+                    .join(', '),
             });
         },
     },

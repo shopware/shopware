@@ -47,13 +47,15 @@
                 :title="$tc('sw-bulk-edit.customer.account.cardTitle')"
                 :is-loading="isLoading"
             >
-                {% block sw_bulk_edit_customer_content_account_section %}
-                <sw-bulk-edit-change-type-field-renderer
-                    :form-fields="accountFormFields"
-                    :bulk-edit-data="bulkEditData"
-                    :entity="customer"
-                />
-                {% endblock %}
+                <template #grid>
+                    {% block sw_bulk_edit_customer_content_account_section %}
+                    <sw-bulk-edit-change-type-field-renderer
+                        :form-fields="accountFormFields"
+                        :bulk-edit-data="bulkEditData"
+                        :entity="customer"
+                    />
+                    {% endblock %}
+                </template>
             </mt-card>
             {% endblock %}
 
@@ -64,28 +66,33 @@
                 :title="$tc('sw-bulk-edit.customer.tags.cardTitle')"
                 :is-loading="isLoading"
             >
-                {% block sw_bulk_edit_customer_tags %}
-                <sw-bulk-edit-change-type-field-renderer
-                    :form-fields="tagsFormFields"
-                    :bulk-edit-data="bulkEditData"
-                    :entity="customer"
-                />
-                {% endblock %}
+                <template #grid>
+                    {% block sw_bulk_edit_customer_tags %}
+                    <sw-bulk-edit-change-type-field-renderer
+                        :form-fields="tagsFormFields"
+                        :bulk-edit-data="bulkEditData"
+                        :entity="customer"
+                    />
+                    {% endblock %}
+                </template>
             </mt-card>
             {% endblock %}
 
             {% block sw_bulk_edit_customer_custom_field_card %}
             <mt-card
+                v-if="customFieldSets.length > 0"
                 class="sw-bulk-edit-customer-base__custom_fields"
                 position-identifier="sw-bulk-edit-customer-custom-field"
                 :title="$tc('sw-bulk-edit.customer.customFields.cardTitle')"
                 :is-loading="isLoading"
             >
-                <sw-bulk-edit-custom-fields
-                    class="sw-bulk-edit__custom-fields"
-                    :sets="customFieldSets"
-                    @change="onCustomFieldsChange"
-                />
+                <template #grid>
+                    <sw-bulk-edit-custom-fields
+                        class="sw-bulk-edit__custom-fields"
+                        :sets="customFieldSets"
+                        @change="onCustomFieldsChange"
+                    />
+                </template>
             </mt-card>
             {% endblock %}
         </sw-card-view>

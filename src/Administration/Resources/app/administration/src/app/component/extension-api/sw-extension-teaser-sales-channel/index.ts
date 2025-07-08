@@ -28,7 +28,7 @@ interface TeaserSalesChannelConfig {
  * @component-example
  * <sw-extension-teaser-sales-channel />
  */
-Shopware.Component.register('sw-extension-teaser-sales-channel', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     computed: {

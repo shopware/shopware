@@ -121,7 +121,7 @@
         </form>
 
         {% block page_checkout_aside_cancel_order_modal_toggle %}
-            {% if page.order.stateMachineState.technicalName != 'cancelled' and config('core.cart.enableOrderRefunds') %}
+            {% if orderState != 'cancelled' and config('core.cart.enableOrderRefunds') %}
                 <button type="button"
                         class="btn btn-light btn-block edit-order-cancel-order-modal-toggle-btn mt-3"
                         data-bs-toggle="modal"
@@ -131,9 +131,11 @@
             {% endif %}
         {% endblock %}
 
-        {% if orderState != 'cancelled' %}
-            {% sw_include '@Storefront/storefront/page/account/order/cancel-order-modal.html.twig' %}
-        {% endif %}
+        {% block page_checkout_aside_cancel_order_modal_content %}
+            {% if orderState != 'cancelled' and config('core.cart.enableOrderRefunds') %}
+                {% sw_include '@Storefront/storefront/page/account/order/cancel-order-modal.html.twig' %}
+            {% endif %}
+        {% endblock %}
     </div>
 {% endblock %}
 

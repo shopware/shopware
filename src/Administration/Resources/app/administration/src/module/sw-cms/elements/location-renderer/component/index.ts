@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import template from './sw-cms-el-location-renderer.html.twig';
 import './sw-cms-el-location-renderer.scss';
 import type { ElementDataProp } from '../index';
@@ -9,7 +8,7 @@ const { Component, Mixin } = Shopware;
  * @private
  * @sw-package discovery
  */
-Component.register('sw-cms-el-location-renderer', {
+export default Component.wrapComponentConfig({
     template,
 
     mixins: [

@@ -38,9 +38,9 @@ class FlowFactoryTest extends TestCase
         $flowFactory = new FlowFactory([$orderStorer]);
         $flow = $flowFactory->create($awareEvent);
 
-        static::assertEquals($ids->get('orderId'), $flow->getStore('orderId'));
+        static::assertSame($ids->get('orderId'), $flow->getStore('orderId'));
         static::assertInstanceOf(SystemSource::class, $flow->getContext()->getSource());
-        static::assertEquals(Context::SYSTEM_SCOPE, $flow->getContext()->getScope());
+        static::assertSame(Context::SYSTEM_SCOPE, $flow->getContext()->getScope());
     }
 
     public function testRestore(): void
@@ -73,9 +73,9 @@ class FlowFactoryTest extends TestCase
         $flow = $flowFactory->restore('checkout.order.placed', $awareEvent->getContext(), $storedData);
 
         static::assertInstanceOf(OrderEntity::class, $flow->getData('order'));
-        static::assertEquals($ids->get('orderId'), $flow->getData('order')->getId());
+        static::assertSame($ids->get('orderId'), $flow->getData('order')->getId());
 
         static::assertInstanceOf(SystemSource::class, $flow->getContext()->getSource());
-        static::assertEquals(Context::SYSTEM_SCOPE, $flow->getContext()->getScope());
+        static::assertSame(Context::SYSTEM_SCOPE, $flow->getContext()->getScope());
     }
 }

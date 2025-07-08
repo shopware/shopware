@@ -25,9 +25,9 @@ class FlowExceptionTest extends TestCase
     {
         $e = FlowException::customTriggerByNameNotFound('myEvent');
 
-        static::assertEquals(Response::HTTP_NOT_FOUND, $e->getStatusCode());
-        static::assertEquals(FlowException::CUSTOM_TRIGGER_BY_NAME_NOT_FOUND, $e->getErrorCode());
-        static::assertEquals('The provided event name myEvent is invalid or uninstalled and no custom trigger could be found.', $e->getMessage());
+        static::assertSame(Response::HTTP_NOT_FOUND, $e->getStatusCode());
+        static::assertSame(FlowException::CUSTOM_TRIGGER_BY_NAME_NOT_FOUND, $e->getErrorCode());
+        static::assertSame('The provided event name myEvent is invalid or uninstalled and no custom trigger could be found.', $e->getMessage());
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
@@ -36,18 +36,18 @@ class FlowExceptionTest extends TestCase
         $e = FlowException::customTriggerByNameNotFound('myEvent');
 
         static::assertInstanceOf(CustomTriggerByNameNotFoundException::class, $e);
-        static::assertEquals(Response::HTTP_NOT_FOUND, $e->getStatusCode());
-        static::assertEquals('ADMINISTRATION__CUSTOM_TRIGGER_BY_NAME_NOT_FOUND', $e->getErrorCode());
-        static::assertEquals('The provided event name myEvent is invalid or uninstalled and no custom trigger could be found.', $e->getMessage());
+        static::assertSame(Response::HTTP_NOT_FOUND, $e->getStatusCode());
+        static::assertSame('ADMINISTRATION__CUSTOM_TRIGGER_BY_NAME_NOT_FOUND', $e->getErrorCode());
+        static::assertSame('The provided event name myEvent is invalid or uninstalled and no custom trigger could be found.', $e->getMessage());
     }
 
     public function testMethodNotCompatible(): void
     {
         $e = FlowException::methodNotCompatible('myMethod', 'myClass');
 
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertEquals(FlowException::METHOD_NOT_COMPATIBLE, $e->getErrorCode());
-        static::assertEquals('Method myMethod is not compatible for myClass class', $e->getMessage());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(FlowException::METHOD_NOT_COMPATIBLE, $e->getErrorCode());
+        static::assertSame('Method myMethod is not compatible for myClass class', $e->getMessage());
     }
 
     /**
@@ -82,9 +82,9 @@ class FlowExceptionTest extends TestCase
     {
         $e = FlowException::transactionFailed($previous);
 
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertEquals($code, $e->getErrorCode());
-        static::assertEquals($message, $e->getMessage());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame($code, $e->getErrorCode());
+        static::assertSame($message, $e->getMessage());
         static::assertSame($previous, $e->getPrevious());
     }
 }

@@ -28,10 +28,53 @@
         >
             <sw-app-topbar-button />
             {% block sw_page_notification_center %}
-            <sw-notification-center />
+            <div class="sw-page__sidebar-container">
+                <sw-notification-center />
+            </div>
             {% endblock %}
 
-            <sw-help-center-v2 />
+            <div class="sw-page__sidebar-container">
+                <sw-help-center-v2 />
+            </div>
+
+            <template v-if="sidebars && sidebars.length === 1">
+                <div class="sw-page__sidebar-container">
+                    <button
+                        v-tooltip="{ message: sidebars[0].title, placement: 'right' }"
+                        class="sw-page__sidebar-icon"
+                        :class="{ 'sw-page__sidebar-icon-active': sidebars[0].active }"
+                        :aria-label="$tc('sidebar.ariaLabelButtonOpen')"
+                        @click="setActiveSidebar(sidebars[0].locationId)"
+                    >
+                        <mt-icon
+                            :name="sidebars[0].icon"
+                            :size="20"
+                        />
+                    </button>
+                </div>
+            </template>
+
+            <template v-if="sidebars.length && sidebars.length > 1">
+                <div class="sw-page__sidebar-container">
+                    <sw-context-button>
+                        <template
+                            v-for="sidebar in sidebars"
+                            :key="sidebar.title"
+                        >
+                            <sw-context-menu-item
+                                @click="setActiveSidebar(sidebar.locationId)"
+                            >
+                                <mt-icon
+                                    :name="sidebar.icon"
+                                    :size="14"
+                                />
+
+                                {{ $t(sidebar.title) }}
+                            </sw-context-menu-item>
+                        </template>
+                    </sw-context-button>
+                </div>
+            </template>
         </div>
         {% endblock %}
         {% endblock %}
@@ -57,7 +100,7 @@
                         class="smart-bar__back-btn"
                         :aria-label="$tc('global.sw-page.backButton')"
                         :title="$tc('global.sw-page.backButton')"
-                        :to="{ name: parentRoute }"
+                        :to="routerBack"
                         :style="{ 'color': pageColor }"
                     >
                         <mt-icon

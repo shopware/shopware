@@ -34,7 +34,7 @@ class ApplierTest extends TestCase
 
         $expected = [];
 
-        static::assertEquals($expected, $indexes);
+        static::assertSame($expected, $indexes);
     }
 
     /**
@@ -59,7 +59,7 @@ class ApplierTest extends TestCase
             1,
         ];
 
-        static::assertEquals($expected, $indexes);
+        static::assertSame($expected, $indexes);
     }
 
     /**
@@ -89,7 +89,7 @@ class ApplierTest extends TestCase
             5,
         ];
 
-        static::assertEquals($expected, $indexes);
+        static::assertSame($expected, $indexes);
     }
 
     /**
@@ -116,6 +116,6 @@ class ApplierTest extends TestCase
             4,
         ];
 
-        static::assertEquals($expected, $indexes);
+        static::assertSame($expected, $indexes);
     }
 }

@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import template from './sw-cms-el-preview-location-renderer.html.twig';
 import type { ElementDataProp } from '../index';
 
@@ -8,7 +7,7 @@ const { Component } = Shopware;
  * @private
  * @sw-package discovery
  */
-Component.register('sw-cms-el-preview-location-renderer', {
+export default Component.wrapComponentConfig({
     template,
 
     props: {

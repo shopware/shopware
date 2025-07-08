@@ -47,12 +47,12 @@ class CartMergedSubscriberTest extends TestCase
         $subscriber->addCartMergedNoticeFlash($cartMergedEvent);
 
         static::assertNotEmpty($infoFlash = $session->getFlashBag()->get('info'));
-        static::assertEquals('checkout.cart-merged-hint', $infoFlash[0]);
+        static::assertSame('checkout.cart-merged-hint', $infoFlash[0]);
     }
 
     public function testGetSubscribedEventsReturnsAddCartMergedNoticeFlash(): void
     {
-        static::assertEquals(
+        static::assertSame(
             [CartMergedEvent::class => 'addCartMergedNoticeFlash'],
             CartMergedSubscriber::getSubscribedEvents()
         );

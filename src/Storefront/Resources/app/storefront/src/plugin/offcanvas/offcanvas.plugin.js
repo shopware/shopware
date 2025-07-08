@@ -34,7 +34,7 @@ class OffCanvasSingleton {
         this._removeExistingOffCanvas();
 
         const offCanvas = this._createOffCanvas(position, fullwidth, cssClass, closable);
-        this.setContent(content, closable, delay);
+        this.setContent(content, delay);
         this._openOffcanvas(offCanvas, callback);
     }
 

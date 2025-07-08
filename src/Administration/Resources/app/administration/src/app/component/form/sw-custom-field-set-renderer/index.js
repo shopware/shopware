@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import template from './sw-custom-field-set-renderer.html.twig';
 import './sw-custom-field-set-renderer.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -16,7 +16,7 @@ const { Criteria } = Shopware.Data;
  * @example-type code-only
  * @component-example
  */
-Component.register('sw-custom-field-set-renderer', {
+export default {
     template,
 
     inject: [
@@ -464,4 +464,4 @@ Component.register('sw-custom-field-set-renderer', {
             this.$emit('change-active-selection', value);
         },
     },
-});
+};

@@ -2,11 +2,15 @@
 
 namespace Shopware\Storefront\Page\Account\Order;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed without replacement
+ */
 #[Package('checkout')]
 class AccountOrderDetailPageLoadedEvent extends PageLoadedEvent
 {
@@ -23,6 +27,11 @@ class AccountOrderDetailPageLoadedEvent extends PageLoadedEvent
 
     public function getPage(): AccountOrderDetailPage
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0')
+        );
+
         return $this->page;
     }
 }

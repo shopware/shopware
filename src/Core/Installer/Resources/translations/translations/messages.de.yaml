@@ -1,6 +1,6 @@
 shopware.installer:
     header_title: Installation
-    menuitem_language-selection: Start
+    menuitem_welcome: Start
     menuitem_requirements: Systemvoraussetzungen
     menuitem_database-configuration: Datenbank-Konfiguration
     menuitem_database-import: Installation
@@ -16,19 +16,19 @@ shopware.installer:
     forward: Weiter
     start: Starten
     start_installation: 'Installation starten'
-    select_language_de: Deutsch
-    select_language_en: Englisch (Vereinigtes Königreich)
-    select_language_us: Englisch (USA)
-    select_language_nl: Niederländisch
-    select_language_it: Italienisch
-    select_language_fr: Französisch
-    select_language_es: Spanisch
-    select_language_pt: Portugiesisch
-    select_language_pl: Polnisch
     select_language_cs: Tschechisch
-    select_language_sv: Schwedisch
-    select_language_da: Dänisch
-    select_language_nb: Norwegisch
+    select_language_da-DK: Dänisch
+    select_language_de: Deutsch
+    select_language_en-US: Englisch (USA)
+    select_language_en: Englisch (Vereinigtes Königreich)
+    select_language_es-ES: Spanisch
+    select_language_fr: Französisch
+    select_language_it: Italienisch
+    select_language_nl: Niederländisch
+    select_language_no: Norwegisch
+    select_language_pl: Polnisch
+    select_language_pt-PT: Portugiesisch
+    select_language_sv-SE: Schwedisch
     select_country_jam: Jamaika
     select_country_mmr: Myanmar
     select_country_pan: Panama
@@ -280,11 +280,10 @@ shopware.installer:
     select_country_yem: Jemen
     select_country_zmb: Sambia
     select_country_zwe: Simbabwe
-    language-selection_welcome_title: 'Willkommen in Shopware 6'
+    welcome_title: 'Willkommen in Shopware 6'
     language-selection_select_language: 'Sprache des Installations-Assistenten'
-    language-selection_header: 'Deine Shopware-Installation'
-    language-selection_info_message: 'Diese Auswahl bezieht sich nur auf die Sprache des Installations-Assistenten. Die Systemstandard-Sprache Deines Shops kannst Du später noch definieren.'
-    language-selection_welcome_message: 'Wir freuen uns, dass Du Teil unserer großartigen, weltweiten Shopware-Community werden möchtest! Jetzt begleiten wir Dich Schritt für Schritt durch den Installationsprozess. Sollten sich Fragen ergeben, schaue bitte zuerst in unser <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">Forum</a>, kontaktiere uns telefonisch unter <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> oder schreibe uns eine <a class="is--nowrap" href="mailto:info@shopware.com">E-Mail</a>.'
+    welcome_header: 'Deine Shopware-Installation'
+    welcome_message: 'Wir freuen uns, dass Du Teil unserer großartigen, weltweiten Shopware-Community werden möchtest! Jetzt begleiten wir Dich Schritt für Schritt durch den Installationsprozess. Sollten sich Fragen ergeben, schaue bitte zuerst in unser <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">Forum</a>, kontaktiere uns telefonisch unter <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> oder schreibe uns eine <a class="is--nowrap" href="mailto:info@shopware.com">E-Mail</a>.'
     requirements_header: Systemvoraussetzungen
     requirements_header_files: 'Dateien und Verzeichnisse'
     requirements_header_system: System

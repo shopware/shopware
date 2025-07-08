@@ -1711,7 +1711,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         $numberOfCategoriesInCsv = 67;
 
         $categories = $categoryRepository->search(new Criteria(), Context::createDefaultContext());
-        static::assertEquals($categoryCount + $numberOfCategoriesInCsv, $categories->getTotal());
+        static::assertSame($categoryCount + $numberOfCategoriesInCsv, $categories->getTotal());
     }
 
     public function testBatchImportNumberOfCalls(): void
@@ -1762,7 +1762,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
-        static::assertEquals(6, $mockRepository->upsertCalls);
+        static::assertSame(6, $mockRepository->upsertCalls);
     }
 
     public function testInvalidFileInBatch(): void

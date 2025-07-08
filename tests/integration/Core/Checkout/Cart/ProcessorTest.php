@@ -312,8 +312,8 @@ class ProcessorTest extends TestCase
         static::assertInstanceOf(PersistentError::class, $cart->getErrors()->first());
 
         $error = $cart->getErrors()->first();
-        static::assertEquals('persistent', $error->getId());
-        static::assertEquals('persistent', $error->getMessageKey());
+        static::assertSame('persistent', $error->getId());
+        static::assertSame('persistent', $error->getMessageKey());
     }
 
     public function testCartHasErrorDataAddedFromPromotionProcessor(): void

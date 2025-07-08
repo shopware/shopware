@@ -40,9 +40,9 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
 
         $saleChannelId = $commandTester->getInput()->getOption('id');
 
-        $countSaleChannelId = $this->connection->fetchOne('SELECT COUNT(id) FROM sales_channel WHERE id = :id', ['id' => Uuid::fromHexToBytes($saleChannelId)]);
+        $countSaleChannelId = (int) $this->connection->fetchOne('SELECT COUNT(id) FROM sales_channel WHERE id = :id', ['id' => Uuid::fromHexToBytes($saleChannelId)]);
 
-        static::assertEquals(1, $countSaleChannelId);
+        static::assertSame(1, $countSaleChannelId);
 
         $getIsoCodeSql = <<<'SQL'
             SELECT snippet_set.iso
@@ -52,7 +52,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
         SQL;
         $isoCodeResult = $this->connection->fetchOne($getIsoCodeSql, ['saleChannelId' => Uuid::fromHexToBytes($saleChannelId)]);
 
-        static::assertEquals($isoCodeExpected, $isoCodeResult);
+        static::assertSame($isoCodeExpected, $isoCodeResult);
 
         $commandTester->assertCommandIsSuccessful();
     }

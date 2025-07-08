@@ -36,7 +36,6 @@ class ProductStreamIndexer extends EntityIndexer
         private readonly SerializerInterface $serializer,
         private readonly ProductDefinition $productDefinition,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly bool $indexingEnabled,
     ) {
     }
 
@@ -50,10 +49,6 @@ class ProductStreamIndexer extends EntityIndexer
      */
     public function iterate(?array $offset): ?EntityIndexingMessage
     {
-        if (!$this->indexingEnabled) {
-            return null;
-        }
-
         $iterator = $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);
 
         $ids = $iterator->fetch();
@@ -67,10 +62,6 @@ class ProductStreamIndexer extends EntityIndexer
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
     {
-        if (!$this->indexingEnabled) {
-            return null;
-        }
-
         $updates = $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME);
 
         if (!$updates) {

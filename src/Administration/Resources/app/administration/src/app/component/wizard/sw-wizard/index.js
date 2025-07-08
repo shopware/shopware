@@ -1,8 +1,6 @@
 import './sw-wizard.scss';
 import template from './sw-wizard.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -27,7 +25,7 @@ const { Component } = Shopware;
  * </sw-wizard>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-wizard', {
+export default {
     template,
 
     inject: ['feature'],
@@ -173,4 +171,4 @@ Component.register('sw-wizard', {
             this.$emit('close');
         },
     },
-});
+};

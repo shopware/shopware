@@ -186,7 +186,7 @@ class StornoRendererTest extends TestCase
         static::assertNotEmpty($errors = $processedTemplate->getErrors());
         static::assertArrayHasKey($orderId, $errors);
         static::assertInstanceOf(DocumentException::class, $errors[$orderId]);
-        static::assertEquals(
+        static::assertSame(
             "Unable to generate document. Can not generate storno document because no invoice document exists. OrderId: $orderId",
             $errors[$orderId]->getMessage()
         );
@@ -217,8 +217,8 @@ class StornoRendererTest extends TestCase
             ],
             function (?RenderedDocument $rendered = null): void {
                 static::assertNotNull($rendered);
-                static::assertEquals('STORNO_9999', $rendered->getNumber());
-                static::assertEquals('cancellation_invoice_STORNO_9999', $rendered->getName());
+                static::assertSame('STORNO_9999', $rendered->getNumber());
+                static::assertSame('cancellation_invoice_STORNO_9999', $rendered->getName());
             },
         ];
     }
@@ -238,7 +238,7 @@ class StornoRendererTest extends TestCase
 
         $operationStorno = new DocumentGenerateOperation($orderId);
 
-        static::assertEquals($operationStorno->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertSame($operationStorno->getOrderVersionId(), Defaults::LIVE_VERSION);
         static::assertTrue($this->orderVersionExists($orderId, $operationStorno->getOrderVersionId()));
 
         $this->stornoRenderer->render(
@@ -247,7 +247,7 @@ class StornoRendererTest extends TestCase
             new DocumentRendererConfig()
         );
 
-        static::assertEquals($operationInvoice->getOrderVersionId(), $operationStorno->getOrderVersionId());
+        static::assertSame($operationInvoice->getOrderVersionId(), $operationStorno->getOrderVersionId());
         static::assertTrue($this->orderVersionExists($orderId, $operationStorno->getOrderVersionId()));
     }
 

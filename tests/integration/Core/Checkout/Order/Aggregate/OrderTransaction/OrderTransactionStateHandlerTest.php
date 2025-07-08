@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Order\Aggregate\OrderTransaction;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -51,98 +50,135 @@ class OrderTransactionStateHandlerTest extends TestCase
 
     private OrderTransactionStateHandler $orderTransactionStateHelper;
 
+    private Context $context;
+
+    private string $transactionId;
+
     protected function setUp(): void
     {
         $this->customerRepository = static::getContainer()->get('customer.repository');
         $this->orderRepository = static::getContainer()->get('order.repository');
         $this->orderTransactionRepository = static::getContainer()->get('order_transaction.repository');
         $this->orderTransactionStateHelper = static::getContainer()->get(OrderTransactionStateHandler::class);
+        $this->context = Context::createDefaultContext();
+        $this->transactionId = $this->createOrderTransaction($this->createOrder($this->createCustomer()));
     }
 
-    /**
-     * @return array<string, array<array<string, string>>>
-     */
-    public static function dataProviderActions(): array
+    public function testCancel(): void
     {
-        return [
-            'Cancel' => [[
-                'cancel' => OrderTransactionStates::STATE_CANCELLED,
-            ]],
-            'Async Process & Pay' => [[
-                'processUnconfirmed' => OrderTransactionStates::STATE_UNCONFIRMED,
-                'paid' => OrderTransactionStates::STATE_PAID,
-            ]],
-            'Process & Pay' => [[
-                'process' => OrderTransactionStates::STATE_IN_PROGRESS,
-                'paid' => OrderTransactionStates::STATE_PAID,
-            ]],
-            'Cancel & Reopen' => [[
-                'cancel' => OrderTransactionStates::STATE_CANCELLED,
-                'reopen' => OrderTransactionStates::STATE_OPEN,
-            ]],
-            'Pay & Refund' => [[
-                'paid' => OrderTransactionStates::STATE_PAID,
-                'refund' => OrderTransactionStates::STATE_REFUNDED,
-            ]],
-            'Partially pay & Refund' => [[
-                'paidPartially' => OrderTransactionStates::STATE_PARTIALLY_PAID,
-                'refund' => OrderTransactionStates::STATE_REFUNDED,
-            ]],
-            'Pay & Partially Refund' => [[
-                'paid' => OrderTransactionStates::STATE_PAID,
-                'refundPartially' => OrderTransactionStates::STATE_PARTIALLY_REFUNDED,
-            ]],
-            'Remind & Process & Fail' => [[
-                'remind' => OrderTransactionStates::STATE_REMINDED,
-                'process' => OrderTransactionStates::STATE_IN_PROGRESS,
-                'fail' => OrderTransactionStates::STATE_FAILED,
-            ]],
-            'Partially Pay & Process & Pay' => [[
-                'paidPartially' => OrderTransactionStates::STATE_PARTIALLY_PAID,
-                'processUnconfirmed' => OrderTransactionStates::STATE_UNCONFIRMED,
-                'paid' => OrderTransactionStates::STATE_PAID,
-            ]],
-            'Pay & Chargeback & Cancel' => [[
-                'paid' => OrderTransactionStates::STATE_PAID,
-                'chargeback' => OrderTransactionStates::STATE_CHARGEBACK,
-                'cancel' => OrderTransactionStates::STATE_CANCELLED,
-            ]],
-            'Partially Pay & Pay' => [[
-                'paidPartially' => OrderTransactionStates::STATE_PARTIALLY_PAID,
-                'paid' => OrderTransactionStates::STATE_PAID,
-            ]],
-            'Remind & Pay' => [[
-                'remind' => OrderTransactionStates::STATE_REMINDED,
-                'paid' => OrderTransactionStates::STATE_PAID,
-            ]],
-        ];
+        $this->orderTransactionStateHelper->cancel($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_CANCELLED, $this->retrieveTransaction());
     }
 
-    /**
-     * @param array<string, string> $path
-     */
-    #[DataProvider('dataProviderActions')]
-    public function testAction(array $path): void
+    public function testAsyncProcessAndPay(): void
     {
-        $context = Context::createDefaultContext();
-        $customerId = $this->createCustomer($context);
-        $orderId = $this->createOrder($customerId, $context);
-        $transactionId = $this->createOrderTransaction($orderId, $context);
+        $this->orderTransactionStateHelper->processUnconfirmed($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_UNCONFIRMED, $this->retrieveTransaction());
 
-        foreach ($path as $action => $destinationState) {
-            $this->orderTransactionStateHelper->$action($transactionId, $context); /* @phpstan-ignore-line */
-
-            $criteria = new Criteria([$transactionId]);
-            $criteria->addAssociation('stateMachineState');
-
-            /** @var OrderTransactionEntity|null $transaction */
-            $transaction = $this->orderTransactionRepository->search($criteria, $context)->first();
-
-            static::assertSame($destinationState, $transaction?->getStateMachineState()?->getTechnicalName());
-        }
+        $this->orderTransactionStateHelper->paid($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_PAID, $this->retrieveTransaction());
     }
 
-    private function createOrder(string $customerId, Context $context): string
+    public function testProcessAndPay(): void
+    {
+        $this->orderTransactionStateHelper->process($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_IN_PROGRESS, $this->retrieveTransaction());
+
+        $this->orderTransactionStateHelper->paid($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_PAID, $this->retrieveTransaction());
+    }
+
+    public function testCancelAndReopen(): void
+    {
+        $this->orderTransactionStateHelper->cancel($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_CANCELLED, $this->retrieveTransaction());
+
+        $this->orderTransactionStateHelper->reopen($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_OPEN, $this->retrieveTransaction());
+    }
+
+    public function testPayAndRefund(): void
+    {
+        $this->orderTransactionStateHelper->paid($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_PAID, $this->retrieveTransaction());
+
+        $this->orderTransactionStateHelper->refund($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_REFUNDED, $this->retrieveTransaction());
+    }
+
+    public function testPartiallyPayAndRefund(): void
+    {
+        $this->orderTransactionStateHelper->paidPartially($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_PARTIALLY_PAID, $this->retrieveTransaction());
+
+        $this->orderTransactionStateHelper->refund($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_REFUNDED, $this->retrieveTransaction());
+    }
+
+    public function testPayAndPartiallyRefund(): void
+    {
+        $this->orderTransactionStateHelper->paid($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_PAID, $this->retrieveTransaction());
+
+        $this->orderTransactionStateHelper->refund($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_REFUNDED, $this->retrieveTransaction());
+    }
+
+    public function testRemindAndProcessAndFail(): void
+    {
+        $this->orderTransactionStateHelper->remind($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_REMINDED, $this->retrieveTransaction());
+
+        $this->orderTransactionStateHelper->process($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_IN_PROGRESS, $this->retrieveTransaction());
+
+        $this->orderTransactionStateHelper->fail($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_FAILED, $this->retrieveTransaction());
+    }
+
+    public function testPartiallyPayAndProcessUnconfirmedAndPay(): void
+    {
+        $this->orderTransactionStateHelper->paidPartially($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_PARTIALLY_PAID, $this->retrieveTransaction());
+
+        $this->orderTransactionStateHelper->processUnconfirmed($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_UNCONFIRMED, $this->retrieveTransaction());
+
+        $this->orderTransactionStateHelper->paid($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_PAID, $this->retrieveTransaction());
+    }
+
+    public function testPayAndChargebackAndCancel(): void
+    {
+        $this->orderTransactionStateHelper->paid($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_PAID, $this->retrieveTransaction());
+
+        $this->orderTransactionStateHelper->chargeback($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_CHARGEBACK, $this->retrieveTransaction());
+
+        $this->orderTransactionStateHelper->cancel($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_CANCELLED, $this->retrieveTransaction());
+    }
+
+    public function testPartiallyPayAndPay(): void
+    {
+        $this->orderTransactionStateHelper->paidPartially($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_PARTIALLY_PAID, $this->retrieveTransaction());
+
+        $this->orderTransactionStateHelper->paid($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_PAID, $this->retrieveTransaction());
+    }
+
+    public function testRemindAndPay(): void
+    {
+        $this->orderTransactionStateHelper->remind($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_REMINDED, $this->retrieveTransaction());
+
+        $this->orderTransactionStateHelper->paid($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_PAID, $this->retrieveTransaction());
+    }
+
+    private function createOrder(string $customerId): string
     {
         $orderId = Uuid::randomHex();
         $stateId = static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
@@ -188,12 +224,12 @@ class OrderTransactionStateHandlerTest extends TestCase
             'payload' => '{}',
         ];
 
-        $this->orderRepository->upsert([$order], $context);
+        $this->orderRepository->upsert([$order], $this->context);
 
         return $orderId;
     }
 
-    private function createCustomer(Context $context): string
+    private function createCustomer(): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -225,12 +261,12 @@ class OrderTransactionStateHandlerTest extends TestCase
             ],
         ];
 
-        $this->customerRepository->upsert([$customer], $context);
+        $this->customerRepository->upsert([$customer], $this->context);
 
         return $customerId;
     }
 
-    private function createOrderTransaction(string $orderId, Context $context): string
+    private function createOrderTransaction(string $orderId): string
     {
         $transactionId = Uuid::randomHex();
         $stateId = static::getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE);
@@ -248,8 +284,19 @@ class OrderTransactionStateHandlerTest extends TestCase
             ),
         ];
 
-        $this->orderTransactionRepository->upsert([$transaction], $context);
+        $this->orderTransactionRepository->upsert([$transaction], $this->context);
 
         return $transactionId;
+    }
+
+    private function retrieveTransaction(): ?string
+    {
+        $criteria = new Criteria([$this->transactionId]);
+        $criteria->addAssociation('stateMachineState');
+
+        /** @var OrderTransactionEntity|null $transaction */
+        $transaction = $this->orderTransactionRepository->search($criteria, $this->context)->first();
+
+        return $transaction?->getStateMachineState()?->getTechnicalName();
     }
 }

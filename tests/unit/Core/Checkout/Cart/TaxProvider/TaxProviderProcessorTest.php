@@ -136,8 +136,8 @@ class TaxProviderProcessorTest extends TestCase
         $lineItemTax = $lineItemTaxes['7'];
         $deliveryTax = $deliveryTaxes['7'];
 
-        static::assertEquals(7, $lineItemTax->getTaxRate());
-        static::assertEquals(7, $deliveryTax->getTaxRate());
+        static::assertSame(7.0, $lineItemTax->getTaxRate());
+        static::assertSame(7.0, $deliveryTax->getTaxRate());
     }
 
     public function testNoTaxResultsGivenDoesNoAdjustment(): void

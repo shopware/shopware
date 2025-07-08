@@ -1,8 +1,6 @@
 import template from './sw-select-selection-list.html.twig';
 import './sw-select-selection-list.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -11,7 +9,7 @@ const { Component } = Shopware;
  * @description Base component for rendering selection lists.
  * @example-type code-only
  */
-Component.register('sw-select-selection-list', {
+export default {
     template,
 
     inject: ['feature'],
@@ -151,4 +149,4 @@ Component.register('sw-select-selection-list', {
             return this.$refs.swSelectInput;
         },
     },
-});
+};

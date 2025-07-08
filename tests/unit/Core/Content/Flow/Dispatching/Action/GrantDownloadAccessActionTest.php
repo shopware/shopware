@@ -52,12 +52,12 @@ class GrantDownloadAccessActionTest extends TestCase
 
     public function testGetName(): void
     {
-        static::assertEquals('action.grant.download.access', $this->action->getName());
+        static::assertSame('action.grant.download.access', $this->action->getName());
     }
 
     public function testGetRequirements(): void
     {
-        static::assertEquals([OrderAware::class], $this->action->requirements());
+        static::assertSame([OrderAware::class], $this->action->requirements());
     }
 
     /**
@@ -75,7 +75,7 @@ class GrantDownloadAccessActionTest extends TestCase
 
         $this->action->handleFlow($flow);
 
-        static::assertEquals($expectedPayload, $this->updatePayload);
+        static::assertSame($expectedPayload, $this->updatePayload);
     }
 
     public static function orderProvider(): \Generator

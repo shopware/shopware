@@ -1,15 +1,15 @@
 import template from './sw-condition-line-item-custom-field.html.twig';
 import './sw-condition-line-item-custom-field.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Filter, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
-const { Filter } = Shopware;
 
 /**
  * @sw-package fundamentals@after-sales
  */
-Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-item', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -149,6 +149,10 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-
             };
         },
 
+        getFieldDescription(item) {
+            return this.getInlineSnippet(item.customFieldSet.config.label) || item.customFieldSet.name;
+        },
+
         /**
          * Clear any further field's values if no custom field has been selected
          * @param id
@@ -165,4 +169,4 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-
             this.renderedFieldValue = null;
         },
     },
-});
+};

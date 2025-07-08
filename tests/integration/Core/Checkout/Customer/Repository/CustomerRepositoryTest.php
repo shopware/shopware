@@ -60,9 +60,9 @@ class CustomerRepositoryTest extends TestCase
         static::getContainer()->get('customer.repository')
             ->update([$update], Context::createDefaultContext());
 
-        $count = $this->connection->fetchOne('SELECT COUNT(*) FROM customer_tag WHERE customer_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+        $count = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM customer_tag WHERE customer_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
 
-        static::assertEquals(3, $count);
+        static::assertSame(3, $count);
     }
 
     public function testSearchRanking(): void

@@ -76,6 +76,10 @@ export default Mixin.register('discard-detail-page-changes', (...entityNames: Ar
                         `Could not discard changes for entity with name "${entityName}".`,
                     );
                 });
+
+                // reset all api errors
+                const errorStore = Shopware.Store.get('error');
+                errorStore.resetApiErrors();
             },
         },
     });

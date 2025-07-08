@@ -3,7 +3,7 @@
  */
 
 import { config, mount } from '@vue/test-utils';
-import SwExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';
+import SwExtensionIcon from 'src/app/component/extension/sw-extension-icon';
 import InvalidActionButtonParameterError from '../../../../core/service/api/errors/InvalidActionButtonParameterError';
 import { createRouter, actionButtonData, actionResultData } from './_fixtures/app-action.fixtures';
 import 'src/app/component/app/sw-app-actions';
@@ -27,7 +27,7 @@ describe('sw-app-actions', () => {
         delete config.global.mocks.$router;
         delete config.global.mocks.$route;
 
-        return mount(await Shopware.Component.build('sw-app-actions'), {
+        return mount(await wrapTestComponent('sw-app-actions', { sync: true }), {
             global: {
                 stubs,
                 directives: {
@@ -77,14 +77,14 @@ describe('sw-app-actions', () => {
 
     beforeAll(async () => {
         stubs = {
-            'sw-app-action-button': await Shopware.Component.build('sw-app-action-button'),
-            'sw-context-button': await Shopware.Component.build('sw-context-button'),
-            'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
-            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
-            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-app-action-button': await wrapTestComponent('sw-app-action-button', { sync: true }),
+            'sw-context-button': await wrapTestComponent('sw-context-button', { sync: true }),
+            'sw-context-menu': await wrapTestComponent('sw-context-menu', { sync: true }),
+            'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
+            'sw-popover': await wrapTestComponent('sw-popover', { sync: true }),
             'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
             'sw-modal': true,
-            'sw-extension-icon': await Shopware.Component.build('sw-extension-icon'),
+            'sw-extension-icon': await wrapTestComponent('sw-extension-icon', { sync: true }),
             'sw-checkbox-field': true,
             'mt-floating-ui': true,
         };

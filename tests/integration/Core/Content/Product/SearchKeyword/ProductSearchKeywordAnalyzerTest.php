@@ -131,14 +131,14 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
         $words = $result->map(fn (AnalyzedKeyword $keyword) => $keyword->getKeyword());
 
-        static::assertEquals(
+        static::assertSame(
             ['searchable', 'match', 'array', '10000000', '10.99999', 'nested'],
             array_values($words)
         );
     }
 
     #[DataProvider('casesSearchBaseOnConfigField')]
-    public function testInsertIntoSearchKeywordForEn(bool $searchable, bool $tokenize, int $ranking): void
+    public function testInsertIntoSearchKeywordForEn(bool $searchable, bool $tokenize, float $ranking): void
     {
         $this->updateProductSearchConfigField($this->enSearchConfigId, $searchable, $tokenize, $ranking);
 
@@ -172,10 +172,21 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                 'customfield',
                 123456,
                 123456789,
+                'product description',
+                '123456789 category customfield',
+                '123456789 manufacturer customfield',
+                'metadescription test',
+                'metatitle test',
+                'search keyword update',
+                'tag1 tag2',
+                'test category',
+                'test ean',
+                'test product',
+                'tet customfield',
             ];
 
             foreach ($analyzer->getElements() as $keyword) {
-                static::assertEquals($ranking, $keyword->getRanking());
+                static::assertSame($ranking, $keyword->getRanking());
             }
         }
 
@@ -202,7 +213,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
             ];
 
             foreach ($analyzer->getElements() as $keyword) {
-                static::assertEquals($ranking, $keyword->getRanking());
+                static::assertSame($ranking, $keyword->getRanking());
             }
         }
 
@@ -212,11 +223,11 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
         sort($expected);
 
-        static::assertEquals($expected, $analyzerResult);
+        static::assertSame($expected, $analyzerResult);
     }
 
     #[DataProvider('casesSearchBaseOnConfigField')]
-    public function testInsertIntoSearchKeywordForDe(bool $searchable, bool $tokenize, int $ranking): void
+    public function testInsertIntoSearchKeywordForDe(bool $searchable, bool $tokenize, float $ranking): void
     {
         $this->updateProductSearchConfigField($this->deSearchConfigId, $searchable, $tokenize, $ranking);
 
@@ -250,10 +261,21 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                 123456,
                 123456789,
                 'manufacturer',
+                '123456789 category customfield',
+                '123456789 manufacturer customfield',
+                'metadescription test',
+                'metatitle test',
+                'product description',
+                'search keyword update',
+                'tag1 tag2',
+                'test category',
+                'test ean',
+                'test product',
+                'tet customfield',
             ];
 
             foreach ($analyzer->getElements() as $keyword) {
-                static::assertEquals($ranking, $keyword->getRanking());
+                static::assertSame($ranking, $keyword->getRanking());
             }
         }
 
@@ -280,7 +302,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
             ];
 
             foreach ($analyzer->getElements() as $keyword) {
-                static::assertEquals($ranking, $keyword->getRanking());
+                static::assertSame($ranking, $keyword->getRanking());
             }
         }
 
@@ -290,23 +312,23 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
         sort($expected);
 
-        static::assertEquals($expected, $analyzerResult);
+        static::assertSame($expected, $analyzerResult);
     }
 
     /**
-     * @return array<string, array<int, bool|int>>
+     * @return array<string, array{bool, bool, float}>
      */
     public static function casesSearchBaseOnConfigField(): array
     {
         return [
-            'searchable is true, tokenize is true, ranking is 500' => [true, true, 500],
-            'searchable is true, tokenize is true, ranking is 600' => [true, true, 600],
-            'searchable is true, tokenize is true, ranking is 700' => [true, true, 700],
-            'searchable is false, tokenize is true, ranking is 500' => [false, true, 500],
-            'searchable is true, tokenize is false, ranking is 500' => [true, false, 500],
-            'searchable is true, tokenize is false, ranking is 1000' => [true, false, 1000],
-            'searchable is true, tokenize is false, ranking is 1500' => [true, false, 1500],
-            'searchable is false, tokenize is false, ranking is 500' => [false, false, 500],
+            'searchable is true, tokenize is true, ranking is 500' => [true, true, 500.0],
+            'searchable is true, tokenize is true, ranking is 600' => [true, true, 600.0],
+            'searchable is true, tokenize is true, ranking is 700' => [true, true, 700.0],
+            'searchable is false, tokenize is true, ranking is 500' => [false, true, 500.0],
+            'searchable is true, tokenize is false, ranking is 500' => [true, false, 500.0],
+            'searchable is true, tokenize is false, ranking is 1000' => [true, false, 1000.0],
+            'searchable is true, tokenize is false, ranking is 1500' => [true, false, 1500.0],
+            'searchable is false, tokenize is false, ranking is 500' => [false, false, 500.0],
         ];
     }
 
@@ -579,7 +601,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         string $searchConfigId,
         bool $searchable,
         bool $tokenize,
-        int $ranking
+        float $ranking
     ): void {
         $this->connection->executeStatement(
             'UPDATE `product_search_config_field`

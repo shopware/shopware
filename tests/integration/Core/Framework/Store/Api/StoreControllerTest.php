@@ -147,7 +147,7 @@ class StoreControllerTest extends TestCase
         static::assertIsString($response);
 
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals($response['userInfo'], [
+        static::assertSame($response['userInfo'], [
             'name' => 'John Doe',
             'email' => 'john.doe@shopware.com',
         ]);
@@ -182,7 +182,7 @@ class StoreControllerTest extends TestCase
         static::assertIsString($response);
 
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals($response['userInfo'], [
+        static::assertSame($response['userInfo'], [
             'name' => 'John Doe',
             'email' => 'john.doe@shopware.com',
         ]);

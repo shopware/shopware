@@ -9,6 +9,7 @@ async function createWrapper(additionalOptions = {}) {
         global: {
             stubs: {
                 'mt-email-field': true,
+                'sw-email-field-deprecated': true,
             },
         },
         props: {},

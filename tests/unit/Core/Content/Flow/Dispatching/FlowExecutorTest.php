@@ -494,7 +494,7 @@ class FlowExecutorTest extends TestCase
 
         $this->flowExecutor->executeIf($ifSequence, $flow);
 
-        static::assertEquals($trueCaseSequence, $flow->getFlowState()->currentSequence);
+        static::assertSame($trueCaseSequence, $flow->getFlowState()->currentSequence);
     }
 
     public function testActionExecutedInTransactionWhenItImplementsTransactional(): void
@@ -678,7 +678,7 @@ class FlowExecutorTest extends TestCase
 
             public function handleFlow(StorableFlow $flow): void
             {
-                /** @phpstan-ignore-next-line  */
+                /** @phpstan-ignore shopware.domainException */
                 throw new \Exception('broken');
             }
 

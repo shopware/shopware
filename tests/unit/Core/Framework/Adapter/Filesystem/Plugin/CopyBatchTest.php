@@ -59,7 +59,7 @@ class CopyBatchTest extends TestCase
     public function testConstructorThrowsAnExceptionWithNoResource(): void
     {
         static::expectException(AdapterException::class);
-        // @phpstan-ignore-next-line - sourceFile is supposed to be a resource or a string only from doctag param
+        /** @phpstan-ignore argument.type (for test purpose) */
         new CopyBatchInput(null, []);
     }
 }

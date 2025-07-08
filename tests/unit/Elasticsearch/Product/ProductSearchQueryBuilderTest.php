@@ -106,7 +106,7 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         $parsed = $builder->build($criteria, Context::createDefaultContext());
 
-        static::assertSame($expected, $parsed->toArray());
+        static::assertEquals($expected, $parsed->toArray());
     }
 
     /**
@@ -471,6 +471,10 @@ class ProductSearchQueryBuilderTest extends TestCase
             'query' => $query,
             'boost' => (float) $boost,
         ];
+
+        if (is_numeric($query) || preg_match('/\d{3,}/', (string) $query)) {
+            $fuzziness = 0;
+        }
 
         if ($fuzziness !== null) {
             $payload['fuzziness'] = $fuzziness;

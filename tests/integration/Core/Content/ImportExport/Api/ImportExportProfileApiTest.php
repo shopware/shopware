@@ -58,12 +58,12 @@ class ImportExportProfileApiTest extends TestCase
             $expect = $data[$record['id']];
             static::assertSame($expect['technicalName'], $record['technical_name']);
             static::assertSame($expect['label'], $translationRecords[$record['id']]['label']);
-            static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
+            static::assertSame($expect['systemDefault'], (bool) $record['system_default']);
             static::assertSame($expect['sourceEntity'], $record['source_entity']);
             static::assertSame($expect['fileType'], $record['file_type']);
             static::assertSame($expect['delimiter'], $record['delimiter']);
             static::assertSame($expect['enclosure'], $record['enclosure']);
-            static::assertEquals(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), $record['mapping']);
+            static::assertSame(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), $record['mapping']);
             unset($data[$record['id']]);
         }
     }
@@ -112,12 +112,12 @@ class ImportExportProfileApiTest extends TestCase
                 $expect = $expectData[$importExportProfile['_uniqueIdentifier']];
                 static::assertSame($expect['technicalName'], $importExportProfile['technicalName']);
                 static::assertSame($expect['label'], $importExportProfile['label']);
-                static::assertEquals($expect['systemDefault'], (bool) $importExportProfile['systemDefault']);
+                static::assertSame($expect['systemDefault'], (bool) $importExportProfile['systemDefault']);
                 static::assertSame($expect['sourceEntity'], $importExportProfile['sourceEntity']);
                 static::assertSame($expect['fileType'], $importExportProfile['fileType']);
                 static::assertSame($expect['delimiter'], $importExportProfile['delimiter']);
                 static::assertSame($expect['enclosure'], $importExportProfile['enclosure']);
-                static::assertEquals($expect['mapping'], $importExportProfile['mapping']);
+                static::assertSame($expect['mapping'], $importExportProfile['mapping']);
             }
         }
     }
@@ -163,12 +163,12 @@ class ImportExportProfileApiTest extends TestCase
             $expect = $expectData[$importExportProfile['_uniqueIdentifier']];
             static::assertSame($expect['technicalName'], $importExportProfile['technicalName']);
             static::assertSame($expect['label'], $importExportProfile['label']);
-            static::assertEquals($expect['systemDefault'], (bool) $importExportProfile['systemDefault']);
+            static::assertSame($expect['systemDefault'], (bool) $importExportProfile['systemDefault']);
             static::assertSame($expect['sourceEntity'], $importExportProfile['sourceEntity']);
             static::assertSame($expect['fileType'], $importExportProfile['fileType']);
             static::assertSame($expect['delimiter'], $importExportProfile['delimiter']);
             static::assertSame($expect['enclosure'], $importExportProfile['enclosure']);
-            static::assertEquals($expect['mapping'], $importExportProfile['mapping']);
+            static::assertSame($expect['mapping'], $importExportProfile['mapping']);
         }
     }
 
@@ -224,9 +224,9 @@ class ImportExportProfileApiTest extends TestCase
                     $currentValue = (bool) $currentValue;
                 }
                 if ($property === $removedProperty) {
-                    static::assertNotEquals($expectValue, $currentValue);
+                    static::assertNotSame($expectValue, $currentValue);
                 } else {
-                    static::assertEquals($expectValue, $currentValue);
+                    static::assertSame($expectValue, $currentValue);
                 }
             }
         }
@@ -253,12 +253,12 @@ class ImportExportProfileApiTest extends TestCase
 
             static::assertSame($expect['technicalName'], $content['data']['technicalName']);
             static::assertSame($expect['label'], $content['data']['label']);
-            static::assertEquals($expect['systemDefault'], (bool) $content['data']['systemDefault']);
+            static::assertSame($expect['systemDefault'], (bool) $content['data']['systemDefault']);
             static::assertSame($expect['sourceEntity'], $content['data']['sourceEntity']);
             static::assertSame($expect['fileType'], $content['data']['fileType']);
             static::assertSame($expect['delimiter'], $content['data']['delimiter']);
             static::assertSame($expect['enclosure'], $content['data']['enclosure']);
-            static::assertEquals($expect['mapping'], $content['data']['mapping']);
+            static::assertSame($expect['mapping'], $content['data']['mapping']);
         }
     }
 

@@ -224,7 +224,7 @@ class LogoutRouteTest extends TestCase
         );
 
         static::assertInstanceOf(ContextTokenResponse::class, $logoutResponse);
-        static::assertNotEquals($loginResponse->getToken(), $logoutResponse->getToken());
+        static::assertNotSame($loginResponse->getToken(), $logoutResponse->getToken());
     }
 
     public function testLogoutForcedForGuestAccounts(): void
@@ -261,7 +261,7 @@ class LogoutRouteTest extends TestCase
             ->logout($context, $request);
 
         static::assertInstanceOf(ContextTokenResponse::class, $logout);
-        static::assertNotEquals($login->getToken(), $logout->getToken());
+        static::assertNotSame($login->getToken(), $logout->getToken());
 
         $exists = static::getContainer()->get(Connection::class)
             ->fetchAllAssociative('SELECT * FROM sales_channel_api_context WHERE token = :token', ['token' => $login->getToken()]);

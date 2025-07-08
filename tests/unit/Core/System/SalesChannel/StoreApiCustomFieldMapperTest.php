@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
@@ -53,7 +54,9 @@ class StoreApiCustomFieldMapperTest extends TestCase
             'date' => '2020-01-01T00:00:00+00:00',
         ]));
 
-        static::assertEquals(new \DateTimeImmutable('2020-01-01T00:00:00+00:00'), $mappedValues['date']);
+        $date = $mappedValues['date'];
+        static::assertInstanceOf(\DateTimeInterface::class, $date);
+        static::assertSame((new \DateTimeImmutable('2020-01-01T00:00:00+00:00'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $date->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         unset($mappedValues['date']);
 
         static::assertSame(

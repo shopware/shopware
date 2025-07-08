@@ -201,9 +201,9 @@ class ChangeEmailRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals(400, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
         static::assertNotEmpty($response['errors']);
-        static::assertEquals('VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE', $response['errors'][0]['code']);
+        static::assertSame('VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE', $response['errors'][0]['code']);
 
         $this->browser
             ->request(
@@ -215,7 +215,7 @@ class ChangeEmailRouteTest extends TestCase
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNotEquals($newEmail, $response['email']);
+        static::assertNotSame($newEmail, $response['email']);
     }
 
     public function testChangeSuccessWithNewsletterRecipient(): void

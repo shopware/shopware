@@ -71,8 +71,8 @@ class ContactFormRouteTest extends TestCase
         $mock = $this->createMock(DataValidator::class);
         $mock->method('validate')->willReturnCallback(function (array $data, DataValidationDefinition $definition) use ($properties, $constraints): void {
             foreach ($properties as $propertyName => $value) {
-                static::assertEquals($value, $data[$propertyName] ?? null);
-                static::assertEquals($definition->getProperties()[$propertyName] ?? null, $constraints);
+                static::assertSame($value, $data[$propertyName] ?? null);
+                static::assertSame($definition->getProperties()[$propertyName] ?? null, $constraints);
             }
         });
 

@@ -38,8 +38,7 @@ class CurrencyPriceCalculator
             $value *= $context->getCurrency()->getFactor();
         }
 
-        $taxRules = $this->percentageTaxRuleBuilder->buildRules($prices->sum());
-
+        $taxRules = $this->percentageTaxRuleBuilder->buildCollectionRules($prices->getCalculatedTaxes(), $prices->getTotalPriceAmount());
         $definition = new QuantityPriceDefinition($value, $taxRules, $quantity);
 
         return $this->priceCalculator->calculate($definition, $context);

@@ -42,7 +42,7 @@ class CachedSnippetFinderTest extends TestCase
         $cachedSnippetFinder = new CachedSnippetFinder($this->snippetFinder, $this->cache);
         $result = $cachedSnippetFinder->findSnippets('test');
 
-        static::assertEquals($snippets, $cacheItem->get());
+        static::assertSame($snippets, $cacheItem->get());
         static::assertSame($snippets, $result);
     }
 

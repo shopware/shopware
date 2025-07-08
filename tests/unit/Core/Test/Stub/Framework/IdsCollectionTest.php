@@ -22,11 +22,11 @@ class IdsCollectionTest extends TestCase
 
         $ids->set('foo', $id);
 
-        static::assertEquals($id, $ids->get('foo'));
-        static::assertEquals($id, $ids->get('test'));
-        static::assertEquals([$id], array_values($ids->getList(['test'])));
-        static::assertEquals([['id' => $id]], $ids->getIdArray(['test']));
-        static::assertEquals(Uuid::fromHexToBytes($id), $ids->getBytes('test'));
-        static::assertEquals([['id' => $id]], $ids->getIdArray(['test']));
+        static::assertSame($id, $ids->get('foo'));
+        static::assertSame($id, $ids->get('test'));
+        static::assertSame([$id], array_values($ids->getList(['test'])));
+        static::assertSame([['id' => $id]], $ids->getIdArray(['test']));
+        static::assertSame(Uuid::fromHexToBytes($id), $ids->getBytes('test'));
+        static::assertSame([['id' => $id]], $ids->getIdArray(['test']));
     }
 }

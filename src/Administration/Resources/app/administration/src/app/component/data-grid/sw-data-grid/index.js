@@ -1,7 +1,6 @@
 import template from './sw-data-grid.html.twig';
 import './sw-data-grid.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
@@ -28,7 +27,7 @@ const utils = Shopware.Utils;
  *     ]">
  * </sw-data-grid>
  */
-Component.register('sw-data-grid', {
+export default {
     template,
 
     inject: [
@@ -690,8 +689,6 @@ Component.register('sw-data-grid', {
         },
 
         selectAll(selected) {
-            this.selection = {};
-
             this.records.forEach((item) => {
                 if (this.isSelected(item[this.itemIdentifierProperty]) !== selected) {
                     this.selectItem(selected, item);
@@ -887,4 +884,4 @@ Component.register('sw-data-grid', {
             this.$emit('column-sort', column);
         },
     },
-});
+};

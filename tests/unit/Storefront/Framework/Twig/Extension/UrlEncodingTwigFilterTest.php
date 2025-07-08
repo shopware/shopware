@@ -24,7 +24,7 @@ class UrlEncodingTwigFilterTest extends TestCase
     {
         $filter = new UrlEncodingTwigFilter();
         $url = 'https://shopware.com:80/some/thing';
-        static::assertEquals($url, $filter->encodeUrl($url));
+        static::assertSame($url, $filter->encodeUrl($url));
     }
 
     public function testReturnsNullsIfNoUrlIsGiven(): void
@@ -37,20 +37,20 @@ class UrlEncodingTwigFilterTest extends TestCase
     {
         $filter = new UrlEncodingTwigFilter();
         $url = 'https://shopware.com/some/thing';
-        static::assertEquals($url, $filter->encodeUrl($url));
+        static::assertSame($url, $filter->encodeUrl($url));
     }
 
     public function testRespectsQueryParameter(): void
     {
         $filter = new UrlEncodingTwigFilter();
         $url = 'https://shopware.com/some/thing?a=3&b=25';
-        static::assertEquals($url, $filter->encodeUrl($url));
+        static::assertSame($url, $filter->encodeUrl($url));
     }
 
     public function testReturnsEncodedPathsWithoutHostAndScheme(): void
     {
         $filter = new UrlEncodingTwigFilter();
-        static::assertEquals(
+        static::assertSame(
             'shopware.com/some/thing',
             $filter->encodeUrl('shopware.com/some/thing')
         );
@@ -59,7 +59,7 @@ class UrlEncodingTwigFilterTest extends TestCase
     public function testItEncodesSpaces(): void
     {
         $filter = new UrlEncodingTwigFilter();
-        static::assertEquals(
+        static::assertSame(
             'https://shopware.com:80/so%20me/thing%20new.jpg',
             $filter->encodeUrl('https://shopware.com:80/so me/thing new.jpg')
         );
@@ -68,7 +68,7 @@ class UrlEncodingTwigFilterTest extends TestCase
     public function testItEncodesSpecialCharacters(): void
     {
         $filter = new UrlEncodingTwigFilter();
-        static::assertEquals(
+        static::assertSame(
             'https://shopware.com:80/so%20me/thing%20new.jpg',
             $filter->encodeUrl('https://shopware.com:80/so me/thing new.jpg')
         );

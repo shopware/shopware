@@ -43,9 +43,9 @@ class RangeFilterTest extends TestCase
         ]);
         $clone = clone $filter;
 
-        static::assertEquals($filter->jsonSerialize(), $clone->jsonSerialize());
-        static::assertEquals($filter->getField(), $clone->getField());
-        static::assertEquals($filter->getFields(), $clone->getFields());
+        static::assertSame($filter->jsonSerialize(), $clone->jsonSerialize());
+        static::assertSame($filter->getField(), $clone->getField());
+        static::assertSame($filter->getFields(), $clone->getFields());
         static::assertNotSame($filter, $clone);
     }
 
@@ -59,8 +59,8 @@ class RangeFilterTest extends TestCase
             $this->expectException(InvalidRangeFilterParamException::class);
         }
 
-        $result = new RangeFilter('foo', $filter); // @phpstan-ignore-line we call it with invalid params to check the error handling
-
+        /** @phpstan-ignore argument.type (for test purpose) */
+        $result = new RangeFilter('foo', $filter);
         static::assertEquals($expectedFilter, $result);
     }
 

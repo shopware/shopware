@@ -66,14 +66,14 @@ class AddressValidatorTest extends TestCase
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
 
-        static::assertEquals(0, $errorCollection->count());
+        static::assertCount(0, $errorCollection);
 
         $cart->add((new LineItem('b', 'test'))->setStates([State::IS_PHYSICAL]));
 
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
 
-        static::assertEquals(1, $errorCollection->count());
+        static::assertCount(1, $errorCollection);
     }
 
     public function testValidateShippingAddressWithOnlyPhysicalItems(): void
@@ -99,7 +99,7 @@ class AddressValidatorTest extends TestCase
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
 
-        static::assertEquals(0, $errorCollection->count());
+        static::assertCount(0, $errorCollection);
     }
 
     public function testValidateShippingAddressWithOnlyDownloadItems(): void
@@ -125,7 +125,7 @@ class AddressValidatorTest extends TestCase
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
 
-        static::assertEquals(0, $errorCollection->count());
+        static::assertCount(0, $errorCollection);
     }
 
     public function testValidateShippingAddressWithoutSalutation(): void
@@ -177,9 +177,8 @@ class AddressValidatorTest extends TestCase
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
 
-        static::assertEquals(1, $errorCollection->count());
-        // @phpstan-ignore-next-line > Object will not be null since there is an object in the collection
-        static::assertEquals(BillingAddressSalutationMissingError::class, \get_class($errorCollection->first()));
+        static::assertCount(1, $errorCollection);
+        static::assertInstanceOf(BillingAddressSalutationMissingError::class, $errorCollection->first());
     }
 
     public function testValidateAddressWithoutState(): void
@@ -233,11 +232,9 @@ class AddressValidatorTest extends TestCase
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
 
-        static::assertEquals(2, $errorCollection->count());
-        // @phpstan-ignore-next-line > Object will not be null since there are 2 objects in the collection
-        static::assertEquals(BillingAddressCountryRegionMissingError::class, \get_class($errorCollection->first()));
-        // @phpstan-ignore-next-line > Object will not be null since there are 2 objects in the collection
-        static::assertEquals(ShippingAddressCountryRegionMissingError::class, \get_class($errorCollection->last()));
+        static::assertCount(2, $errorCollection);
+        static::assertInstanceOf(BillingAddressCountryRegionMissingError::class, $errorCollection->first());
+        static::assertInstanceOf(ShippingAddressCountryRegionMissingError::class, $errorCollection->last());
     }
 
     public function testValidateAddressWithState(): void
@@ -292,6 +289,6 @@ class AddressValidatorTest extends TestCase
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
 
-        static::assertEquals(0, $errorCollection->count());
+        static::assertCount(0, $errorCollection);
     }
 }

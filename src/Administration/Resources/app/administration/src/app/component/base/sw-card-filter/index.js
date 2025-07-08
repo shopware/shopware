@@ -5,12 +5,10 @@
 import template from './sw-card-filter.html.twig';
 import './sw-card-filter.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-card-filter', {
+export default {
     template,
 
     emits: ['sw-card-filter-term-change'],
@@ -69,4 +67,4 @@ Component.register('sw-card-filter', {
             this.$emit('sw-card-filter-term-change', this.term);
         },
     },
-});
+};

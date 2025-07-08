@@ -63,7 +63,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
 
         $globalConfig = $documentConfigs->filterByProperty('global', true)->first();
 
-        $salesChannelConfig = $documentConfigs->filter(fn (DocumentBaseConfigEntity $config) => $config->getSalesChannels()->count() > 0)->first();
+        $salesChannelConfig = $documentConfigs->filter(fn (DocumentBaseConfigEntity $config) => ((int) $config->getSalesChannels()?->count()) > 0)->first();
 
         $config = DocumentConfigurationFactory::createConfiguration([], $globalConfig, $salesChannelConfig);
 

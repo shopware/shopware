@@ -23,11 +23,11 @@ class UniqueIdGeneratorTest extends TestCase
         $id = $idGenerator->getUniqueId();
 
         // assert that the generated id is the same on multiple calls
-        static::assertEquals($id, $idGenerator->getUniqueId());
+        static::assertSame($id, $idGenerator->getUniqueId());
 
         unlink(__DIR__ . '/.uniqueid.txt');
 
         // assert that the generated id is different on a new call
-        static::assertNotEquals($id, $idGenerator->getUniqueId());
+        static::assertNotSame($id, $idGenerator->getUniqueId());
     }
 }

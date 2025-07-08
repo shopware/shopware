@@ -1,7 +1,7 @@
 import template from './sw-search-more-results.html.twig';
 import './sw-search-more-results.scss';
 
-const { Component, Application } = Shopware;
+const { Application } = Shopware;
 
 /**
  * @sw-package framework
@@ -16,7 +16,7 @@ const { Component, Application } = Shopware;
  * </sw-search-more-results>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-search-more-results', {
+export default {
     template,
 
     inject: [
@@ -79,4 +79,4 @@ Component.register('sw-search-more-results', {
             );
         },
     },
-});
+};

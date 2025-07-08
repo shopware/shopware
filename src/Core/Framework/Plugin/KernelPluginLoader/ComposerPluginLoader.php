@@ -33,7 +33,7 @@ class ComposerPluginLoader extends KernelPluginLoader
             $path = InstalledVersions::getInstallPath($composerName);
             $composerJsonPath = $path . '/composer.json';
 
-            if (!\file_exists($composerJsonPath)) {
+            if (!\is_file($composerJsonPath)) {
                 continue;
             }
 

@@ -41,8 +41,8 @@ class BatchImportStrategyTest extends ImportStrategyTestCase
 
         $result = $this->strategy->import(['some' => 'data'], [], $config, $progress, $context);
 
-        static::assertEquals([], $result->results);
-        static::assertEquals([], $result->failedRecords);
+        static::assertSame([], $result->results);
+        static::assertSame([], $result->failedRecords);
     }
 
     #[DataProvider('importProvider')]
@@ -63,9 +63,9 @@ class BatchImportStrategyTest extends ImportStrategyTestCase
 
         $result = $this->strategy->commit($config, $progress, $context);
 
-        static::assertEquals([$writeResult], $result->results);
-        static::assertEquals([], $result->failedRecords);
-        static::assertEquals(2, $progress->getProcessedRecords());
+        static::assertSame([$writeResult], $result->results);
+        static::assertSame([], $result->failedRecords);
+        static::assertSame(2, $progress->getProcessedRecords());
     }
 
     public function testFailedCommit(): void
@@ -107,8 +107,8 @@ class BatchImportStrategyTest extends ImportStrategyTestCase
 
         $result = $this->strategy->commit($config, $progress, $context);
 
-        static::assertEquals([$writeResult], $result->results);
-        static::assertEquals([
+        static::assertSame([$writeResult], $result->results);
+        static::assertSame([
             ['some' => 'data', '_error' => 'Error'],
         ], $result->failedRecords);
     }

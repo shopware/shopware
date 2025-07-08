@@ -80,7 +80,7 @@ class EntityDeleteSubscriberTest extends TestCase
 
         $result['entity_ids'] = \json_decode($result['entity_ids'], true, flags: \JSON_THROW_ON_ERROR);
 
-        static::assertEquals([
+        static::assertSame([
             'entity_name' => 'product',
             'entity_ids' => ['id' => $productIds->get('product-to-delete')],
             'deleted_at' => '2023-08-30 00:00:00.000',
@@ -207,7 +207,7 @@ class EntityDeleteSubscriberTest extends TestCase
 
         $result['entity_ids'] = \json_decode($result['entity_ids'], true, flags: \JSON_THROW_ON_ERROR);
 
-        static::assertEquals([
+        static::assertSame([
             'entity_name' => 'acl_user_role',
             'entity_ids' => [
                 'userId' => $userId,

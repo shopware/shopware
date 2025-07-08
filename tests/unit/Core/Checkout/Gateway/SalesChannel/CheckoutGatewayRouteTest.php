@@ -32,7 +32,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Rule\RuleIdMatcher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\Test\Generator;
@@ -51,7 +50,6 @@ class CheckoutGatewayRouteTest extends TestCase
             $this->createMock(AbstractPaymentMethodRoute::class),
             $this->createMock(AbstractShippingMethodRoute::class),
             $this->createMock(CheckoutGatewayInterface::class),
-            $this->createMock(RuleIdMatcher::class),
         );
 
         $this->expectException(DecorationPatternException::class);
@@ -126,13 +124,7 @@ class CheckoutGatewayRouteTest extends TestCase
             ->with(static::equalTo($payload))
             ->willReturn($response);
 
-        $ruleIdMatcher = $this->createMock(RuleIdMatcher::class);
-        $ruleIdMatcher
-            ->expects($this->exactly(2))
-            ->method('filterCollection')
-            ->willReturnArgument(0);
-
-        $route = new CheckoutGatewayRoute($paymentMethodRoute, $shippingMethodRoute, $checkoutGateway, $ruleIdMatcher);
+        $route = new CheckoutGatewayRoute($paymentMethodRoute, $shippingMethodRoute, $checkoutGateway);
         $result = $route->load($request, $cart, $context);
 
         static::assertSame($paymentMethods->getPaymentMethods(), $result->getPaymentMethods());
@@ -217,17 +209,10 @@ class CheckoutGatewayRouteTest extends TestCase
             ->with(static::equalTo($payload))
             ->willReturn($response);
 
-        $ruleIdMatcher = $this->createMock(RuleIdMatcher::class);
-        $ruleIdMatcher
-            ->expects($this->exactly(2))
-            ->method('filterCollection')
-            ->willReturnArgument(0);
-
         $route = new CheckoutGatewayRoute(
             $paymentMethodRoute,
             $shippingMethodRoute,
             $checkoutGateway,
-            $ruleIdMatcher
         );
 
         $result = $route->load($request, $cart, $context);
@@ -277,7 +262,6 @@ class CheckoutGatewayRouteTest extends TestCase
             $paymentMethodRoute,
             $shippingMethodRoute,
             $checkoutGateway,
-            new RuleIdMatcher()
         );
 
         $route->load(new Request(), new Cart('hatoken'), $context);

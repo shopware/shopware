@@ -56,7 +56,7 @@ class CustomerFlowEventsSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals([
+        static::assertSame([
             CustomerEvents::CUSTOMER_WRITTEN_EVENT => 'onCustomerWritten',
         ], $this->customerFlowEventsSubscriber->getSubscribedEvents());
     }

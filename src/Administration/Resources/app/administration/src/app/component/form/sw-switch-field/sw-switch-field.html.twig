@@ -1,5 +1,6 @@
 {% block sw_switch_field %}
 <mt-switch
+    v-if="!deprecated"
     v-bind="$attrs"
     :model-value="checkedValue"
     @update:model-value="onChangeHandler"
@@ -10,3 +11,13 @@
 
 {% block sw_switch_field_deprecated %}
 {% endblock %}
+
+{# Deprecated component #}
+<sw-switch-field-deprecated
+    v-else
+    v-bind="$attrs"
+    :value="value"
+    @update:value="onChangeHandler"
+>
+    <slot></slot>
+</sw-switch-field-deprecated>

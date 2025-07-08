@@ -16,12 +16,12 @@ class UpdatedStatesTest extends TestCase
     {
         $updatedStates = new UpdatedStates('foobar', ['foo'], ['bar']);
 
-        static::assertEquals('foobar', $updatedStates->getId());
-        static::assertEquals(['foo'], $updatedStates->getOldStates());
-        static::assertEquals(['bar'], $updatedStates->getNewStates());
+        static::assertSame('foobar', $updatedStates->getId());
+        static::assertSame(['foo'], $updatedStates->getOldStates());
+        static::assertSame(['bar'], $updatedStates->getNewStates());
 
         $updatedStates->setNewStates(['foo']);
 
-        static::assertEquals(['foo'], $updatedStates->getNewStates());
+        static::assertSame(['foo'], $updatedStates->getNewStates());
     }
 }

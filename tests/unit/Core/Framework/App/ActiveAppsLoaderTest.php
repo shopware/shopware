@@ -46,14 +46,14 @@ class ActiveAppsLoaderTest extends TestCase
         ];
 
         // call twice to test it gets cached
-        static::assertEquals($expected, $activeAppsLoader->getActiveApps());
-        static::assertEquals($expected, $activeAppsLoader->getActiveApps());
+        static::assertSame($expected, $activeAppsLoader->getActiveApps());
+        static::assertSame($expected, $activeAppsLoader->getActiveApps());
 
         // reset cache
 
         $activeAppsLoader->reset();
 
-        static::assertEquals($expected, $activeAppsLoader->getActiveApps());
+        static::assertSame($expected, $activeAppsLoader->getActiveApps());
     }
 
     public function testLoadAppsFromLocal(): void
@@ -89,6 +89,6 @@ class ActiveAppsLoaderTest extends TestCase
             ],
         ];
 
-        static::assertEquals($expected, $activeAppsLoader->getActiveApps());
+        static::assertSame($expected, $activeAppsLoader->getActiveApps());
     }
 }

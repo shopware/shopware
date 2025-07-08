@@ -18,7 +18,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Setup\Setup;
 class AppLoaderTest extends TestCase
 {
     /**
-     * @var array<string, mixed>
+     * @var array{root: array{name: string, pretty_version: string, version: string, reference: string|null, type: string, install_path: string, aliases: string[], dev: bool}, versions: array<string, array{pretty_version?: string, version?: string, reference?: string|null, type?: string, install_path?: string, aliases?: string[], dev_requirement: bool, replaced?: string[], provided?: string[]}>}
      */
     private array $packages;
 
@@ -33,7 +33,6 @@ class AppLoaderTest extends TestCase
     {
         parent::tearDown();
 
-        // @phpstan-ignore-next-line
         InstalledVersions::reload($this->packages);
     }
 
@@ -64,8 +63,8 @@ class AppLoaderTest extends TestCase
 
         static::assertTrue($app->isManagedByComposer());
 
-        static::assertEquals('test', $app->getMetadata()->getName());
-        static::assertEquals('1.0.0', $app->getMetadata()->getVersion());
+        static::assertSame('test', $app->getMetadata()->getName());
+        static::assertSame('1.0.0', $app->getMetadata()->getVersion());
 
         $this->expectException(AppException::class);
         $this->expectExceptionMessage('App test is managed by Composer and cannot be deleted');

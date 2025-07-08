@@ -62,6 +62,7 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         $definition = new Definition(AttributeEntityDefinition::class);
         $definition->addArgument($meta);
         $definition->setPublic(true);
+        $definition->addTag('shopware.entity.definition');
         $container->setDefinition($entity . '.definition', $definition);
 
         $registry = $container->getDefinition(DefinitionInstanceRegistry::class);
@@ -102,6 +103,7 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         $definition = new Definition(AttributeTranslationDefinition::class);
         $definition->addArgument($meta);
         $definition->setPublic(true);
+        $definition->addTag('shopware.entity.definition');
         $container->setDefinition($entity . '_translation.definition', $definition);
 
         $registry = $container->getDefinition(DefinitionInstanceRegistry::class);
@@ -136,6 +138,7 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         $definition = new Definition(AttributeMappingDefinition::class);
         $definition->addArgument($meta);
         $definition->setPublic(true);
+        $definition->addTag('shopware.entity.definition');
         $container->setDefinition($meta['entity_name'] . '.definition', $definition);
 
         $registry = $container->getDefinition(DefinitionInstanceRegistry::class);

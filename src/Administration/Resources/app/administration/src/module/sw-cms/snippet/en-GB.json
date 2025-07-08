@@ -9,7 +9,7 @@
       "deleteDisabledToolTip": "The layout you want to delete is still assigned to at least one category.",
       "deleteDisabledProductToolTip": "The layout you want to delete is still assigned to at least one product.",
       "disabledAddingBlocksToolTip": "Adding blocks only works in your default system language.",
-      "buttonDelete": "Delete"
+      "privacyNotice": "By selecting continue you confirm that you have read our <a href=\"%privacyUrl%\">data protection information</a> and accepted our <a href=\"%tosUrl%\">general terms and conditions</a>."
     },
     "sorting": {
       "labelSort": "Sort by:",
@@ -221,7 +221,7 @@
           "helpText": {
             "autoplayTimeout": "The millisecond duration for how long the slide should stay still.",
             "speed": "The millisecond duration of the sliding animation.",
-            "displayMode": "<strong>Original:</strong> The image is displayed in its original resolution or shrunk down to current CMS page's width.<br><br><strong>Scaled:</strong> The image is scaled to the CMS page's width without any height restrictions.<br><br><strong>Cropped:</strong> The image is scaled to the current CMS page's width. Any vertical overflow is cropped to the configured maximum height."
+            "displayMode": "<ul><li><strong>Original:</strong> The image is displayed in its original resolution or shrunk down to current CMS page's width.</li><li><strong>Scaled:</strong> The image is scaled to the CMS page's width without any height restrictions.</li><li><strong>Cropped:</strong> The image is scaled to the current CMS page's width. Any vertical overflow is cropped to the configured maximum height.</li></ul>"
           },
           "tab": {
             "content": "Content",
@@ -272,7 +272,7 @@
             "magnifierOverGalleryHelpText": "Show the magnifier box on top of the gallery instead of showing it next to the gallery"
           },
           "helpText": {
-            "displayMode": "<strong>Original:</strong> The images are displayed in their original resolution or shrunk down to the slider's height.<br><br><strong>Fixed height:</strong> The images are displayed in their original resolution or shrunk down to the configured height.<br><br><strong>Cropped:</strong> The images are scaled to the current CMS page's width. Any vertical overflow is cropped to the configured height."
+            "displayMode": "<ul><li><strong>Original:</strong> The images are displayed in their original resolution or shrunk down to the slider's height.</li><li><strong>Fixed height:</strong> The images are displayed in their original resolution or shrunk down to the configured height.</li><li><strong>Cropped:</strong> The images are scaled to the current CMS page's width. Any vertical overflow is cropped to the configured height.</li></ul>"
           }
         }
       },
@@ -287,7 +287,7 @@
             "navigationDots": "Dots navigation"
           },
           "helpText": {
-            "displayMode": "<strong>Original:</strong> The images are scaled to the CMS page's width without any height restrictions. The slider's height is dynamically adjusted.<br><br><strong>Fixed height:</strong> The image is scaled to the CMS page's width without any height restrictions. The slider keeps the height of the tallest image.<br><br><strong>Cropped:</strong> The images are scaled to the current CMS page's width. Any vertical overflow is cropped to the configured height."
+            "displayMode": "<ul><li><strong>Original:</strong> The images are scaled to the CMS page's width without any height restrictions. The slider's height is dynamically adjusted.</li><li><strong>Fixed height:</strong> The image is scaled to the CMS page's width without any height restrictions. The slider keeps the height of the tallest image.</li><li><strong>Cropped:</strong> The images are scaled to the current CMS page's width. Any vertical overflow is cropped to the configured height.</li></ul>"
           }
         }
       },
@@ -388,7 +388,7 @@
           },
           "helpText": {
             "minWidth": "Enter the minimum width with your desired unit. For example: 200px",
-            "displayMode": "<strong>Original:</strong> The images are scaled to the height or width of the product box, so that they always fit into their designated area. The images are never scaled up.<br><br><strong>Fixed height:</strong> The images are scaled to the height or width of the product box, so that they always fit into their designated area. The images can be scaled up.<br><br><strong>Cropped:</strong> The images are scaled to the height or width of the product box. Any overflow is cropped."
+            "displayMode": "<ul><li><strong>Original:</strong> The images are scaled to the height or width of the product box, so that they always fit into their designated area. The images are never scaled up.</li><li><strong>Fixed height:</strong> The images are scaled to the height or width of the product box, so that they always fit into their designated area. The images can be scaled up.</li><li><strong>Cropped:</strong> The images are scaled to the height or width of the product box. Any overflow is cropped.</li></ul>"
           },
           "productAssignmentTypeOptions": {
             "manual": "Manual assignment",
@@ -498,7 +498,6 @@
             "privacy": "Privacy*",
             "salutation": "Salutation*",
             "salutationUndisclosed": "Prefer not to disclose",
-            "send": "Send",
             "subject": "Subject line*",
             "subscribeToNewsletter": "Subscribe to newsletter"
           },
@@ -511,8 +510,7 @@
             "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
           },
           "helpText": {
-            "privacy": "I have read the data protection information.",
-            "requiredFields": "Fields marked with * are required"
+            "requiredFields": "Fields marked with asterisks (*) are required."
           },
           "newsletter": {
             "label": {
@@ -813,6 +811,7 @@
         "rename": "Rename",
         "delete": "Delete",
         "duplicate": "Duplicate",
+        "view": "View",
         "addPreviewImage": "Add preview image",
         "setAsDefaultProductList": "Set as product listing default",
         "setAsDefaultProductDetail": "Set as product page default",

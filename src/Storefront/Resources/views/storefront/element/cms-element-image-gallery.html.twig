@@ -20,6 +20,34 @@
         {% set galleryPosition = sliderConfig.galleryPosition.value %}
         {% set verticalAlign = sliderConfig.verticalAlign.value %}
         {% set zoomImageContainerSelector = sliderConfig.zoomImageContainerSelector.value %}
+        {% set arViewerBaseOptions = {
+            snippets: {
+                arErrors: {
+                    desktopNotSupported: {
+                        reason: 'spatial.ar.errors.desktopNotSupported.reason'|trans|striptags,
+                        solution: 'spatial.ar.errors.desktopNotSupported.solution'|trans|striptags
+                    },
+                    notSafariOnIOS: {
+                        reason: 'spatial.ar.errors.notSafariOnIOS.reason'|trans|striptags,
+                        solution: 'spatial.ar.errors.notSafariOnIOS.solution'|trans|striptags
+                    },
+                    IOSVersionMismatch: {
+                        reason: 'spatial.ar.errors.IOSVersionMismatch.reason'|trans|striptags,
+                        solution: 'spatial.ar.errors.IOSVersionMismatch.solution'|trans|striptags
+                    },
+                    unknownIOSError: {
+                        reason: 'spatial.ar.errors.unknownIOSError.reason'|trans|striptags,
+                        solution: 'spatial.ar.errors.unknownIOSError.solution'|trans|striptags
+                    },
+                    unknownARError: {
+                        reason: 'spatial.ar.errors.unknownARError.reason'|trans|striptags,
+                        solution: 'spatial.ar.errors.unknownARError.solution'|trans|striptags
+                    }
+                },
+                openArView: 'spatial.ar.openArView'|trans|striptags,
+                launchingArView: 'spatial.ar.launchingArView'|trans|striptags,
+            }
+        } %}
     {% endif %}
 
     {% if fallbackImageTitle is not defined %}
@@ -196,7 +224,6 @@
                                                                                             modelUrl: image.url,
                                                                                             lightIntensity: config('core.media.defaultLightIntensity'),
                                                                                             sliderPosition: loop.index0,
-                                                                                            dracoDecodersPath: asset('bundles/storefront/assets/draco/', 'asset'),
                                                                                         } %}
                                                                                         <canvas
                                                                                             data-spatial-gallery-slider-viewer
@@ -210,16 +237,20 @@
                                                                                             {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
                                                                                         </span>
                                                                                         {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
+                                                                                            {% set arViewerOptions = arViewerBaseOptions|merge({
+                                                                                                spatialArId: image.id,
+                                                                                                modelUrl: image.url,
+                                                                                            }) %}
                                                                                             <button class="ar-button button position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
-                                                                                                    aria-label="{{ 'spatial.openArViewDescription'|trans|striptags }}"
+                                                                                                    aria-label="{{ 'spatial.ar.openArViewDescription'|trans|striptags }}"
                                                                                                     data-spatial-ar-viewer
-                                                                                                    data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}", "modelUrl": "{{ image.url }}", "dracoDecodersPath": "{{ asset('bundles/storefront/assets/draco/', 'asset') }}" }'
+                                                                                                    data-spatial-ar-viewer-options='{{ arViewerOptions|json_encode }}'
                                                                                                     tabIndex="0">
 
                                                                                                 {% sw_icon 'augmented' style {
                                                                                                     'size': 'fluid'
                                                                                                 } %}
-                                                                                                <span>{{ 'spatial.openArView'|trans|striptags }}</span>
+                                                                                                <span id="ar-button-text">{{ 'spatial.ar.openArView'|trans|striptags }}</span>
 
                                                                                             </button>
                                                                                             {% sw_include '@Storefront/storefront/utilities/ar-overlay.html.twig' %}
@@ -267,7 +298,11 @@
                                                                                 {% endif %}
 
                                                                                 {% if isProduct %}
-                                                                                    {% set attributes = attributes|merge({ itemprop: 'image' }) %}
+                                                                                    {% if loop.first %}
+                                                                                        {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
+                                                                                    {% else %}
+                                                                                        {% set attributes = attributes|merge({ itemprop: 'image' }) %}
+                                                                                    {% endif %}
                                                                                 {% endif %}
 
                                                                                 {% if loop.first %}
@@ -342,7 +377,6 @@
                                                                             modelUrl: image.url,
                                                                             lightIntensity: config('core.media.defaultLightIntensity'),
                                                                             sliderPosition: loop.index0,
-                                                                            dracoDecodersPath: asset('bundles/storefront/assets/draco/', 'asset'),
                                                                         } %}
                                                                         <canvas
                                                                                 data-spatial-gallery-slider-viewer
@@ -356,16 +390,20 @@
                                                                         {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
                                                                         </span>
                                                                         {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
+                                                                            {% set arViewerOptions = arViewerBaseOptions|merge({
+                                                                                spatialArId: image.id,
+                                                                                modelUrl: image.url,
+                                                                            }) %}
                                                                             <button class="ar-button button position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
-                                                                                    aria-label="{{ 'spatial.openArViewDescription'|trans|striptags }}"
+                                                                                    aria-label="{{ 'spatial.ar.openArViewDescription'|trans|striptags }}"
                                                                                     data-spatial-ar-viewer
-                                                                                    data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}", "modelUrl": "{{ image.url }}", "dracoDecodersPath": "{{ asset('bundles/storefront/assets/draco/', 'asset') }}" }'
+                                                                                    data-spatial-ar-viewer-options='{{ arViewerOptions|json_encode }}'
                                                                                     tabIndex="0">
 
                                                                                 {% sw_icon 'augmented' style {
                                                                                     'size': 'fluid'
                                                                                 } %}
-                                                                                <span>{{ 'spatial.openArView'|trans|striptags }}</span>
+                                                                                <span id="ar-button-text">{{ 'spatial.ar.openArView'|trans|striptags }}</span>
 
                                                                             </button>
                                                                             {% sw_include '@Storefront/storefront/utilities/ar-overlay.html.twig' %}
@@ -412,7 +450,11 @@
                                                                 {% endif %}
 
                                                                 {% if isProduct %}
-                                                                    {% set attributes = attributes|merge({ itemprop: 'image' }) %}
+                                                                    {% if loop.first %}
+                                                                        {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
+                                                                    {% else %}
+                                                                        {% set attributes = attributes|merge({ itemprop: 'image' }) %}
+                                                                    {% endif %}
                                                                 {% endif %}
 
                                                                 {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
@@ -496,11 +538,15 @@
                                                                     {% else %}
                                                                         {% block element_image_gallery_inner_thumbnails_item_inner_image %}
                                                                             {% set attributes = attributes|merge({
-                                                                                alt: (image.translated.alt ?: fallbackImageTitle)
+                                                                                alt: (image.translated.alt ?: false)
                                                                             }) %}
 
                                                                             {% if isProduct %}
-                                                                                {% set attributes = attributes|merge({ itemprop: 'image' }) %}
+                                                                                {% if loop.first %}
+                                                                                    {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
+                                                                                {% else %}
+                                                                                    {% set attributes = attributes|merge({ itemprop: 'image' }) %}
+                                                                                {% endif %}
                                                                             {% endif %}
 
                                                                             {% sw_thumbnails 'gallery-slider-thumbnails-image-thumbnails' with {
@@ -598,7 +644,9 @@
                                                                          aria-label="zoom actions">
 
                                                                         {% block element_image_gallery_inner_zoom_modal_action_zoom_out %}
-                                                                            <button class="btn btn-light image-zoom-btn js-image-zoom-out">
+                                                                            <button type="button"
+                                                                                    class="btn btn-light image-zoom-btn js-image-zoom-out"
+                                                                                    aria-label="{{ 'component.cms.imageGallery.zoomOut'|trans }}">
                                                                                 {% block element_image_gallery_inner_zoom_modal_action_zoom_out_icon %}
                                                                                     {% sw_icon 'minus-circle' %}
                                                                                 {% endblock %}
@@ -606,7 +654,9 @@
                                                                         {% endblock %}
 
                                                                         {% block element_image_gallery_inner_zoom_modal_action_zoom_reset %}
-                                                                            <button class="btn btn-light image-zoom-btn js-image-zoom-reset">
+                                                                            <button type="button"
+                                                                                    class="btn btn-light image-zoom-btn js-image-zoom-reset"
+                                                                                    aria-label="{{ 'component.cms.imageGallery.zoomReset'|trans }}">
                                                                                 {% block element_image_gallery_inner_zoom_modal_action_zoom_reset_icon %}
                                                                                     {% sw_icon 'screen-minimize' %}
                                                                                 {% endblock %}
@@ -614,7 +664,9 @@
                                                                         {% endblock %}
 
                                                                         {% block element_image_gallery_inner_zoom_modal_action_zoom_in %}
-                                                                            <button class="btn btn-light image-zoom-btn js-image-zoom-in">
+                                                                            <button type="button"
+                                                                                    class="btn btn-light image-zoom-btn js-image-zoom-in"
+                                                                                    aria-label="{{ 'component.cms.imageGallery.zoomIn'|trans }}">
                                                                                 {% block element_image_gallery_inner_zoom_modal_action_zoom_in_icon %}
                                                                                     {% sw_icon 'plus-circle' %}
                                                                                 {% endblock %}
@@ -699,7 +751,6 @@
                                                                                                                 modelUrl: image.url,
                                                                                                                 lightIntensity: config('core.media.defaultLightIntensity'),
                                                                                                                 sliderPosition: loop.index0,
-                                                                                                                dracoDecodersPath: asset('bundles/storefront/assets/draco/', 'asset'),
                                                                                                             } %}
                                                                                                             <canvas
                                                                                                                     data-spatial-zoom-gallery-slider-viewer
@@ -713,16 +764,20 @@
                                                                                                             {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
                                                                                                             </span>
                                                                                                             {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
+                                                                                                                {% set arViewerOptions = arViewerBaseOptions|merge({
+                                                                                                                    spatialArId: image.id,
+                                                                                                                    modelUrl: image.url,
+                                                                                                                }) %}
                                                                                                                 <button class="ar-button button mb-2 position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
-                                                                                                                        aria-label="{{ 'spatial.openArViewDescription'|trans|striptags }}"
+                                                                                                                        aria-label="{{ 'spatial.ar.openArViewDescription'|trans|striptags }}"
                                                                                                                         data-spatial-ar-viewer
-                                                                                                                        data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}", "modelUrl": "{{ image.url }}", "dracoDecodersPath": "{{ asset('bundles/storefront/assets/draco/', 'asset') }}" }'
+                                                                                                                        data-spatial-ar-viewer-options='{{ arViewerOptions|json_encode }}'
                                                                                                                         tabIndex="0">
 
                                                                                                                     {% sw_icon 'augmented' style {
                                                                                                                         'size': 'fluid'
                                                                                                                     } %}
-                                                                                                                    <span>{{ 'spatial.openArView'|trans|striptags }}</span>
+                                                                                                                    <span id="ar-button-text">{{ 'spatial.ar.openArView'|trans|striptags }}</span>
 
                                                                                                                 </button>
                                                                                                                 {% sw_include '@Storefront/storefront/utilities/ar-overlay.html.twig' %}
@@ -823,7 +878,7 @@
                                                                                                         {% block element_image_gallery_inner_zoom_modal_thumbnails_item_inner_image %}
                                                                                                             {% set attributes = attributes|merge({
                                                                                                                 class: attributes.class ~ ' js-load-img',
-                                                                                                                alt: (image.translated.alt ?: fallbackImageTitle)
+                                                                                                                alt: (image.translated.alt ?: false)
                                                                                                             }) %}
 
                                                                                                             {% sw_thumbnails 'gallery-slider-thumbnails-image-thumbnails' with {

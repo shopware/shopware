@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  *
- * @phpstan-ignore-next-line
+ * @phpstan-ignore class.extendsFinalByPhpDoc
  */
 #[Package('checkout')]
 class QuantityItem extends LineItem

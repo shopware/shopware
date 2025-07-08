@@ -29,7 +29,7 @@
 
         {% block sw_order_state_history_modal_content_columns_user %}
         <template #column-user="{ item }">
-            {{ item.user?.username ?? $tc('sw-order.stateHistoryModal.labelSystemUser') }}
+            {{ getStateChangeAuthor(item) }}
         </template>
         {% endblock %}
 
@@ -59,6 +59,7 @@
         {% block sw_order_state_history_modal_content_columns_transaction_state %}
         <template #column-transaction="{ item }">
             <sw-label
+                v-if="item.transaction"
                 :variant="getVariantState('order_transaction', item.transaction)"
                 appearance="badged"
             >

@@ -25,7 +25,7 @@ function importAllConditionTypes() {
 }
 
 async function createWrapperForComponent(componentName, props = {}) {
-    return mount(await Shopware.Component.build(componentName), {
+    return mount(await wrapTestComponent(componentName, { sync: true }), {
         props: {
             condition: {},
             ...props,

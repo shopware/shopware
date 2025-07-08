@@ -4,7 +4,7 @@ const path = require('path');
 /* eslint-disable max-len */
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * This rule checks if deprecated components are used and can convert them to the new components.
  * It also adds a comment to the converted component to make it easier to track the changes.

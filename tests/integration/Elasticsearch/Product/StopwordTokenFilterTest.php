@@ -38,7 +38,7 @@ class StopwordTokenFilterTest extends TestCase
 
         sort($expected);
         sort($keywords);
-        static::assertEquals($expected, $keywords);
+        static::assertSame($expected, $keywords);
     }
 
     /**

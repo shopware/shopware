@@ -2,11 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\BillingZipCodeRule;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
@@ -19,9 +15,6 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
@@ -45,14 +38,11 @@ class BillingZipCodeRuleTest extends TestCase
 
     private Context $context;
 
-    private BillingZipCodeRule $rule;
-
     protected function setUp(): void
     {
         $this->ruleRepository = static::getContainer()->get('rule.repository');
         $this->conditionRepository = static::getContainer()->get('rule_condition.repository');
         $this->context = Context::createDefaultContext();
-        $this->rule = new BillingZipCodeRule();
     }
 
     public function testValidateWithMissingZipCodes(): void
@@ -222,83 +212,6 @@ class BillingZipCodeRuleTest extends TestCase
         $this->conditionRepository->delete([['id' => $id]], $this->context);
     }
 
-    public function testConstraints(): void
-    {
-        $expectedOperators = [
-            Rule::OPERATOR_EQ,
-            Rule::OPERATOR_NEQ,
-            Rule::OPERATOR_EMPTY,
-            Rule::OPERATOR_GTE,
-            Rule::OPERATOR_LTE,
-            Rule::OPERATOR_GT,
-            Rule::OPERATOR_LT,
-        ];
-
-        $ruleConstraints = $this->rule->getConstraints();
-
-        static::assertArrayHasKey('operator', $ruleConstraints, 'Constraint operator not found in Rule');
-        $operators = $ruleConstraints['operator'];
-        static::assertEquals(new NotBlank(), $operators[0]);
-        static::assertEquals(new Choice($expectedOperators), $operators[1]);
-
-        $this->rule->assign(['operator' => Rule::OPERATOR_EQ]);
-        static::assertArrayHasKey('zipCodes', $ruleConstraints, 'Constraint zipCodes not found in Rule');
-        $zipCodes = $ruleConstraints['zipCodes'];
-        static::assertEquals(new NotBlank(), $zipCodes[0]);
-        static::assertEquals(new ArrayOfType('string'), $zipCodes[1]);
-    }
-
-    #[DataProvider('getMatchValuesNumeric')]
-    public function testRuleMatchingNumeric(string $operator, bool $isMatching, string $zipCode): void
-    {
-        $zipCodes = ['90210', '81985'];
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $customerAddress = new CustomerAddressEntity();
-        $customerAddress->setZipcode($zipCode);
-
-        $customer = new CustomerEntity();
-        $customer->setActiveBillingAddress($customerAddress);
-        $salesChannelContext->method('getCustomer')->willReturn($customer);
-        $scope = new CheckoutRuleScope($salesChannelContext);
-        $this->rule->assign(['zipCodes' => $zipCodes, 'operator' => $operator]);
-
-        $match = $this->rule->match($scope);
-        if ($isMatching) {
-            static::assertTrue($match);
-        } else {
-            static::assertFalse($match);
-        }
-    }
-
-    #[DataProvider('getMatchValuesAlphanumeric')]
-    public function testRuleMatchingAlphanumeric(string $operator, bool $isMatching, ?string $zipCode, string $customerZipCode = '9E21L', bool $noCustomer = false, bool $noAddress = false): void
-    {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $customerAddress = new CustomerAddressEntity();
-        $customerAddress->setZipcode($customerZipCode);
-
-        $customer = new CustomerEntity();
-
-        if (!$noAddress) {
-            $customer->setActiveBillingAddress($customerAddress);
-        }
-
-        if ($noCustomer) {
-            $customer = null;
-        }
-
-        $salesChannelContext->method('getCustomer')->willReturn($customer);
-        $scope = new CheckoutRuleScope($salesChannelContext);
-        $this->rule->assign(['zipCodes' => $zipCode ? [$zipCode] : null, 'operator' => $operator]);
-
-        $match = $this->rule->match($scope);
-        if ($isMatching) {
-            static::assertTrue($match);
-        } else {
-            static::assertFalse($match);
-        }
-    }
-
     public function testValidateWithInvalidGreaterThanCondition(): void
     {
         try {
@@ -346,49 +259,5 @@ class BillingZipCodeRuleTest extends TestCase
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
         $this->ruleRepository->delete([['id' => $ruleId]], $this->context);
         $this->conditionRepository->delete([['id' => $id]], $this->context);
-    }
-
-    /**
-     * @return array<string, array<string|bool>>
-     */
-    public static function getMatchValuesNumeric(): array
-    {
-        return [
-            'operator_lt / match / zip code' => [Rule::OPERATOR_LT, true, '56000'],
-            'operator_lt / not match / zip code' => [Rule::OPERATOR_LT, false, '90210'],
-            'operator_lte / match / zip code' => [Rule::OPERATOR_LTE, true, '90210'],
-            'operator_lte / not match / zip code' => [Rule::OPERATOR_LTE, false, '90211'],
-            'operator_gt / match / zip code' => [Rule::OPERATOR_GT, true, '90211'],
-            'operator_gt / not match / zip code' => [Rule::OPERATOR_GT, false, '90210'],
-            'operator_gte / match / zip code' => [Rule::OPERATOR_GTE, true, '90210'],
-            'operator_gte / not match / zip code' => [Rule::OPERATOR_GTE, false, '56000'],
-        ];
-    }
-
-    /**
-     * @return \Traversable<string, array<string|bool|null>>
-     */
-    public static function getMatchValuesAlphanumeric(): \Traversable
-    {
-        yield 'operator_eq / not match exact / zip code' => [Rule::OPERATOR_EQ, false, '56GG0'];
-        yield 'operator_eq / match exact / zip code' => [Rule::OPERATOR_EQ, true, '9e21l'];
-        yield 'operator_eq / not match partially / zip code' => [Rule::OPERATOR_EQ, false, '*6A*0'];
-        yield 'operator_eq / match partially / zip code' => [Rule::OPERATOR_EQ, true, 'B*9D*', 'B19D5'];
-        yield 'operator_neq / match exact / zip code' => [Rule::OPERATOR_NEQ, true, '56000'];
-        yield 'operator_neq / not match exact / zip code' => [Rule::OPERATOR_NEQ, false, '9E21L'];
-        yield 'operator_neq / match partially / zip code' => [Rule::OPERATOR_NEQ, true, '*6A*0'];
-        yield 'operator_neq / not match partially / zip code' => [Rule::OPERATOR_NEQ, false, 'B*9D*', 'B19D5'];
-        yield 'operator_empty / not match / zip code' => [Rule::OPERATOR_EMPTY, false, '56GG0'];
-        yield 'operator_empty / match / zip code' => [Rule::OPERATOR_EMPTY, true, ' ', ' '];
-        yield 'operator_empty / match null / zip code' => [Rule::OPERATOR_EMPTY, true, null, ' '];
-
-        yield 'operator_eq / no match / no customer' => [Rule::OPERATOR_EQ, false, '', '', true];
-        yield 'operator_eq / no match / no address' => [Rule::OPERATOR_EQ, false, '', '', false, true];
-
-        yield 'operator_empty / match / no customer' => [Rule::OPERATOR_EMPTY, true, '', '', true];
-        yield 'operator_empty / match / no address' => [Rule::OPERATOR_EMPTY, true, '', '', false, true];
-
-        yield 'operator_neq / match / no customer' => [Rule::OPERATOR_NEQ, true, '', '', true];
-        yield 'operator_neq / match / no address' => [Rule::OPERATOR_NEQ, true, '', '', false, true];
     }
 }

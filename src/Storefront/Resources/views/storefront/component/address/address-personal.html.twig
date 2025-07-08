@@ -55,23 +55,25 @@
                     </option>
                 {% endset %}
 
-                {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
-                    label: 'account.personalTypeLabel'|trans|sw_sanitize,
-                    id: idPrefix ~ prefix ~ '-accountType',
-                    name: prefix ? prefix ~ '[accountType]' : 'accountType',
-                    options: accountTypeOptions,
-                    validationRules: 'required',
-                    disabled: (onlyCompanyRegistration) ? 'true',
-                    additionalClass: 'col-md-6 contact-type',
-                    additionalSelectClass: 'contact-select',
-                    attributes: {
-                        'data-form-field-toggle': 'true',
-                        'data-form-field-toggle-target': toggleTarget,
-                        'data-form-field-toggle-value': constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS'),
-                        'data-form-field-toggle-scope': (scope == 'parent') ? 'parent' : 'all',
-                        'data-form-field-toggle-parent-selector': (scope == 'parent') ? parentSelector,
-                    },
-                } %}
+                {% block component_address_personal_account_type_select %}
+                    {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
+                        label: 'account.personalTypeLabel'|trans|sw_sanitize,
+                        id: idPrefix ~ prefix ~ '-accountType',
+                        name: prefix ? prefix ~ '[accountType]' : 'accountType',
+                        options: accountTypeOptions,
+                        validationRules: 'required',
+                        disabled: (onlyCompanyRegistration) ? 'true',
+                        additionalClass: 'col-md-6 contact-type',
+                        additionalSelectClass: 'contact-select',
+                        attributes: {
+                            'data-form-field-toggle': 'true',
+                            'data-form-field-toggle-target': toggleTarget,
+                            'data-form-field-toggle-value': constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS'),
+                            'data-form-field-toggle-scope': (scope == 'parent') ? 'parent' : 'all',
+                            'data-form-field-toggle-parent-selector': (scope == 'parent') ? parentSelector,
+                        },
+                    } %}
+                {% endblock %}
 
                 {% if onlyCompanyRegistration %}
                     {# This is rendered on the profile edit page if the customer registered via a custom commercial registration form. #}
@@ -104,14 +106,16 @@
                             {% endfor %}
                         {% endset %}
 
-                        {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
-                            label: 'account.personalSalutationLabel'|trans|sw_sanitize,
-                            id: idPrefix ~ prefix ~ 'personalSalutation',
-                            name: prefix ? prefix ~ '[salutationId]' : 'salutationId',
-                            options: salutationOptions,
-                            violationPath: '/salutationId',
-                            additionalClass: 'col-md-3 col-sm-6',
-                        } %}
+                        {% block component_address_personal_fields_salutation_select %}
+                            {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
+                                label: 'account.personalSalutationLabel'|trans|sw_sanitize,
+                                id: idPrefix ~ prefix ~ 'personalSalutation',
+                                name: prefix ? prefix ~ '[salutationId]' : 'salutationId',
+                                options: salutationOptions,
+                                violationPath: '/salutationId',
+                                additionalClass: 'col-md-3 col-sm-6',
+                            } %}
+                        {% endblock %}
                     {% endif %}
                 {% endblock %}
 
@@ -123,15 +127,17 @@
                             {% set violationPath = "/title" %}
                         {% endif %}
 
-                        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
-                            label: 'account.personalTitleLabel'|trans|sw_sanitize,
-                            id: idPrefix ~ prefix ~ 'personalTitle',
-                            name: prefix ? prefix ~ '[title]' : 'title',
-                            value: data.get('title'),
-                            autocomplete: 'section-personal honorific-prefix',
-                            violationPath: violationPath,
-                            additionalClass: 'col-md-3 col-sm-6',
-                        } %}
+                        {% block component_address_personal_fields_title_input %}
+                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                label: 'account.personalTitleLabel'|trans|sw_sanitize,
+                                id: idPrefix ~ prefix ~ 'personalTitle',
+                                name: prefix ? prefix ~ '[title]' : 'title',
+                                value: data.get('title'),
+                                autocomplete: 'section-personal honorific-prefix',
+                                violationPath: violationPath,
+                                additionalClass: 'col-md-3 col-sm-6',
+                            } %}
+                        {% endblock %}
                     {% endif %}
                 {% endblock %}
             </div>
@@ -150,20 +156,20 @@
                     {% set violationPath = "/#{prefix}/firstName" %}
                 {% elseif formViolations.getViolations("/firstName") is not empty and prefix === 'address' %}
                     {% set violationPath = "/firstName" %}
-                {% else %}
-                    {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalFirstNameLabel"|trans|sw_sanitize }) %}
                 {% endif %}
 
-                {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
-                    label: 'account.personalFirstNameLabel'|trans|sw_sanitize,
-                    id: idPrefix ~ prefix ~ '-personalFirstName',
-                    name: prefix ? prefix ~ '[firstName]' : 'firstName',
-                    value: (prefix and data.has(prefix)) ? data.get(prefix).get('firstName') : data.get('firstName'),
-                    autocomplete: 'section-personal given-name',
-                    violationPath: violationPath,
-                    validationRules: 'required',
-                    additionalClass: 'col-sm-6',
-                } %}
+                {% block component_address_personal_fields_first_name_input %}
+                    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                        label: 'account.personalFirstNameLabel'|trans|sw_sanitize,
+                        id: idPrefix ~ prefix ~ '-personalFirstName',
+                        name: prefix ? prefix ~ '[firstName]' : 'firstName',
+                        value: (prefix and data.has(prefix)) ? data.get(prefix).get('firstName') : data.get('firstName'),
+                        autocomplete: 'section-personal given-name',
+                        violationPath: violationPath,
+                        validationRules: 'required',
+                        additionalClass: 'col-sm-6',
+                    } %}
+                {% endblock %}
             {% endblock %}
 
             {% block component_address_personal_fields_last_name %}
@@ -175,20 +181,20 @@
                     {% set violationPath = "/#{prefix}/lastName" %}
                 {% elseif formViolations.getViolations("/lastName") is not empty and prefix === 'address' %}
                     {% set violationPath = "/lastName" %}
-                {% else %}
-                    {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalLastNameLabel"|trans|sw_sanitize }) %}
                 {% endif %}
 
-                {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
-                    label: 'account.personalLastNameLabel'|trans|sw_sanitize,
-                    id: idPrefix ~ prefix ~ '-personalLastName',
-                    name: prefix ? prefix ~ '[lastName]' : 'lastName',
-                    value: (prefix and data.has(prefix)) ? data.get(prefix).get('lastName') : data.get('lastName'),
-                    autocomplete: 'section-personal family-name',
-                    violationPath: violationPath,
-                    validationRules: 'required',
-                    additionalClass: 'col-sm-6',
-                } %}
+                {% block component_address_personal_fields_last_name_input %}
+                    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                        label: 'account.personalLastNameLabel'|trans|sw_sanitize,
+                        id: idPrefix ~ prefix ~ '-personalLastName',
+                        name: prefix ? prefix ~ '[lastName]' : 'lastName',
+                        value: (prefix and data.has(prefix)) ? data.get(prefix).get('lastName') : data.get('lastName'),
+                        autocomplete: 'section-personal family-name',
+                        violationPath: violationPath,
+                        validationRules: 'required',
+                        additionalClass: 'col-sm-6',
+                    } %}
+                {% endblock %}
             {% endblock %}
         </div>
     {% endblock %}
@@ -201,21 +207,21 @@
                         {% block component_address_personal_company_name %}
                             {% if formViolations.getViolations("/company") is not empty %}
                                 {% set violationPath = "/company" %}
-                            {% else %}
-                                {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "address.companyNameLabel"|trans|sw_sanitize }) %}
                             {% endif %}
 
                             {# This is only rendered on the customer profile edit page. #}
-                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
-                                label: 'address.companyNameLabel'|trans|sw_sanitize,
-                                id: idPrefix ~ prefix ~ '-company',
-                                name: 'company',
-                                value: data.get('company'),
-                                autocomplete: 'section-personal organization',
-                                violationPath: violationPath,
-                                validationRules: 'required',
-                                additionalClass: 'col-sm-6',
-                            } %}
+                            {% block component_address_personal_company_name_input %}
+                                {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                    label: 'address.companyNameLabel'|trans|sw_sanitize,
+                                    id: idPrefix ~ prefix ~ '-company',
+                                    name: 'company',
+                                    value: data.get('company'),
+                                    autocomplete: 'section-personal organization',
+                                    violationPath: violationPath,
+                                    validationRules: 'required',
+                                    additionalClass: 'col-sm-6',
+                                } %}
+                            {% endblock %}
                         {% endblock %}
                     </div>
                 {% endblock %}

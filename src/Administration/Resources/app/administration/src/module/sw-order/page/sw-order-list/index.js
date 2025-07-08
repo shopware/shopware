@@ -108,11 +108,22 @@ export default {
                 .addSorting(Criteria.sort('createdAt'));
 
             criteria
-                .getAssociation('deliveries')
-                .addAssociation('stateMachineState')
-                .addAssociation('shippingOrderAddress')
-                .addAssociation('shippingMethod')
+                .addAssociation('primaryOrderTransaction')
+                .addAssociation('primaryOrderTransaction.paymentMethod')
+                .addAssociation('primaryOrderTransaction.stateMachineState')
+                .addAssociation('primaryOrderDelivery.shippingMethod')
+                .addAssociation('primaryOrderDelivery.stateMachineState')
+                .addAssociation('primaryOrderDelivery.shippingOrderAddress.country')
                 .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
+
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                criteria
+                    .getAssociation('deliveries')
+                    .addAssociation('stateMachineState')
+                    .addAssociation('shippingOrderAddress')
+                    .addAssociation('shippingMethod')
+                    .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
+            }
 
             return criteria;
         },
@@ -156,13 +167,13 @@ export default {
                     toPlaceholder: this.$tc('global.default.to'),
                 },
                 'payment-status-filter': {
-                    property: 'transactions.stateMachineState',
+                    property: 'primaryOrderTransaction.stateMachineState',
                     criteria: this.getStatusCriteria('order_transaction.state'),
                     label: this.$tc('sw-order.filters.paymentStatusFilter.label'),
                     placeholder: this.$tc('sw-order.filters.paymentStatusFilter.placeholder'),
                 },
                 'delivery-status-filter': {
-                    property: 'deliveries.stateMachineState',
+                    property: 'primaryOrderDelivery.stateMachineState',
                     criteria: this.getStatusCriteria('order_delivery.state'),
                     label: this.$tc('sw-order.filters.deliveryStatusFilter.label'),
                     placeholder: this.$tc('sw-order.filters.deliveryStatusFilter.placeholder'),
@@ -468,7 +479,12 @@ export default {
         },
 
         getVariantFromPaymentState(order) {
-            let technicalName = order.transactions.last().stateMachineState.technicalName;
+            let technicalName = order.primaryOrderTransaction?.stateMachineState.technicalName;
+
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                technicalName = order.transactions.last().stateMachineState.technicalName;
+            }
+
             // set the payment status to the first transaction that is not cancelled
             for (let i = 0; i < order.transactions.length; i += 1) {
                 if (
@@ -490,7 +506,7 @@ export default {
         getVariantFromDeliveryState(order) {
             const style = this.stateStyleDataProviderService.getStyle(
                 'order_delivery.state',
-                order.deliveries[0].stateMachineState.technicalName,
+                this.getDelivery(order).stateMachineState.technicalName,
             );
 
             return style.colorCode;
@@ -531,7 +547,7 @@ export default {
             await this.$nextTick();
 
             const ordersExcludeDelivery = Object.values(this.$refs.orderGrid.selection).filter((order) => {
-                return !order.deliveries[0];
+                return !this.getDelivery(order);
             });
             const excludeDelivery = ordersExcludeDelivery.length > 0 ? '1' : '0';
 
@@ -555,7 +571,19 @@ export default {
                 }
             }
 
-            return item.transactions.last();
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return item.transactions.last();
+            }
+
+            return item.primaryOrderTransaction;
+        },
+
+        getDelivery(order) {
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return order.deliveries[0];
+            }
+
+            return order.primaryOrderDelivery;
         },
     },
 };

@@ -7,6 +7,7 @@ use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartCompressor;
@@ -21,6 +22,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Content\Product\Cart\ProductNotFoundError;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -314,6 +316,57 @@ class CartPersisterTest extends TestCase
         static::assertCount(2, $carts);
         static::assertContains($ids->get('cart-1'), $carts);
         static::assertContains($ids->get('cart-3'), $carts);
+    }
+
+    public function testSaveCartWithoutErrorCleanup(): void
+    {
+        $cart = new Cart('existing');
+        $cart->add(
+            (new LineItem('A', 'test'))
+                ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setLabel('test')
+        );
+
+        $cart->addErrors(new ProductNotFoundError(Uuid::randomHex()));
+
+        $context = $this->getSalesChannelContext($cart->getToken());
+        $cartPersister = static::getContainer()->get(CartPersister::class);
+        $cartPersister->save($cart, $context);
+
+        $cart = $cartPersister->load($cart->getToken(), $context);
+
+        static::assertNotEmpty($cart->getLineItems());
+        static::assertEmpty($cart->getErrors());
+    }
+
+    public function testSaveCartWithPersistCartErrorPermission(): void
+    {
+        $cart = new Cart('existing');
+        $cart->add(
+            (new LineItem('A', 'test'))
+                ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setLabel('test')
+        );
+
+        $cart->setBehavior(new CartBehavior([
+            AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => true,
+        ]));
+
+        $productId = Uuid::randomHex();
+        $cart->addErrors(new ProductNotFoundError($productId));
+
+        $context = $this->getSalesChannelContext($cart->getToken());
+        $cartPersister = static::getContainer()->get(CartPersister::class);
+        $cartPersister->save($cart, $context);
+
+        $cart = $cartPersister->load($cart->getToken(), $context);
+
+        static::assertNotEmpty($cart->getLineItems());
+        static::assertNotEmpty($cart->getErrors());
+
+        $error = $cart->getErrors()->first();
+        static::assertInstanceOf(ProductNotFoundError::class, $error);
+        static::assertEquals(['id' => $productId], $error->getParameters());
     }
 
     private function getSalesChannelContext(string $token): SalesChannelContext

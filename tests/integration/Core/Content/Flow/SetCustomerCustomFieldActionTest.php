@@ -90,7 +90,7 @@ class SetCustomerCustomFieldActionTest extends TestCase
         $customer = $this->customerRepository->search(new Criteria([$this->ids->get('customer')]), Context::createDefaultContext())->first();
 
         $expect = $option === 'clear' ? null : [$customFieldName => $expectData];
-        static::assertEquals($customer->getCustomFields(), $expect);
+        static::assertSame($customer->getCustomFields(), $expect);
     }
 
     /**

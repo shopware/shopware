@@ -170,6 +170,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                         'sw-app-topbar-button': true,
                         'sw-notification-center': true,
                         'sw-help-center-v2': true,
+                        'sw-context-menu-item': true,
                         'sw-context-button': true,
                         'sw-extension-component-section': true,
                         'sw-ai-copilot-badge': true,

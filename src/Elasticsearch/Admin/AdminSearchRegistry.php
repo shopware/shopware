@@ -243,13 +243,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
             'body' => $documents,
         ];
 
-        try {
-            $result = $this->client->bulk($arguments);
-        } catch (OpenSearchException $e) {
-            $this->logger->error('Could not index documents. Run "bin/console es:admin:index" to reindex. Error: ' . $e->getMessage());
-
-            return;
-        }
+        $result = $this->client->bulk($arguments);
 
         if (\is_array($result) && !empty($result['errors'])) {
             $errors = $this->parseErrors($result);

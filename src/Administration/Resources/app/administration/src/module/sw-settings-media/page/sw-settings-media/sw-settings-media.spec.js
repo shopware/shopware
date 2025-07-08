@@ -42,7 +42,7 @@ async function createWrapper() {
                     'router-link': true,
                     'sw-app-actions': true,
                     'sw-sales-channel-switch': true,
-
+                    'sw-context-menu-item': true,
                     'sw-form-field-renderer': true,
                     'sw-inherit-wrapper': true,
                     'sw-ai-copilot-badge': true,

@@ -60,9 +60,13 @@ export default {
     computed: {
         identifier() {
             return this.snippetSets
-                ? this.$tc('sw-settings-snippet.list.identifier', this.snippetSets.length, {
-                      setName: this.metaName,
-                  })
+                ? this.$tc(
+                      'sw-settings-snippet.list.identifier',
+                      {
+                          setName: this.metaName,
+                      },
+                      this.snippetSets.length,
+                  )
                 : '';
         },
 
@@ -431,7 +435,7 @@ export default {
 
         inlineSaveSuccessMessage(key) {
             const titleSaveSuccess = this.$tc('global.default.success');
-            const messageSaveSuccess = this.$tc('sw-settings-snippet.list.messageSaveSuccess', this.queryIdCount, { key });
+            const messageSaveSuccess = this.$tc('sw-settings-snippet.list.messageSaveSuccess', { key }, this.queryIdCount);
 
             this.createNotificationSuccess({
                 title: titleSaveSuccess,
@@ -441,7 +445,7 @@ export default {
 
         inlineSaveErrorMessage(key) {
             const titleSaveError = this.$tc('global.default.error');
-            const messageSaveError = this.$tc('sw-settings-snippet.list.messageSaveError', this.queryIdCount, { key });
+            const messageSaveError = this.$tc('sw-settings-snippet.list.messageSaveError', { key }, this.queryIdCount);
 
             this.createNotificationError({
                 title: titleSaveError,
@@ -545,9 +549,13 @@ export default {
 
         createSuccessMessage(item) {
             const title = this.$tc('global.default.success');
-            const message = this.$tc('sw-settings-snippet.list.resetSuccessMessage', !item.isCustomSnippet, {
-                key: item.value,
-            });
+            const message = this.$tc(
+                'sw-settings-snippet.list.resetSuccessMessage',
+                {
+                    key: item.value,
+                },
+                !item.isCustomSnippet,
+            );
 
             this.createNotificationSuccess({
                 title,
@@ -557,9 +565,13 @@ export default {
 
         createResetErrorNote(item) {
             const title = this.$tc('global.default.error');
-            const message = this.$tc('sw-settings-snippet.list.resetErrorMessage', item.isCustomSnippet ? 2 : 0, {
-                key: item.value,
-            });
+            const message = this.$tc(
+                'sw-settings-snippet.list.resetErrorMessage',
+                {
+                    key: item.value,
+                },
+                item.isCustomSnippet ? 2 : 0,
+            );
 
             this.createNotificationError({
                 title,

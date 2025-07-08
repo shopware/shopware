@@ -60,15 +60,15 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $expect = $data[$id];
         static::assertIsArray($record);
-        static::assertEquals($id, $record['id']);
-        static::assertEquals($expect['technicalName'], $record['technical_name']);
-        static::assertEquals($expect['label'], $translationRecord['label']);
-        static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
-        static::assertEquals($expect['sourceEntity'], $record['source_entity']);
-        static::assertEquals($expect['fileType'], $record['file_type']);
-        static::assertEquals($expect['delimiter'], $record['delimiter']);
-        static::assertEquals($expect['enclosure'], $record['enclosure']);
-        static::assertEquals(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), $record['mapping']);
+        static::assertSame($id, $record['id']);
+        static::assertSame($expect['technicalName'], $record['technical_name']);
+        static::assertSame($expect['label'], $translationRecord['label']);
+        static::assertSame($expect['systemDefault'], (bool) $record['system_default']);
+        static::assertSame($expect['sourceEntity'], $record['source_entity']);
+        static::assertSame($expect['fileType'], $record['file_type']);
+        static::assertSame($expect['delimiter'], $record['delimiter']);
+        static::assertSame($expect['enclosure'], $record['enclosure']);
+        static::assertSame(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), $record['mapping']);
     }
 
     public function testImportExportProfileSingleCreateMissingRequired(): void
@@ -107,14 +107,14 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
-            static::assertEquals($expect['technicalName'], $record['technical_name']);
-            static::assertEquals($expect['label'], $translationRecords[$record['id']]['label']);
-            static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
-            static::assertEquals($expect['sourceEntity'], $record['source_entity']);
-            static::assertEquals($expect['fileType'], $record['file_type']);
-            static::assertEquals($expect['delimiter'], $record['delimiter']);
-            static::assertEquals($expect['enclosure'], $record['enclosure']);
-            static::assertEquals(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), $record['mapping']);
+            static::assertSame($expect['technicalName'], $record['technical_name']);
+            static::assertSame($expect['label'], $translationRecords[$record['id']]['label']);
+            static::assertSame($expect['systemDefault'], (bool) $record['system_default']);
+            static::assertSame($expect['sourceEntity'], $record['source_entity']);
+            static::assertSame($expect['fileType'], $record['file_type']);
+            static::assertSame($expect['delimiter'], $record['delimiter']);
+            static::assertSame($expect['enclosure'], $record['enclosure']);
+            static::assertSame(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), $record['mapping']);
             unset($data[$record['id']]);
         }
     }
@@ -149,7 +149,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
             $missingPropertyPaths = array_map(fn ($property) => '/' . $property, $requiredProperties);
 
-            static::assertEquals($missingPropertyPaths, $foundViolations);
+            static::assertSame($missingPropertyPaths, $foundViolations);
         }
     }
 
@@ -164,14 +164,14 @@ class ImportExportProfileRepositoryTest extends TestCase
             $id = $expect['id'];
             /** @var ImportExportProfileEntity $importExportProfile */
             $importExportProfile = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
-            static::assertEquals($expect['label'], $importExportProfile->getLabel());
-            static::assertEquals($expect['systemDefault'], $importExportProfile->getSystemDefault());
-            static::assertEquals($expect['sourceEntity'], $importExportProfile->getSourceEntity());
-            static::assertEquals($expect['fileType'], $importExportProfile->getFileType());
-            static::assertEquals($expect['delimiter'], $importExportProfile->getDelimiter());
-            static::assertEquals($expect['enclosure'], $importExportProfile->getEnclosure());
-            static::assertEquals($expect['mapping'], $importExportProfile->getMapping());
-            static::assertEquals($expect['technicalName'], $importExportProfile->getTechnicalName());
+            static::assertSame($expect['label'], $importExportProfile->getLabel());
+            static::assertSame($expect['systemDefault'], $importExportProfile->getSystemDefault());
+            static::assertSame($expect['sourceEntity'], $importExportProfile->getSourceEntity());
+            static::assertSame($expect['fileType'], $importExportProfile->getFileType());
+            static::assertSame($expect['delimiter'], $importExportProfile->getDelimiter());
+            static::assertSame($expect['enclosure'], $importExportProfile->getEnclosure());
+            static::assertSame($expect['mapping'], $importExportProfile->getMapping());
+            static::assertSame($expect['technicalName'], $importExportProfile->getTechnicalName());
         }
     }
 
@@ -183,7 +183,7 @@ class ImportExportProfileRepositoryTest extends TestCase
         $this->repository->create(array_values($data), $this->context);
 
         $result = $this->repository->search(new Criteria([Uuid::randomHex()]), $this->context);
-        static::assertEquals(0, $result->count());
+        static::assertCount(0, $result);
     }
 
     public function testImportExportProfileUpdateFull(): void
@@ -211,14 +211,14 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
-            static::assertEquals($expect['technicalName'], $record['technical_name']);
-            static::assertEquals($expect['label'], $translationRecords[$record['id']]['label']);
-            static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
-            static::assertEquals($expect['sourceEntity'], $record['source_entity']);
-            static::assertEquals($expect['fileType'], $record['file_type']);
-            static::assertEquals($expect['delimiter'], $record['delimiter']);
-            static::assertEquals($expect['enclosure'], $record['enclosure']);
-            static::assertEquals(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), $record['mapping']);
+            static::assertSame($expect['technicalName'], $record['technical_name']);
+            static::assertSame($expect['label'], $translationRecords[$record['id']]['label']);
+            static::assertSame($expect['systemDefault'], (bool) $record['system_default']);
+            static::assertSame($expect['sourceEntity'], $record['source_entity']);
+            static::assertSame($expect['fileType'], $record['file_type']);
+            static::assertSame($expect['delimiter'], $record['delimiter']);
+            static::assertSame($expect['enclosure'], $record['enclosure']);
+            static::assertSame(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), $record['mapping']);
             unset($data[$record['id']]);
         }
     }
@@ -260,14 +260,14 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
-            static::assertEquals($expect['technicalName'], $record['technical_name']);
-            static::assertEquals($expect['label'], $translationRecords[$record['id']]['label']);
-            static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
-            static::assertEquals($expect['sourceEntity'], $record['source_entity']);
-            static::assertEquals($expect['fileType'], $record['file_type']);
-            static::assertEquals($expect['delimiter'], $record['delimiter']);
-            static::assertEquals($expect['enclosure'], $record['enclosure']);
-            static::assertEquals(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), $record['mapping']);
+            static::assertSame($expect['technicalName'], $record['technical_name']);
+            static::assertSame($expect['label'], $translationRecords[$record['id']]['label']);
+            static::assertSame($expect['systemDefault'], (bool) $record['system_default']);
+            static::assertSame($expect['sourceEntity'], $record['source_entity']);
+            static::assertSame($expect['fileType'], $record['file_type']);
+            static::assertSame($expect['delimiter'], $record['delimiter']);
+            static::assertSame($expect['enclosure'], $record['enclosure']);
+            static::assertSame(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), $record['mapping']);
             unset($data[$record['id']]);
         }
     }
@@ -289,7 +289,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
 
-        static::assertEquals($num - $deleted, \count($records));
+        static::assertCount($num - $deleted, $records);
     }
 
     public function testImportExportProfileDeleteSystemDefault(): void

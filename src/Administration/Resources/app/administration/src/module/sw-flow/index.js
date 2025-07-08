@@ -117,7 +117,7 @@ Module.register('sw-flow', {
             props: {
                 default(route) {
                     return {
-                        flowId: route.params.id,
+                        flowId: route.params.id.toLowerCase(),
                     };
                 },
             },

@@ -4,23 +4,25 @@
     position-identifier="sw-promotion-discount-component"
     :title="$tc('sw-promotion.detail.main.discounts.card')"
 >
-    <sw-context-button class="sw-promotion-discount-component__context-button">
-        {% block sw_promotion_detail_discounts_item_context_button_delete %}
-        <sw-context-menu-item
-            v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
-                disabled: acl.can('promotion.editor'),
-                showOnDisabledElements: true
-            }"
-            variant="danger"
-            class="sw-promotion-context-item__delete-action"
-            :disabled="isEditingDisabled"
-            @click="onShowDeleteModal"
-        >
-            {{ $tc('sw-promotion.detail.main.discounts.buttonDeleteDiscount') }}
-        </sw-context-menu-item>
-        {% endblock %}
-    </sw-context-button>
+    <template #headerRight>
+        <sw-context-button class="sw-promotion-discount-component__context-button">
+            {% block sw_promotion_detail_discounts_item_context_button_delete %}
+            <sw-context-menu-item
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('promotion.editor'),
+                    showOnDisabledElements: true
+                }"
+                variant="danger"
+                class="sw-promotion-context-item__delete-action"
+                :disabled="isEditingDisabled"
+                @click="onShowDeleteModal"
+            >
+                {{ $tc('sw-promotion.detail.main.discounts.buttonDeleteDiscount') }}
+            </sw-context-menu-item>
+            {% endblock %}
+        </sw-context-button>
+    </template>
 
     <sw-container
         columns="1fr 1fr"
@@ -55,7 +57,7 @@
 
     {% block sw_promotion_discount_condition_rules_form %}
     <template v-if="!shippingScope && discount.considerAdvancedRules === true">
-        <div v-if="!isSetGroup">
+        <template v-if="!isSetGroup">
             <sw-promotion-v2-rule-select
                 v-model:collection="discount.discountRules"
                 class="sw-promotion-discount-component__select-discount-rules"
@@ -68,7 +70,7 @@
                 :restriction-snippet="promotionDiscountSnippet"
                 rule-aware-group-key="promotionDiscounts"
             />
-        </div>
+        </template>
 
         <sw-container
             columns="1fr 1fr"
@@ -142,7 +144,6 @@
             class="sw-promotion-discount-component__discount-value"
             validation="required"
             required
-            :digits="50"
             :model-value="discount.value"
             :label="$tc('sw-promotion.detail.main.discounts.labelValue')"
             :placeholder="$tc('sw-promotion.detail.main.discounts.placeholderValue')"
@@ -167,7 +168,7 @@
         <mt-number-field
             v-model="discount.maxValue"
             :label="$tc('sw-promotion.detail.main.discounts.labelMaxValue')"
-            :help-text="maxValueAdvancedPricesTooltip"
+            :help-text="$tc('sw-promotion.detail.main.discounts.helpTextMaxValueAdvancedPrices')"
             :disabled="isEditingDisabled"
             @update:model-value="onMaxValueChanged"
         >
@@ -228,7 +229,6 @@
 
         <sw-one-to-many-grid
             :collection="discount.promotionDiscountPrices"
-            :data-source="discount.promotionDiscountPrices"
             :local-mode="true"
             :columns="currencyPriceColumns"
             :show-selection="false"

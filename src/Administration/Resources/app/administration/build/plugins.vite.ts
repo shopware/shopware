@@ -34,7 +34,7 @@ const isDev = VITE_MODE === 'development';
 
 // This env variable is provided by the symfony recipes
 const hasAdminRootEnv = !!process.env.ADMIN_ROOT;
-const host = process.env.VITE_HOST || (isInsideDockerContainer() ? getContainerIP() : undefined) || 'localhost';
+const host = process.env.HOST || process.env.VITE_HOST || (isInsideDockerContainer() ? getContainerIP() : undefined) || 'localhost';
 
 const extensionEntries = loadExtensions();
 
@@ -167,7 +167,7 @@ const main = async () => {
     if (isDev) {
         const availablePorts = await findAvailablePorts(5333, extensionEntries.length);
         const extensionsServerScheme = process.env.VITE_EXTENSIONS_SERVER_SCHEME || 'http';
-        const extensionsServerHost = process.env.VITE_EXTENSIONS_SERVER_HOST || host || 'localhost';
+        const extensionsServerHost = process.env.VITE_EXTENSIONS_SERVER_HOST || (isInsideDockerContainer() ? 'localhost' : undefined) || host || 'localhost';
 
         // Create sw-plugin-dev.json for development mode
         const swPluginDevJsonData = {

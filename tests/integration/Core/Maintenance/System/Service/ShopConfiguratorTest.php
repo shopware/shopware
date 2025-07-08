@@ -12,9 +12,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\Exception\LanguageForeignKeyDeleteException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -149,5 +151,46 @@ class ShopConfiguratorTest extends TestCase
         static::assertNotNull($oldDefault);
         static::assertSame('Euro', $oldDefault->getName());
         static::assertSame(1.1216169229561337, $oldDefault->getFactor());
+    }
+
+    public function testChangeDefaultLanguageWithInheritedLanguageThrowsException(): void
+    {
+        // First, create a language that inherits from the current default language (en-GB)
+        $parentLanguageId = $this->getEnGbLanguageId();
+        
+        $inheritedLanguageId = $this->createInheritedLanguage($parentLanguageId, 'en-EN 2');
+
+        // Now try to change the default language to de-DE
+        // This should trigger the foreign key constraint error
+        $this->expectException(LanguageForeignKeyDeleteException::class);
+        
+        $this->shopConfigurator->setDefaultLanguage('de-DE');
+    }
+
+    private function getEnGbLanguageId(): string
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', Defaults::LANGUAGE_SYSTEM));
+        
+        $language = $this->langRepo->search($criteria, Context::createDefaultContext())
+            ->getEntities()
+            ->first();
+            
+        static::assertNotNull($language);
+        return $language->getId();
+    }
+
+    private function createInheritedLanguage(string $parentId, string $name): string
+    {
+        $languageId = Uuid::randomHex();
+        $inheritedLanguageData = [
+            'id' => $languageId,
+            'name' => $name,
+            'parentId' => $parentId,
+        ];
+
+        $this->langRepo->create([$inheritedLanguageData], Context::createDefaultContext());
+        
+        return $languageId;
     }
 }

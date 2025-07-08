@@ -16,7 +16,7 @@ class LanguageExceptionHandler implements ExceptionHandlerInterface
 
     public function matchException(\Throwable $e): ?\Throwable
     {
-        if (preg_match('/SQLSTATE\[23000\]:.*(1217|1216).*a foreign key constraint/', $e->getMessage())) {
+        if (preg_match('/SQLSTATE\[23000\]:.*(1217|1216|1451).*a foreign key constraint/', $e->getMessage())) {
             return new LanguageForeignKeyDeleteException($e);
         }
 

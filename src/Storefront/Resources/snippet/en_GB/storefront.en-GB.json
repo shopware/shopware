@@ -857,7 +857,10 @@
         "touchMove": "Touch and drag",
         "clickMove": "Click and move",
         "sliderDotLabel": "Show image %index% of %total%",
-        "skipImageGallery": "Skip image gallery"
+        "skipImageGallery": "Skip image gallery",
+        "zoomIn": "Zoom in",
+        "zoomOut": "Zoom out",
+        "zoomReset": "Reset zoom"
       },
       "productGallery": {
         "ariaLabel": "Product gallery containing %total% items",

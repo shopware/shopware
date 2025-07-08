@@ -1,6 +1,6 @@
 shopware.installer:
     header_title: Instalace
-    menuitem_language-selection: Spustit
+    menuitem_welcome: Spustit
     menuitem_requirements: 'Systémové předpoklady'
     menuitem_database-configuration: 'Konfigurace databáze'
     menuitem_database-import: Instalace
@@ -16,23 +16,23 @@ shopware.installer:
     forward: Další
     start: Spustit
     start_installation: 'Spustit instalaci'
+    select_language_cs: Český
+    select_language_da-DK: Dánština
     select_language_de: Německy
+    select_language_en-US: Anglicky (Spojené státy americké)
     select_language_en: Anglicky (Spojené království)
-    select_language_us: Anglicky (Spojené státy americké)
-    select_language_nl: Holandsky
-    select_language_it: Italsky
+    select_language_es-ES: Španělsky
     select_language_fr: Francouzsky
-    select_language_es: Španělsky
-    select_language_pt: Portugalsky
+    select_language_it: Italsky
+    select_language_nl: Holandsky
+    select_language_no: Norský
     select_language_pl: Polsky
-    select_language_cs: český
-    select_language_sv: švédský
-    select_language_nb: norský
-    language-selection_welcome_title: 'Vítejte v aplikaci Shopware 6'
+    select_language_pt-PT: Portugalsky
+    select_language_sv-SE: Švédský
+    welcome_title: 'Vítejte v aplikaci Shopware 6'
     language-selection_select_language: 'Jazyk průvodce instalací'
-    language-selection_header: 'Vaše instalace softwaru Shopware'
-    language-selection_info_message: 'Tato volba se vztahuje jen na jazyk průvodce instalací. Systémový standardní jazyk svého obchodu můžete ještě definovat později.'
-    language-selection_welcome_message: 'Těší nás, že chcete být součástí naší celosvětové komunity Shopware! Nyní vás provedeme krok za krokem procesem instalace. Pokud budete mít otázky, podívejte se nejdříve na naše <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">Fórum</a>, kontaktujte nás telefonicky na čísle <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> nebo nám napište <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.'
+    welcome_header: 'Vaše instalace softwaru Shopware'
+    welcome_message: 'Těší nás, že chcete být součástí naší celosvětové komunity Shopware! Nyní vás provedeme krok za krokem procesem instalace. Pokud budete mít otázky, podívejte se nejdříve na naše <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">Fórum</a>, kontaktujte nás telefonicky na čísle <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> nebo nám napište <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.'
     requirements_header: 'Systémové předpoklady'
     requirements_header_files: 'Soubory a adresáře'
     requirements_header_system: Systém

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Service;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Service\Event\PermissionsGrantedEvent;
@@ -33,7 +34,7 @@ class PermissionsServiceTest extends TestCase
         $this->permissionsService = $this->getContainer()->get(PermissionsService::class);
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $this->eventDispatcher = $this->getContainer()->get(EventDispatcherInterface::class);
-        $this->context = Context::createDefaultContext();
+        $this->context = Context::createDefaultContext(new AdminApiSource('test-user-id'));
     }
 
     protected function tearDown(): void
@@ -117,6 +118,14 @@ class PermissionsServiceTest extends TestCase
         $decodedData = json_decode($storedRevision, true);
         $storedDate = new \DateTimeImmutable($decodedData['revision']);
         static::assertSame($secondRevision, $storedDate->format('Y-m-d'));
+    }
+
+    public function testGrantPermissionsWithInvalidContextThrowsException(): void
+    {
+        $this->expectException(ServiceException::class);
+        $this->expectExceptionMessage('This action is only allowed from Admins.');
+
+        $this->permissionsService->grant('2025-06-13', Context::createDefaultContext());
     }
 
     public function testAreGrantedReturnsTrueAfterGrantingPermissions(): void

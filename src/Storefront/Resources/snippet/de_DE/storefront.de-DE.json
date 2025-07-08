@@ -857,7 +857,10 @@
         "touchMove": "Drücken und drehen",
         "clickMove": "Klicken und drehen",
         "sliderDotLabel": "Zeige Bild %index% von %total%",
-        "skipImageGallery": "Bildergalerie überspringen"
+        "skipImageGallery": "Bildergalerie überspringen",
+        "zoomIn": "Hineinzoomen",
+        "zoomOut": "Herauszoomen",
+        "zoomReset": "Zoom zurücksetzen"
       },
       "productGallery": {
         "ariaLabel": "Produktgalerie mit %total% Elementen",

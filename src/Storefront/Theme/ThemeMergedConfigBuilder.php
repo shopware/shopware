@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\Exception\InvalidThemeConfigException;
@@ -108,7 +109,18 @@ class ThemeMergedConfigBuilder
             }
         }
 
-        $themeConfig['themeTechnicalName'] = $theme->getTechnicalName();
+        // Check if the theme is a database copy of a physical theme.
+        // If so, use the technical name of the parent theme.
+        if ($theme->getTechnicalName() === null && $theme->getParentThemeId() !== null) {
+            $parentTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getId() === $theme->getParentThemeId())->first();
+
+            if ($parentTheme instanceof ThemeEntity) {
+                $themeConfig['themeTechnicalName'] = $parentTheme->getTechnicalName();
+            }
+        } else {
+            $themeConfig['themeTechnicalName'] = $theme->getTechnicalName();
+        }
+
         $themeConfig['fields'] = $configFields;
         $themeConfig['currentFields'] = [];
         $themeConfig['baseThemeFields'] = [];
@@ -271,14 +283,34 @@ class ThemeMergedConfigBuilder
      */
     private function getConfigInheritance(ThemeEntity $mainTheme): array
     {
-        if (\is_array($mainTheme->getBaseConfig())
-            && \array_key_exists('configInheritance', $mainTheme->getBaseConfig())
-            && \is_array($mainTheme->getBaseConfig()['configInheritance'])
-            && !empty($mainTheme->getBaseConfig()['configInheritance'])
+        $baseConfig = $mainTheme->getBaseConfig();
+
+        if (\is_array($baseConfig)
+            && \array_key_exists('configInheritance', $baseConfig)
+            && \is_array($baseConfig['configInheritance'])
+            && !empty($baseConfig['configInheritance'])
         ) {
-            return $mainTheme->getBaseConfig()['configInheritance'];
+            return $baseConfig['configInheritance'];
         }
 
+        // For database copies (child themes), inherit config from parent theme.
+        if ($baseConfig === null
+            && $mainTheme->getTechnicalName() === null
+            && $mainTheme->getParentThemeId() !== null) {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('id', $mainTheme->getParentThemeId()));
+
+            $parentTheme = $this->themeRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+
+            if ($parentTheme instanceof ThemeEntity) {
+                $parentConfigInheritance = $this->getConfigInheritance($parentTheme);
+                if (!empty($parentConfigInheritance)) {
+                    return $parentConfigInheritance;
+                }
+            }
+        }
+
+        // Fallback: ensure every theme (except base theme) inherits from Storefront by default
         if ($mainTheme->getTechnicalName() !== StorefrontPluginRegistry::BASE_THEME_NAME) {
             return [
                 '@' . StorefrontPluginRegistry::BASE_THEME_NAME,
@@ -496,7 +528,7 @@ class ThemeMergedConfigBuilder
     {
         $custom = $custom ?? null;
 
-        if ($custom && \is_array($custom['options'])) {
+        if ($custom && isset($custom['options']) && \is_array($custom['options'])) {
             foreach ($custom['options'] as $optionIndex => &$option) {
                 $option['labelSnippetKey'] = $this->buildSnippetKey(
                     $themeTechnicalName,

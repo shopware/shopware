@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import template from './sw-time-ago.html.twig';
 
 /**
@@ -21,6 +20,11 @@ export default Shopware.Component.wrapComponentConfig({
                 String,
             ] as PropType<Date | string>,
             required: true,
+        },
+        dateTimeFormat: {
+            type: Object as PropType<Intl.DateTimeFormatOptions>,
+            required: false,
+            default: {},
         },
     },
 
@@ -51,7 +55,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         fullDatetime(): string {
-            return this.dateFilter(this.dateObject.toString());
+            return this.dateFilter(this.dateObject.toString(), this.dateTimeFormat);
         },
 
         lessThanOneMinute(): boolean {
@@ -146,7 +150,7 @@ export default Shopware.Component.wrapComponentConfig({
                 });
             }
 
-            return this.dateFilter(this.dateObject.toString());
+            return this.dateFilter(this.dateObject.toString(), this.dateTimeFormat);
         },
     },
 });

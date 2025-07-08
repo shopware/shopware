@@ -11,19 +11,21 @@
             <sw-card-filter
                 ref="customerFilter"
                 @sw-card-filter-term-change="onSearch"
-            />
-            {% endblock %}
-
-            {% block sw_order_customer_grid_add_new_customer %}
-            <mt-button
-                class="sw-order-customer-grid__add-customer"
-                ghost
-                size="small"
-                variant="secondary"
-                @click="onShowNewCustomerModal"
             >
-                {{ $tc('sw-order.initialModal.customerGrid.buttonAddNewCustomer') }}
-            </mt-button>
+                <template #filter>
+                    {% block sw_order_customer_grid_add_new_customer %}
+                    <mt-button
+                        class="sw-order-customer-grid__add-customer"
+                        ghost
+                        size="small"
+                        variant="secondary"
+                        @click="onShowNewCustomerModal"
+                    >
+                        {{ $t('sw-order.initialModal.customerGrid.buttonAddNewCustomer') }}
+                    </mt-button>
+                    {% endblock %}
+                </template>
+            </sw-card-filter>
             {% endblock %}
         </div>
         {% endblock %}

@@ -292,6 +292,18 @@
         </template>
         {% endblock %}
 
+        {% block sw_order_line_items_grid_grid_columns_type %}
+        <template #column-type="{ item }">
+
+            {% block sw_order_line_items_grid_grid_columns_type_content %}
+            <span>
+                {{ $t('sw-order.lineItemType.' + item.type) }}
+            </span>
+            {% endblock %}
+
+        </template>
+        {% endblock %}
+
         {% block sw_order_line_items_grid_grid_actions %}
         <template #actions="{ item, itemIndex }">
             {% block sw_order_line_items_grid_grid_actions_show %}

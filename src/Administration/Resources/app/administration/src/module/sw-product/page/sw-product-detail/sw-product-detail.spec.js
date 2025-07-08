@@ -545,4 +545,128 @@ describe('module/sw-product/page/sw-product-detail', () => {
         ]);
         expect(wrapper.vm.loadProduct).toHaveBeenCalled();
     });
+
+    it('should not validate fields when language is inherited', async () => {
+        const spyValidationService = jest.spyOn(wrapper.vm.entityValidationService, 'validate');
+
+        wrapper.vm.getCmsPageOverrides = jest.fn(() => {
+            return null;
+        });
+        wrapper.vm.product.isNew = jest.fn(() => {
+            return false;
+        });
+        wrapper.vm.product.prices = [];
+        wrapper.vm.product.price = [
+            {
+                currencyId: undefined,
+                linked: true,
+                gross: 100,
+                net: 84.034,
+                listPrice: {
+                    currencyId: undefined,
+                    linked: true,
+                    gross: 0,
+                    net: 0,
+                },
+                regulationPrice: {
+                    currencyId: undefined,
+                    linked: true,
+                    gross: 0,
+                    net: 0,
+                },
+            },
+        ];
+
+        wrapper.vm.saveProduct = jest.fn(() => {
+            return Promise.resolve();
+        });
+
+        wrapper.vm.product.getEntityName = () => 'product';
+        Shopware.EntityDefinition.get = () => ({
+            properties: {
+                name: {
+                    type: 'string',
+                    flags: {
+                        required: true,
+                    },
+                },
+            },
+        });
+
+        Shopware.Store.get('context').api.language = {
+            id: '1a2b3c',
+            parentId: 'd4e5f6',
+        };
+
+        wrapper.vm.product.name = null;
+
+        await wrapper.vm.onSave();
+
+        expect(wrapper.vm.ignoreFieldsValidation).toContain('name');
+        expect(spyValidationService).toHaveBeenCalledWith(
+            wrapper.vm.product,
+            expect.anything(),
+            expect.arrayContaining(['name']),
+        );
+    });
+
+    it('should validate fields when language is not inherited', async () => {
+        const spyValidationService = jest.spyOn(wrapper.vm.entityValidationService, 'validate');
+
+        wrapper.vm.getCmsPageOverrides = jest.fn(() => {
+            return null;
+        });
+        wrapper.vm.product.isNew = jest.fn(() => {
+            return false;
+        });
+        wrapper.vm.product.prices = [];
+        wrapper.vm.product.price = [
+            {
+                currencyId: undefined,
+                linked: true,
+                gross: 100,
+                net: 84.034,
+                listPrice: {
+                    currencyId: undefined,
+                    linked: true,
+                    gross: 0,
+                    net: 0,
+                },
+                regulationPrice: {
+                    currencyId: undefined,
+                    linked: true,
+                    gross: 0,
+                    net: 0,
+                },
+            },
+        ];
+
+        wrapper.vm.saveProduct = jest.fn(() => {
+            return Promise.resolve();
+        });
+
+        wrapper.vm.product.getEntityName = () => 'product';
+        Shopware.EntityDefinition.get = () => ({
+            properties: {
+                name: {
+                    type: 'string',
+                    flags: {
+                        required: true,
+                    },
+                },
+            },
+        });
+
+        Shopware.Store.get('context').api.language = {
+            id: '1a2b3c',
+            parentId: null,
+        };
+
+        wrapper.vm.product.name = null;
+
+        await wrapper.vm.onSave();
+
+        expect(wrapper.vm.ignoreFieldsValidation).not.toContain('name');
+        expect(spyValidationService).toHaveBeenCalledWith(wrapper.vm.product, expect.anything(), []);
+    });
 });

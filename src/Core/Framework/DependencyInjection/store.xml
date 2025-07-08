@@ -214,7 +214,6 @@
         <service id="Shopware\Core\Framework\Store\Subscriber\LicenseHostChangedSubscriber">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseUpdater"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -294,6 +293,14 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="logger"/>
+        </service>
+
+
+        <service id="Shopware\Core\Framework\Store\InAppPurchase\Subscriber\InAppPurchaseConfigSubscriber">
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseUpdater"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Framework\JWT\JWTDecoder"/>

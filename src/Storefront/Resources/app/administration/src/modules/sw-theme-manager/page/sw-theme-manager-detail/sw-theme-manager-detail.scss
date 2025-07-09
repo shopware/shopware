@@ -84,19 +84,19 @@
         font-weight: 600;
     }
 
-    .sw-theme-manager-detail__info-descr {
+    .sw-theme-manager-detail__info-description {
         margin-top: 12px;
 
-        .sw-theme-manager-detail__info-descr-title {
+        .sw-theme-manager-detail__info-description-title {
             font-weight: 600;
         }
     }
 
-    .sw-theme-manager-detail__saleschannels-select {
+    .sw-theme-manager-detail__sales-channels-select {
         margin-top: 20px;
     }
 
-    .sw-theme-manager-detail__content--section_field {
+    .sw-theme-manager-detail__content-section-field {
         display: grid;
         gap: 28px;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -109,12 +109,12 @@
             margin: 0;
         }
 
-        .sw-theme-manager-detail__content--section_field-full-width {
+        .sw-theme-manager-detail__content-section-field-full-width {
             grid-column: span 2 / auto;
         }
     }
 
-    .sw-theme-manager-detail__content--section_title {
+    .sw-theme-manager-detail__content-section-title {
         margin-bottom: 12px;
     }
 
@@ -134,16 +134,27 @@
             height: 24px;
         }
 
+        &.sw-theme-manager-detail__inherit-wrapper-media > .sw-inherit-wrapper__toggle-wrapper {
+            width: fit-content;
+
+            .sw-help-text {
+                margin-left: 8px;
+            }
+        }
+
         .sw-inherit-wrapper__toggle-wrapper {
             z-index: 100;
             position: relative;
-            width: fit-content;
         }
 
         .sw-block-field {
             .sw-field__label {
                 @extend .sw-media-upload-v2__header;
             }
+        }
+
+        .sw-field__help-text {
+            display: none;
         }
     }
 
@@ -167,11 +178,13 @@
         }
     }
 
+    .sw-field--switch {
+        margin: 0 0 22px 0;
+    }
+
     .sw-field-id-sw-default-switch,
     .sw-field-id-sw-custom-switch {
         .sw-field--switch {
-            margin: 0 0 22px 0;
-
             .sw-field__label label,
             .sw-field--switch__input {
                 padding-top: 0;

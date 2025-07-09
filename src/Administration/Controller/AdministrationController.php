@@ -71,6 +71,7 @@ class AdministrationController extends AbstractController
         ParameterBagInterface $params,
         private readonly SystemConfigService $systemConfigService,
         private readonly FilesystemOperator $fileSystem,
+        private readonly string $serviceRegistryUrl,
         private readonly string $refreshTokenTtl = 'P1W',
     ) {
         // param is only available if the elasticsearch bundle is enabled
@@ -105,6 +106,7 @@ class AdministrationController extends AbstractController
             'adminEsEnable' => $this->esAdministrationEnabled,
             'storefrontEsEnable' => $this->esStorefrontEnabled,
             'refreshTokenTtl' => $refreshTokenTtl * 1000,
+            'serviceRegistryUrl' => $this->serviceRegistryUrl,
         ]);
     }
 

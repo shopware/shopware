@@ -60,6 +60,7 @@ const logDataExport = {
                 apiAlias: null,
                 id: '645cfb7d036142c7b817ffefb89ac097',
             },
+            createdAt: '2021-09-20T10:22:47.000+00:00',
         },
     ],
     empty: [],
@@ -115,6 +116,7 @@ const logDataExport = {
                 apiAlias: null,
                 id: '645cfb7d036142c7b817ffefb89ac097',
             },
+            createdAt: '2021-09-20T10:22:47.000+00:00',
         },
     ],
     failedWithLog: [
@@ -173,6 +175,7 @@ const logDataExport = {
                 activity: 'invalid_records_export',
                 state: 'succeeded',
             },
+            createdAt: '2021-09-20T10:22:47.000+00:00',
         },
     ],
     pending: [
@@ -227,6 +230,7 @@ const logDataExport = {
                 apiAlias: null,
                 id: '645cfb7d036142c7b817ffefb89ac097',
             },
+            createdAt: '2021-09-20T10:22:47.000+00:00',
         },
     ],
     progress: [
@@ -281,6 +285,7 @@ const logDataExport = {
                 apiAlias: null,
                 id: '645cfb7d036142c7b817ffefb89ac097',
             },
+            createdAt: '2021-09-20T10:22:47.000+00:00',
         },
     ],
     succeeded: [
@@ -335,6 +340,7 @@ const logDataExport = {
                 apiAlias: null,
                 id: '645cfb7d036142c7b817ffefb89ac097',
             },
+            createdAt: '2021-09-20T10:22:47.000+00:00',
         },
     ],
 };
@@ -392,6 +398,7 @@ const logDataImport = {
                 apiAlias: null,
                 id: '645cfb7d036142c7b817ffefb89ac097',
             },
+            createdAt: '2021-09-20T10:22:47.000+00:00',
         },
     ],
     empty: [],
@@ -447,6 +454,7 @@ const logDataImport = {
                 apiAlias: null,
                 id: '645cfb7d036142c7b817ffefb89ac097',
             },
+            createdAt: '2021-09-20T10:22:47.000+00:00',
         },
     ],
     failedWithLog: [
@@ -505,6 +513,7 @@ const logDataImport = {
                 activity: 'invalid_records_export',
                 state: 'succeeded',
             },
+            createdAt: '2021-09-20T10:22:47.000+00:00',
         },
     ],
     pending: [
@@ -559,6 +568,7 @@ const logDataImport = {
                 apiAlias: null,
                 id: '645cfb7d036142c7b817ffefb89ac097',
             },
+            createdAt: '2021-09-20T10:22:47.000+00:00',
         },
     ],
     progress: [
@@ -613,6 +623,7 @@ const logDataImport = {
                 apiAlias: null,
                 id: '645cfb7d036142c7b817ffefb89ac097',
             },
+            createdAt: '2021-09-20T10:22:47.000+00:00',
         },
     ],
     succeeded: [
@@ -667,6 +678,7 @@ const logDataImport = {
                 apiAlias: null,
                 id: '645cfb7d036142c7b817ffefb89ac097',
             },
+            createdAt: '2021-09-20T10:22:47.000+00:00',
         },
     ],
     succeededWithoutRecords: [
@@ -721,6 +733,7 @@ const logDataImport = {
                 apiAlias: null,
                 id: '645cfb7d036142c7b817ffefb89ac097',
             },
+            createdAt: '2021-09-20T10:22:47.000+00:00',
         },
     ],
 };
@@ -811,6 +824,7 @@ const createWrapper = async (options = {}) => {
                 'router-link': true,
                 'sw-ai-copilot-badge': true,
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },
+                'sw-time-ago': await wrapTestComponent('sw-time-ago', { sync: true }),
             },
             mocks: {
                 $tc: (key, _, pluralization) => {
@@ -858,7 +872,6 @@ const createWrapper = async (options = {}) => {
                         'sw-import-export.activity.status.aborted',
                     ].includes(key);
                 },
-                date: (date) => date,
             },
             provide: {
                 importExport: getImportExportServiceMock(),

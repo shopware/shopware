@@ -63,6 +63,7 @@ async function createWrapper() {
                 'sw-rating-stars': true,
                 'sw-sidebar-item': true,
                 'sw-sidebar': true,
+                'sw-time-ago': true,
             },
         },
     });

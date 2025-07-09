@@ -1,6 +1,6 @@
 {
   "sw-theme": {
-    "storefront": {
+    "Storefront": {
       "default": {
         "themeColors": {
           "label": "Theme colours",
@@ -128,7 +128,6 @@
       "textDuplicateInfo": "If you create a duplicate, you can use the theme with a different colour configuration for additional Sales Channels.",
       "labelDuplicateThemeName": "Name of the duplicate",
       "placeholderDuplicateThemeName": "Enter name",
-      "buttonDuplicateTheme": "Create duplicate",
       "modalTitleRename": "Rename",
       "textRenameInfo": "Enter a new name for the theme.",
       "labelRenameThemeName": "New theme name",
@@ -161,7 +160,6 @@
       "validate": "Validate",
       "validateToolTip": "Validate the whole configuration. Changes will stay unsaved!",
       "rename": "Rename",
-      "duplicate": "Create duplicate",
       "useImageAs": "Use image as",
       "buttonReset": "Reset to default",
       "buttonUseTheme": "Use theme",

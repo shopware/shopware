@@ -58,7 +58,7 @@ Module.register('sw-settings-units', {
     settingsItem: {
         group: 'general',
         to: 'sw.settings.units.index',
-        icon: 'regular-balance-scale',
+        icon: 'regular-box',
         privilege: 'scale_unit.viewer',
     },
 });

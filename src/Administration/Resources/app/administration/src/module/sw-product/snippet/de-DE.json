@@ -66,7 +66,7 @@
       "labelTaxRate": "Steuersatz",
       "labelPurchasePriceGross": "Einkaufspreis (brutto)",
       "labelPurchasePriceNet": "Einkaufspreis (netto)",
-      "labelUnit": "Maßeinheit",
+      "labelUnit": "Produkteinheit",
       "labelPurchaseUnit": "Verkaufseinheit",
       "labelReferenceUnit": "Grundeinheit",
       "labelPackUnit": "Verpackungseinheit",
@@ -123,11 +123,11 @@
       "placeholderDeliveryTime": "Gib die Lieferzeit an ...",
       "placeholderCreatedAt": "Gib ein Erstelldatum ein ...",
       "placeholderReleaseDate": "Gib ein Einstelldatum ein ...",
-      "placeholderWidth": "z.B. 500 ...",
-      "placeholderHeight": "z.B. 200 ...",
-      "placeholderLength": "z.B.100 ...",
-      "placeholderWeight": "z.B. 0,4 ...",
-      "placeholderTime": "z.B. 31 ...",
+      "placeholderWidth": "z. B. 500 ...",
+      "placeholderHeight": "z. B. 200 ...",
+      "placeholderLength": "z. B.100 ...",
+      "placeholderWeight": "z. B. 0,4 ...",
+      "placeholderTime": "z. B. 31 ...",
       "placeholderStock": "Gib den Lagerbestand ein ...",
       "placeholderMinPurchase": "Mindestabnahme ...",
       "placeholderMaxPurchase": "Maximalabnahme ...",
@@ -138,13 +138,22 @@
       "labelAvailableStock": "Verfügbarer Bestand",
       "labelPurchaseSteps": "Staffelung"
     },
+    "measurementForm": {
+      "description": "Gib die Produktmaße in den Dir zur Verfügung stehenden Maßeinheiten ein. Die Anzeige für Deine Kunden wird automatisch gemäß den {link} umgerechnet.",
+      "linkText": "Verkaufskanal-Einstellungen"
+    },
     "packagingForm": {
-      "labelUnit": "Maßeinheit",
-      "placeholderUnit": "Wähle aus ...",
-      "referenceUnitHelpText": "Notwendig für die Grundpreisberechnung. Der einzugebende Grundwert ist abhängig von der gewählten Maßeinheit.<ul><li>Grundpreis = (Produktpreis * Grundeinheit) / Verkaufseinheit.</li></ul>Der Grundpreis wird nicht angezeigt, wenn Verkaufseinheit und Grundeinheit den gleichen Wert haben.",
-      "packUnitHelpText": "Art der Verpackung: z.B. Flasche, Kiste, Tiegel ...",
-      "packUnitPluralHelpText": "Art der Verpackung (Mehrzahl): z.B. Flaschen, Kisten, Tiegel ...",
-      "purchaseUnitHelpText": "Notwendig für die Grundpreisberechnung. Der einzugebende Wert ist abhängig von der gewählten Maßeinheit.<ul><li>Grundpreis = (Produktpreis * Grundeinheit) / Verkaufseinheit.</li></ul>Der Grundpreis wird nicht angezeigt, wenn Verkaufseinheit und Grundeinheit den gleichen Wert haben."
+      "description": "Definiere, wie das Produkt verkauft und verpackt wird. Diese Informationen werden den Kunden in der Storefront angezeigt.",
+      "labelProductUnit": "Produkteinheit",
+      "placeholderSellingUnit": "z. B. 6 ...",
+      "placeholderProductUnit": "Produkteinheit auswählen ...",
+      "placeholderBasicUnit": "z. B. 1 ...",
+      "placeholderPackagingUnit": "z. B. Flasche ...",
+      "placeholderPackagingUnitPlural": "z. B. Flaschen ...",
+      "helpTextBasicUnit": "Notwendig für die Grundpreisberechnung. Der einzugebende Grundwert ist abhängig von der gewählten Maßeinheit.<ul><li>Grundpreis = (Produktpreis * Grundeinheit) / Verkaufseinheit.</li></ul>Der Grundpreis wird nicht angezeigt, wenn Verkaufseinheit und Grundeinheit den gleichen Wert haben.",
+      "helpTextPackUnit": "Art der Verpackung: z. B. Flasche, Kiste, Tiegel ...",
+      "helpTextPackUnitPlural": "Art der Verpackung (Mehrzahl): z. B. Flaschen, Kisten, Tiegel ...",
+      "helpTextSellingUnit": "Notwendig für die Grundpreisberechnung. Der einzugebende Wert ist abhängig von der gewählten Maßeinheit.<ul><li>Grundpreis = (Produktpreis * Grundeinheit) / Verkaufseinheit.</li></ul>Der Grundpreis wird nicht angezeigt, wenn Verkaufseinheit und Grundeinheit den gleichen Wert haben."
     },
     "detailBase": {
       "cardTitleDeliverabilityInfo": "Lieferbarkeit",
@@ -168,7 +177,8 @@
       "manageStockTooltip": "Wenn der Lagerbestand nicht verwaltet wird, ist das digitale Produkt für eine unendliche Anzahl von Transaktionen verfügbar."
     },
     "specifications": {
-      "cardTitleMeasuresPackaging": "Maße & Verpackung",
+      "cardTitleMeasurement": "Produktmaße",
+      "cardTitleSellingPackaging": "Verkaufs- & Verpackungsinformationen",
       "cardTitleEssentialCharacteristics": "Wesentliche Merkmale",
       "cardTitleCustomFields": "Zusatzfelder",
       "cardTitleProperties": "Eigenschaften",

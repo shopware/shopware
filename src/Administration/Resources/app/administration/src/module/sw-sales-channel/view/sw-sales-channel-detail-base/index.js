@@ -104,6 +104,9 @@ export default {
             mainCategoriesCollection: null,
             footerCategoriesCollection: null,
             serviceCategoriesCollection: null,
+            defaultMeasurementSystemId: null,
+            defaultLengthUnitId: null,
+            defaultWeightUnitId: null,
         };
     },
 
@@ -486,6 +489,9 @@ export default {
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -525,6 +531,9 @@ export default {
         });
 
         this.createCategoryCollections();
+        this.defaultMeasurementSystemId = this.salesChannel?.measurementSystemId;
+        this.defaultLengthUnitId = this.salesChannel?.lengthUnitId;
+        this.defaultWeightUnitId = this.salesChannel?.weightUnitId;
     },
 
     methods: {

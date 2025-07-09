@@ -103,13 +103,13 @@
 
                 {% block sw_promotion_v2_list_grid_columns_valid_from %}
                 <template #column-validFrom="{ item }">
-                    {{ dateFilter(item.validFrom, { hour: '2-digit', minute: '2-digit' }) }}
+                    {{ dateFilter(item.validFrom) }}
                 </template>
                 {% endblock %}
 
                 {% block sw_promotion_v2_list_grid_columns_valid_until %}
                 <template #column-validUntil="{ item }">
-                    {{ dateFilter(item.validUntil, { hour: '2-digit', minute: '2-digit' }) }}
+                    {{ dateFilter(item.validUntil) }}
                 </template>
                 {% endblock %}
                 {% endblock %}

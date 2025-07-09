@@ -32,13 +32,13 @@ class PermissionControllerTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->systemConfigService->delete('core.services.acceptedPermissionsRevision');
+        $this->systemConfigService->delete('core.services.permissionsConsent');
     }
 
     public function testGrantPermissionsEndpoint(): void
     {
         $revision = '2025-06-13';
-        $storedRevision = $this->systemConfigService->get('core.services.acceptedPermissionsRevision');
+        $storedRevision = $this->systemConfigService->get('core.services.permissionsConsent');
         static::assertNull($storedRevision, 'No revision should be stored before granting permissions');
 
         $this->getBrowser()->request(
@@ -56,7 +56,7 @@ class PermissionControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame('{}', $response->getContent());
-        PermissionsConsent::fromJsonString($this->systemConfigService->getString('core.services.acceptedPermissionsRevision'));
+        PermissionsConsent::fromJsonString($this->systemConfigService->getString('core.services.permissionsConsent'));
     }
 
     public function testGrantPermissionsEndpointWithInvalidRevision(): void
@@ -82,14 +82,14 @@ class PermissionControllerTest extends TestCase
         static::assertArrayHasKey('errors', $responseData);
         static::assertSame('SERVICE__INVALID_PERMISSIONS_REVISION_FORMAT', $responseData['errors'][0]['code']);
         static::assertStringContainsString('invalid-date', $responseData['errors'][0]['detail']);
-        static::assertNull($this->systemConfigService->get('core.services.acceptedPermissionsRevision'));
+        static::assertNull($this->systemConfigService->get('core.services.permissionsConsent'));
     }
 
     public function testRevokePermissionsEndpoint(): void
     {
         $revision = '2025-06-13';
         $this->permissionsService->grant($revision, Context::createDefaultContext(new AdminApiSource('test-user-id')));
-        static::assertNotNull($this->systemConfigService->get('core.services.acceptedPermissionsRevision'));
+        static::assertNotNull($this->systemConfigService->get('core.services.permissionsConsent'));
 
         $this->getBrowser()->request(
             'POST',
@@ -105,6 +105,6 @@ class PermissionControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame('{}', $response->getContent());
-        static::assertNull($this->systemConfigService->get('core.services.acceptedPermissionsRevision'), 'The permissions revision should be removed after revoking permissions');
+        static::assertNull($this->systemConfigService->get('core.services.permissionsConsent'), 'The permissions revision should be removed after revoking permissions');
     }
 }

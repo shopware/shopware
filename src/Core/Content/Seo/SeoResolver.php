@@ -31,7 +31,15 @@ class SeoResolver extends AbstractSeoResolver
      */
     public function resolve(string $languageId, string $salesChannelId, string $pathInfo): array
     {
-        $seoPathInfo = trim($pathInfo, '/');
+        // Remove query parameters from the path info for SEO URL lookup
+        $parsedPath = parse_url($pathInfo);
+        if ($parsedPath === false) {
+            // If parse_url fails, fallback to original behavior
+            $seoPathInfo = trim($pathInfo, '/');
+        } else {
+            $pathWithoutQuery = $parsedPath['path'] ?? '';
+            $seoPathInfo = trim($pathWithoutQuery, '/');
+        }
 
         $query = (new QueryBuilder($this->connection))
             ->select('id', 'path_info pathInfo', 'is_canonical isCanonical', 'sales_channel_id salesChannelId')

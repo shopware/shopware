@@ -78,6 +78,7 @@ class MySQLFactoryTest extends TestCase
         // Verify that parameters are merged correctly
         static::assertArrayHasKey('driver', $replica0);
         static::assertSame('pdo_mysql', $replica0['driver']);
+        static::assertArrayHasKey('driverOptions', $params);
         static::assertArrayHasKey('driverOptions', $replica0);
         static::assertSame($replica0['driverOptions'], $params['driverOptions']);
 

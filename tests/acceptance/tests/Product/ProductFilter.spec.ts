@@ -143,7 +143,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
     });
 });
 
-test('Should filter by rating and disable filter options those cannot combine with rating', async ({
+test('Customer should see unavailable filter options disabled when filtering by rating', async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,
@@ -183,7 +183,7 @@ test('Should filter by rating and disable filter options those cannot combine wi
         await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeVisible();
     });
 
-    await test.step('Select a rating and verify that unavailable filter is disabled and products are filtered', async () => {
+    await test.step('When a rating is selected, verifies that any unavailable filter is disabled and that the products are filtered accordingly.', async () => {
         await StorefrontHome.productRatingButton.click();
         const ratingLocator = await StorefrontHome.getRatingItemLocatorByRating(5);
         await ratingLocator.click();

@@ -238,7 +238,21 @@ class DatabaseConfigLoaderTest extends TestCase
                 'technicalName' => 'child',
                 'baseConfig' => [
                     'fields' => $config['child'] ?? [],
+                    'configInheritance' => [
+                        '@base',
+                        '@parent',
+                        '@child',
+                    ],
                 ],
+            ],
+            [
+                'id' => $this->ids->get('database-copy'),
+                'parentThemeId' => $this->ids->get('child'),
+                'name' => 'database-copy',
+                'author' => 'test',
+                'active' => true,
+                'technicalName' => null,
+                'baseConfig' => null,
             ],
         ];
 
@@ -300,7 +314,7 @@ class DatabaseConfigLoaderTest extends TestCase
             ],
         ];
 
-        yield 'Test overwrite' => [
+        yield 'Test override' => [
             'child',
             [
                 'base' => [
@@ -337,6 +351,30 @@ class DatabaseConfigLoaderTest extends TestCase
             ],
             [
                 'base-field-1' => '#000',
+            ],
+        ];
+
+        yield 'Test multiple inheritance with database child' => [
+            'database-copy',
+            [
+                'base' => [
+                    'base-field-1' => self::field('#000'),
+                ],
+                'parent' => [
+                    'base-field-1' => self::field('#fff'),
+                    'parent-field-1' => self::field('#000'),
+                    'parent-field-2' => self::fieldUntyped(900),
+                ],
+                'child' => [
+                    'parent-field-2' => self::fieldUntyped(500),
+                    'child-field-1' => self::field('#000'),
+                ],
+            ],
+            [
+                'base-field-1' => '#fff',
+                'parent-field-1' => '#000',
+                'parent-field-2' => 500,
+                'child-field-1' => '#000',
             ],
         ];
     }

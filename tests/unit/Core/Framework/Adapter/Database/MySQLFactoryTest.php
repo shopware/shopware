@@ -59,7 +59,6 @@ class MySQLFactoryTest extends TestCase
         static::assertSame('replica_db', $replica0['dbname']);
         static::assertArrayHasKey('charset', $replica0);
         static::assertSame('utf8mb4', $replica0['charset']);
-        static::assertArrayHasKey('driverOptions', $replica0);
 
         // Check second replica parameters
         $replica1 = $params['replica'][1];
@@ -75,13 +74,17 @@ class MySQLFactoryTest extends TestCase
         static::assertSame('replica_db2', $replica1['dbname']);
         static::assertArrayHasKey('charset', $replica1);
         static::assertSame('utf8mb4', $replica1['charset']);
-        static::assertArrayHasKey('driverOptions', $replica1);
 
-        // Verify that default parameters are merged correctly
+        // Verify that parameters are merged correctly
         static::assertArrayHasKey('driver', $replica0);
         static::assertSame('pdo_mysql', $replica0['driver']);
+        static::assertArrayHasKey('driverOptions', $replica0);
+        static::assertSame($replica0['driverOptions'], $params['driverOptions']);
+
         static::assertArrayHasKey('driver', $replica1);
         static::assertSame('pdo_mysql', $replica1['driver']);
+        static::assertArrayHasKey('driverOptions', $replica1);
+        static::assertSame($replica1['driverOptions'], $params['driverOptions']);
     }
 }
 

@@ -55,6 +55,13 @@ class CacheClearer
             $this->reverseProxyCache?->banAll();
         }
 
+        try {
+            $this->invalidator->invalidateExpired();
+        } catch (\Throwable $e) {
+            // redis not available atm (in pipeline or build process)
+            $this->logger->critical('Could not clear cache: ' . $e->getMessage());
+        }
+
         if (!is_writable($this->cacheDir)) {
             throw AdapterException::cacheDirectoryError($this->cacheDir);
         }

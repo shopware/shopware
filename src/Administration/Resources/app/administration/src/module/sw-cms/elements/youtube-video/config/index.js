@@ -148,20 +148,31 @@ export default {
              *
              * urlLink is the link of the YouTube video from the searchbar. e.g. https://www.youtube.com/watch?v=bG57TZPYsyw
              */
-            const url = new URL(link);
 
-            switch (url.hostname) {
-                case 'www.youtu.be':
-                case 'youtu.be':
-                    return url.pathname.substring(1);
-                case 'www.youtube.com':
-                case 'youtube.com':
-                    return url.searchParams.get('v');
-                default:
-                    return link;
+            // If the input is already just a video ID (no protocol), return it as-is
+            if (!link.includes('://')) {
+                return link;
+            }
+
+            try {
+                const url = new URL(link);
+
+                switch (url.hostname) {
+                    case 'www.youtu.be':
+                    case 'youtu.be':
+                        return url.pathname.substring(1);
+                    case 'www.youtube.com':
+                    case 'youtube.com':
+                        return url.searchParams.get('v');
+                    default:
+                        return link;
+                }
+            } catch (error) {
+                // If URL construction fails, assume it's already a video ID
+                return link;
             }
         },
-
+        
         async onImageUpload({ targetId }) {
             const mediaEntity = await this.mediaRepository.get(targetId);
 

@@ -23,7 +23,7 @@ Component.register('sw-theme-manager-detail', {
         return {
             theme: null,
             parentTheme: false,
-            inheritedThemeTechnicalNames: [],
+            inheritedSnippetPrefixes: [],
             defaultMediaFolderId: null,
             structuredThemeFields: {},
             themeConfig: {},
@@ -695,6 +695,10 @@ Component.register('sw-theme-manager-detail', {
 
         /**
          * @deprecated tag:v6.8.0 - `fallback` will be removed and method will return `null` instead, since theme config labels & helpTexts will be removed entirely.
+         *
+         * @param {string} key - The key of the snippet to retrieve.
+         * @param {string} [fallback=''] - DEPRECATED: The fallback value to return if the snippet is not found.
+         * @returns {string}
          */
         getSnippet(key, fallback = '') {
             for (let themeName of this.inheritedSnippetPrefixes) {
@@ -712,7 +716,11 @@ Component.register('sw-theme-manager-detail', {
         },
 
         /**
-         * Retrieves the field label with the config key appended in parentheses, if a label is set.
+         * Retrieves the field label with the config key appended in parentheses if a label is set.
+         *
+         * @param {object} field - The field object containing labelSnippetKey
+         * @param {string} fieldName - The technical name of the field
+         * @returns {string}
          */
         getFieldLabel(field, fieldName) {
             const label = this.getSnippet(field.labelSnippetKey, field.label) || '';
@@ -724,13 +732,20 @@ Component.register('sw-theme-manager-detail', {
             return `${label} (${fieldName})`;
         },
 
+        /**
+         * Retrieves the help text for a field or returns `null` if no help text is set.
+         *
+         * @param {object} field - The field object containing helpTextSnippetKey
+         * @returns {string|null}
+         */
         getHelpText(field) {
             const helpText = this.getSnippet(field.helpTextSnippetKey, field.helpText);
-            const locale = Shopware.Store.get('session').currentLocale;
 
             if (typeof helpText === 'string' && helpText.length > 0) {
                 return helpText;
             }
+
+            const locale = Shopware.Store.get('session').currentLocale;
 
             /** @deprecated tag:v6.8.0 - Theme config helpTexts will be removed, so this case will be obsolete */
             if (typeof helpText === 'object' && helpText?.[locale]) {

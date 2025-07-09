@@ -17,7 +17,7 @@ use Shopware\Storefront\Theme\Exception\ThemeException;
 #[Package('framework')]
 class ThemeMergedConfigBuilder
 {
-    private ?ThemeCollection $themes;
+    private ThemeCollection $themes;
 
     /**
      * @internal

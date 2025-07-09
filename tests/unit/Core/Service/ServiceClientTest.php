@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Service\ServiceClient;
 use Shopware\Core\Service\ServiceException;
-use Shopware\Core\Service\ServiceRegistryEntry;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -71,7 +71,7 @@ class ServiceClientTest extends TestCase
         $client = new ServiceClient(
             $httpClient,
             '6.6.0.0',
-            new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
             new Filesystem()
         );
         $client->latestAppInfo();
@@ -90,7 +90,7 @@ class ServiceClientTest extends TestCase
         $client = new ServiceClient(
             $httpClient,
             '6.6.0.0',
-            new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
             new Filesystem()
         );
         $client->latestAppInfo();
@@ -107,7 +107,7 @@ class ServiceClientTest extends TestCase
         $client = new ServiceClient(
             $httpClient,
             '6.6.0.0',
-            new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
             new Filesystem(),
         );
 
@@ -127,7 +127,7 @@ class ServiceClientTest extends TestCase
         $client = new ServiceClient(
             $httpClient,
             '6.6.0.0',
-            new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
             new Filesystem(),
         );
 
@@ -212,7 +212,7 @@ class ServiceClientTest extends TestCase
         $client = new ServiceClient(
             $httpClient,
             '6.6.0.0',
-            new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
             $fs
         );
 
@@ -240,7 +240,7 @@ class ServiceClientTest extends TestCase
         $client = new ServiceClient(
             $httpClient,
             '6.6.0.0',
-            new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
             new Filesystem(),
         );
 
@@ -260,7 +260,7 @@ class ServiceClientTest extends TestCase
         $client = new ServiceClient(
             $httpClient,
             '6.6.0.0',
-            new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
             new Filesystem(),
         );
 
@@ -279,7 +279,7 @@ class ServiceClientTest extends TestCase
         $client = new ServiceClient(
             $httpClient,
             '6.6.0.0',
-            new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
             new Filesystem(),
         );
 
@@ -313,7 +313,7 @@ class ServiceClientTest extends TestCase
         $client = new ServiceClient(
             $httpClient,
             '6.6.0.0',
-            new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
             $fs
         );
 

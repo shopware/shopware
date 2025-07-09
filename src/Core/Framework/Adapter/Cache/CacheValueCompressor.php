@@ -28,7 +28,7 @@ class CacheValueCompressor
         if (self::$compressMethod === 'zstd') {
             $compressed = \zstd_compress(\serialize($content));
         } elseif (self::$compressMethod === 'gzip') {
-            $compressed = \gzcompress(\serialize($content), 9);
+            $compressed = \gzcompress(\serialize($content));
         } else {
             throw FrameworkException::invalidCompressionMethod(self::$compressMethod);
         }

@@ -90,6 +90,9 @@
                                 "enum": ["calculated_cheapest_price"]
                             }
                         }
+                    },
+                    "measurements": {
+                        "$ref": "#/components/schemas/ProductMeasurements"
                     }
                 },
                 "required": [

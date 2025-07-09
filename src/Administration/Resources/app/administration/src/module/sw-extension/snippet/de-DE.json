@@ -608,7 +608,7 @@
         "tax": "Steuern",
         "tax_rule": "Steuerregel",
         "tax_rule_type": "Steuerregeltyp",
-        "unit": "Maßeinheit",
+        "unit": "Produkteinheit",
         "version": "Version"
       }
     },

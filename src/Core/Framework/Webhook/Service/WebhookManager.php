@@ -12,6 +12,7 @@ use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppChangedEvent;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
+use Shopware\Core\Framework\App\Event\AppPermissionsUpdated;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
@@ -110,7 +111,7 @@ class WebhookManager implements ResetInterface
 
         // If the admin worker is enabled we send all events synchronously, as we can't guarantee timely delivery otherwise.
         // Additionally, all app lifecycle events are sent synchronously as those can lead to nasty race conditions otherwise.
-        if ($this->isAdminWorkerEnabled || $event instanceof AppDeletedEvent || $event instanceof AppChangedEvent) {
+        if ($this->isAdminWorkerEnabled || $event instanceof AppDeletedEvent || $event instanceof AppChangedEvent || $event instanceof AppPermissionsUpdated) {
             Profiler::trace(
                 'webhook::dispatch-sync',
                 fn () => $this->callWebhooksSynchronous($webhooksForEvent, $event, $languageId, $userLocale)
@@ -306,7 +307,7 @@ class WebhookManager implements ResetInterface
         }
 
         // Only app lifecycle hooks can be received if app is deactivated
-        if ($webhook->appActive === false && !($event instanceof AppChangedEvent || $event instanceof AppDeletedEvent)) {
+        if ($webhook->appActive === false && !($event instanceof AppChangedEvent || $event instanceof AppDeletedEvent || $event instanceof AppPermissionsUpdated)) {
             return false;
         }
 

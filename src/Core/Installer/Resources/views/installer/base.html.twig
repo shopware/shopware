@@ -24,10 +24,34 @@
                 <div class="header-main__title">
                     {{ "shopware.installer.header_title"|trans }}
                 </div>
+
+                <div class="version--notice">
+                    {{ "shopware.installer.version_text"|trans }} {{ shopware.version }}
+                </div>
             </div>
 
-            <div class="version--notice">
-                {{ "shopware.installer.version_text"|trans }} {{ shopware.version }}
+            <div class="header-main__right">
+                <div class="header-main__language-selection">
+                    <form action="{{ url(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')) }}" method="get">
+                        <label for="language">
+                            {{ "shopware.installer.language-selection_select_language"|trans }}
+                        </label>
+                        <div class="select-wrapper language">
+                            <img class="language-flag"
+                                 src="{{ asset('bundles/installer/assets/images/flags/' ~ app.request.locale ~ '.svg', 'asset') }}"
+                                 alt="{{ app.request.locale }}">
+                            <select id="language" name="language" class="language-selection"
+                                    onchange="this.form.submit();">
+                                {% for baseTag, language in supportedLanguages %}
+                                    <option value="{{ baseTag }}" data-flag="{{ baseTag }}"
+                                            {% if app.request.locale == baseTag %}selected{% endif %}>
+                                        {{ language.label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </form>
+                </div>
             </div>
         </header>
 
@@ -49,13 +73,5 @@
             </div>
         </div>
 
-        <footer class="footer-main">
-            {% for language in supportedLanguages %}
-                <a href="?language={{ language|lower }}"
-                   class="language-item {% if app.request.locale == language %}is--active{% endif %}">
-                    {{ language|upper }}
-                </a>
-            {% endfor %}
-        </footer>
     </body>
 </html>

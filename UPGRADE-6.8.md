@@ -36,6 +36,27 @@ New blocks have been added in `sw-settings-index.html.twig`:
 * You must pass the `confidential` parameter as the third parameter of the constructor.
 * You must pass the `name` parameter as the fourth parameter of the constructor.
 
+## Removed configuration of Filesystem visibility in config array
+
+The visibility of filesystems cannot be configured in the config array anymore. Instead, it should be set on the same level as `type`. For example, instead of:
+
+```yaml
+filesystems:
+  my_filesystem:
+    type: local
+    config:
+      visibility: public
+```
+
+You should now use:
+
+```yaml
+filesystems:
+  my_filesystem:
+    type: local
+    visibility: public
+```
+
 ## Storefront
 
 ### Deprecated DomAccess Helper
@@ -181,6 +202,12 @@ Get the first order delivery with `primaryOrderDelivery` so you should replace m
 ## Use `primaryOrderTransaction`
 
 Get the latest order transaction with `primaryOrderTransaction` so you should replace methods like `transaction.last()`
+
+## Improved fetching of language information for SalesChannelContext
+
+The `\Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory` now uses the language repository directly to fetch language information.
+As a consequence the query with the title `base-context-factory::sales-channel` no longer adds the `languages` association,
+which means the `salesChannel` property of the `BaseSalesChannelContext` no longer contains the current language object. 
 
 </details>
 

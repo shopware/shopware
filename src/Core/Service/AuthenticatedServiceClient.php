@@ -5,6 +5,7 @@ namespace Shopware\Core\Service;
 use GuzzleHttp\Client;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 
 /**
  * @internal
@@ -14,7 +15,7 @@ class AuthenticatedServiceClient
 {
     public function __construct(
         public readonly Client $client,
-        private readonly ServiceRegistryEntry $entry,
+        private readonly ServiceEntry $entry,
         private readonly Source $source,
     ) {
     }

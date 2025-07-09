@@ -145,6 +145,7 @@ async function createWrapper() {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-order-state-change-modal': true,
+                'sw-time-ago': true,
             },
         },
     });

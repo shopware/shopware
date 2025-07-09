@@ -318,7 +318,7 @@ class ProductCartProcessorTest extends TestCase
      * @param array<string, mixed> $productData
      * @param array{type: string, value: array{price: string}, label: string} $expectedFeature
      */
-    #[DataProvider('productFeatureProdiver')]
+    #[DataProvider('productFeatureProvider')]
     #[Group('slow')]
     public function testProductFeaturesContainCorrectInformation(array $testedFeature, array $productData, array $expectedFeature): void
     {
@@ -357,7 +357,7 @@ class ProductCartProcessorTest extends TestCase
      *     2: array{type: string, value: mixed, label: string}
      *     }[]
      */
-    public static function productFeatureProdiver(): array
+    public static function productFeatureProvider(): array
     {
         return [
             [

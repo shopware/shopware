@@ -90,6 +90,9 @@ class SystemInstallCommand extends Command
                 '--no-interaction' => true,
             ],
             [
+                'command' => 'cache:clear:all',
+            ],
+            [
                 'command' => 'dal:refresh:index',
             ],
             [

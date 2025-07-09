@@ -148,9 +148,9 @@ class CacheClearer
         }
 
         if ($remove !== []) {
-            $this->lock(function () use ($remove): void {
+           // $this->lock(function () use ($remove): void {
                 $this->filesystem->remove($remove);
-            }, self::LOCK_KEY_CONTAINER, self::LOCK_TTL);
+           // }, self::LOCK_KEY_CONTAINER, self::LOCK_TTL);
         }
     }
 

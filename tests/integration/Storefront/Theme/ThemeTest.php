@@ -196,7 +196,7 @@ class ThemeTest extends TestCase
         $technicalName = $childTheme->getTechnicalName();
         static::assertIsString($technicalName);
         static::assertSame(
-            implode('.', ['sw-theme', u($technicalName)->kebab(), 'default.themeColors.default.sw-color-brand-primary.label']),
+            'default.themeColors.default.sw-color-brand-primary.label',
             $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey']
         );
     }

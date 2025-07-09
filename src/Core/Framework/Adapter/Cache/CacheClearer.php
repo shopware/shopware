@@ -55,13 +55,6 @@ class CacheClearer
             $this->reverseProxyCache?->banAll();
         }
 
-        try {
-            $this->invalidator->invalidateExpired();
-        } catch (\Throwable $e) {
-            // redis not available atm (in pipeline or build process)
-            $this->logger->critical('Could not clear cache: ' . $e->getMessage());
-        }
-
         if (!is_writable($this->cacheDir)) {
             throw AdapterException::cacheDirectoryError($this->cacheDir);
         }
@@ -95,9 +88,9 @@ class CacheClearer
             $containerCaches[] = $containerPaths->getRealPath();
         }
 
-        //$this->lock(function () use ($containerCaches): void {
+        $this->lock(function () use ($containerCaches): void {
             $this->filesystem->remove($containerCaches);
-        //}, self::LOCK_KEY_CONTAINER, self::LOCK_TTL);
+        }, self::LOCK_KEY_CONTAINER, self::LOCK_TTL);
     }
 
     public function scheduleCacheFolderCleanup(): void
@@ -148,9 +141,9 @@ class CacheClearer
         }
 
         if ($remove !== []) {
-           // $this->lock(function () use ($remove): void {
+            $this->lock(function () use ($remove): void {
                 $this->filesystem->remove($remove);
-           // }, self::LOCK_KEY_CONTAINER, self::LOCK_TTL);
+            }, self::LOCK_KEY_CONTAINER, self::LOCK_TTL);
         }
     }
 

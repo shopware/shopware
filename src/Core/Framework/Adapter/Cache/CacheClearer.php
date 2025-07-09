@@ -55,29 +55,26 @@ class CacheClearer
             $this->reverseProxyCache?->banAll();
         }
 
-        try {
-            $this->invalidator->invalidateExpired();
-        } catch (\Throwable $e) {
-            // redis not available atm (in pipeline or build process)
-            $this->logger->critical('Could not clear cache: ' . $e->getMessage());
-        }
-
         if (!is_writable($this->cacheDir)) {
             throw AdapterException::cacheDirectoryError($this->cacheDir);
         }
 
         $this->cacheClearer->clear($this->cacheDir);
 
-        if ($this->clusterMode) {
+        if (!$this->clusterMode) {
             // In cluster mode we can't delete caches on the filesystem
             // because this only runs on one node in the cluster
-            return;
+            $this->filesystem->remove($this->cacheDir . '/twig');
+            $this->cleanupUrlGeneratorCacheFiles();
+            $this->cleanupOldContainerCacheDirectories();
         }
 
-        $this->filesystem->remove($this->cacheDir . '/twig');
-        $this->cleanupUrlGeneratorCacheFiles();
-
-        $this->cleanupOldContainerCacheDirectories();
+        try {
+            $this->invalidator->invalidateExpired();
+        } catch (\Throwable $e) {
+            // redis not available atm (in pipeline or build process)
+            $this->logger->critical('Could not clear cache: ' . $e->getMessage());
+        }
     }
 
     public function clearContainerCache(): void

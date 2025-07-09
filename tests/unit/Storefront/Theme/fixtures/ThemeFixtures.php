@@ -4554,7 +4554,7 @@ class ThemeFixtures
      */
     public static function getExtractedFields13(): array
     {
-        $fields = [ ...self::getExtractedFieldsSub1(), ...[
+        $fields = [...self::getExtractedFieldsSub1(), ...[
             'parent-custom-config' => [
                 'extensions' => [
                 ],

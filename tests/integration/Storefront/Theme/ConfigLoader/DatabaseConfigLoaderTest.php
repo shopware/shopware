@@ -238,8 +238,22 @@ class DatabaseConfigLoaderTest extends TestCase
                 'technicalName' => 'child',
                 'baseConfig' => [
                     'fields' => $config['child'] ?? [],
+                    'configInheritance' => [
+                        '@base',
+                        '@parent',
+                        '@child',
+                    ],
                 ],
             ],
+            [
+                'id' => $this->ids->get('database-copy'),
+                'parentThemeId' => $this->ids->get('child'),
+                'name' => 'database-copy',
+                'author' => 'test',
+                'active' => true,
+                'technicalName' => null,
+                'baseConfig' => null,
+            ]
         ];
 
         $this->themeRepository->create($themes, Context::createDefaultContext());
@@ -340,8 +354,8 @@ class DatabaseConfigLoaderTest extends TestCase
             ],
         ];
 
-        yield 'Test multiple inheritance' => [
-            'child',
+        yield 'Test multiple inheritance with database child' => [
+            'database-copy',
             [
                 'base' => [
                     'base-field-1' => self::field('#000'),

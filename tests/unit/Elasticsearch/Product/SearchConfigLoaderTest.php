@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Elasticsearch\Product;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -22,16 +21,6 @@ use Shopware\Elasticsearch\Product\SearchConfigLoader;
 #[CoversClass(SearchConfigLoader::class)]
 class SearchConfigLoaderTest extends TestCase
 {
-    private Connection&MockObject $connection;
-
-    private SearchConfigLoader $searchConfigLoader;
-
-    protected function setUp(): void
-    {
-        $this->connection = $this->createMock(Connection::class);
-        $this->searchConfigLoader = new SearchConfigLoader($this->connection);
-    }
-
     /**
      * @param array<non-falsy-string, array<array{and_logic: string, field: string, tokenize: int, ranking: float}>> $configKeyedByLanguageId
      * @param array<array{and_logic: string, field: string, tokenize: int, ranking: float}> $expectedResult
@@ -93,6 +82,8 @@ class SearchConfigLoaderTest extends TestCase
             'configKeyedByLanguageId' => [
                 Defaults::LANGUAGE_SYSTEM => [[
                     'and_logic' => 'and',
+                    'excluded_terms' => json_encode(['term1', 'term2']),
+                    'min_search_length' => 5,
                     'field' => 'name',
                     'tokenize' => 1,
                     'ranking' => 2,
@@ -101,6 +92,8 @@ class SearchConfigLoaderTest extends TestCase
             'expectedResult' => [
                 [
                     'and_logic' => 'and',
+                    'excluded_terms' => ['term1', 'term2'],
+                    'min_search_length' => 5,
                     'field' => 'name',
                     'tokenize' => 1,
                     'ranking' => 2,
@@ -115,9 +108,13 @@ class SearchConfigLoaderTest extends TestCase
                     'field' => 'name',
                     'tokenize' => 1,
                     'ranking' => 100,
+                    'excluded_terms' => json_encode(['term1', 'term2']),
+                    'min_search_length' => 5,
                 ]],
                 Uuid::randomHex() => [[
                     'and_logic' => 'and',
+                    'excluded_terms' => json_encode(['term3', 'term4']),
+                    'min_search_length' => 15,
                     'field' => 'name',
                     'tokenize' => 0,
                     'ranking' => 50,
@@ -126,62 +123,13 @@ class SearchConfigLoaderTest extends TestCase
             'expectedResult' => [
                 [
                     'and_logic' => 'and',
+                    'excluded_terms' => ['term1', 'term2'],
+                    'min_search_length' => 5,
                     'field' => 'name',
                     'tokenize' => 1,
                     'ranking' => 100,
                 ],
             ],
         ];
-    }
-
-    public function testLoadFilterConfigReturnsCachedConfig(): void
-    {
-        $languageId = Defaults::LANGUAGE_SYSTEM;
-        $cachedConfig = [
-            'excludedTerms' => ['term1' => true, 'term2' => true],
-            'minSearchLength' => 3,
-        ];
-
-        // Set the cached config
-        $reflection = new \ReflectionClass($this->searchConfigLoader);
-        $configProperty = $reflection->getProperty('config');
-        $configProperty->setValue($this->searchConfigLoader, [$languageId => $cachedConfig]);
-
-        $result = $this->searchConfigLoader->loadFilterConfig($languageId);
-
-        static::assertSame($cachedConfig, $result);
-    }
-
-    public function testLoadFilterConfigReturnsValidConfig(): void
-    {
-        $languageId = Defaults::LANGUAGE_SYSTEM;
-        $dbResult = [
-            'excluded_terms' => json_encode(['term1', 'term2'], \JSON_THROW_ON_ERROR),
-            'min_search_length' => 5,
-        ];
-
-        $this->connection->expects($this->once())
-            ->method('fetchAssociative')
-            ->willReturn($dbResult);
-
-        $result = $this->searchConfigLoader->loadFilterConfig($languageId);
-
-        static::assertSame([
-            'excludedTerms' => ['term1' => 0, 'term2' => 1],
-            'minSearchLength' => 5,
-        ], $result);
-    }
-
-    public function testLoadFilterConfigReturnsNullWhenNoData(): void
-    {
-        $languageId = Defaults::LANGUAGE_SYSTEM;
-
-        $this->connection->expects($this->once())
-            ->method('fetchAssociative')
-            ->willReturn(false);
-
-        $result = $this->searchConfigLoader->loadFilterConfig($languageId);
-
-        static::assertNull($result);
     }
 }

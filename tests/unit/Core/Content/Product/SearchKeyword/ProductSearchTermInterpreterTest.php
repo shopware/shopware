@@ -83,16 +83,19 @@ class ProductSearchTermInterpreterTest extends TestCase
                 return true;
             }));
 
+        $configLoader = static::createMock(SearchConfigLoader::class);
+        $configLoader->method('load')->willReturn([['min_search_length' => 3, 'excluded_terms' => []]]);
+
         $interpreter = new ProductSearchTermInterpreter(
             static::createMock(Connection::class),
             new Tokenizer(3),
             static::createMock(LoggerInterface::class),
             new TokenFilter(
                 static::createMock(Connection::class),
-                static::createMock(SearchConfigLoader::class),
+                $configLoader,
             ),
             $keywordLoader,
-            static::createMock(SearchConfigLoader::class),
+            $configLoader,
         );
 
         $interpreter->interpret($term, Context::createDefaultContext());
@@ -113,16 +116,18 @@ class ProductSearchTermInterpreterTest extends TestCase
                 ];
             });
 
+        $configLoader = static::createMock(SearchConfigLoader::class);
+        $configLoader->method('load')->willReturn([['min_search_length' => 3, 'excluded_terms' => []]]);
         $interpreter = new ProductSearchTermInterpreter(
             $this->createMock(Connection::class),
             new Tokenizer(3),
             $this->createMock(LoggerInterface::class),
             new TokenFilter(
                 static::createMock(Connection::class),
-                static::createMock(SearchConfigLoader::class),
+                $configLoader,
             ),
             $keywordLoader,
-            static::createMock(SearchConfigLoader::class),
+            $configLoader,
         );
 
         $actualScoring = $interpreter->interpret($term, Context::createDefaultContext());

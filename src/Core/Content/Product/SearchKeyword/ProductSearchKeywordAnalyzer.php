@@ -75,11 +75,12 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
      */
     private function tokenize(array $values, Context $context): array
     {
-        $config = $this->configLoader->loadFilterConfig($context->getLanguageId());
+        $config = $this->configLoader->load($context);
 
+        /** @phpstan-ignore-next-line This ignore should be removed when the deprecated method signature is updated */
         $values = $this->tokenizer->tokenize(
             implode(' ', $values),
-            $config['minSearchLength'] ?? null
+            $config[0]['min_search_length'] ?? null
         );
 
         return $this->tokenFilter->filter($values, $context);

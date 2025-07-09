@@ -46,10 +46,11 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         $tokenFilter->method('filter')->willReturnCallback(fn (array $tokens) => $tokens);
 
         $configLoader = $this->createMock(SearchConfigLoader::class);
-        $configLoader->method('loadFilterConfig')
+        $configLoader->method('load')
             ->willReturn([
-                'excludedTerms' => [],
-                'minSearchLength' => 3,
+                [
+                    'min_search_length' => 3,
+                ],
             ]);
 
         $analyzer = new ProductSearchKeywordAnalyzer($tokenizer, $tokenFilter, $configLoader);
@@ -264,10 +265,11 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
             ->willReturnArgument(0);
 
         $configLoader = $this->createMock(SearchConfigLoader::class);
-        $configLoader->method('loadFilterConfig')
+        $configLoader->method('load')
             ->willReturn([
-                'excludedTerms' => [],
-                'minSearchLength' => 3,
+                [
+                    'min_search_length' => 3,
+                ],
             ]);
 
         $analyzer = new ProductSearchKeywordAnalyzer(

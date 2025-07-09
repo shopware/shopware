@@ -36,9 +36,10 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
     public function interpret(string $word, Context $context): SearchPattern
     {
-        $config = $this->configLoader->loadFilterConfig($context->getLanguageId());
-        $minSearchLength = $config['minSearchLength'] ?? null;
+        $config = $this->configLoader->load($context);
+        $minSearchLength = $config[0]['min_search_length'] ?? null;
 
+        /** @phpstan-ignore-next-line This ignore should be removed when the deprecated method signature is updated */
         $tokens = $this->tokenizer->tokenize($word, $minSearchLength);
         $tokens = $this->tokenFilter->filter($tokens, $context);
         $originalTokens = $tokens;
@@ -187,6 +188,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         $scoring = [];
 
         foreach ($matches as $match) {
+            /** @phpstan-ignore-next-line This ignore should be removed when the deprecated method signature is updated */
             $matchSegments = $this->tokenizer->tokenize($match, $minSearchLength);
             $exactMatch = \count($originalTokens) === \count($matchSegments)
                 && \count(array_diff($originalTokens, $matchSegments)) === 0;

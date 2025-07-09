@@ -9,4 +9,4 @@ issue: 8018
    * `Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter`
    * `Shopware\Elasticsearch\Product\ProductSearchQueryBuilder`
 * Changed `Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter` to use `SearchConfigLoader` to load filter config.
-* Added `loadFilterConfig` method in `Shopware\Elasticsearch\Product\SearchConfigLoader` to load filter config.
+* Changed `load` method in `Shopware\Elasticsearch\Product\SearchConfigLoader` to load min search length and excluded terms.

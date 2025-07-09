@@ -37,15 +37,16 @@ class TokenFilter extends AbstractTokenFilter
             return $tokens;
         }
 
-        $config = $this->configLoader->loadFilterConfig($context->getLanguageId());
+        $config = $this->configLoader->load($context);
 
-        if ($config === null) {
-            return $tokens;
-        }
+        $minSearchLength = $config[0]['min_search_length'] ?? AbstractTokenFilter::DEFAULT_MIN_SEARCH_TERM_LENGTH;
 
-        $tokens = $this->searchTermLengthFilter($tokens, $config['minSearchLength']);
+        $tokens = $this->searchTermLengthFilter($tokens, $minSearchLength);
 
-        return $this->excludedTermsFilter($tokens, $config['excludedTerms']);
+        return $this->excludedTermsFilter(
+            $tokens,
+            array_flip($config[0]['excluded_terms'] ?? [])
+        );
     }
 
     public function reset(): void

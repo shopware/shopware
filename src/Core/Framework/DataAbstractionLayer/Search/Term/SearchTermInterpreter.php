@@ -26,10 +26,11 @@ class SearchTermInterpreter
         $config = null;
         if (\func_num_args() === 2) {
             $context = func_get_arg(1);
-            $config = $this->configLoader->loadFilterConfig($context->getLanguageId());
+            $config = $this->configLoader->load($context);
         }
 
-        $terms = $this->tokenizer->tokenize($term, $config['minSearchLength'] ?? null);
+        /** @phpstan-ignore-next-line This ignore should be removed when the deprecated method signature is updated */
+        $terms = $this->tokenizer->tokenize($term, $config[0]['min_search_length'] ?? null);
 
         $pattern = new SearchPattern(new SearchTerm($term));
 

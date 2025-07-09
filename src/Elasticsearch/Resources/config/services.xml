@@ -240,9 +240,6 @@
 
         <service id="Shopware\Elasticsearch\Product\SearchConfigLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-
-            <tag name="kernel.reset" method="reset"/>
-            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder" class="Shopware\Elasticsearch\Product\ProductSearchQueryBuilder">

@@ -19,7 +19,7 @@
       "labelSalesChannelSelect": "Verkaufskanal",
       "inherited": "Vererbt",
       "compileNotice": "Diese Konfiguration enthält Felder, die für das Theme verwendet werden. Damit die Änderungen sichtbar werden, muss das Theme neu kompiliert werden.",
-      "scssHelpText": "SCSS Variablenname: "
+      "scssHelpText": "SCSS-Variablenname: "
     }
   },
   "sw-privileges": {

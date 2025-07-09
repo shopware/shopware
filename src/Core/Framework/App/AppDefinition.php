@@ -77,6 +77,7 @@ class AppDefinition extends EntityDefinition
             'templateLoadPriority' => 0,
             'sourceType' => 'local',
             'selfManaged' => false,
+            'requestedPrivileges' => [],
         ];
     }
 
@@ -114,6 +115,7 @@ class AppDefinition extends EntityDefinition
             new StringField('source_type', 'sourceType'),
             new JsonField('source_config', 'sourceConfig'),
             new BoolField('self_managed', 'selfManaged'),
+            (new ListField('requested_privileges', 'requestedPrivileges', StringField::class))->addFlags(new Required()),
 
             (new TranslationsAssociationField(AppTranslationDefinition::class, 'app_id'))->addFlags(new Required(), new CascadeDelete()),
             new TranslatedField('label'),

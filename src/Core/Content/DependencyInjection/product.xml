@@ -258,6 +258,7 @@
         <service id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator">
             <argument type="service" id="unit.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
 
             <tag name="kernel.reset" method="reset"/>
         </service>

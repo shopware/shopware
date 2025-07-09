@@ -135,7 +135,7 @@ export default {
                     label: this.$tc('sw-cms.elements.imageGallery.config.label.navigationPreviewPositionLeft'),
                 },
                 {
-                    value: 'right',
+                    value: 'underneath',
                     label: this.$tc('sw-cms.elements.imageGallery.config.label.navigationPreviewPositionUnderneath'),
                 },
             ];

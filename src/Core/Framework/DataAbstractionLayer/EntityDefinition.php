@@ -188,6 +188,11 @@ abstract class EntityDefinition
             }
         }
 
+        foreach ($this->extensions as $extension) {
+            // To prevent adding or removing fields we use a new FieldCollection which just contains the references to the fields
+            $extension->modifyFields(new FieldCollection($fields));
+        }
+
         $this->fields = $fields->compile($this->registry);
 
         return $this->fields;

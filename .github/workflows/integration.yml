@@ -163,7 +163,7 @@ jobs:
 
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@f2dba722c67b86c6caa034178c6e4d35335f6706 # 1
+        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # 1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -220,16 +220,16 @@ jobs:
           fetch-depth: 2
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@6bb031afdd8eb862ea3fc1848194185e076637e5 #  v3.28.11
+        uses: github/codeql-action/init@181d5eefc20863364f96762470ba6f862bdef56b #  v3.29.2
 
         with:
           languages: ${{ matrix.language }}
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@6bb031afdd8eb862ea3fc1848194185e076637e5 #  v3.28.11
+        uses: github/codeql-action/autobuild@181d5eefc20863364f96762470ba6f862bdef56b #  v3.29.2
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@6bb031afdd8eb862ea3fc1848194185e076637e5 #  v3.28.11
+        uses: github/codeql-action/analyze@181d5eefc20863364f96762470ba6f862bdef56b #  v3.29.2
 
   tested-update-versions:
     name: tested-versions
@@ -319,7 +319,7 @@ jobs:
         working-directory: old-shopware
         run: symfony server:start -d
 
-      - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # 4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # 4
         with:
           node-version: 22
 
@@ -342,7 +342,7 @@ jobs:
         working-directory: new-shopware/tests/acceptance
         run: npx playwright test --project=Update --trace=on
 
-      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # 4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # 4
         if: always()
         with:
           name: playwright-report-update-${{ matrix.update.type }}-${{ matrix.update.version }}

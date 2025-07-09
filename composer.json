@@ -112,7 +112,7 @@
         "scssphp/scssphp": "v1.12.0",
         "setasign/fpdi": "^2.3.7",
         "setasign/tfpdf": "^1.33",
-        "shopware/conflicts": "0.5.0",
+        "shopware/conflicts": "0.5.1",
         "shyim/opensearch-php-dsl": "^1.0.5",
         "squirrelphp/twig-php-syntax": "^1.8.0",
         "symfony/asset": "~7.2.0",
@@ -167,7 +167,6 @@
         "symfony/validator": "~7.2.0",
         "symfony/var-exporter": "~7.2.0",
         "symfony/yaml": "~7.2.0",
-        "tecnickcom/tcpdf": "^6.7.7",
         "twig/intl-extra": "^3.10.0",
         "twig/string-extra": "^3.10.0",
         "twig/twig": "^3.19.0",
@@ -344,8 +343,14 @@
             "@php bin/console assets:install"
         ],
         "check:license": "bash -c \"vendor/bin/composer-license-checker check -a $(sed -z 's/\\n/ -a /g' .allowed-licenses)\"",
-        "ecs": "php-cs-fixer fix --dry-run --diff",
-        "ecs-fix": "php-cs-fixer fix",
+        "ecs": [
+            "@putenv PHP_CS_FIXER_IGNORE_ENV=true",
+            "php-cs-fixer fix --dry-run --diff"
+        ],
+        "ecs-fix": [
+            "@putenv PHP_CS_FIXER_IGNORE_ENV=true",
+            "php-cs-fixer fix"
+        ],
         "eslint": [
             "@eslint:admin",
             "@eslint:storefront"
@@ -378,7 +383,8 @@
             "export PROJECT_ROOT=\"$PWD\"; \"$PROJECT_ROOT\"/bin/install-extension-npm"
         ],
         "init:testdb": [
-            "FORCE_INSTALL=true vendor/bin/phpunit --group=none --testsuite migration,unit,integration,devops"
+            "@putenv FORCE_INSTALL=true",
+            "vendor/bin/phpunit --group=none --testsuite migration,unit,integration,devops"
         ],
         "lint": [
             "@stylelint",

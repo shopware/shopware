@@ -42,6 +42,7 @@ export default {
             productEntityVariantModal: false,
             filterCriteria: [],
             defaultFilters: [
+                'product-number-filter',
                 'active-filter',
                 'product-without-images-filter',
                 'release-date-filter',
@@ -126,6 +127,15 @@ export default {
 
         listFilterOptions() {
             return {
+                'product-number-filter': {
+                    property: 'productNumber',
+                    type: 'string-filter',
+                    label: this.$tc('sw-product.filters.productNumberFilter.label'),
+                    placeholder: this.$tc('sw-product.filters.productNumberFilter.placeholder'),
+                    valueProperty: 'key',
+                    labelProperty: 'key',
+                    criteriaFilterType: 'equals',
+                },
                 'active-filter': {
                     property: 'active',
                     label: this.$tc('sw-product.filters.activeFilter.label'),

@@ -218,7 +218,7 @@
           "helpText": {
             "autoplayTimeout": "Die Anzeigezeit eines einzelnen Bildes in Millisekunden.",
             "speed": "Die Dauer der Wechselanimation in Millisekunden.",
-            "displayMode": "<strong>Original:</strong> Das Bild wird in seiner ursprünglichen Auflösung erhalten oder auf die aktuelle Breite der CMS-Seite verkleinert.<br><br><strong>Skaliert:</strong> Das Bild wird ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert.<br><br><strong>Zugeschnitten:</strong> Das Bild wird auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte maximale Höhe zugeschnitten."
+            "displayMode": "<ul><li><strong>Original:</strong> Das Bild wird in seiner ursprünglichen Auflösung erhalten oder auf die aktuelle Breite der CMS-Seite verkleinert.</li><li><strong>Skaliert:</strong> Das Bild wird ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert.</li><li><strong>Zugeschnitten:</strong> Das Bild wird auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte maximale Höhe zugeschnitten.</li></ul>"
           },
           "caption": {
             "mediaUpload": "Lade ein Bild hoch"
@@ -272,7 +272,7 @@
             "magnifierOverGalleryHelpText": "Zeige die Lupe über der Galerie, anstatt daneben an."
           },
           "helpText": {
-            "displayMode": "<strong>Original:</strong> Die Bilder werden in ihrer ursprünglichen Auflösung erhalten oder auf die Höhe des Sliders verkleinert.<br><br><strong>Feste Höhe:</strong> Die Bilder werden in ihrer ursprünglichen Auflösung erhalten oder auf die konfigurierte Höhe verkleinert.<br><br><strong>Zugeschnitten:</strong> Die Bilder werden auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte Höhe zugeschnitten."
+            "displayMode": "<ul><li><strong>Original:</strong> Die Bilder werden in ihrer ursprünglichen Auflösung erhalten oder auf die Höhe des Sliders verkleinert.</li><li><strong>Feste Höhe:</strong> Die Bilder werden in ihrer ursprünglichen Auflösung erhalten oder auf die konfigurierte Höhe verkleinert.</li><li><strong>Zugeschnitten:</strong> Die Bilder werden auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte Höhe zugeschnitten.</li></ul>"
           }
         }
       },
@@ -287,7 +287,7 @@
             "navigationDots": "Punkt-Navigation"
           },
           "helpText": {
-            "displayMode": "<strong>Original:</strong> Die Bilder werden ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert. Der Slider passt seine Höhe dynamisch an.<br><br><strong>Feste Höhe:</strong> Die Bilder werden ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert. Der Slider behält die Höhe des höchsten Bildes bei.<br><br><strong>Zugeschnitten:</strong> Die Bilder werden auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte Höhe zugeschnitten."
+            "displayMode": "<ul><li><strong>Original:</strong> Die Bilder werden ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert. Der Slider passt seine Höhe dynamisch an.</li><li><strong>Feste Höhe:</strong> Die Bilder werden ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert. Der Slider behält die Höhe des höchsten Bildes bei.</li><li><strong>Zugeschnitten:</strong> Die Bilder werden auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte Höhe zugeschnitten.</li></ul>"
           }
         }
       },
@@ -388,7 +388,7 @@
           },
           "helpText": {
             "minWidth": "Gib die minimale Breite in der gewünschten Einheit an. Zum Beispiel: 200px",
-            "displayMode": "<strong>Original:</strong> Die Bilder werden auf Höhe oder Breite der Produktbox skaliert, so dass die Bilder immer komplett in den für sie vorgesehenen Bereich passen. Die Bilder werden nie hochskaliert.<br><br><strong>Feste Höhe:</strong> Die Bilder werden auf Höhe oder Breite der Produktbox skaliert, so dass die Bilder immer komplett in den für sie vorgesehenen Bereich passen. Die Bilder können hochskaliert werden.<br><br><strong>Zugeschnitten:</strong> Die Bilder werden auf die Höhe oder Breite der Produktbox skaliert. Jeglicher Überlauf wird entsprechend zugeschnitten."
+            "displayMode": "<ul><li><strong>Original:</strong> Die Bilder werden auf Höhe oder Breite der Produktbox skaliert, so dass die Bilder immer komplett in den für sie vorgesehenen Bereich passen. Die Bilder werden nie hochskaliert.</li><li><strong>Feste Höhe:</strong> Die Bilder werden auf Höhe oder Breite der Produktbox skaliert, so dass die Bilder immer komplett in den für sie vorgesehenen Bereich passen. Die Bilder können hochskaliert werden.</li><li><strong>Zugeschnitten:</strong> Die Bilder werden auf die Höhe oder Breite der Produktbox skaliert. Jeglicher Überlauf wird entsprechend zugeschnitten.</li></ul>"
           },
           "productAssignmentTypeOptions": {
             "manual": "Manuelle Zuweisung",

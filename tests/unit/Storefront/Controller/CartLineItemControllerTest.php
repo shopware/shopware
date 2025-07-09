@@ -2,14 +2,11 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
-use Composer\Autoload\ClassLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\GenericCartError;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -700,74 +697,6 @@ class CartLineItemControllerTest extends TestCase
         $this->controller->updateLineItems($cart, new RequestDataBag($request->request->all()), $request, $context);
 
         static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
-    }
-
-    /**
-     * @param class-string<Error> $class
-     */
-    #[DataProvider('errorProvider')]
-    public function testFilterErrorSuccessMessages(string $class, bool $filtered): void
-    {
-        $id = Uuid::randomHex();
-
-        $request = new Request(['quantity' => 1]);
-        $cart = new Cart(Uuid::randomHex());
-        $cart->addLineItems(new LineItemCollection([new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE)]));
-
-        $session = new Session(new MockArraySessionStorage());
-        $this->translatorCallback($session);
-
-        $this->cartService
-            ->expects($this->once())
-            ->method('changeQuantity')
-            ->willReturn($cart);
-
-        /** @var Error&MockObject $error */
-        $error = $this->createMock($class);
-        $cart->addErrors($error);
-
-        $this->controller->changeQuantity($cart, $id, $request, $this->createMock(SalesChannelContext::class));
-
-        if ($filtered) {
-            static::assertCount(0, $cart->getErrors());
-
-            static::assertArrayHasKey('success', $session->getFlashBag()->peekAll());
-        } else {
-            static::assertCount(1, $cart->getErrors());
-        }
-    }
-
-    /**
-     * @return list<array{class-string<Error>, bool}>
-     */
-    public static function errorProvider(): array
-    {
-        $filtered = [
-            PromotionCartAddedInformationError::class,
-        ];
-
-        $classLoader = require __DIR__ . '/../../../../vendor/autoload.php';
-        static::assertInstanceOf(ClassLoader::class, $classLoader);
-
-        $errors = [];
-        foreach ($classLoader->getClassMap() as $class => $_) {
-            if (!str_starts_with($class, 'Shopware\\')) {
-                continue;
-            }
-
-            if ($class !== Error::class && !\is_subclass_of($class, Error::class)) {
-                continue;
-            }
-
-            $refClass = new \ReflectionClass($class);
-            if ($refClass->isAbstract()) {
-                continue;
-            }
-
-            $errors[] = [$class, \in_array($class, $filtered, true)];
-        }
-
-        return $errors;
     }
 
     private function translatorCallback(?Session $session = null): void

@@ -46,9 +46,11 @@ class Migration1742199549MeasurementSystemTable extends MigrationStep
             `name` VARCHAR(255) NULL,
             `measurement_system_id` BINARY(16) NOT NULL,
             `language_id` BINARY(16) NOT NULL,
+            `custom_fields` JSON NULL,
             `created_at` DATETIME(3) NOT NULL,
             `updated_at` DATETIME(3) NULL,
             PRIMARY KEY (`measurement_system_id`,`language_id`),
+            CONSTRAINT `json.measurement_system_translation.custom_fields` CHECK (JSON_VALID(`custom_fields`)),
             CONSTRAINT `fk.measurement_system_translation.measurement_system_id` FOREIGN KEY (`measurement_system_id`)
               REFERENCES `measurement_system` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
             CONSTRAINT `fk.measurement_system_translation.language_id` FOREIGN KEY (`language_id`)

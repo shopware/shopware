@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MeasurementSystem\DataAbstractionLayer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\FieldType;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
@@ -21,6 +23,8 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 #[Entity('measurement_display_unit', since: '6.7.1.0')]
 class MeasurementDisplayUnitEntity extends EntityStruct
 {
+    use EntityCustomFieldsTrait;
+
     #[PrimaryKey]
     #[Field(type: FieldType::UUID, api: true)]
     public string $id;
@@ -48,6 +52,12 @@ class MeasurementDisplayUnitEntity extends EntityStruct
 
     #[Field(type: FieldType::STRING, translated: true, api: true)]
     public ?string $name = null;
+
+    /**
+     * @var array<mixed>|null
+     */
+    #[CustomFields(true)]
+    protected ?array $customFields = null;
 
     /**
      * @var array<string, ArrayEntity>|null

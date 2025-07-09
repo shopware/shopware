@@ -53,9 +53,11 @@ class Migration1742199550MeasurementDisplayUnitTable extends MigrationStep
             `name` VARCHAR(255) NULL,
             `measurement_display_unit_id` BINARY(16) NOT NULL,
             `language_id` BINARY(16) NOT NULL,
+            `custom_fields` JSON NULL,
             `created_at` DATETIME(3) NOT NULL,
             `updated_at` DATETIME(3) NULL,
             PRIMARY KEY (`measurement_display_unit_id`,`language_id`),
+            CONSTRAINT `json.measurement_display_unit_translation.custom_fields` CHECK (JSON_VALID(`custom_fields`)),
             CONSTRAINT `fk.measurement_display_unit_translation.unit_id` FOREIGN KEY (`measurement_display_unit_id`)
               REFERENCES `measurement_display_unit` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
             CONSTRAINT `fk.measurement_display_unit_translation.language_id` FOREIGN KEY (`language_id`)

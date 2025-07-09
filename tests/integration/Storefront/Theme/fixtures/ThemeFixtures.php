@@ -504,8 +504,8 @@ class ThemeFixtures
                     ],
                 ],
             ],
-            'technicalName' => 'Storefront',
-            'configInheritance' => self::getConfigInheritance(),
+            'themeTechnicalName' => 'Storefront',
+            'configInheritance' => [],
         ];
     }
 
@@ -2173,6 +2173,7 @@ class ThemeFixtures
                     'isInherited' => false,
                 ],
             ],
+            'configInheritance' => [],
         ];
     }
 

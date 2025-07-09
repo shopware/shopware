@@ -1,6 +1,6 @@
 shopware.installer:
     header_title: Instalacja
-    menuitem_language-selection: Start
+    menuitem_welcome: Start
     menuitem_requirements: 'Wymagania systemowe'
     menuitem_database-configuration: 'Konfiguracja bazy danych'
     menuitem_database-import: Instalacja
@@ -16,23 +16,23 @@ shopware.installer:
     forward: Dalej
     start: Start
     start_installation: 'Rozpocznij instalację'
-    select_language_de: 'Język niemiecki'
-    select_language_en: 'Język angielski (Zjednoczone Królestwo)'
-    select_language_us: 'Język angielski (Stany Zjednoczone Ameryki)'
-    select_language_nl: 'Język niderlandzki'
-    select_language_it: 'Język włoski'
-    select_language_fr: 'Język francuski'
-    select_language_es: 'Język hiszpański'
-    select_language_pt: 'Język portugalski'
-    select_language_pl: 'Język polski'
     select_language_cs: 'Język czech'
-    select_language_sv: 'Język szwedzki'
-    select_language_nb: 'Język norweski'
-    language-selection_welcome_title: 'Witaj w Shopware 6'
+    select_language_da-DK: 'Język duński'
+    select_language_de: 'Język niemiecki'
+    select_language_en-US: 'Język angielski (Stany Zjednoczone Ameryki)'
+    select_language_en: 'Język angielski (Zjednoczone Królestwo)'
+    select_language_es-ES: 'Język hiszpański'
+    select_language_fr: 'Język francuski'
+    select_language_it: 'Język włoski'
+    select_language_nl: 'Język niderlandzki'
+    select_language_no: 'Język norweski'
+    select_language_pl: 'Język polski'
+    select_language_pt-PT: 'Język portugalski'
+    select_language_sv-SE: 'Język szwedzki'
+    welcome_title: 'Witaj w Shopware 6'
     language-selection_select_language: 'Język asystenta instalacji'
-    language-selection_header: 'Twoja instalacja Shopware'
-    language-selection_info_message: 'Wybór ten odnosi się tylko do języka asystenta instalacji. Możesz później zdefiniować domyślny język systemu dla Twojego sklepu.'
-    language-selection_welcome_message: 'Cieszymy się, że chcesz być częścią naszej wielkiej światowej społeczności Shopware! Teraz pomożemy Ci przejść krok po kroku przez proces instalacji. Jeśli masz jakieś pytania, najpierw odwiedź nasze <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">forum</a>, skontaktuj się z nami telefonicznie pod numerem <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> lub wyślij nam <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.'
+    welcome_header: 'Twoja instalacja Shopware'
+    welcome_message: 'Cieszymy się, że chcesz być częścią naszej wielkiej światowej społeczności Shopware! Teraz pomożemy Ci przejść krok po kroku przez proces instalacji. Jeśli masz jakieś pytania, najpierw odwiedź nasze <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">forum</a>, skontaktuj się z nami telefonicznie pod numerem <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> lub wyślij nam <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.'
     requirements_header: 'Wymagania systemowe'
     requirements_header_files: 'Pliki i katalogi'
     requirements_header_system: System

@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@popperjs/core": "2.11.8",
-    "@shopware-ag/dive": "2.0.1-beta.10",
+    "@shopware-ag/dive": "2.0.1-beta.11",
     "@swc/core": "^1.10.14",
     "autoprefixer": "10.4.13",
     "bootstrap": "5.3.3",

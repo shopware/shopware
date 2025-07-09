@@ -8,6 +8,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal
+ *
+ * @phpstan-type DomainRewriteRule = array{match: string, type: string, replace: string}
  */
 #[Package('framework')]
 class SetupStagingEvent
@@ -16,9 +18,14 @@ class SetupStagingEvent
 
     public bool $canceled = false;
 
+    /**
+     * @param list<DomainRewriteRule> $domainMappings
+     */
     public function __construct(
         public readonly Context $context,
         public readonly SymfonyStyle $io,
+        public readonly bool $disableMailDelivery,
+        public readonly array $domainMappings,
     ) {
     }
 }

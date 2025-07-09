@@ -1,5 +1,4 @@
 import { MtDatepicker as MtDatepickerOriginal } from '@shopware-ag/meteor-component-library';
-import type { PropType } from 'vue';
 // eslint-disable-next-line max-len
 import type { DateTimeOptions } from 'vue-i18n';
 import template from './mt-datepicker.html.twig';

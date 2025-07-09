@@ -24,7 +24,7 @@ class CountingEntitySearcher implements EntitySearcherInterface
 
     public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
     {
-        static::$count[$definition->getEntityName()] ??= 0 + 1;
+        static::$count[$definition->getEntityName()] ??= 1;
 
         return $this->inner->search($definition, $criteria, $context);
     }

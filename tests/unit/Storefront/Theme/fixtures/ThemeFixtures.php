@@ -204,7 +204,10 @@ class ThemeFixtures
         $themeId = Uuid::randomHex();
         $parentThemeId = Uuid::randomHex();
         $baseThemeId = Uuid::randomHex();
+        $databaseThemeId = Uuid::randomHex();
 
+        // Test Case 1: Theme with parent theme inheritance and custom field extensions
+        // Tests: Theme inherits from parent theme, has custom field extensions with labels and help texts.
         yield [
             'ids' => [
                 'themeId' => $themeId,
@@ -293,6 +296,8 @@ class ThemeFixtures
             ],
         ];
 
+        // Test Case 2: Theme with parent theme inheritance and basic configuration
+        // Tests: Theme inherits from parent theme with basic config, has labels and help texts.
         yield [
             'ids' => [
                 'themeId' => $themeId,
@@ -356,6 +361,8 @@ class ThemeFixtures
             ],
         ];
 
+        // Test Case 3: Theme with custom fields and help texts
+        // Tests: Theme with custom fields defined in baseConfig and help texts.
         yield [
             'ids' => [
                 'themeId' => $themeId,
@@ -420,6 +427,8 @@ class ThemeFixtures
             ],
         ];
 
+        // Test Case 4: Theme with minimal configuration
+        // Tests: Theme with only basic configuration and configValues, no baseConfig.
         yield [
             'ids' => [
                 'themeId' => $themeId,
@@ -468,6 +477,8 @@ class ThemeFixtures
             ],
         ];
 
+        // Test Case 5: Theme with parent theme having false fields configuration
+        // Tests: Parent theme with baseConfig.fields set to false.
         yield [
             'ids' => [
                 'themeId' => $themeId,
@@ -519,6 +530,8 @@ class ThemeFixtures
             ],
         ];
 
+        // Test Case 6: Theme with parent theme having empty fields configuration
+        // Tests: Parent theme with baseConfig.fields set to empty array.
         yield [
             'ids' => [
                 'themeId' => $themeId,
@@ -570,6 +583,8 @@ class ThemeFixtures
             ],
         ];
 
+        // Test Case 7: Theme without parent theme
+        // Tests: Theme directly inheriting from base theme without parent theme.
         yield [
             'ids' => [
                 'themeId' => $themeId,
@@ -610,6 +625,8 @@ class ThemeFixtures
             ],
         ];
 
+        // Test Case 8: Theme with configValues in base theme
+        // Tests: Theme with empty configValues but base theme has configValues.
         yield [
             'ids' => [
                 'themeId' => $themeId,
@@ -651,6 +668,8 @@ class ThemeFixtures
             ],
         ];
 
+        // Test Case 9: Theme with custom field overrides and select options
+        // Tests: Theme with custom field overrides including select component with options.
         yield [
             'ids' => [
                 'themeId' => $themeId,
@@ -711,6 +730,96 @@ class ThemeFixtures
             ],
             'expectedStructured' => [
                 'tabs' => self::getExtractedTabsNameTheme(),
+            ],
+        ];
+
+        // Test Case 10: Database child theme
+        // Tests: Database child theme with parent theme inheritance and custom field extensions.
+        yield [
+            'ids' => [
+                'themeId' => $databaseThemeId,
+                'physicalThemeId' => $themeId,
+                'parentThemeId' => $parentThemeId,
+                'baseThemeId' => $baseThemeId,
+            ],
+            'themeCollection' => new ThemeCollection(
+                [
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $databaseThemeId,
+                            '_uniqueIdentifier' => $databaseThemeId,
+                            'technicalName' => null, // Database child themes don't have a technical name.
+                            'parentThemeId' => $themeId,
+                            'salesChannels' => new SalesChannelCollection(),
+                            'configValues' => [
+                                'sw-color-brand-primary' => ['value' => '#db0f80'],
+                            ],
+                        ]
+                    ),
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $themeId,
+                            '_uniqueIdentifier' => $themeId,
+                            'technicalName' => 'Test',
+                            'parentThemeId' => $parentThemeId,
+                            'baseConfig' => [
+                                'configInheritance' => [
+                                    '@ParentTheme',
+                                ],
+                                'config' => self::getThemeJsonConfig(),
+                                'fields' => [
+                                    'extend-parent-custom-config' => [
+                                        'type' => 'int',
+                                        'value' => '20',
+                                        'editable' => true,
+                                    ],
+                                ],
+                            ],
+                            'configValues' => [
+                                'parent-custom-config' => ['value' => '40'],
+                            ],
+                        ]
+                    ),
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $parentThemeId,
+                            'technicalName' => 'ParentTheme',
+                            'parentThemeId' => $baseThemeId,
+                            '_uniqueIdentifier' => $parentThemeId,
+                            'baseConfig' => [
+                                'configInheritance' => [
+                                    '@Storefront',
+                                ],
+                                'fields' => [
+                                    'parent-custom-config' => [
+                                        'type' => 'int',
+                                        'value' => '20',
+                                        'editable' => true,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ),
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $baseThemeId,
+                            'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
+                            '_uniqueIdentifier' => $baseThemeId,
+                        ]
+                    ),
+                ]
+            ),
+            'expected' => [
+                'fields' => self::getExtractedFields11(),
+                'configInheritance' => self::getExtractedConfigInheritance(),
+                'config' => self::getExtractedConfig1(),
+                'currentFields' => self::getExtractedCurrentFields9(),
+                'baseThemeFields' => self::getExtractedBaseThemeFields9(),
+                'name' => 'test',
+                'themeTechnicalName' => 'Test',
+            ],
+            'expectedStructured' => [
+                'tabs' => self::getExtractedTabs11(),
             ],
         ];
     }
@@ -2263,6 +2372,22 @@ class ThemeFixtures
     /**
      * @return array<string, mixed>
      */
+    private static function getExtractedFields11(): array
+    {
+        $fields = self::getExtractedFields7();
+
+        $fields['parent-custom-config']['value'] = '40';
+        $fields['sw-color-brand-primary']['value'] = '#db0f80';
+
+        unset($fields['test']);
+        unset($fields['test-something-with-options']);
+
+        return $fields;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     private static function getExtractedCurrentFields5(): array
     {
         return [...self::getExtractedCurrentFields1(), ...[
@@ -2397,6 +2522,105 @@ class ThemeFixtures
     /**
      * @return array<string, mixed>
      */
+    private static function getExtractedCurrentFields9(): array
+    {
+        $currentFields = [
+            'sw-color-brand-primary' => [
+                'isInherited' => false,
+                'value' => '#db0f80',
+            ],
+            'sw-color-brand-secondary' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-border-color' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-background-color' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-success' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-info' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-warning' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-danger' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-font-family-base' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-text-color' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-font-family-headline' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-headline-color' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-price' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-buy-button' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-buy-button-text' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-logo-desktop' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-logo-tablet' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-logo-mobile' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-logo-share' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-logo-favicon' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'parent-custom-config' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'extend-parent-custom-config' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+        ];
+
+        return $currentFields;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     private static function getExtractedBaseThemeFields5(): array
     {
         return [...self::getExtractedBaseThemeFields1(), ...[
@@ -2524,6 +2748,28 @@ class ThemeFixtures
     /**
      * @return array<string, mixed>
      */
+    private static function getExtractedBaseThemeFields9(): array
+    {
+        $baseThemeFields = self::getExtractedBaseThemeFields6();
+
+        $baseThemeFields['parent-custom-config'] = [
+            'isInherited' => false,
+            'value' => '40',
+        ];
+
+        $baseThemeFields['extend-parent-custom-config'] = [
+            'isInherited' => false,
+            'value' => '20',
+        ];
+
+        unset($baseThemeFields['test-something-with-options']);
+
+        return $baseThemeFields;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     private static function getExtractedTabs10(): array
     {
         return [
@@ -2563,6 +2809,64 @@ class ThemeFixtures
                                         'custom' => null,
                                         'fullWidth' => null,
                                     ],
+                                    'parent-custom-config' => [
+                                        'labelSnippetKey' => 'sw-theme.test.default.default.default.parent-custom-config.label',
+                                        'helpTextSnippetKey' => 'sw-theme.test.default.default.default.parent-custom-config.helpText',
+                                        'type' => 'int',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                    'extend-parent-custom-config' => [
+                                        'labelSnippetKey' => 'sw-theme.test.default.default.default.extend-parent-custom-config.label',
+                                        'helpTextSnippetKey' => 'sw-theme.test.default.default.default.extend-parent-custom-config.helpText',
+                                        'type' => 'int',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function getExtractedTabs11(): array
+    {
+        return [
+            'default' => [
+                'labelSnippetKey' => 'sw-theme.test.default.label',
+                'blocks' => [
+                    'themeColors' => [
+                        'labelSnippetKey' => 'sw-theme.test.default.themeColors.label',
+                        'sections' => self::getExtractedSectionsThemeColors(),
+                    ],
+                    'statusColors' => [
+                        'labelSnippetKey' => 'sw-theme.test.default.statusColors.label',
+                        'sections' => self::getExtractedSectionsStatusColors(),
+                    ],
+                    'typography' => [
+                        'labelSnippetKey' => 'sw-theme.test.default.typography.label',
+                        'sections' => self::getExtractedSectionsTypography(),
+                    ],
+                    'eCommerce' => [
+                        'labelSnippetKey' => 'sw-theme.test.default.eCommerce.label',
+                        'sections' => self::getExtractedSectionsECommerce(),
+                    ],
+                    'media' => [
+                        'labelSnippetKey' => 'sw-theme.test.default.media.label',
+                        'sections' => self::getExtractedSectionsMediaNoHelpTexts(),
+                    ],
+                    'default' => [
+                        'labelSnippetKey' => 'sw-theme.test.default.default.label',
+                        'sections' => [
+                            'default' => [
+                                'labelSnippetKey' => 'sw-theme.test.default.default.default.label',
+                                'fields' => [
                                     'parent-custom-config' => [
                                         'labelSnippetKey' => 'sw-theme.test.default.default.default.parent-custom-config.label',
                                         'helpTextSnippetKey' => 'sw-theme.test.default.default.default.parent-custom-config.helpText',

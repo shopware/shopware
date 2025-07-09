@@ -1,0 +1,96 @@
+<li class="sw-settings-services-service-card">
+    <div class="sw-settings-services-service-card__content">
+        <div class="sw-settings-services-service-card__header">
+            <sw-extension-icon
+                class="sw-settings-services-service-card__icon"
+                :src="icon"
+                :alt="`Icon for ${service.name}`"
+            />
+
+            <div>
+                <h4>{{ service.label }}</h4>
+                <sw-status
+                    :color="serviceStatus"
+                >
+                    {{ $t(statusText) }}
+                </sw-status>
+            </div>
+
+            <mt-popover
+                :child-views="[{ name: 'base' }]"
+            >
+                <template
+                    #trigger="{ toggleFloatingUi }"
+                >
+                    <mt-button
+                        variant="secondary"
+                        square
+                        @click="toggleFloatingUi"
+                    >
+                        <mt-icon name="solid-ellipsis-h-s" />
+                    </mt-button>
+                </template>
+
+                <template #popover-items__base="{ toggleFloatingUi }">
+                    <mt-popover-item
+                        v-if="!service.active"
+                        :label="$t('sw-settings-services.general.activate')"
+                        :disabled="isLoading"
+                        :on-label-click="() => setActive(true, toggleFloatingUi)"
+                    />
+
+                    <mt-popover-item
+                        v-if="service.active"
+                        :label="$t('sw-settings-services.general.deactivate')"
+                        :disabled="isLoading"
+                        :on-label-click="() => openDeactivateModal(toggleFloatingUi)"
+                    />
+                </template>
+            </mt-popover>
+        </div>
+
+        <div class="sw-settings-services-service-card__description">
+            {{ service.description }}
+        </div>
+
+        <div class="sw-settings-services-service-card__footer">
+            {{  $t('sw-settings-services.service-card.updated-at-label', { updatedAt: updatedAt }) }}
+            •
+            {{ $t('sw-settings-services.service-card.version', { version: readableVersion }) }}
+        </div>
+    </div>
+
+    <mt-modal-root
+        :is-open="showDeactivateModal"
+        @change="showDeactivateModal = $event"
+    >
+        <mt-modal :title="$t('sw-settings-services.general.deactivate')">
+            <div class="sw-settings-services-service-card__deactivate-modal-content">
+                <p>{{ $t('sw-settings-services.service-card.deactivate-modal.warning', { serviceName: service.name }) }}</p>
+
+                <p>{{ $t('sw-settings-services.service-card.deactivate-modal.consequences') }}</p>
+            </div>
+
+            <template #footer>
+                <div class="sw-settings-services-service-card__deactivate-modal-footer">
+                    <mt-modal-action
+                        as="mt-button"
+                        variant="secondary"
+                        @click="showDeactivateModal = false"
+                    >
+                        {{ $t('global.default.cancel') }}
+                    </mt-modal-action>
+
+                    <mt-modal-action
+                        as="mt-button"
+                        variant="critical"
+                        :is-loading="isLoading"
+                        @click="setActive(false, () => { showDeactivateModal = false })"
+                    >
+                        {{ $t('sw-settings-services.general.deactivate') }}
+                    </mt-modal-action>
+                </div>
+            </template>
+        </mt-modal>
+    </mt-modal-root>
+</li>

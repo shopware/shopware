@@ -68,12 +68,18 @@ class RoutingException extends HttpException
         );
     }
 
-    public static function accessDeniedForXmlHttpRequest(): self
+    public static function accessDeniedForXmlHttpRequest(?string $route = null, ?string $url = null, ?string $referer = null): self
     {
+        $message = 'PageController ' . ($route ? '"{{ route }}" ' : '')
+            . ($url ? '("{{ url }}") ' : '')
+            . 'can\'t be requested via XmlHttpRequest.'
+            . ($referer ? ' Requested by "{{ referer }}".' : '');
+
         return new self(
             Response::HTTP_FORBIDDEN,
             self::ACCESS_DENIED_FOR_XML_HTTP_REQUEST,
-            'PageController can\'t be requested via XmlHttpRequest.'
+            $message,
+            ['route' => $route, 'url' => $url, 'referer' => $referer]
         );
     }
 }

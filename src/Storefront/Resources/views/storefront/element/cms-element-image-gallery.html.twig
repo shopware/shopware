@@ -83,6 +83,7 @@
     {% endif %}
 
     {% set defaultEnableAugmentedReality = config('core.media.defaultEnableAugmentedReality') %}
+    {% set defaultArPlacement = config('core.media.defaultARPlacement') %}
 
     <div class="cms-element-{{ element.type }}{% if displayMode == "standard" and verticalAlign %} has-vertical-alignment{% endif %}">
         {% block element_image_gallery_alignment %}
@@ -239,6 +240,7 @@
                                                                                         {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
                                                                                             {% set arViewerOptions = arViewerBaseOptions|merge({
                                                                                                 spatialArId: image.id,
+                                                                                                arPlacement: image.config.spatial.arPlacement || defaultArPlacement,
                                                                                                 modelUrl: image.url,
                                                                                             }) %}
                                                                                             <button class="ar-button button position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
@@ -392,6 +394,7 @@
                                                                         {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
                                                                             {% set arViewerOptions = arViewerBaseOptions|merge({
                                                                                 spatialArId: image.id,
+                                                                                arPlacement: image.config.spatial.arPlacement || defaultArPlacement,
                                                                                 modelUrl: image.url,
                                                                             }) %}
                                                                             <button class="ar-button button position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
@@ -766,6 +769,7 @@
                                                                                                             {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
                                                                                                                 {% set arViewerOptions = arViewerBaseOptions|merge({
                                                                                                                     spatialArId: image.id,
+                                                                                                                    arPlacement: image.config.spatial.arPlacement || defaultArPlacement,
                                                                                                                     modelUrl: image.url,
                                                                                                                 }) %}
                                                                                                                 <button class="ar-button button mb-2 position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"

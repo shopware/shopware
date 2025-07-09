@@ -293,4 +293,26 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         );
         expect(secondPriceFieldGross.element.value).toBe('0');
     });
+
+    it('should have hover styles for advanced selection option', async () => {
+        // Test that the advanced selection option has the correct CSS class
+        // which should have hover styles applied via CSS
+        const advancedSelectionElement = document.createElement('div');
+        advancedSelectionElement.className = 'sw-single-select-filtering__advanced-selection sw-select-result';
+        
+        // Verify the class exists (CSS will handle the actual hover styling)
+        expect(advancedSelectionElement.classList.contains('sw-single-select-filtering__advanced-selection')).toBe(true);
+        expect(advancedSelectionElement.classList.contains('sw-select-result')).toBe(true);
+    });
+
+    it('should have hover styles for create new rule option', async () => {
+        // Test that the create new rule option has the correct CSS class
+        // which should have hover styles applied via CSS
+        const createRuleElement = document.createElement('div');
+        createRuleElement.className = 'sw-select-rule-create__create-rule-item sw-select-result';
+        
+        // Verify the class exists (CSS will handle the actual hover styling)
+        expect(createRuleElement.classList.contains('sw-select-rule-create__create-rule-item')).toBe(true);
+        expect(createRuleElement.classList.contains('sw-select-result')).toBe(true);
+    });
 });

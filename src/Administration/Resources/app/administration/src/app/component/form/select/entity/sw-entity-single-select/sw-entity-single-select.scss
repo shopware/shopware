@@ -50,4 +50,11 @@
         height: 100%;
         padding-right: 48px;
     }
+
+    .sw-single-select-filtering__advanced-selection {
+        &:hover {
+            background-color: lighten($color-shopware-brand-500, 40%);
+            color: $color-shopware-brand-500;
+        }
+    }
 }

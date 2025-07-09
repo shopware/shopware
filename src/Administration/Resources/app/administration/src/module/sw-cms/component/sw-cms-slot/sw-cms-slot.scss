@@ -134,13 +134,13 @@
         }
 
         .element-selection__overlay {
-          display: none;
-          align-content: center;
-          align-items: center;
-          justify-content: center;
-          justify-items: center;
-          position: absolute;
-          border-radius: 5px;
+            display: none;
+            align-content: center;
+            align-items: center;
+            justify-content: center;
+            justify-items: center;
+            position: absolute;
+            border-radius: 5px;
 
             &.element-selection__overlay-action-select {
                 width: 100%;

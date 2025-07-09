@@ -37,6 +37,8 @@ class CacheInvalidator
      */
     public function invalidate(array $tags, bool $force = false): void
     {
+        return;
+
         $tags = array_filter(array_unique($tags));
 
         if (empty($tags)) {

@@ -5,4 +5,4 @@ author: Christoph Pötz
 author_github: @acris-cp
 ---
 # Core
-* `Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister` don't remove customerId and other information from payload if sales_channel_api_context is expired
+* Changed `Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister` so it doesn't remove `customerId` and other information from payload if the context is expired

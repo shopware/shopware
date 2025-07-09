@@ -721,6 +721,7 @@ class ThemeServiceTest extends TestCase
         $themeId = Uuid::randomHex();
         $parentThemeId = Uuid::randomHex();
         $baseThemeId = Uuid::randomHex();
+        $databaseThemeId = Uuid::randomHex();
 
         return [
             [
@@ -1444,6 +1445,119 @@ class ThemeServiceTest extends TestCase
                 ],
                 'expectedStructuredNotTranslated' => [
                     'tabs' => ThemeFixtures::getExtractedTabs13(),
+                ],
+            ],
+            [
+                'ids' => [
+                    'themeId' => $databaseThemeId,
+                    'physicalThemeId' => $themeId,
+                    'parentThemeId' => $parentThemeId,
+                    'baseThemeId' => $baseThemeId,
+                ],
+                'themeCollection' => new ThemeCollection(
+                    [
+                        (new ThemeEntity())->assign(
+                            [
+                                'id' => $databaseThemeId,
+                                '_uniqueIdentifier' => $databaseThemeId,
+                                'technicalName' => null, // Database child themes don't have a technical name.
+                                'parentThemeId' => $themeId,
+                                'salesChannels' => new SalesChannelCollection(),
+                                'configValues' => [
+                                    'sw-color-brand-primary' => ['value' => '#db0f80'],
+                                ],
+                            ]
+                        ),
+                        (new ThemeEntity())->assign(
+                            [
+                                'id' => $themeId,
+                                '_uniqueIdentifier' => $themeId,
+                                'technicalName' => 'Test',
+                                'parentThemeId' => $parentThemeId,
+                                'baseConfig' => [
+                                    'configInheritance' => [
+                                        '@ParentTheme',
+                                    ],
+                                    'config' => ThemeFixtures::getThemeJsonConfig(),
+                                    'fields' => [
+                                        'extend-parent-custom-config' => [
+                                            'type' => 'int',
+                                            'value' => '20',
+                                            'editable' => true,
+                                            'label' => [
+                                                'de-DE' => 'DE',
+                                                'en-GB' => 'EN',
+                                            ],
+                                            'helpText' => [
+                                                'de-DE' => 'De Helptext',
+                                                'en-GB' => 'EN Helptext',
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                                'configValues' => [
+                                    'parent-custom-config' => ['value' => '40'],
+                                ],
+                            ]
+                        ),
+                        (new ThemeEntity())->assign(
+                            [
+                                'id' => $parentThemeId,
+                                'technicalName' => 'ParentTheme',
+                                'parentThemeId' => $baseThemeId,
+                                '_uniqueIdentifier' => $parentThemeId,
+                                'baseConfig' => [
+                                    'configInheritance' => [
+                                        '@Storefront',
+                                    ],
+                                    'fields' => [
+                                        'parent-custom-config' => [
+                                            'type' => 'int',
+                                            'value' => '20',
+                                            'editable' => true,
+                                            'label' => [
+                                                'de-DE' => 'DE',
+                                                'en-GB' => 'EN',
+                                            ],
+                                            'helpText' => [
+                                                'de-DE' => 'De Helptext',
+                                                'en-GB' => 'EN Helptext',
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ),
+                        (new ThemeEntity())->assign(
+                            [
+                                'id' => $baseThemeId,
+                                'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
+                                '_uniqueIdentifier' => $baseThemeId,
+                            ]
+                        ),
+                    ]
+                ),
+                'expected' => [
+                    'fields' => ThemeFixtures::getExtractedFields13(),
+                    'configInheritance' => ThemeFixtures::getExtractedConfigInheritance(),
+                    'config' => ThemeFixtures::getExtractedConfig1(),
+                    'currentFields' => ThemeFixtures::getExtractedCurrentFields9(),
+                    'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields9(),
+                    'blocks' => ThemeFixtures::getExtractedBlock1(),
+                ],
+                'expectedNotTranslated' => [
+                    'fields' => ThemeFixtures::getExtractedFields13(),
+                    'configInheritance' => ThemeFixtures::getExtractedConfigInheritance(),
+                    'config' => ThemeFixtures::getExtractedConfig1(),
+                    'currentFields' => ThemeFixtures::getExtractedCurrentFields9(),
+                    'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields9(),
+                    'blocks' => ThemeFixtures::getExtractedBlock1(),
+                ],
+                'expectedStructured' => [
+                    'tabs' => ThemeFixtures::getExtractedTabs15(),
+                ],
+                'expectedStructuredNotTranslated' => [
+                    'tabs' => ThemeFixtures::getExtractedTabs14(),
                 ],
             ],
         ];

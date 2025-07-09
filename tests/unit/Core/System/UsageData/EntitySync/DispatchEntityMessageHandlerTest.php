@@ -655,16 +655,18 @@ class DispatchEntityMessageHandlerTest extends TestCase
         static::assertSame(1337, $serialized['int']);
 
         static::assertArrayHasKey('createdAt', $serialized);
-        static::assertEquals(new \DateTimeImmutable('2023-07-31'), $serialized['createdAt']);
+        $createdAt = $serialized['createdAt'];
+        static::assertInstanceOf(\DateTimeInterface::class, $createdAt);
+        static::assertSame((new \DateTimeImmutable('2023-07-31'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $createdAt->format(Defaults::STORAGE_DATE_TIME_FORMAT));
 
         static::assertArrayHasKey('updatedAt', $serialized);
         static::assertNull($serialized['updatedAt']);
 
         static::assertArrayHasKey('association_name', $serialized);
-        static::assertEquals('decoded_value', $serialized['association_name']);
+        static::assertSame('decoded_value', $serialized['association_name']);
 
         static::assertArrayHasKey('blob', $serialized);
-        static::assertEquals('blob', base64_decode($serialized['blob'], true));
+        static::assertSame('blob', base64_decode($serialized['blob'], true));
 
         static::assertArrayNotHasKey('one_to_one', $serialized);
     }

@@ -57,6 +57,10 @@
             <argument>%customer.account_types%</argument>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory">
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory"/>
         </service>
@@ -185,9 +189,9 @@
             <argument type="service" id="customer_recovery.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
             <argument type="service" id="shopware.rate_limiter"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerRecoveryIsExpiredRoute" public="true">
@@ -227,6 +231,13 @@
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\ConvertGuestRoute" public="true">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerRoute" public="true">
             <argument type="service" id="customer.repository"/>
         </service>
@@ -249,6 +260,7 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper"/>
             <argument type="service" id="salutation.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute" public="true">

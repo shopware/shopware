@@ -166,7 +166,7 @@ Module.register('sw-product', {
             component: 'sw-product-detail',
             path: 'detail/:id?',
             props: {
-                default: (route) => ({ productId: route.params.id }),
+                default: (route) => ({ productId: route.params.id?.toLowerCase() }),
             },
             redirect: {
                 name: 'sw.product.detail.base',

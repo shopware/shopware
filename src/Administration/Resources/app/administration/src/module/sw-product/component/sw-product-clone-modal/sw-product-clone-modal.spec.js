@@ -54,6 +54,7 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
                 variantListingConfig: {
                     mainVariantId: '1a2b3c',
                 },
+                childCount: 1,
             },
         });
 
@@ -73,9 +74,29 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
                     variantListingConfig: {
                         mainVariantId: null,
                     },
+                    childCount: 1,
                 },
             },
             expect.anything(),
         );
+    });
+
+    it('should not change the original product', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const product = {
+            name: 'shirt',
+            variantListingConfig: {
+                mainVariantId: '1a2b3c',
+            },
+            childCount: 1,
+        };
+
+        await wrapper.setProps({
+            product: product,
+        });
+
+        expect(product.variantListingConfig.mainVariantId).toBe('1a2b3c');
     });
 });

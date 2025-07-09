@@ -462,7 +462,7 @@ class EntityReaderTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertNull($product->getName());
-        static::assertEquals('test', $product->getDescription());
+        static::assertSame('test', $product->getDescription());
     }
 
     public function testInheritedTranslationsInViewData(): void
@@ -510,8 +510,8 @@ class EntityReaderTest extends TestCase
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertEquals('EN', $product->getTranslated()['name']);
-        static::assertEquals('test', $product->getTranslated()['description']);
+        static::assertSame('EN', $product->getTranslated()['name']);
+        static::assertSame('test', $product->getTranslated()['description']);
     }
 
     public function testParentInheritanceInViewData(): void
@@ -565,7 +565,7 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $parent);
         static::assertInstanceOf(TaxEntity::class, $parent->getTax());
         static::assertInstanceOf(Price::class, $parent->getCurrencyPrice(Defaults::CURRENCY));
-        static::assertEquals(50, $parent->getCurrencyPrice(Defaults::CURRENCY)->getGross());
+        static::assertSame(50.0, $parent->getCurrencyPrice(Defaults::CURRENCY)->getGross());
 
         $red = $products->get($redId);
 
@@ -581,9 +581,9 @@ class EntityReaderTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $green);
         static::assertInstanceOf(TaxEntity::class, $green->getTax());
-        static::assertEquals($greenTax, $green->getTaxId());
+        static::assertSame($greenTax, $green->getTaxId());
         static::assertInstanceOf(Price::class, $green->getCurrencyPrice(Defaults::CURRENCY));
-        static::assertEquals(100, $green->getCurrencyPrice(Defaults::CURRENCY)->getGross());
+        static::assertSame(100.0, $green->getCurrencyPrice(Defaults::CURRENCY)->getGross());
 
         $criteria = new Criteria([$parentId, $greenId, $redId]);
         $criteria->addAssociation('tax');
@@ -597,7 +597,7 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $parent);
         static::assertInstanceOf(TaxEntity::class, $parent->getTax());
         static::assertInstanceOf(Price::class, $parent->getCurrencyPrice(Defaults::CURRENCY));
-        static::assertEquals(50, $parent->getCurrencyPrice(Defaults::CURRENCY)->getGross());
+        static::assertSame(50.0, $parent->getCurrencyPrice(Defaults::CURRENCY)->getGross());
 
         $red = $products->get($redId);
 
@@ -606,16 +606,16 @@ class EntityReaderTest extends TestCase
 
         // price and tax are inherited by parent
         static::assertInstanceOf(TaxEntity::class, $red->getTax());
-        static::assertEquals($parentTax, $red->getTaxId());
+        static::assertSame($parentTax, $red->getTaxId());
         static::assertInstanceOf(Price::class, $red->getCurrencyPrice(Defaults::CURRENCY));
-        static::assertEquals(50, $red->getCurrencyPrice(Defaults::CURRENCY)->getGross());
+        static::assertSame(50.0, $red->getCurrencyPrice(Defaults::CURRENCY)->getGross());
 
         $green = $products->get($greenId);
         static::assertInstanceOf(ProductEntity::class, $green);
         static::assertInstanceOf(TaxEntity::class, $green->getTax());
-        static::assertEquals($greenTax, $green->getTaxId());
+        static::assertSame($greenTax, $green->getTaxId());
         static::assertInstanceOf(Price::class, $green->getCurrencyPrice(Defaults::CURRENCY));
-        static::assertEquals(100, $green->getCurrencyPrice(Defaults::CURRENCY)->getGross());
+        static::assertSame(100.0, $green->getCurrencyPrice(Defaults::CURRENCY)->getGross());
     }
 
     public function testInheritanceWithOneToMany(): void
@@ -1128,8 +1128,8 @@ class EntityReaderTest extends TestCase
 
         $this->customerRepository->upsert([$customer], $context);
 
-        $addresses = $this->connection->fetchOne('SELECT COUNT(id) FROM customer_address WHERE customer_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
-        static::assertEquals(5, $addresses);
+        $addresses = (int) $this->connection->fetchOne('SELECT COUNT(id) FROM customer_address WHERE customer_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+        static::assertSame(5, $addresses);
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('addresses');
@@ -1328,7 +1328,7 @@ class EntityReaderTest extends TestCase
 
         static::assertInstanceOf(CustomerAddressCollection::class, $customer1->getAddresses());
         static::assertCount(3, $customer1->getAddresses());
-        static::assertEquals(
+        static::assertSame(
             [$addressId2, $addressId1, $addressId3],
             array_values($customer1->getAddresses()->getIds())
         );
@@ -1336,7 +1336,7 @@ class EntityReaderTest extends TestCase
         $customerAddressCollection = $customer2->getAddresses();
         static::assertNotNull($customerAddressCollection);
         static::assertCount(3, $customerAddressCollection);
-        static::assertEquals(
+        static::assertSame(
             [$addressId6, $addressId5, $addressId4],
             array_values($customerAddressCollection->getIds())
         );
@@ -1357,14 +1357,14 @@ class EntityReaderTest extends TestCase
 
         $customer1Addresses = $customer1->getAddresses();
         static::assertNotNull($customer1Addresses);
-        static::assertEquals(
+        static::assertSame(
             [$addressId3, $addressId1, $addressId2],
             array_values($customer1Addresses->getIds())
         );
 
         $customer2Addresses = $customer2->getAddresses();
         static::assertNotNull($customer2Addresses);
-        static::assertEquals(
+        static::assertSame(
             [$addressId4, $addressId5, $addressId6],
             array_values($customer2Addresses->getIds())
         );
@@ -1423,7 +1423,7 @@ class EntityReaderTest extends TestCase
         static::assertCount(3, $customer->getAddresses());
 
         $streets = $customer->getAddresses()->map(fn (CustomerAddressEntity $e) => $e->getStreet());
-        static::assertEquals(['A', 'B', 'D'], array_values($streets));
+        static::assertSame(['A', 'B', 'D'], array_values($streets));
 
         $criteria = new Criteria([$id]);
         $criteria->getAssociation('addresses')->setLimit(3);
@@ -1438,7 +1438,7 @@ class EntityReaderTest extends TestCase
         static::assertCount(3, $customer->getAddresses());
 
         $streets = $customer->getAddresses()->map(fn (CustomerAddressEntity $e) => $e->getStreet());
-        static::assertEquals(['X', 'E', 'D'], array_values($streets));
+        static::assertSame(['X', 'E', 'D'], array_values($streets));
     }
 
     public function testLoadOneToManySupportsPagination(): void
@@ -1614,12 +1614,12 @@ class EntityReaderTest extends TestCase
         $products = $manufacturer->getProducts();
         static::assertNotNull($products);
 
-        static::assertEquals(1, $products->count());
+        static::assertCount(1, $products);
         static::assertInstanceOf(ProductEntity::class, $products->first());
 
         $categories = $products->first()->getCategories();
         static::assertNotNull($categories);
-        static::assertEquals(1, $categories->count());
+        static::assertCount(1, $categories);
         static::assertInstanceOf(CategoryEntity::class, $categories->first());
     }
 
@@ -1843,7 +1843,7 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(ProductCollection::class, $category1->getProducts());
         static::assertCount(2, $category1->getProducts());
 
-        static::assertEquals(
+        static::assertSame(
             [$id1, $id3],
             array_values($category1->getProducts()->getIds())
         );
@@ -1852,7 +1852,7 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(ProductCollection::class, $category2->getProducts());
         static::assertCount(2, $category2->getProducts());
 
-        static::assertEquals(
+        static::assertSame(
             [$id2, $id3],
             array_values($category2->getProducts()->getIds())
         );
@@ -1871,7 +1871,7 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(CategoryEntity::class, $category1);
         $category1Products = $category1->getProducts();
         static::assertNotNull($category1Products);
-        static::assertEquals(
+        static::assertSame(
             [$id3, $id1],
             array_values($category1Products->getIds())
         );
@@ -1879,7 +1879,7 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(CategoryEntity::class, $category2);
         $category2Products = $category2->getProducts();
         static::assertNotNull($category2Products);
-        static::assertEquals(
+        static::assertSame(
             [$id3, $id2],
             array_values($category2Products->getIds())
         );
@@ -2077,11 +2077,11 @@ class EntityReaderTest extends TestCase
 
         $transDe = $catTranslations->filterByLanguageId($this->deLanguageId)->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $transDe);
-        static::assertEquals('deutsch', $transDe->getName());
+        static::assertSame('deutsch', $transDe->getName());
 
         $transSystem = $catTranslations->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $transSystem);
-        static::assertEquals('system', $transSystem->getName());
+        static::assertSame('system', $transSystem->getName());
     }
 
     public function testPricesAreConvertedWithCurrencyFactor(): void
@@ -2237,8 +2237,8 @@ class EntityReaderTest extends TestCase
 
         $result = $repository->search(new Criteria(), Context::createDefaultContext());
 
-        static::assertEquals(3, $result->getTotal());
-        static::assertEquals(3, $result->count());
+        static::assertSame(3, $result->getTotal());
+        static::assertCount(3, $result);
 
         $foundIds = [];
         foreach ($result as $entity) {
@@ -2276,8 +2276,8 @@ class EntityReaderTest extends TestCase
 
         $result = $repository->search(new Criteria([['testField' => $id1]]), Context::createDefaultContext());
 
-        static::assertEquals(1, $result->getTotal());
-        static::assertEquals(1, $result->count());
+        static::assertSame(1, $result->getTotal());
+        static::assertCount(1, $result);
     }
 
     public function testDirectlyReadFromTranslationEntity(): void
@@ -2303,14 +2303,14 @@ class EntityReaderTest extends TestCase
 
         $result = static::getContainer()->get('category_translation.repository')->search($criteria, Context::createDefaultContext());
 
-        static::assertEquals(1, $result->getTotal());
-        static::assertEquals(1, $result->count());
+        static::assertSame(1, $result->getTotal());
+        static::assertCount(1, $result);
 
         $translation = $result->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $translation);
-        static::assertEquals('system', $translation->getName());
-        static::assertEquals(Defaults::LANGUAGE_SYSTEM, $translation->getLanguageId());
-        static::assertEquals($id, $translation->getCategoryId());
+        static::assertSame('system', $translation->getName());
+        static::assertSame(Defaults::LANGUAGE_SYSTEM, $translation->getLanguageId());
+        static::assertSame($id, $translation->getCategoryId());
     }
 
     /**

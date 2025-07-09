@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -66,6 +67,7 @@ class PropertyGroupGenerator implements DemodataGeneratorInterface
                         'options' => $mapped,
                         'sorting_type' => PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC,
                         'display_type' => PropertyGroupDefinition::DISPLAY_TYPE_TEXT,
+                        'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
                     ],
                 ],
                 $context->getContext()

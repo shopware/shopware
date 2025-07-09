@@ -21,16 +21,16 @@ class ExtensionCriteriaTest extends TestCase
             'page' => 1,
         ]);
 
-        static::assertEquals(25, $extensionCriteria->getLimit());
-        static::assertEquals(0, $extensionCriteria->getOffset());
+        static::assertSame(25, $extensionCriteria->getLimit());
+        static::assertSame(0, $extensionCriteria->getOffset());
 
         $extensionCriteria = ExtensionCriteria::fromArray([
             'limit' => 10,
             'page' => 5,
         ]);
 
-        static::assertEquals(10, $extensionCriteria->getLimit());
-        static::assertEquals(40, $extensionCriteria->getOffset());
+        static::assertSame(10, $extensionCriteria->getLimit());
+        static::assertSame(40, $extensionCriteria->getOffset());
     }
 
     public function testItIgnoresInvalidValuesForSortDirection(): void
@@ -39,7 +39,7 @@ class ExtensionCriteriaTest extends TestCase
 
         $extensionCriteria->setOrderSequence('random');
 
-        static::assertEquals(ExtensionCriteria::ORDER_SEQUENCE_ASC, $extensionCriteria->getOrderSequence());
+        static::assertSame(ExtensionCriteria::ORDER_SEQUENCE_ASC, $extensionCriteria->getOrderSequence());
     }
 
     public function testOrderSequenceDesc(): void
@@ -48,7 +48,7 @@ class ExtensionCriteriaTest extends TestCase
 
         $extensionCriteria->setOrderSequence('DesC');
 
-        static::assertEquals(ExtensionCriteria::ORDER_SEQUENCE_DESC, $extensionCriteria->getOrderSequence());
+        static::assertSame(ExtensionCriteria::ORDER_SEQUENCE_DESC, $extensionCriteria->getOrderSequence());
     }
 
     public function testGetQueryOptionsWithMandatory(): void
@@ -58,7 +58,7 @@ class ExtensionCriteriaTest extends TestCase
             'page' => 2,
         ]);
 
-        static::assertEquals([
+        static::assertSame([
             'limit' => 25,
             'offset' => 25,
         ], $criteria->getQueryParameter());
@@ -112,9 +112,9 @@ class ExtensionCriteriaTest extends TestCase
 
         $extensionCriteria->setOrderBy('rating');
 
-        static::assertEquals('rating', $extensionCriteria->getQueryParameter()['orderBy']);
-        static::assertEquals('rating', $extensionCriteria->getOrderBy());
-        static::assertEquals(
+        static::assertSame('rating', $extensionCriteria->getQueryParameter()['orderBy']);
+        static::assertSame('rating', $extensionCriteria->getOrderBy());
+        static::assertSame(
             ExtensionCriteria::ORDER_SEQUENCE_ASC,
             $extensionCriteria->getQueryParameter()['orderSequence']
         );
@@ -126,8 +126,8 @@ class ExtensionCriteriaTest extends TestCase
         static::assertArrayNotHasKey('search', $extensionCriteria->getQueryParameter());
 
         $extensionCriteria->setSearch('my search');
-        static::assertEquals('my search', $extensionCriteria->getQueryParameter()['search']);
-        static::assertEquals('my search', $extensionCriteria->getSearch());
+        static::assertSame('my search', $extensionCriteria->getQueryParameter()['search']);
+        static::assertSame('my search', $extensionCriteria->getSearch());
     }
 
     public function testItFlattensFilterInQuery(): void
@@ -149,7 +149,7 @@ class ExtensionCriteriaTest extends TestCase
             ],
         ]);
 
-        static::assertEquals('living', $extensionCriteria->getQueryParameter()['category']);
-        static::assertEquals('3', $extensionCriteria->getQueryParameter()['rating']);
+        static::assertSame('living', $extensionCriteria->getQueryParameter()['category']);
+        static::assertSame('3', $extensionCriteria->getQueryParameter()['rating']);
     }
 }

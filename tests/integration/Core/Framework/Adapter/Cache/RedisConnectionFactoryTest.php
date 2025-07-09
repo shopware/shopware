@@ -30,7 +30,7 @@ class RedisConnectionFactoryTest extends TestCase
         $a->set('foo', 'bar');
         $b->set('foo', 'foo');
 
-        static::assertEquals($equals, $a->get('foo') === $b->get('foo'));
+        static::assertSame($equals, $a->get('foo') === $b->get('foo'));
     }
 
     public static function prefixProvider(): \Generator

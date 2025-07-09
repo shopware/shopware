@@ -55,7 +55,7 @@ class DatabaseTransactionBehaviourTest extends TestCase
 
     public function testLastTestCaseIsSet(): void
     {
-        static::assertEquals($this->nameWithDataSet(), static::$lastTestCase);
+        static::assertSame($this->nameWithDataSet(), static::$lastTestCase);
     }
 
     public function testTransactionOpenWithoutClose(): void

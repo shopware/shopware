@@ -2,21 +2,13 @@
 
 {% block page_account_main_content %}
     <div class="account-address account-address-form">
+        {# @deprecated tag:v6.8.0 - Block page_account_address_form_welcome is superfluous, use page_account_address_form_welcome_headline. #}
         {% block page_account_address_form_welcome %}
-            <div class="account-welcome d-flex align-items-center">
-                <a
-                    href="{{ path('frontend.account.address.page') }}"
-                    class="account-address-back btn btn-outline-dark"
-                >
-                    {% sw_icon 'arrow-left' style {size: 's'} %}
-                </a>
-
-                {% block page_account_address_form_welcome_headline %}
-                    <h1 class="mx-2 mb-0">
-                        {{ 'account.addressEditMetaTitle'|trans|sw_sanitize }}
-                    </h1>
-                {% endblock %}
-            </div>
+            {% block page_account_address_form_welcome_headline %}
+                <h1 class="account-welcome">
+                    {{ 'account.addressEditMetaTitle'|trans|sw_sanitize }}
+                </h1>
+            {% endblock %}
         {% endblock %}
 
         {% block page_account_address_form_main %}
@@ -50,7 +42,16 @@
                             {% endblock %}
 
                             {% block page_account_address_action_buttons %}
-                                <div class="address-form-actions">
+                                <div class="address-form-actions d-flex justify-content-between">
+                                    {% block page_account_address_action_button_back %}
+                                        <a href="{{ path('frontend.account.address.page') }}"
+                                           class="account-address-back btn btn-outline-secondary"
+                                           aria-label="{{ 'general.back'|trans|striptags }}">
+                                            {% sw_icon 'arrow-left' %}
+                                            <span class="d-none d-sm-inline">{{ 'general.back'|trans|sw_sanitize }}</span>
+                                        </a>
+                                    {% endblock %}
+
                                     {% block page_account_address_action_button_send %}
                                         <button type="submit"
                                                 class="address-form-submit btn btn-primary"

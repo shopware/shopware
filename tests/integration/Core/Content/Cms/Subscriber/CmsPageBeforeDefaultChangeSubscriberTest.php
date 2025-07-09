@@ -108,7 +108,7 @@ class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
         try {
             $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, null);
         } catch (CmsException $exception) {
-            static::assertEquals(CmsException::OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE, $exception->getErrorCode());
+            static::assertSame(CmsException::OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE, $exception->getErrorCode());
             $exceptionWasThrown = true;
         } finally {
             if (!$exceptionWasThrown) {

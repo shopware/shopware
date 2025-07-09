@@ -52,7 +52,7 @@ class MakerCommandTest extends TestCase
         $tester->setInputs(['ExamplePlugin']);
         $res = $tester->execute([]);
 
-        static::assertEquals(Command::SUCCESS, $res);
+        static::assertSame(Command::SUCCESS, $res);
     }
 
     public function testExecuteWithNoNameErrors(): void
@@ -69,7 +69,7 @@ class MakerCommandTest extends TestCase
         $tester = new CommandTester($command);
         $res = $tester->execute([], ['interactive' => false]);
 
-        static::assertEquals(Command::FAILURE, $res);
+        static::assertSame(Command::FAILURE, $res);
         static::assertStringContainsString('Plugin name is required', $tester->getDisplay());
     }
 
@@ -92,7 +92,7 @@ class MakerCommandTest extends TestCase
         $tester->setInputs(['ExamplePlugin']);
         $res = $tester->execute([]);
 
-        static::assertEquals(Command::FAILURE, $res);
+        static::assertSame(Command::FAILURE, $res);
         static::assertStringContainsString('Plugin base path is null', $tester->getDisplay());
     }
 

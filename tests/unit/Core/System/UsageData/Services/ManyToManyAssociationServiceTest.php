@@ -102,7 +102,7 @@ class ManyToManyAssociationServiceTest extends TestCase
             'primaryKeyName'
         );
 
-        static::assertEquals([
+        static::assertSame([
             'propertyName' => [
                 Uuid::fromHexToBytes($ids->get('1')) => [
                     $ids->get('referenceColumn-1'),

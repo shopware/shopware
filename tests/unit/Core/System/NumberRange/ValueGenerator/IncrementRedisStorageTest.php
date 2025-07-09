@@ -54,7 +54,7 @@ class IncrementRedisStorageTest extends TestCase
             ->with($this->getKey($config['id']))
             ->willReturn(10);
 
-        static::assertEquals(10, $this->storage->reserve($config));
+        static::assertSame(10, $this->storage->reserve($config));
     }
 
     public function testReserveWithoutStart(): void
@@ -73,7 +73,7 @@ class IncrementRedisStorageTest extends TestCase
             ->with($this->getKey($config['id']))
             ->willReturn(10);
 
-        static::assertEquals(10, $this->storage->reserve($config));
+        static::assertSame(10, $this->storage->reserve($config));
     }
 
     public function testReserveDoesNotLockIfIncrementValueEqualsStart(): void
@@ -92,7 +92,7 @@ class IncrementRedisStorageTest extends TestCase
             ->with($this->getKey($config['id']))
             ->willReturn(5);
 
-        static::assertEquals(5, $this->storage->reserve($config));
+        static::assertSame(5, $this->storage->reserve($config));
     }
 
     public function testReserveDoesSetStartValueIfItCanAcquireLock(): void
@@ -125,7 +125,7 @@ class IncrementRedisStorageTest extends TestCase
             ->with($this->getKey($config['id']), 5)
             ->willReturn(10);
 
-        static::assertEquals(10, $this->storage->reserve($config));
+        static::assertSame(10, $this->storage->reserve($config));
     }
 
     public function testReserveDoesNotSetStartValueIfItCanNotAcquireLock(): void
@@ -156,7 +156,7 @@ class IncrementRedisStorageTest extends TestCase
         $this->redisMock->expects($this->never())
             ->method('incrBy');
 
-        static::assertEquals(5, $this->storage->reserve($config));
+        static::assertSame(5, $this->storage->reserve($config));
     }
 
     public function testPreviewIfValueIsNotSetAndNoStart(): void
@@ -172,7 +172,7 @@ class IncrementRedisStorageTest extends TestCase
             ->with($this->getKey($config['id']))
             ->willReturn(null);
 
-        static::assertEquals(1, $this->storage->preview($config));
+        static::assertSame(1, $this->storage->preview($config));
     }
 
     public function testPreviewWillReturnStartValueIfNoValueIsSet(): void
@@ -188,7 +188,7 @@ class IncrementRedisStorageTest extends TestCase
             ->with($this->getKey($config['id']))
             ->willReturn(null);
 
-        static::assertEquals(10, $this->storage->preview($config));
+        static::assertSame(10, $this->storage->preview($config));
     }
 
     public function testPreviewWillReturnStartValueIfIncrementValueIsLower(): void
@@ -204,7 +204,7 @@ class IncrementRedisStorageTest extends TestCase
             ->with($this->getKey($config['id']))
             ->willReturn(8);
 
-        static::assertEquals(10, $this->storage->preview($config));
+        static::assertSame(10, $this->storage->preview($config));
     }
 
     public function testList(): void

@@ -27,8 +27,8 @@ class DemodataRequestCreatedEventTest extends TestCase
             $input
         );
 
-        static::assertEquals($request, $event->getRequest());
-        static::assertEquals($context, $event->getContext());
-        static::assertEquals($input, $event->getInput());
+        static::assertSame($request, $event->getRequest());
+        static::assertSame($context, $event->getContext());
+        static::assertSame($input, $event->getInput());
     }
 }

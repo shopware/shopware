@@ -98,7 +98,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
         static::assertCount(3, $result);
         $agg = $result->getAggregations()->get('sum');
         static::assertInstanceOf(SumResult::class, $agg);
-        static::assertEquals(1, $agg->getSum());
+        static::assertSame(1.0, $agg->getSum());
     }
 
     public function testSearchSort(): void
@@ -115,7 +115,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
         $expected = $actual;
         sort($expected);
 
-        static::assertEquals($expected, array_values($actual));
+        static::assertSame($expected, array_values($actual));
     }
 
     public function testSearchIds(): void
@@ -161,7 +161,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
         static::assertCount(1, $result);
         $agg = $result->get('sum');
         static::assertInstanceOf(SumResult::class, $agg);
-        static::assertEquals(1, $agg->getSum());
+        static::assertSame(1.0, $agg->getSum());
     }
 
     public function testIntegrationCase(): void
@@ -186,7 +186,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
         static::assertTrue($page->hasExtension('myProduct'));
         $product = $page->getExtension('myProduct');
         static::assertInstanceOf(SalesChannelProductEntity::class, $product);
-        static::assertEquals($this->ids->get('p1'), $product->getId());
+        static::assertSame($this->ids->get('p1'), $product->getId());
     }
 
     public function testSearchWithFilterIntegration(): void
@@ -210,7 +210,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
         static::assertTrue($page->hasExtension('myProduct'));
         $product = $page->getExtension('myProduct');
         static::assertInstanceOf(SalesChannelProductEntity::class, $product);
-        static::assertEquals($this->ids->get('p1'), $product->getId());
+        static::assertSame($this->ids->get('p1'), $product->getId());
     }
 
     public function testSearchWithAssociationIntegration(): void
@@ -235,12 +235,12 @@ class SalesChannelRepositoryFacadeTest extends TestCase
         static::assertTrue($page->hasExtension('myProduct'));
         $product = $page->getExtension('myProduct');
         static::assertInstanceOf(SalesChannelProductEntity::class, $product);
-        static::assertEquals($this->ids->get('p1'), $product->getId());
+        static::assertSame($this->ids->get('p1'), $product->getId());
         static::assertInstanceOf(ProductManufacturerEntity::class, $product->getManufacturer());
 
         $manufacturer = $page->getExtension('myManufacturer');
         static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
-        static::assertEquals($this->ids->get('m1'), $manufacturer->getId());
+        static::assertSame($this->ids->get('m1'), $manufacturer->getId());
     }
 
     public function testSearchIdsIntegration(): void
@@ -264,7 +264,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
         static::assertTrue($page->hasExtension('myProductIds'));
         $extension = $page->getExtension('myProductIds');
         static::assertInstanceOf(ArrayStruct::class, $extension);
-        static::assertEquals([$this->ids->get('p1')], $extension->get('ids'));
+        static::assertSame([$this->ids->get('p1')], $extension->get('ids'));
     }
 
     public function testAggregateIntegration(): void
@@ -288,7 +288,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
         static::assertTrue($page->hasExtension('myProductAggregations'));
         $extension = $page->getExtension('myProductAggregations');
         static::assertInstanceOf(ArrayStruct::class, $extension);
-        static::assertEquals(1, $extension->get('sum'));
+        static::assertSame(1.0, $extension->get('sum'));
     }
 
     public function testItThrowsForNotApiAwareField(): void

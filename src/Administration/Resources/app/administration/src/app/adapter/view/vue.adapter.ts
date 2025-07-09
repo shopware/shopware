@@ -72,10 +72,43 @@ export default class VueAdapter extends ViewAdapter {
             throw new Error('Vue app is not initialized yet');
         }
 
+        function fixI18NParametersOrder(args: Parameters<typeof i18n.global.t>): Parameters<typeof i18n.global.t> {
+            if (args.length === 3 && typeof args[1] === 'number' && typeof args[2] === 'object') {
+                console.warn(
+                    'the order of the parameters for $t has changed in the latest version.',
+                    'Please, check Vue I18n documentation for more details:',
+                    // eslint-disable-next-line max-len
+                    'https://vue-i18n.intlify.dev/guide/migration/breaking10#tc-key-key-resourcekeys-choice-number-named-record-string-unknown-translateresult',
+                );
+                // This is a workaround to avoid breaking changes for the $tc function which that swap the second and
+                // third parameters in the latest version.
+                return [
+                    args[0],
+                    args[1],
+                    args[2],
+                ];
+            }
+            return args;
+        }
+
         this.app.config.compilerOptions.whitespace = 'preserve';
         this.app.config.performance = process.env.NODE_ENV !== 'production';
-        this.app.config.globalProperties.$t = i18n.global.t;
-        this.app.config.globalProperties.$tc = i18n.global.t;
+        this.app.config.globalProperties.$t = function (...args: Parameters<typeof i18n.global.t>) {
+            return i18n.global.t(...fixI18NParametersOrder(args));
+        } as typeof i18n.global.t;
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use $t instead.
+         */
+        this.app.config.globalProperties.$tc = function (...args: Parameters<typeof i18n.global.t>) {
+            if (window._features_.V6_8_0_0) {
+                console.warn(
+                    'Deprecation Warning',
+                    'The $tc function is deprecated and will be removed in future versions. Please use $t instead.',
+                );
+            }
+            return i18n.global.t(...fixI18NParametersOrder(args));
+        } as typeof i18n.global.t;
+
         this.app.config.warnHandler = (msg: string, instance: unknown, trace: string) => {
             const warnArgs = [
                 `[Vue warn]: ${msg}`,
@@ -161,7 +194,7 @@ export default class VueAdapter extends ViewAdapter {
         const initContainer = this.Application.getContainer('init');
 
         // make specific components synchronous
-        [
+        const syncComponents = [
             'sw-admin',
             'sw-admin-menu',
             'sw-button',
@@ -209,7 +242,116 @@ export default class VueAdapter extends ViewAdapter {
             'sw-settings-product-feature-sets-detail',
             'sw-system-config',
             'sw-settings-search-searchable-content',
-        ].forEach((componentName) => {
+            // base
+            'sw-address',
+            'sw-alert',
+            'sw-alert-deprecated',
+            'sw-avatar',
+            'sw-avatar-deprecated',
+            'sw-button-deprecated',
+            'sw-button-group',
+            'sw-card-deprecated',
+            'sw-card-filter',
+            'sw-chart',
+            'sw-chart-card',
+            'sw-circle-icon',
+            'sw-collapse',
+            'sw-description-list',
+            'sw-error-summary',
+            'sw-help-text',
+            'sw-highlight-text',
+            'sw-icon',
+            'sw-icon-deprecated',
+            'sw-inheritance-switch',
+            'sw-label',
+            'sw-price-preview',
+            'sw-product-image',
+            'sw-product-variant-info',
+            'sw-property-search',
+            'sw-radio-panel',
+            'sw-rating-stars',
+            'sw-simple-search-field',
+            'sw-sorting-select',
+            'sw-tabs-deprecated',
+            'sw-user-card',
+            // form
+            'sw-url-field',
+            'sw-textarea-field-deprecated',
+            'sw-textarea-field',
+            'sw-text-field-deprecated',
+            'sw-text-field',
+            'sw-text-editor',
+            'sw-text-editor-toolbar-table-button',
+            'sw-text-editor-toolbar-button',
+            'sw-text-editor-toolbar',
+            'sw-text-editor-table-toolbar',
+            'sw-text-editor-link-menu',
+            'sw-tagged-field',
+            'sw-switch-field',
+            'sw-snippet-field-edit-modal',
+            'sw-snippet-field',
+            'sw-select-rule-create',
+            'sw-select-option',
+            'sw-select-field-deprecated',
+            'sw-select-field',
+            'sw-radio-field',
+            'sw-purchase-price-field',
+            'sw-price-field',
+            'sw-password-field',
+            'sw-number-field',
+            'sw-maintain-currencies-modal',
+            'sw-list-price-field',
+            'sw-gtc-checkbox',
+            'sw-form-field-renderer',
+            'sw-file-input',
+            'sw-field-copyable',
+            'sw-email-field',
+            'sw-dynamic-url-field',
+            'sw-custom-field-set-renderer',
+            'sw-confirm-field',
+            'sw-colorpicker-deprecated',
+            'sw-colorpicker',
+            'sw-checkbox-field-deprecated',
+            'sw-checkbox-field',
+            'sw-boolean-radio-group',
+            'sw-entity-single-select',
+            'sw-entity-multi-select',
+            'sw-entity-multi-id-select',
+            'sw-entity-many-to-many-select',
+            'sw-entity-advanced-selection-modal',
+            'sw-advanced-selection-rule',
+            'sw-advanced-selection-product',
+            'sw-single-select',
+            'sw-select-selection-list',
+            'sw-select-result-list',
+            'sw-select-result',
+            'sw-select-base',
+            'sw-multi-tag-select',
+            'sw-multi-select',
+            'sw-field-error',
+            'sw-contextual-field',
+            'sw-block-field',
+            'sw-base-field',
+            'sw-code-editor',
+            'sw-datepicker',
+            'sw-datepicker-deprecated',
+            'sw-url-field-deprecated',
+            'sw-switch-field-deprecated',
+            'sw-select-number-field',
+            'sw-password-field-deprecated',
+            'sw-number-field-deprecated',
+            'sw-email-field-deprecated',
+            'sw-compact-colorpicker',
+            'sw-entity-tag-select',
+            'sw-entity-advanced-selection-modal-grid',
+            'sw-multi-tag-ip-select',
+            'sw-grouped-single-select',
+            'sw-price-preview',
+            'sw-context-menu',
+            'sw-context-menu-item',
+        ];
+
+        syncComponents.forEach((componentName) => {
             Component.markComponentAsSync(componentName);
         });
 
@@ -253,6 +395,7 @@ export default class VueAdapter extends ViewAdapter {
             'MtCheckbox',
             'MtColorpicker',
             'MtEmailField',
+            'MtEmptyState',
             'MtNumberField',
             'MtPasswordField',
             'MtSelect',
@@ -271,9 +414,12 @@ export default class VueAdapter extends ViewAdapter {
             'MtModal',
             'MtModalRoot',
             'MtModalClose',
+            'MtModalTrigger',
+            'MtModalAction',
             'MtUrlField',
             'MtSearch',
             'MtLink',
+            'MtUnitField',
         ];
 
         meteorComponents.forEach((componentName) => {

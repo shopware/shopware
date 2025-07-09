@@ -50,7 +50,7 @@ TWIG;
         $renderer = new StringTemplateRenderer($environment, sys_get_temp_dir());
         $result = $renderer->render($template, ['item' => $item], $context);
 
-        static::assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 
     public static function labelRenderingDataProvider(): \Generator

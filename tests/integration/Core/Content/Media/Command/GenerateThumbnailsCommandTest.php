@@ -83,10 +83,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         foreach ($medias as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
             static::assertNotNull($thumbnails);
-            static::assertEquals(
-                2,
-                $thumbnails->count()
-            );
+            static::assertCount(2, $thumbnails);
 
             foreach ($thumbnails as $thumbnail) {
                 $this->assertThumbnailExists($thumbnail);
@@ -113,10 +110,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         foreach ($medias as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
             static::assertNotNull($thumbnails);
-            static::assertEquals(
-                2,
-                $thumbnails->count()
-            );
+            static::assertCount(2, $thumbnails);
 
             foreach ($thumbnails as $thumbnail) {
                 $this->assertThumbnailExists($thumbnail);
@@ -144,10 +138,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             if (str_starts_with((string) $updatedMedia->getMimeType(), 'image')) {
                 $thumbnails = $updatedMedia->getThumbnails();
                 static::assertNotNull($thumbnails);
-                static::assertEquals(
-                    2,
-                    $thumbnails->count()
-                );
+                static::assertCount(2, $thumbnails);
 
                 foreach ($thumbnails as $thumbnail) {
                     $this->assertThumbnailExists($thumbnail);
@@ -171,7 +162,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         foreach ($medias as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
             static::assertNotNull($thumbnails);
-            static::assertEquals(2, $thumbnails->count());
+            static::assertCount(2, $thumbnails);
 
             foreach ($thumbnails as $thumbnail) {
                 $this->assertThumbnailExists($thumbnail);
@@ -215,7 +206,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         foreach ($medias as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
             static::assertNotNull($thumbnails);
-            static::assertEquals(0, $thumbnails->count());
+            static::assertCount(0, $thumbnails);
         }
     }
 
@@ -390,7 +381,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         if (!empty($this->initialMediaIds)) {
             $criteria = new Criteria($this->initialMediaIds);
             $result = $this->mediaRepository->searchIds($criteria, $this->context);
-            static::assertEquals(\count($this->initialMediaIds), $result->getTotal());
+            static::assertSame(\count($this->initialMediaIds), $result->getTotal());
         }
 
         $criteria = new Criteria();

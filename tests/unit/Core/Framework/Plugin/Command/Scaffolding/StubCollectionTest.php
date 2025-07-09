@@ -23,8 +23,8 @@ class StubCollectionTest extends TestCase
         $collection = new StubCollection($stubs);
 
         static::assertCount(2, $collection);
-        static::assertEquals($stubs[0], $collection->get('/path/to/stub1'));
-        static::assertEquals($stubs[1], $collection->get('/path/to/stub2'));
+        static::assertSame($stubs[0], $collection->get('/path/to/stub1'));
+        static::assertSame($stubs[1], $collection->get('/path/to/stub2'));
     }
 
     public function testAdd(): void
@@ -36,7 +36,7 @@ class StubCollectionTest extends TestCase
         $collection->add($stub);
 
         static::assertCount(1, $collection);
-        static::assertEquals($stub, $collection->get('/path/to/stub'));
+        static::assertSame($stub, $collection->get('/path/to/stub'));
     }
 
     public function testAppendNewStub(): void
@@ -49,8 +49,8 @@ class StubCollectionTest extends TestCase
 
         static::assertCount(1, $collection);
         static::assertInstanceOf(Stub::class, $collection->get('/path/to/stub'));
-        static::assertEquals($path, $collection->get('/path/to/stub')->getPath());
-        static::assertEquals($content, $collection->get('/path/to/stub')->getContent());
+        static::assertSame($path, $collection->get('/path/to/stub')->getPath());
+        static::assertSame($content, $collection->get('/path/to/stub')->getContent());
     }
 
     public function testAppendExistingStub(): void
@@ -65,7 +65,7 @@ class StubCollectionTest extends TestCase
 
         static::assertCount(1, $collection);
         static::assertInstanceOf(Stub::class, $collection->get('/path/to/stub'));
-        static::assertEquals($path, $collection->get('/path/to/stub')->getPath());
-        static::assertEquals($initialContent . $appendedContent, $collection->get('/path/to/stub')->getContent());
+        static::assertSame($path, $collection->get('/path/to/stub')->getPath());
+        static::assertSame($initialContent . $appendedContent, $collection->get('/path/to/stub')->getContent());
     }
 }

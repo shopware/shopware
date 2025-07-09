@@ -37,7 +37,7 @@ class OrderTagRuleTest extends TestCase
 
     public function testGetName(): void
     {
-        static::assertEquals('orderTag', $this->rule->getName());
+        static::assertSame('orderTag', $this->rule->getName());
     }
 
     public function testRuleConfig(): void

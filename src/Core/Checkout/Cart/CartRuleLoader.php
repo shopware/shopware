@@ -12,6 +12,7 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -81,6 +82,14 @@ class CartRuleLoader implements ResetInterface
     private function load(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext, bool $new): RuleLoaderResult
     {
         return Profiler::trace('cart-rule-loader', function () use ($context, $cart, $behaviorContext, $new) {
+            // If the processing starts with deferred errors already in the cart, the cart MUST be persisted
+            // to remove the errors from the stored cart
+            $hasDeferredErrors = $cart->getErrors()->count() > 0;
+
+            if (!Feature::isActive('DEFERRED_CART_ERRORS')) {
+                $hasDeferredErrors = false;
+            }
+
             $rules = $this->loadRules($context->getContext());
 
             // save all rules for later usage
@@ -154,7 +163,10 @@ class CartRuleLoader implements ResetInterface
             $context->setAreaRuleIds($rules->getIdsByArea());
 
             // save the cart if errors exist, so the errors get persisted
-            if ($this->updated($cart, $timestamps, $dataHashes) || $cart->getErrorHash() !== $cart->getErrors()->getUniqueHash()) {
+            if ($this->updated($cart, $timestamps, $dataHashes)
+                || $cart->getErrorHash() !== $cart->getErrors()->getUniqueHash()
+                || $hasDeferredErrors
+            ) {
                 $cart->setErrorHash($cart->getErrors()->getUniqueHash());
                 $this->cartPersister->save($cart, $context);
             }

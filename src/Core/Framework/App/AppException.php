@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\App;
 
+use GuzzleHttp\Exception\RequestException;
+use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
@@ -45,6 +47,14 @@ class AppException extends HttpException
     final public const APP_CREATE_COMMAND_VALIDATION_ERROR = 'FRAMEWORK__APP_CREATE_COMMAND_VALIDATION_ERROR';
     final public const APP_DIRECTORY_ALREADY_EXISTS = 'FRAMEWORK__APP_DIRECTORY_ALREADY_EXISTS';
     final public const APP_DIRECTORY_CREATION_FAILED = 'FRAMEWORK__APP_DIRECTORY_CREATION_FAILED';
+    final public const APP_GATEWAY_NOT_CONFIGURED = 'FRAMEWORK__APP_GATEWAY_NOT_CONFIGURED';
+    final public const APP_GATEWAY_REQUEST_FAILED = 'FRAMEWORK__APP_CONTEXT_GATEWAY_REQUEST_FAILED';
+    final public const APP_RESTRICT_DELETE_PREVENTS_DEACTIVATION = 'FRAMEWORK__APP_RESTRICT_DELETE_PREVENTS_DEACTIVATION';
+    final public const CONFLICTING_PRIVILEGE_UPDATE = 'FRAMEWORK__APP_CONFLICTING_PRIVILEGE_UPDATE';
+    final public const INVALID_PERMISSIONS = 'FRAMEWORK__APP_INVALID_PERMISSIONS';
+    final public const REQUIRES_ADMIN_API_SOURCE = 'FRAMEWORK__APP_ACTION_REQUIRES_ADMIN_API_SOURCE';
+    final public const MISSING_USER_IN_CONTEXT_SOURCE = 'FRAMEWORK__APP_MISSING_USER_IN_CONTEXT_SOURCE';
+    final public const INTEGRATION_MISSING = 'FRAMEWORK__APP_MISSING_INTEGRATION';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -404,6 +414,97 @@ class AppException extends HttpException
             self::APP_DIRECTORY_CREATION_FAILED,
             'Unable to create directory "{{ path }}". Please check permissions',
             ['path' => $path]
+        );
+    }
+
+    public static function gatewayNotConfigured(string $appName, string $gateway): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_GATEWAY_NOT_CONFIGURED,
+            'Gateway "{{ gateway }}" is not configured for app "{{ appName }}". Please check the manifest file',
+            ['appName' => $appName, 'gateway' => $gateway]
+        );
+    }
+
+    public static function gatewayRequestFailed(string $appName, string $gateway, ?RequestException $requestException = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_GATEWAY_REQUEST_FAILED,
+            'Request from app "{{ appName }}" to gateway "{{ gateway }}" failed.',
+            ['appName' => $appName, 'gateway' => $gateway],
+            $requestException
+        );
+    }
+
+    public static function restrictDeletePreventsDeactivation(string $appName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_RESTRICT_DELETE_PREVENTS_DEACTIVATION,
+            'App "{{ name }}" has some data that restricts deletion, please remove the data first or uninstall the app without the `keepUserData` option.',
+            ['name' => $appName]
+        );
+    }
+
+    public static function conflictingPrivilegeUpdate(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CONFLICTING_PRIVILEGE_UPDATE,
+            'A privilege cannot be present in both the accept and revoke lists simultaneously.'
+        );
+    }
+
+    public static function invalidPrivileges(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_PERMISSIONS,
+            'For each accept, or revoke, expected a list of privileges in the format "category:read"',
+        );
+    }
+
+    /**
+     * @param class-string<ContextSource> $expectedContextSource
+     * @param class-string<ContextSource> $actualContextSource
+     */
+    public static function invalidContextSource(string $expectedContextSource, string $actualContextSource): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::REQUIRES_ADMIN_API_SOURCE,
+            'Expected context source to be "{{ expectedContextSource }}" but got "{{ actualContextSource }}".',
+            [
+                'expectedContextSource' => $expectedContextSource,
+                'actualContextSource' => $actualContextSource,
+            ],
+        );
+    }
+
+    /**
+     * @param class-string<ContextSource> $contextSource
+     */
+    public static function missingUserInContextSource(
+        string $contextSource,
+        ?\Throwable $previous = null
+    ): self {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::MISSING_USER_IN_CONTEXT_SOURCE,
+            'No user available in context source "{{ contextSource }}"',
+            ['contextSource' => $contextSource],
+            $previous,
+        );
+    }
+
+    public static function missingIntegration(): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::INTEGRATION_MISSING,
+            'Forbidden. Not a valid integration source.',
         );
     }
 }

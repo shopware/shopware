@@ -56,9 +56,10 @@ class RoutingOverwriteMiddleware implements MiddlewareInterface
      *
      * @return array<string>|string|null
      */
-    private function getTransports(Envelope $message, array $overwrites, bool $inherited): array|string|null
+    private function getTransports(Envelope $envelope, array $overwrites, bool $inherited): array|string|null
     {
-        $class = $message->getMessage()::class;
+        $message = $envelope->getMessage();
+        $class = $message::class;
 
         if (\array_key_exists($class, $overwrites)) {
             return $overwrites[$class];

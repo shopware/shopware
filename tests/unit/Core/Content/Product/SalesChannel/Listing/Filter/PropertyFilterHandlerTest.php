@@ -308,28 +308,28 @@ class PropertyFilterHandlerTest extends TestCase
 
         $color = $properties->getEntities()->first();
         static::assertInstanceOf(Entity::class, $color);
-        static::assertEquals('color', $color->get('id'));
+        static::assertSame('color', $color->get('id'));
 
         $options = $color->get('options');
         static::assertInstanceOf(EntityCollection::class, $options);
         static::assertCount(2, $options);
 
         static::assertInstanceOf(Entity::class, $options->first());
-        static::assertEquals('red', $options->first()->get('id'));
+        static::assertSame('red', $options->first()->get('id'));
         static::assertInstanceOf(Entity::class, $options->last());
-        static::assertEquals('green', $options->last()->get('id'));
+        static::assertSame('green', $options->last()->get('id'));
 
         $size = $properties->getEntities()->last();
         static::assertInstanceOf(Entity::class, $size);
-        static::assertEquals('size', $size->get('id'));
+        static::assertSame('size', $size->get('id'));
 
         $options = $size->get('options');
         static::assertInstanceOf(EntityCollection::class, $options);
         static::assertCount(2, $options);
         static::assertInstanceOf(Entity::class, $options->first());
-        static::assertEquals('l', $options->first()->get('id'));
+        static::assertSame('l', $options->first()->get('id'));
         static::assertInstanceOf(Entity::class, $options->last());
-        static::assertEquals('xl', $options->last()->get('id'));
+        static::assertSame('xl', $options->last()->get('id'));
     }
 
     public static function createProvider(): \Generator

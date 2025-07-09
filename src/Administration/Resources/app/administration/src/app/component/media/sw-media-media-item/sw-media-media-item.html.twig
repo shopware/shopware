@@ -99,6 +99,15 @@
             </sw-context-menu-item>
             {% endblock %}
 
+            <template v-if="extensionSdkButtons.length > 0">
+                <sw-app-action-button
+                    v-for="action in extensionSdkButtons"
+                    :key="action.id"
+                    :action="action"
+                    @run-app-action="runAppAction($event, item)"
+                />
+            </template>
+
             {% block sw_media_media_item_context_item_delete %}
             <sw-context-menu-item
                 :disabled="item.private || !allowDelete"

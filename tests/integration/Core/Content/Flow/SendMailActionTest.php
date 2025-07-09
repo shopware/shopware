@@ -180,8 +180,8 @@ class SendMailActionTest extends TestCase
         $oldDocumentOrderVersionId = $oldDocument->getOrderVersionId();
 
         // new version is created
-        static::assertNotEquals($newDocumentOrderVersionId, Defaults::LIVE_VERSION);
-        static::assertNotEquals($oldDocumentOrderVersionId, Defaults::LIVE_VERSION);
+        static::assertNotSame($newDocumentOrderVersionId, Defaults::LIVE_VERSION);
+        static::assertNotSame($oldDocumentOrderVersionId, Defaults::LIVE_VERSION);
 
         $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
@@ -190,7 +190,7 @@ class SendMailActionTest extends TestCase
         $subscriber->handleFlow($flow);
 
         static::assertInstanceOf(FlowSendMailActionEvent::class, $mailFilterEvent);
-        static::assertEquals(1, $mailService->calls);
+        static::assertSame(1, $mailService->calls);
         static::assertIsArray($mailService->data);
         static::assertArrayHasKey('recipients', $mailService->data);
 
@@ -200,15 +200,15 @@ class SendMailActionTest extends TestCase
                     'SELECT `first_name`, `last_name`, `email` FROM `user` WHERE `admin` = 1'
                 );
                 static::assertIsArray($admin);
-                static::assertEquals($mailService->data['recipients'], [$admin['email'] => $admin['first_name'] . ' ' . $admin['last_name']]);
+                static::assertSame($mailService->data['recipients'], [$admin['email'] => $admin['first_name'] . ' ' . $admin['last_name']]);
 
                 break;
             case 'custom':
-                static::assertEquals($mailService->data['recipients'], $recipients['data']);
+                static::assertSame($mailService->data['recipients'], $recipients['data']);
 
                 break;
             default:
-                static::assertEquals($mailService->data['recipients'], [$order->getOrderCustomer()?->getEmail() => $order->getOrderCustomer()?->getFirstName() . ' ' . $order->getOrderCustomer()?->getLastName()]);
+                static::assertSame($mailService->data['recipients'], [$order->getOrderCustomer()?->getEmail() => $order->getOrderCustomer()?->getFirstName() . ' ' . $order->getOrderCustomer()?->getLastName()]);
         }
 
         if ($documentTypeIds !== null && $documentTypeIds !== []) {
@@ -226,8 +226,8 @@ class SendMailActionTest extends TestCase
             static::assertFalse($oldDocument->getSent());
 
             // new document with new version id, old document with old version id
-            static::assertEquals($newDocumentOrderVersionId, $newDocument->getOrderVersionId());
-            static::assertEquals($oldDocumentOrderVersionId, $oldDocument->getOrderVersionId());
+            static::assertSame($newDocumentOrderVersionId, $newDocument->getOrderVersionId());
+            static::assertSame($oldDocumentOrderVersionId, $oldDocument->getOrderVersionId());
         }
     }
 
@@ -311,7 +311,7 @@ class SendMailActionTest extends TestCase
         $subscriber->handleFlow($flow);
 
         static::assertIsObject($mailFilterEvent);
-        static::assertEquals(1, $mailService->calls);
+        static::assertSame(1, $mailService->calls);
     }
 
     #[DataProvider('sendMailContactFormProvider')]
@@ -381,11 +381,11 @@ class SendMailActionTest extends TestCase
             static::assertIsArray($mailService->data);
             static::assertArrayHasKey('recipients', $mailService->data);
             static::assertIsObject($mailFilterEvent);
-            static::assertEquals(1, $mailService->calls);
-            static::assertEquals([$data->get('email') => $data->get('firstName') . ' ' . $data->get('lastName')], $mailService->data['recipients']);
+            static::assertSame(1, $mailService->calls);
+            static::assertSame([$data->get('email') => $data->get('firstName') . ' ' . $data->get('lastName')], $mailService->data['recipients']);
         } else {
             static::assertIsNotObject($mailFilterEvent);
-            static::assertEquals(0, $mailService->calls);
+            static::assertSame(0, $mailService->calls);
         }
     }
 
@@ -450,7 +450,7 @@ class SendMailActionTest extends TestCase
         $subscriber->handleFlow($flow);
 
         static::assertIsNotObject($mailFilterEvent);
-        static::assertEquals(0, $mailService->calls);
+        static::assertSame(0, $mailService->calls);
     }
 
     /**
@@ -510,7 +510,7 @@ class SendMailActionTest extends TestCase
         $subscriber->handleFlow($flow);
 
         static::assertIsObject($mailFilterEvent);
-        static::assertEquals(1, $mailService->calls);
+        static::assertSame(1, $mailService->calls);
     }
 
     #[DataProvider('updateTemplateDataProvider')]
@@ -569,7 +569,7 @@ class SendMailActionTest extends TestCase
         $subscriber->handleFlow($flow);
 
         static::assertIsObject($mailFilterEvent);
-        static::assertEquals(1, $mailService->calls);
+        static::assertSame(1, $mailService->calls);
         static::assertNotNull($mailTemplate->getMailTemplateTypeId());
         $data = static::getContainer()->get(Connection::class)->fetchOne(
             'SELECT template_data FROM mail_template_type WHERE id = :id',
@@ -969,7 +969,7 @@ class SendMailActionTest extends TestCase
 #[Package('after-sales')]
 class TestEmailService extends MailService
 {
-    public float $calls = 0;
+    public int $calls = 0;
 
     public ?Email $mail = null;
 

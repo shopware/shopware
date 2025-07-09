@@ -73,6 +73,7 @@ class CustomerException extends HttpException
     public const UNEXPECTED_TYPE = 'CHECKOUT__UNEXPECTED_TYPE';
     public const MISSING_OPTION = 'CONTENT__MISSING_OPTION';
     public const INVALID_OPTION = 'CONTENT__INVALID_OPTION';
+    public const REGISTERED_CUSTOMER_CANNOT_BE_CONVERTED = 'CHECKOUT__REGISTERED_CUSTOMER_CANNOT_BE_CONVERTED';
 
     public static function customerGroupNotFound(string $id): self
     {
@@ -433,6 +434,16 @@ class CustomerException extends HttpException
             self::INVALID_OPTION,
             'Option "{{ option }}" must be of type "{{ type }}" for constraint {{ constraint }}',
             ['option' => $option, 'type' => $type, 'constraint' => $constraint]
+        );
+    }
+
+    public static function registeredCustomerCannotBeConverted(string $customerId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::REGISTERED_CUSTOMER_CANNOT_BE_CONVERTED,
+            'Customer with id "{{ customerId }}" is not a guest',
+            ['customerId' => $customerId],
         );
     }
 }

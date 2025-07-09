@@ -30,8 +30,8 @@ class EntityAggregationTest extends TestCase
         $aggregation = new EntityAggregation('foo', 'bar', 'product');
         $clone = clone $aggregation;
 
-        static::assertEquals('foo', $clone->getName());
-        static::assertEquals('bar', $clone->getField());
-        static::assertEquals($aggregation->jsonSerialize(), $clone->jsonSerialize());
+        static::assertSame('foo', $clone->getName());
+        static::assertSame('bar', $clone->getField());
+        static::assertSame($aggregation->jsonSerialize(), $clone->jsonSerialize());
     }
 }

@@ -72,7 +72,7 @@ class StructEncoderTest extends TestCase
 
         static::assertArrayNotHasKey('cheapestPrice', $encoded);
         static::assertArrayHasKey('name', $encoded);
-        static::assertEquals('test', $encoded['name']);
+        static::assertSame('test', $encoded['name']);
     }
 
     public function testNoneMappedFieldsAreNotExposed(): void
@@ -88,7 +88,7 @@ class StructEncoderTest extends TestCase
 
         static::assertArrayNotHasKey('notExposed', $encoded);
         static::assertArrayHasKey('name', $encoded);
-        static::assertEquals('test', $encoded['name']);
+        static::assertSame('test', $encoded['name']);
     }
 
     public function testExtensionAreSupported(): void
@@ -159,7 +159,7 @@ class StructEncoderTest extends TestCase
         ];
 
         static::assertArrayHasKey('customFields', $encoded);
-        static::assertEquals($expectedCustomFields, $encoded['customFields']);
+        static::assertSame($expectedCustomFields, $encoded['customFields']);
     }
 
     public function testCustomFieldsFieldIsBlocked(): void
@@ -190,7 +190,7 @@ class StructEncoderTest extends TestCase
         ];
 
         static::assertArrayHasKey('customFields', $encoded);
-        static::assertEquals($expectedCustomFields, $encoded['customFields']);
+        static::assertSame($expectedCustomFields, $encoded['customFields']);
     }
 
     public function testCustomFieldsFieldIsBlockedInNestedArray(): void

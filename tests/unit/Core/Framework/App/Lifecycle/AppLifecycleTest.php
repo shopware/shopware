@@ -339,7 +339,7 @@ class AppLifecycleTest extends TestCase
 
         static::assertCount(1, $appRepository->upserts[0]);
 
-        static::assertEquals([['id' => $appId, 'configurable' => false, 'allowDisable' => true]], $appRepository->upserts[1]);
+        static::assertSame([['id' => $appId, 'configurable' => false, 'allowDisable' => true]], $appRepository->upserts[1]);
 
         $this->io->rename(__DIR__ . '/../_fixtures/Resources/noconfighere', __DIR__ . '/../_fixtures/Resources/config');
     }

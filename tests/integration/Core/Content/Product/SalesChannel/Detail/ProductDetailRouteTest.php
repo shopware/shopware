@@ -108,7 +108,7 @@ class ProductDetailRouteTest extends TestCase
         sort($expected);
         sort($properties);
 
-        static::assertEquals($expected, $properties);
+        static::assertSame($expected, $properties);
     }
 
     public function testExtendCriteria(): void
@@ -228,7 +228,7 @@ class ProductDetailRouteTest extends TestCase
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
 
         $expected = (string) file_get_contents(__DIR__ . '/_fixtures/recursion_encoding_with_layout_result.json');
 
@@ -256,7 +256,7 @@ class ProductDetailRouteTest extends TestCase
                 continue;
             }
 
-            static::assertEquals($value, $actual[$key], \sprintf('Value for key %s not matching', $current));
+            static::assertSame($value, $actual[$key], \sprintf('Value for key %s not matching', $current));
         }
     }
 

@@ -95,7 +95,7 @@ class ServiceDefinitionTest extends TestCase
         $commandTester->execute([]);
         restore_error_handler();
 
-        static::assertEquals(
+        static::assertSame(
             0,
             $commandTester->getStatusCode(),
             "\"bin/console lint:container\" returned errors:\n" . $commandTester->getDisplay()

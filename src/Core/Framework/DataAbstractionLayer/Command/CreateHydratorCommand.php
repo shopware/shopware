@@ -74,7 +74,7 @@ class CreateHydratorCommand extends Command
         $io = new ShopwareStyle($input, $output);
         $io->title('DAL generate hydrators');
 
-        if (!file_exists($this->dir)) {
+        if (!\is_dir($this->dir)) {
             mkdir($this->dir);
         }
 

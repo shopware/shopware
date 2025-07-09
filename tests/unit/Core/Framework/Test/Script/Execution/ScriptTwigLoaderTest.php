@@ -38,11 +38,11 @@ class ScriptTwigLoaderTest extends TestCase
     {
         $source = $this->scriptLoader->getSourceContext($this->script->getName());
 
-        static::assertEquals(
+        static::assertSame(
             $this->script->getName(),
             $source->getName()
         );
-        static::assertEquals(
+        static::assertSame(
             $this->script->getScript(),
             $source->getCode()
         );

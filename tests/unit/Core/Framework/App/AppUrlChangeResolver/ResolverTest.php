@@ -72,7 +72,7 @@ class ResolverTest extends TestCase
             ->method('getDescription')
             ->willReturn('second description');
 
-        static::assertEquals([
+        static::assertSame([
             'FirstStrategy' => 'first description',
             'SecondStrategy' => 'second description',
         ], $this->appUrlChangedResolverStrategy->getAvailableStrategies());

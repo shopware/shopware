@@ -91,8 +91,8 @@ class ErrorResponseFactoryTest extends TestCase
         $response = $errorResponseFactory->getResponseFromException(new \Exception($exceptionDetail, 5));
         $responseBody = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(500, $response->getStatusCode());
-        static::assertEquals([
+        static::assertSame(500, $response->getStatusCode());
+        static::assertSame([
             'errors' => [
                 [
                     'code' => '5',
@@ -113,8 +113,8 @@ class ErrorResponseFactoryTest extends TestCase
 
         $responseBody = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(418, $response->getStatusCode());
-        static::assertEquals([
+        static::assertSame(418, $response->getStatusCode());
+        static::assertSame([
             'errors' => [
                 [
                     'code' => '0',
@@ -139,7 +139,7 @@ class ErrorResponseFactoryTest extends TestCase
         unset($meta['previous'][0]['meta']);
 
         static::assertNotNull($meta);
-        static::assertEquals([
+        static::assertSame([
             [
                 'code' => '0',
                 'status' => '500',
@@ -149,8 +149,8 @@ class ErrorResponseFactoryTest extends TestCase
         ], $meta['previous']);
 
         unset($responseBody['errors'][0]['meta']);
-        static::assertEquals(418, $response->getStatusCode());
-        static::assertEquals([
+        static::assertSame(418, $response->getStatusCode());
+        static::assertSame([
             [
                 'code' => '0',
                 'status' => '418',
@@ -172,7 +172,7 @@ class ErrorResponseFactoryTest extends TestCase
         $response = $errorResponseFactory->getResponseFromException($simpleHttpException);
         $responseBody = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(418, $response->getStatusCode());
+        static::assertSame(418, $response->getStatusCode());
         static::assertEquals([
             'errors' => [
                 [
@@ -196,7 +196,7 @@ class ErrorResponseFactoryTest extends TestCase
         $errorFromWrite = $errorResponseFactory->getResponseFromException((new WriteException())->add($normalException));
         $errorRaw = $errorResponseFactory->getResponseFromException($normalException);
 
-        static::assertEquals($errorFromWrite->getContent(), $errorRaw->getContent());
+        static::assertSame($errorFromWrite->getContent(), $errorRaw->getContent());
     }
 
     public function testWriteExceptionConvertsHttpExceptionCorrectly(): void
@@ -207,7 +207,7 @@ class ErrorResponseFactoryTest extends TestCase
         $errorFromWrite = $errorResponseFactory->getResponseFromException((new WriteException())->add($httpException));
         $errorRaw = $errorResponseFactory->getResponseFromException($httpException);
 
-        static::assertEquals($errorFromWrite->getContent(), $errorRaw->getContent());
+        static::assertSame($errorFromWrite->getContent(), $errorRaw->getContent());
     }
 
     public function testWriteExceptionConvertsShopwareHttpExceptionCorrectly(): void
@@ -218,7 +218,7 @@ class ErrorResponseFactoryTest extends TestCase
         $errorFromWrite = $errorResponseFactory->getResponseFromException((new WriteException())->add($shopwareHttpException));
         $errorRaw = $errorResponseFactory->getResponseFromException($shopwareHttpException);
 
-        static::assertEquals($errorFromWrite->getContent(), $errorRaw->getContent());
+        static::assertSame($errorFromWrite->getContent(), $errorRaw->getContent());
     }
 
     public function testYieldDoesNotOverrideErrors(): void
@@ -242,7 +242,7 @@ class ErrorResponseFactoryTest extends TestCase
         $responseBody = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(4, $responseBody['errors']);
-        static::assertEquals([
+        static::assertSame([
             $convertedShopwareHttpException,
             $convertedShopwareHttpException,
             $convertedShopwareHttpException,

@@ -99,7 +99,7 @@ class ProductPricingHookTest extends TestCase
 
         static::assertNotEmpty($traces->getTraces());
         static::assertArrayHasKey('product-pricing', $traces->getTraces());
-        static::assertEquals(
+        static::assertSame(
             [
                 'original' => 100.0,
                 'changed' => 1.5,

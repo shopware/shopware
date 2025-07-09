@@ -131,6 +131,10 @@ class ProductIndexer extends EntityIndexer
         $message = new ProductIndexingMessage($idsForReturnedMessage, null, $event->getContext());
         $message->addSkip(self::INHERITANCE_UPDATER, self::STOCK_UPDATER);
 
+        if ($event->isCloned()) {
+            $message->addSkip(self::CHILD_COUNT_UPDATER);
+        }
+
         return $message;
     }
 

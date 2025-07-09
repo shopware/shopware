@@ -32,7 +32,7 @@ export const CreateLandingPage = base.extend<{ CreateLandingPage: Task }, Fixtur
                     const gridLocator = AdminLandingPageCreate.page.locator('.sw-data-grid__cell-content').first();
                     const gridVisible = await gridLocator.isVisible();
                     if (gridVisible) {
-                        await AdminLandingPageCreate.page.getByLabel('Select layout').locator('div').filter({ hasText: 'Sort by:' }).getByRole('button').first().click();
+                        await AdminLandingPageCreate.page.getByLabel('Select layout').locator('div').filter({ hasText: 'Sort by: Name Type Created' }).getByRole('button').nth(1).click();
                     }
                     await AdminLandingPageCreate.page.getByTitle(layoutName).click();
 

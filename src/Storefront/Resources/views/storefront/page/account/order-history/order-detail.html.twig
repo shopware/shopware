@@ -89,7 +89,7 @@
                                 {% endblock %}
 
                                 {% block page_account_order_customer_comment_content %}
-                                    <div class="col-12">{{ order.customerComment|sw_sanitize|nl2br }}</div>
+                                    <div class="col-12 card-content">{{ order.customerComment|sw_sanitize|nl2br }}</div>
                                 {% endblock %}
                             </div>
                         </div>
@@ -124,29 +124,43 @@
                                             {% endblock %}
 
                                             {% block page_account_order_item_detail_payment_method %}
-                                                {% if order.transactions|length > 0 %}
+                                                {# @deprecated tag:v6.8.0 - If condition `order.transactions|length > 0` will be removed. If condition `order.primaryOrderTransaction` will remain in use. #}
+                                                {% if order.transactions|length > 0 or order.primaryOrderTransaction %}
                                                     {% block page_account_order_item_detail_payment_method_label %}
                                                         <dt class="col-6 col-md-5">{{ 'account.orderItemPaymentMethod'|trans|sw_sanitize }}</dt>
                                                     {% endblock %}
 
                                                     {% block page_account_order_item_detail_payment_method_value %}
-                                                        <dd class="col-6 col-md-7 order-item-detail-labels-value">
-                                                            {{ order.transactions|last.paymentMethod.translated.name }}
-                                                        </dd>
+                                                        {% if feature('v6.8.0.0') %}
+                                                            <dd class="col-6 col-md-7 order-item-detail-labels-value">
+                                                                {{ order.primaryOrderTransaction.paymentMethod.translated.name }}
+                                                            </dd>
+                                                        {% else %}
+                                                            <dd class="col-6 col-md-7 order-item-detail-labels-value">
+                                                                {{ order.transactions|last.paymentMethod.translated.name }}
+                                                            </dd>
+                                                        {% endif %}
                                                     {% endblock %}
                                                 {% endif %}
                                             {% endblock %}
 
                                             {% block page_account_order_item_detail_shipping_method %}
-                                                {% if order.deliveries|length > 0 %}
+                                                {# @deprecated tag:v6.8.0 - If condition `order.deliveries|length > 0` will be removed. If condition `order.primaryOrderDelivery` will remain in use. #}
+                                                {% if order.deliveries|length > 0 or order.primaryOrderDelivery %}
                                                     {% block page_account_order_item_detail_shipping_method_label %}
                                                         <dt class="col-6 col-md-5">{{ 'account.orderItemShippingMethod'|trans|sw_sanitize }}</dt>
                                                     {% endblock %}
 
                                                     {% block page_account_order_item_detail_shipping_method_value %}
-                                                        <dd class="col-6 col-md-7 order-item-detail-labels-value">
-                                                            {{ order.deliveries|first.shippingMethod.translated.name }}
-                                                        </dd>
+                                                        {% if feature('v6.8.0.0') %}
+                                                            <dd class="col-6 col-md-7 order-item-detail-labels-value">
+                                                                {{ order.primaryOrderDelivery.shippingMethod.translated.name }}
+                                                            </dd>
+                                                        {% else %}
+                                                            <dd class="col-6 col-md-7 order-item-detail-labels-value">
+                                                                {{ order.deliveries|first.shippingMethod.translated.name }}
+                                                            </dd>
+                                                        {% endif %}
                                                     {% endblock %}
                                                 {% endif %}
                                             {% endblock %}
@@ -238,7 +252,7 @@
                                                     {% endblock %}
 
                                                     {% block page_account_order_item_detail_amount_value %}
-                                                        <dd class="col-6 col-md-4">
+                                                        <dd class="col-6 col-md-4 order-item-total">
                                                             {% if order.taxStatus === constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_FREE') %}
                                                                 {{ order.amountNet|currency(order.currency.isoCode) }}
                                                             {% else %}

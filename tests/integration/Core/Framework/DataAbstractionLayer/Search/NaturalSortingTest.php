@@ -72,7 +72,7 @@ class NaturalSortingTest extends TestCase
         // extract names to compare them
         $actual = $options->map(static fn (PropertyGroupOptionEntity $option) => $option->getName());
 
-        static::assertEquals($rawOrder, array_values($actual));
+        static::assertSame($rawOrder, array_values($actual));
 
         // check natural sorting
         $criteria = new Criteria();
@@ -82,7 +82,7 @@ class NaturalSortingTest extends TestCase
         $options = $this->optionRepository->search($criteria, $context);
         $actual = $options->map(static fn (PropertyGroupOptionEntity $option) => $option->getName());
 
-        static::assertEquals($naturalOrder, array_values($actual));
+        static::assertSame($naturalOrder, array_values($actual));
     }
 
     /**

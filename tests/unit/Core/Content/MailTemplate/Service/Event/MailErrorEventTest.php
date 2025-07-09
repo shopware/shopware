@@ -34,7 +34,7 @@ class MailErrorEventTest extends TestCase
         $storer->restore($flow);
 
         static::assertArrayHasKey('name', $flow->data());
-        static::assertEquals('mail.sent.error', $flow->getData('name'));
+        static::assertSame('mail.sent.error', $flow->getData('name'));
     }
 
     public function testInstantiate(): void

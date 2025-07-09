@@ -76,7 +76,7 @@ class EntityScoreBuilderTest extends TestCase
 
         $queries = $builder->buildScoreQueries($pattern, $this->onlyDateFieldDefinition, 'test', $this->context);
 
-        static::assertNotEquals(
+        static::assertNotSame(
             [
                 new ScoreQuery(new EqualsFilter('test.dateTime', $dateTerm), 100),
                 new ScoreQuery(new ContainsFilter('test.dateTime', $dateTerm), 50),

@@ -494,7 +494,7 @@ class FlowExecutorTest extends TestCase
 
         $this->flowExecutor->executeIf($ifSequence, $flow);
 
-        static::assertEquals($trueCaseSequence, $flow->getFlowState()->currentSequence);
+        static::assertSame($trueCaseSequence, $flow->getFlowState()->currentSequence);
     }
 
     public function testActionExecutedInTransactionWhenItImplementsTransactional(): void

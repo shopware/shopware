@@ -63,7 +63,11 @@ class OrderRoute extends AbstractOrderRoute
             ->addFilter(new EqualsFilter('config.displayInCustomerAccount', 'true'))
             ->addFilter(new EqualsFilter('sent', true));
 
-        $criteria->addAssociations(['billingAddress', 'orderCustomer.customer']);
+        $criteria->addAssociations(['billingAddress', 'orderCustomer.customer', 'primaryOrderDelivery']);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $criteria->addAssociation('deliveries');
+        }
 
         $deepLinkFilter = \current(array_filter($criteria->getFilters(), static fn (Filter $filter) => \in_array('order.deepLinkCode', $filter->getFields(), true)
             || \in_array('deepLinkCode', $filter->getFields(), true))) ?: null;

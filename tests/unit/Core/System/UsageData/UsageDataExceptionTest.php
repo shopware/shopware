@@ -130,35 +130,35 @@ class UsageDataExceptionTest extends TestCase
     {
         $exception = UsageDataException::unexpectedOperationInInitialRun(Operation::DELETE);
 
-        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
-        static::assertEquals('SYSTEM__USAGE_DATA_UNEXPECTED_OPERATION_IN_INITIAL_RUN', $exception->getErrorCode());
-        static::assertEquals('Operation "delete" was not expected to be dispatched in initial run', $exception->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame('SYSTEM__USAGE_DATA_UNEXPECTED_OPERATION_IN_INITIAL_RUN', $exception->getErrorCode());
+        static::assertSame('Operation "delete" was not expected to be dispatched in initial run', $exception->getMessage());
     }
 
     public function testEntityNotAllowed(): void
     {
         $exception = UsageDataException::entityNotAllowed('product');
 
-        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
-        static::assertEquals('SYSTEM__USAGE_DATA_ENTITY_NOT_TAGGED', $exception->getErrorCode());
-        static::assertEquals('Entity "product" is not allowed to be used for usage data', $exception->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame('SYSTEM__USAGE_DATA_ENTITY_NOT_TAGGED', $exception->getErrorCode());
+        static::assertSame('Entity "product" is not allowed to be used for usage data', $exception->getMessage());
     }
 
     public function testFailedToCompressEntityDispatchPayload(): void
     {
         $exception = UsageDataException::failedToCompressEntityDispatchPayload();
 
-        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
-        static::assertEquals('SYSTEM__USAGE_DATA_FAILED_TO_COMPRESS_ENTITY_DISPATCH_PAYLOAD', $exception->getErrorCode());
-        static::assertEquals('Failed to compress entity dispatch payload', $exception->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame('SYSTEM__USAGE_DATA_FAILED_TO_COMPRESS_ENTITY_DISPATCH_PAYLOAD', $exception->getErrorCode());
+        static::assertSame('Failed to compress entity dispatch payload', $exception->getMessage());
     }
 
     public function testFailedToLoadDefaultAllowList(): void
     {
         $exception = UsageDataException::failedToLoadDefaultAllowList();
 
-        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
-        static::assertEquals('SYSTEM__USAGE_DATA_FAILED_TO_LOAD_DEFAULT_ALLOW_LIST', $exception->getErrorCode());
-        static::assertEquals('Failed to load default allow list', $exception->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame('SYSTEM__USAGE_DATA_FAILED_TO_LOAD_DEFAULT_ALLOW_LIST', $exception->getErrorCode());
+        static::assertSame('Failed to load default allow list', $exception->getMessage());
     }
 }

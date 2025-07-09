@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -194,12 +193,8 @@ class AccountOrderController extends StorefrontController
     )]
     public function editOrder(string $orderId, Request $request, SalesChannelContext $context): Response
     {
-        $criteria = new Criteria([$orderId]);
-        $deliveriesCriteria = $criteria->getAssociation('deliveries');
-        $deliveriesCriteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
-
         try {
-            $order = $this->orderRoute->load($request, $context, $criteria)->getOrders()->first();
+            $order = $this->orderRoute->load($request, $context, new Criteria([$orderId]))->getOrders()->first();
         } catch (InvalidUuidException) {
             $order = null;
         }
@@ -219,7 +214,11 @@ class AccountOrderController extends StorefrontController
             return $this->redirectToRoute('frontend.account.edit-order.page', ['orderId' => $orderId]);
         }
 
-        $mostCurrentDelivery = $order->getDeliveries()?->last();
+        $mostCurrentDelivery = $order->getPrimaryOrderDelivery();
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $mostCurrentDelivery = $order->getDeliveries()?->last();
+        }
 
         if ($mostCurrentDelivery !== null && $context->getShippingMethod()->getId() !== $mostCurrentDelivery->getShippingMethodId()) {
             $this->contextSwitchRoute->switchContext(

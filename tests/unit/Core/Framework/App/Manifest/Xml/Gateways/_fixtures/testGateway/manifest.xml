@@ -20,6 +20,7 @@
     </setup>
     <gateways>
         <checkout>https://foo.bar/example/checkout</checkout>
+        <context>https://foo.bar/example/context</context>
         <inAppPurchases>https://foo.bar/example/iap-filter</inAppPurchases>
     </gateways>
 </manifest>

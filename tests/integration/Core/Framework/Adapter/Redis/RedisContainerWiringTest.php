@@ -47,7 +47,7 @@ class RedisContainerWiringTest extends TestCase
 
         // Validate config is read correctly
         static::assertTrue($container->hasParameter('shopware.redis.connections.ephemeral.dsn'));
-        static::assertEquals($redisUrl, $container->getParameter('shopware.redis.connections.ephemeral.dsn'));
+        static::assertSame($redisUrl, $container->getParameter('shopware.redis.connections.ephemeral.dsn'));
 
         // Validate that connection provider is correctly set
         static::assertTrue($container->has(RedisConnectionProvider::class));
@@ -85,7 +85,7 @@ class RedisContainerWiringTest extends TestCase
         static::assertArrayHasKey('count', $list2['test']);
 
         // Compare the 'count' values
-        static::assertEquals($list1['test']['count'] + 1, $list2['test']['count']);
+        static::assertSame($list1['test']['count'] + 1, $list2['test']['count']);
     }
 
     public function testCacheInvalidatorAdapter(): void

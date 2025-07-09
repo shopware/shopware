@@ -158,9 +158,9 @@ class CacheControllerTest extends TestCase
 
             $response = $this->getBrowser()->getResponse();
 
-            static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+            static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
             $decode = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-            static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, $decode['errors'][0]['code'], (string) $response->getContent());
+            static::assertSame(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, $decode['errors'][0]['code'], (string) $response->getContent());
         } finally {
             $this->resetBrowser();
         }

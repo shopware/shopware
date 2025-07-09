@@ -63,7 +63,7 @@ class DownloadServiceTest extends TestCase
         $downloadService = new DownloadService($fileSystem, $fileRepository);
         $response = $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, $accessToken);
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertIsString($header = $response->headers->get('Content-Disposition'));
         static::assertStringContainsString($expectOutputFilename, $header);
     }

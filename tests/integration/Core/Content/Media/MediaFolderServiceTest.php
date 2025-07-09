@@ -247,8 +247,8 @@ class MediaFolderServiceTest extends TestCase
         $this->assertConfig($foldersChild1, false, true, true, 80);
         $this->assertConfig($foldersChild2, false, true, true, 80);
 
-        static::assertNotEquals($configId === $foldersChild1->getConfigurationId(), $configId === $foldersChild2->getConfigurationId());
-        static::assertEquals($childConfigId, $foldersChild3->getConfigurationId());
+        static::assertNotSame($configId === $foldersChild1->getConfigurationId(), $configId === $foldersChild2->getConfigurationId());
+        static::assertSame($childConfigId, $foldersChild3->getConfigurationId());
     }
 
     public function testDissolveWithMultipleLayerOfChildren(): void
@@ -347,7 +347,7 @@ class MediaFolderServiceTest extends TestCase
         $foldersChild2 = $folders->get($child2Id);
         static::assertInstanceOf(MediaFolderEntity::class, $foldersChild2);
 
-        static::assertNotEquals($configId === $foldersChild1->getConfigurationId(), $configId === $foldersChild2->getConfigurationId());
+        static::assertNotSame($configId === $foldersChild1->getConfigurationId(), $configId === $foldersChild2->getConfigurationId());
 
         $foldersChild1_1Id = $folders->get($child1_1Id);
         static::assertInstanceOf(MediaFolderEntity::class, $foldersChild1_1Id);
@@ -463,7 +463,7 @@ class MediaFolderServiceTest extends TestCase
         $media = $this->mediaRepo->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
 
         static::assertInstanceOf(MediaEntity::class, $media);
-        static::assertEquals($parentId, $media->getMediaFolderId());
+        static::assertSame($parentId, $media->getMediaFolderId());
     }
 
     private function assertConfigIsDeleted(string $configId): void
@@ -485,14 +485,16 @@ class MediaFolderServiceTest extends TestCase
         bool $keepAspectRatio,
         int $thumbnailQuality
     ): void {
-        static::assertEquals($useParentConfiguration, $folder->getUseParentConfiguration());
-        static::assertEquals($createThumbnails, $folder->getConfiguration()?->getCreateThumbnails());
-        static::assertEquals($keepAspectRatio, $folder->getConfiguration()?->getKeepAspectRatio());
-        static::assertEquals($thumbnailQuality, $folder->getConfiguration()?->getThumbnailQuality());
+        static::assertSame($useParentConfiguration, $folder->getUseParentConfiguration());
+        $folderConfiguration = $folder->getConfiguration();
+        static::assertNotNull($folderConfiguration);
+        static::assertSame($createThumbnails, $folderConfiguration->getCreateThumbnails());
+        static::assertSame($keepAspectRatio, $folderConfiguration->getKeepAspectRatio());
+        static::assertSame($thumbnailQuality, $folderConfiguration->getThumbnailQuality());
     }
 
     private function assertConfigIsSame(MediaFolderEntity $folder, MediaFolderEntity $childFolder): void
     {
-        static::assertEquals($folder->getConfigurationId(), $childFolder->getConfigurationId());
+        static::assertSame($folder->getConfigurationId(), $childFolder->getConfigurationId());
     }
 }

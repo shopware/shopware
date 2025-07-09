@@ -70,7 +70,7 @@ class HreflangLoaderTest extends TestCase
         static::assertNotNull($randomId);
         $links = $this->hreflangLoader->load($this->createParameter($randomId));
 
-        static::assertEquals(0, $links->count());
+        static::assertCount(0, $links);
     }
 
     public function testProductWithOnlyOneDomain(): void
@@ -104,7 +104,7 @@ class HreflangLoaderTest extends TestCase
         ], $this->salesChannelContext->getContext());
 
         $links = $this->hreflangLoader->load($this->createParameter($productId));
-        static::assertEquals(0, $links->count());
+        static::assertCount(0, $links);
     }
 
     public function testProductWithTwoDomains(): void
@@ -157,7 +157,7 @@ class HreflangLoaderTest extends TestCase
 
         $links = $this->hreflangLoader->load($this->createParameter($productId));
 
-        static::assertEquals(2, $links->count());
+        static::assertCount(2, $links);
         $foundLinks = 0;
 
         static::assertInstanceOf(LocaleEntity::class, $first->getLocale());
@@ -165,17 +165,17 @@ class HreflangLoaderTest extends TestCase
 
         foreach ($links->getElements() as $element) {
             if ($element->getLocale() === $first->getLocale()->getCode()) {
-                static::assertEquals('https://test.de/test-path', $element->getUrl());
+                static::assertSame('https://test.de/test-path', $element->getUrl());
                 ++$foundLinks;
             }
 
             if ($element->getLocale() === $last->getLocale()->getCode()) {
-                static::assertEquals('https://test.de/en/test-path', $element->getUrl());
+                static::assertSame('https://test.de/en/test-path', $element->getUrl());
                 ++$foundLinks;
             }
         }
 
-        static::assertEquals(2, $foundLinks);
+        static::assertSame(2, $foundLinks);
     }
 
     public function testProductWithTwoDomainsWithDefault(): void
@@ -232,7 +232,7 @@ class HreflangLoaderTest extends TestCase
 
         $links = $this->hreflangLoader->load($this->createParameter($productId));
 
-        static::assertEquals(3, $links->count());
+        static::assertCount(3, $links);
 
         $foundLinks = 0;
 
@@ -241,22 +241,22 @@ class HreflangLoaderTest extends TestCase
 
         foreach ($links->getElements() as $element) {
             if ($element->getLocale() === $first->getLocale()->getCode()) {
-                static::assertEquals('https://test.de/test-path', $element->getUrl());
+                static::assertSame('https://test.de/test-path', $element->getUrl());
                 ++$foundLinks;
             }
 
             if ($element->getLocale() === $last->getLocale()->getCode()) {
-                static::assertEquals('https://test.de/en/test-path', $element->getUrl());
+                static::assertSame('https://test.de/en/test-path', $element->getUrl());
                 ++$foundLinks;
             }
 
             if ($element->getLocale() === 'x-default') {
-                static::assertEquals('https://test.de/test-path', $element->getUrl());
+                static::assertSame('https://test.de/test-path', $element->getUrl());
                 ++$foundLinks;
             }
         }
 
-        static::assertEquals(3, $foundLinks);
+        static::assertSame(3, $foundLinks);
     }
 
     public function testProductWithTwoDomainsFirstOnlyLocale(): void
@@ -313,7 +313,7 @@ class HreflangLoaderTest extends TestCase
 
         $links = $this->hreflangLoader->load($this->createParameter($productId));
 
-        static::assertEquals(3, $links->count());
+        static::assertCount(3, $links);
 
         $foundLinks = 0;
 
@@ -322,17 +322,17 @@ class HreflangLoaderTest extends TestCase
 
         foreach ($links->getElements() as $element) {
             if ($element->getLocale() === mb_substr((string) $first->getLocale()->getCode(), 0, 2)) {
-                static::assertEquals('https://test.de/test-path', $element->getUrl());
+                static::assertSame('https://test.de/test-path', $element->getUrl());
                 ++$foundLinks;
             }
 
             if ($element->getLocale() === $last->getLocale()->getCode()) {
-                static::assertEquals('https://test.de/en/test-path', $element->getUrl());
+                static::assertSame('https://test.de/en/test-path', $element->getUrl());
                 ++$foundLinks;
             }
         }
 
-        static::assertEquals(2, $foundLinks);
+        static::assertSame(2, $foundLinks);
     }
 
     public function testHomePageWithTwoDomains(): void
@@ -364,7 +364,7 @@ class HreflangLoaderTest extends TestCase
             new HreflangLoaderParameter('frontend.home.page', [], $this->salesChannelContext)
         );
 
-        static::assertEquals(2, $links->count());
+        static::assertCount(2, $links);
         $foundLinks = 0;
 
         static::assertInstanceOf(LocaleEntity::class, $first->getLocale());
@@ -372,17 +372,17 @@ class HreflangLoaderTest extends TestCase
 
         foreach ($links->getElements() as $element) {
             if ($element->getLocale() === $first->getLocale()->getCode()) {
-                static::assertEquals('https://test.de', $element->getUrl());
+                static::assertSame('https://test.de', $element->getUrl());
                 ++$foundLinks;
             }
 
             if ($element->getLocale() === $last->getLocale()->getCode()) {
-                static::assertEquals('https://test.de/en', $element->getUrl());
+                static::assertSame('https://test.de/en', $element->getUrl());
                 ++$foundLinks;
             }
         }
 
-        static::assertEquals(2, $foundLinks);
+        static::assertSame(2, $foundLinks);
     }
 
     public function testHomePageWithTwoDomainsAndDefault(): void
@@ -418,7 +418,7 @@ class HreflangLoaderTest extends TestCase
             new HreflangLoaderParameter('frontend.home.page', [], $this->salesChannelContext)
         );
 
-        static::assertEquals(3, $links->count());
+        static::assertCount(3, $links);
         $foundLinks = 0;
 
         static::assertInstanceOf(LocaleEntity::class, $first->getLocale());
@@ -426,22 +426,22 @@ class HreflangLoaderTest extends TestCase
 
         foreach ($links->getElements() as $element) {
             if ($element->getLocale() === $first->getLocale()->getCode()) {
-                static::assertEquals('https://test.de', $element->getUrl());
+                static::assertSame('https://test.de', $element->getUrl());
                 ++$foundLinks;
             }
 
             if ($element->getLocale() === $last->getLocale()->getCode()) {
-                static::assertEquals('https://test.de/en', $element->getUrl());
+                static::assertSame('https://test.de/en', $element->getUrl());
                 ++$foundLinks;
             }
 
             if ($element->getLocale() === 'x-default') {
-                static::assertEquals('https://test.de', $element->getUrl());
+                static::assertSame('https://test.de', $element->getUrl());
                 ++$foundLinks;
             }
         }
 
-        static::assertEquals(3, $foundLinks);
+        static::assertSame(3, $foundLinks);
     }
 
     private function createParameter(string $productId): HreflangLoaderParameter

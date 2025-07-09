@@ -71,6 +71,17 @@ class CashRoundingTest extends TestCase
         static::assertSame($expected, $actual);
     }
 
+    public function testNegativeZeroHandling(): void
+    {
+        $service = new CashRounding();
+        $config = new CashRoundingConfig(2, 0.01, true);
+
+        $result = $service->mathRound(-0.001, $config);
+
+        // Convert to string to check if it's positive zero (should not start with '-')
+        static::assertSame('0', (string) $result);
+    }
+
     public static function provider_german(): \Generator
     {
         yield '19.990 should be 19.99' => [19.990, 19.99];

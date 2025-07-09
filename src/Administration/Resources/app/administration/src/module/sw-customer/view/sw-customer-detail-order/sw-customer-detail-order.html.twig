@@ -38,11 +38,9 @@
     {% endblock %}
 
     {% block sw_customer_detail_order_card_grid %}
-    <template
-        v-if="(orders && orders.total > 0) || term"
-        #grid
-    >
+    <template #grid>
         <sw-entity-listing
+            v-if="(orders && orders.total > 0) || term"
             :columns="orderColumns"
             :repository="orderRepository"
             :items="orders"

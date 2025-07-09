@@ -19,36 +19,36 @@ class UtilExceptionTest extends TestCase
     {
         $e = UtilException::invalidJson($p = new \JsonException('invalid'));
 
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertEquals('UTIL_INVALID_JSON', $e->getErrorCode());
-        static::assertEquals('JSON is invalid', $e->getMessage());
-        static::assertEquals($p, $e->getPrevious());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('UTIL_INVALID_JSON', $e->getErrorCode());
+        static::assertSame('JSON is invalid', $e->getMessage());
+        static::assertSame($p, $e->getPrevious());
     }
 
     public function testInvalidJsonNotList(): void
     {
         $e = UtilException::invalidJsonNotList();
 
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertEquals('UTIL_INVALID_JSON_NOT_LIST', $e->getErrorCode());
-        static::assertEquals('JSON cannot be decoded to a list', $e->getMessage());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('UTIL_INVALID_JSON_NOT_LIST', $e->getErrorCode());
+        static::assertSame('JSON cannot be decoded to a list', $e->getMessage());
     }
 
     public function testCannotFindFileInFilesystem(): void
     {
         $e = UtilException::cannotFindFileInFilesystem('some/file', 'some/folder');
 
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertEquals('UTIL__FILESYSTEM_FILE_NOT_FOUND', $e->getErrorCode());
-        static::assertEquals('The file "some/file" does not exist in the given filesystem "some/folder"', $e->getMessage());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('UTIL__FILESYSTEM_FILE_NOT_FOUND', $e->getErrorCode());
+        static::assertSame('The file "some/file" does not exist in the given filesystem "some/folder"', $e->getMessage());
     }
 
     public function testOperatorNotSupported(): void
     {
         $e = UtilException::operatorNotSupported('$');
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertEquals('UTIL__OPERATOR_NOT_SUPPORTED', $e->getErrorCode());
-        static::assertEquals('Operator "$" is not supported.', $e->getMessage());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('UTIL__OPERATOR_NOT_SUPPORTED', $e->getErrorCode());
+        static::assertSame('Operator "$" is not supported.', $e->getMessage());
     }
 
     /**
@@ -59,8 +59,8 @@ class UtilExceptionTest extends TestCase
     {
         $e = UtilException::operatorNotSupported('$');
         static::assertInstanceOf(ComparatorException::class, $e);
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertEquals('CONTENT__OPERATOR_NOT_SUPPORTED', $e->getErrorCode());
-        static::assertEquals('Operator "$" is not supported.', $e->getMessage());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('CONTENT__OPERATOR_NOT_SUPPORTED', $e->getErrorCode());
+        static::assertSame('Operator "$" is not supported.', $e->getMessage());
     }
 }

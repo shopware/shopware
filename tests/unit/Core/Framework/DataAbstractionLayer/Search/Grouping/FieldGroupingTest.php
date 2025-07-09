@@ -32,7 +32,7 @@ class FieldGroupingTest extends TestCase
         $clone = clone $fieldGrouping;
 
         static::assertEquals($fieldGrouping, $clone);
-        static::assertEquals($fieldGrouping->getField(), $clone->getField());
-        static::assertEquals($fieldGrouping->jsonSerialize(), $clone->jsonSerialize());
+        static::assertSame($fieldGrouping->getField(), $clone->getField());
+        static::assertSame($fieldGrouping->jsonSerialize(), $clone->jsonSerialize());
     }
 }

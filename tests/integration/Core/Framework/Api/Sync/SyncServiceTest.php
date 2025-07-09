@@ -87,11 +87,11 @@ class SyncServiceTest extends TestCase
 
         $result = $this->service->sync($operations, Context::createDefaultContext(), new SyncBehavior());
 
-        static::assertEquals([], $result->getDeleted());
+        static::assertSame([], $result->getDeleted());
 
         $expected = ['product_price' => [$ids->get('not-existing-price')]];
 
-        static::assertEquals($expected, $result->getNotFound());
+        static::assertSame($expected, $result->getNotFound());
     }
 
     public function testDeleteProductMediaAndUpdateProduct(): void
@@ -444,6 +444,6 @@ class SyncServiceTest extends TestCase
         static::assertIsString($productPrice);
         $productPrice = json_decode($productPrice, true);
         $productPrice = array_shift($productPrice);
-        static::assertEquals(300, $productPrice['gross']);
+        static::assertSame(300.0, $productPrice['gross']);
     }
 }

@@ -60,7 +60,7 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
 
         $criteria = array_shift($definitionData);
         static::assertInstanceOf(Criteria::class, $criteria);
-        static::assertEquals(['media-1'], $criteria->getIds());
+        static::assertSame(['media-1'], $criteria->getIds());
     }
 
     public function testCollectReturnsNullWithEmptyConfig(): void

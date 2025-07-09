@@ -37,6 +37,6 @@ class LoadPreviewExtensionTest extends TestCase
         );
 
         static::assertIsArray($result);
-        static::assertEquals(['5441aebfd9d048338476f88ba7f07c76' => '5441aebfd9d048338476f88ba7f07c76'], $result);
+        static::assertSame(['5441aebfd9d048338476f88ba7f07c76' => '5441aebfd9d048338476f88ba7f07c76'], $result);
     }
 }

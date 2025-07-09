@@ -26,13 +26,13 @@ class TextFieldTest extends TestCase
 
         $textField = $customFieldSet->getFields()[0];
         static::assertInstanceOf(TextField::class, $textField);
-        static::assertEquals('test_text_field', $textField->getName());
-        static::assertEquals([
+        static::assertSame('test_text_field', $textField->getName());
+        static::assertSame([
             'en-GB' => 'Test text field',
         ], $textField->getLabel());
-        static::assertEquals([], $textField->getHelpText());
-        static::assertEquals(1, $textField->getPosition());
-        static::assertEquals(['en-GB' => 'Enter a text...'], $textField->getPlaceholder());
+        static::assertSame([], $textField->getHelpText());
+        static::assertSame(1, $textField->getPosition());
+        static::assertSame(['en-GB' => 'Enter a text...'], $textField->getPlaceholder());
         static::assertFalse($textField->getRequired());
     }
 }

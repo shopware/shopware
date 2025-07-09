@@ -257,6 +257,8 @@ export default {
 
     methods: {
         createdComponent() {
+            Shopware.Utils.EventBus.on('sw-media-library-item-updated', this.refreshItem.bind(this));
+
             this.refreshList();
 
             if (this.allowMultiSelect) {
@@ -483,6 +485,27 @@ export default {
 
         removeNewFolder() {
             this.subFolders.shift();
+        },
+
+        async refreshItem(mediaId) {
+            const itemsIndex = this.items.findIndex((item) => item.id === mediaId);
+            const selectedItemsIndex = this.selectedItems.findIndex((item) => item.id === mediaId);
+
+            this.isLoading = true;
+
+            try {
+                const media = await this.mediaRepository.get(mediaId, Context.api);
+
+                if (itemsIndex !== -1) {
+                    this.items.splice(itemsIndex, 1, media);
+                }
+
+                if (selectedItemsIndex !== -1) {
+                    this.selectedItems.splice(selectedItemsIndex, 1, media);
+                }
+            } finally {
+                this.isLoading = false;
+            }
         },
     },
 };

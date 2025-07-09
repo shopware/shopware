@@ -108,17 +108,17 @@ function createConfig() {
                     defaultValue: '/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%',
                     config: {
                         label: {
-                            'en-GB': 'Subscription url',
-                            'de-DE': 'Anmelde-Url',
+                            'en-GB': 'Subscription URL',
+                            'de-DE': 'Anmelde-URL',
                         },
                         placeholder: {
                             'en-GB': '/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%',
                         },
                         helpText: {
                             'en-GB':
-                                'Url to confirm the subscription to the newsletter.<br/>Available placeholders: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%',
+                                'URL to confirm the subscription to the newsletter.<br/>Available placeholders: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%',
                             'de-DE':
-                                'Url um die Newsletteranmeldung zu bestätigen.<br/>Verfügbare Platzhalter: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%',
+                                'URL um die Newsletter-Anmeldung zu bestätigen.<br/>Verfügbare Platzhalter: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%',
                         },
                     },
                 },
@@ -126,10 +126,10 @@ function createConfig() {
                     name: 'core.newsletter.doubleOptIn',
                     type: 'bool',
                     config: {
-                        label: { 'en-GB': 'Double Opt-in' },
+                        label: { 'en-GB': 'Double opt-in' },
                         helpText: {
-                            'en-GB': 'Use Double Opt-in for newsletter subscriptions',
-                            'de-DE': 'Nutze das Double Opt-In Verfahren für Newsletter Anmeldungen.',
+                            'en-GB': 'Use double opt-in for newsletter subscriptions.',
+                            'de-DE': 'Nutze das Double-Opt-In-Verfahren für Newsletter-Anmeldungen.',
                         },
                     },
                 },

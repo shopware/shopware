@@ -94,7 +94,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
         $mediaThumbnailCollection = $media->getThumbnails();
         static::assertNotNull($mediaThumbnailCollection);
-        static::assertEquals(2, $mediaThumbnailCollection->count());
+        static::assertCount(2, $mediaThumbnailCollection);
 
         foreach ($mediaThumbnailCollection as $thumbnail) {
             static::assertTrue(
@@ -151,7 +151,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
         $mediaThumbnailCollection = $media->getThumbnails();
         static::assertNotNull($mediaThumbnailCollection);
-        static::assertEquals(2, $mediaThumbnailCollection->count());
+        static::assertCount(2, $mediaThumbnailCollection);
 
         foreach ($mediaThumbnailCollection as $thumbnail) {
             static::assertTrue(
@@ -225,6 +225,6 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $handler->__invoke($updateMessage1);
         $handler->__invoke($updateMessage2);
 
-        static::assertEquals($consecutiveUpdateMessageParams, $parameters);
+        static::assertSame($consecutiveUpdateMessageParams, $parameters);
     }
 }

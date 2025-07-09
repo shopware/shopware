@@ -204,12 +204,12 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
         $resolver->resolve($request);
 
-        static::assertEquals($imitatingUserId, $request->getSession()->get(PlatformRequest::ATTRIBUTE_IMITATING_USER_ID));
+        static::assertSame($imitatingUserId, $request->getSession()->get(PlatformRequest::ATTRIBUTE_IMITATING_USER_ID));
 
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
         static::assertInstanceOf(SalesChannelContext::class, $context);
-        static::assertEquals($imitatingUserId, $context->getImitatingUserId());
+        static::assertSame($imitatingUserId, $context->getImitatingUserId());
     }
 
     public function testImitatingUserIdClearWithoutCustomer(): void

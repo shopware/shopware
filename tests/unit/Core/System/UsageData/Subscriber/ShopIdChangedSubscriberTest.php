@@ -24,7 +24,7 @@ class ShopIdChangedSubscriberTest extends TestCase
 {
     public function testSubscribedEvents(): void
     {
-        static::assertEquals([
+        static::assertSame([
             ShopIdDeletedEvent::class => 'handleShopIdDeleted',
             ShopIdChangedEvent::class => 'handleShopIdChanged',
         ], ShopIdChangedSubscriber::getSubscribedEvents());

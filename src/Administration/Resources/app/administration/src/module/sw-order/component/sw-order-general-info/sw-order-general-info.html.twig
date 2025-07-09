@@ -37,11 +37,13 @@
                 month: '2-digit',
                 year: 'numeric'
                 }) }}
-                {{ $tc('sw-order.generalTab.info.summary.with') }}
-                {{ order.transactions.last().paymentMethod.translated.distinguishableName }}
-                <template v-if="order.deliveries.last()">
+                <template v-if="transaction">
+                    {{ $tc('sw-order.generalTab.info.summary.with') }}
+                    {{ transaction.paymentMethod.translated.distinguishableName }}
+                </template>
+                <template v-if="delivery">
                     {{ $tc('sw-order.generalTab.info.summary.and') }}
-                    {{ order.deliveries.last().shippingMethod.translated.name }}
+                    {{ delivery.shippingMethod.translated.name }}
                 </template>
             </div>
             {% endblock %}
@@ -92,7 +94,10 @@
     {% block sw_order_detail_base_general_info_order_states %}
     <div class="sw-order-general-info__order-states">
         {% block sw_order_detail_base_general_info_order_states_payment %}
-        <div class="sw-order-general-info__order-state">
+        <div
+            v-if="transaction"
+            class="sw-order-general-info__order-state"
+        >
             <sw-order-state-select-v2
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),

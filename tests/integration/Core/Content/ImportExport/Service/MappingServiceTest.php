@@ -161,7 +161,7 @@ class MappingServiceTest extends TestCase
             static::assertSame($key, $mapping->getKey(), $testCase);
         }
 
-        if (file_exists($filePath)) {
+        if (\is_file($filePath)) {
             unlink($filePath);
         }
     }

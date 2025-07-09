@@ -34,6 +34,6 @@ class UserRecoveryRequestEventTest extends TestCase
         $storer->restore($flow);
 
         static::assertArrayHasKey('resetUrl', $flow->data());
-        static::assertEquals('my-reset-url', $flow->data()['resetUrl']);
+        static::assertSame('my-reset-url', $flow->data()['resetUrl']);
     }
 }

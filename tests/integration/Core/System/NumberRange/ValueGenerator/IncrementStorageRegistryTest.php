@@ -64,7 +64,7 @@ class IncrementStorageRegistryTest extends TestCase
 
         $registry->migrate('Array', 'SQL');
 
-        static::assertEquals($arrayStorage->list(), $sqlStorage->list());
+        static::assertSame($arrayStorage->list(), $sqlStorage->list());
     }
 
     public function testMigrateFromSqlStorage(): void
@@ -78,7 +78,7 @@ class IncrementStorageRegistryTest extends TestCase
             $sqlStorage->set($key, $value);
         }
 
-        static::assertEquals($states, $sqlStorage->list());
+        static::assertSame($states, $sqlStorage->list());
         $arrayStorage = new IncrementArrayStorage([]);
 
         $registry = new IncrementStorageRegistry(
@@ -95,7 +95,7 @@ class IncrementStorageRegistryTest extends TestCase
 
         $registry->migrate('SQL', 'Array');
 
-        static::assertEquals($sqlStorage->list(), $arrayStorage->list());
+        static::assertSame($sqlStorage->list(), $arrayStorage->list());
     }
 
     public function testMigrateWithUnknownFromStorageThrows(): void

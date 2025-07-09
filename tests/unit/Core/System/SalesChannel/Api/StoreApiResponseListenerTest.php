@@ -106,7 +106,7 @@ class StoreApiResponseListenerTest extends TestCase
         static::assertIsString($content, 'Response content is not a string.');
         $decoded = json_decode($content, true);
         static::assertIsArray($decoded, 'Decoded JSON is not an array.');
-        static::assertEquals(['encoded' => 'data'], $decoded);
+        static::assertSame(['encoded' => 'data'], $decoded);
     }
 
     public function testEncodeResponseWithDifferentStatusCode(): void
@@ -145,7 +145,7 @@ class StoreApiResponseListenerTest extends TestCase
         static::assertIsString($content, 'Response content is not a string.');
         $decoded = json_decode($content, true);
         static::assertIsArray($decoded, 'Decoded JSON is not an array.');
-        static::assertEquals(['encoded' => 'data'], $decoded);
+        static::assertSame(['encoded' => 'data'], $decoded);
     }
 
     public function testEncodeResponsePreservesHeaders(): void
@@ -185,6 +185,6 @@ class StoreApiResponseListenerTest extends TestCase
         static::assertIsString($content, 'Response content is not a string.');
         $decoded = json_decode($content, true);
         static::assertIsArray($decoded, 'Decoded JSON is not an array.');
-        static::assertEquals(['encoded' => 'data'], $decoded);
+        static::assertSame(['encoded' => 'data'], $decoded);
     }
 }

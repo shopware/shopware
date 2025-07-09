@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Composer\Factory;
 use Shopware\Core\Framework\Plugin\PluginCollection;
@@ -34,6 +34,8 @@ class RequirementsValidator
 
     /**
      * @internal
+     *
+     * @param EntityRepository<PluginCollection> $pluginRepo
      */
     public function __construct(
         private readonly EntityRepository $pluginRepo,
@@ -247,12 +249,10 @@ class RequirementsValidator
     private function getInstalledPlugins(Context $context): PluginCollection
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('installedAt', null)]));
+        $criteria->addFilter(new NotEqualsFilter('installedAt', null));
         $criteria->addFilter(new EqualsFilter('active', true));
-        /** @var PluginCollection $plugins */
-        $plugins = $this->pluginRepo->search($criteria, $context)->getEntities();
 
-        return $plugins;
+        return $this->pluginRepo->search($criteria, $context)->getEntities();
     }
 
     /**
@@ -396,12 +396,11 @@ class RequirementsValidator
         if (!is_dir($vendorDir)) {
             return $pluginDependencies;
         }
-        $pluginDependencies = $this->checkComposerDependencies(
+
+        return $this->checkComposerDependencies(
             $pluginDependencies,
             $exceptionStack,
             $this->pluginComposer
         );
-
-        return $pluginDependencies;
     }
 }

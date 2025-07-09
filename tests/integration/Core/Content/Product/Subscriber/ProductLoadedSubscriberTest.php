@@ -139,13 +139,13 @@ class ProductLoadedSubscriberTest extends TestCase
             static::assertInstanceOf(PropertyGroupOptionCollection::class, $optionElementsCollection);
             $optionElements = $optionElementsCollection->getElements();
 
-            static::assertEquals($expectedGroup['name'], $sortedProperties[$expectedGroupKey]->getName());
-            static::assertEquals($expectedGroup['id'], $sortedProperties[$expectedGroupKey]->getId());
-            static::assertEquals(\array_keys($expectedGroup['options']), \array_keys($optionElements));
+            static::assertSame($expectedGroup['name'], $sortedProperties[$expectedGroupKey]->getName());
+            static::assertSame($expectedGroup['id'], $sortedProperties[$expectedGroupKey]->getId());
+            static::assertSame(\array_keys($expectedGroup['options']), \array_keys($optionElements));
 
             foreach ($expectedGroup['options'] as $optionId => $option) {
-                static::assertEquals($option['id'], $optionElements[$optionId]->getId());
-                static::assertEquals($option['name'], $optionElements[$optionId]->getName());
+                static::assertSame($option['id'], $optionElements[$optionId]->getId());
+                static::assertSame($option['name'], $optionElements[$optionId]->getName());
             }
         }
 
@@ -191,16 +191,16 @@ class ProductLoadedSubscriberTest extends TestCase
             static::assertInstanceOf(PropertyGroupOptionCollection::class, $optionElements);
             $optionElements = $optionElements->getElements();
 
-            static::assertEquals($expectedGroup['name'], $sortedProperty->get('name'));
-            static::assertEquals($expectedGroup['id'], $sortedProperty->getId());
-            static::assertEquals(\array_keys($expectedGroup['options']), \array_keys($optionElements));
+            static::assertSame($expectedGroup['name'], $sortedProperty->get('name'));
+            static::assertSame($expectedGroup['id'], $sortedProperty->getId());
+            static::assertSame(\array_keys($expectedGroup['options']), \array_keys($optionElements));
 
             foreach ($expectedGroup['options'] as $optionId => $option) {
                 $optionElement = $optionElements[$optionId];
                 static::assertInstanceOf(PropertyGroupOptionEntity::class, $optionElement);
 
-                static::assertEquals($option['id'], $optionElement->getId());
-                static::assertEquals($option['name'], $optionElement->get('name'));
+                static::assertSame($option['id'], $optionElement->getId());
+                static::assertSame($option['name'], $optionElement->get('name'));
             }
         }
 
@@ -413,7 +413,7 @@ class ProductLoadedSubscriberTest extends TestCase
             sort($expected);
         }
 
-        static::assertEquals($expected, $variation);
+        static::assertSame($expected, $variation);
     }
 
     /**
@@ -1125,7 +1125,7 @@ class ProductLoadedSubscriberTest extends TestCase
             'name' => $option->getName(),
         ]);
 
-        static::assertEquals($expected, \array_values($names));
+        static::assertSame($expected, \array_values($names));
     }
 
     /**
@@ -1316,11 +1316,11 @@ class ProductLoadedSubscriberTest extends TestCase
 
             static::assertInstanceOf(ListPrice::class, $price->getListPrice());
 
-            static::assertEquals($case->expectedPrice, $price->getUnitPrice());
-            static::assertEquals($case->expectedWas, $price->getListPrice()->getPrice());
+            static::assertSame($case->expectedPrice, $price->getUnitPrice());
+            static::assertSame($case->expectedWas, $price->getListPrice()->getPrice());
 
-            static::assertEquals($case->percentage, $price->getListPrice()->getPercentage());
-            static::assertEquals($case->discount, $price->getListPrice()->getDiscount());
+            static::assertSame($case->percentage, $price->getListPrice()->getPercentage());
+            static::assertSame($case->discount, $price->getListPrice()->getDiscount());
 
             $partialCriteria = new Criteria([$id]);
             $partialCriteria->addFields(['price', 'taxId']);
@@ -1335,11 +1335,11 @@ class ProductLoadedSubscriberTest extends TestCase
             static::assertInstanceOf(CalculatedPrice::class, $price);
             static::assertInstanceOf(ListPrice::class, $price->getListPrice());
 
-            static::assertEquals($case->expectedPrice, $price->getUnitPrice());
-            static::assertEquals($case->expectedWas, $price->getListPrice()->getPrice());
+            static::assertSame($case->expectedPrice, $price->getUnitPrice());
+            static::assertSame($case->expectedWas, $price->getListPrice()->getPrice());
 
-            static::assertEquals($case->percentage, $price->getListPrice()->getPercentage());
-            static::assertEquals($case->discount, $price->getListPrice()->getDiscount());
+            static::assertSame($case->percentage, $price->getListPrice()->getPercentage());
+            static::assertSame($case->discount, $price->getListPrice()->getDiscount());
         }
     }
 

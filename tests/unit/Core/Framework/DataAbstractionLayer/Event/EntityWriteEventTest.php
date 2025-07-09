@@ -113,9 +113,9 @@ class EntityWriteEventTest extends TestCase
 
         $event->success();
 
-        static::assertEquals(2, $callback1->counter);
+        static::assertSame(2, $callback1->counter);
 
         $event->error();
-        static::assertEquals(1, $callback2->counter);
+        static::assertSame(1, $callback2->counter);
     }
 }

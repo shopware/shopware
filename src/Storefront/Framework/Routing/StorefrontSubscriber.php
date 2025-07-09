@@ -18,6 +18,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -70,20 +71,19 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function startSession(): void
     {
-        $master = $this->requestStack->getMainRequest();
-
-        if (!$master) {
+        $mainRequest = $this->requestStack->getMainRequest();
+        if (!$mainRequest) {
             return;
         }
-        if (!$master->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
-            return;
-        }
-
-        if (!$master->hasSession()) {
+        if (!$mainRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
             return;
         }
 
-        $session = $master->getSession();
+        if (!$mainRequest->hasSession()) {
+            return;
+        }
+
+        $session = $mainRequest->getSession();
 
         if (!$session->isStarted()) {
             $session->setName('session-');
@@ -91,11 +91,10 @@ class StorefrontSubscriber implements EventSubscriberInterface
             $session->set('sessionId', $session->getId());
         }
 
-        $salesChannelId = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        $salesChannelId = $mainRequest->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
         if ($salesChannelId === null) {
-            /** @var SalesChannelContext|null $salesChannelContext */
-            $salesChannelContext = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-            if ($salesChannelContext !== null) {
+            $salesChannelContext = $mainRequest->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+            if ($salesChannelContext instanceof SalesChannelContext) {
                 $salesChannelId = $salesChannelContext->getSalesChannelId();
             }
         }
@@ -106,10 +105,13 @@ class StorefrontSubscriber implements EventSubscriberInterface
             $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannelId);
         }
 
-        $master->headers->set(
-            PlatformRequest::HEADER_CONTEXT_TOKEN,
-            $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN)
-        );
+        $contextToken = $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $mainRequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
+
+        $currentRequest = $this->requestStack->getCurrentRequest();
+        if ($currentRequest && $mainRequest !== $currentRequest) {
+            $currentRequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
+        }
     }
 
     public function updateSessionAfterLogin(CustomerLoginEvent $event): void
@@ -128,24 +130,24 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function updateSession(string $token, bool $destroyOldSession = false): void
     {
-        $master = $this->requestStack->getMainRequest();
-        if (!$master) {
+        $mainRequest = $this->requestStack->getMainRequest();
+        if (!$mainRequest) {
             return;
         }
-        if (!$master->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
-            return;
-        }
-
-        if (!$master->hasSession()) {
+        if (!$mainRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
             return;
         }
 
-        $session = $master->getSession();
+        if (!$mainRequest->hasSession()) {
+            return;
+        }
+
+        $session = $mainRequest->getSession();
         $session->migrate($destroyOldSession);
         $session->set('sessionId', $session->getId());
 
         $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
-        $master->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
+        $mainRequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
     }
 
     public function customerNotLoggedInHandler(ExceptionEvent $event): void
@@ -174,34 +176,35 @@ class StorefrontSubscriber implements EventSubscriberInterface
     {
         if ($this->maintenanceModeResolver->shouldRedirect($event->getRequest())) {
             $event->setResponse(
-                new RedirectResponse(
-                    $this->router->generate('frontend.maintenance.page'),
-                    RedirectResponse::HTTP_TEMPORARY_REDIRECT
-                )
+                new RedirectResponse($this->router->generate('frontend.maintenance.page'), Response::HTTP_TEMPORARY_REDIRECT)
             );
         }
     }
 
     public function preventPageLoadingFromXmlHttpRequest(ControllerEvent $event): void
     {
-        if (!$event->getRequest()->isXmlHttpRequest()) {
+        $request = $event->getRequest();
+
+        if (!$request->isXmlHttpRequest()) {
             return;
         }
 
-        /** @var list<string> $scope */
-        $scope = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
+        $scope = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
 
         if (!\in_array(StorefrontRouteScope::ID, $scope, true)) {
             return;
         }
 
-        $isAllowed = $event->getRequest()->attributes->getBoolean('XmlHttpRequest');
-
+        $isAllowed = $request->attributes->getBoolean('XmlHttpRequest');
         if ($isAllowed) {
             return;
         }
 
-        throw RoutingException::accessDeniedForXmlHttpRequest();
+        $route = $request->attributes->get('_route');
+        $url = $request->getUri();
+        $referer = $request->headers->get('referer');
+
+        throw RoutingException::accessDeniedForXmlHttpRequest($route, $url, $referer);
     }
 
     // used to switch session token - when the context token expired

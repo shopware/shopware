@@ -42,7 +42,7 @@ class MessageHandlerCompilerPassTest extends TestCase
 
         foreach ($expectedTagAttributes as $key => $value) {
             static::assertArrayHasKey($key, $tagAttributes);
-            static::assertEquals($value, $tagAttributes[$key]);
+            static::assertSame($value, $tagAttributes[$key]);
         }
     }
 

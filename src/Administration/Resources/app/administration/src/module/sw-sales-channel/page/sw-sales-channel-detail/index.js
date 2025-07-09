@@ -185,7 +185,7 @@ export default {
         loadSalesChannel() {
             this.isLoading = true;
             this.salesChannelRepository
-                .get(this.$route.params.id, Context.api, this.getLoadSalesChannelCriteria())
+                .get(this.$route.params.id.toLowerCase(), Context.api, this.getLoadSalesChannelCriteria())
                 .then((entity) => {
                     this.salesChannel = entity;
 

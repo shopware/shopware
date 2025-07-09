@@ -31,13 +31,15 @@ class CreateIntegrationCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('name', InputArgument::REQUIRED, 'Name of the integration')
-            ->addOption('admin', null, InputOption::VALUE_NONE, 'Has admin rights');
+            ->addOption('admin', null, InputOption::VALUE_NONE, 'Has admin rights')
+            ->addOption('access-key', null, InputOption::VALUE_REQUIRED, 'Custom access key')
+            ->addOption('secret-access-key', null, InputOption::VALUE_REQUIRED, 'Custom secret access key');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $id = AccessKeyHelper::generateAccessKey('integration');
-        $secret = AccessKeyHelper::generateSecretAccessKey();
+        $id = $input->getOption('access-key') ?? AccessKeyHelper::generateAccessKey('integration');
+        $secret = $input->getOption('secret-access-key') ?? AccessKeyHelper::generateSecretAccessKey();
 
         $this->integrationRepository->create([
             [

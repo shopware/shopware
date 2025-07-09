@@ -27,7 +27,7 @@ class StringTemplateRendererTest extends TestCase
         $templateMock = '{{ foo }}';
         $dataMock = ['foo' => 'bar'];
         $rendered = $this->stringTemplateRenderer->render($templateMock, $dataMock, Context::createDefaultContext());
-        static::assertEquals('bar', $rendered);
+        static::assertSame('bar', $rendered);
     }
 
     public function testInitialization(): void
@@ -49,6 +49,6 @@ class StringTemplateRendererTest extends TestCase
 
         $renderedWithTimezone = $this->stringTemplateRenderer->render($templateMock, ['testDate' => $testDate], $context);
 
-        static::assertNotEquals($renderedTime, $renderedWithTimezone);
+        static::assertNotSame($renderedTime, $renderedWithTimezone);
     }
 }

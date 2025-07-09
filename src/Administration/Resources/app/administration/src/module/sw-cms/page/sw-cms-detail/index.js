@@ -327,7 +327,7 @@ export default {
             this.resetCmsPageState();
 
             if (this.$route.params.id) {
-                this.pageId = this.$route.params.id;
+                this.pageId = this.$route.params.id.toLowerCase();
                 this.isLoading = true;
                 const defaultStorefrontId = '8A243080F92E4C719546314B577CF82B';
 

@@ -1,0 +1,45 @@
+.mt-card.sw-settings-services-grant-permission-card {
+    container-type: inline-size;
+    /* stylelint-disable color-function-notation */
+    background:
+        radial-gradient(
+            101.49% 53.33% at 4.27% 100%,
+            rgb(from var(--color-emerald-300) r g b / 20%) 0%,
+            var(--color-interaction-secondary-default) 100%
+        );
+    /* stylelint-enable color-function-notation */
+    font-size: var(--font-size-xs);
+
+    .sw-settings-services-grant-permission-card__heading {
+        font-size: var(--font-size-l);
+        line-height: var(--font-line-height-l);
+        font-weight: var(--font-weight-bold);
+    }
+
+    p {
+        margin-bottom: 1rem;
+    }
+
+    .sw-settings-services-grant-permission-card__background {
+        display: flex;
+        justify-content: center;
+        margin: 0 0 var(--scale-size-24);
+
+        img {
+            max-width: 100%;
+        }
+
+        @container (min-width: 650px) {
+            float: right;
+            display: block;
+            margin: calc(-1 * var(--scale-size-24));
+            margin-left: 0;
+        }
+    }
+
+    .sw-settings-services-grant-permission-card__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--scale-size-20);
+    }
+}

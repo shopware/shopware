@@ -53,6 +53,6 @@ class StoreServiceTest extends TestCase
 
         $updatedUser = $this->getUserRepository()->search($criteria, $adminStoreContext)->getEntities()->first();
 
-        static::assertEquals('updated-store-token', $updatedUser?->getStoreToken());
+        static::assertSame('updated-store-token', $updatedUser?->getStoreToken());
     }
 }

@@ -106,7 +106,7 @@ class AvailableCombinationLoaderTest extends TestCase
         $result = $this->loader->loadCombinations($this->ids->get('a.0'), $salesChanelContext);
 
         foreach ($result->getCombinations() as $combination) {
-            static::assertEquals($expected, $result->isAvailable($combination));
+            static::assertSame($expected, $result->isAvailable($combination));
         }
     }
 

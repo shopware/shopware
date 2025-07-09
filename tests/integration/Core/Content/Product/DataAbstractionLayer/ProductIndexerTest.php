@@ -85,9 +85,12 @@ class ProductIndexerTest extends TestCase
         $this->prepareGetChildrenIdsMethod($uuids);
         $context = Context::createDefaultContext();
         $nestedEvents = $this->prepareEvent($context, $uuids);
+        $writtenEvent = new EntityWrittenContainerEvent($context, $nestedEvents, []);
+        $writtenEvent->setCloned(true);
 
-        $message = $this->indexer->update(new EntityWrittenContainerEvent($context, $nestedEvents, []));
+        $message = $this->indexer->update($writtenEvent);
         static::assertNotNull($message);
+        static::assertContains(ProductIndexer::CHILD_COUNT_UPDATER, $message->getSkip());
         $this->messageBus->dispatch($message);
 
         $this->runWorker();

@@ -1,12 +1,17 @@
 import SpatialZoomGallerySliderViewerPlugin from 'src/plugin/spatial/spatial-zoom-gallery-slider-viewer.plugin';
-import SpatialObjectLoaderUtil from 'src/plugin/spatial/utils/spatial-object-loader-util';
-import SpatialOrbitControlsUtil from 'src/plugin/spatial/utils/spatial-orbit-controls-util';
+import SpatialBaseViewerPlugin from 'src/plugin/spatial/spatial-base-viewer.plugin';
 
-jest.mock('src/plugin/spatial/utils/spatial-threejs-load-util');
-jest.mock('src/plugin/spatial/utils/spatial-orbit-controls-util');
-jest.mock('src/plugin/spatial/utils/composition/spatial-light-composition-util');
-jest.mock('src/plugin/spatial/utils/spatial-object-loader-util');
+jest.mock('src/plugin/spatial/utils/spatial-dive-load-util');
 jest.mock('src/plugin/spatial/utils/spatial-zoom-gallery-slider-render-util');
+
+const mockDive = {
+    engine: {
+        start: jest.fn(),
+    }
+};
+window.DIVEClass = {
+    QuickView: jest.fn().mockResolvedValue(mockDive)
+};
 
 /**
  * @package innovation
@@ -16,37 +21,8 @@ describe('SpatialZoomGallerySliderViewerPlugin tests', function () {
     let targetElement;
 
     beforeEach(() => {
-        SpatialObjectLoaderUtil.mockClear();
-        SpatialOrbitControlsUtil.mockClear();
         targetElement = document.createElement('div');
         jest.useFakeTimers();
-        window.threeJs = {};
-        window.threeJs.PerspectiveCamera = function () {
-            return {
-                position: {
-                    set: () => { },
-                },
-                lookAt: () => { },
-            };
-        };
-        window.threeJs.Scene = function () {
-            return {
-                add: jest.fn(),
-            };
-        };
-        window.threeJs.Clock = function () {
-            return {
-                getDelta: () => { },
-            };
-        };
-        window.threeJs.WebGLRenderer = function () {
-            return {
-                setClearColor: () => { },
-                domElement: document.createElement('canvas'),
-                setAnimationLoop: () => { },
-                render: () => { },
-            };
-        };
 
         spatialZoomGallerySliderViewerPlugin = new SpatialZoomGallerySliderViewerPlugin(targetElement, {
             sliderPosition: 1,
@@ -55,8 +31,6 @@ describe('SpatialZoomGallerySliderViewerPlugin tests', function () {
         });
 
         jest.clearAllMocks();
-
-        jest.spyOn(SpatialObjectLoaderUtil.prototype, 'loadSingleObjectByUrl').mockReturnValue(Promise.resolve('123'));
     });
 
     afterEach(() => {
@@ -78,96 +52,38 @@ describe('SpatialZoomGallerySliderViewerPlugin tests', function () {
         expect(spatialZoomGallerySliderViewerPlugin.sliderIndex).toBe(undefined);
     });
 
-    test('should create orbit controls', async () => {
-        expect(SpatialOrbitControlsUtil).toHaveBeenCalled();
-    });
-
-    test.skip('should dispose of orbit controls before creation if orbit controls already exist', async () => {
-        jest.spyOn(spatialZoomGallerySliderViewerPlugin.spatialObjectLoaderUtil, 'loadSingleObjectByUrl').mockResolvedValue('123');
-        spatialZoomGallerySliderViewerPlugin.SpatialZoomGallerySliderRenderUtil = new SpatialOrbitControlsUtil();
-        // 2 instances have been created: one during constructor of plugin, and one inside this test
-        expect(SpatialOrbitControlsUtil.mock.instances).toHaveLength(2);
-        spatialZoomGallerySliderViewerPlugin.initViewer();
-
-        // Additional orbit control created after dispose() call
-        expect(SpatialOrbitControlsUtil.mock.instances).toHaveLength(3);
-        const orbitControlsMockInstance = SpatialOrbitControlsUtil.mock.instances[0];
-
-        expect(orbitControlsMockInstance.dispose.mock.calls).toHaveLength(1);
-    });
-
-    test('initViewer with defined model will not load model again', () => {
-        spatialZoomGallerySliderViewerPlugin.ready = false;
-        spatialZoomGallerySliderViewerPlugin.model = {};
-        jest.spyOn(SpatialObjectLoaderUtil.prototype, 'loadSingleObjectByUrl').mockReturnValue(Promise.resolve('123'));
-        const loadSingleObjectByUrlSpy = jest.spyOn(spatialZoomGallerySliderViewerPlugin.spatialObjectLoaderUtil, 'loadSingleObjectByUrl');
-        const initViewerSpy = jest.spyOn(spatialZoomGallerySliderViewerPlugin.SpatialZoomGallerySliderRenderUtil, 'initViewer');
-        expect(loadSingleObjectByUrlSpy).toHaveBeenCalledTimes(1);
-
-        spatialZoomGallerySliderViewerPlugin.initViewer();
-
-        expect(spatialZoomGallerySliderViewerPlugin.ready).toBe(true);
-        expect(loadSingleObjectByUrlSpy).toHaveBeenCalledTimes(1);
-        expect(initViewerSpy).toHaveBeenCalled();
-    });
-
-    test('preRender will call in the right order', () => {
-        const spatialCanvasSizeUpdateUtilUpdateSpy = jest.spyOn(spatialZoomGallerySliderViewerPlugin.spatialCanvasSizeUpdateUtil, 'update');
-        const spatialOrbitControlsUtilUpdateSpy = jest.spyOn(spatialZoomGallerySliderViewerPlugin.spatialOrbitControlsUtil, 'update');
-        spatialZoomGallerySliderViewerPlugin.rendering = true;
-
-        spatialZoomGallerySliderViewerPlugin.render();
-
-        expect(spatialCanvasSizeUpdateUtilUpdateSpy).toHaveBeenCalled();
-        expect(spatialOrbitControlsUtilUpdateSpy).toHaveBeenCalled();
-    });
-
-    test('initViewer with model and light intensity', async () => {
-        jest.spyOn(SpatialObjectLoaderUtil.prototype, 'loadSingleObjectByUrl').mockReturnValue(Promise.resolve('123'));
-
-        spatialZoomGallerySliderViewerPlugin.initViewer(false);
-
-        process.nextTick(() =>
-            expect(spatialZoomGallerySliderViewerPlugin.scene.add).toHaveBeenCalledTimes(1)
-        );
-    });
-
     test('initViewer with defined spatial model url will load model', async () => {
-        jest.spyOn(SpatialObjectLoaderUtil.prototype, 'loadSingleObjectByUrl').mockReturnValue(Promise.resolve('123'));
-
-        spatialZoomGallerySliderViewerPlugin.initViewer(false);
+        spatialZoomGallerySliderViewerPlugin.initViewer();
 
         process.nextTick(() =>
             expect(spatialZoomGallerySliderViewerPlugin.scene.add).toHaveBeenCalledTimes(1)
         );
-    });
-
-    test('initViewer without spatial model url will not load model', async () => {
-        spatialZoomGallerySliderViewerPlugin["model"] = null;
-        spatialZoomGallerySliderViewerPlugin["options"]["modelUrl"] = null;
-        const loadObjectMock = jest.spyOn(SpatialObjectLoaderUtil.prototype, 'loadSingleObjectByUrl').mockReturnValue(Promise.resolve('123'));
-
-        // reset all prior calls to the mock function
-        jest.clearAllMocks();
-        expect(loadObjectMock).toHaveBeenCalledTimes(0);
-
-        spatialZoomGallerySliderViewerPlugin.initViewer(false);
-
-        // one time at plugin initialization, and NOT another time during initViewer() call (in this test)
-        expect(loadObjectMock).toHaveBeenCalledTimes(0);
     });
 
     test('initViewer with incorrect uploaded model from url will disable slider canvas', async () => {
         const parentDiv = document.createElement('span');
         const middleDiv = document.createElement('div');
-        jest.spyOn(SpatialObjectLoaderUtil.prototype, 'loadSingleObjectByUrl').mockReturnValue(Promise.reject('123'));
         middleDiv.appendChild(spatialZoomGallerySliderViewerPlugin.canvas);
         parentDiv.appendChild(middleDiv);
 
-        spatialZoomGallerySliderViewerPlugin.initViewer(true);
+        spatialZoomGallerySliderViewerPlugin.initViewer();
 
         process.nextTick(() =>
             expect(spatialZoomGallerySliderViewerPlugin.el.parentElement.parentElement.classList.contains('gallery-slider-canvas-disabled')).toBe(true)
         );
+    });
+
+    test('should disable slider canvas if super.initViewer throws', async () => {
+        // Spy on base class initViewer to throw an error
+        jest.spyOn(SpatialBaseViewerPlugin.prototype, 'initViewer').mockRejectedValueOnce(new Error('test error'));
+        // Setup nested parent elements to match el.parentElement.parentElement
+        const parent = document.createElement('div');
+        const grandParent = document.createElement('div');
+        parent.appendChild(targetElement);
+        grandParent.appendChild(parent);
+        // Call initViewer
+        await spatialZoomGallerySliderViewerPlugin.initViewer();
+        // Assert the disabled class is added to the grand parent element
+        expect(grandParent.classList.contains('gallery-slider-canvas-disabled')).toBe(true);
     });
 });

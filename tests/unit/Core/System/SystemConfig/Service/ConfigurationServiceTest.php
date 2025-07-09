@@ -106,7 +106,7 @@ class ConfigurationServiceTest extends TestCase
 
         $expectedConfigWithoutValues = $this->getConfigWithoutValues();
 
-        static::assertEquals($expectedConfigWithoutValues, $actualConfig);
+        static::assertSame($expectedConfigWithoutValues, $actualConfig);
         static::assertSame($expectedConfigWithoutValues[0]['elements'][0], $actualConfig[0]['elements'][0]);
         static::assertSame($expectedConfigWithoutValues[0]['elements'][2], $actualConfig[0]['elements'][2]);
     }

@@ -124,12 +124,12 @@ class WebhookManagerTest extends TestCase
             ],
         ], $payload);
 
-        static::assertEquals($message->getLanguageId(), Defaults::LANGUAGE_SYSTEM);
-        static::assertEquals($message->getAppId(), $webhook->appId);
-        static::assertEquals($message->getSecret(), $webhook->appSecret);
-        static::assertEquals($message->getShopwareVersion(), '0.0.0');
-        static::assertEquals($message->getUrl(), 'https://foo.bar');
-        static::assertEquals($message->getWebhookId(), $webhook->id);
+        static::assertSame($message->getLanguageId(), Defaults::LANGUAGE_SYSTEM);
+        static::assertSame($message->getAppId(), $webhook->appId);
+        static::assertSame($message->getSecret(), $webhook->appSecret);
+        static::assertSame($message->getShopwareVersion(), '0.0.0');
+        static::assertSame($message->getUrl(), 'https://foo.bar');
+        static::assertSame($message->getWebhookId(), $webhook->id);
     }
 
     public function testWebhookSettingForLiveVersionOnlyIsIgnoredIfEventTypeDoesNotMatch(): void
@@ -337,7 +337,7 @@ class WebhookManagerTest extends TestCase
         $request = $this->clientMock->getLastRequest();
 
         static::assertInstanceOf(RequestInterface::class, $request);
-        static::assertEquals('foo.bar', $request->getUri()->getHost());
+        static::assertSame('foo.bar', $request->getUri()->getHost());
 
         $headers = $request->getHeaders();
         static::assertArrayHasKey(RequestSigner::SHOPWARE_SHOP_SIGNATURE, $headers);

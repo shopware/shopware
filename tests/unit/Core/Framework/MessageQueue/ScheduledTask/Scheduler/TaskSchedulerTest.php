@@ -92,7 +92,7 @@ class TaskSchedulerTest extends TestCase
             new ParameterBag()
         );
 
-        static::assertEquals(
+        static::assertSame(
             $time,
             $scheduler->getMinRunInterval()
         );
@@ -162,8 +162,8 @@ class TaskSchedulerTest extends TestCase
             static::assertArrayHasKey('id', $data);
             static::assertArrayHasKey('nextExecutionTime', $data);
             static::assertArrayHasKey('status', $data);
-            static::assertEquals('1', $data['id']);
-            static::assertEquals(ScheduledTaskDefinition::STATUS_SKIPPED, $data['status']);
+            static::assertSame('1', $data['id']);
+            static::assertSame(ScheduledTaskDefinition::STATUS_SKIPPED, $data['status']);
 
             return new EntityWrittenContainerEvent($context, new NestedEventCollection(), []);
         });
@@ -207,8 +207,8 @@ class TaskSchedulerTest extends TestCase
                 static::assertArrayHasKey('status', $data);
                 static::assertArrayHasKey('id', $data);
                 $status = $data['status'];
-                static::assertEquals($shouldSchedule ? ScheduledTaskDefinition::STATUS_QUEUED : ScheduledTaskDefinition::STATUS_SKIPPED, $status);
-                static::assertEquals('1', $data['id']);
+                static::assertSame($shouldSchedule ? ScheduledTaskDefinition::STATUS_QUEUED : ScheduledTaskDefinition::STATUS_SKIPPED, $status);
+                static::assertSame('1', $data['id']);
 
                 return new EntityWrittenContainerEvent($context, new NestedEventCollection(), []);
             });

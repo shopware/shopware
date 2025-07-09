@@ -335,7 +335,7 @@ class ProductSearchRouteTest extends TestCase
                 new Criteria()
             );
 
-            static::assertEquals(
+            static::assertSame(
                 $shouldBeFound,
                 $result->getListingResult()->has($ids->get($productNumber)),
                 \sprintf(
@@ -352,7 +352,7 @@ class ProductSearchRouteTest extends TestCase
                 new Criteria()
             );
 
-            static::assertEquals(
+            static::assertSame(
                 $shouldBeFound,
                 $result->getListingResult()->has($ids->get($productNumber)),
                 \sprintf(
@@ -648,7 +648,7 @@ class ProductSearchRouteTest extends TestCase
         sort($expected);
         sort($resultProductName);
 
-        static::assertEquals($expected, $resultProductName);
+        static::assertSame($expected, $resultProductName);
     }
 
     private function createNavigationCategory(IdsCollection $ids): void

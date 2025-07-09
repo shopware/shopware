@@ -69,8 +69,12 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true],
         methods: ['PATCH']
     )]
-    public function upsert(?string $addressId, RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): UpsertAddressRouteResponse
-    {
+    public function upsert(
+        ?string $addressId,
+        RequestDataBag $data,
+        SalesChannelContext $context,
+        CustomerEntity $customer
+    ): UpsertAddressRouteResponse {
         if (!$addressId) {
             $isCreate = true;
             $addressId = Uuid::randomHex();
@@ -109,6 +113,9 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
                 CustomerAddressDefinition::ENTITY_NAME,
                 $data->get('customFields')
             );
+            if ($addressData['customFields'] === []) {
+                unset($addressData['customFields']);
+            }
         }
 
         $mappingEvent = new DataMappingEvent($data, $addressData, $context->getContext());
@@ -126,15 +133,21 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         return new UpsertAddressRouteResponse($address);
     }
 
-    private function getValidationDefinition(DataBag $data, string $accountType, bool $isCreate, SalesChannelContext $context): DataValidationDefinition
-    {
+    private function getValidationDefinition(
+        DataBag $data,
+        string $accountType,
+        bool $isCreate,
+        SalesChannelContext $context
+    ): DataValidationDefinition {
         if ($isCreate) {
             $validation = $this->addressValidationFactory->create($context);
         } else {
             $validation = $this->addressValidationFactory->update($context);
         }
 
-        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection')) {
+        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection')
+        ) {
             $validation->add('company', new NotBlank());
         }
 
@@ -152,9 +165,6 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             ->setLimit(1)
             ->addFilter(new EqualsFilter('salutationKey', SalutationDefinition::NOT_SPECIFIED));
 
-        /** @var array<string> $ids */
-        $ids = $this->salutationRepository->searchIds($criteria, $context->getContext())->getIds();
-
-        return $ids[0] ?? null;
+        return $this->salutationRepository->searchIds($criteria, $context->getContext())->firstId();
     }
 }

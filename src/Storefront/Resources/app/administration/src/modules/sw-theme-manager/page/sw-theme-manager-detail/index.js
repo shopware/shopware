@@ -44,7 +44,10 @@ Component.register('sw-theme-manager-detail', {
             salesChannelsWithTheme: null,
             newAssignedSalesChannels: [],
             overwrittenSalesChannelAssignments: [],
-            removedSalesChannels: []
+            removedSalesChannels: [],
+            showMediaModal: false,
+            activeMediaField: null,
+            themeConfigErrors: {},
         };
     },
 
@@ -243,6 +246,9 @@ Component.register('sw-theme-manager-detail', {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - This method will be removed.
+         */
         openMediaSidebar() {
             this.$refs.mediaSidebarItem.openContent();
         },
@@ -399,13 +405,13 @@ Component.register('sw-theme-manager-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return Promise.all([this.saveSalesChannels(), this.saveThemeConfig(clean)]).finally(() => {
+            return Promise.all([this.saveSalesChannels(), this.saveThemeConfig(clean)]).then(() => {
                 this.getTheme();
+                this.themeConfigErrors = {};
             }).catch((error) => {
-                this.isLoading = false;
 
                 const errorObject = error.response.data.errors[0];
-                if (errorObject.code === 'THEME__COMPILING_ERROR' || errorObject.code === 'THEME__INVALID_SCSS_VAR') {
+                if (errorObject.code === 'THEME__COMPILING_ERROR') {
                     this.createNotificationError({
                         title: this.$t('sw-theme-manager.detail.error.themeCompile.title'),
                         message: this.$t('sw-theme-manager.detail.error.themeCompile.message'),
@@ -421,10 +427,35 @@ Component.register('sw-theme-manager-detail', {
                     return;
                 }
 
+                if (errorObject.code === 'THEME__INVALID_SCSS_VAR') {
+                    this.createNotificationError({
+                        title: this.$t('sw-theme-manager.detail.error.invalidConfiguration.title'),
+                        message: this.$t('sw-theme-manager.detail.error.invalidConfiguration.message'),
+                        autoClose: true,
+                    });
+
+                    error.response.data.errors.forEach((error) => {
+                        const fieldName = error.meta.parameters.name;
+
+                        error.detail = this.$t('global.error-codes.THEME__INVALID_SCSS_VAR', {
+                            value: error.meta.parameters.value,
+                            type: error.meta.parameters.type,
+                        });
+
+                        if (fieldName) {
+                            this.themeConfigErrors[fieldName] = error;
+                        }
+                    });
+
+                    return;
+                }
+
                 this.createNotificationError({
                     message: errorObject.detail ?? error.toString(),
                     autoClose: true,
                 });
+            }).finally(() => {
+                this.isLoading = false;
             });
         },
 
@@ -542,9 +573,7 @@ Component.register('sw-theme-manager-detail', {
             this.removeInheritedFromChangeset(allValues);
 
             // Theme has to be reset, because inherited fields needs to be removed from the set
-            return this.themeService.resetTheme(this.themeId).then(() => {
-                return this.themeService.updateTheme(this.themeId, { config: allValues });
-            });
+            return this.themeService.updateTheme(this.themeId, { config: allValues }, { reset: true, validate: true });
         },
 
         saveFinish() {
@@ -670,6 +699,14 @@ Component.register('sw-theme-manager-detail', {
         },
 
         /**
+         * Get field label with config key appended in parentheses
+         */
+        getFieldLabel(field, fieldName) {
+            const label = this.getSnippet(field.labelSnippetKey, field.label);
+            return `${label} (${fieldName})`;
+        },
+
+        /**
          * @deprecated tag:v6.8.0 - `fallback` will be removed and return `null` instead, since theme config helpTexts will be removed entirely.
          */
         getHelpText(key, fallback = null) {
@@ -705,5 +742,23 @@ Component.register('sw-theme-manager-detail', {
         isThemeCompatible(item) {
             return this.themeCompatibleSalesChannels.includes(item.id);
         },
+
+        onOpenMediaModal(fieldName) {
+            this.showMediaModal = true;
+            this.activeMediaField = fieldName;
+        },
+
+        onCloseMediaModal() {
+            this.showMediaModal = false;
+            this.activeMediaField = null;
+        },
+
+        onMediaChange(items) {
+            if (!items || !items.length) {
+                return;
+            }
+
+            this.onAddMediaToTheme(items[0], this.currentThemeConfig[this.activeMediaField]);
+        }
     }
 });

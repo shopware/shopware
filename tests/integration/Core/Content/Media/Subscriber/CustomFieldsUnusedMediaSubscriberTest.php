@@ -88,7 +88,7 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
         );
         $listener->removeUsedMedia($event);
 
-        static::assertEquals($unusedMediaIds, $event->getUnusedIds());
+        static::assertSame($unusedMediaIds, $event->getUnusedIds());
     }
 
     private function createMedia(int $num, ?int $start = null): IdsCollection

@@ -68,7 +68,7 @@ class TaskSchedulerTest extends TestCase
         $this->messageBus->expects($this->once())
             ->method('dispatch')
             ->with(static::callback(function (TestTask $task) use ($taskId) {
-                static::assertEquals($taskId, $task->getTaskId());
+                static::assertSame($taskId, $task->getTaskId());
 
                 return true;
             }))
@@ -78,7 +78,7 @@ class TaskSchedulerTest extends TestCase
 
         /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
-        static::assertEquals(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
+        static::assertSame(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
     }
 
     public function testScheduleTasksDoesntScheduleFutureTask(): void
@@ -105,7 +105,7 @@ class TaskSchedulerTest extends TestCase
 
         /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
-        static::assertEquals(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
+        static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
     }
 
     #[DataProvider('nonScheduledStatus')]
@@ -133,7 +133,7 @@ class TaskSchedulerTest extends TestCase
 
         /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
-        static::assertEquals($status, $task->getStatus());
+        static::assertSame($status, $task->getStatus());
     }
 
     /**
@@ -196,7 +196,7 @@ class TaskSchedulerTest extends TestCase
         } catch (\Exception $exception) {
             /** @var ScheduledTaskEntity $task2Entity */
             $task2Entity = $this->scheduledTaskRepo->search(new Criteria([$taskId2]), $context)->get($taskId2);
-            static::assertEquals(ScheduledTaskDefinition::STATUS_SCHEDULED, $task2Entity->getStatus());
+            static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $task2Entity->getStatus());
 
             throw $exception;
         }
@@ -232,7 +232,7 @@ class TaskSchedulerTest extends TestCase
         $result = $this->scheduler->getNextExecutionTime();
         static::assertInstanceOf(\DateTime::class, $result);
         // when saving the Date to the DB the microseconds aren't saved, so we can't simply compare the datetime objects
-        static::assertEquals(
+        static::assertSame(
             $nextExecutionTime->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             $result->format(Defaults::STORAGE_DATE_TIME_FORMAT)
         );
@@ -286,7 +286,7 @@ class TaskSchedulerTest extends TestCase
         $this->messageBus->expects($this->never())
             ->method('dispatch');
 
-        static::assertEquals(5, $this->scheduler->getMinRunInterval());
+        static::assertSame(5, $this->scheduler->getMinRunInterval());
     }
 
     public function testGetMinRunIntervalWhenEmpty(): void

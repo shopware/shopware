@@ -44,7 +44,7 @@ class CacheInvalidator
         }
 
         if ($force || $this->shouldForceInvalidate()) {
-            $this->purge($tags);
+            //$this->purge($tags);
 
             return;
         }

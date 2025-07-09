@@ -80,4 +80,23 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
             expect.anything(),
         );
     });
+
+    it('should not change the original product', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const product = {
+            name: 'shirt',
+            variantListingConfig: {
+                mainVariantId: '1a2b3c',
+            },
+            childCount: 1,
+        };
+
+        await wrapper.setProps({
+            product: product,
+        });
+
+        expect(product.variantListingConfig.mainVariantId).toBe('1a2b3c');
+    });
 });

@@ -48,7 +48,7 @@ class CacheControllerTest extends TestCase
         static::assertTrue($this->cache->getItem('foo')->isHit());
         static::assertTrue($this->cache->getItem('bar')->isHit());
 
-        $this->getBrowser()->request('DELETE', '/api/_action/cache');
+        $this->getBrowser()->jsonRequest('DELETE', '/api/_action/cache');
 
         /** @var JsonResponse $response */
         $response = $this->getBrowser()->getResponse();
@@ -61,7 +61,7 @@ class CacheControllerTest extends TestCase
 
     public function testCacheInfoEndpoint(): void
     {
-        $this->getBrowser()->request('GET', '/api/_action/cache_info');
+        $this->getBrowser()->jsonRequest('GET', '/api/_action/cache_info');
 
         $response = $this->getBrowser()->getResponse();
         $content = $response->getContent();
@@ -81,7 +81,7 @@ class CacheControllerTest extends TestCase
 
     public function testCacheIndexEndpoint(): void
     {
-        $this->getBrowser()->request('POST', '/api/_action/index');
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/index');
 
         $response = $this->getBrowser()->getResponse();
 
@@ -94,15 +94,13 @@ class CacheControllerTest extends TestCase
         $bus = static::getContainer()->get('messenger.default_bus');
         $bus->reset();
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/index',
-            [],
-            [],
+            ['skip' => ['category.indexer']],
             [
                 'HTTP_CONTENT_TYPE' => 'application/json',
-            ],
-            json_encode(['skip' => ['category.indexer']], \JSON_THROW_ON_ERROR)
+            ]
         );
 
         $response = $this->getBrowser()->getResponse();
@@ -125,15 +123,13 @@ class CacheControllerTest extends TestCase
         $bus = static::getContainer()->get('messenger.default_bus');
         $bus->reset();
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/index',
-            [],
-            [],
+            ['only' => ['category.indexer']],
             [
                 'HTTP_CONTENT_TYPE' => 'application/json',
             ],
-            json_encode(['only' => ['category.indexer']], \JSON_THROW_ON_ERROR)
         );
 
         $response = $this->getBrowser()->getResponse();

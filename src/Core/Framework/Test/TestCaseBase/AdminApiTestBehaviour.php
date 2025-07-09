@@ -85,7 +85,6 @@ trait AdminApiTestBehaviour
 
         $apiBrowser->followRedirects();
         $apiBrowser->setServerParameters([
-            'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
         ]);
 
@@ -100,7 +99,7 @@ trait AdminApiTestBehaviour
     {
         $url = '/api/' . implode('/', $params);
 
-        $browser->request('GET', $url);
+        $browser->jsonRequest('GET', $url);
 
         TestCase::assertSame(
             Response::HTTP_OK,
@@ -113,7 +112,7 @@ trait AdminApiTestBehaviour
     {
         $url = '/api/' . implode('/', $params);
 
-        $browser->request('GET', $url);
+        $browser->jsonRequest('GET', $url);
 
         TestCase::assertSame(
             Response::HTTP_NOT_FOUND,
@@ -301,7 +300,6 @@ trait AdminApiTestBehaviour
 
         $apiBrowser->followRedirects();
         $apiBrowser->setServerParameters([
-            'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
         ]);
 

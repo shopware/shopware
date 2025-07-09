@@ -24,7 +24,7 @@ final class ExternalAuthUser implements UserEntityInterface
         public readonly string $id,
         public readonly string $userId,
         public readonly string $sub,
-        public readonly ?string $refreshToken,
+        public readonly Token $token,
         public readonly ?\DateTimeInterface $expiry,
         public readonly string $email,
         public readonly bool $isNew,
@@ -47,7 +47,7 @@ final class ExternalAuthUser implements UserEntityInterface
             $data['id'],
             $data['user_id'],
             $data['user_sub'],
-            $data['refresh_token'],
+            Token::fromArray($data['token']),
             $data['expiry'],
             $data['email'],
             $data['is_new'],
@@ -87,8 +87,18 @@ final class ExternalAuthUser implements UserEntityInterface
                 new NotBlank(null, 'is required'),
                 new Type('string', 'Needs to be a string'),
             ],
-            'refresh_token' => [
-                new Type('string', 'Needs to be a string'),
+            'token' => [
+                new Type('array', 'Needs to be an array'),
+                new Collection([
+                    'token' => [
+                        new NotBlank(null, 'is required'),
+                        new Type('string', 'Needs to be a string'),
+                    ],
+                    'refreshToken' => [
+                        new NotBlank(null, 'is required'),
+                        new Type('string', 'Needs to be a string'),
+                    ],
+                ]),
             ],
             'expiry' => [
                 new Type('DateTimeInterface', 'Needs to be a DateTimeInterface'),

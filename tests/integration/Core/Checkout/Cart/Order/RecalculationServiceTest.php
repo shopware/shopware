@@ -316,10 +316,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/recalculate',
-                $orderId
-            ),
+            \sprintf('/api/_action/order/%s/recalculate', $orderId),
             [],
             [],
             [
@@ -340,10 +337,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order 2nd time
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/recalculate',
-                $orderId
-            ),
+            \sprintf('/api/_action/order/%s/recalculate', $orderId),
             [],
             [],
             [
@@ -367,10 +361,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/recalculate',
-                $orderId
-            ),
+            \sprintf('/api/_action/order/%s/recalculate', $orderId),
             [],
             [],
             [
@@ -419,10 +410,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/recalculate',
-                $orderId
-            ),
+            \sprintf('/api/_action/order/%s/recalculate', $orderId),
             [],
             [],
             [
@@ -443,10 +431,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order 2nd time
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/recalculate',
-                $orderId
-            ),
+            \sprintf('/api/_action/order/%s/recalculate', $orderId),
             [],
             [],
             [
@@ -537,10 +522,7 @@ class RecalculationServiceTest extends TestCase
 
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/recalculate',
-                $orderId
-            ),
+            \sprintf('/api/_action/order/%s/recalculate', $orderId),
             [],
             [],
             [
@@ -659,14 +641,11 @@ class RecalculationServiceTest extends TestCase
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/promotion-item',
-                $orderId
-            ),
-            server: ['HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId],
-            content: (string) json_encode(['code' => 'some-random-code'], \JSON_THROW_ON_ERROR)
+            \sprintf('/api/_action/order/%s/promotion-item', $orderId),
+            ['code' => 'some-random-code'],
+            ['HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId],
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -1352,10 +1331,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/recalculate',
-                $orderId
-            ),
+            \sprintf('/api/_action/order/%s/recalculate', $orderId),
             [],
             [],
             [
@@ -1386,10 +1362,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order 2nd time
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/recalculate',
-                $orderId
-            ),
+            \sprintf('/api/_action/order/%s/recalculate', $orderId),
             [],
             [],
             [
@@ -1745,10 +1718,7 @@ class RecalculationServiceTest extends TestCase
     {
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
-                '/api/_action/version/order/%s',
-                $orderId
-            )
+            \sprintf('/api/_action/version/order/%s', $orderId)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -1792,10 +1762,7 @@ class RecalculationServiceTest extends TestCase
 
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/recalculate',
-                $orderId
-            ),
+            \sprintf('/api/_action/order/%s/recalculate', $orderId),
             [],
             [],
             [
@@ -1854,18 +1821,13 @@ class RecalculationServiceTest extends TestCase
         ];
 
         // add product to order
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/lineItem',
-                $orderId
-            ),
-            [],
-            [],
+            \sprintf('/api/_action/order/%s/lineItem', $orderId),
+            $data,
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            (string) json_encode($data, \JSON_THROW_ON_ERROR)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -1926,18 +1888,13 @@ class RecalculationServiceTest extends TestCase
         ];
 
         // add credit item to order
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/creditItem',
-                $orderId
-            ),
-            [],
-            [],
+            \sprintf('/api/_action/order/%s/creditItem', $orderId),
+            $data,
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            (string) json_encode($data, \JSON_THROW_ON_ERROR)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -1980,18 +1937,13 @@ class RecalculationServiceTest extends TestCase
         ];
 
         // add promotion item to order
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/promotion-item',
-                $orderId
-            ),
-            [],
-            [],
+            \sprintf('/api/_action/order/%s/promotion-item', $orderId),
+            $data,
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            (string) json_encode($data, \JSON_THROW_ON_ERROR)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -2032,18 +1984,13 @@ class RecalculationServiceTest extends TestCase
         ];
 
         // add promotion item to order
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/applyAutomaticPromotions',
-                $orderId
-            ),
-            [],
-            [],
+            \sprintf('/api/_action/order/%s/applyAutomaticPromotions', $orderId),
+            $data,
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            (string) json_encode($data)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -2084,18 +2031,13 @@ class RecalculationServiceTest extends TestCase
         ];
 
         // add promotion item to order
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/toggleAutomaticPromotions',
-                $orderId
-            ),
-            [],
-            [],
+            \sprintf('/api/_action/order/%s/toggleAutomaticPromotions', $orderId),
+            $data,
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            (string) json_encode($data)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -2138,18 +2080,13 @@ class RecalculationServiceTest extends TestCase
         ];
 
         // add promotion item to order
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
-            \sprintf(
-                '/api/_action/order/%s/toggleAutomaticPromotions',
-                $orderId
-            ),
-            [],
-            [],
+            \sprintf('/api/_action/order/%s/toggleAutomaticPromotions', $orderId),
+            $data,
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            (string) json_encode($data)
         );
         $response = $this->getBrowser()->getResponse();
 

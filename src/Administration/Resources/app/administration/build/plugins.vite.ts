@@ -31,7 +31,7 @@ import injectHtml from './vite-plugins/inject-html';
 
 const VITE_MODE = process.env.VITE_MODE || 'development';
 const isDev = VITE_MODE === 'development';
-const adminSrcPath = path.join(path.dirname(__dirname), 'src');
+const adminSrcPath = process.env.ADMIN_ROOT || path.join(path.dirname(__dirname), 'src');
 
 const host = process.env.VITE_HOST || (isInsideDockerContainer() ? getContainerIP() : undefined) || 'localhost';
 

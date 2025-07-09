@@ -253,7 +253,7 @@ class DatabaseConfigLoaderTest extends TestCase
                 'active' => true,
                 'technicalName' => null,
                 'baseConfig' => null,
-            ]
+            ],
         ];
 
         $this->themeRepository->create($themes, Context::createDefaultContext());

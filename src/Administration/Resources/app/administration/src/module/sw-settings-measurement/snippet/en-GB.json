@@ -1,0 +1,30 @@
+{
+  "sw-settings-measurement": {
+    "general": {
+      "mainMenuItemGeneral": "Measurement system",
+      "description": "Module to change the default measurement units.",
+      "textHeadline": "Measurement system"
+    },
+    "defaultUnits": {
+      "title": "Default units",
+      "description": "Set the default measurement units used in the administration. The units shown to your customers are defined in the {link}.",
+      "linkText": "Sales channel settings",
+      "config": {
+        "type": "Unit system",
+        "lengthUnit": "Length unit",
+        "weightUnit": "Weight unit"
+      }
+    },
+    "notification": {
+      "saveMeasurementSuccess": "Measurement system settings saved successfully",
+      "saveMeasurementError": "Failed to save measurement system settings"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "measurement": {
+        "label": "Measurement system"
+      }
+    }
+  }
+}

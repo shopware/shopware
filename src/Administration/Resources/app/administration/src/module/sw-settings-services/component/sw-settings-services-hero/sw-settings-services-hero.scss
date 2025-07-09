@@ -1,0 +1,117 @@
+.sw-settings-services-hero {
+    container: sw-settings-services-hero / inline-size;
+    width: 100%;
+    background: var(--color-elevation-surface-default);
+
+    .sw-settings-services-hero__gradient {
+        position: relative;
+        z-index: 2;
+        /* stylelint-disable color-function-notation */
+        background:
+            radial-gradient(
+                34.32% 43.91% at bottom center,
+                rgb(from var(--color-interaction-primary-default) r g b / 20%) 0%,
+                rgb(from var(--color-elevation-surface-default) r g b / 20%) 100%
+            );
+        /* stylelint-enable color-function-notation */
+    }
+
+    .sw-settings-services-hero__content {
+        max-width: calc(960px + 2 * var(--scale-size-40));
+        margin: 0 auto;
+        padding: var(--scale-size-64) var(--scale-size-40);
+    }
+
+    .h3,
+    p,
+    ul {
+        margin-bottom: var(--scale-size-24);
+    }
+
+    .sw-settings-services-hero__bullet-points {
+        list-style: none;
+
+        li {
+            display: flex;
+            line-height: var(--font-line-height-2xs);
+            gap: 0 var(--scale-size-10);
+        }
+
+        li:not(:last-child) {
+            margin-bottom: var(--scale-size-12);
+        }
+
+        .icon--solid-check-circle {
+            flex-shrink: 0;
+        }
+    }
+
+    .sw-settings-services-framed-icon {
+        position: absolute;
+        z-index: 0;
+    }
+
+    .sw-settings-services-hero__actions {
+        display: flex;
+        gap: var(--scale-size-20);
+        flex-wrap: wrap;
+    }
+
+    .sw-settings-services-hero__border-bottom {
+        height: 2px;
+        opacity: 0.4;
+        background:
+            linear-gradient(
+                90deg,
+                var(--color-elevation-surface-default) 0%,
+                var(--color-border-brand-selected) 50%,
+                var(--color-elevation-surface-default) 100%
+            );
+    }
+
+    .sw-settings-services-hero__image-editor-left {
+        left: 50px;
+        top: 90px;
+    }
+
+    .sw-settings-services-hero__copilot-left {
+        top: 175px;
+        left: 210px;
+    }
+
+    .sw-settings-services-hero__preview-generator-left {
+        left: 50px;
+        top: 320px;
+    }
+
+    .sw-settings-services-hero__copilot-right {
+        top: 70px;
+        right: 300px;
+    }
+
+    .sw-settings-services-preview-generator-right {
+        top: 160px;
+        right: 61px;
+    }
+
+    .sw-settings-services-hero__image-editor-right {
+        top: 275px;
+        right: 255px;
+    }
+
+    .sw-settings-services-hero__copilot-left,
+    .sw-settings-services-hero__copilot-right,
+    .sw-settings-services-hero__image-editor-right {
+        @container (max-width: 1700px) {
+            display: none;
+        }
+    }
+
+    .sw-settings-services-hero__image-editor-left,
+    .sw-settings-services-hero__preview-generator-left,
+    .sw-settings-services-preview-generator-right {
+        @container (max-width: 1200px) {
+            display: none;
+        }
+    }
+}

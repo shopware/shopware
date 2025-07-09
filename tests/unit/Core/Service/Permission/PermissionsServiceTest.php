@@ -55,7 +55,7 @@ class PermissionsServiceTest extends TestCase
         $this->systemConfigService
             ->expects($this->once())
             ->method('set')
-            ->with('core.services.acceptedPermissionsRevision', static::callback(function ($value) use ($revision) {
+            ->with('core.services.permissionsConsent', static::callback(function ($value) use ($revision) {
                 $decodedValue = json_decode($value, true);
                 if (!\is_array($decodedValue) || !isset($decodedValue['revision'])) {
                     return false;
@@ -125,13 +125,13 @@ class PermissionsServiceTest extends TestCase
         $this->systemConfigService
             ->expects($this->once())
             ->method('getString')
-            ->with('core.services.acceptedPermissionsRevision')
+            ->with('core.services.permissionsConsent')
             ->willReturn($consentJson);
 
         $this->systemConfigService
             ->expects($this->once())
             ->method('delete')
-            ->with('core.services.acceptedPermissionsRevision');
+            ->with('core.services.permissionsConsent');
 
         $this->remoteConsentLogger
             ->expects($this->once())
@@ -220,14 +220,14 @@ class PermissionsServiceTest extends TestCase
         $this->systemConfigService
             ->expects($this->once())
             ->method('getString')
-            ->with('core.services.acceptedPermissionsRevision')
+            ->with('core.services.permissionsConsent')
             ->willReturn('');
 
         // Expect that the delete method is called even if there is no existing consent
         $this->systemConfigService
             ->expects($this->once())
             ->method('delete')
-            ->with('core.services.acceptedPermissionsRevision');
+            ->with('core.services.permissionsConsent');
 
         $this->remoteConsentLogger
             ->expects($this->never())
@@ -248,7 +248,7 @@ class PermissionsServiceTest extends TestCase
         $this->systemConfigService
             ->expects($this->exactly(2))
             ->method('set')
-            ->with('core.services.acceptedPermissionsRevision', static::anything());
+            ->with('core.services.permissionsConsent', static::anything());
 
         $this->remoteConsentLogger
             ->expects($this->exactly(2))
@@ -274,7 +274,7 @@ class PermissionsServiceTest extends TestCase
         $this->systemConfigService
             ->expects($this->once())
             ->method('getString')
-            ->with('core.services.acceptedPermissionsRevision')
+            ->with('core.services.permissionsConsent')
             ->willReturn($validConsentJson);
 
         $result = $this->permissionsService->areGranted();
@@ -287,7 +287,7 @@ class PermissionsServiceTest extends TestCase
         $this->systemConfigService
             ->expects($this->once())
             ->method('getString')
-            ->with('core.services.acceptedPermissionsRevision')
+            ->with('core.services.permissionsConsent')
             ->willReturn('');
 
         $result = $this->permissionsService->areGranted();
@@ -302,7 +302,7 @@ class PermissionsServiceTest extends TestCase
         $this->systemConfigService
             ->expects($this->once())
             ->method('getString')
-            ->with('core.services.acceptedPermissionsRevision')
+            ->with('core.services.permissionsConsent')
             ->willReturn($invalidConsentJson);
 
         $result = $this->permissionsService->areGranted();
@@ -320,7 +320,7 @@ class PermissionsServiceTest extends TestCase
         $this->systemConfigService
             ->expects($this->once())
             ->method('getString')
-            ->with('core.services.acceptedPermissionsRevision')
+            ->with('core.services.permissionsConsent')
             ->willReturn($malformedConsentJson);
 
         $result = $this->permissionsService->areGranted();

@@ -5,15 +5,23 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
+    const systemConfigApiService = {
+        getValues: jest.fn().mockResolvedValue({
+            'core.measurementUnits.system': 'metric',
+            'core.measurementUnits.length': 'mm',
+            'core.measurementUnits.weight': 'kg',
+        }),
+    };
+
     return mount(await wrapTestComponent('sw-sales-channel-create', { sync: true }), {
         global: {
             stubs: {
                 'sw-page': {
                     template: `
-<div class="sw-page">
-    <slot name="smart-bar-actions"></slot>
-</div>
-                `,
+                        <div class="sw-page">
+                            <slot name="smart-bar-actions"></slot>
+                        </div>
+                    `,
                 },
                 'sw-button-process': {
                     template: '<button class="sw-button-process"></button>',
@@ -43,11 +51,13 @@ async function createWrapper() {
                 exportTemplateService: {
                     getProductExportTemplateRegistry: () => ({}),
                 },
+                systemConfigApiService,
             },
             mocks: {
                 $route: {
                     params: {
                         id: '1a2b3c4d',
+                        typeId: 'sales-channel-type-id',
                     },
                     name: '',
                 },
@@ -83,5 +93,17 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-create', () => {
         const saveButton = wrapper.getComponent('.sw-sales-channel-detail__save-action');
 
         expect(saveButton.props('disabled')).toBe(false);
+    });
+
+    it('should prepare measurementUnits for salesChannel with values from system config', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.salesChannel.measurementUnits).toEqual({
+            system: 'metric',
+            units: {
+                length: 'mm',
+                weight: 'kg',
+            },
+        });
     });
 });

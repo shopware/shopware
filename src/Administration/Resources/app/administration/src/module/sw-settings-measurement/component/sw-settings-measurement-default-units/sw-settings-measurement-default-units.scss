@@ -1,0 +1,23 @@
+@import "~scss/variables";
+
+.sw-settings-measurement-default-units {
+    &__description {
+        margin-bottom: 32px;
+        line-height: 20px;
+    }
+}
+
+.mt-select-result-list-popover-wrapper {
+    .mt-select-result__result-item-text {
+        flex-direction: row;
+        gap: 8px;
+    }
+
+    &__popover-short-name {
+        color: $color-gray-500;
+    }
+
+    .mt-select-result > .mt-icon {
+        color: $color-gray-500;
+    }
+}

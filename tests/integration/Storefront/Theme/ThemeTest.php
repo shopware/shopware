@@ -195,7 +195,7 @@ class ThemeTest extends TestCase
         static::assertIsString($technicalName);
         static::assertSame(
             'default.themeColors.default.sw-color-brand-primary.label',
-            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey']
+            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey'],
         );
     }
 
@@ -246,8 +246,8 @@ class ThemeTest extends TestCase
 
         $childThemeFields = $this->themeService->getThemeConfigurationFieldStructure($childTheme->getId(), $this->context);
         static::assertSame(
-           'default.themeColors.default.sw-color-brand-primary.label',
-            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey']
+            'default.themeColors.default.sw-color-brand-primary.label',
+            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey'],
         );
     }
 

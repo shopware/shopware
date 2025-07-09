@@ -9,17 +9,14 @@ use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 /**
  * @internal
  *
- * @phpstan-type DomainRewriteRule = array{match: string, type: string, replace: string}
+ * @phpstan-import-type DomainRewriteRule from SetupStagingEvent
+ *
  * @phpstan-type DomainURL = array{id: string, url: string}
  */
 #[Package('framework')]
 readonly class StagingSalesChannelHandler
 {
-    /**
-     * @param DomainRewriteRule[] $rewrite
-     */
     public function __construct(
-        private array $rewrite,
         private Connection $connection
     ) {
     }
@@ -34,7 +31,7 @@ readonly class StagingSalesChannelHandler
         foreach ($urls as $urlRecord) {
             $beforeURl = $urlRecord['url'];
 
-            foreach ($this->rewrite as $rule) {
+            foreach ($event->domainMappings as $rule) {
                 switch ($rule['type']) {
                     case 'equal':
                         $urlRecord = $this->modifyByEqual($urlRecord, $rule);

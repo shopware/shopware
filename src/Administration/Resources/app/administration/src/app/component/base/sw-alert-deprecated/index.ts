@@ -1,5 +1,4 @@
 import type { NotificationVariant } from 'src/app/store/notification.store';
-import type { PropType } from 'vue';
 import template from './sw-alert-deprecated.html.twig';
 import './sw-alert-deprecated.scss';
 

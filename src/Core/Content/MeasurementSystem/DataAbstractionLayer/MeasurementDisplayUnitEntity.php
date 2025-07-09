@@ -54,14 +54,14 @@ class MeasurementDisplayUnitEntity extends EntityStruct
     public ?string $name = null;
 
     /**
-     * @var array<mixed>|null
-     */
-    #[CustomFields(true)]
-    protected ?array $customFields = null;
-
-    /**
      * @var array<string, ArrayEntity>|null
      */
     #[Translations]
     public ?array $translations = null;
+
+    /**
+     * @var array<mixed>|null
+     */
+    #[CustomFields(true)]
+    protected ?array $customFields = null;
 }

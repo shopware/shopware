@@ -41,14 +41,14 @@ class MeasurementSystemEntity extends EntityStruct
     public ?array $units = null;
 
     /**
-     * @var array<mixed>|null
-     */
-    #[CustomFields(true)]
-    protected ?array $customFields = null;
-
-    /**
      * @var array<string, ArrayEntity>|null
      */
     #[Translations]
     public ?array $translations = null;
+
+    /**
+     * @var array<mixed>|null
+     */
+    #[CustomFields(true)]
+    protected ?array $customFields = null;
 }

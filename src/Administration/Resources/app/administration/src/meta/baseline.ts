@@ -451,6 +451,8 @@ const missingTests = [
     'src/module/sw-sales-channel/component/sw-sales-channel-modal/index.js',
     // unable to test because of es module <-> cjs conflicts lazy import statements
     'src/app/init/component.init.ts',
+    'src/module/sw-settings-services/index.ts',
+    'src/module/sw-settings-services/service/index.ts',
 ];
 
 /**

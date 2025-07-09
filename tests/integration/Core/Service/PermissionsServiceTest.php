@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Service;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Service\Event\PermissionsGrantedEvent;
@@ -33,12 +34,12 @@ class PermissionsServiceTest extends TestCase
         $this->permissionsService = $this->getContainer()->get(PermissionsService::class);
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $this->eventDispatcher = $this->getContainer()->get(EventDispatcherInterface::class);
-        $this->context = Context::createDefaultContext();
+        $this->context = Context::createDefaultContext(new AdminApiSource('test-user-id'));
     }
 
     protected function tearDown(): void
     {
-        $this->systemConfigService->delete('core.services.acceptedPermissionsRevision');
+        $this->systemConfigService->delete('core.services.permissionsConsent');
     }
 
     public function testGrantPermissionsIntegration(): void
@@ -47,7 +48,7 @@ class PermissionsServiceTest extends TestCase
 
         $this->permissionsService->grant($revision, $this->context);
 
-        $storedRevision = $this->systemConfigService->getString('core.services.acceptedPermissionsRevision');
+        $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
         static::assertNotEmpty($storedRevision);
 
         // Verify the stored data contains the expected revision
@@ -72,12 +73,12 @@ class PermissionsServiceTest extends TestCase
         $this->permissionsService->grant($revision, $this->context);
 
         // Verify permissions were granted
-        $storedRevision = $this->systemConfigService->getString('core.services.acceptedPermissionsRevision');
+        $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
         static::assertNotEmpty($storedRevision);
 
         $this->permissionsService->revoke($this->context);
 
-        $storedRevision = $this->systemConfigService->getString('core.services.acceptedPermissionsRevision');
+        $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
         static::assertSame('', $storedRevision);
 
         $calledListeners = $this->eventDispatcher->getCalledListeners();
@@ -95,7 +96,7 @@ class PermissionsServiceTest extends TestCase
         $this->expectException(ServiceException::class);
         $this->expectExceptionMessage('The provided permissions revision "invalid-date" is not in the correct format Y-m-d.');
         $this->permissionsService->grant($invalidRevision, $this->context);
-        $storedRevision = $this->systemConfigService->getString('core.services.acceptedPermissionsRevision');
+        $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
         static::assertSame('', $storedRevision);
     }
 
@@ -106,17 +107,25 @@ class PermissionsServiceTest extends TestCase
 
         $this->permissionsService->grant($firstRevision, $this->context);
 
-        $storedRevision = $this->systemConfigService->getString('core.services.acceptedPermissionsRevision');
+        $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
         $decodedData = json_decode($storedRevision, true);
         $storedDate = new \DateTimeImmutable($decodedData['revision']);
         static::assertSame($firstRevision, $storedDate->format('Y-m-d'));
 
         $this->permissionsService->grant($secondRevision, $this->context);
 
-        $storedRevision = $this->systemConfigService->getString('core.services.acceptedPermissionsRevision');
+        $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
         $decodedData = json_decode($storedRevision, true);
         $storedDate = new \DateTimeImmutable($decodedData['revision']);
         static::assertSame($secondRevision, $storedDate->format('Y-m-d'));
+    }
+
+    public function testGrantPermissionsWithInvalidContextThrowsException(): void
+    {
+        $this->expectException(ServiceException::class);
+        $this->expectExceptionMessage('This action is only allowed from Admins.');
+
+        $this->permissionsService->grant('2025-06-13', Context::createDefaultContext());
     }
 
     public function testAreGrantedReturnsTrueAfterGrantingPermissions(): void
@@ -140,13 +149,13 @@ class PermissionsServiceTest extends TestCase
 
     public function testAreGrantedReturnsFalseWhenNoPermissionsExist(): void
     {
-        $this->systemConfigService->delete('core.services.acceptedPermissionsRevision');
+        $this->systemConfigService->delete('core.services.permissionsConsent');
         static::assertFalse($this->permissionsService->areGranted());
     }
 
     public function testAreGrantedReturnsFalseWithCorruptedPermissionsData(): void
     {
-        $this->systemConfigService->set('core.services.acceptedPermissionsRevision', 'invalid-json-data');
+        $this->systemConfigService->set('core.services.permissionsConsent', 'invalid-json-data');
         static::assertFalse($this->permissionsService->areGranted());
     }
 
@@ -155,7 +164,7 @@ class PermissionsServiceTest extends TestCase
         $incompleteData = json_encode([
             'identifier' => 'test-identifier',
         ]);
-        $this->systemConfigService->set('core.services.acceptedPermissionsRevision', $incompleteData);
+        $this->systemConfigService->set('core.services.permissionsConsent', $incompleteData);
         static::assertFalse($this->permissionsService->areGranted());
     }
 }

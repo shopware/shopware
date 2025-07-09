@@ -71,6 +71,7 @@ export interface ContextState {
         currencyId: null | string;
         versionId: null | string;
         refreshTokenTtl: null | string;
+        serviceRegistryUrl: null | string;
     };
 }
 
@@ -109,6 +110,7 @@ const state: ContextState = reactive({
         currencyId: null,
         versionId: null,
         refreshTokenTtl: null,
+        serviceRegistryUrl: null,
     },
 });
 

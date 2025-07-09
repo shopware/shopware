@@ -203,6 +203,7 @@
       "columnPriceNet": "Nettopreis",
       "columnTotalPriceNet": "Gesamt",
       "columnProductNumber": "Produktnummer",
+      "columnType": "Typ",
       "contextMenuShowProduct": "Produkt anzeigen",
       "contextMenuDelete": "Aus Bestellung entfernen",
       "summaryLabelAmount": "Summe",
@@ -265,6 +266,14 @@
       "textDeleteLineItemConfirm": "Möchten Sie die Position ({label}) wirklich löschen?",
       "helpTextCustomerComment": "Dieser Kommentar wird von Kunden hinterlassen und Änderungen sind für sie sichtbar.",
       "helpTextInternalComment": "Dieser Kommentar ist nur für interne Zwecke und wird Kunden nicht angezeigt."
+    },
+    "lineItemType": {
+      "credit": "Gutschrift",
+      "product": "Produkt",
+      "custom": "Individuell",
+      "promotion": "Rabattaktion",
+      "discount": "Rabatt",
+      "container": "Container"
     },
     "nestedLineItemsModal": {
       "titlePrefix": "Position: {lineItemLabel} - {price}",

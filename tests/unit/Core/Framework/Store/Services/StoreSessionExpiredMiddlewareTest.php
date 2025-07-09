@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Psr7\Request as Psr7Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -10,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Exception\StoreSessionExpiredException;
 use Shopware\Core\Framework\Store\Services\StoreSessionExpiredMiddleware;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -27,13 +29,14 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
     public function testReturnsResponseIfStatusCodeIsNotUnauthorized(): void
     {
         $response = new Response(200, [], '{"payload":"data"}');
+        $request = new Psr7Request('GET', '/');
 
         $middleware = new StoreSessionExpiredMiddleware(
             $this->createMock(Connection::class),
             new RequestStack(),
         );
 
-        $handledResponse = $middleware($response);
+        $handledResponse = $middleware($response, $request);
 
         static::assertSame($response, $handledResponse);
     }
@@ -41,13 +44,14 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
     public function testReturnsResponseWithRewoundBodyIfCodeIsNotMatched(): void
     {
         $response = new Response(401, [], '{"payload":"data"}');
+        $request = new Psr7Request('GET', '/');
 
         $middleware = new StoreSessionExpiredMiddleware(
             $this->createMock(Connection::class),
             new RequestStack(),
         );
 
-        $handledResponse = $middleware($response);
+        $handledResponse = $middleware($response, $request);
 
         static::assertSame($response, $handledResponse);
     }
@@ -56,6 +60,7 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
     public function testThrowsIfApiRespondsWithTokenExpiredException(RequestStack $requestStack): void
     {
         $response = new Response(401, [], '{"code":"ShopwarePlatformException-1"}');
+        $request = new Psr7Request('GET', '/');
 
         $middleware = new StoreSessionExpiredMiddleware(
             $this->createMock(Connection::class),
@@ -63,7 +68,32 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         );
 
         $this->expectException(StoreSessionExpiredException::class);
-        $middleware($response);
+        $middleware($response, $request);
+    }
+
+    public function testLogsOutUserByInvalidToken(): void
+    {
+        $userId = Uuid::randomHex();
+        $token = Uuid::randomHex();
+        $requestStack = new RequestStack([
+            new Request([], [], ['sw-context' => new Context(new AdminApiSource($userId))]),
+        ]);
+
+        $response = new Response(401, [], '{"code":"ShopwarePlatformException-1"}');
+        $request = new Psr7Request('GET', '/', headers: [
+            StoreRequestOptionsProvider::SHOPWARE_PLATFORM_TOKEN_HEADER => $token,
+        ]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('executeStatement')
+            ->with(static::isString(), ['token' => $token]);
+
+        $middleware = new StoreSessionExpiredMiddleware($connection, $requestStack);
+
+        $this->expectException(StoreSessionExpiredException::class);
+        $middleware($response, $request);
     }
 
     public function testLogsOutUserAndThrowsIfApiRespondsWithTokenExpiredException(): void
@@ -96,8 +126,10 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
             $requestStack
         );
 
+        $request = new Psr7Request('GET', '/');
+
         $this->expectException(StoreSessionExpiredException::class);
-        $middleware($response);
+        $middleware($response, $request);
     }
 
     public static function provideRequestStacks(): \Generator

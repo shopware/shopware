@@ -29,6 +29,10 @@ final class PlatformRequest
     public const HEADER_INDEXING_SKIP = 'indexing-skip';
     public const HEADER_FORCE_CACHE_INVALIDATE = 'sw-force-cache-invalidate';
 
+    public const HEADER_MEASUREMENT_WEIGHT_UNIT = 'sw-measurement-weight-unit';
+
+    public const HEADER_MEASUREMENT_LENGTH_UNIT = 'sw-measurement-length-unit';
+
     /**
      * API Expectation headers to check requirements are fulfilled
      */

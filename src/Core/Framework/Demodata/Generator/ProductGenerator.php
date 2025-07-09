@@ -15,7 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Demodata\DemodataContext;
+use Shopware\Core\Framework\Demodata\DemodataException;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -67,7 +69,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         $taxes = $this->getTaxes($context);
 
         if ($taxes->count() === 0) {
-            throw new \RuntimeException('This demo data command should be executed after the original demo data was executed at least one time');
+            throw DemodataException::wrongExecutionOrder();
         }
 
         $properties = $this->getProperties();
@@ -298,6 +300,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             'categories' => $this->getCategoryIds(),
             'tags' => $this->getTags($tags),
             'stock' => $this->faker->numberBetween(1, 50),
+            'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
         ];
     }
 

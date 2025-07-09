@@ -104,6 +104,9 @@ export default {
             mainCategoriesCollection: null,
             footerCategoriesCollection: null,
             serviceCategoriesCollection: null,
+            defaultMeasurementSystemId: null,
+            defaultLengthUnitId: null,
+            defaultWeightUnitId: null,
         };
     },
 
@@ -525,6 +528,9 @@ export default {
         });
 
         this.createCategoryCollections();
+        this.defaultMeasurementSystemId = this.salesChannel?.measurementSystemId;
+        this.defaultLengthUnitId = this.salesChannel?.lengthUnitId;
+        this.defaultWeightUnitId = this.salesChannel?.weightUnitId;
     },
 
     methods: {

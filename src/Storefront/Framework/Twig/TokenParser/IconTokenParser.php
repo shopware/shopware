@@ -16,7 +16,7 @@ final class IconTokenParser extends AbstractTokenParser
     public function parse(Token $token): SwInclude
     {
         /** @var AbstractExpression $iconExpr */
-        $iconExpr = $this->parser->getExpressionParser()->parseExpression();
+        $iconExpr = $this->parser->parseExpression();
 
         $expr = new ConstantExpression('@Storefront/storefront/utilities/icon.html.twig', $token->getLine());
 
@@ -24,7 +24,7 @@ final class IconTokenParser extends AbstractTokenParser
 
         if ($stream->nextIf(Token::NAME_TYPE, 'style')) {
             /** @var ArrayExpression $variables */
-            $variables = $this->parser->getExpressionParser()->parseExpression();
+            $variables = $this->parser->parseExpression();
         } else {
             $variables = new ArrayExpression([], $token->getLine());
         }

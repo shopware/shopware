@@ -46,6 +46,7 @@ async function createWrapper() {
                 'mt-select': true,
                 'sw-custom-field-set-renderer': true,
                 'mt-banner': true,
+                'sw-sales-channel-measurement': true,
             },
             provide: {
                 salesChannelService: {},

@@ -317,6 +317,28 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 id: '23456787654321234567876577',
                 translations: [],
             },
+            {
+                locked: false,
+                key: 'creation-date',
+                value: 'creation-date',
+                position: 1,
+                active: true,
+                fields: [
+                    {
+                        field: 'product.createdAt',
+                        order: 'asc',
+                        position: 1,
+                        naturalSorting: 0,
+                    },
+                ],
+                label: 'Creation Date',
+                createdAt: '2020-08-10T06:19:53.126+00:00',
+                updatedAt: null,
+                translated: { label: 'Creation Date' },
+                apiAlias: null,
+                id: '23456787654321234567876566',
+                translations: [],
+            },
         ];
 
         entities.total = entities.length;
@@ -360,6 +382,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.number': 'Number',
         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.ratingAverage': 'Rating Average',
         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.clearanceSale': 'Clearance sale',
+        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.createdAt': 'Creation date',
     };
 
     async function createWrapper() {

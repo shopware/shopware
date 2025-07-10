@@ -22,7 +22,7 @@ test('Visual: Administration category page', { tag: '@Visual' }, async ({
         await AdminCategories.page.waitForLoadState('load');
         await AdminCategories.page.setViewportSize({ width: 1440, height: 1440});
         await expect(AdminCategories.page.locator('.sw-desktop__content')).toHaveScreenshot();
-        await AdminCategories.page.getByLabel('Configure home page').getByRole('button', { name: 'Cancel' }).click();
+        await AdminCategories.configureModalCancelButton.click();
     });
 
     await test.step('Creates a screenshot of the category page on the products tab.', async () => {

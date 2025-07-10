@@ -56,8 +56,8 @@ export default {
             fileNameError: null,
             arReady: false,
             defaultArReady: false,
-            arPlacement: 'ar-placement-horizontal',
-            defaultArPlacement: 'ar-placement-horizontal',
+            arPlacement: 'horizontal',
+            defaultArPlacement: 'horizontal',
         };
     },
 
@@ -109,8 +109,8 @@ export default {
             });
 
             return [
-                { id: 1, value: 'ar-placement-horizontal', label: 'Horizontal' },
-                { id: 2, value: 'ar-placement-vertical', label: 'Vertical' },
+                { id: 1, value: 'horizontal', label: 'Horizontal' },
+                { id: 2, value: 'vertical', label: 'Vertical' },
             ];
         },
     },

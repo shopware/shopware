@@ -26,8 +26,8 @@ const itemMock = (options = {}) => {
 };
 
 const arPlacementOptions = [
-    { id: 1, value: 'ar-placement-horizontal', label: 'Horizontal' },
-    { id: 2, value: 'ar-placement-vertical', label: 'Vertical' },
+    { id: 1, value: 'horizontal', label: 'Horizontal' },
+    { id: 2, value: 'vertical', label: 'Vertical' },
 ];
 
 async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaRepositoryProvideFunctions = {}) {
@@ -154,7 +154,7 @@ function provide3DMockOptions() {
             },
             true,
             false,
-            'ar-placement-horizontal',
+            'horizontal',
         ],
         [
             {
@@ -163,7 +163,7 @@ function provide3DMockOptions() {
             },
             true,
             false,
-            'ar-placement-vertical',
+            'vertical',
         ],
         [
             {
@@ -172,7 +172,7 @@ function provide3DMockOptions() {
             },
             true,
             true,
-            'ar-placement-horizontal',
+            'horizontal',
         ],
         [
             {
@@ -181,7 +181,7 @@ function provide3DMockOptions() {
             },
             true,
             true,
-            'ar-placement-vertical',
+            'vertical',
         ],
     ];
 }

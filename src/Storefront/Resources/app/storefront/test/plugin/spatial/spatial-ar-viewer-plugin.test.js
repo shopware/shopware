@@ -53,7 +53,7 @@ jest.mock('@shopware-ag/dive/ar', () => ({
 const arViewerOptions = {
     spatialArId: "1",
     modelUrl: "testurl",
-    arPlacement: 'ar-placement-vertical',
+    arPlacement: 'vertical',
     snippets: {
         arErrors: {
             desktopNotSupported: {

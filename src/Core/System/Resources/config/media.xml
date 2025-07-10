@@ -17,17 +17,17 @@
             <name>defaultARPlacement</name>
             <options>
                 <option>
-                    <id>ar-placement-horizontal</id>
+                    <id>horizontal</id>
                     <name>Horizontal</name>
                     <name lang="de-DE">Horizontal</name>
                 </option>
                 <option>
-                    <id>ar-placement-vertical</id>
+                    <id>vertical</id>
                     <name>Vertical</name>
                     <name lang="de-DE">Vertikal</name>
                 </option>
             </options>
-            <defaultValue>ar-placement-horizontal</defaultValue>
+            <defaultValue>horizontal</defaultValue>
             <label>Default AR placement</label>
             <label lang="de-DE">Standard AR Platzierung</label>
             <helpText>Select whether the object is placed on a horizontal surface, like the floor, or on a vertical surface, like a wall.</helpText>

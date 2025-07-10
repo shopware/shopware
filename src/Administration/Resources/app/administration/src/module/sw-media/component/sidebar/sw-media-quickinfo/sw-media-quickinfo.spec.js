@@ -283,7 +283,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
 
     it.each(provide3DMockOptions())(
         'should trigger update:item event when ar-toggle is changed',
-        async (mockOptions, isSpatial, isArReady, arPlacement) => {
+        async (mockOptions, isSpatial) => {
             global.activeAclRoles = ['media.editor'];
             const mediaSaveMock = jest.fn();
             const mediaRepositoryFunctions = {
@@ -358,7 +358,9 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
 
                 // find all results
                 const selectResults = wrapper.findAll('.mt-select-result');
+                // eslint-disable-next-line jest/no-conditional-expect
                 expect(selectResults.at(0).text()).toBe('Horizontal');
+                // eslint-disable-next-line jest/no-conditional-expect
                 expect(selectResults.at(1).text()).toBe('Vertical');
 
                 await selectResults.at(1).trigger('click');
@@ -372,10 +374,14 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
 
                     // eslint-disable-next-line jest/no-conditional-expect
                     expect(wrapper.emitted('update:item')[0][0]).toEqual(
+                        // eslint-disable-next-line jest/no-conditional-expect
                         expect.objectContaining({
+                            // eslint-disable-next-line jest/no-conditional-expect
                             config: expect.objectContaining({
+                                // eslint-disable-next-line jest/no-conditional-expect
                                 spatial: expect.objectContaining({
                                     arPlacement: 'vertical',
+                                    // eslint-disable-next-line jest/no-conditional-expect
                                     updatedAt: expect.any(Number),
                                 }),
                             }),

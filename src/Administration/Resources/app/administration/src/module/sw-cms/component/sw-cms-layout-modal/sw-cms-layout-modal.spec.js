@@ -116,6 +116,7 @@ async function createWrapper() {
                     'sw-help-text': true,
                     'sw-ai-copilot-badge': true,
                     'sw-provide': { template: `<slot/>`, inheritAttrs: false },
+                    'sw-time-ago': true,
                 },
             },
         },

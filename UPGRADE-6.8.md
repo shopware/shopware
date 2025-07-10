@@ -255,7 +255,7 @@ We removed properties `label` and `helpText` properties of `theme.json`, which w
 A constructed snippet key was introduced in Shopware 6.7 and will now be required.
 This affects `label` and `helpText` properties in the `theme.json`, which are used in the theme manager.
 The snippet keys to be used are constructed as follows.
-The mentioned `themeName` implies the `technicalName` property of the theme in kebab case.
+The mentioned `themeName` implies the `technicalName` property of the theme, or its respective parent theme name, since snippets are inherited from the parent theme as well.
 Also, please notice that unnamed tabs, blocks or sections will be accessible via `default`.
 
 Examples:

@@ -105,6 +105,7 @@ async function createWrapper(
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
                     'sw-provide': true,
+                    'sw-time-ago': true,
                 },
                 mocks: {
                     $route: { query: '' },

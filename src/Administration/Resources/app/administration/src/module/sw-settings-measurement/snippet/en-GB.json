@@ -7,7 +7,7 @@
     },
     "defaultUnits": {
       "title": "Default units",
-      "description": "Set the default measurement units used in the administration. The units shown to your customers are defined in the {link}.",
+      "description": "Set the default measurement units used in new sales channels. The units shown to your customers are defined in the {link}.",
       "linkText": "Sales channel settings",
       "config": {
         "type": "Unit system",

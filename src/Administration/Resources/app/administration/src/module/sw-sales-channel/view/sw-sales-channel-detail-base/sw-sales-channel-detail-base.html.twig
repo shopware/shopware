@@ -503,7 +503,10 @@
                 v-if="productExport.generatedAt"
                 class="sw-sales-channel-detail-base_general__last-generation-text"
             >
-                {{ $tc('sw-sales-channel.detail.productComparison.lastGenerationLabel') }}{{ dateFilter(productExport.generatedAt, { hour: '2-digit', minute: '2-digit' }) }}
+                {{ $tc('sw-sales-channel.detail.productComparison.lastGenerationLabel') }}<sw-time-ago
+                    :date="productExport.generatedAt"
+                    :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                />
             </div>
             <div
                 v-else

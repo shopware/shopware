@@ -52,7 +52,9 @@ test('As a shop customer, I want to submit a review, so that I can share my expe
         await StorefrontProductDetail.reviewTeaserButton.click();
         await ShopCustomer.expects(StorefrontProductDetail.reviewLoginForm).toBeVisible();
         await ShopCustomer.expects(StorefrontProductDetail.forgottenPasswordLink).toBeVisible();
+        const loginResponse = await StorefrontProductDetail.page.request.post('account/login');
         await ShopCustomer.attemptsTo(LoginViaReviewsTab(product, customer));
+        await ShopCustomer.expects(loginResponse).toBeTruthy();
 
         // collapse depend on page-level initialization (JS event listeners, aria-expanded, etc.) which don’t re-fire after DOM patching.
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));

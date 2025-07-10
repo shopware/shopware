@@ -15,20 +15,20 @@
         "weightUnit": "Gewichtseinheit"
       },
       "technicalName": {
-        "metric": "Metric system-DE",
-        "imperial": "Imperial system-DE"
+        "metric": "Metrisches System",
+        "imperial": "Angloamerikanisches System"
       },
       "shortName": {
-        "m": "Meter-DE",
-        "cm": "Centimeter-DE",
-        "mm": "Millimeter-DE",
-        "in": "Inch-DE",
-        "ft": "Foot-DE",
-        "yd": "Yard-DE",
-        "kg": "Kilogram-DE",
-        "g": "Gram-DE",
-        "oz": "Ounce-DE",
-        "lb": "Pound-DE"
+        "m": "Meter",
+        "cm": "Zentimeter",
+        "mm": "Millimeter",
+        "in": "Zoll",
+        "ft": "Fuß",
+        "yd": "Yard",
+        "kg": "Kilogramn",
+        "g": "Gramn",
+        "oz": "Unze",
+        "lb": "Pfund"
       }
     },
     "notification": {

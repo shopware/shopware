@@ -101,7 +101,7 @@ readonly class SalesChannelDomainUtil
             $requestStart = microtime(true);
             try {
                 // don't let the kernel catch errors, so we can handle them ourselves
-                $response = $this->kernel->handle($currentRequest, HttpKernelInterface::MAIN_REQUEST, false);
+                $response = $this->kernel->handle($currentRequest, catch: false);
             } catch (\Exception $e) {
                 $responseTime += microtime(true) - $requestStart;
 

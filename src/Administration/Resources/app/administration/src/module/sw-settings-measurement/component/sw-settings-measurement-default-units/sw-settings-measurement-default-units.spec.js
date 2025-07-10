@@ -207,18 +207,9 @@ describe('src/module/sw-settings-measurement/component/sw-settings-measurement-d
         const item = {
             name: 'Meter',
             shortName: 'm',
-            translated: {
-                name: 'Meter',
-            },
         };
 
-        const formattedLabel = wrapper.vm.labelUnitCallback(item);
-        expect(formattedLabel).toBe('Meter (m)');
-    });
-
-    it('should handle null values in label callbacks', async () => {
-        const wrapper = await createWrapper(['measurement.editor']);
-
-        expect(wrapper.vm.labelUnitCallback(null)).toBe('');
+        const formattedLabel = wrapper.vm.getUnitLabel(item);
+        expect(formattedLabel).toBe('sw-settings-measurement.defaultUnits.shortName.m (m)');
     });
 });

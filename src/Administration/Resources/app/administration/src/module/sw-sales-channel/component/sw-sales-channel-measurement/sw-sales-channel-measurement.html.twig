@@ -24,7 +24,7 @@
     >
         <template #result-label-property="{ item, searchTerm }">
             <sw-highlight-text
-                :text="item.translated.name || item.name"
+                :text="getUnitLabel(item)"
                 :search-term="searchTerm"
             />
 
@@ -45,7 +45,7 @@
     >
         <template #result-label-property="{ item, searchTerm }">
             <sw-highlight-text
-                :text="item.translated.name || item.name"
+                :text="getUnitLabel(item)"
                 :search-term="searchTerm"
             />
 

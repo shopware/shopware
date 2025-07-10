@@ -169,10 +169,6 @@ export default {
             }
         },
 
-        onChangeLanguage(languageId) {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
-        },
-
         async onChangeMeasurementSystem(technicalName) {
             if ((Array.isArray(technicalName) && technicalName.length === 0) || !technicalName) {
                 return;

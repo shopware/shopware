@@ -82,7 +82,7 @@ export default Shopware.Component.wrapComponentConfig({
         measurementSystemOptions() {
             return this.measurementSystems.map((system) => ({
                 ...system,
-                label: system.translated?.name || system.name,
+                label: this.$t(`sw-settings-measurement.defaultUnits.technicalName.${system.technicalName}`),
                 value: system.technicalName,
             }));
         },
@@ -166,15 +166,8 @@ export default Shopware.Component.wrapComponentConfig({
             this.measurementUnits.units.weight = this.defaultWeightUnit.shortName;
         },
 
-        formatUnitLabel(item) {
-            if (!item) {
-                return '';
-            }
-
-            const name = item.translated?.name || item.name;
-            const shortName = item.shortName || item.name;
-
-            return `${name} (${shortName})`.trim();
+        getUnitLabel(item) {
+            return `${this.$t(`sw-settings-measurement.defaultUnits.shortName.${item.shortName}`)} (${item.shortName})`;
         },
 
         getDefaultMeasurementSystems() {
@@ -186,7 +179,7 @@ export default Shopware.Component.wrapComponentConfig({
                 .filter((unit) => unit.type === type)
                 .map((unit) => ({
                     ...unit,
-                    label: this.formatUnitLabel(unit),
+                    label: this.getUnitLabel(unit),
                     value: unit.shortName,
                 }));
         },

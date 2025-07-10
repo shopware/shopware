@@ -13,6 +13,22 @@
         "type": "Einheitensystem",
         "lengthUnit": "Längeneinheit",
         "weightUnit": "Gewichtseinheit"
+      },
+      "technicalName": {
+        "metric": "Metric system-DE",
+        "imperial": "Imperial system-DE"
+      },
+      "shortName": {
+        "m": "Meter-DE",
+        "cm": "Centimeter-DE",
+        "mm": "Millimeter-DE",
+        "in": "Inch-DE",
+        "ft": "Foot-DE",
+        "yd": "Yard-DE",
+        "kg": "Kilogram-DE",
+        "g": "Gram-DE",
+        "oz": "Ounce-DE",
+        "lb": "Pound-DE"
       }
     },
     "notification": {

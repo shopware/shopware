@@ -196,26 +196,6 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-measurement', (
         expect(wrapper.vm.weightUnitLabel).toBe('sw-sales-channel.detail.measurementSystem.labelWeightUnit');
     });
 
-    it('should format unit label correctly', async () => {
-        const wrapper = await createWrapper();
-        const unit = {
-            name: 'Centimeter',
-            shortName: 'cm',
-            translated: {
-                name: 'Centimeter',
-            },
-        };
-
-        const formattedLabel = wrapper.vm.formatUnitLabel(unit);
-        expect(formattedLabel).toBe('Centimeter (cm)');
-    });
-
-    it('should handle empty unit in formatUnitLabel', async () => {
-        const wrapper = await createWrapper();
-        const formattedLabel = wrapper.vm.formatUnitLabel(null);
-        expect(formattedLabel).toBe('');
-    });
-
     it('should correctly update units on onMeasurementSystemChange', async () => {
         const wrapper = await createWrapper(null, {}, ['sales_channel.editor']);
 
@@ -377,12 +357,15 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-measurement', (
         expect(wrapper.vm.salesChannel.measurementUnits.units.weight).toBe('g');
     });
 
-    it('formatUnitLabel should handle units without translated names', async () => {
+    it('should format unit label correctly', async () => {
         const wrapper = await createWrapper();
-        const unit = {
-            name: 'Inch',
-            shortName: 'in',
+
+        const item = {
+            name: 'Centimeter',
+            shortName: 'cm',
         };
-        expect(wrapper.vm.formatUnitLabel(unit)).toBe('Inch (in)');
+
+        const formattedLabel = wrapper.vm.getUnitLabel(item);
+        expect(formattedLabel).toBe('sw-settings-measurement.defaultUnits.shortName.cm (cm)');
     });
 });

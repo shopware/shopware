@@ -39,7 +39,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         private readonly RequestStack $requestStack,
         private readonly RouterInterface $router,
         private readonly MaintenanceModeResolver $maintenanceModeResolver,
-        private readonly SystemConfigService $systemConfigService
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -86,7 +86,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $session = $mainRequest->getSession();
 
         if (!$session->isStarted()) {
-            $session->setName('session-');
             $session->start();
             $session->set('sessionId', $session->getId());
         }

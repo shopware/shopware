@@ -43,8 +43,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-use function Symfony\Component\String\u;
-
 /**
  * @internal
  */
@@ -196,8 +194,8 @@ class ThemeTest extends TestCase
         $technicalName = $childTheme->getTechnicalName();
         static::assertIsString($technicalName);
         static::assertSame(
-            implode('.', ['sw-theme', u($technicalName)->kebab(), 'default.themeColors.default.sw-color-brand-primary.label']),
-            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey']
+            'default.themeColors.default.sw-color-brand-primary.label',
+            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey'],
         );
     }
 
@@ -248,8 +246,8 @@ class ThemeTest extends TestCase
 
         $childThemeFields = $this->themeService->getThemeConfigurationFieldStructure($childTheme->getId(), $this->context);
         static::assertSame(
-            implode('.', ['sw-theme', u($technicalName)->kebab(), 'default.themeColors.default.sw-color-brand-primary.label']),
-            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey']
+            'default.themeColors.default.sw-color-brand-primary.label',
+            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey'],
         );
     }
 

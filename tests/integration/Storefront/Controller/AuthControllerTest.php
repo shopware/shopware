@@ -156,7 +156,7 @@ class AuthControllerTest extends TestCase
 
         $browser = $this->login();
 
-        $sessionCookie = $browser->getCookieJar()->get('session-');
+        $sessionCookie = $browser->getCookieJar()->get(PlatformRequest::FALLBACK_SESSION_NAME);
         static::assertNotNull($sessionCookie);
 
         $browser->request('GET', '/account/logout', []);

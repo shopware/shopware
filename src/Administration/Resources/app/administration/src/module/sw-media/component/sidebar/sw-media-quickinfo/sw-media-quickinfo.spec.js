@@ -25,6 +25,11 @@ const itemMock = (options = {}) => {
     return Object.assign(itemOptions, options);
 };
 
+const arPlacementOptions = [
+    { id: 1, value: 'ar-placement-horizontal', label: 'Horizontal' },
+    { id: 2, value: 'ar-placement-vertical', label: 'Vertical' },
+];
+
 async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaRepositoryProvideFunctions = {}) {
     return mount(await wrapTestComponent('sw-media-quickinfo', { sync: true }), {
         global: {
@@ -53,6 +58,20 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                         return Promise.resolve({
                             'core.store.media.defaultEnableAugmentedReality': 'false',
                         });
+                    },
+                    getConfig: () => {
+                        return Promise.resolve([
+                            {
+                                elements: [
+                                    {
+                                        name: 'core.media.defaultARPlacement',
+                                        config: {
+                                            options: arPlacementOptions,
+                                        },
+                                    },
+                                ],
+                            },
+                        ]);
                     },
                 },
                 mediaService: {
@@ -135,6 +154,16 @@ function provide3DMockOptions() {
             },
             true,
             false,
+            'ar-placement-horizontal',
+        ],
+        [
+            {
+                fileName: 'smth.glb',
+                fileExtension: 'glb',
+            },
+            true,
+            false,
+            'ar-placement-vertical',
         ],
         [
             {
@@ -143,6 +172,16 @@ function provide3DMockOptions() {
             },
             true,
             true,
+            'ar-placement-horizontal',
+        ],
+        [
+            {
+                fileName: 'smth.glb',
+                url: 'http://shopware.example.com/media/file/2b71335f118c4940b425c55352e69e44/media-1-three-d.glb',
+            },
+            true,
+            true,
+            'ar-placement-vertical',
         ],
     ];
 }
@@ -280,12 +319,13 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
 
     it.each(provide3DMockOptions())(
         'should check if object is AR ready when created and update ar toggle accordingly',
-        async (mockOptions, isSpatial, isArReady) => {
+        async (mockOptions, isSpatial, isArReady, arPlacement) => {
             global.activeAclRoles = ['media.editor'];
             const mediaRepositoryGetMock = jest.fn().mockResolvedValue({
                 config: {
                     spatial: {
                         arReady: isArReady,
+                        arPlacement: arPlacement,
                     },
                 },
             });
@@ -303,6 +343,15 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             expect(arToggleInput.exists()).toBe(true);
 
             expect(arToggleInput.element.checked).toBe(isArReady);
+
+            const arPlacementSelect = wrapper.find('.mt-select input');
+            expect(arPlacementSelect.exists()).toBe(isArReady);
+            if (arPlacementSelect.exists()) {
+                // eslint-disable-next-line jest/no-conditional-expect
+                expect(arPlacementSelect.element.value).toBe(
+                    arPlacementOptions.filter((option) => option.value === arPlacement)[0].label,
+                );
+            }
         },
     );
 

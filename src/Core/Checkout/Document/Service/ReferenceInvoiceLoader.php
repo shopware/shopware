@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -45,7 +46,7 @@ final class ReferenceInvoiceLoader
         $builder->where('`document_type`.`technical_name` IN (:technicalNames)')
             ->andWhere('`document`.`order_id` = :orderId');
 
-        $builder->setParameter('technicalNames', [InvoiceRenderer::TYPE, ZugferdEmbeddedRenderer::TYPE], ArrayParameterType::STRING);
+        $builder->setParameter('technicalNames', [InvoiceRenderer::TYPE, ZugferdRenderer::TYPE, ZugferdEmbeddedRenderer::TYPE], ArrayParameterType::STRING);
         $builder->setParameter('orderId', Uuid::fromHexToBytes($orderId));
 
         $builder->orderBy('`document`.`sent`', 'DESC');

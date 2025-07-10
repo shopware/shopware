@@ -158,6 +158,21 @@ class ThemeCompilerTest extends TestCase
                     'type' => 'switch',
                     'value' => true,
                 ],
+                'sw-text-field' => [
+                    'name' => 'sw-text-field',
+                    'type' => 'text',
+                    'value' => '2px solid #000',
+                ],
+                'sw-textarea-field' => [
+                    'name' => 'sw-text-field',
+                    'type' => 'textarea',
+                    'value' => 'Lorem ipsum dolor',
+                ],
+                'sw-url-field' => [
+                    'name' => 'sw-url-field',
+                    'type' => 'url',
+                    'value' => 'https://www.example.com',
+                ],
                 'sw-multi-test' => [
                     'name' => 'sw-multi-test',
                     'type' => 'text',
@@ -199,6 +214,9 @@ class ThemeCompilerTest extends TestCase
 \$sw-custom-footer: 1;
 \$sw-custom-cart: 0;
 \$sw-custom-product-box: 1;
+\$sw-text-field: 2px solid #000;
+\$sw-textarea-field: 'Lorem ipsum dolor';
+\$sw-url-field: 'https://www.example.com';
 \$sw-asset-theme-url: 'http://localhost';
 
 PHP_EOL;

@@ -37,7 +37,6 @@ class ThemeCompiler implements ThemeCompilerInterface
      *
      * @param array<string, AssetPackage> $packages
      * @param array<int, string> $customAllowedRegex
-     * @param array{visibility?: string} $themeFilesystemConfig
      */
     public function __construct(
         private readonly FilesystemOperator $filesystem,
@@ -54,7 +53,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly AbstractScssCompiler $scssCompiler,
         private readonly array $customAllowedRegex = [],
         private readonly bool $validate = false,
-        private readonly array $themeFilesystemConfig = [],
+        private readonly string $visibility = Visibility::PUBLIC,
     ) {
     }
 
@@ -195,7 +194,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             foreach ($files as $file) {
                 $filePath = $file->getRealPath();
                 if ($filePath) {
-                    $copyFiles[] = new CopyBatchInput($filePath, [$targetPath . '/' . $file->getFilename()], $this->themeFilesystemConfig['visibility'] ?? Visibility::PUBLIC);
+                    $copyFiles[] = new CopyBatchInput($filePath, [$targetPath . '/' . $file->getFilename()], $this->visibility);
                 }
             }
         }
@@ -269,7 +268,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 $asset = $fs->path('Resources', $asset);
             }
 
-            $collected = [...$collected, ...$this->copyBatchInputFactory->fromDirectory($asset, $outputPath, $this->themeFilesystemConfig['visibility'] ?? Visibility::PUBLIC)];
+            $collected = [...$collected, ...$this->copyBatchInputFactory->fromDirectory($asset, $outputPath, $this->visibility)];
         }
 
         return array_values($collected);
@@ -313,9 +312,9 @@ class ThemeCompiler implements ThemeCompilerInterface
             );
         } catch (\Throwable $exception) {
             throw ThemeException::themeCompileException(
-                $configuration->getTechnicalName(),
+                $configuration->getTechnicalName() . ' - Theme-ID: ' . $themeId,
                 $exception->getMessage(),
-                $exception
+                $exception,
             );
         }
 
@@ -404,7 +403,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             }
 
             if (
-                \in_array($data['type'], ['media', 'textarea'], true)
+                \in_array($data['type'], ['media', 'textarea', 'url'], true)
                 && \is_string($data['value'])
                 && !\str_starts_with($data['value'], '\'')
                 && !\str_ends_with($data['value'], '\'')
@@ -491,7 +490,7 @@ PHP_EOL;
                 [
                     $compileLocation . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css',
                 ],
-                $this->themeFilesystemConfig['visibility'] ?? Visibility::PUBLIC
+                $this->visibility
             ),
         ];
 

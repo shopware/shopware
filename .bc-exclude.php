@@ -49,5 +49,10 @@ return [
 
         // The type has been extended and the old type is still accepted
         'CHANGED: The parameter \$context of Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Extension\\\\BuildBreadcrumbExtension#(getFullBreadcrumb|getFullBreadcrumbById)\(\) changed from Shopware\\\\Core\\\\Framework\\\\Context to Shopware\\\\Core\\\\Framework\\\\Context\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext',
+
+        // The parameters are optional, so this is not a BC break
+        'ADDED: Parameter .* was added to Method accessDeniedForXmlHttpRequest\(\) of class Shopware\\\\Core\\\\Framework\\\\Routing\\\\RoutingException',
+
+        'ADDED: Parameter clock was added to Method __construct\(\) of class Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Gateway\\\\Template\\\\ActiveDateRange'
     ],
 ];

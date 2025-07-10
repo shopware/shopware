@@ -4,12 +4,14 @@ namespace Shopware\Elasticsearch\Admin;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
+use Shopware\Core\Framework\MessageQueue\DeduplicatableMessageInterface;
+use Shopware\Core\Framework\Util\Hasher;
 
 /**
  * @internal
  */
 #[Package('inventory')]
-final class AdminSearchIndexingMessage implements AsyncMessageInterface
+final class AdminSearchIndexingMessage implements AsyncMessageInterface, DeduplicatableMessageInterface
 {
     /**
      * @param array<string, string> $indices
@@ -47,5 +49,30 @@ final class AdminSearchIndexingMessage implements AsyncMessageInterface
     public function getIds(): array
     {
         return $this->ids;
+    }
+
+    /**
+     * @experimental stableVersion:v6.8.0 feature:DEDUPLICATABLE_MESSAGES
+     */
+    public function deduplicationId(): ?string
+    {
+        $sortedIds = $this->ids;
+        sort($sortedIds);
+
+        $sortedIndices = $this->indices;
+        ksort($sortedIndices);
+
+        $data = json_encode([
+            $this->entity,
+            $this->indexer,
+            $sortedIndices,
+            $sortedIds,
+        ]);
+
+        if ($data === false) {
+            return null;
+        }
+
+        return Hasher::hash($data);
     }
 }

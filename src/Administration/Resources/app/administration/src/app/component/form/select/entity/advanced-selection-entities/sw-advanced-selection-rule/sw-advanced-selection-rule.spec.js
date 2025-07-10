@@ -58,6 +58,7 @@ async function createWrapper() {
                     'sw-empty-state': true,
                     'sw-extension-component-section': true,
                     'sw-ai-copilot-badge': true,
+                    'sw-time-ago': true,
                 },
                 provide: {
                     ruleConditionDataProviderService: {
@@ -178,6 +179,9 @@ describe('components/sw-advanced-selection-rule', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        }
     });
 });

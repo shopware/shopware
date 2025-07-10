@@ -3,6 +3,7 @@
 namespace Shopware\Core;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService;
 
 #[Package('framework')]
 final class PlatformRequest
@@ -37,6 +38,22 @@ final class PlatformRequest
      * API Expectation headers to check requirements are fulfilled
      */
     public const HEADER_EXPECT_PACKAGES = 'sw-expect-packages';
+
+    /**
+     * Context hash header used for cache differentiation on user-independent routes, @see ContextAwareCacheHeadersService
+     *
+     * The hash is used to differentiate cache entries for the same route when the context
+     * changes (e.g., different language, currency, or rules). This ensures that
+     * user-independent routes like product listings, category pages, and search results
+     * are properly cached per context variation while maintaining cache efficiency.
+     *
+     * The header is automatically added to Store API responses and included in the Vary
+     * header together with HEADER_LANGUAGE_ID and HEADER_CURRENCY_ID to ensure proper
+     * cache separation by reverse proxies and CDNs.
+     *
+     * Header has to be include in every request to ensure cache hits.
+     */
+    public const HEADER_CONTEXT_HASH = 'sw-context-hash';
 
     /**
      * Context attributes

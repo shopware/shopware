@@ -722,5 +722,13 @@ frame-ancestors 'none';
         <service id="Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator">
             <argument>%shopware.cache.invalidation.http_cache%</argument>
         </service>
+
+        <service id="Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService">
+        </service>
+
+        <service id="Shopware\Core\Framework\Routing\ContextAwareCacheHeadersSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

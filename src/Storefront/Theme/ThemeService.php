@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -424,14 +425,34 @@ class ThemeService implements ResetInterface
      */
     private function getConfigInheritance(ThemeEntity $mainTheme): array
     {
-        if (\is_array($mainTheme->getBaseConfig())
-            && \array_key_exists('configInheritance', $mainTheme->getBaseConfig())
-            && \is_array($mainTheme->getBaseConfig()['configInheritance'])
-            && !empty($mainTheme->getBaseConfig()['configInheritance'])
+        $baseConfig = $mainTheme->getBaseConfig();
+
+        if (\is_array($baseConfig)
+            && \array_key_exists('configInheritance', $baseConfig)
+            && \is_array($baseConfig['configInheritance'])
+            && !empty($baseConfig['configInheritance'])
         ) {
-            return $mainTheme->getBaseConfig()['configInheritance'];
+            return $baseConfig['configInheritance'];
         }
 
+        // For database copies (child themes), inherit config from parent theme.
+        if ($baseConfig === null
+            && $mainTheme->getTechnicalName() === null
+            && $mainTheme->getParentThemeId() !== null) {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('id', $mainTheme->getParentThemeId()));
+
+            $parentTheme = $this->themeRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+
+            if ($parentTheme instanceof ThemeEntity) {
+                $parentConfigInheritance = $this->getConfigInheritance($parentTheme);
+                if (!empty($parentConfigInheritance)) {
+                    return $parentConfigInheritance;
+                }
+            }
+        }
+
+        // Fallback: ensure every theme (except base theme) inherits from Storefront by default
         if ($mainTheme->getTechnicalName() !== StorefrontPluginRegistry::BASE_THEME_NAME) {
             return [
                 '@' . StorefrontPluginRegistry::BASE_THEME_NAME,

@@ -3,7 +3,6 @@
 return [
     'filePatterns' => [
         '**/Test/**', // Testing
-        '**/src/WebInstaller/**', // WebInstaller TODO: remove after first 6.7 release
         '**/src/Core/Framework/Update/**', // Updater
         '**/src/Core/TestBootstrapper.php', // Testing
         '**/src/Core/Framework/Demodata/Faker/Commerce.php', // dev dependency
@@ -17,11 +16,6 @@ return [
         'Symfony\\\\Component\\\\Console\\\\Command\\\\Command#configure\(\) changed from no type to void',
 
         'An enum expression .* is not supported in .*', // Can not be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
-        // major
-        'Value of constant Shopware\\\\Core\\\\Kernel::SHOPWARE_FALLBACK_VERSION changed from \'6.6.9999999-dev\' to \'6.7.9999999-dev\'',
-
-        // Can be removed before RC release
-        'Shopware\\\\Core\\\\Framework\\\\Log\\\\LogEntryEntity.* array|null',
 
         // Incorrectly deprecated
         'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentException.* changed from self',
@@ -34,6 +28,7 @@ return [
         'ADDED: Parameter label was added to Method __construct\(\) of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\CalculatedTax',
         'ADDED: Parameter senderName was added to Method __construct\(\) of class Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\SendMailTemplateParams',
         'ADDED: Parameter response was added to Method __construct\(\) of class Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\ElasticsearchEntitySearcherSearchedEvent',
+        'ADDED: Parameter clock was added to Method __construct\(\) of class Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Gateway\\\\Template\\\\ActiveDateRange',
 
         // Fix to make promotions work with order recalculation
         'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*skipPromotion.*(\n.*)*to array \((\n.*)*pinAutomaticPromotions',
@@ -50,9 +45,7 @@ return [
         // The type has been extended and the old type is still accepted
         'CHANGED: The parameter \$context of Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Extension\\\\BuildBreadcrumbExtension#(getFullBreadcrumb|getFullBreadcrumbById)\(\) changed from Shopware\\\\Core\\\\Framework\\\\Context to Shopware\\\\Core\\\\Framework\\\\Context\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext',
 
-        // The parameters are optional, so this is not a BC break
+        // The parameter are optional, so this is not a BC break
         'ADDED: Parameter .* was added to Method accessDeniedForXmlHttpRequest\(\) of class Shopware\\\\Core\\\\Framework\\\\Routing\\\\RoutingException',
-
-        'ADDED: Parameter clock was added to Method __construct\(\) of class Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Gateway\\\\Template\\\\ActiveDateRange'
     ],
 ];

@@ -53,6 +53,7 @@ jest.mock('@shopware-ag/dive/ar', () => ({
 const arViewerOptions = {
     spatialArId: "1",
     modelUrl: "testurl",
+    arPlacement: 'ar-placement-vertical',
     snippets: {
         arErrors: {
             desktopNotSupported: {
@@ -232,7 +233,7 @@ describe('SpatialArViewerPlugin', () => {
 
             expect(launchSpy).toHaveBeenCalledWith(
                 'testurl',
-                expect.objectContaining({ arPlacement: 'horizontal', arScale: 'auto' })
+                expect.objectContaining({ arPlacement: 'vertical', arScale: 'auto' })
             );
         });
 
@@ -662,7 +663,7 @@ describe('SpatialArViewerPlugin', () => {
 
             expect(launchSpy).toHaveBeenCalledWith(
                 'testurl',
-                expect.objectContaining({ arPlacement: 'horizontal', arScale: 'auto' })
+                expect.objectContaining({ arPlacement: 'vertical', arScale: 'auto' })
             );
         });
     });

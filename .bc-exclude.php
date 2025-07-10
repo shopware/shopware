@@ -15,6 +15,9 @@ return [
         // Will be typed in Symfony 8 (maybe)
         'Symfony\\\\Component\\\\Console\\\\Command\\\\Command#configure\(\) changed from no type to void',
 
+        // Version related const values changed for 7.3 update
+        'Value of constant Symfony\\\\Component\\\\HttpKernel\\\\Kernel',
+
         'An enum expression .* is not supported in .*', // Can not be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
 
         // Incorrectly deprecated

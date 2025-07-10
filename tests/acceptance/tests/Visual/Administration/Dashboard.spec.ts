@@ -20,6 +20,6 @@ test('Administration dashboard', { tag: '@Visual' }, async ({
             '.apexcharts-xaxis-texts-g',
         ]);
 
-        await expect(AdminDashboard.page.locator('.sw-desktop__content')).toHaveScreenshot();
-    });
+        await expect(AdminDashboard.page.locator('.sw-desktop__content')).toHaveScreenshot('Dashboard.png');
+    }); 
 });

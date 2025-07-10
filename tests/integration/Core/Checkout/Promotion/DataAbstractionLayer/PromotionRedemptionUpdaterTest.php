@@ -17,7 +17,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionRedemptionUpdater;
-use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\Subscriber\PromotionIndividualCodeRedeemer;
 use Shopware\Core\Defaults;

@@ -178,7 +178,7 @@
         "bamarni/composer-bin-plugin": "^1.8.2",
         "dominikb/composer-license-checker": "^2.5",
         "ergebnis/phpunit-slow-test-detector": "^2.4",
-        "friendsofphp/php-cs-fixer": "3.72.0",
+        "friendsofphp/php-cs-fixer": "3.82.1",
         "jdorn/sql-formatter": "^1.2.17",
         "league/construct-finder": "^1.1",
         "league/flysystem-async-aws-s3": "^3.29.0",
@@ -343,14 +343,8 @@
             "@php bin/console assets:install"
         ],
         "check:license": "bash -c \"vendor/bin/composer-license-checker check -a $(sed -z 's/\\n/ -a /g' .allowed-licenses)\"",
-        "ecs": [
-            "@putenv PHP_CS_FIXER_IGNORE_ENV=true",
-            "php-cs-fixer fix --dry-run --diff"
-        ],
-        "ecs-fix": [
-            "@putenv PHP_CS_FIXER_IGNORE_ENV=true",
-            "php-cs-fixer fix"
-        ],
+        "ecs": "php-cs-fixer fix --dry-run --diff",
+        "ecs-fix": "php-cs-fixer fix",
         "eslint": [
             "@eslint:admin",
             "@eslint:storefront"

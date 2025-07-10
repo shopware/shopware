@@ -97,7 +97,10 @@
                 {% block sw_import_export_activity_result_modal_info_log_list_date %}
                 <div class="sw-import-export-activity-result-modal__list-item sw-import-export-activity-result-modal__log-info-date">
                     <dt>{{ $tc('sw-import-export.activity.result.logInfo.labelDate') }}</dt>
-                    <dd>{{ dateFilter(logEntity.createdAt, { hour: '2-digit', minute: '2-digit' }) }}</dd>
+                    <dd><sw-time-ago
+                        :date="logEntity.createdAt"
+                        :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                    /></dd>
                 </div>
                 {% endblock %}
                 {% block sw_import_export_activity_result_modal_info_log_user %}

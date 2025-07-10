@@ -8,11 +8,11 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Kernel;
 use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
 use Shopware\Core\Test\AppSystemTestBehaviour;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
@@ -29,7 +29,7 @@ class AppSnippetFileLoaderTest extends TestCase
     protected function setUp(): void
     {
         $this->snippetFileLoader = new SnippetFileLoader(
-            $this->createMock(KernelInterface::class),
+            $this->createMock(Kernel::class),
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(AppSnippetFileLoader::class),
             static::getContainer()->get(ActiveAppsLoader::class)

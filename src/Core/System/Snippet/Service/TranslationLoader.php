@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
@@ -63,9 +64,22 @@ class TranslationLoader
         $this->fetchPluginSnippets($locale);
         $this->fetchPlatformSnippets($locale);
 
-        // todo: move this to a separate service or method to override it in saas?
         $this->createLanguage($language, $context);
         $this->createSnippetSet($language, $context);
+    }
+
+    public static function pluginTranslationExists(Plugin $plugin, ?string $locale = null): bool
+    {
+        $name = TranslationConfigLoader::getMappedPluginName($plugin);
+        $pattern = self::TRANSLATION_DESTINATION . '/*/Plugins/' . $name;
+
+        if ($locale !== null) {
+            $path = str_replace('*', $locale, $pattern);
+
+            return is_dir($path);
+        }
+
+        return (bool) glob($pattern, \GLOB_ONLYDIR);
     }
 
     private function fetchPluginSnippets(string $locale): void
@@ -87,9 +101,6 @@ class TranslationLoader
         }
     }
 
-    /*
-     * todo: if bundle is core, the destination file has to be e.g. messages.en-GB.json
-     */
     private function fetchFile(string $bundle, string $locale, string $fileName, string $scope): void
     {
         $destinationPath = \sprintf('%s/%s/%s/', realpath(self::TRANSLATION_DESTINATION), $locale, $scope);
@@ -107,7 +118,14 @@ class TranslationLoader
             $fileName
         );
 
-        $destinationFileName = strtolower($bundle) . '.json';
+        if ($bundle === 'Core') {
+            // For the core bundle, we use a specific symfony messages name pattern: messages.{locale}.json
+            $destinationFileName = 'messages.' . $locale . '.json';
+        } else {
+            // For all other bundles, we use the bundle name e.g. administration.json
+            $destinationFileName = strtolower($bundle) . '.json';
+        }
+
         $destination = $destinationPath . $destinationFileName;
 
         $this->downloadFile($downloadUrl, $destination);
@@ -171,7 +189,7 @@ class TranslationLoader
 
         $snippetSets = [
             [
-                'name' => $language->name,
+                'name' => 'BASE ' . $language->locale,
                 'iso' => $language->locale,
                 'baseFile' => 'messages.' . $language->locale,
             ],

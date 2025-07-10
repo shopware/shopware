@@ -251,21 +251,17 @@ class SnippetService
     }
 
     /**
+     * @deprecated tag:v6.8.0 - reason:visibility-change - will be removed
+     * Keeping this method for backwards compatibility (if it's redeclared in the child classes - child method return
+     * value will be used, otherwise value of $unusedThemes received via event is returned)
+     *
      * @param list<string> $usingThemes
      *
      * @return list<string>
      */
-    protected function getUnusedThemes(array $usingThemes = []): array
+    protected function getUnusedThemes(array $usingThemes = []/* , array $unusedThemes */): array
     {
-        if (!$this->container->has(StorefrontPluginRegistry::class)) {
-            return [];
-        }
-
-        $unusedThemes = $this->container->get(StorefrontPluginRegistry::class)->getConfigurations()->getThemes()
-            ->filter(fn (StorefrontPluginConfiguration $theme) => !\in_array($theme->getTechnicalName(), $usingThemes, true))
-            ->map(fn (StorefrontPluginConfiguration $theme) => $theme->getTechnicalName());
-
-        return array_values($unusedThemes);
+        return \func_num_args() === 2 ? \func_get_arg(1) : [];
     }
 
     /**

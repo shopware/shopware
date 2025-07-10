@@ -6,11 +6,14 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\Snippet\Service\TranslationConfigLoader;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
+ *
+ * @description Loads administration snippets from the core, plugins, and apps.
  */
 #[Package('discovery')]
 class SnippetFinder implements SnippetFinderInterface
@@ -24,7 +27,7 @@ class SnippetFinder implements SnippetFinderInterface
 
     public function __construct(
         private readonly Kernel $kernel,
-        private readonly Connection $connection
+        private readonly Connection $connection,
     ) {
     }
 
@@ -44,47 +47,15 @@ class SnippetFinder implements SnippetFinderInterface
      */
     private function findSnippetFiles(string $locale): array
     {
-        $paths = [];
+        $paths = $this->getInstalledSnippetPaths($locale);
 
-        // todo: make the code more pretty and check if the other load path methods are still required if new translations exist
-
-        // platform
-        $path = sprintf(TranslationLoader::TRANSLATION_DESTINATION . '/%s/Platform', $locale);
-
-        if (file_exists($path)) {
-            $paths[] = $path;
+        if (empty($paths)) {
+            // legacy
+            $this->getShopwareLegacyPaths($paths);
         }
 
-        // plugins
-        $activePlugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();
-
-        foreach ($activePlugins as $plugin) {
-            $name = $plugin->getName();
-
-            if ($name === 'SwagPublisher') {
-                $name = 'PluginPublisher'; // todo: use the config instead or rename the plugin in the LanguagePack
-            }
-
-            $path = sprintf(TranslationLoader::TRANSLATION_DESTINATION . '/%s/Plugins/%s', $locale, $name);
-
-            if (!file_exists($path)) {
-                continue;
-            }
-
-            $paths[] = $path;
-        }
-
-        // legacy
-        $this->loadPluginPaths($paths);
-        $this->loadShopwareBundlePaths($paths);
-
-        // todo: use this to define the file name patterns
-        $namePattern = [
-            'administration.json',
-            'core.json', // todo: change to messages.locale.json
-            'storefront.json',
-            \sprintf('%s.json', $locale), // legacy pattern
-        ];
+        $this->getPluginPaths($paths, $locale);
+        $this->getMeteorBundlePaths($paths);
 
         $finder = (new Finder())
             ->files()
@@ -92,7 +63,10 @@ class SnippetFinder implements SnippetFinderInterface
             ->ignoreDotFiles(true)
             ->ignoreVCS(true)
             ->ignoreUnreadableDirs()
-            ->name($namePattern)
+            ->name([
+                'administration.json',
+                \sprintf('%s.json', $locale), // legacy pattern
+            ])
             ->in($paths);
 
         $iterator = $finder->getIterator();
@@ -106,14 +80,51 @@ class SnippetFinder implements SnippetFinderInterface
     }
 
     /**
+     * @return list<string>
+     */
+    private function getInstalledSnippetPaths(string $locale): array
+    {
+        $paths = [];
+
+        // platform
+        $path = \sprintf(TranslationLoader::TRANSLATION_DESTINATION . '/%s/Platform', $locale);
+
+        if (file_exists($path)) {
+            $paths[] = $path;
+        }
+
+        // plugins
+        $activePlugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();
+
+        foreach ($activePlugins as $plugin) {
+            $name = TranslationConfigLoader::getMappedPluginName($plugin);
+            $path = \sprintf(TranslationLoader::TRANSLATION_DESTINATION . '/%s/Plugins/%s', $locale, $name);
+
+            if (!file_exists($path)) {
+                continue;
+            }
+
+            $paths[] = $path;
+        }
+
+        return $paths;
+    }
+
+    /**
      * @param list<string> $paths
      */
-    private function loadPluginPaths(array &$paths): void
+    private function getPluginPaths(array &$paths, string $locale): void
     {
         $activePlugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();
 
         foreach ($activePlugins as $plugin) {
+            // Skip plugin snippets if they already exist
+            if (TranslationLoader::pluginTranslationExists($plugin, $locale)) {
+                continue;
+            }
+
             $pluginPath = $plugin->getPath() . '/Resources/app/administration/src';
+
             if (\is_dir($pluginPath)) {
                 $paths[] = $pluginPath;
             }
@@ -128,7 +139,31 @@ class SnippetFinder implements SnippetFinderInterface
     /**
      * @param list<string> $paths
      */
-    private function loadShopwareBundlePaths(array &$paths): void
+    private function getMeteorBundlePaths(array &$paths): void
+    {
+        $plugins = $this->kernel->getPluginLoader()->getPluginInstances()->all();
+        $bundles = $this->kernel->getBundles();
+
+        foreach ($bundles as $bundle) {
+            if (\in_array($bundle, $plugins, true)) {
+                continue;
+            }
+
+            $meteorBundlePath = $bundle->getPath() . '/Resources/app/meteor-app';
+
+            // Add the meteor bundle path if it exists
+            if (!\is_dir($meteorBundlePath)) {
+                continue;
+            }
+
+            $paths[] = $meteorBundlePath;
+        }
+    }
+
+    /**
+     * @param list<string> $paths
+     */
+    private function getShopwareLegacyPaths(array &$paths): void
     {
         $plugins = $this->kernel->getPluginLoader()->getPluginInstances()->all();
         $bundles = $this->kernel->getBundles();

@@ -8,20 +8,28 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Kernel;
+use Shopware\Core\System\Snippet\Service\TranslationConfigLoader;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\HttpKernel\KernelInterface;
 
+/**
+ * @description Loads storefront snippet files from the core, plugins, and apps into a SnippetFileCollection.
+ */
 #[Package('discovery')]
 class SnippetFileLoader implements SnippetFileLoaderInterface
 {
-    private const SNIPPET_FILE_NAMES = ['core.json', 'storefront.json'];
+    private const ADMINISTRATION_BUNDLE_NAME = 'Administration';
+
+    private const SCOPE_PLATFORM = 'Platform';
+
+    private const SCOPE_PLUGINS = 'Plugins';
 
     /**
      * @internal
      */
     public function __construct(
-        private readonly KernelInterface $kernel,
+        private readonly Kernel $kernel,
         private readonly Connection $connection,
         private readonly AppSnippetFileLoader $appSnippetFileLoader,
         private readonly ActiveAppsLoader $activeAppsLoader,
@@ -30,35 +38,45 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
 
     public function loadSnippetFilesIntoCollection(SnippetFileCollection $snippetFileCollection): void
     {
-        $this->loadPluginSnippets($snippetFileCollection);
+        $this->loadCoreSnippets($snippetFileCollection);
+
+        if ($snippetFileCollection->count() === 0) {
+            // legacy snippets include both platform and plugin snippets
+            $this->loadLegacySnippets($snippetFileCollection);
+        } else {
+            // load only third-party plugin snippets
+            $this->loadPluginSnippets($snippetFileCollection);
+        }
 
         $this->loadAppSnippets($snippetFileCollection);
-
-        $this->loadCoreSnippets($snippetFileCollection);
     }
 
     private function loadCoreSnippets(SnippetFileCollection $snippetFileCollection): void
     {
+        $exclude = $this->getInactivePluginNames();
+        $exclude[] = 'node_modules';
+
         $finder = new Finder();
         $finder->in(TranslationLoader::TRANSLATION_DESTINATION)
             ->files()
-            ->name(self::SNIPPET_FILE_NAMES)
+            ->name('*.json')
+            ->exclude($exclude)
             ->ignoreDotFiles(true)
             ->ignoreVCS(true)
             ->ignoreUnreadableDirs();
 
         foreach ($finder->getIterator() as $fileInfo) {
             $relativePath = $fileInfo->getRelativePath();
-            $parts = explode(DIRECTORY_SEPARATOR, $relativePath);
+            $parts = explode(\DIRECTORY_SEPARATOR, $relativePath);
 
-            if ($parts[1] === 'Plugins') {
+            if ($parts[1] === self::SCOPE_PLUGINS) {
                 $technicalName = $parts[2];
             } else {
-                $technicalName = 'Platform';
+                $technicalName = self::SCOPE_PLATFORM;
             }
 
             $locale = $parts[0];
-            $isBase = $fileInfo->getFilenameWithoutExtension() === 'core';
+            $isBase = str_contains('messages', $fileInfo->getFilenameWithoutExtension());
 
             $snippetFile = new GenericSnippetFile(
                 $fileInfo->getFilename(),
@@ -73,10 +91,24 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         }
     }
 
-    /*
-     * todo: rename this method to a generic scope because it loads also shopware snippets
+    /**
+     * @return array<int<0, max>, string>
      */
-    private function loadPluginSnippets(SnippetFileCollection $snippetFileCollection): void
+    private function getInactivePluginNames(): array
+    {
+        $plugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();
+
+        $activeNames = [];
+        foreach ($plugins as $plugin) {
+            $activeNames[] = TranslationConfigLoader::getMappedPluginName($plugin);
+        }
+
+        $config = TranslationConfigLoader::load();
+
+        return array_diff($config->plugins, $activeNames);
+    }
+
+    private function loadLegacySnippets(SnippetFileCollection $snippetFileCollection): void
     {
         try {
             /** @var array<string, string> $authors */
@@ -90,9 +122,52 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         }
 
         foreach ($this->kernel->getBundles() as $name => $bundle) {
-            // todo: use constants or enums
             // skip Administration bundle because we are in the storefront scope
-            if (!$bundle instanceof Bundle || $name === 'Administration') {
+            if (!$bundle instanceof Bundle || $name === self::ADMINISTRATION_BUNDLE_NAME) {
+                continue;
+            }
+
+            // skip plugin snippets that already exist via translation installation
+            if ($bundle instanceof Plugin && TranslationLoader::pluginTranslationExists($bundle)) {
+                continue;
+            }
+
+            $snippetDir = $bundle->getPath() . '/Resources';
+
+            if (!is_dir($snippetDir)) {
+                continue;
+            }
+
+            foreach ($this->loadSnippetFilesInDir($snippetDir, $bundle, $authors) as $snippetFile) {
+                if ($snippetFileCollection->hasFileForPath($snippetFile->getPath())) {
+                    continue;
+                }
+
+                $snippetFileCollection->add($snippetFile);
+            }
+        }
+    }
+
+    private function loadPluginSnippets(SnippetFileCollection $snippetFileCollection): void
+    {
+        try {
+            /** @var array<string, string> $authors */
+            $authors = $this->connection->fetchAllKeyValue('
+                SELECT `base_class` AS `baseClass`, `author`
+                FROM `plugin`
+            ');
+        } catch (Exception) {
+            // to get it working in setup without a database connection
+            $authors = [];
+        }
+
+        foreach ($this->kernel->getBundles() as $bundle) {
+            if (!$bundle instanceof Plugin) {
+                continue;
+            }
+
+            // skip plugin snippets that already exist via translation installation
+            if (TranslationLoader::pluginTranslationExists($bundle)) {
                 continue;
             }
 
@@ -130,7 +205,6 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
      */
     private function loadSnippetFilesInDir(string $snippetDir, Bundle $bundle, array $authors): array
     {
-        // load snippets
         $finder = new Finder();
         $finder->in($snippetDir)
             ->exclude('node_modules')

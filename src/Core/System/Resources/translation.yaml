@@ -19,9 +19,9 @@ plugins: [
     'SwagSocialShopping',
 ]
 
-plugin-name-mapping:
-    - plugin: 'SwagPublisher'
-      name: 'PluginPublisher'
+plugin-mapping:
+  - plugin: 'SwagPublisher'
+    name: 'PluginPublisher'
 
 languages:
   - name: 'Bosanski'

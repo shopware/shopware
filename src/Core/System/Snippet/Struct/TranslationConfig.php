@@ -11,25 +11,29 @@ class TranslationConfig extends Struct
     /**
      * @param list<string> $locales
      * @param list<string> $plugins
+     * @param array<string, string> $pluginMapping
      */
     private function __construct(
         public string $repositoryUrl,
         public array $locales,
         public array $plugins,
         public LanguageCollection $languages,
+        public array $pluginMapping,
     ) {
     }
 
     /**
      * @param list<string> $locales
      * @param list<string> $plugins
+     * @param array<string, string> $pluginMapping
      */
     public static function create(
         string $repositoryUrl,
         array $locales,
         array $plugins,
-        LanguageCollection $languages
+        LanguageCollection $languages,
+        array $pluginMapping = [],
     ): self {
-        return new self($repositoryUrl, $locales, $plugins, $languages);
+        return new self($repositoryUrl, $locales, $plugins, $languages, $pluginMapping);
     }
 }

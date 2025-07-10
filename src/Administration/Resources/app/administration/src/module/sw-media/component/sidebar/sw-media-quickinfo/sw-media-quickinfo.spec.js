@@ -389,7 +389,6 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
                     );
                 }
             }
-
         },
     );
 

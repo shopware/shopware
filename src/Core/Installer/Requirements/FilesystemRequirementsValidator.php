@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Requirements\Struct\PathCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -18,7 +20,6 @@ class FilesystemRequirementsValidator implements RequirementsValidatorInterface
         'var/log/',
         'var/cache/',
         'public/',
-        'config/jwt/',
     ];
 
     public function __construct(private readonly string $projectDir)
@@ -41,6 +42,13 @@ class FilesystemRequirementsValidator implements RequirementsValidatorInterface
 
     private function existsAndIsWritable(string $path): bool
     {
+        if (!is_dir($path)) {
+            try {
+                (new Filesystem())->mkdir($path);
+            } catch (IOException) {
+            }
+        }
+
         return \is_dir($path) && \is_readable($path) && \is_writable($path);
     }
 }

@@ -165,43 +165,46 @@
           "placeholderSeoKeywords": "Schlüsselwörter eingeben ..."
         }
       },
-      "measuresAndPackaging": {
-        "cardTitle": "Maße & Verpackung",
-        "widthTitle": {
+      "measurements": {
+        "cardTitle": "Produktmaße",
+        "width": {
           "changeLabel": "Ändern: Breite",
-          "placeholder": "z.B. 500 ..."
+          "placeholder": "z. B. 500 ..."
         },
-        "heightTitle": {
+        "height": {
           "changeLabel": "Ändern: Höhe",
-          "placeholder": "z.B. 200 ..."
+          "placeholder": "z. B. 500 ..."
         },
-        "lengthTitle": {
+        "length": {
           "changeLabel": "Ändern: Länge",
-          "placeholder": "z.B.100 ..."
+          "placeholder": "z. B. 500 ..."
         },
-        "weightTitle": {
+        "weight": {
           "changeLabel": "Ändern: Gewicht",
-          "placeholder": "z.B. 0,4 ..."
-        },
-        "sellingUnitTitle": {
+          "placeholder": "z. B. 5 ..."
+        }
+      },
+      "sellingPackaging": {
+        "cardTitle": "Verkaufs- & Verpackungsinformationen",
+        "purchaseUnit": {
           "changeLabel": "Ändern: Verkaufseinheit",
-          "placeholder": "Verkaufseinheit eingeben ..."
+          "placeholder": "z. B. 6 ..."
         },
-        "scaleUnitTitle": {
-          "changeLabel": "Ändern: Maßeinheit",
-          "placeholder": "Maßeinheit eingeben ..."
+        "unitId": {
+          "changeLabel": "Ändern: Produkteinheit",
+          "placeholder": "Produkteinheit auswählen ..."
         },
-        "packUnitTitle": {
-          "changeLabel": "Ändern: Verpackungseinheit",
-          "placeholder": "Verpackungseinheit eingeben ..."
-        },
-        "packUnitPluralTitle": {
-          "changeLabel": "Ändern: Verpackungseinheit-Mehrzahl",
-          "placeholder": "Verpackungseinheit-Mehrzahl eingeben ..."
-        },
-        "basicUnitTitle": {
+        "referenceUnit": {
           "changeLabel": "Ändern: Grundeinheit",
-          "placeholder": "Grundeinheit eingeben ..."
+          "placeholder": "z. B. 1 ..."
+        },
+        "packUnit": {
+          "changeLabel": "Ändern: Verpackungseinheit",
+          "placeholder": "z. B. Flasche ..."
+        },
+        "packUnitPlural": {
+          "changeLabel": "Ändern: Verpackungseinheit-Mehrzahl",
+          "placeholder": "z. B. Flaschen ..."
         }
       },
       "featureSets": {

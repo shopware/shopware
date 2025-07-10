@@ -38,6 +38,7 @@ jobs:
         with:
           project: 'Visual'
           install: 'true'
+          workers: 1
           extra-options: >-
             ${{ inputs.update-snapshots && ' --update-snapshots' || '' }}
           use-currents: ${{ inputs.currents && 'true' || '' }}

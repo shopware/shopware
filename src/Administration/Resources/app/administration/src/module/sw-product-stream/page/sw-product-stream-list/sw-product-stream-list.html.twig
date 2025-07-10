@@ -107,11 +107,10 @@
                 {% block sw_product_stream_list_grid_colum_updated_at %}
                 <template #column-updatedAt="{item}">
                     <template v-if="item.updatedAt">
-                        {{ dateFilter(item.updatedAt) }}
+                        <sw-time-ago :date="item.updatedAt" />
                     </template>
-
                     <template v-else>
-                        {{ dateFilter(item.createdAt) }}
+                        <sw-time-ago :date="item.createdAt" />
                     </template>
                 </template>
                 {% endblock %}

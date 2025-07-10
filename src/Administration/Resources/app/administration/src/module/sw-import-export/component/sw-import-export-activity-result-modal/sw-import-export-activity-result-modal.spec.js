@@ -57,6 +57,7 @@ describe('module/sw-import-export/components/sw-import-export-activity-result-mo
                         'sw-color-badge': true,
                         'sw-grid': true,
                         'sw-grid-column': true,
+                        'sw-time-ago': await wrapTestComponent('sw-time-ago', { sync: true }),
                     },
                 },
             },
@@ -81,7 +82,7 @@ describe('module/sw-import-export/components/sw-import-export-activity-result-mo
         ],
         [
             'Date / time',
-            '8 November 2021 at 14:50',
+            '08/11/2021, 14:50',
             'date',
         ],
         [

@@ -152,6 +152,7 @@ async function createWrapper() {
                 'sw-sidebar-collapse': true,
                 'sw-entity-multi-select': true,
                 'sw-sidebar': true,
+                'sw-time-ago': true,
             },
             provide: {
                 repositoryFactory: {
@@ -314,6 +315,9 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     it('should return filters from filter registry', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        }
     });
 });

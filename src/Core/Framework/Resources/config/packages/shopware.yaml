@@ -133,10 +133,12 @@ shopware:
     filesystem:
         private:
             type: "local"
+            visibility: "private"
             config:
                 root: "%kernel.project_dir%/files"
         public:
             type: "local"
+            visibility: "public"
             config:
                 root: "%kernel.project_dir%/public"
         temp:

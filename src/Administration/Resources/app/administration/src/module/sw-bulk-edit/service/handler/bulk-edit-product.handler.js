@@ -21,7 +21,7 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
         this.products = {};
     }
 
-    async bulkEdit(entityIds, payload) {
+    async bulkEdit(entityIds, payload, context) {
         this.entityIds = entityIds;
         const taxId = payload.find((change) => change.field === 'taxId')?.value;
         const price = payload.find((change) => change.field === 'price')?.value;
@@ -72,6 +72,7 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
                 {
                     'single-operation': 1,
                     'sw-language-id': Shopware.Context.api.languageId,
+                    ...context,
                 },
             );
         });

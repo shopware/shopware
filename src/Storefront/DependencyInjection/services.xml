@@ -443,7 +443,9 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Cookie\CookieProviderInterface" class="Shopware\Storefront\Framework\Cookie\CookieProvider"/>
+        <service id="Shopware\Storefront\Framework\Cookie\CookieProviderInterface" class="Shopware\Storefront\Framework\Cookie\CookieProvider">
+            <argument>%session.storage.options%</argument>
+        </service>
 
         <service id="Shopware\Storefront\Framework\Cookie\AppCookieProvider" decorates="Shopware\Storefront\Framework\Cookie\CookieProviderInterface">
             <argument type="service" id="Shopware\Storefront\Framework\Cookie\AppCookieProvider.inner"/>

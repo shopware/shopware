@@ -78,7 +78,7 @@
       "advancedPrices": {
         "cardTitle": "Advanced pricing",
         "changeLabel": "Change: Advanced pricing",
-        "selectRule": "Select pricing rule ...",
+        "selectRule": "Select pricing rule...",
         "newAdvancedPrices": "Create {count} new advanced prices"
       },
       "property": {
@@ -165,43 +165,46 @@
           "placeholderSeoKeywords": "Enter keywords..."
         }
       },
-      "measuresAndPackaging": {
-        "cardTitle": "Measures & packaging",
-        "widthTitle": {
+      "measurements": {
+        "cardTitle": "Product measurements",
+        "width": {
           "changeLabel": "Change: Width",
           "placeholder": "e.g. 500..."
         },
-        "heightTitle": {
+        "height": {
           "changeLabel": "Change: Height",
-          "placeholder": "e.g. 200..."
+          "placeholder": "e.g. 500..."
         },
-        "lengthTitle": {
+        "length": {
           "changeLabel": "Change: Length",
-          "placeholder": "e.g. 100..."
+          "placeholder": "e.g. 500..."
         },
-        "weightTitle": {
+        "weight": {
           "changeLabel": "Change: Weight",
-          "placeholder": "e.g. 0.4..."
-        },
-        "sellingUnitTitle": {
+          "placeholder": "e.g. 5..."
+        }
+      },
+      "sellingPackaging": {
+        "cardTitle": "Selling & packaging information",
+        "purchaseUnit": {
           "changeLabel": "Change: Selling unit",
-          "placeholder": "Enter selling unit..."
+          "placeholder": "e.g. 6..."
         },
-        "scaleUnitTitle": {
-          "changeLabel": "Change: Scale unit",
-          "placeholder": "Enter scale unit..."
+        "unitId": {
+          "changeLabel": "Change: Product unit",
+          "placeholder": "Select product unit..."
         },
-        "packUnitTitle": {
-          "changeLabel": "Change: Packaging unit",
-          "placeholder": "Enter packaging unit..."
-        },
-        "packUnitPluralTitle": {
-          "changeLabel": "Change: Packaging unit plural",
-          "placeholder": "Enter packaging unit plural..."
-        },
-        "basicUnitTitle": {
+        "referenceUnit": {
           "changeLabel": "Change: Basic unit",
-          "placeholder": "Enter basic unit..."
+          "placeholder": "e.g. 1..."
+        },
+        "packUnit": {
+          "changeLabel": "Change: Packaging unit",
+          "placeholder": "e.g. Bottle..."
+        },
+        "packUnitPlural": {
+          "changeLabel": "Change: Packaging unit plural",
+          "placeholder": "e.g. Bottles..."
         }
       },
       "featureSets": {

@@ -24,30 +24,61 @@
             {% endblock %}
 
             {% block buy_widget_rich_snippets_weight %}
-                {% if product.weight %}
+                {% if product.measurements.type('weight') %}
+                    {% set weightUnit = product.measurements.type('weight').unit %}
+                    {% set weightValue = product.measurements.type('weight').value %}
+                {% else %}
+                    {% set weightUnit = 'kg' %}
+                    {% set weightValue = product.weight %}
+                {% endif %}
+                {% if weightValue and weightValue > 0 %}
                     <meta itemprop="weight"
-                          content="{{ product.weight }} kg">
+                          content="{{ weightValue }} {{ weightUnit }}">
                 {% endif %}
             {% endblock %}
 
             {% block buy_widget_rich_snippets_height %}
-                {% if product.height %}
+                {% if product.measurements.type('height') %}
+                    {% set heightUnit = product.measurements.type('height').unit %}
+                    {% set heightValue = product.measurements.type('height').value %}
+                {% else %}
+                    {% set heightUnit = 'mm' %}
+                    {% set heightValue = product.height %}
+                {% endif %}
+
+                {% if heightValue and heightValue > 0 %}
                     <meta itemprop="height"
-                          content="{{ product.height }} mm">
+                          content="{{ heightValue }} {{ heightUnit }}">
                 {% endif %}
             {% endblock %}
 
             {% block buy_widget_rich_snippets_width %}
-                {% if product.width %}
+                {% if product.measurements.type('width') %}
+                    {% set widthUnit = product.measurements.type('width').unit %}
+                    {% set widthValue = product.measurements.type('width').value %}
+                {% else %}
+                    {% set widthUnit = 'mm' %}
+                    {% set widthValue = product.width %}
+                {% endif %}
+
+                {% if widthValue and widthValue > 0 %}
                     <meta itemprop="width"
-                          content="{{ product.width }} mm">
+                          content="{{ widthValue }} {{ widthUnit }}">
                 {% endif %}
             {% endblock %}
 
             {% block buy_widget_rich_snippets_depth %}
-                {% if product.length %}
-                    <meta itemprop="depth"
-                          content="{{ product.length }} mm">
+                {% if product.measurements.type('length') %}
+                    {% set lengthUnit = product.measurements.type('length').unit %}
+                    {% set lengthValue = product.measurements.type('length').value %}
+                {% else %}
+                    {% set lengthUnit = 'mm' %}
+                    {% set lengthValue = product.length %}
+                {% endif %}
+
+                {% if lengthValue and lengthValue > 0 %}
+                    <meta itemprop="length"
+                          content="{{ lengthValue }} {{ lengthUnit }}">
                 {% endif %}
             {% endblock %}
 

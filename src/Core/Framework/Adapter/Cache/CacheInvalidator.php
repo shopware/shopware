@@ -37,7 +37,7 @@ class CacheInvalidator
      */
     public function invalidate(array $tags, bool $force = false): void
     {
-        return;
+        $this->logger->critical(\sprintf('Invalidating cache with: %s', $this->environment));
 
         $tags = array_filter(array_unique($tags));
 
@@ -46,7 +46,7 @@ class CacheInvalidator
         }
 
         if ($force || $this->shouldForceInvalidate()) {
-            //$this->purge($tags);
+            $this->purge($tags);
 
             return;
         }

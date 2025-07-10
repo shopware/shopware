@@ -149,11 +149,6 @@ export default {
              * urlLink is the link of the YouTube video from the searchbar. e.g. https://www.youtube.com/watch?v=bG57TZPYsyw
              */
 
-            // If the input is already just a video ID (no protocol), return it as-is
-            if (!link.includes('://')) {
-                return link;
-            }
-
             try {
                 const url = new URL(link);
 
@@ -172,7 +167,7 @@ export default {
                 return link;
             }
         },
-        
+
         async onImageUpload({ targetId }) {
             const mediaEntity = await this.mediaRepository.get(targetId);
 

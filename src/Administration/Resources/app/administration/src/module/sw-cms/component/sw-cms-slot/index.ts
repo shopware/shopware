@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-slot.html.twig';
 import './sw-cms-slot.scss';
 import { type CmsElementConfig } from '../../service/cms.service';

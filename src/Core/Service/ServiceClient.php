@@ -3,6 +3,7 @@
 namespace Shopware\Core\Service;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
@@ -18,7 +19,7 @@ class ServiceClient
     public function __construct(
         public readonly HttpClientInterface $client,
         private readonly string $shopwareVersion,
-        private readonly ServiceRegistryEntry $entry,
+        private readonly ServiceEntry $entry,
         private readonly Filesystem $filesystem,
     ) {
     }

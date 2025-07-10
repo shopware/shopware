@@ -2,34 +2,34 @@
   "sw-settings-units": {
     "detail": {
       "fieldLabels": {
-        "name": "Scale unit name",
+        "name": "Product unit name",
         "shortCode": "Short code"
       }
     },
     "general": {
-      "mainMenuItemGeneral": "Scale units",
-      "placeholderSearchBar": "Search scale units...",
-      "createNewUnit": "Add scale unit",
-      "disableAddNewUnitMessage": "New scale units can only be added in the system default language."
+      "mainMenuItemGeneral": "Product units",
+      "placeholderSearchBar": "Search product units...",
+      "createNewUnit": "Add product unit",
+      "disableAddNewUnitMessage": "New product units can only be added in the system default language."
     },
     "grid": {
-      "columnName": "Scale unit",
+      "columnName": "Product unit",
       "columnShortCode": "Shorthand",
       "contextMenuDelete": "Delete"
     },
     "empty-state": {
-      "title": "No scale units yet",
-      "subline": "Manage scale units here."
+      "title": "No product units yet",
+      "subline": "Manage product units here."
     },
     "notification": {
-      "successMessage": "Scale unit has been saved.",
-      "errorMessage": "Scale unit could not be saved. Please fill in all required fields."
+      "successMessage": "Product unit has been saved.",
+      "errorMessage": "Product unit could not be saved. Please fill in all required fields."
     }
   },
   "sw-privileges": {
     "permissions": {
       "scale_unit": {
-        "label": "Scale units"
+        "label": "Product units"
       }
     }
   }

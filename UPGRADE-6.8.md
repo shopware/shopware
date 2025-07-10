@@ -36,6 +36,27 @@ New blocks have been added in `sw-settings-index.html.twig`:
 * You must pass the `confidential` parameter as the third parameter of the constructor.
 * You must pass the `name` parameter as the fourth parameter of the constructor.
 
+## Removed configuration of Filesystem visibility in config array
+
+The visibility of filesystems cannot be configured in the config array anymore. Instead, it should be set on the same level as `type`. For example, instead of:
+
+```yaml
+filesystems:
+  my_filesystem:
+    type: local
+    config:
+      visibility: public
+```
+
+You should now use:
+
+```yaml
+filesystems:
+  my_filesystem:
+    type: local
+    visibility: public
+```
+
 ## Storefront
 
 ### Deprecated DomAccess Helper
@@ -234,7 +255,7 @@ We removed properties `label` and `helpText` properties of `theme.json`, which w
 A constructed snippet key was introduced in Shopware 6.7 and will now be required.
 This affects `label` and `helpText` properties in the `theme.json`, which are used in the theme manager.
 The snippet keys to be used are constructed as follows.
-The mentioned `themeName` implies the `technicalName` property of the theme in kebab case.
+The mentioned `themeName` implies the `technicalName` property of the theme, or its respective parent theme name, since snippets are inherited from the parent theme as well.
 Also, please notice that unnamed tabs, blocks or sections will be accessible via `default`.
 
 Examples:

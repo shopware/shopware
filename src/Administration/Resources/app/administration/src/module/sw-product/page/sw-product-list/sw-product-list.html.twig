@@ -260,11 +260,14 @@
                 {% endblock %}
 
                 <template #column-createdAt="{ item }">
-                    {{ dateFilter(item.createdAt) }}
+                    <sw-time-ago :date="item.createdAt" />
                 </template>
 
                 <template #column-updatedAt="{ item }">
-                    {{ dateFilter(item.updatedAt) }}
+                    <sw-time-ago
+                        v-if="item.updatedAt"
+                        :date="item.updatedAt"
+                    />
                 </template>
 
                 {% block sw_product_list_grid_columns_actions %}

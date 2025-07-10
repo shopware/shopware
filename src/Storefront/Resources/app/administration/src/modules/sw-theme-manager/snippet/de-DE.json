@@ -1,6 +1,6 @@
 {
   "sw-theme": {
-    "storefront": {
+    "Storefront": {
       "default": {
         "themeColors": {
           "label": "Theme-Farben",
@@ -128,7 +128,6 @@
       "labelDuplicateThemeName": "Name des Duplikates",
       "placeholderDuplicateThemeName": "Namen eintragen",
       "textDuplicateInfo": "Wenn Du ein Duplikat erstellst, kannst Du das Theme mit einer anderen Farbkonfiguration für weitere Verkaufskanäle nutzen.",
-      "buttonDuplicateTheme": "Duplikat anlegen",
       "modalTitleRename": "Umbenennen",
       "textRenameInfo": "Gib einen neuen Namen für das Theme an.",
       "labelRenameThemeName": "Neuer Theme Name",
@@ -161,7 +160,6 @@
       "validate": "Validieren",
       "validateToolTip": "Die gesamte Konfiguration validieren. Die Änderungen werden noch nicht gespeichert!",
       "rename": "Umbenennen",
-      "duplicate": "Duplikat erstellen",
       "useImageAs": "Benutze Bild als",
       "buttonReset": "Theme zurücksetzen",
       "buttonUseTheme": "Theme benutzen",

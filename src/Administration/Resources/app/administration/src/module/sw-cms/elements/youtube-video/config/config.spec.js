@@ -200,7 +200,7 @@ describe('modules/sw-cms/elements/youtube-video/config', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.shortenLink('')).toBe('');
-        expect(wrapper.vm.shortenLink(null)).toBe(null);
-        expect(wrapper.vm.shortenLink(undefined)).toBe(undefined);
+        expect(wrapper.vm.shortenLink(null)).toBeNull();
+        expect(wrapper.vm.shortenLink(undefined)).toBeUndefined();
     });
 });

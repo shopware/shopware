@@ -39,9 +39,6 @@ class CacheInvalidator
     {
         $this->logger->critical(\sprintf('Invalidating cache with: %s', $this->environment));
 
-        var_dump($this->environment);
-        throw new \RuntimeException(\sprintf('Invalidating cache with: %s', $this->environment));
-
         $tags = array_filter(array_unique($tags));
 
         if (empty($tags)) {

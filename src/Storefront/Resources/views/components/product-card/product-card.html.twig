@@ -58,12 +58,12 @@
 {# @var product \Shopware\Core\Content\Product\ProductEntity #}
 {# @var classes - Override the default classes #}
 {# @var mediaHeight - Height of the product media (thumbnail) #}
-{# @var detaulRoute - Route to the product detail page #}
+{# @var defaultRoute - Route to the product detail page #}
 {% props
     product,
     classes = {},
     mediaHeight = 240,
-    detaulRoute = seoUrl('frontend.detail.page', { productId: product.id }),
+    defaultRoute = seoUrl('frontend.detail.page', { productId: product.id }),
 %}
 
 {% set defaultClasses = {
@@ -85,7 +85,7 @@
 <div {{ attributes.defaults({ class: defaultClasses.root }) }}>
     <div {{ attributes.nested('header').defaults({ class: defaultClasses.header }) }}>
         {% block media %}
-            <twig:thumbnail:thumbnail
+            <twig:image:image
                 {{ ...attributes.nested('media').defaults({
                     media: product.cover.media,
                     height: mediaHeight,
@@ -107,7 +107,7 @@
                 <a
                     {{ attributes.nested('title-link').defaults({
                         class: defaultClasses.titleLink,
-                        href: detaulRoute,
+                        href: defaultRoute,
                         style: "--sw-product-card-media-height: #{mediaHeight}px",
                     }) }}
                 >

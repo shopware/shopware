@@ -573,10 +573,6 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Storefront\Twig\Components\Carousel">
-            <tag name="twig.component" />
-        </service>
-
         <service id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>

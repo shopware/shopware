@@ -1,7 +1,7 @@
 import { MtModalRoot, MtModalTrigger, MtModalAction, MtModalClose, MtModal } from '@shopware-ag/meteor-component-library';
 import template from './sw-settings-services-revoke-permissions-modal.html.twig';
 import './sw-settings-services-revoke-permissions-modal.scss';
-import { useShopwareServicesStore } from '../../store/shopware-services.store';
+import { revokePermissions } from '../../composables/permissions';
 import extractErrorMessage from '../../composables/extract-error';
 
 /**
@@ -31,12 +31,9 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         async revokePermissions(close: () => void) {
             try {
-                const shopwareServicesStore = useShopwareServicesStore();
-
                 this.isLoading = true;
-                shopwareServicesStore.config = await Shopware.Service('shopwareServicesService').revokePermissions();
 
-                this.$emit('service-permissions-revoked');
+                await revokePermissions();
             } catch (exception) {
                 Shopware.Store.get('notification').createNotification({
                     variant: 'critical',

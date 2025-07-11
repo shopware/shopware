@@ -12,6 +12,68 @@
     &.auto-columns {
         grid-auto-flow: column;
         grid-auto-columns: 1fr;
+
+        @include media-breakpoint-down(md) {
+            grid-auto-flow: initial;
+        }
+    }
+
+    @for $i from 1 through 12 {
+        &.columns-#{$i} {
+            grid-template-columns: repeat(#{$i}, 1fr);
+        }
+
+        &.rows-#{$i} {
+            grid-template-rows: repeat(#{$i}, 1fr);
+        }
+    }
+
+    @include media-breakpoint-down(xl) {
+        @for $i from 1 through 12 {
+            &.columns-xl-#{$i} {
+                grid-template-columns: repeat(#{$i}, 1fr);
+            }
+
+            &.rows-xl-#{$i} {
+                grid-template-rows: repeat(#{$i}, 1fr);
+            }
+        }
+    }
+
+    @include media-breakpoint-down(lg) {
+        @for $i from 1 through 12 {
+            &.columns-lg-#{$i} {
+                grid-template-columns: repeat(#{$i}, 1fr);
+            }
+
+            &.rows-lg-#{$i} {
+                grid-template-rows: repeat(#{$i}, 1fr);
+            }
+        }
+    }
+
+    @include media-breakpoint-down(md) {
+        @for $i from 1 through 12 {
+            &.columns-md-#{$i} {
+                grid-template-columns: repeat(#{$i}, 1fr);
+            }
+
+            &.rows-md-#{$i} {
+                grid-template-rows: repeat(#{$i}, 1fr);
+            }
+        }
+    }
+
+    @include media-breakpoint-down(sm) {
+        @for $i from 1 through 12 {
+            &.columns-sm-#{$i} {
+                grid-template-columns: repeat(#{$i}, 1fr);
+            }
+
+            &.rows-sm-#{$i} {
+                grid-template-rows: repeat(#{$i}, 1fr);
+            }
+        }
     }
 
     &.align-start {

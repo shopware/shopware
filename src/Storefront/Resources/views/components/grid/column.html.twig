@@ -27,6 +27,8 @@
 
 {% if start is not null and span is not null %}
     {% set columnStyle = columnStyle ~ 'grid-column: ' ~ start ~ ' / span ' ~ span ~ '; ' %}
+{% elseif span is not null %}
+    {% set columnStyle = columnStyle ~ 'grid-column: span ' ~ span ~ '; ' %}
 {% endif %}
 
 <div class="{{ columnCVA.apply({ align, justify }, attributes.render('class')) }}"{% if columnStyle %} style="{{ columnStyle|trim }}"{% endif %}>

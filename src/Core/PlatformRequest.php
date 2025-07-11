@@ -70,6 +70,8 @@ final class PlatformRequest
     public const ATTRIBUTE_OAUTH_USER_ID = 'oauth_user_id';
     public const ATTRIBUTE_OAUTH_SCOPES = 'oauth_scopes';
 
+    public const FALLBACK_SESSION_NAME = 'session-';
+
     private function __construct()
     {
     }

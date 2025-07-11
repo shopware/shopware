@@ -30,13 +30,10 @@
             {% block sw_order_detail_base_general_info_summary_sub_description %}
             <div class="sw-order-general-info__summary-sub-description">
                 {{ $tc('sw-order.generalTab.info.summary.on') }}
-                {{ dateFilter(order.orderDateTime, {
-                hour: '2-digit',
-                minute: '2-digit',
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-                }) }}
+                <sw-time-ago
+                    :date="order.orderDateTime"
+                    :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                />
                 <template v-if="transaction">
                     {{ $tc('sw-order.generalTab.info.summary.with') }}
                     {{ transaction.paymentMethod.translated.distinguishableName }}
@@ -55,13 +52,10 @@
                     class="sw-order-general-info__summary-sub-last-changed-time"
                 >
                     {{ $tc('sw-order.generalTab.info.summary.lastChanged') }}:
-                    {{ dateFilter(lastChangedDateTime, {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                    }) }}
+                    <sw-time-ago
+                        :date="lastChangedDateTime"
+                        :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                    />
                 </div>
                 {% endblock %}
                 {% block sw_order_detail_base_general_info_summary_sub_last_changed_user %}

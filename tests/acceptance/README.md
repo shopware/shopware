@@ -344,7 +344,9 @@ These settings can be applied per test or globally in **playwright.config.ts** f
 
 
 ### Best Practices for Visual Testing 
-- **Mask dynamic content** – Use the `mask` function or a custom stylesheet to hide dynamic elements (e.g., timestamps, user-generated content).
+- **Handling dynamic elements:**  
+  - Replace dynamic text content (e.g., usernames, prices) with `***` using `ReplaceElementsForScreenshot` to mask sensitive or frequently changing information.  
+  - Use `HideElementsForScreenshot` for elements where replacing text content is not feasible—such as those with dynamic color or style changes—to hide them while preserving layout integrity.
 - **Ensure environmental consistency** – Match OS versions, time zones, and rendering environments between your local machine and the test runner.
 - **Adjust sensitivity thresholds** – Modify `maxDiffPixels` and `threshold` based on your project’s requirements.
 - **Handle lazy-loaded elements** – Extend `toHaveScreenshot()` with an additional timeout if necessary.

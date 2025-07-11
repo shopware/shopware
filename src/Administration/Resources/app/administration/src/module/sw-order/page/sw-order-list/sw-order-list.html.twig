@@ -427,7 +427,7 @@
 
                         {% block sw_order_list_bulk_edit_grid_columns_order_date %}
                         <template #column-orderDateTime="{ item }">
-                            {{ dateFilter(item.orderDateTime, { hour: '2-digit', minute: '2-digit' }) }}
+                            <sw-time-ago :date="item.orderDateTime" />
                         </template>
                         {% endblock %}
                     </sw-bulk-edit-modal>

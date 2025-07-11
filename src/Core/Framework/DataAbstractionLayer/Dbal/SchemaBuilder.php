@@ -7,6 +7,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
 use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
+use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -117,6 +118,7 @@ class SchemaBuilder
         SlotConfigField::class => Types::JSON,
         FlowTemplateConfigField::class => Types::JSON,
         CheapestPriceField::class => Types::JSON,
+        MeasurementUnitsField::class => Types::JSON,
 
         ChildCountField::class => Types::INTEGER,
         IntField::class => Types::INTEGER,

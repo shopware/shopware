@@ -1,0 +1,117 @@
+<sw-page class="sw-settings-services-index">
+    <template #smart-bar-header>
+        <h2>
+            {{ $t('sw-settings.index.tabSystem') }}
+            <mt-icon
+                name="regular-chevron-right-xs"
+                size="12px"
+            />
+            {{ $t('sw-settings-services.general.title') }}
+        </h2>
+    </template>
+
+    <template
+        v-if="!suspended"
+        #content
+    >
+        <sw-settings-services-hero
+            :documentation-link="currentRevision.links['docs-url']"
+            :feedback-link="currentRevision.links['feedback-url']"
+        />
+
+        <div class="sw-settings-services-index__content">
+            <sw-settings-services-grant-permissions-card
+                v-if="!consentGiven && !config.disabled"
+                :docs-link="currentRevision.links['docs-url']"
+                @service-permissions-granted="reloadServices"
+            />
+
+            <div class="sw-settings-services__listing-section">
+                <h3>
+                    {{ $t('sw-settings-services.index.available-services') }}
+                </h3>
+
+                <mt-banner
+                    v-if="loadingError !== ''"
+                    variant="critical"
+                >
+                    <p><b>{{ $t('sw-settings-services.exception.service-list') }}</b></p>
+
+                    <p>{{ loadingError }}</p>
+                </mt-banner>
+
+                <mt-banner
+                    v-if="config.disabled"
+                    class="sw-settings-services-index__services-deactivated-banner"
+                    variant="attention"
+                >
+                    <p><b>{{ $t('sw-settings-services.index.services-are-disabled') }}</b></p>
+
+                    <p>{{ $t('sw-settings-services.index.services-are-disabled-cta') }}</p>
+
+                    <mt-button
+                        variant="primary"
+                        size="small"
+                        @click="activateServices"
+                    >
+                        {{ $t('sw-settings-services.index.services-are-disabled-button-label') }}
+                    </mt-button>
+                </mt-banner>
+
+                <div
+                    v-else-if="services.length === 0"
+                    class="sw-settings-services-index__installing-card"
+                >
+                    <div class="sw-settings-services-index__installing-card-loader">
+                        <mt-loader size="var(--scale-size-32)" />
+                    </div>
+
+                    <p class="sw-settings-services-index__installing-card-title">
+                        {{ $t('sw-settings-services.index.installing-services-title') }}
+                    </p>
+
+                    <p>{{ $t('sw-settings-services.index.installing-services-description') }}</p>
+                </div>
+
+                <ul
+                    v-else
+                    class="sw-settings-services__available-services"
+                >
+                    <sw-settings-services-service-card
+                        v-for="service in services"
+                        :key="service.name"
+                        :service="service"
+                    />
+                </ul>
+            </div>
+
+            <div class="sw-settings-services__footer">
+                <a
+                    class="mt-link--external"
+                    :href="currentRevision.links['docs-url']"
+                    target="_blank"
+                >
+                    {{ $t('sw-settings-services.index.label-documentation-link') }}
+                </a>
+
+                <a
+                    class="mt-link--external"
+                    :href="currentRevision.links['tos-url']"
+                    target="_blank"
+                >
+                    {{ $t('sw-settings-services.index.label-tos-link') }}
+                </a>
+
+                <sw-settings-services-revoke-permissions-modal
+                    v-if="!config.disabled && config.permissionsConsent"
+                    @service-permissions-revoked="reloadServices"
+                />
+
+                <sw-settings-services-deactivate-modal
+                    v-if="!config.disabled"
+                    :feedback-link="currentRevision.links['feedback-url']"
+                />
+            </div>
+        </div>
+    </template>
+</sw-page>

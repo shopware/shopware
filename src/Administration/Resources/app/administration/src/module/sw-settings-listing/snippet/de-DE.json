@@ -30,7 +30,8 @@
               "listingPrices": "Produktlisten-Preis",
               "cheapestPrice": "Günstigster Produkt-Preis",
               "price": "Standard Preis",
-              "sales": "Verkaufte Einheiten"
+              "sales": "Verkaufte Einheiten",
+              "createdAt": "Erstellungsdatum"
             },
             "customField": "Zusatzfeld",
             "_score": "_score"

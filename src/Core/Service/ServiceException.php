@@ -25,6 +25,20 @@ class ServiceException extends HttpException
 
     public const SERVICE_TOGGLE_ACTION_NOT_ALLOWED = 'SERVICE__TOGGLE_ACTION_NOT_ALLOWED';
 
+    public const COULD_NOT_FETCH_PERMISSIONS_REVISIONS = 'SERVICE__COULD_NOT_FETCH_PERMISSIONS_REVISIONS';
+
+    public const INVALID_PERMISSIONS_REVISION_FORMAT = 'SERVICE__INVALID_PERMISSIONS_REVISION_FORMAT';
+
+    public const SCHEDULED_TASK_NOT_REGISTERED = 'SCHEDULED_TASK_NOT_REGISTERED';
+
+    public const SERVICE_REQUEST_FAILED = 'SERVICE__REQUEST_FAILED';
+
+    public const NO_CURRENT_PERMISSIONS_CONSENT = 'SERVICE__NO_CURRENT_PERMISSIONS_CONSENT';
+
+    public const SERVICES_NOT_INSTALLED = 'SERVICE__NOT_INSTALLED';
+
+    public const SERVICE_INVALID_SERVICES_STATE = 'SERVICE__INVALID_SERVICES_STATE';
+
     public static function notFound(string $field, string $value): self
     {
         return new self(
@@ -136,6 +150,93 @@ class ServiceException extends HttpException
             self::SERVICE_CANNOT_WRITE_APP,
             'Error writing app zip to file "{{ file }}"',
             ['file' => $file]
+        );
+    }
+
+    public static function invalidPermissionsRevisionFormat(string $revision): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_PERMISSIONS_REVISION_FORMAT,
+            'The provided permissions revision "{{ revision }}" is not in the correct format Y-m-d.',
+            ['revision' => $revision]
+        );
+    }
+
+    public static function scheduledTaskNotRegistered(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::SCHEDULED_TASK_NOT_REGISTERED,
+            'Could not queue task "services.install" because it is not registered.',
+        );
+    }
+
+    public static function invalidServicesState(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::SERVICE_INVALID_SERVICES_STATE,
+            'The services are in an invalid state. Cannot start if the consent is not given.',
+        );
+    }
+
+    public static function serviceNotInstalled(string $name): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SERVICES_NOT_INSTALLED,
+            'The service is not installed.',
+            ['name' => $name]
+        );
+    }
+
+    public static function consentSaveFailed(string $getMessage): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SERVICE_REQUEST_FAILED,
+            'Could not save consent: ' . $getMessage
+        );
+    }
+
+    public static function consentRevokeFailed(string $getMessage): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SERVICE_REQUEST_FAILED,
+            'Could not revoke consent: ' . $getMessage
+        );
+    }
+
+    public static function noCurrentPermissionsConsent(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::NO_CURRENT_PERMISSIONS_CONSENT,
+            'No current permissions consent found.',
+        );
+    }
+
+    public static function invalidPermissionsContext(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SERVICE_REQUEST_FAILED,
+            'This action is only allowed from Admins.',
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $json
+     */
+    public static function invalidPermissionConsentFormat(array $json): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_PERMISSIONS_REVISION_FORMAT,
+            'The saved permissions consent is not in a valid format.',
+            ['consent' => $json]
         );
     }
 }

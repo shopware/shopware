@@ -1,6 +1,10 @@
 @import "~scss/variables";
 
 .sw-inherit-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
     .sw-inherit-wrapper__toggle-wrapper {
         display: flex;
         align-items: center;

@@ -2275,18 +2275,6 @@ parameters:
 			path: src/Core/Framework/Struct/Struct.php
 
 		-
-			message: '#^Mixed variable in a `\$oldBag\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 3
-			path: src/Core/Framework/Test/TestSessionStorage.php
-
-		-
-			message: '#^Property Shopware\\Core\\Framework\\Test\\TestSessionStorage\:\:\$data type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/Test/TestSessionStorage.php
-
-		-
 			message: '#^Method Shopware\\Core\\Framework\\Test\\Webhook\\_fixtures\\BusinessEvents\\BusinessEventEncoderTestInterface\:\:getEncodeValues\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1

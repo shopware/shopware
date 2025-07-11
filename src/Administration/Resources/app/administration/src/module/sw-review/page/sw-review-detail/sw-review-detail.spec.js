@@ -81,6 +81,7 @@ async function createWrapper() {
                 'sw-rating-stars': true,
                 'sw-custom-field-set-renderer': true,
                 'sw-error-summary': true,
+                'sw-time-ago': true,
             },
         },
     });
@@ -153,6 +154,9 @@ describe('module/sw-review/page/sw-review-detail', () => {
     it('should return filters from filter registry', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        }
     });
 });

@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Cms\Events;
 
 use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;

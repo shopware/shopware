@@ -58,7 +58,7 @@ class AclValidPermissionsInMethodRule implements Rule
                             ->identifier('shopware.aclKey')
                             ->build();
                     }
-                } catch (\RuntimeException $e) {
+                } catch (\RuntimeException) {
                     $errors[] = RuleErrorBuilder::message(\sprintf(AclValidPermissionsHelper::MISSING_SCHEMA_ERROR_MESSAGE, $permission))
                         ->line($args[0]->getStartLine() ?: 0)
                         ->identifier('shopware.aclKey.missingSchema')

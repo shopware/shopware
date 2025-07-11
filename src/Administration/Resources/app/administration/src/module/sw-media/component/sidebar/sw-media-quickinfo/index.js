@@ -58,6 +58,7 @@ export default {
             defaultArReady: false,
             arPlacement: 'horizontal',
             defaultArPlacement: 'horizontal',
+            arPlacementOptions: [],
         };
     },
 
@@ -92,27 +93,6 @@ export default {
             // we need to check the media url since media.fileExtension is set directly after upload
             return this.item?.fileExtension === 'glb' || !!this.item?.url?.endsWith('.glb');
         },
-
-        arPlacementOptions() {
-            this.systemConfigApiService.getConfig('core.media').then((config) => {
-                config
-                    .flat()[0]
-                    .elements.filter((element) => element.name === 'core.media.defaultARPlacement')
-                    .forEach((element) => {
-                        return element.config.options.map((option) => {
-                            return {
-                                id: option.id,
-                                name: option.name,
-                            };
-                        });
-                    });
-            });
-
-            return [
-                { id: 1, value: 'horizontal', label: 'Horizontal' },
-                { id: 2, value: 'vertical', label: 'Vertical' },
-            ];
-        },
     },
 
     watch: {
@@ -141,6 +121,21 @@ export default {
             this.systemConfigApiService.getValues('core.media').then((values) => {
                 this.defaultArReady = values['core.media.defaultEnableAugmentedReality'];
                 this.defaultArPlacement = values['core.media.defaultARPlacement'];
+            });
+
+            this.systemConfigApiService.getConfig('core.media').then((config) => {
+                config
+                    .flat()[0]
+                    .elements.filter((element) => element.name === 'core.media.defaultARPlacement')
+                    .forEach((element) => {
+                        this.arPlacementOptions = element.config.options.map((option) => {
+                            return {
+                                id: option.id,
+                                value: option.id,
+                                label: this.$tc(`sw-media.sidebar.actions.${option.id}`),
+                            };
+                        });
+                    });
             });
 
             this.mediaRepository.get(this.item.id, Shopware.Context.api).then((entity) => {

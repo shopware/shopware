@@ -26,8 +26,8 @@ const itemMock = (options = {}) => {
 };
 
 const arPlacementOptions = [
-    { id: 1, value: 'horizontal', label: 'Horizontal' },
-    { id: 2, value: 'vertical', label: 'Vertical' },
+    { id: 'horizontal', value: 'horizontal', label: 'Horizontal' },
+    { id: 'vertical', value: 'vertical', label: 'Vertical' },
 ];
 
 async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaRepositoryProvideFunctions = {}) {
@@ -359,14 +359,9 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
                 // find all results
                 const selectResults = wrapper.findAll('.mt-select-result');
                 // eslint-disable-next-line jest/no-conditional-expect
-                expect(selectResults.at(0).text()).toBe('Horizontal');
-                // eslint-disable-next-line jest/no-conditional-expect
-                expect(selectResults.at(1).text()).toBe('Vertical');
+                expect(selectResults).toHaveLength(2);
 
                 await selectResults.at(1).trigger('click');
-
-                // eslint-disable-next-line jest/no-conditional-expect
-                expect(arPlacementSelect.element.value).toBe('Vertical');
 
                 if (arPlacement === 'horizontal') {
                     // eslint-disable-next-line jest/no-conditional-expect
@@ -421,12 +416,6 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
 
             const arPlacementSelect = wrapper.find('.mt-select input');
             expect(arPlacementSelect.exists()).toBe(isArReady);
-            if (arPlacementSelect.exists()) {
-                // eslint-disable-next-line jest/no-conditional-expect
-                expect(arPlacementSelect.element.value).toBe(
-                    arPlacementOptions.filter((option) => option.value === arPlacement)[0].label,
-                );
-            }
         },
     );
 

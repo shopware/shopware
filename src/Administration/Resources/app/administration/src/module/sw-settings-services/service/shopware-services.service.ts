@@ -76,7 +76,7 @@ export default class ShopwareServicesService extends ApiService {
         };
     }
 
-    acceptRevision(revision: string): Promise<ServiceConfiguration> {
+    acceptRevision(revision: string): Promise<void> {
         return this.httpClient
             .post(
                 `services/permissions/grant/${revision}`,
@@ -84,13 +84,10 @@ export default class ShopwareServicesService extends ApiService {
                 {
                     headers: this.getBasicHeaders(),
                 },
-            )
-            .then(() => {
-                return this.getServicesContext();
-            });
+            );
     }
 
-    revokePermissions(): Promise<ServiceConfiguration> {
+    revokePermissions(): Promise<void> {
         return this.httpClient
             .post(
                 `services/permissions/revoke`,
@@ -98,10 +95,7 @@ export default class ShopwareServicesService extends ApiService {
                 {
                     headers: this.getBasicHeaders(),
                 },
-            )
-            .then(() => {
-                return this.getServicesContext();
-            });
+            );
     }
 
     enableAllServices(): Promise<ServiceConfiguration> {
@@ -118,7 +112,7 @@ export default class ShopwareServicesService extends ApiService {
             });
     }
 
-    disableAllServices(): Promise<ServiceConfiguration> {
+    disableAllServices(): Promise<void> {
         return this.httpClient
             .post(
                 'services/disable',
@@ -126,9 +120,6 @@ export default class ShopwareServicesService extends ApiService {
                 {
                     headers: this.getBasicHeaders(),
                 },
-            )
-            .then(() => {
-                return this.getServicesContext();
-            });
+            );
     }
 }

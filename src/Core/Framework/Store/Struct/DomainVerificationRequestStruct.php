@@ -11,9 +11,12 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class DomainVerificationRequestStruct extends Struct
 {
+    /**
+     * @deprecated tag:v6.8.0 - reason:parameter-name-change - Parameter `filename` will be renamed to `fileName`
+     */
     public function __construct(
         protected string $content,
-        protected string $fileName,
+        protected string $filename,
     ) {
     }
 
@@ -24,7 +27,7 @@ class DomainVerificationRequestStruct extends Struct
 
     public function getFileName(): string
     {
-        return $this->fileName;
+        return $this->filename;
     }
 
     public function getApiAlias(): string

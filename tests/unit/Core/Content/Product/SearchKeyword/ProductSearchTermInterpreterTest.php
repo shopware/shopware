@@ -27,10 +27,7 @@ class ProductSearchTermInterpreterTest extends TestCase
             static::createMock(Connection::class),
             new Tokenizer(3),
             static::createMock(LoggerInterface::class),
-            new TokenFilter(
-                static::createMock(Connection::class),
-                static::createMock(SearchConfigLoader::class),
-            ),
+            new TokenFilter(static::createMock(SearchConfigLoader::class)),
             static::createMock(KeywordLoader::class),
             static::createMock(SearchConfigLoader::class),
         );
@@ -48,10 +45,7 @@ class ProductSearchTermInterpreterTest extends TestCase
             static::createMock(Connection::class),
             static::createMock(Tokenizer::class),
             static::createMock(LoggerInterface::class),
-            new TokenFilter(
-                static::createMock(Connection::class),
-                static::createMock(SearchConfigLoader::class),
-            ),
+            new TokenFilter(static::createMock(SearchConfigLoader::class)),
             static::createMock(KeywordLoader::class),
             static::createMock(SearchConfigLoader::class),
         );
@@ -90,10 +84,7 @@ class ProductSearchTermInterpreterTest extends TestCase
             static::createMock(Connection::class),
             new Tokenizer(3),
             static::createMock(LoggerInterface::class),
-            new TokenFilter(
-                static::createMock(Connection::class),
-                $configLoader,
-            ),
+            new TokenFilter($configLoader),
             $keywordLoader,
             $configLoader,
         );
@@ -122,10 +113,7 @@ class ProductSearchTermInterpreterTest extends TestCase
             $this->createMock(Connection::class),
             new Tokenizer(3),
             $this->createMock(LoggerInterface::class),
-            new TokenFilter(
-                static::createMock(Connection::class),
-                $configLoader,
-            ),
+            new TokenFilter($configLoader),
             $keywordLoader,
             $configLoader,
         );

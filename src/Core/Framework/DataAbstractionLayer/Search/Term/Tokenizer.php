@@ -13,7 +13,7 @@ class Tokenizer implements TokenizerInterface
      *
      * @internal
      *
-     *  Property `$tokenMinimumLength` will be removed
+     *  @deprecated tag:v6.8.0 - Property `$tokenMinimumLength` will be removed
      */
     public function __construct(
         private readonly int $tokenMinimumLength,

@@ -77,7 +77,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
     {
         $config = $this->configLoader->load($context);
 
-        /** @phpstan-ignore-next-line This ignore should be removed when the deprecated method signature is updated */
+        /** @phpstan-ignore arguments.count (This ignore should be removed when the deprecated method signature is updated) */
         $values = $this->tokenizer->tokenize(
             implode(' ', $values),
             $config[0]['min_search_length'] ?? null

@@ -29,7 +29,7 @@ class SearchTermInterpreter
             $config = $this->configLoader->load($context);
         }
 
-        /** @phpstan-ignore-next-line This ignore should be removed when the deprecated method signature is updated */
+        /** @phpstan-ignore arguments.count (This ignore should be removed when the deprecated method signature is updated) */
         $terms = $this->tokenizer->tokenize($term, $config[0]['min_search_length'] ?? null);
 
         $pattern = new SearchPattern(new SearchTerm($term));

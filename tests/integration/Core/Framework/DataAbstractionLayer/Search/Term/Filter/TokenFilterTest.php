@@ -40,7 +40,7 @@ class TokenFilterTest extends TestCase
     {
         $this->updateProductSearchConfig($excludedTerms);
 
-        $service = new TokenFilter($this->connection, $this->configLoader);
+        $service = new TokenFilter($this->configLoader);
         $keywords = $service->filter($tokens, $this->context);
 
         sort($expected);

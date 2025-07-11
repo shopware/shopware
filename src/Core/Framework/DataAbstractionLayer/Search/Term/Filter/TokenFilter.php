@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -13,12 +12,8 @@ class TokenFilter extends AbstractTokenFilter
 {
     /**
      * @internal
-     *
-     * @deprecated tag:v6.8.0 - Property `Connection` will be removed
      */
     public function __construct(
-        /** @phpstan-ignore-next-line deprecated property, will be removed in v6.8.0 */
-        private readonly Connection $connection,
         private readonly SearchConfigLoader $configLoader,
     ) {
     }

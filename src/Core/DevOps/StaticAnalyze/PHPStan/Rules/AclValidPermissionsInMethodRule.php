@@ -26,11 +26,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AclValidPermissionsInMethodRule implements Rule
 {
-    private AclValidPermissionsHelper $permissionsHelper;
-
-    public function __construct(AclValidPermissionsHelper $permissionsHelper)
+    public function __construct(private readonly AclValidPermissionsHelper $permissionsHelper)
     {
-        $this->permissionsHelper = $permissionsHelper;
     }
 
     public function getNodeType(): string

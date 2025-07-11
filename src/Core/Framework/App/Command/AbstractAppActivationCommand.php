@@ -19,14 +19,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('framework')]
 abstract class AbstractAppActivationCommand extends Command
 {
-    protected EntityRepository $appRepo;
-
     public function __construct(
-        EntityRepository $appRepo,
-        private readonly string $action
+        protected EntityRepository $appRepo,
+        private readonly string $action,
     ) {
-        $this->appRepo = $appRepo;
-
         parent::__construct();
     }
 

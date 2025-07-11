@@ -14,23 +14,14 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class CmsPageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    protected Request $request;
-
-    protected CmsPageCollection $result;
-
-    protected SalesChannelContext $salesChannelContext;
-
     /**
      * @param CmsPageCollection $result
      */
     public function __construct(
-        Request $request,
-        EntityCollection $result,
-        SalesChannelContext $salesChannelContext
+        protected Request $request,
+        protected EntityCollection $result,
+        protected SalesChannelContext $salesChannelContext,
     ) {
-        $this->request = $request;
-        $this->result = $result;
-        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getRequest(): Request

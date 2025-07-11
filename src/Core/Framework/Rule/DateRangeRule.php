@@ -16,24 +16,15 @@ class DateRangeRule extends Rule
 {
     final public const RULE_NAME = 'dateRange';
 
-    protected \DateTimeInterface|string|null $fromDate = null;
-
-    protected \DateTimeInterface|string|null $toDate = null;
-
-    protected bool $useTime;
-
     /**
      * @internal
      */
     public function __construct(
-        ?\DateTimeInterface $fromDate = null,
-        ?\DateTimeInterface $toDate = null,
-        bool $useTime = false
+        protected \DateTimeInterface|string|null $fromDate = null,
+        protected \DateTimeInterface|string|null $toDate = null,
+        protected bool $useTime = false,
     ) {
         parent::__construct();
-        $this->useTime = $useTime;
-        $this->fromDate = $fromDate;
-        $this->toDate = $toDate;
     }
 
     public function __wakeup(): void

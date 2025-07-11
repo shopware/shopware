@@ -16,7 +16,6 @@ export default {
         'acl',
         'filterFactory',
         'ruleConditionDataProviderService',
-        'filterService',
     ],
 
     mixins: [
@@ -185,7 +184,10 @@ export default {
         async getList() {
             this.isLoading = true;
 
-            const criteria = await this.filterService.mergeWithStoredFilters(this.storeKey, this.listCriteria);
+            const criteria = await Shopware.Service('filterService').mergeWithStoredFilters(
+                this.storeKey,
+                this.listCriteria,
+            );
 
             this.activeFilterNumber = criteria.filters.length;
 

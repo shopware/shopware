@@ -24,7 +24,6 @@ export default {
         'acl',
         'repositoryFactory',
         'filterFactory',
-        'filterService',
     ],
 
     emits: [
@@ -288,11 +287,13 @@ export default {
                 this.currentSelection[selection.id] = selection;
             });
 
-            this.filterService.getStoredCriteria(this.storeKey).then((criteria) => {
-                this.filterCriteria.push(...criteria);
-                this.isLoading = false;
-                return this.getList();
-            });
+            Shopware.Service('filterService')
+                .getStoredCriteria(this.storeKey)
+                .then((criteria) => {
+                    this.filterCriteria.push(...criteria);
+                    this.isLoading = false;
+                    return this.getList();
+                });
         },
 
         async getList() {

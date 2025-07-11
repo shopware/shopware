@@ -52,7 +52,7 @@ class ProductBuilder
     /**
      * @var Manufacturer
      */
-    protected ?array $manufacturer;
+    protected ?array $manufacturer = null;
 
     /**
      * @var Tax
@@ -96,7 +96,7 @@ class ProductBuilder
     /**
      * @var array<CurrencyPrice>|null
      */
-    protected ?array $purchasePrices;
+    protected ?array $purchasePrices = null;
 
     protected ?float $purchasePrice = null;
 
@@ -151,7 +151,7 @@ class ProductBuilder
      */
     protected array $tags = [];
 
-    protected ?string $createdAt;
+    protected ?string $createdAt = null;
 
     /**
      * @var array<array{salesChannelId: string, languageId: string, routeName: TestProductSeoUrlRoute::ROUTE_NAME, pathInfo: string, seoPathInfo: string}>

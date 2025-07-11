@@ -29,7 +29,7 @@ class ThemeConfigField extends Struct
 
     protected string $helpTextSnippetKey;
 
-    protected ?string $type;
+    protected ?string $type = null;
 
     /**
      * @deprecated tag:v6.8.0 - Property will be typed natively as array|string

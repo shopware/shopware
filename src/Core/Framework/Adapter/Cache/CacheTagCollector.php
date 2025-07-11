@@ -44,6 +44,16 @@ class CacheTagCollector
     }
 
     /**
+     * @return list<string>
+     */
+    public function get(Request $request): array
+    {
+        $hash = self::uri($request);
+
+        return array_keys($this->tags[$hash] ?? []);
+    }
+
+    /**
      * Collects cache tags for the current request, which will be used to tag the http cache entry.
      * This method will prevent adding the same tag multiple times and will not dispatch an event if only existing tags are provided.
      */
@@ -60,16 +70,6 @@ class CacheTagCollector
         }
 
         $this->dispatcher->dispatch(new AddCacheTagEvent(...$tags));
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function get(Request $request): array
-    {
-        $hash = self::uri($request);
-
-        return array_keys($this->tags[$hash] ?? []);
     }
 
     public static function uri(?Request $request): string

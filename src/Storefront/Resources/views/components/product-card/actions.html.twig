@@ -50,8 +50,7 @@
         </form>
     {% else %}
         <a href="{{ seoUrl('frontend.detail.page', {productId: id}) }}"
-           class="btn btn-light btn-detail"
-           style="--bs-btn-border-color: var(--bs-border-color); --bs-btn-hover-border-color: var(--bs-border-color); --bs-btn-color: var(--bs-body-color);">
+           class="btn btn-light btn-detail">
             {% block component_product_box_action_detail_label %}
                 {{ 'listing.boxProductDetails'|trans|sw_sanitize }}
             {% endblock %}

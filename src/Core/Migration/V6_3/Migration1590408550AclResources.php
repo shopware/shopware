@@ -70,7 +70,7 @@ class Migration1590408550AclResources extends MigrationStep
         return $grouped;
     }
 
-    private function tableExists(Connection $connection, string $table): bool
+    protected function tableExists(Connection $connection, string $table): bool
     {
         try {
             $connection->fetchOne('SELECT 1 FROM ' . $table . ' LIMIT 1');

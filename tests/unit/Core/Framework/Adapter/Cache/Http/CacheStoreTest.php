@@ -15,6 +15,7 @@ use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
  * @internal
@@ -43,7 +44,9 @@ class CacheStoreTest extends TestCase
             new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
             $this->createMock(MaintenanceModeResolver::class),
             [],
-            $this->createMock(CacheTagCollector::class)
+            $this->createMock(CacheTagCollector::class),
+            $this->createMock(HttpKernelInterface::class),
+            false
         );
 
         $store->lock($request);
@@ -73,7 +76,9 @@ class CacheStoreTest extends TestCase
             new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
             $this->createMock(MaintenanceModeResolver::class),
             [],
-            $this->createMock(CacheTagCollector::class)
+            $this->createMock(CacheTagCollector::class),
+            $this->createMock(HttpKernelInterface::class),
+            false
         );
 
         $store->write($request, $response);

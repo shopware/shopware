@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidator
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -17,6 +18,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class CacheInvalidator
 {
+    private \Closure $createCacheItem;
+
     /**
      * @internal
      *
@@ -28,8 +31,16 @@ class CacheInvalidator
         private readonly EventDispatcherInterface $dispatcher,
         private readonly LoggerInterface $logger,
         private readonly RequestStack $requestStack,
-        private readonly string $environment
+        private readonly string $environment,
+        private readonly TagAwareAdapterInterface $httpCacheStore,
+        private readonly bool $softPurge
     ) {
+        $this->createCacheItem = \Closure::bind(function (string $key) {
+            $item = new CacheItem();
+            $item->key = $key;
+
+            return $item;
+        }, new CacheItem(), CacheItem::class);
     }
 
     /**
@@ -80,6 +91,15 @@ class CacheInvalidator
 
             if ($adapter instanceof TagAwareAdapterInterface) {
                 $adapter->invalidateTags($keys);
+            }
+        }
+
+        if ($this->softPurge) {
+            foreach ($keys as $key) {
+                /** @var CacheItem $item */
+                $item = ($this->createCacheItem)('http_invalidation_' . $key . '_timestamp');
+                $item->set(time());
+                $this->httpCacheStore->saveDeferred($item);
             }
         }
 

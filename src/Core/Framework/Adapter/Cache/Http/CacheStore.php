@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\Lock\LockFactory;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -45,7 +46,8 @@ class CacheStore implements StoreInterface
         array $sessionOptions,
         private readonly CacheTagCollector $collector,
         private readonly HttpKernelInterface $kernel,
-        private bool $softPurge
+        private bool $softPurge,
+        private readonly LockFactory $lockFactory,
     ) {
         $this->sessionName = $sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME;
     }
@@ -74,11 +76,27 @@ class CacheStore implements StoreInterface
             $tags = $hitData['tags'] ?? [];
         }
 
-        if ($this->softPurge && $this->getMinInvalidation($tags) >= (new \DateTime((string) $response->headers->get('date')))->getTimestamp()) {
-            register_shutdown_function(function () use ($request): void {
-                $response = $this->kernel->handle($request, HttpKernelInterface::MAIN_REQUEST, false);
-                $this->write($request, $response);
-            });
+        if ($this->softPurge) {
+            $minInvalidation = $this->getMinInvalidation($tags);
+            $responseGeneratedAt = new \DateTime((string) $response->headers->get('date'));
+            $staleWhileRevalidate = $response->headers->getCacheControlDirective('stale-while-revalidate');
+
+            if ($minInvalidation >= $responseGeneratedAt->getTimestamp()) {
+                // The cache is too old, we need to revalidate it
+                if ($staleWhileRevalidate && $responseGeneratedAt->diff(new \DateTime())->s >= (int) $staleWhileRevalidate) {
+                    return null;
+                }
+
+                $lock = $this->lockFactory->createLock($key, 3);
+                if ($lock->acquire()) {
+                    register_shutdown_function(function () use ($request, $lock): void {
+                        $response = $this->kernel->handle($request, HttpKernelInterface::MAIN_REQUEST, false);
+                        $this->write($request, $response);
+
+                        $lock->release();
+                    });
+                }
+            }
         }
 
         if (!$this->stateValidator->isValid($request, $response)) {

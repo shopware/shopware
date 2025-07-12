@@ -18,6 +18,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http {
     use Symfony\Component\HttpFoundation\Request;
     use Symfony\Component\HttpFoundation\Response;
     use Symfony\Component\HttpKernel\HttpKernelInterface;
+    use Symfony\Component\Lock\LockFactory;
+    use Symfony\Component\Lock\Store\InMemoryStore;
 
     /**
      * @internal
@@ -48,7 +50,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http {
                 [],
                 $this->createMock(CacheTagCollector::class),
                 $this->createMock(HttpKernelInterface::class),
-                false
+                false,
+                new LockFactory(new InMemoryStore())
             );
 
             $store->lock($request);
@@ -80,7 +83,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http {
                 [],
                 $this->createMock(CacheTagCollector::class),
                 $this->createMock(HttpKernelInterface::class),
-                false
+                false,
+                new LockFactory(new InMemoryStore())
             );
 
             $store->write($request, $response);
@@ -112,7 +116,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http {
                 [],
                 $collector,
                 $this->createMock(HttpKernelInterface::class),
-                true
+                true,
+                new LockFactory(new InMemoryStore())
             );
 
             $key = $store->write($request, $response);
@@ -157,7 +162,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http {
                 [],
                 $collector,
                 $this->createMock(HttpKernelInterface::class),
-                false
+                false,
+                new LockFactory(new InMemoryStore())
             );
 
             $key = $store->write($request, $response);
@@ -212,7 +218,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http {
                 [],
                 $this->createMock(CacheTagCollector::class),
                 $kernel,
-                true
+                true,
+                new LockFactory(new InMemoryStore())
             );
 
             $result = $store->lookup($request);
@@ -260,7 +267,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http {
                 [],
                 $this->createMock(CacheTagCollector::class),
                 $kernel,
-                true
+                true,
+                new LockFactory(new InMemoryStore())
             );
 
             $result = $store->lookup($request);

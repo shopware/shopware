@@ -12,10 +12,7 @@ class AttributeTranslationDefinition extends EntityTranslationDefinition
     /**
      * @param array<string, mixed> $meta
      */
-    public function __construct(private readonly array $meta = [])
-    {
-        parent::__construct();
-    }
+    public function __construct(private readonly array $meta = []) {}
 
     public function getEntityName(): string
     {

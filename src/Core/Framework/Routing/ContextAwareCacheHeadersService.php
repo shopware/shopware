@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,8 +13,13 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('framework')]
-class ContextAwareCacheHeadersService
+readonly class ContextAwareCacheHeadersService
 {
+    public function __construct(
+        private EntityCacheKeyGenerator $cacheKeyGenerator
+    ) {
+    }
+
     public function addContextHeaders(Request $request, Response $response, SalesChannelContext $context): void
     {
         // Add context headers to response
@@ -29,15 +34,10 @@ class ContextAwareCacheHeadersService
 
     private function generateContextHash(SalesChannelContext $context): string
     {
-        $ruleIds = $context->getRuleIds();
+        $areaRuleIds = $context->getAreaRuleIds();
+        $ruleAreas = array_keys($areaRuleIds);
 
-        return Hasher::hash([
-            $context->getSalesChannelId(),
-            $context->getDomainId(),
-            $context->getLanguageId(),
-            $context->getCurrencyId(),
-            $ruleIds,
-        ]);
+        return $this->cacheKeyGenerator->getSalesChannelContextHash($context, $ruleAreas);
     }
 
     private function addVaryHeaders(Response $response): void

@@ -7,16 +7,15 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
  */
 #[Package('framework')]
-class ContextAwareCacheHeadersSubscriber implements EventSubscriberInterface
+readonly class ContextAwareCacheHeadersSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly ContextAwareCacheHeadersService $contextAwareCacheService
+        private ContextAwareCacheHeadersService $contextAwareCacheService
     ) {
     }
 

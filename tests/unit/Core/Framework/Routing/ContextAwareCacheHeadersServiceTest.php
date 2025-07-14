@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -26,7 +27,8 @@ class ContextAwareCacheHeadersServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->contextAwareCacheService = new ContextAwareCacheHeadersService();
+        $entityCacheKeyGenerator = new EntityCacheKeyGenerator();
+        $this->contextAwareCacheService = new ContextAwareCacheHeadersService($entityCacheKeyGenerator);
     }
 
     /**
@@ -49,7 +51,7 @@ class ContextAwareCacheHeadersServiceTest extends TestCase
         // Verify headers are set
         static::assertSame($context->getLanguageId(), $response->headers->get(PlatformRequest::HEADER_LANGUAGE_ID));
         static::assertSame($context->getCurrencyId(), $response->headers->get(PlatformRequest::HEADER_CURRENCY_ID));
-        static::assertTrue($response->headers->has(ContextAwareCacheHeadersService::HEADER_CONTEXT_HASH));
+        static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_HASH));
 
         // Verify Vary header contains expected values
         $varyHeader = $response->headers->get('Vary');
@@ -67,7 +69,7 @@ class ContextAwareCacheHeadersServiceTest extends TestCase
             'expectedVaryHeaders' => [
                 PlatformRequest::HEADER_LANGUAGE_ID,
                 PlatformRequest::HEADER_CURRENCY_ID,
-                ContextAwareCacheHeadersService::HEADER_CONTEXT_HASH,
+                PlatformRequest::HEADER_CONTEXT_HASH,
             ],
             'context' => self::createSalesChannelContext(),
         ];
@@ -79,7 +81,7 @@ class ContextAwareCacheHeadersServiceTest extends TestCase
                 'Accept-Language',
                 PlatformRequest::HEADER_LANGUAGE_ID,
                 PlatformRequest::HEADER_CURRENCY_ID,
-                ContextAwareCacheHeadersService::HEADER_CONTEXT_HASH,
+                PlatformRequest::HEADER_CONTEXT_HASH,
             ],
             'context' => self::createSalesChannelContext(),
         ];
@@ -89,7 +91,7 @@ class ContextAwareCacheHeadersServiceTest extends TestCase
             'expectedVaryHeaders' => [
                 PlatformRequest::HEADER_LANGUAGE_ID,
                 PlatformRequest::HEADER_CURRENCY_ID,
-                ContextAwareCacheHeadersService::HEADER_CONTEXT_HASH,
+                PlatformRequest::HEADER_CONTEXT_HASH,
             ],
             'context' => self::createSalesChannelContext('custom-language-id', 'custom-currency-id'),
         ];
@@ -99,7 +101,7 @@ class ContextAwareCacheHeadersServiceTest extends TestCase
             'expectedVaryHeaders' => [
                 PlatformRequest::HEADER_LANGUAGE_ID,
                 PlatformRequest::HEADER_CURRENCY_ID,
-                ContextAwareCacheHeadersService::HEADER_CONTEXT_HASH,
+                PlatformRequest::HEADER_CONTEXT_HASH,
             ],
             'context' => self::createSalesChannelContext(
                 ruleIds: ['rule-1', 'rule-2'],

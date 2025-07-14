@@ -32,7 +32,7 @@ test('As an admin, I want to create documents and make sure they contain certain
 
     await test.step('Go to order detail page and check for credit item', async () => {
         await ShopAdmin.goesTo(AdminOrderDetail.url(order.id, 'general'));
-        await ShopAdmin.expects(AdminOrderDetail.lineItem.nth(2)).toContainText('CreditItem');
+        await ShopAdmin.expects(AdminOrderDetail.lineItemsTable).toContainText('CreditItem');
         });
 
     await test.step('Go to documents tab and send invoice', async () => {

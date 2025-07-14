@@ -4,9 +4,11 @@ namespace Shopware\Core\System\NumberRange\ValueGenerator;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\Exception\NoConfigurationException;
+use Shopware\Core\System\NumberRange\Extension\NumberRangeValueGeneratorExtension;
 use Shopware\Core\System\NumberRange\NumberRangeEvents;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -20,17 +22,18 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
     public function __construct(
         private readonly ValueGeneratorPatternRegistry $valueGeneratorPatternRegistry,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ExtensionDispatcher $extensions,
         private readonly Connection $connection
     ) {
     }
 
     public function getValue(string $type, Context $context, ?string $salesChannelId, bool $preview = false): string
     {
-        $config = $this->getConfiguration($type, $salesChannelId);
-
-        $parsedPattern = $this->parsePattern($config['pattern']);
-
-        $generatedValue = \is_array($parsedPattern) ? $this->generate($parsedPattern, $config, $preview) : '';
+        $generatedValue = $this->extensions->publish(
+            name: NumberRangeValueGeneratorExtension::NAME,
+            extension: new NumberRangeValueGeneratorExtension($type, $context, $salesChannelId, $preview),
+            function: $this->_getValue(...),
+        );
 
         return $this->endEvent($generatedValue, $type, $context, $salesChannelId, $preview);
     }
@@ -47,6 +50,15 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
         $parsedPattern = $this->parsePattern($pattern);
 
         return \is_array($parsedPattern) ? $this->generate($parsedPattern, $config, true) : '';
+    }
+
+    private function _getValue(string $type, Context $context, ?string $salesChannelId, bool $preview = false): string
+    {
+        $config = $this->getConfiguration($type, $salesChannelId);
+
+        $parsedPattern = $this->parsePattern($config['pattern']);
+
+        return \is_array($parsedPattern) ? $this->generate($parsedPattern, $config, $preview) : '';
     }
 
     /**

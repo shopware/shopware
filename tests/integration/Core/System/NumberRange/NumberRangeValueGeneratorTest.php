@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeCollection;
@@ -19,6 +20,7 @@ use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInt
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternDate;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternIncrement;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -149,9 +151,12 @@ class NumberRangeValueGeneratorTest extends TestCase
             ->method('fetchAssociative')
             ->willReturn(['id' => Uuid::randomHex(), 'pattern' => $pattern, 'start' => 1]);
 
+        $dispatcher = new EventDispatcher();
+
         return new NumberRangeValueGenerator(
             $patternReg,
-            static::getContainer()->get('event_dispatcher'),
+            $dispatcher,
+            new ExtensionDispatcher($dispatcher),
             $connection,
         );
     }

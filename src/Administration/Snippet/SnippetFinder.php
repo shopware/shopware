@@ -47,15 +47,16 @@ class SnippetFinder implements SnippetFinderInterface
      */
     private function findSnippetFiles(string $locale): array
     {
-        $paths = $this->getInstalledSnippetPaths($locale);
+        $paths = [];
+        $this->addInstalledPlatformPaths($paths, $locale);
 
         if (empty($paths)) {
-            // legacy
-            $this->getShopwareLegacyPaths($paths);
+            // @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
+            $this->addShopwareLegacyPaths($paths);
         }
 
-        $this->getPluginPaths($paths, $locale);
-        $this->getMeteorBundlePaths($paths);
+        $this->addPluginPaths($paths, $locale);
+        $this->addMeteorBundlePaths($paths);
 
         $finder = (new Finder())
             ->files()
@@ -65,7 +66,7 @@ class SnippetFinder implements SnippetFinderInterface
             ->ignoreUnreadableDirs()
             ->name([
                 'administration.json',
-                \sprintf('%s.json', $locale), // legacy pattern
+                \sprintf('%s.json', $locale), // @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
             ])
             ->in($paths);
 
@@ -80,49 +81,38 @@ class SnippetFinder implements SnippetFinderInterface
     }
 
     /**
-     * @return list<string>
+     * @param list<string> $paths
      */
-    private function getInstalledSnippetPaths(string $locale): array
+    private function addInstalledPlatformPaths(array &$paths, string $locale): void
     {
-        $paths = [];
-
-        // platform
         $path = \sprintf(TranslationLoader::TRANSLATION_DESTINATION . '/%s/Platform', $locale);
 
-        if (file_exists($path)) {
-            $paths[] = $path;
+        if (!file_exists($path)) {
+            return;
         }
 
-        // plugins
+        $paths[] = $path;
+    }
+
+    /**
+     * @param list<string> $paths
+     */
+    private function addPluginPaths(array &$paths, string $locale): void
+    {
         $activePlugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();
 
         foreach ($activePlugins as $plugin) {
             $name = TranslationConfigLoader::getMappedPluginName($plugin);
             $path = \sprintf(TranslationLoader::TRANSLATION_DESTINATION . '/%s/Plugins/%s', $locale, $name);
 
-            if (!file_exists($path)) {
+            // add the path of the installed plugin translation if it exists
+            if (file_exists($path)) {
+                $paths[] = $path;
+
                 continue;
             }
 
-            $paths[] = $path;
-        }
-
-        return $paths;
-    }
-
-    /**
-     * @param list<string> $paths
-     */
-    private function getPluginPaths(array &$paths, string $locale): void
-    {
-        $activePlugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();
-
-        foreach ($activePlugins as $plugin) {
-            // Skip plugin snippets if they already exist
-            if (TranslationLoader::pluginTranslationExists($plugin, $locale)) {
-                continue;
-            }
-
+            // add the plugin specific paths if the translation does not exist
             $pluginPath = $plugin->getPath() . '/Resources/app/administration/src';
 
             if (\is_dir($pluginPath)) {
@@ -139,7 +129,7 @@ class SnippetFinder implements SnippetFinderInterface
     /**
      * @param list<string> $paths
      */
-    private function getMeteorBundlePaths(array &$paths): void
+    private function addMeteorBundlePaths(array &$paths): void
     {
         $plugins = $this->kernel->getPluginLoader()->getPluginInstances()->all();
         $bundles = $this->kernel->getBundles();
@@ -162,8 +152,11 @@ class SnippetFinder implements SnippetFinderInterface
 
     /**
      * @param list<string> $paths
+     *
+     * @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
+     * The method `getInstalledSnippetPaths` will be used to fetch the paths.
      */
-    private function getShopwareLegacyPaths(array &$paths): void
+    private function addShopwareLegacyPaths(array &$paths): void
     {
         $plugins = $this->kernel->getPluginLoader()->getPluginInstances()->all();
         $bundles = $this->kernel->getBundles();

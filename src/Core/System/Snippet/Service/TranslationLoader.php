@@ -68,16 +68,10 @@ class TranslationLoader
         $this->createSnippetSet($language, $context);
     }
 
-    public static function pluginTranslationExists(Plugin $plugin, ?string $locale = null): bool
+    public static function pluginTranslationExists(Plugin $plugin): bool
     {
         $name = TranslationConfigLoader::getMappedPluginName($plugin);
         $pattern = self::TRANSLATION_DESTINATION . '/*/Plugins/' . $name;
-
-        if ($locale !== null) {
-            $path = str_replace('*', $locale, $pattern);
-
-            return is_dir($path);
-        }
 
         return (bool) glob($pattern, \GLOB_ONLYDIR);
     }

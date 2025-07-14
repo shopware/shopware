@@ -26,6 +26,7 @@ export default {
         'acl',
         'systemConfigApiService',
         'entityValidationService',
+        'userConfigService',
     ],
 
     provide() {
@@ -69,6 +70,8 @@ export default {
             isSaveSuccessful: false,
             cloning: false,
             defaultSalesChannelVisibility: 30,
+            previousLengthUnit: null,
+            previousWeightUnit: null,
             updateSeoPromises: [],
         };
     },
@@ -339,8 +342,14 @@ export default {
         getModeSettingSpecificationsTab() {
             return [
                 {
-                    key: 'measures_packaging',
-                    label: 'sw-product.specifications.cardTitleMeasuresPackaging',
+                    key: 'measurement',
+                    label: 'sw-product.specifications.cardTitleMeasurement',
+                    enabled: true,
+                    name: 'specifications',
+                },
+                {
+                    key: 'selling_packaging',
+                    label: 'sw-product.specifications.cardTitleSellingPackaging',
                     enabled: true,
                     name: 'specifications',
                 },
@@ -418,6 +427,26 @@ export default {
                 return value === null || value === undefined || value === '';
             });
         },
+
+        productApiContext() {
+            return {
+                ...Shopware.Context.api,
+                measurementWeightUnit: this.weightUnit,
+                measurementLengthUnit: this.lengthUnit,
+            };
+        },
+
+        lengthUnit() {
+            return Shopware.Store.get('swProductDetail').lengthUnit;
+        },
+
+        weightUnit() {
+            return Shopware.Store.get('swProductDetail').weightUnit;
+        },
+
+        measurementUnitsChanged() {
+            return this.previousWeightUnit !== this.weightUnit || this.previousLengthUnit !== this.lengthUnit;
+        },
     },
 
     watch: {
@@ -435,7 +464,7 @@ export default {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-product-detail__product',
                 path: 'product',
@@ -457,6 +486,8 @@ export default {
                     Shopware.Store.get('context').resetLanguageToDefault();
                 }
             }
+
+            await this.initProductMeasurementUnits();
 
             // initialize default state
             this.initState();
@@ -695,7 +726,7 @@ export default {
             ]);
 
             return this.productRepository
-                .get(this.productId || this.product.id, Shopware.Context.api, this.productCriteria)
+                .get(this.productId || this.product.id, this.productApiContext, this.productCriteria)
                 .then(async (product) => {
                     if (!product.purchasePrices?.length > 0 && !product.parentId) {
                         if (!this.defaultCurrency?.id) {
@@ -1117,8 +1148,17 @@ export default {
 
                 // save product
                 this.syncRepository
-                    .save(this.product)
+                    .save(this.product, this.productApiContext)
                     .then(() => {
+                        this.savePreferenceUnits()
+                            .then(() => {
+                                this.previousLengthUnit = this.lengthUnit;
+                                this.previousWeightUnit = this.weightUnit;
+                            })
+                            .catch((response) => {
+                                resolve(response);
+                            });
+
                         this.loadAll().then(() => {
                             Shopware.Store.get('swProductDetail').setLoading([
                                 'product',
@@ -1271,6 +1311,42 @@ export default {
             Shopware.Store.get('context').api.language = await this.languageRepository.get(newLanguageId, {
                 ...Shopware.Context.api,
                 inheritance: true,
+            });
+        },
+
+        async initProductMeasurementUnits() {
+            const preferenceUnits = await this.getPreferredMeasurementUnits();
+            const store = Shopware.Store.get('swProductDetail');
+
+            const defaultUnits = {
+                length: store.lengthUnit,
+                weight: store.weightUnit,
+            };
+
+            const units = preferenceUnits || defaultUnits;
+
+            store.setLengthUnit(units.length);
+            store.setWeightUnit(units.weight);
+
+            this.previousLengthUnit = units.length;
+            this.previousWeightUnit = units.weight;
+        },
+
+        async getPreferredMeasurementUnits() {
+            const response = await this.userConfigService.search(['measurement.preferenceUnits']);
+            return response.data['measurement.preferenceUnits'];
+        },
+
+        savePreferenceUnits() {
+            if (!this.measurementUnitsChanged) {
+                return Promise.resolve();
+            }
+
+            return this.userConfigService.upsert({
+                'measurement.preferenceUnits': {
+                    length: this.lengthUnit,
+                    weight: this.weightUnit,
+                },
             });
         },
     },

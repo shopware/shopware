@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi;
 
 use OpenApi\Annotations\Property;
 use OpenApi\Annotations\Schema;
+use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
@@ -45,7 +46,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 #[Package('framework')]
 class OpenApiDefinitionSchemaBuilder
 {
-    private CamelCaseToSnakeCaseNameConverter $converter;
+    private readonly CamelCaseToSnakeCaseNameConverter $converter;
 
     /**
      * @internal
@@ -409,6 +410,12 @@ class OpenApiDefinitionSchemaBuilder
                 'type' => 'array',
                 'property' => $jsonField->getPropertyName(),
                 'items' => new Schema(['ref' => '#/components/schemas/Price']),
+            ]);
+        } elseif ($jsonField instanceof MeasurementUnitsField) {
+            $definition = new Property([
+                'type' => 'object',
+                'property' => $jsonField->getPropertyName(),
+                'ref' => '#/components/schemas/MeasurementUnits',
             ]);
         } else {
             $definition = new Property([

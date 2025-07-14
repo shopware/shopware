@@ -1,0 +1,129 @@
+<div class="sw-product-measurement-form">
+    <div class="sw-product-measurement-form__description-group">
+        <i18n-t
+            tag="p"
+            keypath="sw-product.measurementForm.description"
+            scope="local"
+        >
+            <template #link>
+                <sw-internal-link
+                    :router-link="{ name: 'sw.sales.channel.list' }"
+                    hide-icon
+                    inline
+                >
+                    {{ $tc('sw-product.measurementForm.linkText') }}
+                </sw-internal-link>
+            </template>
+        </i18n-t>
+    </div>
+
+    <sw-container
+        columns="1fr 1fr"
+        gap="0 32px"
+    >
+        <sw-inherit-wrapper
+            v-model:value="product.width"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.width"
+        >
+            <template #content="props">
+
+                <mt-unit-field
+                    measurement-type="length"
+                    :model-value="props.currentValue"
+                    :default-unit="lengthUnit"
+                    :label="$t('sw-product.settingsForm.labelWidth')"
+                    :map-inheritance="props"
+                    :placeholder="$t('sw-product.settingsForm.placeholderWidth')"
+                    :min="0"
+                    :step="1"
+                    :error="productWidthError"
+                    :disabled="props.isInherited || !allowEdit"
+                    @update:model-value="props.updateCurrentValue"
+                    @update:default-unit="onUpdateLengthUnit($event, 'width')"
+                />
+
+            </template>
+        </sw-inherit-wrapper>
+
+        <sw-inherit-wrapper
+            v-model:value="product.height"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.height"
+        >
+            <template #content="props">
+
+                <mt-unit-field
+                    measurement-type="length"
+                    :model-value="props.currentValue"
+                    :default-unit="lengthUnit"
+                    :label="$t('sw-product.settingsForm.labelHeight')"
+                    :map-inheritance="props"
+                    :placeholder="$t('sw-product.settingsForm.placeholderHeight')"
+                    :min="0"
+                    :step="1"
+                    :error="productHeightError"
+                    :disabled="props.isInherited || !allowEdit"
+                    @update:model-value="props.updateCurrentValue"
+                    @update:default-unit="onUpdateLengthUnit($event, 'height')"
+                />
+
+            </template>
+        </sw-inherit-wrapper>
+    </sw-container>
+
+    <sw-container
+        columns="1fr 1fr"
+        gap="0 32px"
+    >
+        <sw-inherit-wrapper
+            v-model:value="product.length"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.length"
+        >
+            <template #content="props">
+
+                <mt-unit-field
+                    measurement-type="length"
+                    :model-value="props.currentValue"
+                    :default-unit="lengthUnit"
+                    :label="$t('sw-product.settingsForm.labelLength')"
+                    :map-inheritance="props"
+                    :placeholder="$t('sw-product.settingsForm.placeholderLength')"
+                    :min="0"
+                    :step="1"
+                    :error="productLengthError"
+                    :disabled="props.isInherited || !allowEdit"
+                    @update:model-value="props.updateCurrentValue"
+                    @update:default-unit="onUpdateLengthUnit($event, 'length')"
+                />
+
+            </template>
+        </sw-inherit-wrapper>
+
+        <sw-inherit-wrapper
+            v-model:value="product.weight"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.weight"
+        >
+            <template #content="props">
+
+                <mt-unit-field
+                    measurement-type="mass"
+                    :model-value="props.currentValue"
+                    :default-unit="weightUnit"
+                    :label="$t('sw-product.settingsForm.labelWeight')"
+                    :map-inheritance="props"
+                    :placeholder="$t('sw-product.settingsForm.placeholderWeight')"
+                    :min="0"
+                    :step="1"
+                    :error="productWeightError"
+                    :disabled="props.isInherited || !allowEdit"
+                    @update:model-value="props.updateCurrentValue"
+                    @update:default-unit="onUpdateWeightUnit"
+                />
+
+            </template>
+        </sw-inherit-wrapper>
+    </sw-container>
+</div>

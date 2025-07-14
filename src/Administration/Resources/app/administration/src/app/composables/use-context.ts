@@ -72,6 +72,8 @@ export interface ContextState {
         versionId: null | string;
         refreshTokenTtl: null | string;
         serviceRegistryUrl: null | string;
+        measurementLengthUnit: null | string;
+        measurementWeightUnit: null | string;
     };
 }
 
@@ -111,6 +113,8 @@ const state: ContextState = reactive({
         versionId: null,
         refreshTokenTtl: null,
         serviceRegistryUrl: null,
+        measurementLengthUnit: null,
+        measurementWeightUnit: null,
     },
 });
 

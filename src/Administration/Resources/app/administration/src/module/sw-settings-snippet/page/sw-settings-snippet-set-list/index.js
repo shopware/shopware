@@ -67,6 +67,9 @@ export default {
             return this.acl.can('snippet.editor') ? this.$t('global.default.edit') : this.$t('global.default.view');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },

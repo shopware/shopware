@@ -3,6 +3,8 @@ import SwSettingsServicesGrantPermissionsCard from './index';
 import { useShopwareServicesStore } from '../../store/shopware-services.store';
 
 describe('src/module/sw-settings-services/component/sw-settings-services-permissions-card', () => {
+    let originalLocation;
+
     beforeAll(() => {
         Shopware.Service().register('shopwareServicesService', () => ({
             acceptRevision: jest.fn(() => ({
@@ -15,6 +17,13 @@ describe('src/module/sw-settings-services/component/sw-settings-services-permiss
                 },
             })),
         }));
+        originalLocation = window.location;
+
+        Object.defineProperty(window, 'location', { configurable: true, value: { reload: jest.fn() } });
+    });
+
+    afterAll(() => {
+        Object.defineProperty(window, 'location', { configurable: true, value: originalLocation });
     });
 
     it('has a linkt to docs page', async () => {
@@ -54,17 +63,8 @@ describe('src/module/sw-settings-services/component/sw-settings-services-permiss
         await flushPromises();
 
         expect(notificationSpy).not.toHaveBeenCalled();
-        expect(permissionsCard.emitted('service-permissions-granted')).toHaveLength(1);
         expect(Shopware.Service('shopwareServicesService').acceptRevision).toHaveBeenCalledWith('2025-06-25');
-        expect(shopwareServicesStore.config).toEqual({
-            disabled: false,
-            permissionsConsent: {
-                identifier: 'revision-id',
-                revision: '2025-06-25',
-                consentingUserId: 'user-id',
-                grantedAt: '2025-07-08',
-            },
-        });
+        expect(window.location.reload).toHaveBeenCalled();
     });
 
     it('shows error notification if no revision is available', async () => {
@@ -89,5 +89,6 @@ describe('src/module/sw-settings-services/component/sw-settings-services-permiss
             message: 'No revision available',
         });
         expect(permissionsCard.emitted('service-permissions-granted')).toBeUndefined();
+        expect(window.location.reload).not.toHaveBeenCalled();
     });
 });

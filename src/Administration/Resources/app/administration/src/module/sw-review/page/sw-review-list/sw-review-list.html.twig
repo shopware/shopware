@@ -79,7 +79,7 @@
 
             {% block sw_review_list_content_list_created_at %}
             <template #column-createdAt="{ item }">
-                {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}
+                <sw-time-ago :date="item.createdAt" />
             </template>
             {% endblock %}
 

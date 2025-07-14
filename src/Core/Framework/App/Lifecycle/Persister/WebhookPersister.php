@@ -57,14 +57,14 @@ class WebhookPersister
             $this->connection->insert('webhook', $insert);
         }
 
-        $this->deleteOldWebhooks($existingWebhooks, $context);
+        $this->deleteOldWebhooks($existingWebhooks);
         $this->cacheClearer->clearWebhookCache();
     }
 
     /**
      * @param array<string, string> $toBeRemoved
      */
-    private function deleteOldWebhooks(array $toBeRemoved, Context $context): void
+    private function deleteOldWebhooks(array $toBeRemoved): void
     {
         $this->connection->executeQuery(
             'DELETE FROM webhook WHERE id IN (:ids)',

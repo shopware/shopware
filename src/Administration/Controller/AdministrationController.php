@@ -145,7 +145,7 @@ class AdministrationController extends AbstractController
         try {
             $publicAssetBaseUrl = $this->fileSystem->publicUrl('/');
             $viteIndexHtml = $this->fileSystem->read('bundles/' . $pluginName . '/meteor-app/index.html');
-        } catch (FilesystemException $e) {
+        } catch (FilesystemException) {
             return new Response('Plugin index.html not found', Response::HTTP_NOT_FOUND);
         }
 

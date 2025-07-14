@@ -22,6 +22,8 @@ services:
 
     database:
         image: mariadb:latest
+        ports:
+            - 3306:3306
         environment:
             MARIADB_ROOT_PASSWORD: root
             MARIADB_DATABASE: shopware

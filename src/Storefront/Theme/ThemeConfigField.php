@@ -82,7 +82,7 @@ class ThemeConfigField extends Struct
      */
     public function getLabel(): ?array
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'getLabelSnippetKey'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getLabelSnippetKey'));
 
         return $this->label;
     }
@@ -94,7 +94,7 @@ class ThemeConfigField extends Struct
      */
     public function setLabel(?array $label): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
 
         $this->label = $label;
     }
@@ -236,7 +236,7 @@ class ThemeConfigField extends Struct
      */
     public function getHelpText(): ?array
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'getHelpTextSnippetKey'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getHelpTextSnippetKey'));
 
         return $this->helpText;
     }
@@ -248,7 +248,7 @@ class ThemeConfigField extends Struct
      */
     public function setHelpText(?array $helpText): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
 
         $this->helpText = $helpText;
     }

@@ -80,7 +80,7 @@ class StorefrontException extends HttpException
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
         );
 
         return new self(
@@ -107,7 +107,7 @@ class StorefrontException extends HttpException
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'ProductException::reviewNotActive')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'ProductException::reviewNotActive')
         );
 
         return new self(

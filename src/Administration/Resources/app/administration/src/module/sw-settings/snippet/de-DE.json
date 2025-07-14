@@ -13,7 +13,8 @@
       "tabCommerce": "Handel",
       "tabContent": "Inhalte",
       "tabAutomation": "Automatisierung",
-      "tabPlugins": "Erweiterungen"
+      "tabPlugins": "Erweiterungen",
+      "textSettingRenameBanner": "Die Einstellung <b>Maßeinheiten</b> wurde in <b>Produkteinheiten</b> umbenannt."
     },
     "system-config": {
       "labelSalesChannelSelect": "Verkaufskanal",

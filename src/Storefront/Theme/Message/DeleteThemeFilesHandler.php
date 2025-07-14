@@ -17,11 +17,11 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  */
 #[AsMessageHandler]
 #[Package('framework')]
-final class DeleteThemeFilesHandler
+final readonly class DeleteThemeFilesHandler
 {
     public function __construct(
-        private readonly FilesystemOperator $filesystem,
-        private readonly AbstractThemePathBuilder $pathBuilder,
+        private FilesystemOperator $filesystem,
+        private AbstractThemePathBuilder $pathBuilder,
     ) {
     }
 

@@ -132,6 +132,8 @@
         <service id="Shopware\Core\Maintenance\Staging\Command\SystemSetupStagingCommand">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument>%shopware.staging.mailing.disable_delivery%</argument>
+            <argument>%shopware.staging.sales_channel.domain_rewrite%</argument>
 
             <tag name="console.command"/>
         </service>
@@ -144,14 +146,12 @@
         </service>
 
         <service id="Shopware\Core\Maintenance\Staging\Handler\StagingMailHandler">
-            <argument>%shopware.staging.mailing.disable_delivery%</argument>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <tag name="kernel.event_listener"/>
         </service>
 
         <service id="Shopware\Core\Maintenance\Staging\Handler\StagingSalesChannelHandler">
-            <argument>%shopware.staging.sales_channel.domain_rewrite%</argument>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="kernel.event_listener"/>

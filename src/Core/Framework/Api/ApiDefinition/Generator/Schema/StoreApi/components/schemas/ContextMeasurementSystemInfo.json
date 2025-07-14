@@ -1,0 +1,39 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ContextMeasurementSystemInfo": {
+                "type": "object",
+                "description": "Configuration of the measurement system used in the store, by default including units for length and weight.",
+                "properties": {
+                    "system": {
+                        "type": "string",
+                        "enum": ["metric", "imperial"],
+                        "default": "metric",
+                        "description": "The measurement system used in the store. 'metric' for metric system, 'imperial' for imperial system."
+                    },
+                    "units": {
+                        "type": "object",
+                        "description": "Units used in the measurement system.",
+                        "properties": {
+                            "length": {
+                                "type": "string",
+                                "enum": ["mm" ,"cm", "m", "in", "ft"],
+                                "default": "mm",
+                                "description": "Unit of length."
+                            },
+                            "weight": {
+                                "type": "string",
+                                "enum": ["g", "kg", "oz", "lb"],
+                                "default": "kg",
+                                "description": "Unit of weight."
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

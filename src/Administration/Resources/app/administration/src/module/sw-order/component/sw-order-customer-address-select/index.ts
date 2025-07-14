@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import template from './sw-order-customer-address-select.html.twig';
 import './sw-order-customer-address-select.scss';
 import type CriteriaType from '../../../../core/data/criteria.data';

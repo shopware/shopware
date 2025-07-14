@@ -46,6 +46,8 @@ class SeoUrlPersister
 
         $processed = [];
 
+        $seoPathInfos = [];
+
         $salesChannelId = $salesChannel->getId();
         $updates = [];
         foreach ($seoUrls as $seoUrl) {
@@ -83,6 +85,8 @@ class SeoUrlPersister
                 $obsoleted[] = $existing['id'];
             }
 
+            $seoPathInfos[] = $seoUrl['seoPathInfo'];
+
             $insert = [];
             $insert['id'] = Uuid::randomBytes();
 
@@ -105,6 +109,8 @@ class SeoUrlPersister
             $insertQuery->addInsert($this->seoUrlRepository->getDefinition()->getEntityName(), $insert);
         }
 
+        $inuseSeoUrls = $this->findInUseCanonicalSeoUrls($seoPathInfos);
+
         RetryableTransaction::retryable($this->connection, function () use ($obsoleted, $insertQuery, $foreignKeys, $updatedFks, $salesChannelId): void {
             $this->obsoleteIds($obsoleted, $salesChannelId);
             $insertQuery->execute();
@@ -115,6 +121,12 @@ class SeoUrlPersister
             $this->markAsDeleted(true, $deletedIds, $salesChannelId);
             $this->markAsDeleted(false, $notDeletedIds, $salesChannelId);
         });
+
+        // When a seoPathInfo is added that is already associated with a foreignKey, EX: Entity A,
+        // the existing row is seamlessly replaced due to the useReplace flag being set to true within the MultiInsertQueryQueue configuration above.
+        // Hence, we have to find the default seoUrls for Entity A and update it accordingly to set is_canonical and is_modified to true,
+        // thereby preserving the canonical SEO URL for Entity A.
+        $this->updateCanonicalSeoUrls($inuseSeoUrls);
 
         $this->eventDispatcher->dispatch(new SeoUrlUpdateEvent($updates));
     }
@@ -177,6 +189,69 @@ class SeoUrlPersister
         }
 
         return $canonicals;
+    }
+
+    /**
+     * @param array<string> $seoPathInfos
+     *
+     * @return array<array<string, mixed>>
+     */
+    private function findInUseCanonicalSeoUrls(array $seoPathInfos): array
+    {
+        return $this->connection->fetchAllAssociative(
+            'SELECT id, language_id languageId, sales_channel_id salesChannelId, foreign_key foreignKey, route_name routeName
+            FROM seo_url
+            WHERE is_canonical = 1 AND seo_path_info IN (:seoPathInfos)',
+            ['seoPathInfos' => $seoPathInfos],
+            ['seoPathInfos' => ArrayParameterType::BINARY]
+        );
+    }
+
+    /**
+     * Find the earliest valid SEO URL created. This means it is the default SEO URL and update the `is_canonical` and `is_modified` fields.
+     *
+     * @param array<array<string, mixed>> $seoUrls
+     */
+    private function updateCanonicalSeoUrls(array $seoUrls): void
+    {
+        if (empty($seoUrls)) {
+            return;
+        }
+
+        $ids = [];
+        foreach ($seoUrls as $seoUrl) {
+            $id = $this->connection->fetchOne(
+                'SELECT HEX(id) AS id
+                 FROM seo_url
+                 WHERE language_id = :languageId
+                   AND foreign_key = :foreignKey
+                   AND sales_channel_id = :salesChannelId
+                   AND route_name = :routeName
+                   AND is_canonical IS NULL AND is_deleted = 0
+                 ORDER BY created_at ASC
+                 LIMIT 1',
+                [
+                    'languageId' => $seoUrl['languageId'],
+                    'foreignKey' => $seoUrl['foreignKey'],
+                    'salesChannelId' => $seoUrl['salesChannelId'],
+                    'routeName' => (string) $seoUrl['routeName'],
+                ]
+            );
+
+            if ($id !== false) {
+                $ids[] = $id;
+            }
+        }
+
+        if (empty($ids)) {
+            return;
+        }
+
+        $this->connection->executeStatement(
+            'UPDATE seo_url SET is_canonical = 1, is_modified = 1 WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
     }
 
     /**

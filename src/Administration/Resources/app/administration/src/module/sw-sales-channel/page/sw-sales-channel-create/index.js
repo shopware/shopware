@@ -22,6 +22,8 @@ export default {
 
     beforeRouteUpdate: insertIdIntoRoute,
 
+    inject: ['systemConfigApiService'],
+
     computed: {
         allowSaving() {
             return this.acl.can('sales_channel.creator');
@@ -29,10 +31,12 @@ export default {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
             if (!this.$route.params.typeId) {
                 return;
             }
+
+            const measurementUnits = await this.getMeasurementUnits();
 
             if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
                 Shopware.Store.get('context').resetLanguageToDefault();
@@ -41,6 +45,13 @@ export default {
             this.salesChannel = this.salesChannelRepository.create();
             this.salesChannel.typeId = this.$route.params.typeId;
             this.salesChannel.active = false;
+            this.salesChannel.measurementUnits = {
+                system: measurementUnits['core.measurementUnits.system'],
+                units: {
+                    length: measurementUnits['core.measurementUnits.length'],
+                    weight: measurementUnits['core.measurementUnits.weight'],
+                },
+            };
 
             this.$super('createdComponent');
         },
@@ -55,6 +66,10 @@ export default {
 
         onSave() {
             this.$super('onSave');
+        },
+
+        getMeasurementUnits() {
+            return this.systemConfigApiService.getValues('core.measurementUnits');
         },
     },
 };

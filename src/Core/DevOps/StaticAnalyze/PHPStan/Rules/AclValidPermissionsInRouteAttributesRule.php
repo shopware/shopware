@@ -131,7 +131,7 @@ class AclValidPermissionsInRouteAttributesRule implements Rule
                                     ->identifier('shopware.aclKey')
                                     ->build();
                             }
-                        } catch (\RuntimeException $e) {
+                        } catch (\RuntimeException) {
                             $errors[] = RuleErrorBuilder::message(\sprintf(AclValidPermissionsHelper::MISSING_SCHEMA_ERROR_MESSAGE, $permission))
                                 ->line($permissionNode->getStartLine() ?: 0)
                                 ->identifier('shopware.aclKey.missingSchema')

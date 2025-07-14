@@ -7,6 +7,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
@@ -23,11 +26,9 @@ class SnippetFileLoaderTest extends TestCase
 {
     public function testLoadSnippetsFromShopwareBundle(): void
     {
-        $kernel = new MockedKernel(
-            [
-                'ShopwareBundleWithSnippets' => new ShopwareBundleWithSnippets(),
-            ]
-        );
+        $kernel = $this->getKernel([
+            'ShopwareBundleWithSnippets' => new ShopwareBundleWithSnippets(),
+        ]);
 
         $collection = new SnippetFileCollection();
 
@@ -70,11 +71,9 @@ class SnippetFileLoaderTest extends TestCase
 
     public function testLoadSnippetFilesIntoCollectionDoesNotOverwriteFiles(): void
     {
-        $kernel = new MockedKernel(
-            [
-                'ShopwareBundleWithSnippets' => new ShopwareBundleWithSnippets(),
-            ]
-        );
+        $kernel = $this->getKernel([
+            'ShopwareBundleWithSnippets' => new ShopwareBundleWithSnippets(),
+        ]);
 
         $collection = new SnippetFileCollection([
             new GenericSnippetFile(
@@ -139,11 +138,9 @@ class SnippetFileLoaderTest extends TestCase
             SnippetSet::class => 'Plugin Manufacturer',
         ]);
 
-        $kernel = new MockedKernel(
-            [
-                'SnippetSet' => new SnippetSet(true, __DIR__),
-            ]
-        );
+        $kernel = $this->getKernel([
+            'SnippetSet' => new SnippetSet(true, __DIR__),
+        ]);
 
         $collection = new SnippetFileCollection();
 
@@ -191,11 +188,9 @@ class SnippetFileLoaderTest extends TestCase
             BaseSnippetSet::class => 'Plugin Manufacturer',
         ]);
 
-        $kernel = new MockedKernel(
-            [
-                'BaseSnippetSet' => new BaseSnippetSet(true, __DIR__),
-            ]
-        );
+        $kernel = $this->getKernel([
+            'BaseSnippetSet' => new BaseSnippetSet(true, __DIR__),
+        ]);
 
         $collection = new SnippetFileCollection();
 
@@ -263,5 +258,18 @@ class SnippetFileLoaderTest extends TestCase
         static::assertSame('en-GB', $snippetFile->getIso());
         static::assertSame('Plugin Manufacturer', $snippetFile->getAuthor());
         static::assertTrue($snippetFile->isBase());
+    }
+
+    /**
+     * @param array<string, Bundle> $bundles
+     */
+    private function getKernel(array $bundles): MockedKernel
+    {
+        $pluginCollection = new KernelPluginCollection();
+
+        $pluginLoader = $this->createMock(KernelPluginLoader::class);
+        $pluginLoader->method('getPluginInstances')->willReturn($pluginCollection);
+
+        return new MockedKernel($bundles, $pluginLoader);
     }
 }

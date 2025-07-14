@@ -9,6 +9,8 @@ use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
 use Shopware\Core\PlatformRequest;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -216,5 +218,59 @@ class CacheInvalidatorTest extends TestCase
         );
 
         $invalidator->invalidateExpired();
+    }
+
+    public function testSoftPurge(): void
+    {
+        $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
+        $redisInvalidatorStorage
+            ->expects($this->never())
+            ->method('store');
+
+        $adapter = new ArrayAdapter();
+        $invalidator = new CacheInvalidator(
+            [],
+            $redisInvalidatorStorage,
+            new EventDispatcher(),
+            new NullLogger(),
+            new RequestStack([new Request()]),
+            'prod',
+            new TagAwareAdapter($adapter, $adapter),
+            true
+        );
+
+        $invalidator->invalidate(['foo'], true);
+
+        static::assertTrue($adapter->hasItem('http_invalidation_foo_timestamp'));
+
+        $itemValue = $adapter->getItem('http_invalidation_foo_timestamp')->get();
+        static::assertIsInt($itemValue);
+
+        static::assertTrue(time() >= $itemValue, 'Timestamp should be set to current time or later');
+    }
+
+    public function testSoftPurgeIsSkipped(): void
+    {
+        $adapter = new ArrayAdapter();
+
+        $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
+        $redisInvalidatorStorage
+            ->expects($this->once())
+            ->method('store');
+
+        $invalidator = new CacheInvalidator(
+            [],
+            $redisInvalidatorStorage,
+            new EventDispatcher(),
+            new NullLogger(),
+            new RequestStack([new Request()]),
+            'prod',
+            new TagAwareAdapter($adapter, $adapter),
+            false
+        );
+
+        $invalidator->invalidate(['foo']);
+
+        static::assertFalse($adapter->hasItem('http_invalidation_foo_timestamp'));
     }
 }

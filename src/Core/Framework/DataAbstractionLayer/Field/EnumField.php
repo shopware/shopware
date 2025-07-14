@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class EnumField extends Field implements StorageAware
 {
-    private string $type;
+    private readonly string $type;
 
     /**
      * @param \BackedEnum $enum Any case from the used Enum may be passed.
@@ -21,7 +21,7 @@ class EnumField extends Field implements StorageAware
     public function __construct(
         private readonly string $storageName,
         string $propertyName,
-        private \BackedEnum $enum
+        private readonly \BackedEnum $enum,
     ) {
         parent::__construct($propertyName);
         $backingType = (new \ReflectionEnum($enum::class))->getBackingType();

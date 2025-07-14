@@ -10,11 +10,11 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore This is a simple DTO and does not require tests
  */
 #[Package('framework')]
-final class AppInstallParameters
+final readonly class AppInstallParameters
 {
     public function __construct(
-        public readonly bool $activate = true,
-        public readonly bool $acceptPermissions = true
+        public bool $activate = true,
+        public bool $acceptPermissions = true
     ) {
     }
 }

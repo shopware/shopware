@@ -76,7 +76,7 @@ class ServiceClient
         foreach ($this->client->stream($response) as $chunk) {
             try {
                 $this->filesystem->appendToFile($destination, $chunk->getContent());
-            } catch (IOException $e) {
+            } catch (IOException) {
                 throw ServiceException::cannotWriteAppToDestination($destination);
             }
         }

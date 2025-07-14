@@ -16,16 +16,16 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  */
 #[AsMessageHandler]
 #[Package('discovery')]
-final class SitemapMessageHandler
+final readonly class SitemapMessageHandler
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        private readonly SitemapExporterInterface $sitemapExporter,
-        private readonly LoggerInterface $logger,
-        private readonly SystemConfigService $systemConfigService,
+        private AbstractSalesChannelContextFactory $salesChannelContextFactory,
+        private SitemapExporterInterface $sitemapExporter,
+        private LoggerInterface $logger,
+        private SystemConfigService $systemConfigService,
     ) {
     }
 

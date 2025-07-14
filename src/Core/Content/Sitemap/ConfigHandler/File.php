@@ -11,12 +11,12 @@ class File implements ConfigHandlerInterface
     /**
      * @var array<array<string, mixed>>
      */
-    private array $excludedUrls;
+    private readonly array $excludedUrls;
 
     /**
      * @var array<array<string, mixed>>
      */
-    private array $customUrls;
+    private readonly array $customUrls;
 
     /**
      * @internal

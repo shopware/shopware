@@ -194,7 +194,7 @@ class FieldSerializer extends AbstractFieldSerializer
         if ($field instanceof DateField || $field instanceof DateTimeField) {
             try {
                 return new \DateTimeImmutable((string) $value);
-            } catch (\Throwable $previous) {
+            } catch (\Throwable) {
                 throw ImportExportException::deserializationFailed($field->getPropertyName(), $value, 'date');
             }
         }
@@ -206,7 +206,7 @@ class FieldSerializer extends AbstractFieldSerializer
         if ($field instanceof JsonField) {
             try {
                 return json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
-            } catch (\Throwable $previous) {
+            } catch (\Throwable) {
                 throw ImportExportException::deserializationFailed($field->getPropertyName(), $value, 'json');
             }
         }
@@ -218,7 +218,7 @@ class FieldSerializer extends AbstractFieldSerializer
         if ($field instanceof IdField || $field instanceof FkField) {
             try {
                 return $this->normalizeId((string) $value);
-            } catch (\Throwable $previous) {
+            } catch (\Throwable) {
                 throw ImportExportException::deserializationFailed($field->getPropertyName(), $value, 'uuid');
             }
         }

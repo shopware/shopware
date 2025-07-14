@@ -61,7 +61,9 @@ abstract class EntityDefinition
     /**
      * @deprecated tag:v6.8.0 - Method will be removed as it does nothing
      */
-    public function __construct() {}
+    public function __construct()
+    {
+    }
 
     /**
      * @return class-string<EntityDefinition>

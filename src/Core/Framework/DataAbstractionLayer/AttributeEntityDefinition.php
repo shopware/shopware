@@ -14,7 +14,9 @@ class AttributeEntityDefinition extends EntityDefinition
     /**
      * @param array<string, mixed> $meta
      */
-    public function __construct(private readonly array $meta = []) {}
+    public function __construct(private readonly array $meta = [])
+    {
+    }
 
     public function since(): ?string
     {

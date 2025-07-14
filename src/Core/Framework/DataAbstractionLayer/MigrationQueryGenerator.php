@@ -73,8 +73,9 @@ class MigrationQueryGenerator
 
     private function dropIndexes(Table $table): void
     {
+        $pk = $table->getPrimaryKeyConstraint();
         foreach ($table->getIndexes() as $index) {
-            if ($index->isPrimary()) {
+            if ($index->getName() === $pk?->getObjectName()?->toString()) {
                 continue;
             }
 

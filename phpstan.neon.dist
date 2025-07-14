@@ -18,9 +18,6 @@ parameters:
         consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/console-application.php
 
     excludePaths:
-        # vendor patches over autoload files
-        - src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php
-
         # Code copied and adapted from twig
         - src/Core/Framework/Adapter/Twig/TokenParser/SwMacroFunctionTokenParser.php
 

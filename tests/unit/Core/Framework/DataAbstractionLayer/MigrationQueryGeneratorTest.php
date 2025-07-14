@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\MySQL\Comparator;
 use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -98,7 +99,9 @@ class MigrationQueryGeneratorTest extends TestCase
         $table->addColumn('created_at', 'datetime');
         $table->addColumn('updated_at', 'datetime');
 
-        $table->setPrimaryKey(['id']);
+        $pk = PrimaryKeyConstraint::editor();
+        $pk->setQuotedColumnNames('id');
+        $table->addPrimaryKeyConstraint($pk->create());
 
         $table->addIndex(['name']);
 
@@ -117,7 +120,9 @@ class MigrationQueryGeneratorTest extends TestCase
         $table->addColumn('test2_id', 'string', ['length' => 255]);
 
         $table->addForeignKeyConstraint('test2', ['test2_id'], ['id'], [], 'fk_column_id');
-        $table->setPrimaryKey(['id']);
+        $pk = PrimaryKeyConstraint::editor();
+        $pk->setQuotedColumnNames('id');
+        $table->addPrimaryKeyConstraint($pk->create());
 
         $table->addIndex(['priority']);
 

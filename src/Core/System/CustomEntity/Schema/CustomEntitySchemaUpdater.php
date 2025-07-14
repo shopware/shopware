@@ -100,7 +100,7 @@ class CustomEntitySchemaUpdater
 
             foreach ($table->getForeignKeys() as $foreignKey) {
                 if (\str_starts_with($foreignKey->getName(), 'fk_ce_')) {
-                    $table->removeForeignKey($foreignKey->getName());
+                    $table->dropForeignKey($foreignKey->getName());
                 }
             }
 

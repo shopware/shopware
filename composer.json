@@ -82,7 +82,7 @@
         "cocur/slugify": "^4.3.0",
         "composer/composer": "^2.8.5",
         "composer/semver": "^3.4.0",
-        "doctrine/dbal": "^4.2",
+        "doctrine/dbal": "^4.3",
         "doctrine/inflector": "^2.0",
         "dompdf/dompdf": "3.1.0",
         "dragonmantank/cron-expression": "^3.3",
@@ -112,7 +112,6 @@
         "scssphp/scssphp": "v1.12.0",
         "setasign/fpdi": "^2.3.7",
         "setasign/tfpdf": "^1.33",
-        "shopware/conflicts": "0.5.1",
         "shyim/opensearch-php-dsl": "^1.0.5",
         "squirrelphp/twig-php-syntax": "^1.8.0",
         "symfony/asset": "~7.2.0",
@@ -470,10 +469,10 @@
             "@npm:storefront run hot-proxy"
         ]
     },
+    "conflict": {
+        "opensearch-project/opensearch-php": ">2.3.1"
+    },
     "autoload": {
-        "files": [
-            "src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php"
-        ],
         "psr-4": {
             "Shopware\\": "src/"
         },

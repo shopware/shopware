@@ -1,8 +1,19 @@
-### Changed
+---
+title:              Restore ResetInterface support in long-running runtimes
+issue:              #11215
+author:             Mateusz Flasiński
+author_email:       mateuszflasinski@gmail.com
+author_github:      @mateuszfl
+---
 
-- Removed the overridden `Kernel::handle()` method in `Shopware\Core\Kernel` to allow Symfony's default logic to call `services_resetter`.
-- This enables support for `ResetInterface` and proper service resetting in long-running runtimes like FrankenPHP or RoadRunner.
-- The custom plugin initialization logic has been retained inside `Kernel::boot()`, without interfering with Symfony's internal flags and lifecycle.
-- Note: Instead of using Symfony’s native `handle()` method (which checks for `http_cache`), we preserved a minimal override to maintain full control over request flow.
+# Core
 
-Fixes: [#11215](https://github.com/shopware/shopware/issues/11215)
+* Changed `Shopware\Core\Kernel` to restore support for Symfony's `ResetInterface` by adjusting the `boot()` method and preserving a minimal `handle()` override.
+* Changed behavior in long-running runtimes (e.g., FrankenPHP, RoadRunner) to ensure that `services_resetter` is called between requests.
+* Removed redundant logic in `Kernel::boot()` that prevented Symfony's reset lifecycle from executing correctly.
+
+___
+
+# Upgrade Information
+
+If you are running Shopware in a long-running environment (e.g., FrankenPHP or RoadRunner), this change enables Symfony to properly reset services implementing `ResetInterface` between requests. No configuration changes are required.

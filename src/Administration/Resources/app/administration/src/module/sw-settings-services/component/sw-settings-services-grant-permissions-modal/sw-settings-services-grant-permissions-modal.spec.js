@@ -4,6 +4,8 @@ import SwSettingsServicesGrantPermissionsModal from './index';
 import { useShopwareServicesStore } from '../../store/shopware-services.store';
 
 describe('src/module/sw-settings-services/component/sw-settings-services-grant-permissions-modal', () => {
+    let originalLocation;
+
     beforeAll(() => {
         Shopware.Service().register('serviceRegistryClient', () => ({
             getCurrentRevision: jest.fn(async () => ({
@@ -22,16 +24,16 @@ describe('src/module/sw-settings-services/component/sw-settings-services-grant-p
         }));
 
         Shopware.Service().register('shopwareServicesService', () => ({
-            acceptRevision: jest.fn(() => ({
-                disabled: false,
-                permissionsConsent: {
-                    identifier: 'revision-id',
-                    revision: '2025-06-25',
-                    consentingUserId: 'user-id',
-                    grantedAt: '2025-07-08',
-                },
-            })),
+            acceptRevision: jest.fn(),
         }));
+
+        originalLocation = window.location;
+
+        Object.defineProperty(window, 'location', { configurable: true, value: { reload: jest.fn() } });
+    });
+
+    afterAll(() => {
+        Object.defineProperty(window, 'location', { configurable: true, value: originalLocation });
     });
 
     it('can be opened by the pinia store', async () => {
@@ -81,15 +83,8 @@ describe('src/module/sw-settings-services/component/sw-settings-services-grant-p
 
         expect(notificationSpy).not.toHaveBeenCalled();
         expect(Shopware.Service('shopwareServicesService').acceptRevision).toHaveBeenCalledWith('2025-06-25');
-        expect(shopwareServicesStore.config).toEqual({
-            disabled: false,
-            permissionsConsent: {
-                identifier: 'revision-id',
-                revision: '2025-06-25',
-                consentingUserId: 'user-id',
-                grantedAt: '2025-07-08',
-            },
-        });
+
+        expect(window.location.reload).toHaveBeenCalled();
     });
 
     it('shows error notification if no revision is available', async () => {
@@ -113,5 +108,6 @@ describe('src/module/sw-settings-services/component/sw-settings-services-grant-p
             message: 'No revision available',
         });
         expect(Shopware.Service('shopwareServicesService').acceptRevision).not.toHaveBeenCalled();
+        expect(window.location.reload).not.toHaveBeenCalled();
     });
 });

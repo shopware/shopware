@@ -9,6 +9,8 @@ import SwSettingsServicesRevokePermissionsModal from '../../component/sw-setting
 import SwSettingsServicesDeactivateModal from '../../component/sw-settings-services-deactivate-modal';
 
 describe('/src/module/sw-setting-services/page/sw-settings-services-index', () => {
+    let originalLocation;
+
     beforeAll(() => {
         Shopware.Service().register('serviceRegistryClient', () => ({
             getCurrentRevision: jest.fn(async () => ({
@@ -66,6 +68,14 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
                 permissionsConsent: null,
             })),
         }));
+
+        originalLocation = window.location;
+
+        Object.defineProperty(window, 'location', { configurable: true, value: { reload: jest.fn() } });
+    });
+
+    afterAll(() => {
+        Object.defineProperty(window, 'location', { configurable: true, value: originalLocation });
     });
 
     async function mountPage() {
@@ -142,11 +152,7 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
         await grantPermissionsCard.get('.mt-button--primary').trigger('click');
         await flushPromises();
 
-        expect(page.findComponent(SwSettingsServicesGrantPermissionsCard).exists()).toBe(false);
-        expect(page.findComponent(SwSettingsServicesRevokePermissionsModal).exists()).toBe(true);
-
-        // check if services are reloaded
-        expect(Shopware.Service('shopwareServicesService').getInstalledServices).toHaveBeenCalledTimes(2);
+        expect(window.location.reload).toHaveBeenCalled();
     });
 
     it('can revoke permissions', async () => {
@@ -159,11 +165,7 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
         await revokePermissionsModal.getComponent(MtModalAction).trigger('click');
         await flushPromises();
 
-        expect(page.findComponent(SwSettingsServicesGrantPermissionsCard).exists()).toBe(true);
-        expect(page.findComponent(SwSettingsServicesRevokePermissionsModal).exists()).toBe(false);
-
-        // check if services are reloaded
-        expect(Shopware.Service('shopwareServicesService').getInstalledServices).toHaveBeenCalledTimes(2);
+        expect(window.location.reload).toHaveBeenCalled();
     });
 
     it('does not show grant permissions card if services are deactivated', async () => {

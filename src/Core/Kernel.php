@@ -120,6 +120,13 @@ class Kernel extends HttpKernel
         return $this->projectDir;
     }
 
+    public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): Response
+    {
+        $this->boot();
+
+        return $this->getHttpKernel()->handle($request, $type, $catch);
+    }
+
     public function boot(): void
     {
         if (!$this->booted) {

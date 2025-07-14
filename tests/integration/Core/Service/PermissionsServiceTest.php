@@ -11,7 +11,6 @@ use Shopware\Core\Service\Event\PermissionsRevokedEvent;
 use Shopware\Core\Service\Permission\PermissionsService;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 
 /**
@@ -33,7 +32,7 @@ class PermissionsServiceTest extends TestCase
     {
         $this->permissionsService = $this->getContainer()->get(PermissionsService::class);
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-        $this->eventDispatcher = $this->getContainer()->get(EventDispatcherInterface::class);
+        $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
         $this->context = Context::createDefaultContext(new AdminApiSource('test-user-id'));
     }
 
@@ -82,7 +81,7 @@ class PermissionsServiceTest extends TestCase
         static::assertSame('', $storedRevision);
 
         $calledListeners = $this->eventDispatcher->getCalledListeners();
-        $permissionsRevokedEvents = array_filter($calledListeners, function ($listener) {
+        $permissionsRevokedEvents = array_filter($calledListeners, static function ($listener) {
             return $listener['event'] === PermissionsRevokedEvent::class;
         });
 

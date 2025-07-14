@@ -66,7 +66,7 @@ class InstallAppCommand extends Command
                     $this->checkPermissions($manifest, $io);
 
                     $this->appPrinter->checkHosts($manifest, $io);
-                } catch (UserAbortedCommandException $e) {
+                } catch (UserAbortedCommandException) {
                     $io->error('Aborting due to user input.');
 
                     return self::FAILURE;

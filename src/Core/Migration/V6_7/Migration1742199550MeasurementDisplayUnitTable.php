@@ -72,7 +72,7 @@ class Migration1742199550MeasurementDisplayUnitTable extends MigrationStep
         $imperialId = $connection->fetchOne('SELECT `id` FROM `measurement_system` WHERE `technical_name` = :technicalName', ['technicalName' => 'imperial']);
 
         $units = [
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'm', 'factor' => 1000, 'precision' => 2, 'name_en' => 'Meter', 'name_de' => 'Zähler'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'm', 'factor' => 1000, 'precision' => 2, 'name_en' => 'Meter', 'name_de' => 'Meter'],
             ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'cm', 'factor' => 10, 'precision' => 2, 'name_en' => 'Centimeter', 'name_de' => 'Zentimeter'],
             ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 1, 'type' => 'length', 'short_name' => 'mm', 'factor' => 1, 'precision' => 2, 'name_en' => 'Millimeter', 'name_de' => 'Millimeter'],
             ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 1, 'type' => 'weight', 'short_name' => 'kg', 'factor' => 1, 'precision' => 2, 'name_en' => 'Kilogram', 'name_de' => 'Kilogramm'],

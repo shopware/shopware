@@ -35,7 +35,7 @@ use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
 
 /**
- * @phpstan-type MediaConfig array{'spatialObject': array{'arReady': bool}}
+ * @phpstan-type MediaConfig array{'spatialObject': array{'arReady': bool, 'arPlacement': string}}
  */
 #[Package('discovery')]
 class MediaEntity extends Entity

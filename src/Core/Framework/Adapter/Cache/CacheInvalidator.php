@@ -4,11 +4,12 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
+use Psr\SimpleCache\CacheInterface;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
-use Symfony\Component\Cache\CacheItem;
+use Symfony\Component\Cache\Psr16Cache;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -18,7 +19,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class CacheInvalidator
 {
-    private \Closure $createCacheItem;
+    private readonly CacheInterface $httpCacheStore;
 
     /**
      * @internal
@@ -32,15 +33,10 @@ class CacheInvalidator
         private readonly LoggerInterface $logger,
         private readonly RequestStack $requestStack,
         private readonly string $environment,
-        private readonly TagAwareAdapterInterface $httpCacheStore,
+        TagAwareAdapterInterface $httpCacheStore,
         private readonly bool $softPurge
     ) {
-        $this->createCacheItem = \Closure::bind(function (string $key) {
-            $item = new CacheItem();
-            $item->key = $key;
-
-            return $item;
-        }, new CacheItem(), CacheItem::class);
+        $this->httpCacheStore = new Psr16Cache($httpCacheStore);
     }
 
     /**
@@ -95,12 +91,13 @@ class CacheInvalidator
         }
 
         if ($this->softPurge) {
+            $list = [];
+
             foreach ($keys as $key) {
-                /** @var CacheItem $item */
-                $item = ($this->createCacheItem)('http_invalidation_' . $key . '_timestamp');
-                $item->set(time());
-                $this->httpCacheStore->saveDeferred($item);
+                $list['http_invalidation_' . $key . '_timestamp'] = time();
             }
+
+            $this->httpCacheStore->setMultiple($list);
         }
 
         $this->dispatcher->dispatch(new InvalidateCacheEvent($keys));

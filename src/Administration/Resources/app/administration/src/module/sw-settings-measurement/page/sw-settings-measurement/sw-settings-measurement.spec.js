@@ -278,4 +278,36 @@ describe('src/module/sw-settings-measurement/page/sw-settings-measurement', () =
             weight: 'g',
         });
     });
+
+    it('should refresh measurement units when language changes', async () => {
+        const setApiLanguageIdSpy = jest.fn();
+
+        Shopware.Store.unregister('context');
+        Shopware.Store.register({
+            id: 'context',
+            actions: {
+                setApiLanguageId: setApiLanguageIdSpy,
+            },
+        });
+
+        const initialMeasurementUnits = { ...wrapper.vm.measurementUnits };
+
+        const mockGermanMeasurementSystem = {
+            'core.measurementUnits.system': 'metric',
+            'core.measurementUnits.length': 'cm',
+            'core.measurementUnits.weight': 'g',
+        };
+
+        wrapper.vm.systemConfigApiService.getValues.mockResolvedValueOnce(mockGermanMeasurementSystem);
+
+        await wrapper.vm.onChangeLanguage('de-DE');
+
+        expect(setApiLanguageIdSpy).toHaveBeenCalledWith('de-DE');
+        expect(wrapper.vm.measurementUnits).toEqual({
+            system: 'metric',
+            length: 'cm',
+            weight: 'g',
+        });
+        expect(wrapper.vm.measurementUnits).not.toEqual(initialMeasurementUnits);
+    });
 });

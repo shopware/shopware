@@ -15,12 +15,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal - Fetch the $referenceDocumentId if set, otherwise fetch the latest document
  */
 #[Package('after-sales')]
-final class ReferenceInvoiceLoader
+final readonly class ReferenceInvoiceLoader
 {
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
+    public function __construct(private Connection $connection)
     {
     }
 

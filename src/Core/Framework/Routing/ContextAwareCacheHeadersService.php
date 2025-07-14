@@ -26,7 +26,6 @@ readonly class ContextAwareCacheHeadersService
         $response->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $context->getLanguageId());
         $response->headers->set(PlatformRequest::HEADER_CURRENCY_ID, $context->getCurrencyId());
         $response->headers->set(PlatformRequest::HEADER_CONTEXT_HASH, $this->generateContextHash($context));
-        $response->headers->set('sw-context-version-id', $context->getVersionId());
 
         // Add vary headers for caching
         $this->addVaryHeaders($response);

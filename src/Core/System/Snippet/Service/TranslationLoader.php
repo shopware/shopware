@@ -113,8 +113,8 @@ class TranslationLoader
         );
 
         if ($bundle === 'Core') {
-            // For the core bundle, we use a specific symfony messages name pattern: messages.{locale}.json
-            $destinationFileName = 'messages.' . $locale . '.json';
+            // For the core bundle, we use a specific symfony messages name pattern: messages.{locale}.base.json
+            $destinationFileName = 'messages.' . $locale . '.base.json';
         } else {
             // For all other bundles, we use the bundle name e.g. administration.json
             $destinationFileName = strtolower($bundle) . '.json';

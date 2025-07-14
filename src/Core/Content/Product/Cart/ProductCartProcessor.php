@@ -105,7 +105,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
             foreach ($lineItems as $match) {
                 // enrich all products in original cart
-                $this->enrich($context, $match['item'], $data, $behavior);
+                $this->enrich($match['item'], $data, $behavior);
 
                 // remove "parent" products which should never be displayed in storefront
                 $this->validateParents($match['item'], $data, $match['scope']);
@@ -280,7 +280,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
     }
 
-    private function enrich(SalesChannelContext $context, LineItem $lineItem, CartDataCollection $data, CartBehavior $behavior): void
+    private function enrich(LineItem $lineItem, CartDataCollection $data, CartBehavior $behavior): void
     {
         $id = $lineItem->getReferencedId();
 
@@ -329,7 +329,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         // Check if the price has to be updated
         if ($this->shouldPriceBeRecalculated($lineItem, $behavior)) {
             $lineItem->setPriceDefinition(
-                $this->getPriceDefinition($product, $context, $lineItem->getQuantity())
+                $this->getPriceDefinition($product, $lineItem->getQuantity())
             );
         }
 
@@ -379,7 +379,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $lineItem->replacePayload($payload, ['purchasePrices' => true]);
     }
 
-    private function getPriceDefinition(SalesChannelProductEntity $product, SalesChannelContext $context, int $quantity): QuantityPriceDefinition
+    private function getPriceDefinition(SalesChannelProductEntity $product, int $quantity): QuantityPriceDefinition
     {
         if ($product->getCalculatedPrices()->count() === 0) {
             return $this->buildPriceDefinition($product->getCalculatedPrice(), $quantity);

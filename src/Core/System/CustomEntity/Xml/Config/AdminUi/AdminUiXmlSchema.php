@@ -11,14 +11,14 @@ use Symfony\Component\Config\Util\XmlUtils;
  * @internal
  */
 #[Package('framework')]
-final class AdminUiXmlSchema
+final readonly class AdminUiXmlSchema
 {
     public const FILENAME = 'admin-ui.xml';
 
     public const XSD_FILEPATH = __DIR__ . '/admin-ui-1.0.xsd';
 
     private function __construct(
-        private readonly AdminUi $adminUi
+        private AdminUi $adminUi
     ) {
     }
 

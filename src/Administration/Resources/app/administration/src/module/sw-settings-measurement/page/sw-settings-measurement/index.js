@@ -171,6 +171,7 @@ export default {
 
         onChangeLanguage(languageId) {
             Shopware.Store.get('context').setApiLanguageId(languageId);
+            this.createdComponent();
         },
 
         async onChangeMeasurementSystem(technicalName) {

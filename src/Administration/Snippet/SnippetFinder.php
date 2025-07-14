@@ -35,7 +35,7 @@ class SnippetFinder implements SnippetFinderInterface
         $snippetFiles = $this->findSnippetFiles($locale);
         $snippets = $this->parseFiles($snippetFiles);
 
-        $snippets = [...$snippets, ...$this->getAppAdministrationSnippets($locale, $snippets)];
+        $snippets = [...$snippets, ...$this->getAppAdministrationSnippets($locale)];
 
         if (!\count($snippets)) {
             return [];
@@ -154,11 +154,9 @@ class SnippetFinder implements SnippetFinderInterface
     }
 
     /**
-     * @param array<string, mixed> $existingSnippets
-     *
      * @return array<string, mixed>
      */
-    private function getAppAdministrationSnippets(string $locale, array $existingSnippets): array
+    private function getAppAdministrationSnippets(string $locale): array
     {
         $result = $this->connection->fetchAllAssociative(
             'SELECT app_administration_snippet.value

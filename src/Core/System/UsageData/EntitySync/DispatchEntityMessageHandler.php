@@ -26,16 +26,16 @@ use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
  */
 #[AsMessageHandler(handles: DispatchEntityMessage::class)]
 #[Package('data-services')]
-final class DispatchEntityMessageHandler
+final readonly class DispatchEntityMessageHandler
 {
     public function __construct(
-        private readonly EntityDefinitionService $entityDefinitionService,
-        private readonly ManyToManyAssociationService $manyToManyAssociationService,
-        private readonly UsageDataAllowListService $usageDataAllowListService,
-        private readonly Connection $connection,
-        private readonly EntityDispatcher $entityDispatcher,
-        private readonly ConsentService $consentService,
-        private readonly ShopIdProvider $shopIdProvider
+        private EntityDefinitionService $entityDefinitionService,
+        private ManyToManyAssociationService $manyToManyAssociationService,
+        private UsageDataAllowListService $usageDataAllowListService,
+        private Connection $connection,
+        private EntityDispatcher $entityDispatcher,
+        private ConsentService $consentService,
+        private ShopIdProvider $shopIdProvider
     ) {
     }
 

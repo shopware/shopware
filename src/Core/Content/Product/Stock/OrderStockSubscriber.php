@@ -21,15 +21,15 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @internal
  */
 #[Package('inventory')]
-final class OrderStockSubscriber implements EventSubscriberInterface
+final readonly class OrderStockSubscriber implements EventSubscriberInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly Connection $connection,
-        private readonly AbstractStockStorage $stockStorage,
-        private readonly bool $enableStockManagement,
+        private Connection $connection,
+        private AbstractStockStorage $stockStorage,
+        private bool $enableStockManagement,
     ) {
     }
 

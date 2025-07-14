@@ -19,9 +19,9 @@ class SwitchContextEvent implements ShopwareSalesChannelEvent
      * @param array<string, mixed> $parameters
      */
     public function __construct(
-        private RequestDataBag $requestData,
-        private SalesChannelContext $salesChannelContext,
-        private DataValidationDefinition $dataValidationDefinition,
+        private readonly RequestDataBag $requestData,
+        private readonly SalesChannelContext $salesChannelContext,
+        private readonly DataValidationDefinition $dataValidationDefinition,
         private array $parameters,
     ) {
     }

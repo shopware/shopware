@@ -80,7 +80,7 @@ class ServiceException extends HttpException
         try {
             $data = $response->toArray(false);
             $errors = $data['errors'] ?? [];
-        } catch (JsonException $e) {
+        } catch (JsonException) {
             $errors = [];
         }
 

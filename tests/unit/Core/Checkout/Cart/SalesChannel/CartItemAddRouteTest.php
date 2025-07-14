@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
+use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute;
@@ -98,12 +99,19 @@ class CartItemAddRouteTest extends TestCase
                 fn ($dataBag): LineItem => new LineItem($dataBag['id'], $dataBag['type'], $dataBag['referencedId'] ?? null, $dataBag['quantity'])
             );
 
+        $cartLocker = $this->createMock(CartLocker::class);
+        $cartLocker
+            ->expects($this->once())
+            ->method('locked')
+            ->willReturnCallback(fn (string $token, \Closure $closure) => $closure());
+
         return new CartItemAddRoute(
             $this->createMock(CartCalculator::class),
             $this->createMock(AbstractCartPersister::class),
             $this->createMock(EventDispatcherInterface::class),
             $lineItemFactory,
-            $rateLimiter
+            $rateLimiter,
+            $cartLocker
         );
     }
 

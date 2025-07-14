@@ -1220,6 +1220,7 @@ class ThemeFixtures
                 'extensions' => [
                 ],
                 'name' => 'test',
+                'type' => null,
                 'value' => [
                     0 => 'no_test',
                 ],
@@ -1971,6 +1972,7 @@ class ThemeFixtures
                 'extensions' => [
                 ],
                 'name' => 'first',
+                'type' => null,
                 'value' => null,
                 'editable' => null,
                 'block' => null,
@@ -1988,6 +1990,7 @@ class ThemeFixtures
                 'extensions' => [
                 ],
                 'name' => 'test',
+                'type' => null,
                 'value' => [
                     0 => 'no_test',
                 ],
@@ -2213,6 +2216,7 @@ class ThemeFixtures
                 'extensions' => [
                 ],
                 'name' => 'test',
+                'type' => null,
                 'value' => [
                     0 => 'no_test',
                 ],
@@ -3268,6 +3272,7 @@ class ThemeFixtures
                 'extensions' => [
                 ],
                 'name' => 'test',
+                'type' => null,
                 'value' => [
                     0 => 'no_test',
                 ],

@@ -31,7 +31,7 @@ class Migration1743256470RemoveDebitPayment extends MigrationStep
         foreach ($ids as $id) {
             try {
                 $connection->delete('payment_method', ['id' => $id]);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $connection->update(
                     'payment_method',
                     [

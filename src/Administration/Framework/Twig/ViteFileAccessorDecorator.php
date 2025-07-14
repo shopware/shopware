@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 #[Package('framework')]
 class ViteFileAccessorDecorator extends FileAccessor
 {
-    private string $assetPath;
+    private readonly string $assetPath;
 
     /**
      * @var array<string, array<string, array<string, mixed>>>

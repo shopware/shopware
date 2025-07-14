@@ -12,7 +12,7 @@ use Symfony\Component\Stopwatch\Stopwatch as SymfonyStopwatch;
 #[Package('framework')]
 class ServerTiming implements ProfilerInterface
 {
-    private SymfonyStopwatch $watch;
+    private readonly SymfonyStopwatch $watch;
 
     /**
      * @var array<string>

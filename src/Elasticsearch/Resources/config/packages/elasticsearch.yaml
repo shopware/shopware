@@ -76,8 +76,8 @@ elasticsearch:
         filter:
             sw_ngram_filter:
                 type: ngram
-                min_gram: 4
-                max_gram: 5
+                min_gram: "%env(int:SHOPWARE_ES_NGRAM_MIN_GRAM)%"
+                max_gram: "%env(int:SHOPWARE_ES_NGRAM_MAX_GRAM)%"
             sw_english_stop_filter:
                 type: 'stop'
                 stopwords: '_english_'
@@ -113,3 +113,5 @@ parameters:
     env(SHOPWARE_ADMIN_ES_REFRESH_INDICES): ""
     env(SHOPWARE_ES_INDEXING_BATCH_SIZE): "100"
     env(SHOPWARE_ES_EXCLUDE_SOURCE): "0"
+    env(SHOPWARE_ES_NGRAM_MIN_GRAM): "4"
+    env(SHOPWARE_ES_NGRAM_MAX_GRAM): "5"

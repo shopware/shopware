@@ -29,6 +29,10 @@ final class PlatformRequest
     public const HEADER_INDEXING_SKIP = 'indexing-skip';
     public const HEADER_FORCE_CACHE_INVALIDATE = 'sw-force-cache-invalidate';
 
+    public const HEADER_MEASUREMENT_WEIGHT_UNIT = 'sw-measurement-weight-unit';
+
+    public const HEADER_MEASUREMENT_LENGTH_UNIT = 'sw-measurement-length-unit';
+
     /**
      * API Expectation headers to check requirements are fulfilled
      */
@@ -65,6 +69,8 @@ final class PlatformRequest
     public const ATTRIBUTE_OAUTH_CLIENT_ID = 'oauth_client_id';
     public const ATTRIBUTE_OAUTH_USER_ID = 'oauth_user_id';
     public const ATTRIBUTE_OAUTH_SCOPES = 'oauth_scopes';
+
+    public const FALLBACK_SESSION_NAME = 'session-';
 
     private function __construct()
     {

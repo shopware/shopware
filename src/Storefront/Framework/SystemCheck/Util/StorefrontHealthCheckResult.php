@@ -15,11 +15,12 @@ class StorefrontHealthCheckResult extends Struct
         public readonly string $storefrontUrl,
         public readonly int $responseCode,
         public readonly float $responseTime,
+        public readonly ?string $errorMessage,
     ) {
     }
 
-    public static function create(string $storefrontUrl, int $responseCode, float $responseTime): self
+    public static function create(string $storefrontUrl, int $responseCode, float $responseTime, ?string $errorMessage = null): self
     {
-        return new self($storefrontUrl, $responseCode, $responseTime);
+        return new self($storefrontUrl, $responseCode, $responseTime, $errorMessage);
     }
 }

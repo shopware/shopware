@@ -48,7 +48,7 @@ class CustomEntityRegistrar
 
             try {
                 $flags = json_decode((string) $entity['flags'], true, 512, \JSON_THROW_ON_ERROR);
-            } catch (\JsonException $e) {
+            } catch (\JsonException) {
                 $flags = [];
             }
 

@@ -29,7 +29,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @example scripts/store-api-request-test/store-api-request-test.twig Use request to determine method and return all json body back
  */
 #[Package('framework')]
-final class RequestFacade
+final readonly class RequestFacade
 {
     private const ALLOWED_PARAMETERS = [
         'content-type',
@@ -43,7 +43,7 @@ final class RequestFacade
     /**
      * @internal
      */
-    public function __construct(private readonly Request $request)
+    public function __construct(private Request $request)
     {
     }
 

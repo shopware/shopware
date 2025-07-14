@@ -70,7 +70,7 @@
       "labelCheckPostalCodePattern": "Postleitzahl validieren",
       "labelCheckAdvancedPostalCodePattern": "Erweiterte Validierungsregeln",
       "placeholderAdvancedPostalCodePattern": "Gib ein Postleitzahl-Format an ...",
-      "helpTextAdvancedPostalCodePattern": "Mögliche Formate: <br><br> ^\\d{5}$ - Genau 5 Ziffern, z. B. 12345 <br>^(\\d{4})\\s*([A-Z]{2})$ - Genau 4 Ziffern und 2 Buchstaben, z. B. 1234 AB",
+      "helpTextAdvancedPostalCodePattern": "Mögliche Formate:<ul><li>^\\d{5}$ - Genau 5 Ziffern, z. B. 12345</li><li>^(\\d{4})\\s*([A-Z]{2})$ - Genau 4 Ziffern und 2 Buchstaben, z. B. 1234 AB</li></ul>",
       "labelCheckDefaultAddressFormat": "Benutzerdefiniertes Adressformat",
       "labelAddressFormatPlain": "Format",
       "titleFormatting": "Addressformat",

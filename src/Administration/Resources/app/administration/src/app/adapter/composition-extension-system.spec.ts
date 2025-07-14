@@ -9,7 +9,7 @@
 
 import { createExtendableSetup, overrideComponentSetup, _overridesMap } from 'src/app/adapter/composition-extension-system';
 import { mount } from '@vue/test-utils';
-import type { EmitFn, PropType } from 'vue';
+import type { EmitFn } from 'vue';
 import { ref, computed, reactive, defineComponent } from 'vue';
 import type { SetupContext, Slot } from '@vue/runtime-core';
 import ExampleExtendableScriptSetupComponent from './_mocks_/example-extendable-script-setup-component.vue';

@@ -49,6 +49,115 @@ class ProductDetailRouteTest extends TestCase
         static::assertArrayHasKey('product', $response);
     }
 
+    public function testLoadProductWithMeasurementSystem(): void
+    {
+        $product = (new ProductBuilder($this->ids, 'measurement-system-product'))
+            ->price(100)
+            ->visibility($this->ids->get('sales-channel'))
+            ->length(100.0)
+            ->width(50.0)
+            ->height(30.0)
+            ->weight(1.5)
+            ->build();
+
+        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+
+        $this->browser->request('POST', $this->getUrl($this->ids->get('measurement-system-product')));
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('product_detail', $response['apiAlias']);
+        static::assertArrayHasKey('product', $response);
+        static::assertArrayHasKey('length', $response['product']);
+        static::assertArrayHasKey('width', $response['product']);
+        static::assertArrayHasKey('height', $response['product']);
+        static::assertArrayHasKey('weight', $response['product']);
+
+        // product dimension stay in the default unit
+        static::assertSame(100, $response['product']['length']);
+        static::assertSame(50, $response['product']['width']);
+        static::assertSame(30, $response['product']['height']);
+        static::assertSame(1.5, $response['product']['weight']);
+
+        // measurements is calculated in the response
+        static::assertArrayHasKey('measurements', $response['product']);
+        static::assertNotEmpty($response['product']['measurements']);
+        static::assertSame([
+            'width' => [
+                'value' => 50,
+                'unit' => 'mm',
+            ],
+            'height' => [
+                'value' => 30,
+                'unit' => 'mm',
+            ],
+            'length' => [
+                'value' => 100,
+                'unit' => 'mm',
+            ],
+            'weight' => [
+                'value' => 1.5,
+                'unit' => 'kg',
+            ],
+            'apiAlias' => 'converted_unit_set',
+        ], $response['product']['measurements']);
+
+        // change the default unit to imperial
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
+        $salesChannelRepository->update([
+            [
+                'id' => $this->ids->get('sales-channel'),
+                'measurementUnits' => [
+                    'system' => 'imperial',
+                    'units' => [
+                        'length' => 'in',
+                        'weight' => 'lb',
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $this->browser->request('POST', $this->getUrl($this->ids->get('measurement-system-product')));
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('product_detail', $response['apiAlias']);
+        static::assertArrayHasKey('product', $response);
+        static::assertArrayHasKey('length', $response['product']);
+        static::assertArrayHasKey('width', $response['product']);
+        static::assertArrayHasKey('height', $response['product']);
+        static::assertArrayHasKey('weight', $response['product']);
+
+        // product dimension stay in the default unit
+        static::assertSame(100, $response['product']['length']);
+        static::assertSame(50, $response['product']['width']);
+        static::assertSame(30, $response['product']['height']);
+        static::assertSame(1.5, $response['product']['weight']);
+
+        // measurements is calculated in the response
+        static::assertArrayHasKey('measurements', $response['product']);
+        static::assertNotEmpty($response['product']['measurements']);
+        static::assertSame([
+            'width' => [
+                'value' => 1.97,
+                'unit' => 'in',
+            ],
+            'height' => [
+                'value' => 1.18,
+                'unit' => 'in',
+            ],
+            'length' => [
+                'value' => 3.94,
+                'unit' => 'in',
+            ],
+            'weight' => [
+                'value' => 3.31,
+                'unit' => 'lb',
+            ],
+            'apiAlias' => 'converted_unit_set',
+        ], $response['product']['measurements']);
+    }
+
     public function testLoadProductVariantShowBestVariant(): void
     {
         $this->createVariantProducts(['displayParent' => true]);

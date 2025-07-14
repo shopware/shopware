@@ -23,7 +23,7 @@ class ContextAwareCacheHeadersSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::RESPONSE => ['onResponse', -3000], // Run after other subscribers
+            'store-api.scope.response' => ['onResponse', -1000],
         ];
     }
 
@@ -31,13 +31,6 @@ class ContextAwareCacheHeadersSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
         $response = $event->getResponse();
-
-        /** @var list<string> $routeScopes */
-        $routeScopes = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
-
-        if (!\in_array(StoreApiRouteScope::ID, $routeScopes, true)) {
-            return;
-        }
 
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
         if (!$context instanceof SalesChannelContext) {

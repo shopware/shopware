@@ -55,28 +55,6 @@ class ContextAwareCacheHeadersSubscriberTest extends TestCase
         $this->subscriber->onResponse($event);
     }
 
-    public function testOnResponseWithNonStoreApiRoute(): void
-    {
-        $context = Generator::generateSalesChannelContext();
-
-        $request = $this->createRequest(['api'], $context);
-
-        $response = new Response();
-
-        $event = new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
-            $request,
-            HttpKernelInterface::MAIN_REQUEST,
-            $response
-        );
-
-        $this->contextAwareCacheService
-            ->expects($this->never())
-            ->method('addContextHeaders');
-
-        $this->subscriber->onResponse($event);
-    }
-
     public function testOnResponseWithoutContext(): void
     {
         $request = $this->createRequest([StoreApiRouteScope::ID]);
@@ -101,8 +79,8 @@ class ContextAwareCacheHeadersSubscriberTest extends TestCase
     {
         $events = ContextAwareCacheHeadersSubscriber::getSubscribedEvents();
 
-        static::assertArrayHasKey('kernel.response', $events);
-        static::assertSame(['onResponse', -3000], $events['kernel.response']);
+        static::assertArrayHasKey('store-api.scope.response', $events);
+        static::assertSame(['onResponse', -1000], $events['store-api.scope.response']);
     }
 
     /**

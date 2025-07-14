@@ -96,6 +96,7 @@ class ContextAwareCachingTest extends TestCase
         $hash2 = $response2->headers->get(PlatformRequest::HEADER_CONTEXT_HASH);
 
         // Context hash should be the same for the same context
+        static::assertNotNull($hash1);
         static::assertSame($hash1, $hash2);
     }
 

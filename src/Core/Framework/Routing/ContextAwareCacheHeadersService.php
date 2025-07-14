@@ -15,14 +15,13 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('framework')]
 class ContextAwareCacheHeadersService
 {
-    public const HEADER_CONTEXT_HASH = 'sw-context-hash';
-
     public function addContextHeaders(Request $request, Response $response, SalesChannelContext $context): void
     {
         // Add context headers to response
         $response->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $context->getLanguageId());
         $response->headers->set(PlatformRequest::HEADER_CURRENCY_ID, $context->getCurrencyId());
         $response->headers->set(PlatformRequest::HEADER_CONTEXT_HASH, $this->generateContextHash($context));
+        $response->headers->set('sw-context-version-id', $context->getVersionId());
 
         // Add vary headers for caching
         $this->addVaryHeaders($response);

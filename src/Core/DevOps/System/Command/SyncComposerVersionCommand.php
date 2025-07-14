@@ -75,6 +75,8 @@ Please run the `sync:composer:version` command without the --dry-run option to s
             }
 
             $io->info('Composer dependencies synced with the root composer.json file.');
+        } else {
+            $io->success('Composer dependencies of sub-packages are already in sync with the root composer.json file.');
         }
 
         return self::SUCCESS;

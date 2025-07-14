@@ -194,13 +194,11 @@ const missingTests = [
     'src/core/service/api/snippet.api.service.js',
     'src/core/service/api/state-machine.api.service.js',
     'src/core/service/api/store-context.api.service.ts',
-    'src/core/service/api/user-config.api.service.js',
     'src/core/service/api/user-input-sanitize.service.js',
     'src/core/service/api/user-recovery.api.service.ts',
     'src/core/service/api/user-validation.api.service.js',
     'src/core/service/api/user.api.service.js',
     'src/core/service/customer-group-registration-listener.service.js',
-    'src/core/service/entity-mapping.service.js',
     'src/core/service/shopware-updates-listener.service.js',
     'src/core/service/utils/debug.utils.ts',
     'src/core/service/utils/object.utils.ts',
@@ -318,7 +316,6 @@ const missingTests = [
     'src/module/sw-order/component/sw-order-create-promotion-modal/index.js',
     'src/module/sw-order/component/sw-order-customer-comment/index.js',
     'src/module/sw-order/component/sw-order-document-settings-delivery-note-modal/index.js',
-    'src/module/sw-order/component/sw-order-document-settings-invoice-modal/index.js',
     'src/module/sw-order/component/sw-order-inline-field/index.js',
     'src/module/sw-order/component/sw-order-leave-page-modal/index.js',
     'src/module/sw-order/component/sw-order-nested-line-items-row/index.js',
@@ -411,6 +408,7 @@ const missingTests = [
     'src/module/sw-settings-logging/index.js',
     'src/module/sw-settings-login-registration/index.js',
     'src/module/sw-settings-mailer/index.js',
+    'src/module/sw-settings-measurement/index.js',
     'src/module/sw-settings-newsletter/index.js',
     'src/module/sw-settings-number-range/index.js',
     'src/module/sw-settings-payment/component/sw-plugin-box/index.js',
@@ -454,6 +452,8 @@ const missingTests = [
     'src/module/sw-sales-channel/component/sw-sales-channel-modal/index.js',
     // unable to test because of es module <-> cjs conflicts lazy import statements
     'src/app/init/component.init.ts',
+    'src/module/sw-settings-services/index.ts',
+    'src/module/sw-settings-services/service/index.ts',
 ];
 
 /**

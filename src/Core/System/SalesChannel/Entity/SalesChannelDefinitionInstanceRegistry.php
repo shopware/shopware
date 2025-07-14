@@ -68,12 +68,12 @@ class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
     /**
      * @throws SalesChannelRepositoryNotFoundException
      */
-    private function getSalesChannelRepositoryClassByEntityName(string $entityMame): string
+    private function getSalesChannelRepositoryClassByEntityName(string $entityName): string
     {
-        if (!isset($this->repositoryMap[$entityMame])) {
-            throw new SalesChannelRepositoryNotFoundException($entityMame);
+        if (!isset($this->repositoryMap[$entityName])) {
+            throw new SalesChannelRepositoryNotFoundException($entityName);
         }
 
-        return $this->repositoryMap[$entityMame];
+        return $this->repositoryMap[$entityName];
     }
 }

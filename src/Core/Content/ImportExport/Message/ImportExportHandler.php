@@ -20,15 +20,15 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 #[AsMessageHandler]
 #[Package('fundamentals@after-sales')]
-final class ImportExportHandler
+final readonly class ImportExportHandler
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly MessageBusInterface $messageBus,
-        private readonly ImportExportFactory $importExportFactory,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private MessageBusInterface $messageBus,
+        private ImportExportFactory $importExportFactory,
+        private EventDispatcherInterface $eventDispatcher
     ) {
     }
 

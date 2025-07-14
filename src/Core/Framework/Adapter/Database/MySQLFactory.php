@@ -82,7 +82,14 @@ class MySQLFactory
             $parameters['replica'] = [];
 
             for ($i = 0; $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_' . $i . '_URL'); ++$i) {
-                $parameters['replica'][] = ['url' => $replicaUrl, 'charset' => $parameters['charset'], 'driverOptions' => $parameters['driverOptions']];
+                $replicaParams = $dsnParser->parse($replicaUrl);
+
+                $replicaParams = array_merge([
+                    'charset' => $parameters['charset'],
+                    'driverOptions' => $parameters['driverOptions'],
+                ], $replicaParams);
+
+                $parameters['replica'][$i] = $replicaParams;
             }
         }
 

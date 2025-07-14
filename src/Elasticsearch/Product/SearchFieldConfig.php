@@ -50,4 +50,15 @@ class SearchFieldConfig
     {
         return $this->prefixMatch;
     }
+
+    public function getFuzziness(string $token): string|int
+    {
+        $fuzziness = $this->tokenize ? 'auto' : 1;
+
+        if (is_numeric($token) || preg_match('/\d{3,}/', $token)) {
+            $fuzziness = 0; // Disable fuzziness for numeric tokens or a serial of at least 3 digits
+        }
+
+        return $fuzziness;
+    }
 }

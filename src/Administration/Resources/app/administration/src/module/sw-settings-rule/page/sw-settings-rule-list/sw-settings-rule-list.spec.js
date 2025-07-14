@@ -35,6 +35,7 @@ async function createWrapper(privileges = []) {
                 'sw-sidebar-filter-panel': true,
                 'sw-sidebar': true,
                 'router-link': true,
+                'sw-time-ago': true,
             },
             provide: {
                 repositoryFactory: {
@@ -214,7 +215,10 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         const { wrapper } = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        }
     });
 
     it('should consider criteria filters via updateCriteria (triggered by sw-sidebar-filter-panel)', async () => {

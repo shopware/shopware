@@ -1,3 +1,9 @@
+# 6.7.0.1
+
+## ESI render errors are not ignored anymore
+When rendering the `/header` and `/footer` ESI tags, errors will now be thrown instead of ignored. This change is intended to help developers identify and fix issues with ESI includes more easily.
+If you want to keep the old behaviour you need to overwrite the template blocks and remove the `ignore_errors: false` option from the `render_esi` function call.
+
 # 6.7.0.0 Upgrade Guide
 
 # Notable Changes
@@ -2599,7 +2605,6 @@ Example:
 <template>
   <sw-button />
 </template>
-
 
 <!-- Uses sw-button-deprecated in 6.6 and 6.7 -->
 <template>

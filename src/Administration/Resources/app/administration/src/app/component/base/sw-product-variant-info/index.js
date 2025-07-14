@@ -90,7 +90,9 @@ export default {
         },
 
         getFirstSlot() {
-            return this.$slots?.default?.()?.[0]?.children || '';
+            const label = this.$slots?.default?.()?.[0]?.children;
+
+            return typeof label === 'string' ? label : label?.default?.()?.[0]?.children || '';
         },
 
         setHelpText() {

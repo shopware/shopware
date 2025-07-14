@@ -128,7 +128,10 @@
 
                                                 {% block sw_customer_base_metadata_created_at_content %}
                                                 <dd>
-                                                    {{ dateFilter(review.createdAt, { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}
+                                                    <sw-time-ago
+                                                        :date="review.createdAt"
+                                                        :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                                                    />
                                                 </dd>
                                                 {% endblock %}
                                             </sw-description-list>

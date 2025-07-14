@@ -122,8 +122,17 @@
                             :disabled="!acl.can('product_manufacturer.editor') || undefined"
                             @sw-media-upload-v2-media-upload-success="setMediaItem"
                             @media-drop="onDropMedia"
-                            @media-upload-sidebar-open="openMediaSidebar"
+                            @media-upload-sidebar-open="showMediaModal = true"
                             @media-upload-remove-image="onUnlinkLogo"
+                        />
+
+                        <sw-media-modal-v2
+                            v-if="showMediaModal"
+                            :allow-multi-select="false"
+                            :initial-folder-id="mediaDefaultFolderId"
+                            :entity-context="manufacturer.getEntityName()"
+                            @modal-close="showMediaModal = false"
+                            @media-modal-selection-change="onMediaSelectionChange"
                         />
                         {% endblock %}
                     </sw-container>
@@ -162,24 +171,8 @@
     </template>
     {% endblock %}
 
+    {# @deprecated tag:v6.8.0 - Will be removed without replacement #}
     {% block sw_manufacturer_detail_sidebar %}
-    <template #sidebar>
-        <sw-sidebar :propagate-width="true">
-            <sw-sidebar-media-item
-                ref="mediaSidebarItem"
-                :disabled="!acl.can('product_manufacturer.editor') || undefined"
-            >
-                <template
-                    #context-menu-items="media"
-                >
-                    <sw-context-menu-item @click="setMediaFromSidebar(media.mediaItem)">
-                        {{ $tc('sw-manufacturer.detail.labelUseAsLogo') }}
-                    </sw-context-menu-item>
-                </template>
-            </sw-sidebar-media-item>
-        </sw-sidebar>
-    </template>
     {% endblock %}
-
 </sw-page>
 {% endblock %}

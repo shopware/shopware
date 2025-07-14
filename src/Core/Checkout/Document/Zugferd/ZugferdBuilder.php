@@ -45,9 +45,11 @@ class ZugferdBuilder
         }
 
         $deliveryDate = $order->getPrimaryOrderDelivery()?->getShippingDateLatest();
+        $transaction = $order->getPrimaryOrderTransaction();
 
         if (!Feature::isActive('v6.8.0.0')) {
             $deliveryDate = $order->getDeliveries()?->first()?->getShippingDateLatest();
+            $transaction = $order->getTransactions()?->last();
         }
 
         if ($deliveryDate instanceof \DateTimeImmutable) {
@@ -65,7 +67,6 @@ class ZugferdBuilder
 
         $this->addLineItems($document, $order->getLineItems());
 
-        $transaction = $order->getTransactions()?->last();
         if ($transaction !== null) {
             if ($transaction->getStateMachineState()?->getTechnicalName() === 'paid') {
                 $document->withPaidAmount($order->getAmountTotal());

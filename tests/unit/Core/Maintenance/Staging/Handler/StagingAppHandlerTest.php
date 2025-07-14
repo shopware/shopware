@@ -43,7 +43,12 @@ class StagingAppHandlerTest extends TestCase
         $configService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, 'test');
 
         $handler = new StagingAppHandler($connection, $configService);
-        $handler->__invoke(new SetupStagingEvent(Context::createDefaultContext(), $this->createMock(SymfonyStyle::class)));
+        $handler->__invoke(new SetupStagingEvent(
+            Context::createDefaultContext(),
+            $this->createMock(SymfonyStyle::class),
+            false,
+            []
+        ));
 
         static::assertNull($configService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
 

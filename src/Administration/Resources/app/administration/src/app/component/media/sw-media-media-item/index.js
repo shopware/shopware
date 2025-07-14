@@ -55,7 +55,7 @@ export default {
 
     computed: {
         locale() {
-            return this.$root.$i18n.locale;
+            return this.$root.$i18n.locale.value;
         },
 
         defaultContextMenuClass() {
@@ -68,6 +68,9 @@ export default {
             return Shopware.Filter.getByName('mediaName');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },

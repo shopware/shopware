@@ -20,12 +20,12 @@ class EntityDeleteEventHelper
     /**
      * @var EntityDefinition[]
      */
-    private array $includedEntityDefinitions;
+    private array $includedEntityDefinitions = [];
 
     /**
      * @var string[]
      */
-    private array $excludedFields;
+    private array $excludedFields = [];
 
     /**
      * @var array<string, list<array<string, string>>>
@@ -34,8 +34,6 @@ class EntityDeleteEventHelper
 
     public function __construct(private readonly EntityDeleteEvent $event)
     {
-        $this->includedEntityDefinitions = [];
-        $this->excludedFields = [];
     }
 
     /**

@@ -15,9 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\ServiceClientFactory;
 use Shopware\Core\Service\ServiceException;
-use Shopware\Core\Service\ServiceRegistryClient;
-use Shopware\Core\Service\ServiceRegistryEntry;
-use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
+use Shopware\Core\Service\ServiceRegistry\Client;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
+use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -33,7 +33,7 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
 
     public function __construct(
         private readonly SystemConfigService $config,
-        private readonly ServiceRegistryClient $serviceRegistryClient,
+        private readonly Client $serviceRegistryClient,
         private readonly EntityRepository $appRepository,
         private readonly LoggerInterface $logger,
         private readonly ServiceClientFactory $clientFactory,
@@ -45,16 +45,23 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
         return [
             AppInstalledEvent::class => 'serviceInstalled',
             AppUpdatedEvent::class => 'serviceInstalled',
-            SystemConfigChangedEvent::class => 'syncLicense',
+            BeforeSystemConfigChangedEvent::class => 'syncLicense',
         ];
     }
 
-    public function syncLicense(SystemConfigChangedEvent $event): void
+    public function syncLicense(BeforeSystemConfigChangedEvent $event): void
     {
         $key = $event->getKey();
         $value = $event->getValue();
 
         if (!\in_array($key, [self::CONFIG_STORE_LICENSE_KEY, self::CONFIG_STORE_LICENSE_HOST], true) || !\is_string($value)) {
+            return;
+        }
+
+        // the event doesn't mean that the value is different from the current one.
+        // it could be just a rewrite of the same value.
+        $updatedConfig = $this->config->getString($key);
+        if ($value === $updatedConfig) {
             return;
         }
 
@@ -103,7 +110,7 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
         }
     }
 
-    private function syncLicenseByService(ServiceRegistryEntry $serviceEntry, AppEntity $app, Context $context, ?string $licenseKey = null, ?string $licenseHost = null): void
+    private function syncLicenseByService(ServiceEntry $serviceEntry, AppEntity $app, Context $context, ?string $licenseKey = null, ?string $licenseHost = null): void
     {
         if ($serviceEntry->licenseSyncEndPoint === null) {
             return;

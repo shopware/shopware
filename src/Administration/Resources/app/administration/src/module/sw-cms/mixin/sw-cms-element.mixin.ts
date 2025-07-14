@@ -1,4 +1,4 @@
-import { defineComponent, type PropType } from 'vue';
+import { defineComponent } from 'vue';
 import { type RuntimeSlot } from '../service/cms.service';
 import '../../sw-category/page/sw-category-detail/store';
 

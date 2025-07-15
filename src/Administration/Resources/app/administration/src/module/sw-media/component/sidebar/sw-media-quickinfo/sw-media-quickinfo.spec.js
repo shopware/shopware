@@ -25,6 +25,11 @@ const itemMock = (options = {}) => {
     return Object.assign(itemOptions, options);
 };
 
+const arPlacementOptions = [
+    { id: 'horizontal', value: 'horizontal', label: 'Horizontal' },
+    { id: 'vertical', value: 'vertical', label: 'Vertical' },
+];
+
 async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaRepositoryProvideFunctions = {}) {
     return mount(await wrapTestComponent('sw-media-quickinfo', { sync: true }), {
         global: {
@@ -53,6 +58,20 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                         return Promise.resolve({
                             'core.store.media.defaultEnableAugmentedReality': 'false',
                         });
+                    },
+                    getConfig: () => {
+                        return Promise.resolve([
+                            {
+                                elements: [
+                                    {
+                                        name: 'core.media.defaultARPlacement',
+                                        config: {
+                                            options: arPlacementOptions,
+                                        },
+                                    },
+                                ],
+                            },
+                        ]);
                     },
                 },
                 mediaService: {
@@ -124,7 +143,7 @@ function provide2DMockOptions() {
 }
 
 /**
- * @returns {[[object,boolean, boolean]]} [i][0] Array of options for the mockItem, [i][1] flag for if 'isSpatial', [i][2] flag for if 'isArReady'
+ * @returns {[[object,boolean, boolean, string]]} [i][0] Array of options for the mockItem, [i][1] flag for if 'isSpatial', [i][2] flag for if 'isArReady', [i][3] flag for 'arPlacement'
  */
 function provide3DMockOptions() {
     return [
@@ -135,6 +154,16 @@ function provide3DMockOptions() {
             },
             true,
             false,
+            'horizontal',
+        ],
+        [
+            {
+                fileName: 'smth.glb',
+                fileExtension: 'glb',
+            },
+            true,
+            false,
+            'vertical',
         ],
         [
             {
@@ -143,6 +172,16 @@ function provide3DMockOptions() {
             },
             true,
             true,
+            'horizontal',
+        ],
+        [
+            {
+                fileName: 'smth.glb',
+                url: 'http://shopware.example.com/media/file/2b71335f118c4940b425c55352e69e44/media-1-three-d.glb',
+            },
+            true,
+            true,
+            'vertical',
         ],
     ];
 }
@@ -243,7 +282,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
     });
 
     it.each(provide3DMockOptions())(
-        'should trigger update:item event when toggle is changed',
+        'should trigger update:item event when ar-toggle is changed',
         async (mockOptions, isSpatial) => {
             global.activeAclRoles = ['media.editor'];
             const mediaSaveMock = jest.fn();
@@ -279,13 +318,84 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
     );
 
     it.each(provide3DMockOptions())(
+        'should trigger update:item event when placement-singleselect is changed',
+        async (mockOptions, isSpatial, isArReady, arPlacement) => {
+            global.activeAclRoles = ['media.editor'];
+            const mediaSaveMock = jest.fn();
+
+            const mediaRepositoryGetMock = jest.fn().mockResolvedValue({
+                config: {
+                    spatial: {
+                        arReady: isArReady,
+                        arPlacement: arPlacement,
+                    },
+                },
+            });
+
+            const mediaRepositoryFunctions = {
+                save: mediaSaveMock,
+                get: mediaRepositoryGetMock,
+            };
+
+            const wrapper = await createWrapper(mockOptions, {}, mediaRepositoryFunctions);
+            await wrapper.vm.$nextTick();
+
+            const arToggle = wrapper.findComponent('.sw-media-sidebar__quickactions-switch.ar-ready-toggle');
+            expect(arToggle.exists()).toBe(isSpatial);
+
+            const arToggleInput = wrapper.find('.mt-switch input');
+            expect(arToggleInput.exists()).toBe(true);
+
+            expect(arToggleInput.element.checked).toBe(isArReady);
+
+            const arPlacementSelect = wrapper.find('.mt-select input');
+            expect(arPlacementSelect.exists()).toBe(isArReady);
+
+            if (arPlacementSelect.exists()) {
+                // click the input field to open results
+                const selection = wrapper.find('.mt-select__selection');
+                await selection.trigger('click');
+
+                // find all results
+                const selectResults = wrapper.findAll('.mt-select-result');
+                // eslint-disable-next-line jest/no-conditional-expect
+                expect(selectResults).toHaveLength(2);
+
+                await selectResults.at(1).trigger('click');
+
+                if (arPlacement === 'horizontal') {
+                    // eslint-disable-next-line jest/no-conditional-expect
+                    expect(wrapper.emitted('update:item')).toBeTruthy();
+
+                    // eslint-disable-next-line jest/no-conditional-expect
+                    expect(wrapper.emitted('update:item')[0][0]).toEqual(
+                        // eslint-disable-next-line jest/no-conditional-expect
+                        expect.objectContaining({
+                            // eslint-disable-next-line jest/no-conditional-expect
+                            config: expect.objectContaining({
+                                // eslint-disable-next-line jest/no-conditional-expect
+                                spatial: expect.objectContaining({
+                                    arPlacement: 'vertical',
+                                    // eslint-disable-next-line jest/no-conditional-expect
+                                    updatedAt: expect.any(Number),
+                                }),
+                            }),
+                        }),
+                    );
+                }
+            }
+        },
+    );
+
+    it.each(provide3DMockOptions())(
         'should check if object is AR ready when created and update ar toggle accordingly',
-        async (mockOptions, isSpatial, isArReady) => {
+        async (mockOptions, isSpatial, isArReady, arPlacement) => {
             global.activeAclRoles = ['media.editor'];
             const mediaRepositoryGetMock = jest.fn().mockResolvedValue({
                 config: {
                     spatial: {
                         arReady: isArReady,
+                        arPlacement: arPlacement,
                     },
                 },
             });
@@ -303,6 +413,9 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             expect(arToggleInput.exists()).toBe(true);
 
             expect(arToggleInput.element.checked).toBe(isArReady);
+
+            const arPlacementSelect = wrapper.find('.mt-select input');
+            expect(arPlacementSelect.exists()).toBe(isArReady);
         },
     );
 

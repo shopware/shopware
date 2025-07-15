@@ -104,6 +104,7 @@
         "opensearch-project/opensearch-php": "^2.3.1",
         "pentatrion/vite-bundle": "^8.1",
         "psr/cache": "^3.0.0",
+        "psr/simple-cache": "^3.0.0",
         "psr/event-dispatcher": "^1.0.0",
         "psr/http-factory": "^1.0.1",
         "psr/http-message": "^1.1 || ^2.0",

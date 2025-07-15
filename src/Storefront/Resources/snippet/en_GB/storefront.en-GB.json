@@ -782,7 +782,9 @@
     "googleReCaptcha": {
       "dataProtectionInformation": "This site is protected by reCAPTCHA and the Google <a href=\"https://policies.google.com/privacy\">Privacy Policy</a> and <a href=\"https://policies.google.com/terms\">Terms of Service</a> apply."
     },
-    "basicCaptchaLabel": "To continue, enter the characters shown above*"
+    "basicCaptchaLabel": "To continue, enter the characters shown above*",
+    "basicCaptchaRefreshButton": "Refresh captcha challenge",
+    "basicCaptchaChallengeAltText": "Captcha challenge"
   },
   "cookie": {
     "messageText": "This website uses cookies to ensure the best experience possible. <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"More information\">More information...</a>",

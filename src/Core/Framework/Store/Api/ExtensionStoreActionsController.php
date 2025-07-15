@@ -71,7 +71,7 @@ class ExtensionStoreActionsController extends AbstractController
         if ($file->getMimeType() !== 'application/zip') {
             try {
                 $this->fileSystem->remove($file->getPathname());
-            } catch (\Throwable $e) {
+            } catch (\Throwable) {
                 // Do nothing because the tmp file is already deleted by os
             }
 

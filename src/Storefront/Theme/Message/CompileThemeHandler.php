@@ -22,18 +22,18 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  */
 #[AsMessageHandler]
 #[Package('framework')]
-final class CompileThemeHandler
+final readonly class CompileThemeHandler
 {
     /**
      * @param EntityRepository<SalesChannelCollection> $saleschannelRepository
      */
     public function __construct(
-        private readonly ThemeCompilerInterface $themeCompiler,
-        private readonly AbstractConfigLoader $configLoader,
-        private readonly StorefrontPluginRegistry $extensionRegistry,
-        private readonly NotificationService $notificationService,
-        private readonly EntityRepository $saleschannelRepository,
-        private readonly ThemeRuntimeConfigService $runtimeConfigService,
+        private ThemeCompilerInterface $themeCompiler,
+        private AbstractConfigLoader $configLoader,
+        private StorefrontPluginRegistry $extensionRegistry,
+        private NotificationService $notificationService,
+        private EntityRepository $saleschannelRepository,
+        private ThemeRuntimeConfigService $runtimeConfigService,
     ) {
     }
 

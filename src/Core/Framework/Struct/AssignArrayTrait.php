@@ -23,7 +23,7 @@ trait AssignArrayTrait
 
             try {
                 $this->$key = $value;
-            } catch (\Error|\Exception $error) {
+            } catch (\Error|\Exception) {
                 // nth
             }
         }

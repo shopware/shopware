@@ -11,17 +11,17 @@ use Shopware\Core\Framework\Util\Hasher;
  * @internal
  */
 #[Package('inventory')]
-final class AdminSearchIndexingMessage implements AsyncMessageInterface, DeduplicatableMessageInterface
+final readonly class AdminSearchIndexingMessage implements AsyncMessageInterface, DeduplicatableMessageInterface
 {
     /**
      * @param array<string, string> $indices
      * @param array<string> $ids
      */
     public function __construct(
-        private readonly string $entity,
-        private readonly string $indexer,
-        private readonly array $indices,
-        private readonly array $ids
+        private string $entity,
+        private string $indexer,
+        private array $indices,
+        private array $ids
     ) {
     }
 

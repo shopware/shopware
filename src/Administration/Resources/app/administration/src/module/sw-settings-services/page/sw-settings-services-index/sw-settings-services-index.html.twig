@@ -23,7 +23,6 @@
             <sw-settings-services-grant-permissions-card
                 v-if="!consentGiven && !config.disabled"
                 :docs-link="currentRevision.links['docs-url']"
-                @service-permissions-granted="reloadServices"
             />
 
             <div class="sw-settings-services__listing-section">
@@ -104,7 +103,6 @@
 
                 <sw-settings-services-revoke-permissions-modal
                     v-if="!config.disabled && config.permissionsConsent"
-                    @service-permissions-revoked="reloadServices"
                 />
 
                 <sw-settings-services-deactivate-modal

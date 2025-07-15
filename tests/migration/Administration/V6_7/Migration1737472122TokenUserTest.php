@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Migration\Administration\V6_7;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Migration\V6_7\Migration1737472122TokenUser;

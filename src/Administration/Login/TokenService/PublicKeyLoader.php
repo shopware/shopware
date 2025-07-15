@@ -8,7 +8,6 @@ use Shopware\Administration\Login\Config\LoginConfig;
 use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Cache\Adapter\AbstractAdapter;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -65,7 +64,6 @@ final class PublicKeyLoader
 
     private function loadAndPreparePublicKey(LoginConfig $loginConfig, string $publicKeyId): ?InMemory
     {
-
         $publicKeyString = $this->loadPublicKeyString($loginConfig);
 
         return $this->preparePublicKey($publicKeyId, $publicKeyString);

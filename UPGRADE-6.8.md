@@ -1,4 +1,16 @@
 # 6.8.0.0
+## Introduced in 6.7.1.0
+For user interfaces that display only one delivery & transaction, there is now a new reference in the order for a `primaryOrderDelivery` or `primaryOrderTransaction`. If an extension modifies or adds new deliveries or transactions, this should be taken into account. By default, the reference will behave like default Shopware behavior, meaning `delivery.first()` and `transaction.last()`.
+## Payment: Removal of Payment Method "Debit Payment"
+The payment method `DebitPayment` has been removed as it did not fulfill its purpose.
+If the payment method is and was not used, it will be removed.
+Otherwise, the payment method will be disabled.
+## Remove route `widgets.account.order.detail`:
+* Remove all references to `widgets.account.order.detail` and ensure that affected components handle navigation and display correctly
+## Removal of $tc function:
+* The `$tc` function will be completely removed
+* All translation calls should use `$t` instead
+
 
 ## Introduced in 6.7.0.0
 

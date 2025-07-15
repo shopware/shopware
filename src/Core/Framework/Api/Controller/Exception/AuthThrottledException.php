@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated tag:v6.8.0 - will be removed with v6.8.0.0
+ */
 #[Package('framework')]
 class AuthThrottledException extends ShopwareHttpException
 {
@@ -14,6 +17,8 @@ class AuthThrottledException extends ShopwareHttpException
         private readonly int $waitTime,
         ?\Throwable $e = null
     ) {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'));
+
         parent::__construct(
             'Auth throttled for {{ seconds }} seconds.',
             ['seconds' => $this->getWaitTime()],

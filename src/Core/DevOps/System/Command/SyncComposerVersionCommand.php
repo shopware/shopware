@@ -47,8 +47,8 @@ class SyncComposerVersionCommand extends Command
         $changed = false;
 
         foreach ($bundleJsons as $bundleJsonPath) {
-            // Webinstaller is independent of platform
-            if (str_ends_with($bundleJsonPath, 'WebInstaller/composer.json')) {
+            // WebInstaller is distributed separately, therefore, it has other composer requirements
+            if (str_ends_with($bundleJsonPath, '/src/WebInstaller/composer.json')) {
                 continue;
             }
 

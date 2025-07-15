@@ -7,11 +7,14 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('framework')]
 #[AsEventListener]
 class CacheTagCollector
 {
+    public const INVALID_URI = 'n/a';
+
     /**
      * @var array<string, array<string, bool>>
      */
@@ -20,8 +23,10 @@ class CacheTagCollector
     /**
      * @internal
      */
-    public function __construct(private readonly RequestStack $stack)
-    {
+    public function __construct(
+        private readonly RequestStack $stack,
+        private readonly EventDispatcherInterface $dispatcher,
+    ) {
     }
 
     public function __invoke(AddCacheTagEvent $event): void
@@ -39,23 +44,38 @@ class CacheTagCollector
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function get(Request $request): array
     {
-        $hash = $this->uri($request);
+        $hash = self::uri($request);
 
-        if (!isset($this->tags[$hash])) {
-            return [];
-        }
-
-        return array_keys($this->tags[$hash]);
+        return array_keys($this->tags[$hash] ?? []);
     }
 
-    private function uri(?Request $request): string
+    /**
+     * Collects cache tags for the current request, which will be used to tag the http cache entry.
+     * This method will prevent adding the same tag multiple times and will not dispatch an event if only existing tags are provided.
+     */
+    public function addTag(string ...$tags): void
+    {
+        $hash = self::uri($this->stack->getCurrentRequest());
+
+        $existingTags = $this->tags[$hash] ?? [];
+
+        $tags = array_diff($tags, array_keys($existingTags));
+
+        if (empty($tags)) {
+            return;
+        }
+
+        $this->dispatcher->dispatch(new AddCacheTagEvent(...$tags));
+    }
+
+    public static function uri(?Request $request): string
     {
         if ($request === null) {
-            return 'n/a';
+            return self::INVALID_URI;
         }
 
         if ($request->attributes->has('sw-original-request-uri')) {

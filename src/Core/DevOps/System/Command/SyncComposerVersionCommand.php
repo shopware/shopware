@@ -8,6 +8,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -22,29 +24,30 @@ class SyncComposerVersionCommand extends Command
     /**
      * @internal
      */
-    public function __construct(private readonly string $projectDir)
-    {
+    public function __construct(
+        private readonly string $projectDir,
+        private readonly Filesystem $fileSystem,
+    ) {
         parent::__construct();
     }
 
     protected function configure(): void
     {
-        $this->addOption('dry-run', null, InputOption::VALUE_OPTIONAL, 'Fail when files gets changed, but don\'t change them');
+        $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Fail when files gets changed, but don\'t change them');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $isDryMode = $input->getOption('dry-run');
-
-        $rootComposerJson = json_decode((string) file_get_contents($this->projectDir . '/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
+        $rootComposerJson = json_decode($this->fileSystem->readFile($this->projectDir . '/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
 
         $bundleJsons = glob($this->projectDir . '/src/*/composer.json', \GLOB_NOSORT);
         \assert(\is_array($bundleJsons));
 
+        $isDryMode = $input->getOption('dry-run');
         $changed = false;
 
         foreach ($bundleJsons as $bundleJsonPath) {
-            $bundleJson = json_decode((string) file_get_contents($bundleJsonPath), true, 512, \JSON_THROW_ON_ERROR);
+            $bundleJson = json_decode($this->fileSystem->readFile($bundleJsonPath), true, 512, \JSON_THROW_ON_ERROR);
 
             foreach (['require', 'require-dev'] as $field) {
                 foreach ($rootComposerJson[$field] ?? [] as $package => $version) {
@@ -59,12 +62,21 @@ class SyncComposerVersionCommand extends Command
                 continue;
             }
 
-            file_put_contents($bundleJsonPath, json_encode($bundleJson, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES) . \PHP_EOL);
+            $this->fileSystem->dumpFile($bundleJsonPath, json_encode($bundleJson, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES) . \PHP_EOL);
         }
 
-        if ($isDryMode) {
-            // fail the command when something needs to be changed
-            return $changed ? self::FAILURE : self::SUCCESS;
+        $io = new SymfonyStyle($input, $output);
+        if ($changed) {
+            if ($isDryMode) {
+                $io->error('Composer dependencies of sub-packages are not in sync with the root composer.json file.
+Please run the `sync:composer:version` command without the --dry-run option to sync them.');
+
+                return self::FAILURE;
+            }
+
+            $io->info('Composer dependencies synced with the root composer.json file.');
+        } else {
+            $io->success('Composer dependencies of sub-packages are already in sync with the root composer.json file.');
         }
 
         return self::SUCCESS;

@@ -62,7 +62,7 @@ class OrderBuilder
     /**
      * @var array{id: string, orderId: string, customerId: string, versionId: string, orderVersionId: string, firstName: string, lastName: string, email: string}|null
      */
-    protected ?array $orderCustomer;
+    protected ?array $orderCustomer = null;
 
     public function __construct(
         IdsCollection $ids,

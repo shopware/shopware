@@ -276,13 +276,13 @@ class FeatureTest extends TestCase
     {
         yield 'message with class and method string' => [
             'Method "Shopware\Tests\Unit\Core\Framework\FeatureTest::deprecatedMethodMessageProvider()" is deprecated and will be removed in v6.7.0.0.',
-            __CLASS__,
+            self::class,
             'deprecatedMethodMessageProvider',
         ];
 
         yield 'message with class and method magic constant' => [
             'Method "Shopware\Tests\Unit\Core\Framework\FeatureTest::deprecatedMethodMessageProvider()" is deprecated and will be removed in v6.7.0.0.',
-            __CLASS__,
+            self::class,
             __METHOD__,
         ];
     }

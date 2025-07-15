@@ -69,6 +69,7 @@
             <argument type="service" id="parameter_bag"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="shopware.filesystem.asset"/>
+            <argument type="string">%env(SERVICE_REGISTRY_URL)%</argument>
             <argument type="service" id="Shopware\Administration\Login\Config\LoginConfigService"/>
             <argument type="string">%shopware.api.refresh_token_ttl%</argument>
 

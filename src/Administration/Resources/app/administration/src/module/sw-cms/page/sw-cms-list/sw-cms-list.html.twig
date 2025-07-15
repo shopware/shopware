@@ -290,13 +290,16 @@
 
                                     {% block sw_cms_list_listing_list_data_grid_column_created %}
                                     <template #column-createdAt="{ item }">
-                                        {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
+                                        <sw-time-ago :date="item.createdAt" />
                                     </template>
                                     {% endblock %}
 
                                     {% block sw_cms_list_listing_list_data_grid_column_updated %}
                                     <template #column-updatedAt="{ item }">
-                                        {{ dateFilter(item.updatedAt, { hour: '2-digit', minute: '2-digit' }) }}
+                                        <sw-time-ago
+                                            v-if="item.updatedAt"
+                                            :date="item.updatedAt"
+                                        />
                                     </template>
                                     {% endblock %}
 

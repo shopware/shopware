@@ -71,7 +71,10 @@
             {% block sw_order_document_card_grid_column_date %}
             <template #column-createdAt="{ item }">
                 {% block sw_order_document_card_grid_column_date_label %}
-                {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
+                <sw-time-ago
+                    :date="item.createdAt"
+                    :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                />
                 {% endblock %}
             </template>
             {% endblock %}

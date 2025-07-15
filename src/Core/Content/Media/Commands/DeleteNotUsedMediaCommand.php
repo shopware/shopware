@@ -87,8 +87,8 @@ class DeleteNotUsedMediaCommand extends Command
             private int $totalMediaDeletionCandidates = 0;
 
             public function __construct(
-                private ShopwareStyle $io,
-                private int $limit,
+                private readonly ShopwareStyle $io,
+                private readonly int $limit,
             ) {
             }
 

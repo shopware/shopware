@@ -69,7 +69,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
             }
 
             $locale = $parts[0];
-            $isBase = str_contains('messages', $fileInfo->getFilenameWithoutExtension());
+            $isBase = str_contains($fileInfo->getFilenameWithoutExtension(), 'messages');
 
             $snippetFile = new GenericSnippetFile(
                 $fileInfo->getFilename(),

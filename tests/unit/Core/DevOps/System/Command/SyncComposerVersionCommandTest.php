@@ -56,7 +56,7 @@ class SyncComposerVersionCommandTest extends TestCase
         static::assertSame('5.3.0', $bundle1Json['require']['symfony/symfony']);
 
         static::assertSame(Command::SUCCESS, $tester->getStatusCode());
-        $output = str_replace("\n", ' ', $tester->getDisplay());
+        $output = preg_replace('/\s+/', ' ', $tester->getDisplay(true));
         static::assertStringContainsString('Updating composer.json of "Bundle1" bundle', $output);
         static::assertStringContainsString('Composer dependencies of bundles synced with the root composer.json file', $output);
     }
@@ -75,7 +75,7 @@ class SyncComposerVersionCommandTest extends TestCase
         $tester->execute([]);
 
         static::assertSame(Command::SUCCESS, $tester->getStatusCode());
-        $output = str_replace("\n", ' ', $tester->getDisplay());
+        $output = preg_replace('/\s+/', ' ', $tester->getDisplay(true));
         static::assertStringContainsString('Composer dependencies of bundles are already in sync with the root composer.json file.', $output);
     }
 
@@ -97,7 +97,7 @@ class SyncComposerVersionCommandTest extends TestCase
 
         static::assertSame('5.2.0', $bundle1Json['require']['symfony/symfony']);
         static::assertSame(Command::FAILURE, $tester->getStatusCode());
-        $output = str_replace("\n", ' ', $tester->getDisplay());
+        $output = preg_replace('/\s+/', ' ', $tester->getDisplay(true));
         static::assertStringContainsString('Running in dry-run mode: no files will be changed', $output);
         static::assertStringContainsString('Composer dependencies of bundles are not in sync with the root composer.json file.', $output);
         static::assertStringContainsString('Please run the `sync:composer:version` command without the --dry-run option to sync them.', $output);
@@ -123,7 +123,7 @@ class SyncComposerVersionCommandTest extends TestCase
         $tester->execute([]);
 
         static::assertSame(Command::FAILURE, $tester->getStatusCode());
-        $output = str_replace("\n", ' ', $tester->getDisplay());
+        $output = preg_replace('/\s+/', ' ', $tester->getDisplay(true));
         static::assertStringContainsString('The following packages are defined in the root composer.json but not in the bundles:', $output);
         static::assertStringContainsString('- test/package', $output);
         static::assertStringNotContainsString('- foo/bar', $output);
@@ -145,7 +145,7 @@ class SyncComposerVersionCommandTest extends TestCase
         $tester->execute([]);
 
         static::assertSame(Command::FAILURE, $tester->getStatusCode());
-        $output = str_replace("\n", ' ', $tester->getDisplay());
+        $output = preg_replace('/\s+/', ' ', $tester->getDisplay(true));
         static::assertStringContainsString('The following packages are defined in the bundles but not in the root composer.json:', $output);
         static::assertStringContainsString('- "not/in-root" from bundles: Bundle1', $output);
     }

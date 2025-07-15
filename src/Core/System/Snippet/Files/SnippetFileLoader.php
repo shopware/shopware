@@ -39,15 +39,8 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
     public function loadSnippetFilesIntoCollection(SnippetFileCollection $snippetFileCollection): void
     {
         $this->loadCoreSnippets($snippetFileCollection);
-
-        if ($snippetFileCollection->count() === 0) {
-            // legacy snippets include both platform and plugin snippets
-            $this->loadLegacySnippets($snippetFileCollection);
-        } else {
-            // load only third-party plugin snippets
-            $this->loadPluginSnippets($snippetFileCollection);
-        }
-
+        // Legacy snippets must be loaded here to ensure their availability, as the locale cannot be checked at this point and they might otherwise be missing.
+        $this->loadLegacySnippets($snippetFileCollection);
         $this->loadAppSnippets($snippetFileCollection);
     }
 
@@ -129,45 +122,6 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
 
             // skip plugin snippets that already exist via translation installation
             if ($bundle instanceof Plugin && TranslationLoader::pluginTranslationExists($bundle)) {
-                continue;
-            }
-
-            $snippetDir = $bundle->getPath() . '/Resources';
-
-            if (!is_dir($snippetDir)) {
-                continue;
-            }
-
-            foreach ($this->loadSnippetFilesInDir($snippetDir, $bundle, $authors) as $snippetFile) {
-                if ($snippetFileCollection->hasFileForPath($snippetFile->getPath())) {
-                    continue;
-                }
-
-                $snippetFileCollection->add($snippetFile);
-            }
-        }
-    }
-
-    private function loadPluginSnippets(SnippetFileCollection $snippetFileCollection): void
-    {
-        try {
-            /** @var array<string, string> $authors */
-            $authors = $this->connection->fetchAllKeyValue('
-                SELECT `base_class` AS `baseClass`, `author`
-                FROM `plugin`
-            ');
-        } catch (Exception) {
-            // to get it working in setup without a database connection
-            $authors = [];
-        }
-
-        foreach ($this->kernel->getBundles() as $bundle) {
-            if (!$bundle instanceof Plugin) {
-                continue;
-            }
-
-            // skip plugin snippets that already exist via translation installation
-            if (TranslationLoader::pluginTranslationExists($bundle)) {
                 continue;
             }
 

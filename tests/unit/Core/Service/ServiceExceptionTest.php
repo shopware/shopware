@@ -106,4 +106,104 @@ class ServiceExceptionTest extends TestCase
         static::assertSame(ServiceException::SERVICE_CANNOT_WRITE_APP, $e->getErrorCode());
         static::assertSame('Error writing app zip to file "/some/path"', $e->getMessage());
     }
+
+    public function testInvalidPermissionsRevisionFormat(): void
+    {
+        $e = ServiceException::invalidPermissionsRevisionFormat('foobar');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(ServiceException::INVALID_PERMISSIONS_REVISION_FORMAT, $e->getErrorCode());
+        static::assertSame('The provided permissions revision "foobar" is not in the correct format Y-m-d.', $e->getMessage());
+    }
+
+    public function testToggleActionNotAllowed(): void
+    {
+        $e = ServiceException::toggleActionNotAllowed();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(ServiceException::SERVICE_TOGGLE_ACTION_NOT_ALLOWED, $e->getErrorCode());
+        static::assertSame('Service is not allowed to toggle itself.', $e->getMessage());
+    }
+
+    public function testMissingAppSecretInfo(): void
+    {
+        $e = ServiceException::missingAppSecretInfo('app-123');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(ServiceException::SERVICE_MISSING_APP_SECRET_INFO, $e->getErrorCode());
+        static::assertSame('Error creating client. The app secret information was missing. App ID: "app-123"', $e->getMessage());
+    }
+
+    public function testScheduledTaskNotRegistered(): void
+    {
+        $e = ServiceException::scheduledTaskNotRegistered();
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(ServiceException::SCHEDULED_TASK_NOT_REGISTERED, $e->getErrorCode());
+        static::assertSame('Could not queue task "services.install" because it is not registered.', $e->getMessage());
+    }
+
+    public function testInvalidServicesState(): void
+    {
+        $e = ServiceException::invalidServicesState();
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(ServiceException::SERVICE_INVALID_SERVICES_STATE, $e->getErrorCode());
+        static::assertSame('The services are in an invalid state. Cannot start if the consent is not given.', $e->getMessage());
+    }
+
+    public function testServiceNotInstalled(): void
+    {
+        $e = ServiceException::serviceNotInstalled('MyService');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(ServiceException::SERVICES_NOT_INSTALLED, $e->getErrorCode());
+        static::assertSame('The service is not installed.', $e->getMessage());
+    }
+
+    public function testConsentSaveFailed(): void
+    {
+        $e = ServiceException::consentSaveFailed('Network timeout');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(ServiceException::SERVICE_REQUEST_FAILED, $e->getErrorCode());
+        static::assertSame('Could not save consent: Network timeout', $e->getMessage());
+    }
+
+    public function testConsentRevokeFailed(): void
+    {
+        $e = ServiceException::consentRevokeFailed('Server error');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(ServiceException::SERVICE_REQUEST_FAILED, $e->getErrorCode());
+        static::assertSame('Could not revoke consent: Server error', $e->getMessage());
+    }
+
+    public function testNoCurrentPermissionsConsent(): void
+    {
+        $e = ServiceException::noCurrentPermissionsConsent();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(ServiceException::NO_CURRENT_PERMISSIONS_CONSENT, $e->getErrorCode());
+        static::assertSame('No current permissions consent found.', $e->getMessage());
+    }
+
+    public function testInvalidPermissionsContext(): void
+    {
+        $e = ServiceException::invalidPermissionsContext();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(ServiceException::SERVICE_REQUEST_FAILED, $e->getErrorCode());
+        static::assertSame('This action is only allowed from Admins.', $e->getMessage());
+    }
+
+    public function testInvalidPermissionConsentFormat(): void
+    {
+        $invalidJson = ['invalid' => 'data'];
+        $e = ServiceException::invalidPermissionConsentFormat($invalidJson);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(ServiceException::INVALID_PERMISSIONS_REVISION_FORMAT, $e->getErrorCode());
+        static::assertSame('The saved permissions consent is not in a valid format.', $e->getMessage());
+    }
 }

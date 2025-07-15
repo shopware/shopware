@@ -157,6 +157,7 @@ async function createWrapper() {
                 'sw-media-upload-v2': true,
                 'sw-media-modal-v2': true,
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },
+                'sw-time-ago': true,
             },
             provide: {
                 documentService: {

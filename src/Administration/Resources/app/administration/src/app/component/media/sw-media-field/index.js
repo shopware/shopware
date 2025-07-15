@@ -95,9 +95,7 @@ export default {
             }
 
             const inModal = !!this.$el.closest('.mt-modal');
-            return inModal
-                ? { targetSelector: '.mt-modal__content-inner' }
-                : {};
+            return inModal ? { targetSelector: '.mt-modal__content-inner' } : {};
         },
 
         mediaFieldClasses() {

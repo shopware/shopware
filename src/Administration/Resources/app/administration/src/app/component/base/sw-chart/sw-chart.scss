@@ -23,4 +23,8 @@
     .apexcharts-xaxistooltip.dark::after {
         border-bottom-color: $color-darkgray-500;
     }
+
+    .apexcharts-tooltip-marker::before {
+        font-size: 16px;
+    }
 }

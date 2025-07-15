@@ -69,12 +69,12 @@ class AuthController extends StorefrontController
             $request->attributes->remove(PlatformRequest::ATTRIBUTE_NO_STORE);
         }
 
-        /** @var string $redirect */
-        $redirect = $request->get('redirectTo', 'frontend.account.home.page');
-
         $customer = $context->getCustomer();
 
-        if ($customer !== null && $customer->getGuest() === false) {
+        /** @var string $redirect */
+        $redirect = $request->get('redirectTo', $customer?->getGuest() ? 'frontend.account.logout.page' : 'frontend.account.home.page');
+
+        if ($customer !== null) {
             $request->request->set('redirectTo', $redirect);
 
             return $this->createActionResponse($request);
@@ -178,7 +178,7 @@ class AuthController extends StorefrontController
         } catch (CustomerAuthThrottledException $e) {
             $waitTime = $e->getWaitTime();
         } catch (BadCredentialsException|CustomerNotFoundException) {
-        } catch (PasswordPoliciesUpdatedException $e) {
+        } catch (PasswordPoliciesUpdatedException) {
             $this->addFlash(self::WARNING, $this->trans('account.passwordPoliciesUpdated'));
 
             return $this->forwardToRoute('frontend.account.recover.page');
@@ -229,9 +229,9 @@ class AuthController extends StorefrontController
             );
 
             $this->addFlash(self::SUCCESS, $this->trans('account.recoveryMailSend'));
-        } catch (CustomerNotFoundException $e) {
+        } catch (CustomerNotFoundException) {
             $this->addFlash(self::SUCCESS, $this->trans('account.recoveryMailSend'));
-        } catch (InconsistentCriteriaIdsException $e) {
+        } catch (InconsistentCriteriaIdsException) {
             $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         } catch (RateLimitExceededException $e) {
             $this->addFlash(self::INFO, $this->trans('error.rateLimitExceeded', ['%seconds%' => $e->getWaitTime()]));

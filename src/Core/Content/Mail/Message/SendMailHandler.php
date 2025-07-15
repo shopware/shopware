@@ -16,15 +16,15 @@ use Symfony\Component\Mime\Email;
  */
 #[AsMessageHandler(handles: SendMailMessage::class)]
 #[Package('after-sales')]
-final class SendMailHandler
+final readonly class SendMailHandler
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly TransportInterface $transport,
-        private readonly FilesystemOperator $filesystem,
-        private readonly LoggerInterface $logger
+        private TransportInterface $transport,
+        private FilesystemOperator $filesystem,
+        private LoggerInterface $logger
     ) {
     }
 

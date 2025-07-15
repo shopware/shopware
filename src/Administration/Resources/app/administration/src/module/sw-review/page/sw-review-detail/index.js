@@ -101,6 +101,9 @@ export default {
             return this.review && this.customFieldSets && this.customFieldSets.length > 0;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -128,7 +131,7 @@ export default {
                 scope: this,
             });
             if (this.$route.params.id) {
-                this.reviewId = this.$route.params.id;
+                this.reviewId = this.$route.params.id.toLowerCase();
 
                 this.loadEntityData();
                 this.loadCustomFieldSets();

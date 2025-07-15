@@ -104,6 +104,9 @@ export default {
             mainCategoriesCollection: null,
             footerCategoriesCollection: null,
             serviceCategoriesCollection: null,
+            defaultMeasurementSystemId: null,
+            defaultLengthUnitId: null,
+            defaultWeightUnitId: null,
         };
     },
 
@@ -172,7 +175,9 @@ export default {
         },
 
         disabledCountryVariant() {
-            return this.disabledCountries.find((country) => country.id === this.salesChannel.countryId) ? 'warning' : 'info';
+            return this.disabledCountries.find((country) => country.id === this.salesChannel.countryId)
+                ? 'attention'
+                : 'info';
         },
 
         disabledPaymentMethods() {
@@ -183,7 +188,7 @@ export default {
             return this.disabledPaymentMethods.find(
                 (paymentMethod) => paymentMethod.id === this.salesChannel.paymentMethodId,
             )
-                ? 'warning'
+                ? 'attention'
                 : 'info';
         },
 
@@ -195,7 +200,7 @@ export default {
             return this.disabledShippingMethods.find(
                 (shippingMethod) => shippingMethod.id === this.salesChannel.shippingMethodId,
             )
-                ? 'warning'
+                ? 'attention'
                 : 'info';
         },
 
@@ -211,7 +216,7 @@ export default {
 
         unservedLanguageVariant() {
             return this.unservedLanguages.find((language) => language.id === this.salesChannel.languageId)
-                ? 'warning'
+                ? 'attention'
                 : 'info';
         },
 
@@ -484,6 +489,9 @@ export default {
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -523,6 +531,9 @@ export default {
         });
 
         this.createCategoryCollections();
+        this.defaultMeasurementSystemId = this.salesChannel?.measurementSystemId;
+        this.defaultLengthUnitId = this.salesChannel?.lengthUnitId;
+        this.defaultWeightUnitId = this.salesChannel?.weightUnitId;
     },
 
     methods: {
@@ -567,7 +578,7 @@ export default {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('themes');
 
-            this.salesChannelRepository.get(this.$route.params.id, Context.api, criteria).then((entity) => {
+            this.salesChannelRepository.get(this.$route.params.id.toLowerCase(), Context.api, criteria).then((entity) => {
                 if (entity.extensions.themes !== undefined && entity.extensions.themes.length >= 1) {
                     return;
                 }

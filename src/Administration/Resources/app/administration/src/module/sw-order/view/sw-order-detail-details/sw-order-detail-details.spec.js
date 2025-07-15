@@ -120,7 +120,6 @@ async function createWrapper() {
         },
         props: {
             orderId: '1a2b3c',
-            isSaveSuccessful: false,
         },
     });
 }

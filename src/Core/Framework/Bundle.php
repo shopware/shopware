@@ -67,7 +67,7 @@ abstract class Bundle extends SymfonyBundle
     {
         $confDir = $this->getPath() . '/Resources/config';
 
-        if (file_exists($confDir)) {
+        if (\is_dir($confDir)) {
             $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, 'glob');
             $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, 'glob');
             $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, 'glob');

@@ -35,7 +35,7 @@ class SnippetFinder implements SnippetFinderInterface
         $snippetFiles = $this->findSnippetFiles($locale);
         $snippets = $this->parseFiles($snippetFiles);
 
-        $snippets = [...$snippets, ...$this->getAppAdministrationSnippets($locale, $snippets)];
+        $snippets = [...$snippets, ...$this->getAppAdministrationSnippets($locale)];
 
         if (!\count($snippets)) {
             return [];
@@ -56,12 +56,12 @@ class SnippetFinder implements SnippetFinderInterface
 
         foreach ($activePlugins as $plugin) {
             $pluginPath = $plugin->getPath() . '/Resources/app/administration/src';
-            if (file_exists($pluginPath)) {
+            if (\is_dir($pluginPath)) {
                 $paths[] = $pluginPath;
             }
 
             $meteorPluginPath = $plugin->getPath() . '/Resources/app/meteor-app';
-            if (file_exists($meteorPluginPath)) {
+            if (\is_dir($meteorPluginPath)) {
                 $paths[] = $meteorPluginPath;
             }
         }
@@ -94,12 +94,12 @@ class SnippetFinder implements SnippetFinderInterface
             $meteorBundlePath = $bundle->getPath() . '/Resources/app/meteor-app';
 
             // Add the bundle path if it exists
-            if (file_exists($bundlePath)) {
+            if (\is_dir($bundlePath)) {
                 $paths[] = $bundlePath;
             }
 
             // Add the meteor bundle path if it exists
-            if (file_exists($meteorBundlePath)) {
+            if (\is_dir($meteorBundlePath)) {
                 $paths[] = $meteorBundlePath;
             }
         }
@@ -154,11 +154,9 @@ class SnippetFinder implements SnippetFinderInterface
     }
 
     /**
-     * @param array<string, mixed> $existingSnippets
-     *
      * @return array<string, mixed>
      */
-    private function getAppAdministrationSnippets(string $locale, array $existingSnippets): array
+    private function getAppAdministrationSnippets(string $locale): array
     {
         $result = $this->connection->fetchAllAssociative(
             'SELECT app_administration_snippet.value

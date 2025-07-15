@@ -144,6 +144,7 @@
       "basicinformationLink": "Standard-Wartungsseiten-Layout ändern",
       "ipAddressAllowlist": "Allowlist für IP-Adressen",
       "columnDomainCurrency": "Währung",
+      "columnDomainUnitSystem": "Einheitensystem",
       "products": {
         "titleEmptyState": "Keine weiteren Produkte gefunden",
         "titleEmptyStateTable": "Keine passenden Produkte gefunden",
@@ -292,10 +293,18 @@
           "titleNoProductStreamsMatching": "Keine passenden dynamischen Produktgruppen gefunden.",
           "titleNoProductStreamsAvailable": "Keine dynamische Produktgruppen verfügbar."
         }
+      },
+      "measurementSystem": {
+        "labelDefaultUnitSystem": "Standard-Einheitensystem",
+        "labelDefaultLengthUnit": "Standard-Längeneinheit",
+        "labelDefaultWeightUnit": "Standard-Gewichtseinheit",
+        "labelUnitSystem": "Einheitensystem",
+        "labelLengthUnit": "Längeneinheit",
+        "labelWeightUnit": "Gewichtseinheit"
       }
     },
     "sw-sales-channel-defaults-select": {
-      "messageError": "Der Wert wird von der Domain \"%{url}\" verwendet."
+      "messageError": "Der Wert wird von der Domain \"{url}\" verwendet."
     }
   },
   "sw-privileges": {

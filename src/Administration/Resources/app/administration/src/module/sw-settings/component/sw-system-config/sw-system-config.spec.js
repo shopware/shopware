@@ -85,6 +85,8 @@ async function createWrapper(defaultValues = {}) {
                 'sw-media-modal-delete': true,
                 'sw-media-modal-move': true,
                 'mt-url-field': MtUrlField,
+                'sw-app-action-button': true,
+                'sw-time-ago': true,
             },
             provide: {
                 systemConfigApiService: {

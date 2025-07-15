@@ -122,11 +122,10 @@ export default class FormAjaxSubmitPlugin extends Plugin {
      * @private
      */
     _onSubmit(event) {
-        if (!event.cancelable) {
-            console.error('[Ajax Form Submit]: The submit event cannot be prevented as it is not cancelable and would be handled by the navigator.');
-        }
 
-        event.preventDefault();
+        if (event.type === 'submit' && event.cancelable === true) {
+            event.preventDefault();
+        }
 
         // checks form validity before submit
         if (this._form.checkValidity() === false) {
@@ -142,9 +141,10 @@ export default class FormAjaxSubmitPlugin extends Plugin {
 
         if (event.type === 'change' && Array.isArray(this.options.submitOnChange)) {
             const target = event.currentTarget;
-            this.options.submitOnChange.forEach(selector => {
+            this.options.submitOnChange.some(selector => {
                 if (target.matches(selector)) {
                     this._fireRequest();
+                    return true;
                 }
             });
         } else {

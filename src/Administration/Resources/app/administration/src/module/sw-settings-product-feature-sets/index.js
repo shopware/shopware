@@ -56,7 +56,7 @@ Module.register('sw-settings-product-feature-sets', {
             props: {
                 default(route) {
                     return {
-                        productFeatureSetId: route.params.id,
+                        productFeatureSetId: route.params.id.toLowerCase(),
                     };
                 },
             },

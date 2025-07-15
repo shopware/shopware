@@ -180,10 +180,6 @@ class RouteEventSubscriberTest extends TestCase
 
     public function testResponseScopeEvent(): void
     {
-        // Note: The current implementation of RouteEventSubscriber::response()
-        // does not dispatch scope events for responses
-        // This test is added to document this behavior
-
         $request = new Request();
         $request->attributes->set('_route', 'frontend.home.page');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['storefront', 'api']);
@@ -198,17 +194,19 @@ class RouteEventSubscriberTest extends TestCase
         $routeListener = $this->getMockBuilder(CallableClass::class)->getMock();
         $routeListener->expects($this->once())->method('__invoke');
 
-        // These listeners should not be called as per current implementation
         $storefrontListener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $storefrontListener->expects($this->never())->method('__invoke');
+        $storefrontListener->expects($this->once())->method('__invoke');
 
         $apiListener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $apiListener->expects($this->never())->method('__invoke');
+        $apiListener->expects($this->once())->method('__invoke');
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener('frontend.home.page.response', $routeListener);
-        $dispatcher->addListener('storefront.response', $storefrontListener);
-        $dispatcher->addListener('api.response', $apiListener);
+        $dispatcher->addListener('storefront.scope.response', $storefrontListener);
+        $dispatcher->addListener('api.scope.response', $apiListener);
+
+        $dispatcher->addListener('storefront.scope.controller', $storefrontListener);
+        $dispatcher->addListener('api.scope.controller', $apiListener);
 
         $subscriber = new RouteEventSubscriber($dispatcher);
         $subscriber->response($event);

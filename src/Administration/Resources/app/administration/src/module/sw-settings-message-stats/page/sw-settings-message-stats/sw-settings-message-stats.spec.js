@@ -12,9 +12,9 @@ const mockStats = {
         averageTimeInQueue: 1.5,
         messageTypeStats: [
             // unsorted
-            {type: 'ThemeCompilation', count: 1},
-            {type: 'ProductIndexing', count: 50},
-            {type: 'MediaProcessing', count: 30},
+            { type: 'ThemeCompilation', count: 1 },
+            { type: 'ProductIndexing', count: 50 },
+            { type: 'MediaProcessing', count: 30 },
         ],
     },
 };
@@ -27,42 +27,45 @@ const mockEmptyStats = {
 };
 
 async function createWrapper(options = {}) {
-    return mount(await wrapTestComponent('sw-settings-message-stats', {
-        sync: true,
-    }), {
-        global: {
-            provide: {
-                messageStatsService: {
-                    getStats: options.getStatsMock || jest.fn().mockImplementation(() => new Promise(() => {})), // Never resolves to keep loading state
+    return mount(
+        await wrapTestComponent('sw-settings-message-stats', {
+            sync: true,
+        }),
+        {
+            global: {
+                provide: {
+                    messageStatsService: {
+                        getStats: options.getStatsMock || jest.fn().mockImplementation(() => new Promise(() => {})), // Never resolves to keep loading state
+                    },
                 },
-            },
-            stubs: {
-                'sw-page': {
-                    template: `<div class="sw-page">
+                stubs: {
+                    'sw-page': {
+                        template: `<div class="sw-page">
                             <slot name="content"></slot>
                         </div>`,
+                    },
+                    'sw-card-view': {
+                        template: '<div class="sw-card-view"><slot></slot></div>',
+                    },
+                    'mt-card': {
+                        template: '<div><slot name="headerRight"></slot><slot></slot></div>',
+                    },
+                    'mt-data-table': true,
+                    'sw-skeleton': true,
+                    'sw-empty-state': true,
+                    'sw-help-text': true,
+                    'sw-data-grid': true,
+                    'sw-card': true,
+                    'sw-container': true,
+                    'sw-button': true,
+                    'sw-icon': true,
                 },
-                'sw-card-view': {
-                    template: '<div class="sw-card-view"><slot></slot></div>',
+                mocks: {
+                    $tc: (key) => `$t_${key}`,
                 },
-                'mt-card': {
-                    template: '<div><slot name="headerRight"></slot><slot></slot></div>',
-                },
-                'mt-data-table': true,
-                'sw-skeleton': true,
-                'sw-empty-state': true,
-                'sw-help-text': true,
-                'sw-data-grid': true,
-                'sw-card': true,
-                'sw-container': true,
-                'sw-button': true,
-                'sw-icon': true,
-            },
-            mocks: {
-                $tc: (key) => `$t_${key}`,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-message-stats/page/sw-settings-message-stats', () => {
@@ -102,7 +105,9 @@ describe('module/sw-settings-message-stats/page/sw-settings-message-stats', () =
         expect(statItems[0].find('.sw-settings-message-stats__stat-value').text()).toBe('100');
 
         // Check average time
-        expect(statItems[1].find('.sw-settings-message-stats__stat-value').text()).toBe('1.50$t_sw-settings-message-stats.general.seconds');
+        expect(statItems[1].find('.sw-settings-message-stats__stat-value').text()).toBe(
+            '1.50$t_sw-settings-message-stats.general.seconds',
+        );
 
         // Check processing window
         expect(statItems[2].find('.sw-settings-message-stats__stat-value').text()).toBeTruthy();
@@ -174,7 +179,7 @@ describe('module/sw-settings-message-stats/page/sw-settings-message-stats', () =
         const wrapper = await createWrapper({
             getStatsMock: jest.fn().mockResolvedValue({
                 ...mockStats,
-                enabled: false
+                enabled: false,
             }),
         });
 

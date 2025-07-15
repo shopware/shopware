@@ -100,6 +100,36 @@ Examples:
 
     request cookies
 _________
+## [services.acl (`Shopware\Core\Framework\Script\Api\AclFacade`)](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/Script/Api/AclFacade.php) {#aclfacade}
+
+The `acl` service allows you to check if your app has been granted the specified privilege.
+
+
+### can()
+
+* The `can()` method allows you to check if your app has been granted the specified privilege.
+
+    
+* **Returns** `bool`
+
+    Returns `true` if the privilege has been granted, `false` otherwise.
+* **Arguments:**
+    * *`string`* **privilege**: The privilege you wish to check
+* **Examples:**
+    * Check for the `product:read` permission and query a product if the permission is granted.
+
+        ```twig
+        {% set canReadProduct = services.acl.can('product:read') %}
+		{% if canReadProduct %}
+		    {% set criteria = {
+		        'ids': [ hook.productId ]
+		    } %}
+		
+		    {% set product = services.repository.search('product', criteria).first %}
+		    {% do page.addExtension('myProduct', product) %}
+		{% endif %}
+        ```
+_________
 ## [`Shopware\Core\Framework\Script\Facade\ArrayFacade`](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/Script/Facade/ArrayFacade.php) {#arrayfacade}
 
 The ArrayFacade acts as a wrapper around an array and allows easier manipulation of arrays inside scripts.

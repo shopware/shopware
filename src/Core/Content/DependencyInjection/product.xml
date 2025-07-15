@@ -161,7 +161,10 @@
             <argument type="service" id="Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator"/>
             <argument type="service" id="Shopware\Core\Content\Product\AbstractIsNewDetector"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>
+            <argument type="service" id="Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementUnitBuilder"/>
+            <argument type="service" id="Shopware\Core\Content\MeasurementSystem\Unit\MeasurementUnitConverter"/>
+            <argument type="service" id="request_stack"/>
+
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -258,6 +261,7 @@
         <service id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator">
             <argument type="service" id="unit.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
 
             <tag name="kernel.reset" method="reset"/>
         </service>
@@ -419,6 +423,7 @@
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceQuantitySelector"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceQuantitySelector"/>

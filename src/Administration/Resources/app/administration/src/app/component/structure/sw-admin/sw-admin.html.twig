@@ -30,6 +30,8 @@
     <sw-in-app-purchase-checkout v-if="isLoggedIn" />
     <sw-app-wrong-app-url-modal v-if="isLoggedIn" />
 
+    <sw-media-modal-renderer />
+
     <mt-toast
         :toasts="toasts"
         @remove-toast="onRemoveToast"

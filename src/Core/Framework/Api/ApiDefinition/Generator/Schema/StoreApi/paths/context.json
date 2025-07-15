@@ -98,6 +98,51 @@
                     }
                 ]
             }
+        },
+        "/context/gateway": {
+            "post": {
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": ["appName"],
+                                "properties": {
+                                    "appName": {
+                                        "type": "string"
+                                    },
+                                    "data": {
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Gateway"
+                ],
+                "summary": "Call the context gateway",
+                "description": "Call the context gateway, which is used to manipulate certain aspects of context (e.g. selected payment methods, register customer, etc.).",
+                "operationId": "contextGateway",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ContextTokenResponse"
+                    },
+                    "400": {
+                        "description": "App server communication error"
+                    },
+                    "422": {
+                        "description": "Error provided by App Server with message to show customer"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
         }
     }
 }

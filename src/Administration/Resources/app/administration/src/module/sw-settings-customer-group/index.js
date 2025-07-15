@@ -48,7 +48,7 @@ Module.register('sw-settings-customer-group', {
             props: {
                 default(route) {
                     return {
-                        customerGroupId: route.params.id,
+                        customerGroupId: route.params.id.toLowerCase(),
                     };
                 },
             },

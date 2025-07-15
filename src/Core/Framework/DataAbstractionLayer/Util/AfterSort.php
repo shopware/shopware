@@ -75,13 +75,12 @@ class AfterSort
             $nextItem = array_shift($elements);
             if ($nextItem && method_exists($nextItem, 'getId')) {
                 $sorted[$nextItem->getId()] = $nextItem;
+                $lastId = $nextItem->getId();
             }
 
             if (!\count($elements)) {
                 break;
             }
-
-            $lastId = $nextItem->$propertyName;
         }
 
         return $sorted;

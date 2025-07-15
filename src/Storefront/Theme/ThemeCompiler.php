@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Theme;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToDeleteDirectory;
+use League\Flysystem\Visibility;
 use Psr\Log\LoggerInterface;
 use ScssPhp\ScssPhp\OutputStyle;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
@@ -51,7 +52,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly AbstractThemePathBuilder $themePathBuilder,
         private readonly AbstractScssCompiler $scssCompiler,
         private readonly array $customAllowedRegex = [],
-        private readonly bool $validate = false
+        private readonly bool $validate = false,
+        private readonly string $visibility = Visibility::PUBLIC,
     ) {
     }
 
@@ -123,7 +125,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         $this->themePathBuilder->saveSeed($salesChannelId, $themeId, $newThemeHash);
 
         $this->cacheInvalidator->invalidate([
-            CachedResolvedConfigLoader::buildName($themeId),
+            ThemeConfigCacheInvalidator::buildCacheTag($themeId),
         ]);
     }
 
@@ -141,12 +143,12 @@ class ThemeCompiler implements ThemeCompilerInterface
                     $filename = basename($originalPath);
                     $extension = $this->getImportFileExtension(pathinfo($filename, \PATHINFO_EXTENSION));
                     $path = $dirname . \DIRECTORY_SEPARATOR . $filename . $extension;
-                    if (file_exists($path)) {
+                    if (\is_file($path)) {
                         return $path;
                     }
 
                     $path = $dirname . \DIRECTORY_SEPARATOR . '_' . $filename . $extension;
-                    if (file_exists($path)) {
+                    if (\is_file($path)) {
                         return $path;
                     }
                 }
@@ -190,8 +192,9 @@ class ThemeCompiler implements ThemeCompilerInterface
 
             $targetPath = $themePath . '/js/' . $folderName;
             foreach ($files as $file) {
-                if (file_exists($file->getRealPath())) {
-                    $copyFiles[] = new CopyBatchInput($file->getRealPath(), [$targetPath . '/' . $file->getFilename()]);
+                $filePath = $file->getRealPath();
+                if ($filePath) {
+                    $copyFiles[] = new CopyBatchInput($filePath, [$targetPath . '/' . $file->getFilename()], $this->visibility);
                 }
             }
         }
@@ -265,7 +268,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 $asset = $fs->path('Resources', $asset);
             }
 
-            $collected = [...$collected, ...$this->copyBatchInputFactory->fromDirectory($asset, $outputPath)];
+            $collected = [...$collected, ...$this->copyBatchInputFactory->fromDirectory($asset, $outputPath, $this->visibility)];
         }
 
         return array_values($collected);
@@ -309,9 +312,9 @@ class ThemeCompiler implements ThemeCompilerInterface
             );
         } catch (\Throwable $exception) {
             throw ThemeException::themeCompileException(
-                $configuration->getTechnicalName(),
+                $configuration->getTechnicalName() . ' - Theme-ID: ' . $themeId,
                 $exception->getMessage(),
-                $exception
+                $exception,
             );
         }
 
@@ -400,7 +403,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             }
 
             if (
-                \in_array($data['type'], ['media', 'textarea'], true)
+                \in_array($data['type'], ['media', 'textarea', 'url'], true)
                 && \is_string($data['value'])
                 && !\str_starts_with($data['value'], '\'')
                 && !\str_ends_with($data['value'], '\'')
@@ -486,7 +489,8 @@ PHP_EOL;
                 $tempStream,
                 [
                     $compileLocation . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css',
-                ]
+                ],
+                $this->visibility
             ),
         ];
 

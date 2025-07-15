@@ -1,6 +1,9 @@
 # 6.8.0.0
+
 ## Introduced in 6.7.0.0
-## Settings Menu Structure was changed 
+
+## Settings Menu Structure was changed
+
 The menu structure on the settings page has changed from tab structure to a grid structure. The new structure groups settings into different categories for better usability. If you extend or customize the settings menu, ensure that your changes are compatible with the new structure.
 
 The new settings groups are:
@@ -26,37 +29,67 @@ New blocks have been added in `sw-settings-index.html.twig`:
 * `sw_settings_content_card_content_grid`
 * `sw_settings_content_card_view`
 * `sw_settings_content_card_view_header`
+
 ## ApiClient confidential flag
 
 * You must explicitly pass a boolean value to the `confidential` parameter  of `\Shopware\Core\Framework\Api\OAuth\Client\ApiClient`.
 * You must pass the `confidential` parameter as the third parameter of the constructor.
 * You must pass the `name` parameter as the fourth parameter of the constructor.
+
+## Removed configuration of Filesystem visibility in config array
+
+The visibility of filesystems cannot be configured in the config array anymore. Instead, it should be set on the same level as `type`. For example, instead of:
+
+```yaml
+filesystems:
+  my_filesystem:
+    type: local
+    config:
+      visibility: public
 ```
+
+You should now use:
+
+```yaml
+filesystems:
+  my_filesystem:
+    type: local
+    visibility: public
+```
+
 ## Storefront
+
 ### Deprecated DomAccess Helper
+
 We deprecated DomAccess Helper, because it does not add much value compared to native browser APIs and to reduce Shopware specific code complexity. You simply replace its usage with the corresponding native methods. Here are some RegEx to help you:
 
-#### hasAttribute()  
+#### hasAttribute()
+
 **RegEx**: `DomAccess\.hasAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`  
 **Replacement**: `$1.hasAttribute($2)`
 
 #### getAttribute()
+
 **RegEx**: `DomAccess\.getAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`  
 **Replacement**: `$1.getAttribute($2)`
 
 #### getDataAttribute()
+
 **RegEx**: `DomAccess\.getDataAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`  
 **Replacement**: `$1.getAttribute($2)`
 
 #### querySelector()
+
 **RegEx**: ``DomAccess\.querySelector\(\s*([^,]+)\s*,\s*((?:`[^`]*`|'[^']*'|"[^"]*")|[^,)]+)(?:,\s*[^)]+)?\)``  
 **Replacement**: `$1.querySelector($2)`
 
 #### querySelectorAll()
+
 **RegEx**: ``DomAccess\.querySelectorAll\(\s*([^,]+)\s*,\s*((?:`[^`]*`|'[^']*'|"[^"]*")|[^,)]+)(?:,\s*[^)]+)?\)``  
 **Replacement**: `$1.querySelectorAll($2)`
 
 #### getFocusableElements()
+
 This method was moved to FocusHandler Helper. Use this instead.
 
 ```JavaScript
@@ -64,6 +97,7 @@ const focusableElements = window.focusHandler.getFocusableElements();
 ```
 
 #### getFirstFocusableElement()
+
 This method was moved to FocusHandler Helper. Use this instead.
 
 ```JavaScript
@@ -71,6 +105,7 @@ const firstFocusableEl = window.focusHandler.getFirstFocusableElement();
 ```
 
 #### getLastFocusableElement()
+
 This method was moved to FocusHandler Helper. Use this instead.
 
 ```JavaScript
@@ -78,9 +113,11 @@ const lastFocusableEl = window.focusHandler.getLastFocusableElement();
 ```
 
 ### Remove route `widgets.account.order.detail`
+
 Remove all references to `widgets.account.order.detail` and ensure that affected components handle navigation and display correctly
 
 ### Removed `@Storefront/storefront/component/checkout/cart-alerts.html.twig`
+
 Remove all references to `@Storefront/storefront/component/checkout/cart-alerts.html.twig` and use `@Storefront/storefront/utilities/alert.html.twig` instead.
 
 **NOTE:** All the breaking changes described here can be already opted in by activating the `v6.8.0.0` [feature flag](https://developer.shopware.com/docs/resources/references/adr/2022-01-20-feature-flags-for-major-versions.html#activating-the-flag) on previous versions.
@@ -139,6 +176,14 @@ The concrete events being removed:
 - `\Shopware\Core\Content\Sitemap\Event\SitemapRouteCacheKeyEvent`
 - `\Shopware\Core\Content\Sitemap\Event\SitemapRouteCacheTagsEvent`
 
+## Theme Configuration Changes
+
+As part of optimizing theme configuration loading, several changes are being made to the theme system:
+
+* The `\Shopware\Storefront\Theme\CachedResolvedConfigLoader` has been removed. This class was previously used to cache theme configurations but has been replaced by a more efficient database-based solution using the new `theme_runtime_config` table.
+* The `\Shopware\Storefront\Theme\Exception\ThemeAssignmentException` has been removed. Instead, use `\Shopware\Storefront\Theme\Exception\ThemeException::themeAssignmentException` for handling theme assignment errors.
+* The `\Shopware\Storefront\Theme\ThemeLifecycleService` is now marked as final and cannot be extended. Additionally, its `refreshTheme` method now accepts an optional `$configurationCollection` parameter.
+
 ## `filterByActiveRules` in Payment- and ShippingMethodCollection removed
 
 The `filterByActiveRules` methods in `Shopware\Core\Checkout\Payment\PaymentMethodCollection` and `Shopware\Core\Checkout\Shipping\ShippingMethodCollection` were removed.
@@ -146,12 +191,23 @@ Use the new `Shopware\Core\Framework\Rule\RuleIdMatcher` instead.
 It allows filtering of `RuleIdAware` objects in either arrays or collections.
 
 ## Added `primaryOrderDelivery` and `primaryOrderTransaction`
+
 Currently, there are multiple order deliveries and multiple order transactions per order. If only one, the "primary", order delivery and order transaction is displayed and used in the administration, there is now an easy way in version 6.8 using the `primaryOrderDelivery` and `primaryOrderTransaction`. All existing orders will be updated with a migration so that they also have the primary values.
 From now on, the `OrderTransactionStatusRule::match` will always use the `primaryOrderTransaction` instead of the most recently successful transaction.
+
 ## Use `primaryOrderDelivery`
+
 Get the first order delivery with `primaryOrderDelivery` so you should replace methods like `deliveries.first()` or `deliveries[0]`
+
 ## Use `primaryOrderTransaction`
+
 Get the latest order transaction with `primaryOrderTransaction` so you should replace methods like `transaction.last()`
+
+## Improved fetching of language information for SalesChannelContext
+
+The `\Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory` now uses the language repository directly to fetch language information.
+As a consequence the query with the title `base-context-factory::sales-channel` no longer adds the `languages` association,
+which means the `salesChannel` property of the `BaseSalesChannelContext` no longer contains the current language object. 
 
 </details>
 
@@ -175,7 +231,16 @@ The old classes are removed:
 
 ## Removed notification controller
 
-`\Shopware\Administration\Controller\NotificationController` has been moved to core: `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please refactor, it is now internal. The HTTP route is still the same. The old class has been removed.
+`\Shopware\Administration\Controller\NotificationController` has been moved to core: `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please refactor, it is now internal.
+The HTTP route is still the same. The old class has been removed.
+
+## Removal of snippets
+
+The following snippet keys have been removed:
+* `global.sw-condition.condition.cartTaxDisplay`
+* `global.sw-condition.condition.lineItemOfTypeRule`
+* `global.sw-condition.condition.promotionCodeOfTypeRule`
+* `global.sw-condition.condition.dayOfWeekRule`
 
 </details>
 
@@ -190,7 +255,7 @@ We removed properties `label` and `helpText` properties of `theme.json`, which w
 A constructed snippet key was introduced in Shopware 6.7 and will now be required.
 This affects `label` and `helpText` properties in the `theme.json`, which are used in the theme manager.
 The snippet keys to be used are constructed as follows.
-The mentioned `themeName` implies the `technicalName` property of the theme in kebab case.
+The mentioned `themeName` implies the `technicalName` property of the theme, or its respective parent theme name, since snippets are inherited from the parent theme as well.
 Also, please notice that unnamed tabs, blocks or sections will be accessible via `default`.
 
 Examples:
@@ -212,20 +277,36 @@ Examples:
 
 Both deprecated fields `label` & `helpText` of `Shopware\Storefront\Theme\ThemeEntity` are removed. Please use the snippet keys to be found in `\Shopware\Storefront\Theme\ThemeService::getThemeConfigurationStructuredFields` instead.
 
+## Removed `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields` 
+
+The `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields` methods have been removed. Use the new `ThemeConfigurationService::getPlainThemeConfiguration` and `ThemeConfigurationService::getThemeConfigurationFieldStructure` methods instead. The new methods return the same data as the old ones, excluding the deprecated fields.
+
 ## Removed `category_url` and `category_linknewtab` twig functions
 
-The `category_url` and `category_linknewtab` twig functions have been removed. The data is now directly available in the category entities, therefore use `category.seoLink` or `category.shouldOpenInNewTab` instead.
+The `category_url` and `category_linknewtab` twig functions have been removed. The data is now directly available in the category entities, therefore use `category.seoUrl` or `category.shouldOpenInNewTab` instead.
 
 ```diff
 <a class="link"
 -   href="{{ category_url(item) }}"
-+   href="{{ item.seoLink }}"
++   href="{{ item.seoUrl }}"
 -   {% if category_linknewtab(item) %}target="_blank"{% endif %}
 +   {% if item.shouldOpenInNewTab %}target="_blank"{% endif %}
 </a>
 ```
 
+## Breadcrumb template functions require the `SalesChannelContext`
+
+The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` now require the `SalesChannelContext`, i.e.
+
+```diff
+- sw_breadcrumb_full(category, context.context)
+- sw_breadcrumb_full_by_id(category, context.context)
++ sw_breadcrumb_full(category, context)
++ sw_breadcrumb_full_by_id(category, context)
+```
+
 ## Removal of DeleteThemeFilesMessage and its handler
+
 The `\Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage` and its handler `\Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler` are removed.
 Unused theme files are deleted by using the `\Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask` scheduled task.
 

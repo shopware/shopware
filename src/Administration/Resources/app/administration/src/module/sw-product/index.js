@@ -27,6 +27,7 @@ Shopware.Component.register(
 );
 Shopware.Component.register('sw-product-price-form', () => import('./component/sw-product-price-form'));
 Shopware.Component.register('sw-product-settings-form', () => import('./component/sw-product-settings-form'));
+Shopware.Component.register('sw-product-measurement-form', () => import('./component/sw-product-measurement-form'));
 Shopware.Component.register('sw-product-packaging-form', () => import('./component/sw-product-packaging-form'));
 Shopware.Component.register('sw-product-seo-form', () => import('./component/sw-product-seo-form'));
 Shopware.Component.extend(
@@ -166,7 +167,7 @@ Module.register('sw-product', {
             component: 'sw-product-detail',
             path: 'detail/:id?',
             props: {
-                default: (route) => ({ productId: route.params.id }),
+                default: (route) => ({ productId: route.params.id?.toLowerCase() }),
             },
             redirect: {
                 name: 'sw.product.detail.base',

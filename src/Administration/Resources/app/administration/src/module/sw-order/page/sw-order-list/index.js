@@ -287,6 +287,9 @@ export default {
             return Shopware.Filter.getByName('currency');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -561,7 +564,12 @@ export default {
 
         transaction(item) {
             for (let i = 0; i < item.transactions.length; i += 1) {
-                if (!['cancelled', 'failed'].includes(item.transactions[i].stateMachineState.technicalName)) {
+                if (
+                    ![
+                        'cancelled',
+                        'failed',
+                    ].includes(item.transactions[i].stateMachineState.technicalName)
+                ) {
                     return item.transactions[i];
                 }
             }

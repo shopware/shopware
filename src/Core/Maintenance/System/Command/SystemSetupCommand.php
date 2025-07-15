@@ -113,14 +113,14 @@ class SystemSetupCommand extends Command
 
         $io = new SymfonyStyle($input, $output);
 
-        if (file_exists($this->projectDir . '/symfony.lock')) {
+        if (\is_file($this->projectDir . '/symfony.lock')) {
             $io->warning('It looks like you have installed Shopware with Symfony Flex. You should use a .env.local file instead of creating a complete new one');
         }
 
         $io->title('Shopware setup process');
         $io->text('This tool will setup your instance.');
 
-        if (!$input->getOption('force') && file_exists($this->projectDir . '/.env')) {
+        if (!$input->getOption('force') && \is_file($this->projectDir . '/.env')) {
             $io->comment('Instance has already been set-up. To start over, please delete your .env file.');
 
             return Command::SUCCESS;

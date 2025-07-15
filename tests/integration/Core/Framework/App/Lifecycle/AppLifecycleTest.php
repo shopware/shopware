@@ -414,7 +414,22 @@ class AppLifecycleTest extends TestCase
             ],
             'customFieldSets' => [
                 [
-                    'name' => 'test',
+                    'name' => 'custom_field_test',
+                    'customFields' => [
+                        [
+                            'name' => 'bla_test2',
+                            'type' => 'text',
+                        ],
+                    ],
+                ],
+                [
+                    'name' => 'custom_field_test', // same name used twice, sets should be deleted and recreated
+                    'customFields' => [
+                        [
+                            'name' => 'bla_test',
+                            'type' => 'text',
+                        ],
+                    ],
                 ],
             ],
             'aclRole' => [
@@ -479,7 +494,7 @@ class AppLifecycleTest extends TestCase
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $roleId);
+        $permissionPersister->updatePrivileges($permissions, $id, true, $context);
 
         $app = [
             'id' => $id,
@@ -673,7 +688,7 @@ class AppLifecycleTest extends TestCase
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $roleId);
+        $permissionPersister->updatePrivileges($permissions, $id, true, $context);
 
         $app = [
             'id' => $id,
@@ -776,7 +791,7 @@ class AppLifecycleTest extends TestCase
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $roleId);
+        $permissionPersister->updatePrivileges($permissions, $id, true, $context);
 
         $app = [
             'id' => $id,

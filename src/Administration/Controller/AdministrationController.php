@@ -19,7 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -71,6 +71,7 @@ class AdministrationController extends AbstractController
         ParameterBagInterface $params,
         private readonly SystemConfigService $systemConfigService,
         private readonly FilesystemOperator $fileSystem,
+        private readonly string $serviceRegistryUrl,
         private readonly string $refreshTokenTtl = 'P1W',
     ) {
         // param is only available if the elasticsearch bundle is enabled
@@ -105,6 +106,7 @@ class AdministrationController extends AbstractController
             'adminEsEnable' => $this->esAdministrationEnabled,
             'storefrontEsEnable' => $this->esStorefrontEnabled,
             'refreshTokenTtl' => $refreshTokenTtl * 1000,
+            'serviceRegistryUrl' => $this->serviceRegistryUrl,
         ]);
     }
 
@@ -143,7 +145,7 @@ class AdministrationController extends AbstractController
         try {
             $publicAssetBaseUrl = $this->fileSystem->publicUrl('/');
             $viteIndexHtml = $this->fileSystem->read('bundles/' . $pluginName . '/meteor-app/index.html');
-        } catch (FilesystemException $e) {
+        } catch (FilesystemException) {
             return new Response('Plugin index.html not found', Response::HTTP_NOT_FOUND);
         }
 
@@ -320,10 +322,7 @@ class AdministrationController extends AbstractController
 
         $criteria->addFilter(new EqualsFilter('email', $email));
         $criteria->addFilter(new EqualsFilter('guest', false));
-        $criteria->addFilter(new NotFilter(
-            NotFilter::CONNECTION_AND,
-            [new EqualsFilter('id', $customerId)]
-        ));
+        $criteria->addFilter(new NotEqualsFilter('id', $customerId));
 
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
             new EqualsFilter('boundSalesChannelId', null),

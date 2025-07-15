@@ -30,8 +30,8 @@
     "require": {
         "php": "~8.2.0 || ~8.3.0 || ~8.4.0",
         "cocur/slugify": "^4.3.0",
-        "doctrine/dbal": "^4.2",
-        "meyfa/php-svg": "^0.16.1",
+        "doctrine/dbal": "^3.9",
+        "meyfa/php-svg": "^0.14.0",
         "scssphp/scssphp": "v1.12.0",
         "shopware/core": "*",
         "symfony/cache": "~7.2.0",

@@ -308,12 +308,12 @@ class CartOrderRouteTest extends TestCase
             ->method('locked')
             ->willReturnCallback(fn (string $token, \Closure $closure) => $closure());
 
+        $exception = new \Exception('test exception');
         $this->cartCalculator
             ->method('calculate')
-            ->willThrowException(new \Exception('test exception'));
+            ->willThrowException($exception);
 
-        static::expectException(\Exception::class);
-        static::expectExceptionMessage('test exception');
+        static::expectExceptionObject($exception);
 
         $this->route->order($cart, $this->context, $data);
     }

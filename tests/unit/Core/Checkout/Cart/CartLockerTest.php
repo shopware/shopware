@@ -83,8 +83,7 @@ class CartLockerTest extends TestCase
         $lock = $this->lockFactory->createLock($this->locker->getLockKey($token));
         $lock->acquire();
 
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage(\sprintf('Cart with token %s is locked', $token));
+        $this->expectExceptionObject(CartException::cartLocked($token));
 
         $this->locker->locked($token, function (): void {
             // This should not be executed

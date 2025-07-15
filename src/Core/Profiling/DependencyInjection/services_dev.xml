@@ -42,7 +42,7 @@
             <tag name="data_collector" template="@Profiling/Collector/flags.html.twig" id="feature_flag" priority="-5" />
         </service>
 
-        <service id="Shopware\Core\Profiling\Subscriber\HttpCacheTagDataCollectorSubscriber">
+        <service id="Shopware\Core\Profiling\Subscriber\CacheTagCollectorSubscriber">
             <tag name="kernel.event_subscriber"/>
             <tag name="data_collector"/>
             <argument type="service" id="request_stack"/>

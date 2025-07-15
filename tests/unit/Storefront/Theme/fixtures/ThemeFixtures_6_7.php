@@ -1151,6 +1151,7 @@ class ThemeFixtures_6_7
                 'extensions' => [
                 ],
                 'name' => 'test',
+                'type' => null,
                 'label' => 'test',
                 'helpText' => null,
                 'value' => [
@@ -1944,6 +1945,7 @@ class ThemeFixtures_6_7
                 'extensions' => [
                 ],
                 'name' => 'first',
+                'type' => null,
                 'label' => null,
                 'helpText' => null,
                 'value' => null,
@@ -1963,6 +1965,7 @@ class ThemeFixtures_6_7
                 'extensions' => [
                 ],
                 'name' => 'test',
+                'type' => null,
                 'label' => null,
                 'helpText' => null,
                 'value' => [
@@ -2190,6 +2193,7 @@ class ThemeFixtures_6_7
                 'extensions' => [
                 ],
                 'name' => 'test',
+                'type' => null,
                 'label' => null,
                 'helpText' => null,
                 'value' => [
@@ -3157,6 +3161,7 @@ class ThemeFixtures_6_7
                 'extensions' => [
                 ],
                 'name' => 'test',
+                'type' => null,
                 'label' => null,
                 'helpText' => null,
                 'value' => [

@@ -15,6 +15,8 @@ use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Permission\PermissionsService;
 use Shopware\Core\Service\ServiceException;
+use Shopware\Core\Service\ServiceRegistry\Client;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -35,6 +37,8 @@ class LifecycleManagerTest extends TestCase
 
     private PermissionsService&MockObject $permissionsService;
 
+    private Client&MockObject $client;
+
     private Context $context;
 
     protected function setUp(): void
@@ -44,6 +48,7 @@ class LifecycleManagerTest extends TestCase
         $this->appLifecycle = $this->createMock(AppLifecycle::class);
         $this->serviceInstaller = $this->createMock(AllServiceInstaller::class);
         $this->permissionsService = $this->createMock(PermissionsService::class);
+        $this->client = $this->createMock(Client::class);
         $this->context = Context::createDefaultContext();
     }
 
@@ -64,7 +69,8 @@ class LifecycleManagerTest extends TestCase
             $this->createAppRepository(),
             $this->appLifecycle,
             $this->serviceInstaller,
-            $this->permissionsService
+            $this->permissionsService,
+            $this->client
         );
 
         $result = $manager->install($this->context);
@@ -85,7 +91,8 @@ class LifecycleManagerTest extends TestCase
             $this->createAppRepository(),
             $this->appLifecycle,
             $this->serviceInstaller,
-            $this->permissionsService
+            $this->permissionsService,
+            $this->client
         );
 
         $result = $manager->install($this->context);
@@ -110,7 +117,8 @@ class LifecycleManagerTest extends TestCase
             $this->createAppRepository(),
             $this->appLifecycle,
             $this->serviceInstaller,
-            $this->permissionsService
+            $this->permissionsService,
+            $this->client
         );
 
         $manager->enable();
@@ -148,7 +156,8 @@ class LifecycleManagerTest extends TestCase
             $this->createAppRepository($services),
             $this->appLifecycle,
             $this->serviceInstaller,
-            $this->permissionsService
+            $this->permissionsService,
+            $this->client
         );
 
         $manager->disable($this->context);
@@ -177,7 +186,8 @@ class LifecycleManagerTest extends TestCase
             $this->createAppRepository($services),
             $this->appLifecycle,
             $this->serviceInstaller,
-            $this->permissionsService
+            $this->permissionsService,
+            $this->client
         );
 
         $manager->disable($this->context);
@@ -208,7 +218,8 @@ class LifecycleManagerTest extends TestCase
             $this->createAppRepository($services),
             $this->appLifecycle,
             $this->serviceInstaller,
-            $this->permissionsService
+            $this->permissionsService,
+            $this->client
         );
 
         $manager->start($this->context);
@@ -238,7 +249,8 @@ class LifecycleManagerTest extends TestCase
             $this->createAppRepository($services),
             $this->appLifecycle,
             $this->serviceInstaller,
-            $this->permissionsService
+            $this->permissionsService,
+            $this->client
         );
 
         $this->expectException(ServiceException::class);
@@ -268,7 +280,8 @@ class LifecycleManagerTest extends TestCase
             $this->createAppRepository($services),
             $this->appLifecycle,
             $this->serviceInstaller,
-            $this->permissionsService
+            $this->permissionsService,
+            $this->client
         );
 
         $manager->stop($this->context);
@@ -286,7 +299,8 @@ class LifecycleManagerTest extends TestCase
             $this->createAppRepository(),
             $this->appLifecycle,
             $this->serviceInstaller,
-            $this->permissionsService
+            $this->permissionsService,
+            $this->client
         );
 
         $this->expectException(ServiceException::class);
@@ -327,7 +341,8 @@ class LifecycleManagerTest extends TestCase
             $this->createAppRepository($services),
             $this->appLifecycle,
             $this->serviceInstaller,
-            $this->permissionsService
+            $this->permissionsService,
+            $this->client
         );
 
         $manager->syncState($serviceName, $this->context);
@@ -365,10 +380,46 @@ class LifecycleManagerTest extends TestCase
             $this->createAppRepository($services),
             $this->appLifecycle,
             $this->serviceInstaller,
-            $this->permissionsService
+            $this->permissionsService,
+            $this->client
         );
 
         $manager->syncState($serviceName, $this->context);
+    }
+
+    public function testSync(): void
+    {
+        $services = new AppCollection([
+            (new AppEntity())->assign(['id' => 'service1', 'name' => 'SwagService1', 'selfManaged' => true]),
+            (new AppEntity())->assign(['id' => 'service2', 'name' => 'SwagService2', 'selfManaged' => true]),
+            (new AppEntity())->assign(['id' => 'service3', 'name' => 'OrphanedService', 'selfManaged' => true]),
+        ]);
+
+        $this->client = $this->createMock(Client::class);
+        $this->client->expects($this->once())
+            ->method('getAll')
+            ->willReturn([
+                new ServiceEntry('SwagService1', 'Swag Service 1', 'https:/example.com', '/app-endpoint'),
+                new ServiceEntry('SwagService2', 'Swag Service 2', 'https://swag-service2.example.com', '/app-endpoint'),
+            ]);
+
+        $this->appLifecycle->expects($this->once())
+            ->method('delete')
+            ->with('OrphanedService', ['id' => 'service3'], $this->context);
+
+        $manager = new LifecycleManager(
+            'true',
+            'prod',
+            $this->privileges,
+            $this->systemConfigService,
+            $this->createAppRepository($services),
+            $this->appLifecycle,
+            $this->serviceInstaller,
+            $this->permissionsService,
+            $this->client
+        );
+
+        $manager->sync($this->context);
     }
 
     /**
@@ -386,6 +437,7 @@ class LifecycleManagerTest extends TestCase
             $this->createMock(AppLifecycle::class),
             $this->createMock(AllServiceInstaller::class),
             $this->createMock(PermissionsService::class),
+            $this->createMock(Client::class)
         );
 
         static::assertSame($expectedEnabled, $manager->enabled());

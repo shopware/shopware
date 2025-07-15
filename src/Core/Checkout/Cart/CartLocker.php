@@ -11,7 +11,7 @@ use Symfony\Component\Lock\LockFactory;
 #[Package('checkout')]
 class CartLocker
 {
-    private const LOCK_TTL = 30;
+    private const LOCK_TTL = 5;
 
     public function __construct(private readonly LockFactory $lockFactory)
     {
@@ -26,7 +26,8 @@ class CartLocker
      */
     public function locked(string $token, \Closure $closure)
     {
-        $lock = $this->lockFactory->createLock('cart-' . $token, self::LOCK_TTL);
+        $lockKey = $this->getLockKey($token);
+        $lock = $this->lockFactory->createLock($lockKey, self::LOCK_TTL);
 
         if (!$lock->acquire()) {
             throw CartException::cartLocked($token);
@@ -37,5 +38,10 @@ class CartLocker
         } finally {
             $lock->release();
         }
+    }
+
+    public function getLockKey(string $token): string
+    {
+        return 'cart-lock' . $token;
     }
 }

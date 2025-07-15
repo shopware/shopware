@@ -43,7 +43,7 @@ class CartLockerTest extends TestCase
     public function testLockedAcquiresAndReleasesLock(): void
     {
         $token = 'test-token';
-        $lock = $this->lockFactory->createLock($this->createLockName($token));
+        $lock = $this->lockFactory->createLock($this->locker->getLockKey($token));
 
         // Lock should be available before
         static::assertTrue($lock->acquire());
@@ -62,7 +62,7 @@ class CartLockerTest extends TestCase
     public function testLockedReleasesLockOnException(): void
     {
         $token = 'test-token';
-        $lock = $this->lockFactory->createLock($this->createLockName($token));
+        $lock = $this->lockFactory->createLock($this->locker->getLockKey($token));
 
         try {
             $this->locker->locked($token, function (): void {
@@ -80,7 +80,7 @@ class CartLockerTest extends TestCase
     public function testLockedThrowsExceptionOnFailure(): void
     {
         $token = 'test-token';
-        $lock = $this->lockFactory->createLock($this->createLockName($token));
+        $lock = $this->lockFactory->createLock($this->locker->getLockKey($token));
         $lock->acquire();
 
         $this->expectException(CartException::class);
@@ -91,8 +91,8 @@ class CartLockerTest extends TestCase
         });
     }
 
-    private function createLockName(string $token): string
+    public function testGetLockKey(): void
     {
-        return 'cart-' . $token;
+        static::assertSame('cart-locktest-token', $this->locker->getLockKey('test-token'));
     }
 }

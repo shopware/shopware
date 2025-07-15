@@ -31,7 +31,7 @@ class Migration1742302302RenamePaidTransitionActions extends MigrationStep
         // pay -> paid
         // pay_partially -> paid_partially
         // do_pay -> process
-        $query = <<<SQL
+        $query = <<<'SQL'
             INSERT INTO `state_machine_transition` (id, state_machine_id, from_state_id, to_state_id, action_name, custom_fields, created_at)
                 SELECT UNHEX(REPLACE(UUID(), "-", "")), t.state_machine_id, t.from_state_id, t.to_state_id, :newActionName, t.custom_fields, :createdAt
                 FROM `state_machine_transition` t

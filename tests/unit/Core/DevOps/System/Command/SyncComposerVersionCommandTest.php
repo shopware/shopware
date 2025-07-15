@@ -36,6 +36,12 @@ class SyncComposerVersionCommandTest extends TestCase
                 'symfony/symfony' => '5.2.0',
             ],
         ], \JSON_THROW_ON_ERROR));
+
+        $this->fs->dumpFile($this->projectDir . '/src/WebInstaller/composer.json', json_encode([
+            'require' => [
+                'symfony/symfony' => '5.2.0',
+            ],
+        ], \JSON_THROW_ON_ERROR));
     }
 
     protected function tearDown(): void
@@ -52,6 +58,9 @@ class SyncComposerVersionCommandTest extends TestCase
 
         $bundle1Json = json_decode($this->fs->readFile($this->projectDir . '/src/Bundle1/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame('5.3.0', $bundle1Json['require']['symfony/symfony']);
+
+        $webInstaller = json_decode($this->fs->readFile($this->projectDir . '/src/WebInstaller/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('5.2.0', $webInstaller['require']['symfony/symfony']);
 
         static::assertSame(Command::SUCCESS, $tester->getStatusCode());
     }

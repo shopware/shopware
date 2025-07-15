@@ -47,6 +47,11 @@ class SyncComposerVersionCommand extends Command
         $changed = false;
 
         foreach ($bundleJsons as $bundleJsonPath) {
+            // Webinstaller is independent of platform
+            if (str_ends_with($bundleJsonPath, 'WebInstaller/composer.json')) {
+                continue;
+            }
+
             $bundleJson = json_decode($this->fileSystem->readFile($bundleJsonPath), true, 512, \JSON_THROW_ON_ERROR);
 
             foreach (['require', 'require-dev'] as $field) {

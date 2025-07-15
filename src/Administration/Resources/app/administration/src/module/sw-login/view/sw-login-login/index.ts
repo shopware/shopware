@@ -62,7 +62,9 @@ export default Component.wrapComponentConfig({
                     window.location.href = loginConfig.url;
                 }
             })
-            .catch(() => {});
+            .catch((error) => {
+                throw error;
+            });
     },
 
     methods: {

@@ -34,13 +34,7 @@ async function createWrapper(props) {
                     },
                 },
             },
-            props: {
-                isLoading: props.isLoading,
-                isOpen: props.isOpen,
-                accessKey: props.accessKey,
-                secretAccessKey: props.secretAccessKey,
-                mode: props.mode,
-            },
+            props,
         },
     );
 

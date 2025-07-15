@@ -6,18 +6,18 @@ namespace Shopware\Tests\Unit\Core\Profiling\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Profiling\Subscriber\HttpCacheTagDataCollectorSubscriber;
+use Shopware\Core\Profiling\Subscriber\CacheTagCollectorSubscriber;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
  */
-#[CoversClass(HttpCacheTagDataCollectorSubscriber::class)]
-class HttpCacheTagDataCollectorSubscriberTest extends TestCase
+#[CoversClass(CacheTagCollectorSubscriber::class)]
+class CacheTagCollectorSubscriberTest extends TestCase
 {
     public function testLateCollectSameTagInValidAndInvalidURIs(): void
     {
-        HttpCacheTagDataCollectorSubscriber::$tags = [
+        CacheTagCollectorSubscriber::$tags = [
             'n/a' => [
                 'system.config-' => [
                     'SystemConfigService::get | CanonicalRedirectService::getRedirect' => 1,
@@ -43,7 +43,7 @@ class HttpCacheTagDataCollectorSubscriberTest extends TestCase
 
     public function testLateCollectWithDifferentTagsInValidAndInvalidURIs(): void
     {
-        HttpCacheTagDataCollectorSubscriber::$tags = [
+        CacheTagCollectorSubscriber::$tags = [
             'n/a' => [
                 'system.config-' => [
                     'SystemConfigService::get | CanonicalRedirectService::getRedirect' => 1,
@@ -74,7 +74,7 @@ class HttpCacheTagDataCollectorSubscriberTest extends TestCase
      */
     private function getProcessedTags(): array
     {
-        $subscriber = new HttpCacheTagDataCollectorSubscriber(new RequestStack());
+        $subscriber = new CacheTagCollectorSubscriber(new RequestStack());
 
         $subscriber->lateCollect();
 

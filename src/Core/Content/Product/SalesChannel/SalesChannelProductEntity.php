@@ -38,7 +38,7 @@ class SalesChannelProductEntity extends ProductEntity
 
     protected ?CheapestPriceContainer $cheapestPriceContainer = null;
 
-    protected ?ConvertedUnitSet $measurementUnits = null;
+    protected ?ConvertedUnitSet $measurements = null;
 
     public function setCalculatedPrices(PriceCollection $prices): void
     {
@@ -130,13 +130,13 @@ class SalesChannelProductEntity extends ProductEntity
         return $this->cheapestPriceContainer;
     }
 
-    public function getMeasurementUnits(): ?ConvertedUnitSet
+    public function getMeasurements(): ?ConvertedUnitSet
     {
-        return $this->measurementUnits;
+        return $this->measurements;
     }
 
-    public function setMeasurementUnits(?ConvertedUnitSet $measurementUnits): void
+    public function setMeasurements(ConvertedUnitSet $measurements): void
     {
-        $this->measurementUnits = $measurementUnits;
+        $this->measurements = $measurements;
     }
 }

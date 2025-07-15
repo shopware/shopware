@@ -145,7 +145,7 @@ export default {
         },
 
         getBreadcrumb(item) {
-            if (item.breadcrumb) {
+            if (item.breadcrumb?.length > 0) {
                 return item.breadcrumb.join(' / ');
             }
             return item.translated?.name || item.name;

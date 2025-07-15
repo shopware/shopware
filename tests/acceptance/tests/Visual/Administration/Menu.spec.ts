@@ -26,6 +26,6 @@ ReplaceElementsForScreenshot,
             '.sw-admin-menu__user-name',
         ]);
         
-        await expect(AdminDashboard.page.locator('.sw-admin-menu')).toHaveScreenshot();
+        await expect(AdminDashboard.page.locator('.sw-admin-menu')).toHaveScreenshot('Menu-Expanded.png');
     });
 });

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Profiling\Subscriber;
 
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\DataCollector\AbstractDataCollector;
@@ -16,7 +17,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @internal
  */
 #[Package('framework')]
-class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implements EventSubscriberInterface, LateDataCollectorInterface
+class CacheTagCollectorSubscriber extends AbstractDataCollector implements EventSubscriberInterface, LateDataCollectorInterface
 {
     /**
      * [uri => [tag => [caller => count]]]
@@ -74,7 +75,7 @@ class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implemen
     {
         $caller = $this->getCaller();
 
-        $uri = $this->uri($this->stack->getCurrentRequest());
+        $uri = CacheTagCollector::uri($this->stack->getCurrentRequest());
 
         if (!isset(self::$tags[$uri])) {
             self::$tags[$uri] = [];
@@ -93,15 +94,6 @@ class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implemen
         }
     }
 
-    private function uri(?Request $request): string
-    {
-        if ($request === null) {
-            return 'n/a';
-        }
-
-        return $request->getRequestUri();
-    }
-
     private function getCaller(): string
     {
         $source = debug_backtrace();
@@ -114,6 +106,10 @@ class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implemen
             $class = $element['class'] ?? '';
             \assert(class_exists($class));
 
+            if ($class === CacheTagCollector::class) {
+                continue;
+            }
+
             $instance = new \ReflectionClass($class);
             // skip dispatcher chain
             if ($instance->implementsInterface(EventDispatcherInterface::class)) {
@@ -125,7 +121,7 @@ class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implemen
             return $this->implode($element) . ' | ' . $this->implode($before);
         }
 
-        return 'n/a';
+        return CacheTagCollector::INVALID_URI;
     }
 
     /**
@@ -134,10 +130,10 @@ class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implemen
     private function implode(array $caller): string
     {
         if (!\array_key_exists('class', $caller)) {
-            return 'n/a';
+            return CacheTagCollector::INVALID_URI;
         }
         if (!\array_key_exists('function', $caller)) {
-            return 'n/a';
+            return CacheTagCollector::INVALID_URI;
         }
         $class = explode('\\', $caller['class']);
         $class = array_pop($class);
@@ -152,7 +148,7 @@ class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implemen
     {
         $tags = self::$tags;
 
-        if (!isset($tags['n/a'])) {
+        if (!isset($tags[CacheTagCollector::INVALID_URI])) {
             return $tags;
         }
 
@@ -162,8 +158,8 @@ class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implemen
             return $tags;
         }
 
-        $tagsWithoutValidUri = $tags['n/a'];
-        unset($tags['n/a']);
+        $tagsWithoutValidUri = $tags[CacheTagCollector::INVALID_URI];
+        unset($tags[CacheTagCollector::INVALID_URI]);
 
         $firstValidUri = $uris[1];
 

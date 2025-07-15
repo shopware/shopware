@@ -150,7 +150,7 @@ class LifecycleManager
 
         if (\count($registryServices) === 0) {
             // this is not safe to do if there are zero services.
-            // it could e a transient error or a misconfiguration.
+            // it could be a transient error or a misconfiguration.
             return;
         }
 

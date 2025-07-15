@@ -39,7 +39,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
     public function loadSnippetFilesIntoCollection(SnippetFileCollection $snippetFileCollection): void
     {
         $this->loadCoreSnippets($snippetFileCollection);
-        // Legacy snippets must be loaded here to ensure their availability, as the locale cannot be checked at this point and they might otherwise be missing.
+        // Legacy snippets must be loaded here to ensure their availability, as the locale cannot be checked at this point, and they might otherwise be missing.
         $this->loadLegacySnippets($snippetFileCollection);
         $this->loadAppSnippets($snippetFileCollection);
     }
@@ -69,10 +69,15 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
             }
 
             $locale = $parts[0];
-            $isBase = str_contains($fileInfo->getFilenameWithoutExtension(), 'messages');
+            $fileName = $fileInfo->getFilenameWithoutExtension();
+            $isBase = str_contains($fileName, 'messages');
+
+            if ($isBase) {
+                $fileName = 'messages.' . $locale;
+            }
 
             $snippetFile = new GenericSnippetFile(
-                $fileInfo->getFilename(),
+                $fileName ?? $fileInfo->getFilename(),
                 $fileInfo->getPathname(),
                 $locale,
                 'Shopware',

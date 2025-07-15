@@ -255,7 +255,7 @@ frame-ancestors 'none';
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
             <argument type="service" id="Shopware\Core\System\Snippet\SnippetService"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
 
             <tag name="monolog.logger"/>
         </service>

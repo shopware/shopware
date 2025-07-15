@@ -101,7 +101,7 @@ class StatsServiceTest extends TestCase
     public function testRegisterMessage(): void
     {
         ClockMock::register(StatsService::class);
-        ClockMock::register(__CLASS__);
+        ClockMock::register(self::class);
         ClockMock::withClockMock(true);
 
         $repository = $this->createMock(MySQLStatsRepository::class);

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Maintenance\System\Command;
 
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\MaintenanceException;
@@ -30,7 +31,8 @@ class SystemInstallCommand extends Command
     public function __construct(
         private readonly string $projectDir,
         private readonly SetupDatabaseAdapter $setupDatabaseAdapter,
-        private readonly DatabaseConnectionFactory $databaseConnectionFactory
+        private readonly DatabaseConnectionFactory $databaseConnectionFactory,
+        private readonly CacheClearer $cacheClearer,
     ) {
         parent::__construct();
     }
@@ -66,6 +68,9 @@ class SystemInstallCommand extends Command
 
             return self::FAILURE;
         }
+
+        // Delete old object cache, which can lead to wrong assumptions
+        $this->cacheClearer->clearObjectCache();
 
         $this->initializeDatabase($output, $input);
 

@@ -106,23 +106,23 @@ class SyncComposerVersionCommand extends Command
             return self::FAILURE;
         }
 
-        // If the bundles count for a package is lower than the overall bundles count,
-        // it means that the package is used, so we can remove it from the list.
-        // If the package is not used in any bundle, the count will be the same as the overall bundles count.
-        foreach ($isInRootButNotInBundle as $package => $bundles) {
-            if (\count($bundles) < \count($bundleJsons)) {
-                unset($isInRootButNotInBundle[$package]);
-            }
-        }
-
         if ($isInRootButNotInBundle !== []) {
-            $message = 'The following packages are defined in the root composer.json but not in the bundles:';
+            $message = '';
             foreach ($isInRootButNotInBundle as $package => $bundles) {
+                // If the bundles count for a package is lower than the overall bundles count,
+                // it means that the package is used, so we do not to consider it.
+                // If the package is not used in any bundle, the count will be the same as the overall bundles count.
+                if (\count($bundles) < \count($bundleJsons)) {
+                    continue;
+                }
                 $message .= "\n- $package";
             }
-            $io->error($message);
+            if ($message !== '') {
+                $message = 'The following packages are defined in the root composer.json but not in the bundles:' . $message;
+                $io->error($message);
 
-            return self::FAILURE;
+                return self::FAILURE;
+            }
         }
 
         if ($changed) {

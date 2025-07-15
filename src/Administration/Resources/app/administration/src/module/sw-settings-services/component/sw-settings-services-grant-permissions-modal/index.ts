@@ -7,6 +7,7 @@ import template from './sw-settings-services-grant-permissions-modal.html.twig';
 import './sw-settings-services-grant-permissions-modal.scss';
 import { useShopwareServicesStore } from '../../store/shopware-services.store';
 import extractErrorMessage from '../../composables/extract-error';
+import { grantPermissions } from '../../composables/permissions';
 
 /**
  * @private
@@ -64,19 +65,9 @@ export default Shopware.Component.wrapComponentConfig({
 
         async grantPermissions(done: () => void) {
             try {
-                const shopwareServiceStore = useShopwareServicesStore();
-                const currentRevision = shopwareServiceStore.currentRevision?.revision;
-
-                if (!currentRevision) {
-                    throw new Error('No revision available');
-                }
-
                 this.isLoading = true;
 
-                shopwareServiceStore.config =
-                    await Shopware.Service('shopwareServicesService').acceptRevision(currentRevision);
-
-                this.$emit('service-permissions-granted');
+                await grantPermissions();
             } catch (exception) {
                 Shopware.Store.get('notification').createNotification({
                     variant: 'critical',

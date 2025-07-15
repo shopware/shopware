@@ -24,7 +24,7 @@ class ReviewStruct extends StoreStruct
 
     protected int $rating;
 
-    protected ?string $text;
+    protected ?string $text = null;
 
     protected \DateTimeImmutable $lastChangeDate;
 

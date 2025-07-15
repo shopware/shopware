@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\System\SystemConfig;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -38,6 +39,7 @@ class SystemConfigServiceTest extends TestCase
             static::getContainer()->get(SystemConfigLoader::class),
             static::getContainer()->get('event_dispatcher'),
             new SymfonySystemConfigService([]),
+            static::getContainer()->get(CacheTagCollector::class),
         );
     }
 

@@ -17,7 +17,7 @@ class PriceFactory
     /**
      * @internal
      */
-    public function __construct(private ScriptPriceStubs $stubs)
+    public function __construct(private readonly ScriptPriceStubs $stubs)
     {
     }
 

@@ -43,7 +43,7 @@ class AppScriptConditionEntity extends Entity
     /**
      * @var CustomFieldTypeArray|null
      */
-    protected ?array $config;
+    protected ?array $config = null;
 
     protected ?RuleConditionCollection $ruleConditions = null;
 

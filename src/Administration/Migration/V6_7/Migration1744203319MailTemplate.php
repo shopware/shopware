@@ -159,7 +159,7 @@ class Migration1744203319MailTemplate extends MigrationStep
     private function getMailTemplateTypeId(Connection $connection): string
     {
         $mailTemplateTypeId = $connection->fetchOne(
-            'SELECT `id` FROM `mail_template_type` WHERE `technical_name` LIKE "admin_saas_user_invite"'
+            'SELECT `id` FROM `mail_template_type` WHERE `technical_name` = "admin_saas_user_invite"'
         );
 
         if (!$mailTemplateTypeId) {
@@ -172,7 +172,7 @@ class Migration1744203319MailTemplate extends MigrationStep
     private function mailTemplateTypeExists(Connection $connection): bool
     {
         return (bool) $connection->fetchOne(
-            'SELECT `id` FROM `mail_template_type` WHERE `technical_name` LIKE "admin_saas_user_invite"'
+            'SELECT `id` FROM `mail_template_type` WHERE `technical_name` = "admin_saas_user_invite"'
         );
     }
 

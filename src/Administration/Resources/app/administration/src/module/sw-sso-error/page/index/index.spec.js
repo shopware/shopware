@@ -15,13 +15,9 @@ async function createWrapper(useDefaultLogin) {
             provide: {
                 loginService: {
                     getLoginTemplateConfig: () => {
-                        return new Promise((resolve) => {
-                            const response = {
-                                useDefault: useDefaultLogin,
-                                url: 'https://foo.bar.baz',
-                            };
-
-                            resolve(response);
+                        return Promise.resolve({
+                            useDefault: useDefaultLogin,
+                            url: 'https://foo.bar.baz',
                         });
                     },
 
@@ -36,14 +32,13 @@ async function createWrapper(useDefaultLogin) {
         },
     });
 
-    await flushPromises();
-
     return wrapper;
 }
 
 describe('src/module/sw-sso-error/page/index', () => {
     it('should be available', async () => {
         await createWrapper(false);
+        await flushPromises();
 
         const components = Component.getComponentRegistry();
         expect(components.has('sw-sso-error-index')).toBeTruthy();

@@ -35,20 +35,21 @@ final class UserService
 
     public function getUser(TokenResult $tokenResult): ExternalAuthUser
     {
+        $context = Context::createDefaultContext();
         $parsedIdToken = $this->idTokenParser->parse($tokenResult->idToken);
 
-        $invitedUser = $this->getInvitedUser($parsedIdToken);
+        $invitedUser = $this->getInvitedUser($context, $parsedIdToken);
         if ($invitedUser instanceof UserEntity) {
-            $this->activateInvitedUser($invitedUser, $parsedIdToken);
+            $this->activateInvitedUser($context, $invitedUser, $parsedIdToken);
         }
 
-        $userSearchResult = $this->searchUser($parsedIdToken, $tokenResult);
+        $userSearchResult = $this->searchUser($context, $parsedIdToken, $tokenResult);
         if (!$userSearchResult instanceof ExternalAuthUser) {
             throw LoginException::userNotFound($parsedIdToken->email);
         }
 
         if ($userSearchResult->email !== $parsedIdToken->email) {
-            $this->updateUser($userSearchResult->userId, $parsedIdToken->email);
+            $this->updateUser($context, $userSearchResult->userId, $parsedIdToken->email);
         }
 
         $this->updateTokenUser($userSearchResult);
@@ -56,11 +57,11 @@ final class UserService
         return $userSearchResult;
     }
 
-    private function searchUser(ParsedIdToken $parsedToken, TokenResult $tokenResult): ?ExternalAuthUser
+    private function searchUser(Context $context, ParsedIdToken $parsedToken, TokenResult $tokenResult): ?ExternalAuthUser
     {
         $userSearchResult = $this->searchBySub($parsedToken, $tokenResult);
         if (!$userSearchResult instanceof ExternalAuthUser) {
-            $userSearchResult = $this->searchByEmail($parsedToken, $tokenResult);
+            $userSearchResult = $this->searchByEmail($context, $parsedToken, $tokenResult);
         }
 
         return $userSearchResult;
@@ -69,10 +70,10 @@ final class UserService
     private function searchBySub(ParsedIdToken $parsedToken, TokenResult $tokenResult): ?ExternalAuthUser
     {
         $tokenUserData = $this->connection->createQueryBuilder()
-            ->select('token_user.id', 'token_user.user_id', 'token_user.user_sub', 'token_user.token', 'token_user.expiry', 'user.email')
-            ->from('token_user', 'token_user')
-            ->join('token_user', 'user', 'user', 'token_user.user_id = user.id')
-            ->where('token_user.user_sub = :sub')
+            ->select('oauth_user.id', 'oauth_user.user_id', 'oauth_user.user_sub', 'oauth_user.token', 'oauth_user.expiry', 'user.email')
+            ->from('oauth_user', 'oauth_user')
+            ->join('oauth_user', 'user', 'user', 'oauth_user.user_id = user.id')
+            ->where('oauth_user.user_sub = :sub')
             ->setParameter('sub', $parsedToken->sub)
             ->executeQuery()
             ->fetchAssociative();
@@ -81,21 +82,10 @@ final class UserService
             return null;
         }
 
-        $tokenUserData['id'] = Uuid::fromBytesToHex($tokenUserData['id']);
-        $tokenUserData['user_id'] = Uuid::fromBytesToHex($tokenUserData['user_id']);
-        $tokenUserData['token'] = [
-            'token' => $tokenResult->accessToken,
-            'refreshToken' => $tokenResult->refreshToken,
-        ];
-        $tokenUserData['is_new'] = false;
-        if ($tokenUserData['expiry'] !== null) {
-            $tokenUserData['expiry'] = new \DateTimeImmutable($tokenUserData['expiry']);
-        }
-
-        return ExternalAuthUser::create($tokenUserData);
+        return ExternalAuthUser::createFromDatabaseQuery($tokenUserData, $tokenResult->accessToken, $tokenResult->refreshToken);
     }
 
-    private function searchByEmail(ParsedIdToken $parsedToken, TokenResult $tokenResult): ?ExternalAuthUser
+    private function searchByEmail(Context $context, ParsedIdToken $parsedToken, TokenResult $tokenResult): ?ExternalAuthUser
     {
         $criteria = new Criteria();
         $criteria->addFilter(
@@ -108,7 +98,7 @@ final class UserService
             )
         );
 
-        $user = Context::createDefaultContext()->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($criteria) {
+        $user = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($criteria) {
             return $this->userRepository->search($criteria, $context)->first();
         });
 
@@ -130,9 +120,9 @@ final class UserService
         ]);
     }
 
-    private function updateUser(string $userId, string $newMail): void
+    private function updateUser(Context $context, string $userId, string $newMail): void
     {
-        Context::createDefaultContext()->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($userId, $newMail): void {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($userId, $newMail): void {
             $this->userRepository->update([
                 [
                     'id' => $userId,
@@ -146,7 +136,7 @@ final class UserService
     {
         if ($userSearchResult->isNew) {
             $this->connection->insert(
-                'token_user',
+                'oauth_user',
                 [
                     'id' => Uuid::randomBytes(),
                     'user_id' => Uuid::fromHexToBytes($userSearchResult->userId),
@@ -162,7 +152,7 @@ final class UserService
         }
 
         $this->connection->update(
-            'token_user',
+            'oauth_user',
             [
                 'token' => $userSearchResult->token->toJson(),
                 'expiry' => $userSearchResult->expiry?->format(\DATE_RFC3339),
@@ -172,7 +162,7 @@ final class UserService
         );
     }
 
-    private function getInvitedUser(ParsedIdToken $parsedToken): ?UserEntity
+    private function getInvitedUser(Context $context, ParsedIdToken $parsedToken): ?UserEntity
     {
         $criteria = new Criteria();
         $criteria->addFilter(
@@ -188,16 +178,16 @@ final class UserService
             )
         );
 
-        $user = Context::createDefaultContext()->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($criteria) {
+        $user = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($criteria) {
             return $this->userRepository->search($criteria, $context)->first();
         });
 
         return $user;
     }
 
-    private function activateInvitedUser(UserEntity $userEntity, ParsedIdToken $parsedIdToken): void
+    private function activateInvitedUser(Context $context, UserEntity $userEntity, ParsedIdToken $parsedIdToken): void
     {
-        Context::createDefaultContext()->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($userEntity, $parsedIdToken): void {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($userEntity, $parsedIdToken): void {
             $this->userRepository->update([[
                 'id' => $userEntity->getId(),
                 'active' => true,

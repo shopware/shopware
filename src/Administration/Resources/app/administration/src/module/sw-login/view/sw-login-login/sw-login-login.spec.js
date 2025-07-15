@@ -52,9 +52,7 @@ async function createWrapper(loginSuccessfull, useDefault = true, ssoUrl = 'http
                         localStorage.setItem('rememberMe', `${+duration}`);
                     },
                     getLoginTemplateConfig: () => {
-                        return new Promise((resolve) => {
-                            resolve({ useDefault: useDefault, ssoProviders: [], url: ssoUrl });
-                        });
+                        return Promise.resolve({ useDefault: useDefault, ssoProviders: [], url: ssoUrl });
                     },
                 },
                 userService: {},

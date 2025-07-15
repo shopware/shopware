@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Unit\Administration\Login\TokenService\_fixtures\JwksIds;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -45,7 +46,7 @@ class PublicKeyLoaderTest extends TestCase
         $publicKeyLoader = new PublicKeyLoader(
             $this->createClient(false, ''),
             $this->createLoginConfigService(),
-            $this->createCache('cache_key', true, $this->getJwks())
+            $this->createCache($this->getJwks())
         );
 
         $publicKey = $publicKeyLoader->loadPublicKey(JwksIds::KEY_ID_TWO);
@@ -57,7 +58,7 @@ class PublicKeyLoaderTest extends TestCase
         static::assertStringEndsWith('-----END PUBLIC KEY-----', $result);
     }
 
-    public function testLoadPublicKeyShouldClearCache(): void
+    public function testLoadPublicKeyShouldUpdateCache(): void
     {
         $cachedKeys = \json_decode($this->getJwks(), true);
         $cachedKeys['keys'][0]['kid'] = Uuid::randomHex();
@@ -72,7 +73,7 @@ class PublicKeyLoaderTest extends TestCase
             $this->createCache('cache_key', true, $cachedKeys, true)
         );
 
-        $publicKey = $publicKeyLoader->loadPublicKey(JwksIds::KEY_ID_ONE);
+        $publicKey = $publicKeyLoader->loadPublicKey(JwksIds::KEY_ID_ONE, true);
 
         $result = $publicKey->contents();
 
@@ -91,9 +92,9 @@ class PublicKeyLoaderTest extends TestCase
         static::assertIsString($cachedKeys);
 
         $publicKeyLoader = new PublicKeyLoader(
-            $this->createClient(true, $cachedKeys),
+            $this->createClient(false, $cachedKeys),
             $this->createLoginConfigService(),
-            $this->createCache('cache_key', true, $cachedKeys, true)
+            $this->createCache($cachedKeys)
         );
 
         try {
@@ -141,28 +142,28 @@ class PublicKeyLoaderTest extends TestCase
     /**
      * @param mixed $data
      */
-    private function createCache(?string $cacheKey = 'cache_key', ?bool $isHit = false, $data = null, ?bool $shouldCallClearCache = false): AdapterInterface
+    private function createCache(?string $cached = null): AdapterInterface
     {
-        $cache = $this->createMock(AdapterInterface::class);
-        $createCacheItem = \Closure::bind(
-            static function ($cacheKey, $data, $isHit) {
-                $item = new CacheItem();
-                $item->key = $cacheKey;
-                $item->isHit = $isHit;
-                $item->value = $data;
-                $item->unpack();
+        $cache = new ArrayAdapter();
 
-                return $item;
-            },
-            null,
-            CacheItem::class
-        );
+        if ($cached !== null) {
+            $createCacheItem = \Closure::bind(
+                static function ($cached) {
+                    $item = new CacheItem();
+                    $item->key = 'admin_sso_public_key_storage';
+                    $item->isHit = true;
+                    $item->value = $cached;
+                    $item->unpack();
 
-        $cacheItem = $createCacheItem($cacheKey, $data, $isHit);
-        $emptyCacheItem = $createCacheItem('any', null, false);
+                    return $item;
+                },
+                null,
+                CacheItem::class
+            );
 
-        $cache->method('getItem')->willReturnOnConsecutiveCalls($cacheItem, $emptyCacheItem);
-        $cache->expects($shouldCallClearCache ? $this->once() : $this->never())->method('clear');
+            $cacheItem = $createCacheItem($cached);
+            $cache->save($cacheItem);
+        }
 
         return $cache;
     }

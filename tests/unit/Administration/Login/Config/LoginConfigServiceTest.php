@@ -20,6 +20,7 @@ class LoginConfigServiceTest extends TestCase
 {
     public function testGetConfigWithEmptyRawConfig(): void
     {
+        // @phpstan-ignore-next-line argument.type
         $configService = new LoginConfigService([], 'http://app.url', '/admin');
 
         $config = $configService->getConfig();
@@ -84,632 +85,202 @@ class LoginConfigServiceTest extends TestCase
     {
         return [
             'use_default is not set' => [
-                'rawConfig' => [
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig([], ['use_default']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [use_default] is missing',
             ],
 
             'use_default is null' => [
-                'rawConfig' => [
-                    'use_default' => null,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['use_default' => null]),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [use_default] is null',
             ],
 
             'use_default is not a bool' => [
-                'rawConfig' => [
-                    'use_default' => 'asd',
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['use_default' => 'asd']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [use_default] is not a boolean',
             ],
 
             'client_id is not set' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig([], ['client_id']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_id] is missing',
             ],
 
             'client_id is null' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => null,
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['client_id' => null]),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_id] is null, [client_id] is blank',
             ],
 
             'client_id is blank' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => '',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['client_id' => '']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_id] is blank',
             ],
 
             'client_id is no a string' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 12,
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['client_id' => 12]),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_id] is invalid string',
             ],
 
             'client_secret is not set' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig([], ['client_secret']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_secret] is missing',
             ],
 
             'client_secret is null' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => null,
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['client_secret' => null]),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_secret] is null, [client_secret] is blank',
             ],
 
             'client_secret is blank' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => '',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['client_secret' => '']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_secret] is blank',
             ],
 
             'client_secret is no a string' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 12,
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['client_secret' => 12]),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_secret] is invalid string',
             ],
 
             'redirect_uri is not set' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig([], ['redirect_uri']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is missing',
             ],
 
             'redirect_uri is null' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => null,
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['redirect_uri' => null]),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is null, [redirect_uri] is blank',
             ],
 
             'redirect_uri is blank' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => '',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['redirect_uri' => '']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is blank',
             ],
 
             'redirect_uri is no a string' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 12,
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['redirect_uri' => 12]),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is invalid string, [redirect_uri] is invalid URL',
             ],
 
             'redirect_uri is no a url' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'redirectUri',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['redirect_uri' => 'redirectUri']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is invalid URL',
             ],
 
             'base_url is not set' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig([], ['base_url']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is missing',
             ],
 
             'base_url is null' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => null,
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['base_url' => null]),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is null, [base_url] is blank',
             ],
 
             'base_url is blank' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => '',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['base_url' => '']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is blank',
             ],
 
             'base_url is not a string' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 12,
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['base_url' => 12]),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is invalid string, [base_url] is invalid URL',
             ],
 
             'base_url is no a url' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'baseUrl',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['base_url' => 'baseUrl']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is invalid URL',
             ],
 
             'base_url ends with slash' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url/',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['base_url' => 'http://base.url/']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] should not end with "/"',
             ],
 
             'authorize_path is null' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig([], ['authorize_path']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is missing',
             ],
 
             'authorize_path is blank' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['authorize_path' => '']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is blank',
             ],
 
             'authorize_path is not a string' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => 12,
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['authorize_path' => 12]),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is invalid string, [authorize_path] is invalid path. Requires to start with "/"',
             ],
 
             'authorize_path not start with slash' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => 'http://authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['authorize_path' => 'http://authorize']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is invalid path. Requires to start with "/"',
             ],
 
             'token_path is null' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig([], ['token_path']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is missing',
             ],
 
             'token_path is blank' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['token_path' => '']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is blank',
             ],
 
             'token_path is not a string' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => 24,
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['token_path' => 12]),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is invalid string, [token_path] is invalid path. Requires to start with "/"',
             ],
 
             'token_path not start with slash' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => 'any/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['token_path' => 'any/token']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is invalid path. Requires to start with "/"',
             ],
 
             'jwks_path is null' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig([], ['jwks_path']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [jwks_path] is missing',
             ],
 
             'jwks_path is blank' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['jwks_path' => '']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [jwks_path] is blank',
             ],
 
             'jwks_path is not a string' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => 23,
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['jwks_path' => 12]),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [jwks_path] is invalid string, [jwks_path] is invalid path. Requires to start with "/"',
             ],
 
             'jwks_path not start with slash' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => 'jwks/json',
-                    'scope' => 'scope',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['jwks_path' => 'jwks/json']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [jwks_path] is invalid path. Requires to start with "/"',
             ],
 
             'scope is null' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig([], ['scope']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [scope] is missing',
             ],
 
             'scope is blank' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => '',
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['scope' => '']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [scope] is blank',
             ],
 
             'scope is not a string' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 42,
-                    'register_url' => 'http://register.url',
-                ],
+                'rawConfig' => self::createConfig(['scope' => 12]),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [scope] is invalid string',
             ],
 
             'register_url is null' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                ],
+                'rawConfig' => self::createConfig([], ['register_url']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [register_url] is missing',
             ],
 
             'register_url is empty' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => '',
-                ],
+                'rawConfig' => self::createConfig(['register_url' => '']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [register_url] is blank',
             ],
 
             'register_url is not valid url' => [
-                'rawConfig' => [
-                    'use_default' => false,
-                    'client_id' => 'clientId',
-                    'client_secret' => 'clientSecret',
-                    'redirect_uri' => 'http://redirect.url',
-                    'base_url' => 'http://base.url',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'registerUrl',
-                ],
+                'rawConfig' => self::createConfig(['register_url' => 'registerUrl']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [register_url] is invalid URL',
             ],
         ];
@@ -717,6 +288,7 @@ class LoginConfigServiceTest extends TestCase
 
     public function testCreateTemplateDataWithNullAsLoginConfig(): void
     {
+        // @phpstan-ignore-next-line argument.type
         $configService = new LoginConfigService([], 'http://app.url', '/admin');
 
         $result = $configService->createTemplateData('randomString', null);
@@ -799,6 +371,7 @@ class LoginConfigServiceTest extends TestCase
     public function testCreateRedirectUrl(string $random, LoginConfig $loginConfig, string $expectedUrl): void
     {
         $appUrl = 'http://app.url';
+        // @phpstan-ignore-next-line argument.type
         $configService = new LoginConfigService([], $appUrl, '/admin');
 
         $result = $configService->createRedirectUrl($random, $loginConfig);
@@ -862,6 +435,28 @@ class LoginConfigServiceTest extends TestCase
                 'expectedUrl' => 'http://another-base-url.net/authorize?client_id=anotherClientID&redirect_uri=http%3A%2F%2Fanother-redirect-url.org&response_type=code&scope=scope&state=http%3A%2F%2Fapp.url%2Fapi%2Foauth%2Fsso%2Fcode%3Frdm%3DjustARandomString',
             ],
         ];
+    }
+
+    private static function createConfig(array $apply, array $unset = []): array
+    {
+        $defaultConfig = [
+            'use_default' => true,
+            'client_id' => 'clientId',
+            'client_secret' => 'clientSecret',
+            'redirect_uri' => 'http://redirect.url',
+            'base_url' => 'http://base.url',
+            'authorize_path' => '/authorize',
+            'token_path' => '/token',
+            'jwks_path' => '/jwks.json',
+            'scope' => 'scope',
+            'register_url' => 'http://register.url',
+        ];
+
+        foreach ($unset as $key) {
+            unset($defaultConfig[$key]);
+        }
+
+        return array_merge($defaultConfig, $apply);
     }
 
     /**

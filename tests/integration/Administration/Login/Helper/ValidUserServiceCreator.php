@@ -12,7 +12,11 @@ use Shopware\Administration\Login\TokenService\PublicKeyLoader;
 use Shopware\Administration\Login\UserService\UserService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Cache\Adapter\AbstractAdapter;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -33,7 +37,7 @@ class ValidUserServiceCreator
         $publicKeyLoader = new PublicKeyLoader(
             $this->createClient(),
             $this->createLoginConfigService(),
-            $this->createCache()
+            new ArrayAdapter()
         );
 
         $clockInterface = $this->createMock(ClockInterface::class);
@@ -91,43 +95,22 @@ class ValidUserServiceCreator
         return new LoginConfigService($rawConfig, 'local.host', '/admin');
     }
 
-    private function createCache(): AdapterInterface
-    {
-        $cache = $this->createMock(AdapterInterface::class);
-        $createCacheItem = \Closure::bind(
-            static function () {
-                $item = new CacheItem();
-                $item->key = 'cache_key';
-                $item->isHit = false;
-                $item->value = null;
-                $item->unpack();
-
-                return $item;
-            },
-            null,
-            CacheItem::class
-        );
-
-        $cacheItem = $createCacheItem();
-        $emptyCacheItem = $createCacheItem();
-
-        $cache->method('getItem')->willReturnOnConsecutiveCalls($cacheItem, $emptyCacheItem);
-
-        \assert($cache instanceof AdapterInterface);
-
-        return $cache;
-    }
-
     private function createMock(string $originalClassName): MockObject
     {
         $mock = (new MockGenerator())->testDouble(
             $originalClassName,
             true,
             true,
-            callOriginalConstructor: false,
-            callOriginalClone: false,
-            cloneArguments: false,
-            allowMockingUnknownTypes: false,
+            [],
+            [],
+            '',
+            false,
+            false,
+            true,
+            false,
+            false,
+            null,
+            false
         );
 
         \assert($mock instanceof $originalClassName);

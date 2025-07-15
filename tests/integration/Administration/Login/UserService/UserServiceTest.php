@@ -178,7 +178,7 @@ class UserServiceTest extends TestCase
 
         $result = $connection->createQueryBuilder()
             ->select('id', 'user_id', 'user_sub', 'token', 'expiry')
-            ->from('token_user')
+            ->from('oauth_user')
             ->where('user_sub = :subject')
             ->setParameter('subject', $subject)
             ->executeQuery()

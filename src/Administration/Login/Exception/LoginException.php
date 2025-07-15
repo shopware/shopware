@@ -23,6 +23,7 @@ class LoginException extends HttpException
     final public const LOGIN_INVALID_REQUEST_NO_CODE_PROVIDED = 'LOGIN__INVALID_REQUEST_NO_CODE_PROVIDED';
     final public const LOGIN_PUBLIC_KEY_NOT_FOUND = 'LOGIN__PUBLIC_KEY_NOT_FOUND';
     final public const LOGIN_INVALID_ID_TOKEN = 'LOGIN__INVALID_ID_TOKEN';
+    final public const LOGIN_INVALID_PUBLIC_KEY = 'LOGIN__INVALID_PUBLIC_KEY';
 
     private ?string $email;
 
@@ -172,6 +173,18 @@ class LoginException extends HttpException
             'Invalid user Access or refresh token: {{ missingFields }}',
             [
                 'missingFields' => \implode(', ', $violations),
+            ]
+        );
+    }
+
+    public static function invalidPublicKey(string $response): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LOGIN_INVALID_PUBLIC_KEY,
+            'Got invalid JSON public keys. Got: {{ response }}',
+            [
+                'response' => $response,
             ]
         );
     }

@@ -51,6 +51,7 @@ class AdminAuthController extends AbstractController
 
         try {
             $response = $this->authorizationServer->respondToAccessTokenRequest($psr7Request, $psr7Response);
+            // @phpstan-ignore-next-line catch.neverThrown
         } catch (LoginException $loginException) {
             if ($loginException->getErrorCode() !== LoginException::LOGIN_USER_NOT_FOUND) {
                 throw $loginException;

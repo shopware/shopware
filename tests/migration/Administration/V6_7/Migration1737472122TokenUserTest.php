@@ -41,17 +41,13 @@ class Migration1737472122TokenUserTest extends TestCase
 
     public function dropTable(): void
     {
-        $this->connection->executeStatement('DROP TABLE IF EXISTS `token_user`');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `oauth_user`');
     }
 
     private function tableExists(): bool
     {
-        try {
-            $this->connection->fetchOne('SELECT * FROM `token_user` LIMIT 1');
-        } catch (Exception) {
-            return false;
-        }
+        $schemaManager = $this->connection->createSchemaManager();
 
-        return true;
+        return $schemaManager->tablesExist(['oauth_user']);
     }
 }

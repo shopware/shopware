@@ -41,6 +41,7 @@ class SaasServiceTest extends TestCase
 
     public function testIsSaasShouldReturnFalse(): void
     {
+        // @phpstan-ignore-next-line argument.type
         $loginConfigService = new LoginConfigService([], 'local.host', '/admin');
 
         $saasService = new SaasService($loginConfigService);

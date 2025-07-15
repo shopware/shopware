@@ -30,11 +30,9 @@ describe('core/service/api/saas-settings.service.js', () => {
             isSaas: true,
         });
 
-        const isSaas = await service.isSaas().then((response) => {
-            return response;
-        });
+        const isSaas = await service.isSaas();
 
-        expect(isSaas.isSaas).toBeTruthy();
+        expect(isSaas.isSaas).toBe(true);
     });
 
     it('should return isSaas info with false value', async () => {
@@ -44,10 +42,8 @@ describe('core/service/api/saas-settings.service.js', () => {
             isSaas: false,
         });
 
-        const isSaas = await service.isSaas().then((response) => {
-            return response;
-        });
+        const isSaas = await service.isSaas();
 
-        expect(isSaas.isSaas).toBeFalsy();
+        expect(isSaas.isSaas).toBe(false);
     });
 });

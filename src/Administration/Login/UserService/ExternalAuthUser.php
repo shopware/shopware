@@ -5,6 +5,7 @@ namespace Shopware\Administration\Login\UserService;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -52,6 +53,23 @@ final class ExternalAuthUser implements UserEntityInterface
             $data['email'],
             $data['is_new'],
         );
+    }
+
+    public static function createFromDatabaseQuery(array $data, string $accessToken, string $refreshToken): self
+    {
+        $data['is_new'] = false;
+        $data['id'] = Uuid::fromBytesToHex($data['id']);
+        $data['user_id'] = Uuid::fromBytesToHex($data['user_id']);
+        $data['token'] = [
+            'token' => $accessToken,
+            'refreshToken' => $refreshToken,
+        ];
+
+        if ($data['expiry'] !== null) {
+            $data['expiry'] = new \DateTimeImmutable($data['expiry']);
+        }
+
+        return self::create($data);
     }
 
     /**
@@ -111,5 +129,15 @@ final class ExternalAuthUser implements UserEntityInterface
                 new Type('bool', 'Needs to be a boolean'),
             ],
         ]);
+    }
+
+    private static function prepareData(array &$data): void
+    {
+        $data['id'] = Uuid::fromBytesToHex($data['id']);
+        $data['user_id'] = Uuid::fromBytesToHex($data['user_id']);
+
+        if ($data['expiry'] !== null) {
+            $data['expiry'] = new \DateTimeImmutable($data['expiry']);
+        }
     }
 }

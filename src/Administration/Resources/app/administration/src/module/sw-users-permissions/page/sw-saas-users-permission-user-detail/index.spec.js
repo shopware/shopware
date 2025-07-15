@@ -270,13 +270,13 @@ describe('module/sw-users-permissions/page/sw-saas-users-permission-user-detail'
     });
 
     it('should not be possible to edit fistName, lastName, email', async () => {
-        let wrapper = await createWrapper();
+        const wrapper = await createWrapper();
 
-        let firstNameField = wrapper.find('#sw-field--user-firstName');
+        const firstNameField = wrapper.find('#sw-field--user-firstName');
         expect(firstNameField.exists()).toBeTruthy();
-        let lastNameField = wrapper.find('#sw-field--user-lastName');
+        const lastNameField = wrapper.find('#sw-field--user-lastName');
         expect(lastNameField.exists()).toBeTruthy();
-        let emailField = wrapper.find('#sw-field--user-email');
+        const emailField = wrapper.find('#sw-field--user-email');
         expect(emailField.exists()).toBeTruthy();
 
         expect(firstNameField.attributes('disabled')).toBeDefined();
@@ -287,23 +287,20 @@ describe('module/sw-users-permissions/page/sw-saas-users-permission-user-detail'
 
         expect(emailField.attributes('disabled')).toBeDefined();
         expect(emailField.attributes('disabled')).toBe('');
+    });
 
+    it('should not be possible to edit fistName, lastName, email with given user', async () => {
         const user = createDefaultUser();
         user.attributes.firstName = user.attributes.email;
         user.attributes.lastName = user.attributes.email;
 
-        wrapper = null;
-        firstNameField = null;
-        lastNameField = null;
-        emailField = null;
+        const wrapper = await createWrapper(user);
 
-        wrapper = await createWrapper(user);
-
-        firstNameField = wrapper.find('#sw-field--user-firstName');
+        const firstNameField = wrapper.find('#sw-field--user-firstName');
         expect(firstNameField.exists()).toBeTruthy();
-        lastNameField = wrapper.find('#sw-field--user-lastName');
+        const lastNameField = wrapper.find('#sw-field--user-lastName');
         expect(lastNameField.exists()).toBeTruthy();
-        emailField = wrapper.find('#sw-field--user-email');
+        const emailField = wrapper.find('#sw-field--user-email');
         expect(emailField.exists()).toBeTruthy();
 
         expect(firstNameField.attributes('disabled')).toBeDefined();

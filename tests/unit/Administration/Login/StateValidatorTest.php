@@ -20,6 +20,10 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 #[CoversClass(StateValidator::class)]
 class StateValidatorTest extends TestCase
 {
+    public const VALID = 'O56DJMSNQ12H5SN0PCYVCSUEEMOTOOIN73P4DBHA5UDVRLMM6X9ODZMEKYYJV6VJ';
+    public const VALID_DIFFERENT = 'ICFMGIJQFXXNMTAY0974B3A7RUV657XW7L0KSZL7KT9OJIJM3TNE4WVAHRB3IPX5';
+    public const INVALID_LENGTH = 'VKO9DHR0JBX8HE9ZJH07R6J3MR0Z779XGI4SK6B4D1TKSYHTOVLFBKGZGJ5HIHJ8Z2CKZD2MB6VYAQXYGNP2ORX3RZ9P4XK52HC';
+
     #[DataProvider('validateTestDataProvider')]
     public function testValidate(?string $state, ?string $storedState, bool $expectException): void
     {
@@ -56,8 +60,6 @@ class StateValidatorTest extends TestCase
      */
     public static function validateTestDataProvider(): array
     {
-        $validRandom = self::createRandom(StateValidator::RANDOM_LENGTH);
-
         return [
             'state and storedState is null' => [
                 'state' => null,
@@ -78,41 +80,28 @@ class StateValidatorTest extends TestCase
             ],
 
             'state has invalid length and storedState is set' => [
-                'state' => self::createRandom(99),
-                'storedState' => self::createRandom(StateValidator::RANDOM_LENGTH),
+                'state' => self::INVALID_LENGTH,
+                'storedState' => self::VALID,
                 'expectException' => true,
             ],
 
             'state has valid length and storedState is different' => [
-                'state' => self::createRandom(StateValidator::RANDOM_LENGTH),
-                'storedState' => self::createRandom(StateValidator::RANDOM_LENGTH),
+                'state' => self::VALID,
+                'storedState' => self::VALID_DIFFERENT,
                 'expectException' => true,
             ],
 
             'state is valid and storedState is null' => [
-                'state' => self::createRandom(StateValidator::RANDOM_LENGTH),
+                'state' => self::VALID,
                 'storedState' => null,
                 'expectException' => true,
             ],
 
             'state is valid and storedState equals' => [
-                'state' => $validRandom,
-                'storedState' => $validRandom,
+                'state' => self::VALID,
+                'storedState' => self::VALID,
                 'expectException' => false,
             ],
         ];
-    }
-
-    private static function createRandom(int $length): string
-    {
-        $chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $charsLength = \strlen($chars);
-        $randomString = '';
-
-        for ($i = 0; $i < $length; ++$i) {
-            $randomString .= $chars[\random_int(0, $charsLength - 1)];
-        }
-
-        return $randomString;
     }
 }

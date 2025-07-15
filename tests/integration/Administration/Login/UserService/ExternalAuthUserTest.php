@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Administration\Login\UserService\ExternalAuthUser;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
@@ -172,5 +173,36 @@ class ExternalAuthUserTest extends TestCase
                 'expected' => 'Login user invalid: [email]: Needs to be a valid email address',
             ],
         ];
+    }
+
+    public function testCreateFromDatabaseQuery(): void
+    {
+        $id = '01980cbe117f713088b2401b26b57275';
+        $userId = '01980cbe117f713088b2401b270fd2d5';
+        $userSub = 'user_sub';
+
+        $token = '1234567890abcdefghijklmnopqrstuvwxyz';
+        $refreshToken = '0987654321zyxwvutsrqponmlkjihgfedcba';
+
+        $expiry = '2025-07-15 06:20:39.679';
+
+        $data = [
+            'id' => Uuid::fromHexToBytes($id),
+            'user_id' => Uuid::fromHexToBytes($userId),
+            'user_sub' => $userSub,
+            'token' => '{"token":"old token","refreshToken":"old refresh token"}',
+            'expiry' => $expiry,
+            'email' => 'test@test.com',
+        ];
+
+        $externalAuthUser = ExternalAuthUser::createFromDatabaseQuery($data, $token, $refreshToken);
+
+        static::assertSame($id, $externalAuthUser->id);
+        static::assertSame($userId, $externalAuthUser->userId);
+        static::assertSame($userSub, $externalAuthUser->sub);
+        static::assertSame($token, $externalAuthUser->token->token);
+        static::assertSame($refreshToken, $externalAuthUser->token->refreshToken);
+        static::assertSame($expiry, $externalAuthUser->expiry->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertFalse($externalAuthUser->isNew);
     }
 }

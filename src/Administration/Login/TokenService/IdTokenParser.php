@@ -49,21 +49,31 @@ final class IdTokenParser
             throw LoginException::configurationNotFound();
         }
 
-        /** for php-stan */
-        /** @var UnencryptedToken $token */
         $token = $this->parser->parse($idToken);
+        \assert($token instanceof UnencryptedToken);
 
         $kid = (string) $token->headers()->get('kid');
-        $publicKey = $this->publicKeyLoader->loadPublicKey($kid);
+        $this->validateToken($kid, $loginConfig, $token);
+
+        return ParsedIdToken::createFromDataSet($token->claims());
+    }
+
+    private function validateToken(string $kid, LoginConfig $loginConfig, UnencryptedToken $token, bool $bypassCacheLoading = false): void
+    {
+        $publicKey = $this->publicKeyLoader->loadPublicKey($kid, $bypassCacheLoading);
 
         $signatureConstraint = new SignedWith($this->algorithm, $publicKey);
         $issuedByConstraint = new IssuedBy($loginConfig->baseUrl . '/');
         $validAtConstraint = new LooseValidAt($this->clock);
 
         if (!$this->validator->validate($token, $signatureConstraint, $issuedByConstraint, $validAtConstraint)) {
+            if (!$bypassCacheLoading) {
+                $this->validateToken($kid, $loginConfig, $token, true);
+
+                return;
+            }
+
             throw LoginException::invalidIdToken();
         }
-
-        return ParsedIdToken::createFromDataSet($token->claims());
     }
 }

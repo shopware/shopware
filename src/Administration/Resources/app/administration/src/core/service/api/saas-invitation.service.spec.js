@@ -23,7 +23,7 @@ function createSaasInvitationService() {
 }
 
 describe('core/service/api/saas-invitation.service.js', () => {
-    it('should be successfully', async () => {
+    it('invite user should be successfully', async () => {
         const { service, clientMock } = createSaasInvitationService();
 
         clientMock

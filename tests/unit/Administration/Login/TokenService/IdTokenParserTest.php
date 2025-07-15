@@ -13,7 +13,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Integration\Administration\Login\Helper\FakeTokenGenerator;
 use Shopware\Tests\Unit\Administration\Login\TokenService\_fixtures\JwksIds;
+use Symfony\Component\Cache\Adapter\AbstractAdapter;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -92,33 +96,8 @@ class IdTokenParserTest extends TestCase
         return new PublicKeyLoader(
             $this->createClient(),
             $this->createLoginConfigService(),
-            $this->createCache()
+            new ArrayAdapter()
         );
-    }
-
-    private function createCache(): AdapterInterface
-    {
-        $cache = $this->createMock(AdapterInterface::class);
-        $createCacheItem = \Closure::bind(
-            static function () {
-                $item = new CacheItem();
-                $item->key = 'cache_key';
-                $item->isHit = false;
-                $item->value = null;
-                $item->unpack();
-
-                return $item;
-            },
-            null,
-            CacheItem::class
-        );
-
-        $cacheItem = $createCacheItem();
-        $emptyCacheItem = $createCacheItem();
-
-        $cache->method('getItem')->willReturnOnConsecutiveCalls($cacheItem, $emptyCacheItem);
-
-        return $cache;
     }
 
     private function createClient(): HttpClientInterface

@@ -1,4 +1,4 @@
-{
+  {
     "name": "shopware/administration",
     "description": "Administration frontend for the Shopware Core",
     "type": "library",
@@ -35,6 +35,7 @@
         "symfony/framework-bundle": "~7.2.0",
         "symfony/http-foundation": "~7.2.0",
         "symfony/mime": "~7.2.0",
-        "symfony/routing": "~7.2.0"
+        "symfony/routing": "~7.2.0",
+        "phpseclib/phpseclib": "^3.0"
     }
 }

@@ -54,7 +54,7 @@ final class LoginConfigService
     {
         return new TemplateData(
             $loginConfig->useDefault ?? true,
-            $loginConfig === null ? null : \sprintf('%s/%s/sso/auth?rdm=%s', $this->appUrl, \ltrim($this->adminPath, '/'), $random),
+            $loginConfig ? \sprintf('%s/%s/sso/auth?rdm=%s', $this->appUrl, \ltrim($this->adminPath, '/'), $random) : null,
         );
     }
 
@@ -76,7 +76,7 @@ final class LoginConfigService
     private function validate(): void
     {
         $validator = Validation::createValidator();
-        $violations = $validator->validate($this->rawConfig, self::createConstraint());
+        $violations = $validator->validate($this->rawConfig, $this->createConstraint());
         if ($violations->count() === 0) {
             return;
         }
@@ -89,7 +89,7 @@ final class LoginConfigService
         throw LoginException::configurationMisconfigured($missingConfiguredFields);
     }
 
-    private static function createConstraint(): Collection
+    private function createConstraint(): Collection
     {
         $isNullMessage = 'is null';
         $notBlankMessage = 'is blank';

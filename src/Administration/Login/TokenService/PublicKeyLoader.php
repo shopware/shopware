@@ -8,6 +8,7 @@ use Shopware\Administration\Login\Config\LoginConfig;
 use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Cache\Adapter\AbstractAdapter;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -26,25 +27,57 @@ final class PublicKeyLoader
     ) {
     }
 
-    public function loadPublicKey(string $publicKeyId): InMemory
+    public function loadPublicKey(string $publicKeyId, bool $bypassCacheLoading = false): InMemory
     {
-        $publicKey = $this->loadPublicKeyByKeyId($publicKeyId);
-        if ($publicKey === null) {
-            $this->clearCache();
-            $publicKey = $this->loadPublicKeyByKeyId($publicKeyId);
+        $loginConfig = $this->loginConfigService->getConfig();
+        if (!$loginConfig instanceof LoginConfig) {
+            throw LoginException::configurationNotFound();
         }
 
-        if ($publicKey === null) {
+        if ($bypassCacheLoading) {
+            $publicKeyString = $this->requestPublicKeys($loginConfig);
+            $publicKey = $this->preparePublicKey($publicKeyId, $publicKeyString);
+            if (!$publicKey instanceof InMemory) {
+                throw LoginException::publicKeyNotFound();
+            }
+
+            $this->updateCache($publicKeyString);
+
+            return $publicKey;
+        }
+
+        $publicKey = $this->loadAndPreparePublicKey($loginConfig, $publicKeyId);
+        if (!$publicKey instanceof InMemory) {
             throw LoginException::publicKeyNotFound();
         }
 
         return $publicKey;
     }
 
-    private function loadPublicKeyByKeyId(string $publicKeyId): ?InMemory
+    private function requestPublicKeys(LoginConfig $loginConfig): string
     {
-        $publicKeyString = $this->loadPublicKeys();
-        $publicKeys = \json_decode($publicKeyString, true);
+        $publicKeysResponse = $this->client->request('GET', $loginConfig->baseUrl . $loginConfig->jwksPath);
+
+        $publicKeyString = $publicKeysResponse->getContent();
+
+        return $publicKeyString;
+    }
+
+    private function loadAndPreparePublicKey(LoginConfig $loginConfig, string $publicKeyId): ?InMemory
+    {
+
+        $publicKeyString = $this->loadPublicKeyString($loginConfig);
+
+        return $this->preparePublicKey($publicKeyId, $publicKeyString);
+    }
+
+    private function preparePublicKey(string $publicKeyId, string $publicKeyString): ?InMemory
+    {
+        try {
+            $publicKeys = \json_decode($publicKeyString, true, flags: \JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            throw LoginException::invalidPublicKey($publicKeyString);
+        }
 
         $publicKey = null;
         foreach ($publicKeys['keys'] as $key) {
@@ -69,31 +102,20 @@ final class PublicKeyLoader
         return InMemory::plainText($publicKeyString);
     }
 
-    private function loadPublicKeys(): string
+    private function loadPublicKeyString(LoginConfig $loginConfig): string
     {
-        $cache = $this->cache->getItem(self::CACHE_KEY);
+        return (string) $this->cache->get(self::CACHE_KEY, function () use ($loginConfig) {
+            $publicKeyString = $this->requestPublicKeys($loginConfig);
 
-        if ($cache->isHit()) {
-            return (string) $cache->get();
-        }
-
-        $loginConfig = $this->loginConfigService->getConfig();
-        if (!$loginConfig instanceof LoginConfig) {
-            throw LoginException::configurationNotFound();
-        }
-
-        $publicKeysResponse = $this->client->request('GET', $loginConfig->baseUrl . $loginConfig->jwksPath);
-
-        $publicKeyString = $publicKeysResponse->getContent();
-
-        $cache->set($publicKeyString);
-        $this->cache->save($cache);
-
-        return $publicKeyString;
+            return $publicKeyString;
+        });
     }
 
-    private function clearCache(): void
+    private function updateCache(string $publicKeyString): void
     {
-        $this->cache->clear(self::CACHE_KEY);
+        $this->cache->delete(self::CACHE_KEY);
+        $this->cache->get(self::CACHE_KEY, function () use ($publicKeyString) {
+            return $publicKeyString;
+        });
     }
 }

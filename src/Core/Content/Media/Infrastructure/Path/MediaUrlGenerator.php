@@ -47,7 +47,7 @@ class MediaUrlGenerator extends AbstractMediaUrlGenerator
             return $filePath;
         }
 
-        $segments = explode('/', $filePath ?? '');
+        $segments = explode('/', $filePath);
 
         foreach ($segments as $index => $segment) {
             $segments[$index] = rawurlencode($segment);

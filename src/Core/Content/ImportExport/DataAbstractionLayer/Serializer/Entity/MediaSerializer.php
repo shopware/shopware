@@ -45,7 +45,7 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
         private readonly FileSaver $fileSaver,
         private readonly EntityRepository $mediaFolderRepository,
         private readonly EntityRepository $mediaRepository,
-        private readonly ?UrlEncodingTwigFilter $encodingTwigFilter = null
+        private readonly UrlEncodingTwigFilter $encodingTwigFilter
     ) {
     }
 

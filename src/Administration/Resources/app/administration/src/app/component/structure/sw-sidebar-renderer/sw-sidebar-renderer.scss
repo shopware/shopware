@@ -96,6 +96,12 @@
         border-bottom: 1px solid var(--color-border-primary-default);
         background: var(--color-elevation-surface-raised);
         position: relative;
+
+        &-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
     }
 
     .sw-iframe-renderer {

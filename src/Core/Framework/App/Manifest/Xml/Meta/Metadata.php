@@ -48,9 +48,9 @@ class Metadata extends XmlElement
 
     protected string $copyright;
 
-    protected ?string $license;
+    protected ?string $license = null;
 
-    protected ?string $compatibility;
+    protected ?string $compatibility = null;
 
     protected string $version;
 

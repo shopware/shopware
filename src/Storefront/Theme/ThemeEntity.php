@@ -118,7 +118,7 @@ class ThemeEntity extends Entity
      */
     public function getLabels(): ?array
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'ThemeConfigField::getLabelSnippetKey'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'ThemeConfigField::getLabelSnippetKey'));
 
         return $this->labels;
     }
@@ -130,7 +130,7 @@ class ThemeEntity extends Entity
      */
     public function setLabels(?array $labels): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
 
         $this->labels = $labels;
     }
@@ -142,7 +142,7 @@ class ThemeEntity extends Entity
      */
     public function getHelpTexts(): ?array
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'ThemeConfigField::getHelpTextSnippetKey'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'ThemeConfigField::getHelpTextSnippetKey'));
 
         return $this->helpTexts;
     }
@@ -154,7 +154,7 @@ class ThemeEntity extends Entity
      */
     public function setHelpTexts(?array $helpTexts): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
 
         $this->helpTexts = $helpTexts;
     }

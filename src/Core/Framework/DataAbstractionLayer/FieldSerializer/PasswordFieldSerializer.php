@@ -33,7 +33,7 @@ class PasswordFieldSerializer extends AbstractFieldSerializer
     public function __construct(
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry,
-        private SystemConfigService $configService
+        private readonly SystemConfigService $configService,
     ) {
         parent::__construct($validator, $definitionRegistry);
     }

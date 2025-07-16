@@ -12,7 +12,7 @@ class ImageStruct extends StoreStruct
 {
     protected string $remoteLink;
 
-    protected ?string $raw;
+    protected ?string $raw = null;
 
     /**
      * @return ImageStruct

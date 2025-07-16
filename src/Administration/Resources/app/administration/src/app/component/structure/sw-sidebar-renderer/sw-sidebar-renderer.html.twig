@@ -4,9 +4,19 @@
 >
     <aside
         class="sw-sidebar-renderer"
-        :class="{ 'is-active': activeSidebar && activeSidebar.locationId === sidebar.locationId }"
-        :style="{ display: (activeSidebar && activeSidebar.locationId === sidebar.locationId) ? 'flex' : 'none' }"
+        :class="{ 
+            'is-active': activeSidebar && activeSidebar.locationId === sidebar.locationId,
+            'is-resizing': isResizing
+        }"
+        :style="{ 
+            display: (activeSidebar && activeSidebar.locationId === sidebar.locationId) ? 'flex' : 'none',
+            width: sidebarWidth + 'px'
+        }"
     >
+        <div 
+            class="sw-sidebar-renderer__resize-handle"
+            @mousedown="startResize"
+        ></div>
         <header class="sw-sidebar-renderer__header">
             <h3 class="sw-sidebar-renderer__title">
                 {{ $tc(sidebar.title) }}

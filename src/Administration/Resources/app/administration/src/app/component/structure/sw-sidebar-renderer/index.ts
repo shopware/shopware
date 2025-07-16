@@ -17,7 +17,7 @@ export default Shopware.Component.wrapComponentConfig({
         const isResizing = ref(false);
         const minWidth = 480;
         const maxWidth = 800;
-        const overlayThreshold = 600;
+        const overlayThreshold = 750;
 
         const activeSidebar = computed(() => {
             return Shopware.Store.get('sidebar').getActiveSidebar;
@@ -43,6 +43,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         const closeSidebar = (locationId: string) => {
             Shopware.Store.get('sidebar').closeSidebar(locationId);
+        };
+
+        const collapseSidebar = () => {
+            sidebarWidth.value = minWidth;
         };
 
         const startResize = (event: MouseEvent) => {
@@ -132,6 +136,7 @@ export default Shopware.Component.wrapComponentConfig({
             overlayWidth,
             closeSidebar,
             startResize,
+            collapseSidebar,
         };
     },
 });

@@ -63,7 +63,7 @@ jobs:
           for user in "${CUSTOM_USERS_ARRAY[@]}"; do
             if [[ "$user" == "${{ github.actor }}" ]]; then
               echo "is_custom_user=true" >> $GITHUB_OUTPUT
-              break
+              exit 0
             fi
           done
           echo "is_custom_user=false" >> $GITHUB_OUTPUT

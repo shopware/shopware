@@ -67,7 +67,10 @@
 
             {% block sw_customer_detail_order_card_grid_columns_order_date_time %}
             <template #column-orderDateTime="{ item }">
-                <sw-time-ago :date="item.orderDateTime" />
+                <sw-time-ago
+                    :date="item.orderDateTime"
+                    :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                />
             </template>
             {% endblock %}
             {% endblock %}

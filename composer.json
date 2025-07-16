@@ -86,7 +86,6 @@
         "doctrine/inflector": "^2.0",
         "dompdf/dompdf": "3.1.0",
         "dragonmantank/cron-expression": "^3.3",
-        "erusev/parsedown-extra": "^0.8.1",
         "ezyang/htmlpurifier": "^4.16",
         "guzzlehttp/guzzle": "^7.5.0",
         "guzzlehttp/psr7": "^2.4",
@@ -108,11 +107,12 @@
         "psr/http-factory": "^1.0.1",
         "psr/http-message": "^1.1 || ^2.0",
         "psr/log": "^3.0.0",
+        "psr/simple-cache": "^3.0.0",
         "ramsey/uuid": "^4.7",
         "scssphp/scssphp": "v1.12.0",
         "setasign/fpdi": "^2.3.7",
         "setasign/tfpdf": "^1.33",
-        "shopware/conflicts": "0.5.0",
+        "shopware/conflicts": "0.5.1",
         "shyim/opensearch-php-dsl": "^1.0.5",
         "squirrelphp/twig-php-syntax": "^1.8.0",
         "symfony/asset": "~7.2.0",
@@ -155,7 +155,6 @@
         "symfony/runtime": "~7.2.0",
         "symfony/scheduler": "~7.2.0",
         "symfony/security-core": "~7.2.0",
-        "symfony/security-csrf": "~7.2.0",
         "symfony/serializer": "~7.2.0",
         "symfony/service-contracts": "~3.5.0",
         "symfony/stopwatch": "~7.2.0",
@@ -167,10 +166,9 @@
         "symfony/validator": "~7.2.0",
         "symfony/var-exporter": "~7.2.0",
         "symfony/yaml": "~7.2.0",
-        "tecnickcom/tcpdf": "^6.7.7",
         "twig/intl-extra": "^3.10.0",
         "twig/string-extra": "^3.10.0",
-        "twig/twig": "^3.19.0",
+        "twig/twig": "^3.21.1",
         "zircote/swagger-php": "^4.9.2"
     },
     "require-dev": {
@@ -179,7 +177,7 @@
         "bamarni/composer-bin-plugin": "^1.8.2",
         "dominikb/composer-license-checker": "^2.5",
         "ergebnis/phpunit-slow-test-detector": "^2.4",
-        "friendsofphp/php-cs-fixer": "3.72.0",
+        "friendsofphp/php-cs-fixer": "3.82.1",
         "jdorn/sql-formatter": "^1.2.17",
         "league/construct-finder": "^1.1",
         "league/flysystem-async-aws-s3": "^3.29.0",
@@ -344,14 +342,8 @@
             "@php bin/console assets:install"
         ],
         "check:license": "bash -c \"vendor/bin/composer-license-checker check -a $(sed -z 's/\\n/ -a /g' .allowed-licenses)\"",
-        "ecs": [
-            "@putenv PHP_CS_FIXER_IGNORE_ENV=true",
-            "php-cs-fixer fix --dry-run --diff"
-        ],
-        "ecs-fix": [
-            "@putenv PHP_CS_FIXER_IGNORE_ENV=true",
-            "php-cs-fixer fix"
-        ],
+        "ecs": "php-cs-fixer fix --dry-run --diff",
+        "ecs-fix": "php-cs-fixer fix",
         "eslint": [
             "@eslint:admin",
             "@eslint:storefront"

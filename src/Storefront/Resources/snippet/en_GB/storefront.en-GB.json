@@ -782,7 +782,9 @@
     "googleReCaptcha": {
       "dataProtectionInformation": "This site is protected by reCAPTCHA and the Google <a href=\"https://policies.google.com/privacy\">Privacy Policy</a> and <a href=\"https://policies.google.com/terms\">Terms of Service</a> apply."
     },
-    "basicCaptchaLabel": "To continue, enter the characters shown above*"
+    "basicCaptchaLabel": "To continue, enter the characters shown above*",
+    "basicCaptchaRefreshButton": "Refresh captcha challenge",
+    "basicCaptchaChallengeAltText": "Captcha challenge"
   },
   "cookie": {
     "messageText": "This website uses cookies to ensure the best experience possible. <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"More information\">More information...</a>",
@@ -793,6 +795,7 @@
     "save": "Save",
     "acceptAll": "Accept all cookies",
     "headline": "Cookie preferences",
+    "close": "Close cookie preferences",
     "groupRequired": "Technically required",
     "groupRequiredDescription": "Cookies required for this shop to function:",
     "groupRequiredSession": "Session",
@@ -856,7 +859,10 @@
         "touchMove": "Touch and drag",
         "clickMove": "Click and move",
         "sliderDotLabel": "Show image %index% of %total%",
-        "skipImageGallery": "Skip image gallery"
+        "skipImageGallery": "Skip image gallery",
+        "zoomIn": "Zoom in",
+        "zoomOut": "Zoom out",
+        "zoomReset": "Reset zoom"
       },
       "productGallery": {
         "ariaLabel": "Product gallery containing %total% items",

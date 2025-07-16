@@ -124,6 +124,13 @@ export default {
                     multiLine: true,
                 },
                 {
+                    property: 'type',
+                    dataIndex: 'type',
+                    label: 'sw-order.detailBase.columnType',
+                    allowResize: false,
+                    visible: false,
+                },
+                {
                     property: 'payload.productNumber',
                     dataIndex: 'payload.productNumber',
                     label: 'sw-order.detailBase.columnProductNumber',

@@ -15,8 +15,10 @@
                     <div class="cms-element-alignment{% if sliderConfig.verticalAlign.value == "center" %} align-self-center{% elseif sliderConfig.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
                 {% endif %}
 
-                {% set productSliderOptionsSlider  = {
-                    controls: sliderConfig.navigationArrows.value in visibleValues,
+                {% set hasNavigationArrows = sliderConfig.navigationArrows.value in visibleValues %}
+
+                {% set productSliderOptionsSlider = {
+                    controls: hasNavigationArrows,
                     nav: false,
                     mouseDrag: true,
                     autoplay: sliderConfig.rotate.value,
@@ -24,13 +26,10 @@
                     autoplayTimeout: sliderConfig.autoplayTimeout.value,
                     speed: sliderConfig.speed.value,
                     ariaLive: sliderConfig.rotate.value ? false : true,
-                    gutter: 30
-                }%}
-
-                {% set productSliderOptionsSlider = productSliderOptionsSlider|merge({
+                    gutter: 30,
                     loop: false,
-                    rewind: true,
-                }) %}
+                    rewind: true
+                }%}
 
                 {% set productSliderOptions = {
                     productboxMinWidth: sliderConfig.elMinWidth.value ? sliderConfig.elMinWidth.value : '',
@@ -39,7 +38,7 @@
 
                 {% block element_product_slider_slider %}
                     <div
-                        class="base-slider product-slider{% if sliderConfig.border.value %} has-border{% endif %}{% if sliderConfig.navigationArrows.value == "outside" %} has-nav-outside{% endif %}{% if sliderConfig.navigationArrows.value %} has-nav{% endif %}"
+                        class="base-slider product-slider{% if sliderConfig.border.value %} has-border{% endif %}{% if hasNavigationArrows %} has-nav has-nav-{{ sliderConfig.navigationArrows.value }}{% endif %}"
                         data-product-slider="true"
                         data-product-slider-options="{{ productSliderOptions|json_encode }}"
                         role="region"
@@ -80,7 +79,7 @@
                             {% endblock %}
 
                             {% block element_product_slider_controls %}
-                                {% if productSliderOptions.slider.controls %}
+                                {% if hasNavigationArrows %}
                                     <div class="product-slider-controls-container">
                                         <div
                                             class="base-slider-controls"
@@ -88,21 +87,15 @@
                                             role="navigation"
                                         >
                                             {% block element_product_slider_controls_items %}
-                                                {% set positionClassesPrev = '' %}
-                                                {% if sliderConfig.navigationArrows.value is not null %}
-                                                    {% set positionClassesPrev = ' is-nav-prev-' ~ sliderConfig.navigationArrows.value %}
-                                                    {% set positionClassesNext = ' is-nav-next-' ~ sliderConfig.navigationArrows.value %}
-                                                {% endif %}
-
                                                 <button
-                                                    class="base-slider-controls-prev product-slider-controls-prev{{ positionClassesPrev }}{% if sliderConfig.border.value %} has-border{% endif %}"
+                                                    class="base-slider-controls-prev product-slider-controls-prev is-nav-prev-{{ sliderConfig.navigationArrows.value }}{% if sliderConfig.border.value %} has-border{% endif %}"
                                                     aria-label="{{ 'general.previous'|trans|striptags }}">
                                                     {% block element_product_slider_controls_items_prev_icon %}
                                                         {% sw_icon 'arrow-head-left' %}
                                                     {% endblock %}
                                                 </button>
                                                 <button
-                                                    class="base-slider-controls-next product-slider-controls-next{{ positionClassesNext }}{% if sliderConfig.border.value %} has-border{% endif %}"
+                                                    class="base-slider-controls-next product-slider-controls-next is-nav-next-{{ sliderConfig.navigationArrows.value }}{% if sliderConfig.border.value %} has-border{% endif %}"
                                                     aria-label="{{ 'general.next'|trans|striptags }}">
                                                     {% block element_product_slider_controls_items_next_icon %}
                                                         {% sw_icon 'arrow-head-right' %}

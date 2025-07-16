@@ -5,8 +5,8 @@
         v-model:value="promotionCodeTags"
         :disabled="!hasLineItem || isLoading || !acl.can('order.editor') || undefined"
         :currency="currency"
-        :label="$tc('sw-order.detailsTab.promotionsField.labelPromotions')"
-        :placeholder="$tc('sw-order.detailsTab.promotionsField.placeholderPromotions')"
+        :label="$t('sw-order.detailsTab.promotionsField.labelPromotions')"
+        :placeholder="$t('sw-order.detailsTab.promotionsField.placeholderPromotions')"
         :error="promotionError"
         @on-remove-code="onRemoveExistingCode"
     />
@@ -14,11 +14,11 @@
 
     {% block sw_order_promotion_field_switch %}
     <h3 class="sw-order-promotion-field__apply_auto_promotions__title">
-        {{ $tc('sw-order.detailsTab.promotionsField.automaticPromotions.title') }}
+        {{ $t('sw-order.detailsTab.promotionsField.automaticPromotions.title') }}
     </h3>
 
     <p class="sw-order-promotion-field__apply_auto_promotions__text">
-        {{ $tc('sw-order.detailsTab.promotionsField.automaticPromotions.text') }}
+        {{ $t('sw-order.detailsTab.promotionsField.automaticPromotions.text') }}
     </p>
 
     <mt-button
@@ -29,7 +29,7 @@
         :is-loading="isOrderLoading || isLoading"
         @click="applyAutomaticPromotions"
     >
-        {{ $tc('sw-order.detailsTab.promotionsField.automaticPromotions.labelButton') }}
+        {{ $t('sw-order.detailsTab.promotionsField.automaticPromotions.labelButton') }}
     </mt-button>
     {% endblock %}
 
@@ -37,18 +37,18 @@
     <sw-modal
         v-if="promotionUpdates.length > 0"
         class="sw-order-promotion-field__updates_modal"
-        :title="$tc('sw-order.detailsTab.promotionsField.updatesModal.title')"
+        :title="$t('sw-order.detailsTab.promotionsField.updatesModal.title')"
         @modal-close="dismissPromotionUpdates"
     >
         <p class="sw-order-promotion-field__updates_modal__description">
-            {{ $tc('sw-order.detailsTab.promotionsField.updatesModal.description') }}
+            {{ $t('sw-order.detailsTab.promotionsField.updatesModal.description') }}
         </p>
 
         <p
             v-show="promotionsAdded.length > 0"
             class="sw-order-promotion-field__updates_modal__list_title"
         >
-            {{ $tc('sw-order.detailsTab.promotionsField.updatesModal.promotionAddedTitle') }}
+            {{ $t('sw-order.detailsTab.promotionsField.updatesModal.promotionAddedTitle') }}
         </p>
         <span
             v-for="(error, idx) in promotionsAdded"
@@ -63,7 +63,7 @@
             v-show="promotionsRemoved.length > 0"
             class="sw-order-promotion-field__updates_modal__list_title"
         >
-            {{ $tc('sw-order.detailsTab.promotionsField.updatesModal.promotionRemovedTitle') }}
+            {{ $t('sw-order.detailsTab.promotionsField.updatesModal.promotionRemovedTitle') }}
         </p>
         <span
             v-for="(error, idx) in promotionsRemoved"

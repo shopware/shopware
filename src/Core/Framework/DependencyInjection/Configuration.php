@@ -872,6 +872,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('stale_while_revalidate')->defaultValue(null)->end()
                 ->scalarNode('stale_if_error')->defaultValue(null)->end()
+                ->scalarNode('soft_purge')->defaultValue(false)->end()
                 ->arrayNode('cookies')
                     ->performNoDeepMerging()
                     ->scalarPrototype()->end()

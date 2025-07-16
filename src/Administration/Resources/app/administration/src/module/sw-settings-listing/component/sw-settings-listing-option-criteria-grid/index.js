@@ -169,6 +169,12 @@ export default {
                     value: 'product.price',
                     label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.price'),
                 },
+                {
+                    value: 'product.createdAt',
+                    label: this.$tc(
+                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.createdAt',
+                    ),
+                },
             ];
 
             return criteriaOptions.sort((a, b) => {

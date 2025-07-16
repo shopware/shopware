@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Installer\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
@@ -71,27 +72,37 @@ class ShopConfigurationControllerTest extends TestCase
             $this->shopConfigService,
             $this->adminConfigService,
             $this->translator,
-            ['de' => 'de-DE', 'en' => 'en-GB'],
-            ['EUR', 'USD']
+            [
+                'de' => ['id' => 'de-DE', 'label' => 'Deutsch'],
+                'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
+                'en' => ['id' => 'en-GB', 'label' => 'English (UK)'],
+            ],
+            ['EUR', 'USD', 'GBP']
         );
         $this->controller->setContainer($this->getInstallerContainer($this->twig, ['router' => $this->router]));
     }
 
-    public function testGetConfigurationRoute(): void
-    {
+    #[DataProvider('shopConfigurationPresetProvider')]
+    public function testGetConfigurationRoute(
+        string $requestLocale,
+        string $expectedShopLanguage,
+        string $expectedPresetCurrency,
+        string $expectedCountryIsoDefault
+    ): void {
         $request = new Request();
         $session = new Session(new MockArraySessionStorage());
         $session->set(DatabaseConnectionInformation::class, new DatabaseConnectionInformation());
         $session->set(BlueGreenDeploymentService::ENV_NAME, true);
         $request->setMethod('GET');
         $request->setSession($session);
-        $request->attributes->set('_locale', 'de');
+        $request->attributes->set('_locale', $requestLocale);
 
         $this->connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([
                 ['iso3' => 'DEU', 'iso' => 'DE'],
                 ['iso3' => 'GBR', 'iso' => 'GB'],
+                ['iso3' => 'USA', 'iso' => 'US'],
             ]);
 
         $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
@@ -102,12 +113,20 @@ class ShopConfigurationControllerTest extends TestCase
                 array_merge($this->getDefaultViewParams(), [
                     'error' => null,
                     'countryIsos' => [
-                        ['iso3' => 'DEU', 'default' => true, 'translated' => 'shopware.installer.select_country_deu'],
-                        ['iso3' => 'GBR', 'default' => false, 'translated' => 'shopware.installer.select_country_gbr'],
+                        ['iso3' => 'DEU', 'default' => $expectedCountryIsoDefault === 'DEU', 'translated' => 'shopware.installer.select_country_deu'],
+                        ['iso3' => 'GBR', 'default' => $expectedCountryIsoDefault === 'GBR', 'translated' => 'shopware.installer.select_country_gbr'],
+                        ['iso3' => 'USA', 'default' => $expectedCountryIsoDefault === 'USA', 'translated' => 'shopware.installer.select_country_usa'],
                     ],
-                    'currencyIsos' => ['EUR', 'USD'],
-                    'languageIsos' => ['de' => 'de-DE', 'en' => 'en-GB'],
-                    'parameters' => ['config_shop_language' => 'de-DE'],
+                    'currencyIsos' => ['EUR', 'USD', 'GBP'],
+                    'languageIsos' => [
+                        'de' => ['id' => 'de-DE', 'label' => 'Deutsch'],
+                        'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
+                        'en' => ['id' => 'en-GB', 'label' => 'English (UK)'],
+                    ],
+                    'parameters' => [
+                        'config_shop_language' => $expectedShopLanguage,
+                        'config_shop_currency' => $expectedPresetCurrency,
+                    ],
                 ])
             )
             ->willReturn('config');
@@ -156,7 +175,7 @@ class ShopConfigurationControllerTest extends TestCase
         $request->request->set('config_shop_country', 'DEU');
         $request->request->set('config_shopName', 'shop');
         $request->request->set('config_mail', 'info@test.com');
-        $request->request->set('available_currencies', ['EUR', 'USD']);
+        $request->request->set('available_currencies', ['EUR', 'USD', 'GBP']);
 
         $this->setEnvVars([
             'HTTPS' => 'on',
@@ -168,7 +187,7 @@ class ShopConfigurationControllerTest extends TestCase
             'name' => 'shop',
             'locale' => 'de-DE',
             'currency' => 'EUR',
-            'additionalCurrencies' => ['EUR', 'USD'],
+            'additionalCurrencies' => ['EUR', 'USD', 'GBP'],
             'country' => 'DEU',
             'email' => 'info@test.com',
             'host' => 'localhost',
@@ -227,6 +246,7 @@ class ShopConfigurationControllerTest extends TestCase
             ->willReturn([
                 ['iso3' => 'DEU', 'iso' => 'DE'],
                 ['iso3' => 'GBR', 'iso' => 'GB'],
+                ['iso3' => 'USA', 'iso' => 'US'],
             ]);
 
         $this->envConfigWriter->expects($this->once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
@@ -241,10 +261,18 @@ class ShopConfigurationControllerTest extends TestCase
                     'countryIsos' => [
                         ['iso3' => 'DEU', 'default' => true, 'translated' => 'shopware.installer.select_country_deu'],
                         ['iso3' => 'GBR', 'default' => false, 'translated' => 'shopware.installer.select_country_gbr'],
+                        ['iso3' => 'USA', 'default' => false, 'translated' => 'shopware.installer.select_country_usa'],
                     ],
-                    'currencyIsos' => ['EUR', 'USD'],
-                    'languageIsos' => ['de' => 'de-DE', 'en' => 'en-GB'],
-                    'parameters' => ['config_shop_language' => 'de-DE'],
+                    'currencyIsos' => ['EUR', 'USD', 'GBP'],
+                    'languageIsos' => [
+                        'de' => ['id' => 'de-DE', 'label' => 'Deutsch'],
+                        'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
+                        'en' => ['id' => 'en-GB', 'label' => 'English (UK)'],
+                    ],
+                    'parameters' => [
+                        'config_shop_language' => 'de-DE',
+                        'config_shop_currency' => 'EUR',
+                    ],
                 ])
             )
             ->willReturn('config');
@@ -312,5 +340,12 @@ class ShopConfigurationControllerTest extends TestCase
         });
 
         $this->controller->shopConfiguration($request);
+    }
+
+    public static function shopConfigurationPresetProvider(): \Generator
+    {
+        yield ['de', 'de-DE', 'EUR', 'DEU'];
+        yield ['en-US', 'en-US', 'USD', 'USA'];
+        yield ['en', 'en-GB', 'GBP', 'GBR'];
     }
 }

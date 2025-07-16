@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\SalesChannel;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
+use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\AfterLineItemQuantityChangedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
@@ -26,7 +27,8 @@ class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
         private readonly AbstractCartPersister $cartPersister,
         private readonly CartCalculator $cartCalculator,
         private readonly LineItemFactoryRegistry $lineItemFactory,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CartLocker $cartLocker
     ) {
     }
 
@@ -38,21 +40,23 @@ class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
     #[Route(path: '/store-api/checkout/cart/line-item', name: 'store-api.checkout.cart.update-lineitem', methods: ['PATCH'])]
     public function change(Request $request, Cart $cart, SalesChannelContext $context): CartResponse
     {
-        $itemsToUpdate = $request->request->all('items');
+        return $this->cartLocker->locked($cart->getToken(), function () use ($request, $cart, $context) {
+            $itemsToUpdate = $request->request->all('items');
 
-        /** @var array<mixed> $item */
-        foreach ($itemsToUpdate as $item) {
-            $this->lineItemFactory->update($cart, $item, $context);
-        }
+            /** @var array<mixed> $item */
+            foreach ($itemsToUpdate as $item) {
+                $this->lineItemFactory->update($cart, $item, $context);
+            }
 
-        $cart->markModified();
+            $cart->markModified();
 
-        $cart = $this->cartCalculator->calculate($cart, $context);
-        $this->cartPersister->save($cart, $context);
+            $cart = $this->cartCalculator->calculate($cart, $context);
+            $this->cartPersister->save($cart, $context);
 
-        $this->eventDispatcher->dispatch(new AfterLineItemQuantityChangedEvent($cart, $itemsToUpdate, $context));
-        $this->eventDispatcher->dispatch(new CartChangedEvent($cart, $context));
+            $this->eventDispatcher->dispatch(new AfterLineItemQuantityChangedEvent($cart, $itemsToUpdate, $context));
+            $this->eventDispatcher->dispatch(new CartChangedEvent($cart, $context));
 
-        return new CartResponse($cart);
+            return new CartResponse($cart);
+        });
     }
 }

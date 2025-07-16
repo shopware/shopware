@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Event\FlowEventAware;
-use Shopware\Core\Framework\Event\TimezoneAware;
+use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -28,22 +28,22 @@ class TimezoneStorer extends FlowStorer
      */
     public function store(FlowEventAware $event, array $stored): array
     {
-        if (!$event instanceof TimezoneAware) {
+        if (!$event instanceof MailAware) {
             return $stored;
         }
 
-        $stored[TimezoneAware::TIMEZONE] = $this->getTimezone();
+        $stored[MailAware::TIMEZONE] = $this->getTimezone();
 
         return $stored;
     }
 
     public function restore(StorableFlow $storable): void
     {
-        if (!$storable->hasStore(TimezoneAware::TIMEZONE)) {
+        if (!$storable->hasStore(MailAware::TIMEZONE)) {
             return;
         }
 
-        $storable->setData(TimezoneAware::TIMEZONE, $storable->getStore(TimezoneAware::TIMEZONE));
+        $storable->setData(MailAware::TIMEZONE, $storable->getStore(MailAware::TIMEZONE));
     }
 
     private function getTimezone(): string

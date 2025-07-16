@@ -219,13 +219,13 @@
                 "symlink": true
             }
         },
-      {
-        "type": "path",
-        "url": "custom/static-plugins/*",
-        "options": {
-          "symlink": true
+        {
+            "type": "path",
+            "url": "custom/static-plugins/*",
+            "options": {
+                "symlink": true
+            }
         }
-      }
     ],
     "scripts-descriptions": {
         "admin:code-mods": "Run admin code mods",
@@ -473,6 +473,10 @@
         "opensearch-project/opensearch-php": ">2.3.1"
     },
     "autoload": {
+        "files": [
+            "src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
+            "src/Core/Framework/Adapter/Doctrine/Patch/MySQLSchemaManager.php"
+        ],
         "psr-4": {
             "Shopware\\": "src/"
         },

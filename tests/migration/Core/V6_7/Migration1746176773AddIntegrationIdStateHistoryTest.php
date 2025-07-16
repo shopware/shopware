@@ -40,7 +40,7 @@ class Migration1746176773AddIntegrationIdStateHistoryTest extends TestCase
         $foreignKey = array_pop($filteredForeignKeys);
 
         static::assertInstanceOf(ForeignKeyConstraint::class, $foreignKey);
-        static::assertSame(['id'], $foreignKey->getReferencedColumnNames());
+        static::assertSame('id', $foreignKey->getReferencedColumnNames()[0]->toString());
         static::assertArrayHasKey('integration_id', $columns);
         static::assertInstanceOf(BinaryType::class, $columns['integration_id']->getType());
         static::assertSame(16, $columns['integration_id']->getLength());

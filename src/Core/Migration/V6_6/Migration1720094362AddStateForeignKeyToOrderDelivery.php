@@ -29,7 +29,7 @@ class Migration1720094362AddStateForeignKeyToOrderDelivery extends MigrationStep
         $manager = $connection->createSchemaManager();
         $columns = $manager->listTableForeignKeys('order_delivery');
 
-        if (\array_filter($columns, static fn (ForeignKeyConstraint $column) => $column->getReferencedTableName()->toString() === 'state_machine_state' && $column->getReferencingColumnNames() === ['state_id'] && $column->getReferencedColumnNames() === ['id'])) {
+        if (\array_filter($columns, static fn (ForeignKeyConstraint $column) => $column->getReferencedTableName()->toString() === 'state_machine_state' && $column->getReferencingColumnNames()[0]->toString() === 'state_id' && $column->getReferencedColumnNames()[0]->toString() === 'id')) {
             return;
         }
 

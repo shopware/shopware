@@ -30,7 +30,7 @@ class Migration1736866790AddDocumentA11yMediaFileIdForDocumentTable extends Migr
         $manager = $connection->createSchemaManager();
         $columns = $manager->listTableForeignKeys('document');
 
-        if (\array_filter($columns, static fn (ForeignKeyConstraint $column) => $column->getReferencedTableName()->toString() === 'media' && $column->getReferencingColumnNames() === ['document_a11y_media_file_id'] && $column->getReferencedColumnNames() === ['id'])) {
+        if (\array_filter($columns, static fn (ForeignKeyConstraint $column) => $column->getReferencedTableName()->toString() === 'media' && $column->getReferencingColumnNames()[0]->toString() === 'document_a11y_media_file_id' && $column->getReferencedColumnNames()[0]->toString() === 'id')) {
             return;
         }
 

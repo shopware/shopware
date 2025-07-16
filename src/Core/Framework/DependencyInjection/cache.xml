@@ -47,6 +47,8 @@
             <argument type="service" id="Psr\Log\LoggerInterface"/>
             <argument type="service" id="request_stack"/>
             <argument>%kernel.environment%</argument>
+            <argument type="service" id="cache.http"/>
+            <argument>%shopware.http_cache.soft_purge%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTask">

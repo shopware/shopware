@@ -148,7 +148,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
     {
         $pathname = $path . \DIRECTORY_SEPARATOR . 'Resources/theme.json';
 
-        if (!file_exists($pathname)) {
+        if (!\is_file($pathname)) {
             throw new InvalidThemeBundleException($name);
         }
 

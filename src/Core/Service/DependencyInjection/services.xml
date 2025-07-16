@@ -115,6 +115,13 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Service\Subscriber\SystemUpdateSubscriber">
+            <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
+            <argument type="service" id="logger"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Service\TemporaryDirectoryFactory">
             <argument>%kernel.project_dir%</argument>
         </service>
@@ -144,6 +151,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
             <argument type="service" id="Shopware\Core\Service\AllServiceInstaller"/>
             <argument type="service" id="Shopware\Core\Service\Permission\PermissionsService"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
         </service>
 
         <service id="Shopware\Core\Service\Subscriber\ServiceLifecycleSubscriber">

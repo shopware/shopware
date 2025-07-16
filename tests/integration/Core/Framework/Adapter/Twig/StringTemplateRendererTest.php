@@ -57,6 +57,11 @@ class StringTemplateRendererTest extends TestCase
         $templateMock = '{{ testDate|format_date(pattern="HH:mm") }}';
         $testDate = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
+        /** @var CoreExtension $coreExtension */
+        $coreExtension = static::getContainer()->get('twig')->getExtension(CoreExtension::class);
+        $coreExtension->setTimezone('Europe/London');
+        $this->stringTemplateRenderer->initialize();
+
         $renderedWithoutTimezone = $this->stringTemplateRenderer->render(
             $templateMock,
             ['testDate' => $testDate],

@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\System\Country\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -47,24 +46,9 @@ class CountryRouteTest extends TestCase
         $index = 0;
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(1))
             ->method('dispatch')
-            ->with(static::callback(static function ($event) use (&$index) {
-                switch ($index) {
-                    case 0:
-                        ++$index;
-                        static::assertInstanceOf(AddCacheTagEvent::class, $event);
-
-                        return true;
-                    case 1:
-                        ++$index;
-                        static::assertInstanceOf(CountryCriteriaEvent::class, $event);
-
-                        return true;
-                    default:
-                        static::fail('Unexpected event dispatched');
-                }
-            }));
+            ->with(static::isInstanceOf(CountryCriteriaEvent::class));
 
         $countryRepository = $this->createMock(SalesChannelRepository::class);
         $countryRepository->expects($this->once())

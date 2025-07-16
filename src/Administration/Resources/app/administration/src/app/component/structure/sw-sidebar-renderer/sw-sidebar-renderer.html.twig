@@ -25,9 +25,29 @@
             @mousedown="startResize"
         ></div>
         <header class="sw-sidebar-renderer__header">
+            <div class="sw-sidebar-renderer__header-content">
             <h3 class="sw-sidebar-renderer__title">
                 {{ $tc(sidebar.title) }}
             </h3>
+            <mt-button
+                v-if="isOverlayMode"
+                show-front-icon="true"
+                class="sw-sidebar-renderer__button-collapse"
+                :aria-label="$tc('sidebar.ariaLabelButtonCollapse')"
+                @click="collapseSidebar"
+            >
+
+            <template #iconFront>
+                <mt-icon
+                    name="regular-long-arrow-right"
+                    size="12px"
+                />
+            </template>
+
+            {{ $tc('sidebar.buttonCollapse') }}
+            
+            </mt-button>
+            </div>
 
             <button
                 class="sw-sidebar-renderer__button-close"

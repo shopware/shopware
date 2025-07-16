@@ -1691,7 +1691,7 @@ return [
             'de-DE' => 'Kurdisch',
         ],
         'territory' => [
-            'en-GB' => 'Turkey',
+            'en-GB' => 'Türkiye',
             'de-DE' => 'Türkei',
         ],
     ],
@@ -2549,7 +2549,7 @@ return [
             'de-DE' => 'Türkisch',
         ],
         'territory' => [
-            'en-GB' => 'Turkey',
+            'en-GB' => 'Türkiye',
             'de-DE' => 'Türkei',
         ],
     ],

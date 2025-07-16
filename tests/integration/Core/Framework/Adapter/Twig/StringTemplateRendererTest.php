@@ -51,4 +51,24 @@ class StringTemplateRendererTest extends TestCase
 
         static::assertNotSame($renderedTime, $renderedWithTimezone);
     }
+
+    public function testRenderWithTimezone(): void
+    {
+        $templateMock = '{{ testDate|format_date(pattern="HH:mm") }}';
+        $testDate = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+
+        $renderedWithoutTimezone = $this->stringTemplateRenderer->render(
+            $templateMock,
+            ['testDate' => $testDate],
+            Context::createDefaultContext()
+        );
+
+        $renderedWithTimezone = $this->stringTemplateRenderer->render(
+            $templateMock,
+            ['testDate' => $testDate, 'timezone' => 'Europe/Berlin'],
+            Context::createDefaultContext()
+        );
+
+        static::assertNotSame($renderedWithoutTimezone, $renderedWithTimezone);
+    }
 }

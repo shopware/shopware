@@ -73,9 +73,9 @@ class MigrationQueryGenerator
 
     private function dropIndexes(Table $table): void
     {
-        $pk = $table->getPrimaryKeyConstraint();
         foreach ($table->getIndexes() as $index) {
-            if ($index->getName() === $pk?->getObjectName()?->toString()) {
+            /** @phpstan-ignore method.deprecated (if can be removed with DBAL 5.0 as primaries won't be inlcuded anymore) */
+            if ($index->isPrimary()) {
                 continue;
             }
 

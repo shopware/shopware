@@ -199,12 +199,12 @@ class SchemaBuilder
         })->getElements();
 
         $pk = PrimaryKeyConstraint::editor();
-        $pk->setUnquotedColumnNames(...array_map(function (StorageAware $field): string {
+        $pk->setUnquotedColumnNames(...array_values(array_map(function (StorageAware $field): string {
             $name = $field->getStorageName();
             \assert(!empty($name));
 
             return $name;
-        }, $primaryKeys));
+        }, $primaryKeys)));
         $table->addPrimaryKeyConstraint($pk->create());
 
         $this->addForeignKeys($table, $definition);

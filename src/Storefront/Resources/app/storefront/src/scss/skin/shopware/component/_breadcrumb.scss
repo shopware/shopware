@@ -20,17 +20,8 @@ https://getbootstrap.com/docs/5.2/components/breadcrumb
     }
 
     .breadcrumb-item + .breadcrumb-item:before {
-        content: '';
-        display: inline-block;
-        float: none;
-        width: $spacer-sm;
-        height: $spacer-sm;
-        padding: 0;
-        margin-right: $spacer-sm;
-        vertical-align: middle;
-        border-right: 2px solid $body-color;
-        border-bottom: 2px solid $body-color;
-        transform: rotate(-45deg);
+        line-height: 24px;
+        padding-top: 3px;
     }
 
     a {

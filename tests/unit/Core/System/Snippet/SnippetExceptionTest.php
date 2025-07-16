@@ -63,7 +63,7 @@ class SnippetExceptionTest extends TestCase
 
     public function testNoArgumentsProvided(): void
     {
-        $exception = SnippetException::noArgumentsProvided('');
+        $exception = SnippetException::noArgumentsProvided();
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(SnippetException::SNIPPET_NO_ARGUMENTS_PROVIDED, $exception->getErrorCode());

@@ -39,8 +39,6 @@ class TranslationLoader
 
     private TranslationConfig $config;
 
-    private Client $client;
-
     /**
      * @param EntityRepository<LanguageCollection> $languageRepository
      * @param EntityRepository<LocaleCollection> $localeRepository
@@ -51,8 +49,8 @@ class TranslationLoader
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $localeRepository,
         private readonly EntityRepository $snippetSetRepository,
+        private readonly Client $client,
     ) {
-        $this->client = new Client();
         $this->config = TranslationConfigLoader::load();
     }
 
@@ -132,8 +130,13 @@ class TranslationLoader
     {
         try {
             $response = $this->client->request('GET', $url);
+            $result = file_put_contents($destination, $response->getBody());
 
-            file_put_contents($destination, $response->getBody());
+            if ($result === false) {
+                // todo: add own exception
+                throw new \RuntimeException(sprintf('Failed to write file to %s', $destination));
+            }
+
         } catch (GuzzleException $e) {
             if ($e->getCode() === 404) {
                 // If the file does not exist, we can skip it

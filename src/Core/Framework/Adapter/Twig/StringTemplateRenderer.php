@@ -75,9 +75,9 @@ class StringTemplateRenderer
             $escaperExtension->setDefaultStrategy($htmlEscape ? 'html' : false);
         }
 
-        if ($this->twig->hasExtension(CoreExtension::class)) {
+        if ($this->twig->hasExtension(CoreExtension::class) && \array_key_exists('timezone', $data) && $data['timezone'] !== null) {
             $coreExtension = $this->twig->getExtension(CoreExtension::class);
-            $coreExtension->setTimezone($data['timezone'] ?? 'UTC');
+            $coreExtension->setTimezone($data['timezone']);
         }
 
         try {

@@ -16,15 +16,15 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 class MailAwareEvent implements FlowEventAware, MailAware
 {
-   public function getMailStruct(): MailRecipientStruct
-   {
-       return new MailRecipientStruct([]);
-   }
+    public function getMailStruct(): MailRecipientStruct
+    {
+        return new MailRecipientStruct([]);
+    }
 
-   public function getSalesChannelId(): ?string
-   {
-       return null;
-   }
+    public function getSalesChannelId(): ?string
+    {
+        return null;
+    }
 
     public function getName(): string
     {

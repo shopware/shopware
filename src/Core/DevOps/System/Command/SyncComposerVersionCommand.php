@@ -44,7 +44,15 @@ class SyncComposerVersionCommand extends Command
         $rootComposerJson = json_decode($this->fileSystem->readFile($this->projectDir . '/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
 
         $bundleJsons = glob($this->projectDir . '/src/*/composer.json', \GLOB_NOSORT);
-        \assert(\is_array($bundleJsons));
+        if (!\is_array($bundleJsons)) {
+            $io->error('No bundle composer.json files found.');
+
+            return self::FAILURE;
+        }
+        $bundleJsons = array_filter($bundleJsons, static function (string $path) {
+            // WebInstaller is distributed separately, therefore, it has other composer requirements
+            return !str_ends_with($path, '/src/WebInstaller/composer.json');
+        });
 
         $isDryMode = $input->getOption('dry-run');
         if ($isDryMode) {
@@ -56,11 +64,6 @@ class SyncComposerVersionCommand extends Command
         $isInBundleButNotInRoot = [];
 
         foreach ($bundleJsons as $bundleJsonPath) {
-            if (str_ends_with($bundleJsonPath, '/src/WebInstaller/composer.json')) {
-                // WebInstaller is distributed separately, therefore, it has other composer requirements
-                continue;
-            }
-
             $bundleJson = json_decode($this->fileSystem->readFile($bundleJsonPath), true, 512, \JSON_THROW_ON_ERROR);
             $bundleName = basename(\dirname($bundleJsonPath));
 

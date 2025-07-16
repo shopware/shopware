@@ -2,11 +2,11 @@
 
 namespace Shopware\Administration\Controller;
 
-use Shopware\Core\Content\Saas\SaasService;
 use Shopware\Core\Content\SaasUser\SaasUserInvitationMailService;
 use Shopware\Core\Content\SaasUser\SaasUserService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Saas\SaasService;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;

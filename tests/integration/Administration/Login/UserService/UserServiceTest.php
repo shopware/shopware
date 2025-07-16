@@ -52,7 +52,7 @@ class UserServiceTest extends TestCase
             'scope' => 'any',
         ], \JSON_THROW_ON_ERROR));
 
-        $externalAuthUser = $this->createUserService()->getUser($tokenResult);
+        $externalAuthUser = $this->createUserService()->getAndUpdateUser($tokenResult);
         static::assertSame($userId, $externalAuthUser->userId);
         static::assertSame($refreshToken, $externalAuthUser->token->refreshToken);
         static::assertTrue($externalAuthUser->isNew);
@@ -97,7 +97,7 @@ class UserServiceTest extends TestCase
             'scope' => 'any',
         ], \JSON_THROW_ON_ERROR));
 
-        $externalAuthUser = $this->createUserService()->getUser($tokenResult);
+        $externalAuthUser = $this->createUserService()->getAndUpdateUser($tokenResult);
         static::assertSame($userId, $externalAuthUser->userId);
         static::assertSame($token, $externalAuthUser->token->token);
         static::assertSame($refreshToken, $externalAuthUser->token->refreshToken);
@@ -152,7 +152,7 @@ class UserServiceTest extends TestCase
             'scope' => 'any',
         ], \JSON_THROW_ON_ERROR));
 
-        $externalAuthUser = $this->createUserService()->getUser($tokenResult);
+        $externalAuthUser = $this->createUserService()->getAndUpdateUser($tokenResult);
         static::assertSame($userId, $externalAuthUser->userId);
         static::assertSame($token, $externalAuthUser->token->token);
         static::assertSame($refreshToken, $externalAuthUser->token->refreshToken);

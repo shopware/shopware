@@ -70,7 +70,7 @@ class ShopwareGrantType extends AbstractGrant implements GrantTypeInterface
 
         try {
             $token = $this->tokenService->getUserToken($code);
-            $user = $this->userService->getUser($token);
+            $user = $this->userService->getAndUpdateUser($token);
         } catch (\Throwable $exception) {
             $this->getEmitter()->emit(new RequestEvent(RequestEvent::USER_AUTHENTICATION_FAILED, $request));
 

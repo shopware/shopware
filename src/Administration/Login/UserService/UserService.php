@@ -33,7 +33,7 @@ final class UserService
     ) {
     }
 
-    public function getUser(TokenResult $tokenResult): ExternalAuthUser
+    public function getAndUpdateUser(TokenResult $tokenResult): ExternalAuthUser
     {
         $context = Context::createDefaultContext();
         $parsedIdToken = $this->idTokenParser->parse($tokenResult->idToken);

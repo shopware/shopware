@@ -5,8 +5,8 @@ namespace Shopware\Tests\Unit\Core\Saas;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Login\Config\LoginConfigService;
-use Shopware\Core\Content\Saas\SaasService;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Saas\SaasService;
 
 /**
  * @internal

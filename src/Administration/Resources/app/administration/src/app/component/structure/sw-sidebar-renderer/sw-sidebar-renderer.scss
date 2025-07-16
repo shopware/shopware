@@ -1,8 +1,10 @@
 .sw-sidebar-renderer {
-    width: 480px;
+    min-width: 300px;
+    max-width: 800px;
     flex-direction: column;
     border-left: 1px solid var(--color-border-primary-default);
     background: var(--color-elevation-surface-raised);
+    position: relative;
 
     iframe {
         width: 100%;
@@ -10,10 +12,49 @@
         border: none;
     }
 
+    &__resize-handle {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 6px;
+        cursor: col-resize;
+        background: transparent;
+        z-index: 10;
+        transition: background 0.2s ease-in-out;
+        
+        &:hover {
+            background: var(--color-interaction-primary-default);
+            opacity: 0.3;
+        }
+
+        &:active {
+            background: var(--color-interaction-primary-default);
+            opacity: 0.5;
+        }
+
+        &::before {
+            content: '';
+            position: absolute;
+            left: -3px;
+            right: -3px;
+            top: 0;
+            bottom: 0;
+        }
+    }
+
+    &.is-resizing {
+        user-select: none;
+    }
+
+    &.is-resizing * {
+        user-select: none;
+        pointer-events: none;
+    }
+
     &__header {
         display: flex;
 
-        // This value seems odd but is caused by the header of the page. 80px container plus 1px border seperator.
         height: 81px;
         padding: 0 24px;
         justify-content: space-between;

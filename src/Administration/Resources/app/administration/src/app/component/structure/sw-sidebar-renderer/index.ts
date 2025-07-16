@@ -18,6 +18,11 @@ export default Shopware.Component.wrapComponentConfig({
         const minWidth = 480;
         const maxWidth = 800;
         const overlayThreshold = 750;
+        
+        let animationFrameId: number | null = null;
+        let sidebarElement: HTMLElement | null = null;
+        let pendingWidth: number | null = null;
+        let saveTimeout: ReturnType<typeof setTimeout> | null = null;
 
         const activeSidebar = computed(() => {
             return Shopware.Store.get('sidebar').getActiveSidebar;
@@ -53,8 +58,11 @@ export default Shopware.Component.wrapComponentConfig({
             isResizing.value = true;
             document.body.style.cursor = 'col-resize';
             document.body.style.userSelect = 'none';
-            document.addEventListener('mousemove', handleResize);
-            document.addEventListener('mouseup', stopResize);
+            
+            sidebarElement = document.querySelector('.sw-sidebar-renderer.is-active') as HTMLElement;
+            
+            document.addEventListener('mousemove', handleResize, { passive: true, capture: true });
+            document.addEventListener('mouseup', stopResize, { capture: true });
             event.preventDefault();
         };
 
@@ -68,20 +76,45 @@ export default Shopware.Component.wrapComponentConfig({
                 const percentageWidth = Math.max(0.3, Math.min(0.9, mouseXPercent));
                 newWidth = overlayThreshold + ((percentageWidth - 0.3) / 0.6) * (maxWidth - overlayThreshold);
             } else {
-                const rect = document.querySelector('.sw-sidebar-renderer')?.getBoundingClientRect();
-                if (!rect) return;
+                if (!sidebarElement) return;
+                const rect = sidebarElement.getBoundingClientRect();
                 newWidth = rect.right - event.clientX;
             }
             
-            sidebarWidth.value = Math.max(minWidth, Math.min(maxWidth, newWidth));
+            pendingWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+            
+            if (animationFrameId === null) {
+                animationFrameId = requestAnimationFrame(applyPendingWidth);
+            }
+        };
+
+        const applyPendingWidth = () => {
+            if (pendingWidth !== null) {
+                sidebarWidth.value = pendingWidth;
+                pendingWidth = null;
+            }
+            animationFrameId = null;
         };
 
         const stopResize = () => {
             isResizing.value = false;
             document.body.style.cursor = '';
             document.body.style.userSelect = '';
-            document.removeEventListener('mousemove', handleResize);
-            document.removeEventListener('mouseup', stopResize);
+            document.removeEventListener('mousemove', handleResize, true);
+            document.removeEventListener('mouseup', stopResize, true);
+            
+            sidebarElement = null;
+            if (animationFrameId !== null) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+            pendingWidth = null;
+            
+            if (saveTimeout !== null) {
+                clearTimeout(saveTimeout);
+                saveTimeout = null;
+            }
+            localStorage.setItem('sw-sidebar-width', sidebarWidth.value.toString());
         };
 
         onMounted(() => {
@@ -98,12 +131,12 @@ export default Shopware.Component.wrapComponentConfig({
 
             const handleKeyDown = (event: KeyboardEvent) => {
                 if (event.key === 'Escape' && isOverlayMode.value && activeSidebar.value) {
-                    closeSidebar(activeSidebar.value.locationId);
+                    collapseSidebar();
                 }
             };
             
-            window.addEventListener('resize', handleWindowResize);
-            document.addEventListener('keydown', handleKeyDown);
+            window.addEventListener('resize', handleWindowResize, { passive: true });
+            document.addEventListener('keydown', handleKeyDown, { passive: true });
             
             (window as any).__sidebarResizeCleanup = () => {
                 window.removeEventListener('resize', handleWindowResize);
@@ -112,10 +145,21 @@ export default Shopware.Component.wrapComponentConfig({
         });
 
         onUnmounted(() => {
-            document.removeEventListener('mousemove', handleResize);
-            document.removeEventListener('mouseup', stopResize);
+            document.removeEventListener('mousemove', handleResize, true);
+            document.removeEventListener('mouseup', stopResize, true);
             document.body.style.cursor = '';
             document.body.style.userSelect = '';
+            
+            if (animationFrameId !== null) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+            if (saveTimeout !== null) {
+                clearTimeout(saveTimeout);
+                saveTimeout = null;
+            }
+            sidebarElement = null;
+            pendingWidth = null;
             
             if ((window as any).__sidebarResizeCleanup) {
                 (window as any).__sidebarResizeCleanup();
@@ -123,8 +167,18 @@ export default Shopware.Component.wrapComponentConfig({
             }
         });
 
+        const debouncedSave = (newWidth: number) => {
+            if (saveTimeout !== null) {
+                clearTimeout(saveTimeout);
+            }
+            saveTimeout = setTimeout(() => {
+                localStorage.setItem('sw-sidebar-width', newWidth.toString());
+                saveTimeout = null;
+            }, 100);
+        };
+
         watch(sidebarWidth, (newWidth) => {
-            localStorage.setItem('sw-sidebar-width', newWidth.toString());
+            debouncedSave(newWidth);
         });
 
         return {

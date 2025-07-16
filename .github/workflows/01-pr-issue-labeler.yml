@@ -39,6 +39,7 @@ jobs:
     if: github.event.act || (github.event_name == 'issues' && ( github.event.action == 'opened' || github.event.action == 'reopened' ))
     env:
       TEAM_LABEL: "customer-support"
+      CUSTOM_USERS: ${{ vars.ADDITIONAL_CUSTOMER_SUPPORT_USERS }}
     permissions:
       id-token: write
       issues: write
@@ -55,11 +56,23 @@ jobs:
         with:
           username: ${{ github.actor }}
           GITHUB_TOKEN: ${{ github.event.act && secrets.GITHUB_TOKEN || steps.sts.outputs.token }}
+      - name: Check if user is in custom list
+        id: customUserCheck
+        run: |
+          CUSTOM_USERS_ARRAY=(${CUSTOM_USERS//,/ })
+          for user in "${CUSTOM_USERS_ARRAY[@]}"; do
+            if [[ "$user" == "${{ github.actor }}" ]]; then
+              echo "is_custom_user=true" >> $GITHUB_OUTPUT
+              break
+            fi
+          done
+          echo "is_custom_user=false" >> $GITHUB_OUTPUT
       - name: debug
         if: runner.debug
         run: |
           echo "${{ github.actor }} is member of teams: ${{ steps.actorTeams.outputs.teams }}"
-      - if: ${{ contains(steps.actorTeams.outputs.teams, 'customer-support') }}
+          echo "Is custom user: ${{ steps.customUserCheck.outputs.is_custom_user }}"
+      - if: ${{ contains(steps.actorTeams.outputs.teams, 'customer-support') || steps.customUserCheck.outputs.is_custom_user == 'true' }}
         uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
         with:
           script: |

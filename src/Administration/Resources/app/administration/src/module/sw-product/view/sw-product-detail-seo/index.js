@@ -76,6 +76,17 @@ export default {
                 this.product.mainCategories.push(mainCategory);
             }
         },
+
+        onRemoveMainCategory(mainCategory) {
+            if (!this.product.mainCategories) {
+                return;
+            }
+
+            this.product.mainCategories = this.product.mainCategories.filter((item) => {
+                return item.salesChannelId !== mainCategory.salesChannelId;
+            });
+        },
+
         onChangeSalesChannel(currentSalesChannelId) {
             this.currentSalesChannelId = currentSalesChannelId;
         },

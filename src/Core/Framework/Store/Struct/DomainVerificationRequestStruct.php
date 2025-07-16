@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -12,21 +11,15 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class DomainVerificationRequestStruct extends Struct
 {
-    /**
-     * @deprecated tag:v6.8.0 - Property will be removed, and currently is only there for old serialized objects, use `fileName` instead
-     */
-    protected string $filename;
+    protected string $fileName;
 
     /**
-     * @deprecated tag:v6.8.0 - reason:parameter-name-change - Parameter `filename` will be renamed to `fileName`
+     * @deprecated tag:v6.8.0 - reason:parameter-name-change - Parameter `filename` will be renamed to `fileName` and become a promoted property
      */
     public function __construct(
         protected string $content,
-        protected string $fileName,
+        string $filename,
     ) {
-        if (!Feature::isActive('v6.8.0.0')) {
-            $this->filename = $this->fileName;
-        }
     }
 
     public function getContent(): string
@@ -36,10 +29,6 @@ class DomainVerificationRequestStruct extends Struct
 
     public function getFileName(): string
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return $this->fileName ?? $this->filename;
-        }
-
         return $this->fileName;
     }
 

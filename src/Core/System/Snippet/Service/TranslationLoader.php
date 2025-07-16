@@ -59,7 +59,10 @@ class TranslationLoader
     public function load(string $locale, Context $context): void
     {
         $language = $this->config->languages->get($locale);
-        \assert($language instanceof Language, 'The language for the locale must be defined in the translation config.');
+
+        if (!$language instanceof Language) {
+            throw SnippetException::languageDoesNotExist($locale);
+        }
 
         $this->fetchPluginSnippets($locale);
         $this->fetchPlatformSnippets($locale);
@@ -151,7 +154,7 @@ class TranslationLoader
         $localeId = $this->localeRepository->searchIds($criteria, $context)->firstId();
 
         if (!$localeId) {
-            throw SnippetException::localeDoesNotExists($language->locale);
+            throw SnippetException::localeDoesNotExist($language->locale);
         }
 
         $criteria = new Criteria();

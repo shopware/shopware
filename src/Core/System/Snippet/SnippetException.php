@@ -30,11 +30,13 @@ class SnippetException extends HttpException
 
     final public const SNIPPET_INVALID_LOCALES_PROVIDED = 'SYSTEM__INVALID_LOCALES_PROVIDED';
 
-    final public const SNIPPET_TRANSLATION_CONFIGURATION_DIRECTORY_DOES_NOT_EXISTS = 'SYSTEM__TRANSLATION_CONFIGURATION_DIRECTORY_DOES_NOT_EXISTS';
+    final public const SNIPPET_TRANSLATION_CONFIGURATION_DIRECTORY_DOES_NOT_EXIST = 'SYSTEM__TRANSLATION_CONFIGURATION_DIRECTORY_DOES_NOT_EXISTS';
 
-    final public const SNIPPET_TRANSLATION_CONFIGURATION_FILE_DOES_NOT_EXISTS = 'SYSTEM__TRANSLATION_CONFIGURATION_FILE_DOES_NOT_EXISTS';
+    final public const SNIPPET_TRANSLATION_CONFIGURATION_FILE_DOES_NOT_EXIST = 'SYSTEM__TRANSLATION_CONFIGURATION_FILE_DOES_NOT_EXISTS';
 
-    final public const SNIPPET_PROVIDED_LOCALE_DOES_NOT_EXISTS = 'SYSTEM__PROVIDED_LOCALE_DOES_NOT_EXISTS';
+    final public const SNIPPET_CONFIGURED_LOCALE_DOES_NOT_EXIST = 'SYSTEM__PROVIDED_LOCALE_DOES_NOT_EXIST';
+
+    final public const SNIPPET_CONFIGURED_LANGUAGE_DOES_NOT_EXIST = 'SYSTEM__LANGUAGE_DOES_NOT_EXISTS';
 
     public static function invalidFilterName(): self
     {
@@ -119,7 +121,7 @@ class SnippetException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SNIPPET_INVALID_LOCALES_PROVIDED,
-            'Invalid locale codes: "{{ locales }}. Available codes: "{{ all }}',
+            'Invalid locale codes: "{{ locales }}". Available codes: "{{ all }}"',
             [
                 'locales' => $locales,
                 'all' => $all,
@@ -131,7 +133,7 @@ class SnippetException extends HttpException
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
-            self::SNIPPET_TRANSLATION_CONFIGURATION_DIRECTORY_DOES_NOT_EXISTS,
+            self::SNIPPET_TRANSLATION_CONFIGURATION_DIRECTORY_DOES_NOT_EXIST,
             'Translation configuration directory does not exist: "{{ directory }}".',
             [
                 'directory' => $path,
@@ -143,7 +145,7 @@ class SnippetException extends HttpException
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
-            self::SNIPPET_TRANSLATION_CONFIGURATION_FILE_DOES_NOT_EXISTS,
+            self::SNIPPET_TRANSLATION_CONFIGURATION_FILE_DOES_NOT_EXIST,
             'Translation configuration file does not exist: "{{ file }}".',
             [
                 'file' => $file,
@@ -151,14 +153,26 @@ class SnippetException extends HttpException
         );
     }
 
-    public static function localeDoesNotExists(string $locale): self
+    public static function localeDoesNotExist(string $locale): self
     {
         return new self(
-            Response::HTTP_NOT_FOUND,
-            self::SNIPPET_PROVIDED_LOCALE_DOES_NOT_EXISTS,
-            'The provided locale {{ locale }} does not exist.',
+            Response::HTTP_BAD_REQUEST,
+            self::SNIPPET_CONFIGURED_LOCALE_DOES_NOT_EXIST,
+            'The configured locale "{{ locale }}" does not exist.',
             [
                 'locale' => $locale,
+            ]
+        );
+    }
+
+    public static function languageDoesNotExist(string $language): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SNIPPET_CONFIGURED_LANGUAGE_DOES_NOT_EXIST,
+            'The configured language "{{ language }}" does not exist.',
+            [
+                'language' => $language,
             ]
         );
     }

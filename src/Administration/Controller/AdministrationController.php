@@ -76,8 +76,8 @@ class AdministrationController extends AbstractController
         ParameterBagInterface $params,
         private readonly SystemConfigService $systemConfigService,
         private readonly FilesystemOperator $fileSystem,
-        private readonly LoginConfigService $loginConfigService,
         private readonly string $serviceRegistryUrl,
+        private readonly LoginConfigService $loginConfigService,
         private readonly string $refreshTokenTtl = 'P1W',
     ) {
         // param is only available if the elasticsearch bundle is enabled

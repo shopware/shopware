@@ -2,15 +2,22 @@
     v-for="sidebar in sidebars"
     :key="sidebar.locationId"
 >
+    <div
+        v-if="activeSidebar && activeSidebar.locationId === sidebar.locationId && isOverlayMode"
+        class="sw-sidebar-renderer__backdrop"
+        @click="closeSidebar(sidebar.locationId)"
+    ></div>
+
     <aside
         class="sw-sidebar-renderer"
         :class="{ 
             'is-active': activeSidebar && activeSidebar.locationId === sidebar.locationId,
-            'is-resizing': isResizing
+            'is-resizing': isResizing,
+            'is-overlay': isOverlayMode
         }"
         :style="{ 
             display: (activeSidebar && activeSidebar.locationId === sidebar.locationId) ? 'flex' : 'none',
-            width: sidebarWidth + 'px'
+            width: (isOverlayMode ? overlayWidth : sidebarWidth) + 'px'
         }"
     >
         <div 

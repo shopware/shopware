@@ -20,6 +20,7 @@ class DomainVerificationRequestStruct extends Struct
         protected string $content,
         string $filename,
     ) {
+        $this->fileName = $filename;
     }
 
     public function getContent(): string

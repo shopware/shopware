@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\Country\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
@@ -77,7 +78,9 @@ class CountryRouteTest extends TestCase
                 $this->salesChannelContext->getContext(),
             ));
 
-        $route = new CountryRoute($countryRepository, $dispatcher);
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+
+        $route = new CountryRoute($countryRepository, $dispatcher, $cacheTagCollector);
         $route->load(new Request(), new Criteria(), $this->salesChannelContext);
     }
 }

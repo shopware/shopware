@@ -8,7 +8,7 @@ use Shopware\Storefront\Storefront;
 use Symfony\Component\Finder\Finder;
 
 /**
- * @phpstan-type Snippets array<string, string|Snippets>
+ * @phpstan-type Snippets array<string, string|mixed>
  */
 #[Package('discovery')]
 class SnippetFileHandler
@@ -18,11 +18,17 @@ class SnippetFileHandler
      */
     public function openJsonFile(string $path): array
     {
-        $json = json_decode(file_get_contents($path), true);
+        $fileContents = file_get_contents($path);
+
+        if ($fileContents === false) {
+            throw SnippetException::jsonNotFound();
+        }
+
+        $json = json_decode($fileContents, true, 512, \JSON_THROW_ON_ERROR);
 
         $jsonError = json_last_error();
         if ($jsonError !== 0) {
-            throw new \RuntimeException(\sprintf('Invalid JSON in snippet file at path \'%s\' with code \'%d\'', $path, $jsonError));
+            throw SnippetException::invalidSnippetFile($path, new \RuntimeException(json_last_error_msg(), $jsonError));
         }
 
         return $json;
@@ -33,7 +39,10 @@ class SnippetFileHandler
      */
     public function writeJsonFile(string $path, array $content): void
     {
-        $json = json_encode($content, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
+        $json = \json_encode(
+            $content,
+            \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES
+        ) ?: '';
         $json = str_replace('    ', '  ', $json); // Workaround because of wrong indentation
         file_put_contents($path, $json);
     }

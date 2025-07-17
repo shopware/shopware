@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
 /**
- * @phpstan-type Snippets array<string, string|Snippets>
+ * @phpstan-type Snippets array<string, string|mixed>
  */
 #[AsCommand(
     name: 'snippets:validate',
@@ -79,21 +79,7 @@ class ValidateSnippetsCommand extends Command
             }
 
             if ($hasInvalidPluralization) {
-                $io->error('Invalid pluralization found!');
-                $table = new Table($output);
-                $table->setHeaders([
-                    'Snippet', 'Value', 'File Path',
-                ]);
-
-                foreach ($invalidSnippets['invalidPluralization'] as $invalidPluralization) {
-                    $table->addRow([
-                        $invalidPluralization['snippetKey'],
-                        $invalidPluralization['availableValue'],
-                        $invalidPluralization['path'],
-                    ]);
-                }
-
-                $table->render();
+                $this->renderPluralizationErrors($io, $output, $invalidSnippets['invalidPluralization']);
             }
 
             return -1;
@@ -114,6 +100,11 @@ class ValidateSnippetsCommand extends Command
 
         $this->snippetFixer->fix($missingSnippetsCollection, $invalidPluralization);
 
+        if ($hasInvalidPluralization) {
+            $this->renderPluralizationErrors($io, $output, $invalidSnippets['invalidPluralization']);
+            $io->warning('Only invalid pluralization range can be fixed automatically. Please review carefully.');
+        }
+
         return self::SUCCESS;
     }
 
@@ -130,5 +121,33 @@ class ValidateSnippetsCommand extends Command
         }
 
         return $missingSnippetsCollection;
+    }
+
+    /**
+     * @param array<string, array{
+     *     snippetKey: string,
+     *     snippetValue: string,
+     *     isFixable: bool,
+     *     path: string
+     * }> $invalidPluralization
+     */
+    private function renderPluralizationErrors(ShopwareStyle $io, OutputInterface $output, array $invalidPluralization): void
+    {
+        $io->error('Invalid pluralization found! Please always contain cases from 0 to Inf');
+        $table = new Table($output);
+        $table->setHeaders([
+            'Snippet', 'Value', 'Automatically fixable', 'File Path',
+        ]);
+
+        foreach ($invalidPluralization as $invalidPluralizationEntry) {
+            $table->addRow([
+                $invalidPluralizationEntry['snippetKey'],
+                $invalidPluralizationEntry['snippetValue'],
+                $invalidPluralizationEntry['isFixable'] ? 'Yes' : 'No',
+                $invalidPluralizationEntry['path'],
+            ]);
+        }
+
+        $table->render();
     }
 }

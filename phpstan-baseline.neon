@@ -2598,11 +2598,15 @@ parameters:
 			count: 1
 			path: src/Core/System/SalesChannel/SalesChannel/StoreApiInfoController.php
 
+		-
+			message: '#^Method Shopware\\Core\\System\\StateMachine\\Loader\\InitialStateIdLoader\:\:load\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Core/System/StateMachine/Loader/InitialStateIdLoader.php
 
-
-
-
-
+		-
+			message: '#^Property Shopware\\Core\\System\\StateMachine\\Loader\\InitialStateIdLoader\:\:\$ids type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/Core/System/StateMachine/Loader/InitialStateIdLoader.php
 

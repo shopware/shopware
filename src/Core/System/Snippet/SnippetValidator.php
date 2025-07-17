@@ -41,17 +41,21 @@ class SnippetValidator implements SnippetValidatorInterface
             foreach ($this->getRecursiveArrayKeys($json) as $keyValue) {
                 $key = key($keyValue);
                 $value = array_shift($keyValue);
+                $path = str_ireplace($this->projectDir, '', $snippetFile->getPath());
 
                 $snippetFileMappings[$snippetFile->getIso()][$key] = [
-                    'path' => str_ireplace($this->projectDir, '', $snippetFile->getPath()),
+                    'path' => $path,
                     'availableValue' => $value,
                 ];
 
-                if (str_contains(preg_replace('/\s+/', '', $value), ']1,Inf[')) {
-                    $invalidPluralization['key'] = [
+                $validationData = $this->hasInvalidPluralization($value, $path);
+
+                if ($validationData['isInvalid']) {
+                    $invalidPluralization[$key] = [
                         'snippetKey' => $key,
-                        'availableValue' => $value,
-                        'path' => str_ireplace($this->projectDir, '', $snippetFile->getPath()),
+                        'snippetValue' => $value,
+                        'isFixable' => $validationData['isFixable'],
+                        'path' => $path,
                     ];
                 }
             }
@@ -171,5 +175,31 @@ class SnippetValidator implements SnippetValidatorInterface
     private function findDeprecatedSnippetFiles(): array
     {
         return array_column($this->deprecatedSnippetFiles->toArray(), 'path');
+    }
+
+    /**
+     * @return array{isInvalid: bool, isFixable: bool}
+     */
+    private function hasInvalidPluralization(string $snippetContent, string $filePath): array
+    {
+        $unformattedSnippet = strtolower(preg_replace('/\s+/', '', $snippetContent) ?: '');
+
+        $isSymfonyTranslationFile = preg_match('/storefront|messages/i', $filePath);
+        $hasPluralization = str_contains($snippetContent, '|');
+
+        if (!$isSymfonyTranslationFile || !$hasPluralization) {
+            return [
+                'isInvalid' => false,
+                'isFixable' => false,
+            ];
+        }
+
+        $hasInvalidPluralization = !preg_match('/^(\{0\}.+\|)?(\{1\}.+\|)(\[0,inf\[.+)/i', $unformattedSnippet);
+        $hasInvalidPluralizationRange = str_contains($unformattedSnippet, ']1,inf[');
+
+        return [
+            'isInvalid' => $hasInvalidPluralization || $hasInvalidPluralizationRange,
+            'isFixable' => $hasInvalidPluralizationRange,
+        ];
     }
 }

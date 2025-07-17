@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
 
 /**
- * @phpstan-type Snippets array<string, string|Snippets>
+ * @phpstan-type Snippets array<string, string|mixed>
  */
 #[Package('discovery')]
 class SnippetFixer
@@ -19,10 +19,13 @@ class SnippetFixer
     }
 
     /**
-     * @param Snippets $invalidPluralization
+     * @deprecated tag:v6.8.0 reason:new-optional-parameter - Will get a second parameter `$invalidPluralization`
      */
-    public function fix(MissingSnippetCollection $missingSnippetCollection, array $invalidPluralization): void
+    public function fix(MissingSnippetCollection $missingSnippetCollection): void
     {
+        /** @var Snippets $invalidPluralization */
+        $invalidPluralization = \func_num_args() === 2 ? func_get_arg(1) : [];
+
         $this->fixMissingSnippets($missingSnippetCollection);
         $this->fixInvalidPluralization($invalidPluralization);
     }
@@ -55,12 +58,33 @@ class SnippetFixer
     }
 
     /**
+     * @param Snippets $invalidPluralization
+     */
+    private function fixInvalidPluralization(array $invalidPluralization): void
+    {
+        foreach ($invalidPluralization as $invalidSnippet) {
+            $json = $this->snippetFileHandler->openJsonFile($invalidSnippet['path']);
+
+            $json = $this->replaceInvalidPluralization(
+                $json,
+                $invalidSnippet['snippetKey'],
+            );
+
+            $this->snippetFileHandler->writeJsonFile($invalidSnippet['path'], $json);
+        }
+    }
+
+    /**
      * @param Snippets $json
      *
      * @return Snippets
      */
-    private function addTranslationUsingSnippetKey(array $json, string $translation, string $key): array
+    private function addTranslationUsingSnippetKey(array $json, ?string $translation, string $key): array
     {
+        if ($translation === null) {
+            return $json;
+        }
+
         $keyParts = explode('.', $key);
 
         $currentJson = &$json;
@@ -77,23 +101,6 @@ class SnippetFixer
         }
 
         return $json;
-    }
-
-    /**
-     * @param Snippets $invalidPluralization
-     */
-    private function fixInvalidPluralization(array $invalidPluralization): void
-    {
-        foreach ($invalidPluralization as $invalidSnippet) {
-            $json = $this->snippetFileHandler->openJsonFile($invalidSnippet['path']);
-
-            $json = $this->replaceInvalidPluralization(
-                $json,
-                $invalidSnippet['snippetKey'],
-            );
-
-            $this->snippetFileHandler->writeJsonFile($invalidSnippet['path'], $json);
-        }
     }
 
     /**

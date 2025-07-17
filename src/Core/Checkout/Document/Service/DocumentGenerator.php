@@ -365,11 +365,23 @@ class DocumentGenerator
 
     private function loadMediaByFileType(?DocumentEntity $document, string $fileType): ?MediaEntity
     {
-        $medias = array_filter([
-            $document?->getDocumentMediaFile(),
-            $document?->getDocumentA11yMediaFile(),
-        ], fn (?MediaEntity $media) => $media?->getFileExtension() === strtolower($fileType));
+        if ($document === null) {
+            return null;
+        }
 
-        return array_shift($medias) ?? null;
+        foreach ([
+            $document->getDocumentMediaFile(),
+            $document->getDocumentA11yMediaFile(),
+        ] as $media) {
+            if (
+                $media !== null
+                && $media->getFileExtension() !== null
+                && strcasecmp($media->getFileExtension(), $fileType) === 0
+            ) {
+                return $media;
+            }
+        }
+
+        return null;
     }
 }

@@ -48,9 +48,15 @@ class TimezoneStorer extends FlowStorer
 
     private function getTimezone(): string
     {
-        $timezone = (string) $this->requestStack->getCurrentRequest()?->cookies->get(self::TIMEZONE_COOKIE);
+        $request = $this->requestStack->getCurrentRequest();
 
-        if ($timezone === 'UTC' || !$timezone || !\in_array($timezone, timezone_identifiers_list(), true)) {
+        if (!$request) {
+            return 'UTC';
+        }
+
+        $timezone = (string) $request->cookies->get(self::TIMEZONE_COOKIE);
+
+        if (!$timezone || !\in_array($timezone, timezone_identifiers_list(), true)) {
             // Default will be UTC @see https://symfony.com/doc/current/reference/configuration/twig.html#timezone
             return 'UTC';
         }

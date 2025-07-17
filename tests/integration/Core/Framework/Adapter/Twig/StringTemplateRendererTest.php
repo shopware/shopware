@@ -36,14 +36,14 @@ class StringTemplateRendererTest extends TestCase
         $testDate = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
         $context = Context::createDefaultContext();
 
-        /** @var CoreExtension $coreExtension */
         $coreExtension = static::getContainer()->get('twig')->getExtension(CoreExtension::class);
+        static::assertInstanceOf(CoreExtension::class, $coreExtension);
         $coreExtension->setTimezone('Europe/London');
         $this->stringTemplateRenderer->initialize();
         $renderedTime = $this->stringTemplateRenderer->render($templateMock, ['testDate' => $testDate], $context);
 
-        /** @var CoreExtension $coreExtension */
         $coreExtension = static::getContainer()->get('twig')->getExtension(CoreExtension::class);
+        static::assertInstanceOf(CoreExtension::class, $coreExtension);
         $coreExtension->setTimezone('Europe/Berlin');
         $this->stringTemplateRenderer->initialize();
 
@@ -57,8 +57,8 @@ class StringTemplateRendererTest extends TestCase
         $templateMock = '{{ testDate|format_date(pattern="HH:mm") }}';
         $testDate = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
-        /** @var CoreExtension $coreExtension */
         $coreExtension = static::getContainer()->get('twig')->getExtension(CoreExtension::class);
+        static::assertInstanceOf(CoreExtension::class, $coreExtension);
         $coreExtension->setTimezone('Europe/London');
         $this->stringTemplateRenderer->initialize();
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Snippet\Service;
 
+use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -10,17 +11,19 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 class FilePutContentsMock
 {
-    public static array $calls = [];
+    /**
+     * @var list<string>
+     */
+    public static array $fileNames = [];
 
     public static function reset(): void
     {
-        self::$calls = [];
+        self::$fileNames = [];
     }
 }
 
-function file_put_contents(string $filename, mixed $data): int|false
+function file_put_contents(string $filename, mixed $body): void
 {
-    FilePutContentsMock::$calls[] = ['filename' => $filename, 'data' => $data];
-
-    return 1;
+    FilePutContentsMock::$fileNames[] = $filename;
+    \assert($body instanceof StreamInterface);
 }

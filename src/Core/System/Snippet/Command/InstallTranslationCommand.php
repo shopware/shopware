@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Snippet\Command;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Snippet\Service\TranslationConfigLoader;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
@@ -25,13 +24,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('discovery')]
 class InstallTranslationCommand extends Command
 {
-    private TranslationConfig $config;
-
     public function __construct(
         private readonly TranslationLoader $translationLoader,
+        private readonly TranslationConfig $config,
     ) {
         parent::__construct();
-        $this->config = TranslationConfigLoader::load();
     }
 
     protected function configure(): void

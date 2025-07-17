@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\InstallTranslationCommand;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\SnippetException;
+use Shopware\Core\System\Snippet\Struct\LanguageCollection;
+use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -20,9 +22,18 @@ class InstallTranslationCommandTest extends TestCase
 {
     private TranslationLoader&MockObject $translationLoader;
 
+    private TranslationConfig $config;
+
     protected function setUp(): void
     {
         $this->translationLoader = $this->createMock(TranslationLoader::class);
+        $this->config = new TranslationConfig(
+            'https://example.com',
+            ['en-GB', 'es-ES'],
+            [],
+            new LanguageCollection([]),
+            []
+        );
     }
 
     public function testExecuteThrowsExceptionWithoutArguments(): void
@@ -63,6 +74,6 @@ class InstallTranslationCommandTest extends TestCase
 
     private function getCommand(): InstallTranslationCommand
     {
-        return new InstallTranslationCommand($this->translationLoader);
+        return new InstallTranslationCommand($this->translationLoader, $this->config);
     }
 }

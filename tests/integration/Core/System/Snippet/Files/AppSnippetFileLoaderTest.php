@@ -12,6 +12,7 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
+use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 
 /**
@@ -32,7 +33,8 @@ class AppSnippetFileLoaderTest extends TestCase
             $this->createMock(Kernel::class),
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(AppSnippetFileLoader::class),
-            static::getContainer()->get(ActiveAppsLoader::class)
+            static::getContainer()->get(ActiveAppsLoader::class),
+            static::getContainer()->get(TranslationConfig::class),
         );
     }
 

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Snippet\Service\TranslationConfigLoader;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
+use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -33,6 +34,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         private readonly Connection $connection,
         private readonly AppSnippetFileLoader $appSnippetFileLoader,
         private readonly ActiveAppsLoader $activeAppsLoader,
+        private readonly TranslationConfig $config,
     ) {
     }
 
@@ -101,9 +103,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
             $activeNames[] = TranslationConfigLoader::getMappedPluginName($plugin);
         }
 
-        $config = TranslationConfigLoader::load();
-
-        return array_diff($config->plugins, $activeNames);
+        return array_diff($this->config->plugins, $activeNames);
     }
 
     private function loadLegacySnippets(SnippetFileCollection $snippetFileCollection): void

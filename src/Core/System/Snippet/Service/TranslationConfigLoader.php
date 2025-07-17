@@ -44,13 +44,7 @@ class TranslationConfigLoader
 
         $pluginMapping = self::getPluginMapping($config);
 
-        return TranslationConfig::create(
-            $url,
-            $locales,
-            $plugins,
-            new LanguageCollection($languageData),
-            $pluginMapping,
-        );
+        return new TranslationConfig($url, $locales, $plugins, new LanguageCollection($languageData), $pluginMapping);
     }
 
     public static function getMappedPluginName(Plugin $plugin): string

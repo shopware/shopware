@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\Snippet\Service;
 
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -37,8 +37,6 @@ class TranslationLoader
         'Administration',
     ];
 
-    private TranslationConfig $config;
-
     /**
      * @param EntityRepository<LanguageCollection> $languageRepository
      * @param EntityRepository<LocaleCollection> $localeRepository
@@ -49,9 +47,9 @@ class TranslationLoader
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $localeRepository,
         private readonly EntityRepository $snippetSetRepository,
-        private readonly Client $client,
+        private readonly ClientInterface $client,
+        private readonly TranslationConfig $config,
     ) {
-        $this->config = TranslationConfigLoader::load();
     }
 
     public function load(string $locale, Context $context): void
@@ -62,8 +60,8 @@ class TranslationLoader
             throw SnippetException::languageDoesNotExist($locale);
         }
 
-        $this->fetchPluginSnippets($locale);
         $this->fetchPlatformSnippets($locale);
+        $this->fetchPluginSnippets($locale);
 
         $this->createLanguage($language, $context);
         $this->createSnippetSet($language, $context);
@@ -130,13 +128,8 @@ class TranslationLoader
     {
         try {
             $response = $this->client->request('GET', $url);
-            $result = file_put_contents($destination, $response->getBody());
 
-            if ($result === false) {
-                // todo: add own exception
-                throw new \RuntimeException(sprintf('Failed to write file to %s', $destination));
-            }
-
+            file_put_contents($destination, $response->getBody());
         } catch (GuzzleException $e) {
             if ($e->getCode() === 404) {
                 // If the file does not exist, we can skip it

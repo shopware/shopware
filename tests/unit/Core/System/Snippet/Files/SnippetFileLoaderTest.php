@@ -14,6 +14,8 @@ use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
+use Shopware\Core\System\Snippet\Struct\LanguageCollection;
+use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\BaseSnippetSet\BaseSnippetSet;
 use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\ShopwareBundleWithSnippets\ShopwareBundleWithSnippets;
 use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\SnippetSet\SnippetSet;
@@ -24,6 +26,19 @@ use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\SnippetSet\SnippetSe
 #[CoversClass(SnippetFileLoader::class)]
 class SnippetFileLoaderTest extends TestCase
 {
+    private TranslationConfig $config;
+
+    protected function setUp(): void
+    {
+        $this->config = new TranslationConfig(
+            'https://example.com',
+            ['de-DE', 'en-GB'],
+            [],
+            new LanguageCollection([]),
+            []
+        );
+    }
+
     public function testLoadSnippetsFromShopwareBundle(): void
     {
         $kernel = $this->getKernel([
@@ -40,7 +55,8 @@ class SnippetFileLoaderTest extends TestCase
                 $this->createMock(Connection::class),
                 $this->createMock(AppLoader::class),
                 '/'
-            )
+            ),
+            $this->config
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -102,7 +118,8 @@ class SnippetFileLoaderTest extends TestCase
                 $this->createMock(Connection::class),
                 $this->createMock(AppLoader::class),
                 '/'
-            )
+            ),
+            $this->config
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -152,7 +169,8 @@ class SnippetFileLoaderTest extends TestCase
                 $this->createMock(Connection::class),
                 $this->createMock(AppLoader::class),
                 '/'
-            )
+            ),
+            $this->config
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -202,7 +220,8 @@ class SnippetFileLoaderTest extends TestCase
                 $this->createMock(Connection::class),
                 $this->createMock(AppLoader::class),
                 '/'
-            )
+            ),
+            $this->config
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);

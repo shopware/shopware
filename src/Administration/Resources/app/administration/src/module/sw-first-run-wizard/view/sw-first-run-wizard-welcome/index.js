@@ -114,7 +114,8 @@ export default {
         },
 
         updateButtons() {
-            const disabledExtensionManagement = Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
+            const disabledExtensionManagement =
+                Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
             const nextRoute = disabledExtensionManagement ? 'defaults' : 'data-import';
 
             const buttonConfig = [

@@ -20,12 +20,13 @@ class SnippetValidator implements SnippetValidatorInterface
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, array<string, mixed>>
      */
     public function validate(): array
     {
         $files = $this->getAllFiles();
 
+        $invalidPluralization = [];
         $snippetFileMappings = [];
         $availableISOs = [];
         foreach ($files as $snippetFile) {
@@ -38,14 +39,28 @@ class SnippetValidator implements SnippetValidatorInterface
             $json = $this->snippetFileHandler->openJsonFile($snippetFile->getPath());
 
             foreach ($this->getRecursiveArrayKeys($json) as $keyValue) {
-                $snippetFileMappings[$snippetFile->getIso()][key($keyValue)] = [
+                $key = key($keyValue);
+                $value = array_shift($keyValue);
+
+                $snippetFileMappings[$snippetFile->getIso()][$key] = [
                     'path' => str_ireplace($this->projectDir, '', $snippetFile->getPath()),
-                    'availableValue' => array_shift($keyValue),
+                    'availableValue' => $value,
                 ];
+
+                if (str_contains(preg_replace('/\s+/', '', $value), ']1,Inf[')) {
+                    $invalidPluralization['key'] = [
+                        'snippetKey' => $key,
+                        'availableValue' => $value,
+                        'path' => str_ireplace($this->projectDir, '', $snippetFile->getPath()),
+                    ];
+                }
             }
         }
 
-        return $this->findMissingSnippets($snippetFileMappings, $availableISOs);
+        return [
+            'missingSnippets' => $this->findMissingSnippets($snippetFileMappings, $availableISOs),
+            'invalidPluralization' => $invalidPluralization,
+        ];
     }
 
     protected function getAllFiles(): SnippetFileCollection
@@ -92,7 +107,7 @@ class SnippetValidator implements SnippetValidatorInterface
     }
 
     /**
-     * @param array<mixed> $dataSet
+     * @param array<string, mixed> $dataSet
      *
      * @return array<int, array<string, mixed>>
      */
@@ -151,7 +166,7 @@ class SnippetValidator implements SnippetValidatorInterface
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function findDeprecatedSnippetFiles(): array
     {

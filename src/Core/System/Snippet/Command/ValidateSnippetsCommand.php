@@ -16,6 +16,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
+/**
+ * @phpstan-type Snippets array<string, string|Snippets>
+ */
 #[AsCommand(
     name: 'snippets:validate',
     description: 'Validates snippets',
@@ -40,33 +43,58 @@ class ValidateSnippetsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $missingSnippetsArray = $this->snippetValidator->validate();
-        $missingSnippetsCollection = $this->hydrateMissingSnippets($missingSnippetsArray);
+        $invalidSnippets = $this->snippetValidator->validate();
+
+        $missingSnippetsCollection = $this->hydrateMissingSnippets($invalidSnippets['missingSnippets']);
+        $hasMissingSnippets = $missingSnippetsCollection->count() > 0;
+
+        $invalidPluralization = $invalidSnippets['invalidPluralization'];
+        $hasInvalidPluralization = \count($invalidPluralization) > 0;
 
         $io = new ShopwareStyle($input, $output);
 
-        if ($missingSnippetsCollection->count() === 0) {
+        if (!$hasMissingSnippets && !$hasInvalidPluralization) {
             $io->success('Snippets are valid!');
 
             return self::SUCCESS;
         }
 
         if (!$input->getOption('fix')) {
-            $io->error('Invalid snippets found!');
-            $table = new Table($output);
-            $table->setHeaders([
-                'Snippet', 'Missing for ISO', 'Found in file',
-            ]);
-
-            foreach ($missingSnippetsCollection->getIterator() as $missingSnippetStruct) {
-                $table->addRow([
-                    $missingSnippetStruct->getKeyPath(),
-                    $missingSnippetStruct->getMissingForISO(),
-                    $missingSnippetStruct->getFilePath(),
+            if ($hasMissingSnippets) {
+                $io->error('Invalid snippets found!');
+                $table = new Table($output);
+                $table->setHeaders([
+                    'Snippet', 'Missing for ISO', 'Found in file',
                 ]);
+
+                foreach ($missingSnippetsCollection->getIterator() as $missingSnippetStruct) {
+                    $table->addRow([
+                        $missingSnippetStruct->getKeyPath(),
+                        $missingSnippetStruct->getMissingForISO(),
+                        $missingSnippetStruct->getFilePath(),
+                    ]);
+                }
+
+                $table->render();
             }
 
-            $table->render();
+            if ($hasInvalidPluralization) {
+                $io->error('Invalid pluralization found!');
+                $table = new Table($output);
+                $table->setHeaders([
+                    'Snippet', 'Value', 'File Path',
+                ]);
+
+                foreach ($invalidSnippets['invalidPluralization'] as $invalidPluralization) {
+                    $table->addRow([
+                        $invalidPluralization['snippetKey'],
+                        $invalidPluralization['availableValue'],
+                        $invalidPluralization['path'],
+                    ]);
+                }
+
+                $table->render();
+            }
 
             return -1;
         }
@@ -84,11 +112,14 @@ class ValidateSnippetsCommand extends Command
             $missingSnippetStruct->setTranslation($questionHelper->ask($input, $output, new Question($question)) ?? '');
         }
 
-        $this->snippetFixer->fix($missingSnippetsCollection);
+        $this->snippetFixer->fix($missingSnippetsCollection, $invalidPluralization);
 
         return self::SUCCESS;
     }
 
+    /**
+     * @param Snippets $missingSnippetsArray
+     */
     private function hydrateMissingSnippets(array $missingSnippetsArray): MissingSnippetCollection
     {
         $missingSnippetsCollection = new MissingSnippetCollection();

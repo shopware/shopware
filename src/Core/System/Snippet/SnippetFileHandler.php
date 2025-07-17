@@ -7,9 +7,15 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Storefront;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @phpstan-type Snippets array<string, string|Snippets>
+ */
 #[Package('discovery')]
 class SnippetFileHandler
 {
+    /**
+     * @return Snippets
+     */
     public function openJsonFile(string $path): array
     {
         $json = json_decode(file_get_contents($path), true);
@@ -22,13 +28,19 @@ class SnippetFileHandler
         return $json;
     }
 
+    /**
+     * @param Snippets $content
+     */
     public function writeJsonFile(string $path, array $content): void
     {
         $json = json_encode($content, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
-
+        $json = str_replace('    ', '  ', $json); // Workaround because of wrong indentation
         file_put_contents($path, $json);
     }
 
+    /**
+     * @return string[]
+     */
     public function findAdministrationSnippetFiles(): array
     {
         if (!($bundleDir = $this->getBundleDir(Administration::class))) {
@@ -38,6 +50,9 @@ class SnippetFileHandler
         return $this->findSnippetFilesByPath($bundleDir . '/Resources/app/*/src/');
     }
 
+    /**
+     * @return string[]
+     */
     public function findStorefrontSnippetFiles(): array
     {
         if (!($bundleDir = $this->getBundleDir(Storefront::class))) {
@@ -56,6 +71,9 @@ class SnippetFileHandler
         return \dirname((string) (new \ReflectionClass($bundleClass))->getFileName());
     }
 
+    /**
+     * @return string[]
+     */
     private function findSnippetFilesByPath(string $path): array
     {
         $finder = (new Finder())

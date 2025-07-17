@@ -211,6 +211,8 @@ describe('src/app/component/rule/sw-condition-all-line-items-container', () => {
 
         await flushPromises();
 
+        const initialConditions = wrapper.findAll('.condition-all-line-items-container .sw-condition .sw-condition__container');
+        expect(initialConditions).toHaveLength(1);
         expect(wrapper.vm.childrenLength).toBe(1);
 
         const contextButton = wrapper.find('.sw-context-button__button');
@@ -243,6 +245,8 @@ describe('src/app/component/rule/sw-condition-all-line-items-container', () => {
         expect(parentCondition2.type).toBe('andContainer');
         expect(condition2.type).toBe('allLineItemsContainer');
 
+        const remainingConditions = wrapper.findAll('.condition-all-line-items-container .sw-condition .sw-condition__container');
+        expect(remainingConditions).toHaveLength(0);
         expect(wrapper.vm.childrenLength).toBe(0);
     });
 });

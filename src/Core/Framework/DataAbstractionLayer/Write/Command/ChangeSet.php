@@ -11,7 +11,7 @@ class ChangeSet extends Struct
     protected array $after = [];
 
     public function __construct(
-        protected array $state,
+        protected array $state = [],
         array $payload,
         protected bool $isDelete,
     ) {

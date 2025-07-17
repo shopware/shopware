@@ -90,7 +90,7 @@ export default {
                 .catch(() => {
                     this.createNotificationSuccess({
                         message: this.$tc(
-                            'sw-newsletter-recipient.detail.messageSaveSuccess',
+                            'sw-newsletter-recipient.detail.messageSaveError',
                             {
                                 key: this.newsletterRecipient.email,
                             },

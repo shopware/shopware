@@ -40,7 +40,7 @@ export default {
         },
 
         hasAppsThatRequireAppUrl() {
-            return Shopware.Store.get('context').app.config.settings.appsRequireAppUrl;
+            return Shopware.Store.get('context').app.config.settings?.appsRequireAppUrl;
         },
 
         display() {

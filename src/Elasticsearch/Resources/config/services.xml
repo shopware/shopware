@@ -230,6 +230,7 @@
             <argument type="service" id="Shopware\Core\System\Language\SalesChannelLanguageLoader" />
             <argument>%elasticsearch.product.exclude_source%</argument>
             <argument>%kernel.environment%</argument>
+            <argument type="service" id="Shopware\Core\System\Language\LanguageLoader" />
 
             <tag name="shopware.es.definition"/>
         </service>

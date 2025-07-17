@@ -151,12 +151,15 @@ class CriteriaParser
         }
 
         $field = $this->helper->getField($sorting->getField(), $definition, $definition->getEntityName(), false);
+        $accessor = $this->buildAccessor($definition, $sorting->getField(), $context);
 
         if ($field instanceof TranslatedField) {
-            return $this->createTranslatedSorting($definition->getEntityName(), $sorting, $context);
-        }
+            if (!$field->isPrefilledFallback()) {
+                return $this->createTranslatedSorting($definition->getEntityName(), $sorting, $context);
+            }
 
-        $accessor = $this->buildAccessor($definition, $sorting->getField(), $context);
+            $accessor = $this->getTranslatedFieldName($accessor, $context->getLanguageId());
+        }
 
         if ($sorting instanceof CountSorting) {
             return new CountSort($accessor, $sorting->getDirection());
@@ -1030,8 +1033,9 @@ class CriteriaParser
         if ($parts[0] === 'customFields') {
             $customField = $this->customFieldService->getCustomField($parts[1]);
 
-            $numericTranslatedFieldSortingScript = $this->getScript('numeric_translated_field_sorting');
             if ($customField instanceof IntField || $customField instanceof FloatField) {
+                $numericTranslatedFieldSortingScript = $this->getScript('numeric_translated_field_sorting');
+
                 return new FieldSort('_script', $sorting->getDirection(), null, [
                     'type' => 'number',
                     'script' => array_merge($numericTranslatedFieldSortingScript, [

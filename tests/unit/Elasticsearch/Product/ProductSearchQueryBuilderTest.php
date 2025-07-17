@@ -247,10 +247,7 @@ class ProductSearchQueryBuilderTest extends TestCase
             ],
             'term' => 'foo',
             'expected' => self::bool([
-                self::disMax([
-                    self::textMatch('name', 'foo', 1000, Defaults::LANGUAGE_SYSTEM, andSearch: false),
-                    self::textMatch('name', 'foo', 800, self::SECOND_LANGUAGE_ID, andSearch: false),
-                ]),
+                self::textMatch('name', 'foo', 1000, Defaults::LANGUAGE_SYSTEM, andSearch: false),
                 self::nested('tags', self::textMatch('tags.name', 'foo', 500, andSearch: false)),
                 self::nested('categories', self::disMax([
                     self::textMatch('categories.name', 'foo', 200, Defaults::LANGUAGE_SYSTEM, andSearch: false),
@@ -270,28 +267,19 @@ class ProductSearchQueryBuilderTest extends TestCase
             'expected' => self::disMax([
                 self::bool([
                     self::bool([
-                        self::disMax([
-                            self::textMatch('name', 'foo', 1000, Defaults::LANGUAGE_SYSTEM, false),
-                            self::textMatch('name', 'foo', 800, self::SECOND_LANGUAGE_ID, false),
-                        ]),
+                        self::textMatch('name', 'foo', 1000, Defaults::LANGUAGE_SYSTEM, false),
                         self::textMatch('ean', 'foo', 2000, null, false),
                         self::nested('tags', self::textMatch('tags.name', 'foo', 500, null, false)),
                     ]),
                     self::bool([
-                        self::disMax([
-                            self::textMatch('name', '2023', 1000, Defaults::LANGUAGE_SYSTEM, false),
-                            self::textMatch('name', '2023', 800, self::SECOND_LANGUAGE_ID, false),
-                        ]),
+                        self::textMatch('name', '2023', 1000, Defaults::LANGUAGE_SYSTEM, false),
                         self::textMatch('ean', '2023', 2000, null, false),
                         self::term('restockTime', 2023, 1500),
                         self::nested('tags', self::textMatch('tags.name', '2023', 500, null, false)),
                     ]),
                 ], BoolQuery::MUST),
                 self::bool([
-                    self::disMax([
-                        self::textMatch('name', 'foo 2023', 1000, Defaults::LANGUAGE_SYSTEM, false),
-                        self::textMatch('name', 'foo 2023', 800, self::SECOND_LANGUAGE_ID, false),
-                    ]),
+                    self::textMatch('name', 'foo 2023', 1000, Defaults::LANGUAGE_SYSTEM, false),
                     self::textMatch('ean', 'foo 2023', 2000, null, false),
                     self::nested('tags', self::textMatch('tags.name', 'foo 2023', 500, null, false)),
                 ]),
@@ -308,30 +296,15 @@ class ProductSearchQueryBuilderTest extends TestCase
             'term' => 'foo 2023',
             'expected' => self::disMax([
                 self::bool([
-                    self::disMax([
-                        self::textMatch($prefixCfLang1 . 'evolvesText', 'foo', 500, null, false),
-                        self::textMatch($prefixCfLang2 . 'evolvesText', 'foo', 400, null, false),
-                    ]),
+                    self::textMatch($prefixCfLang1 . 'evolvesText', 'foo', 500, null, false),
                     self::bool([
-                        self::disMax([
-                            self::textMatch($prefixCfLang1 . 'evolvesText', '2023', 500, null, false),
-                            self::textMatch($prefixCfLang2 . 'evolvesText', '2023', 400, null, false),
-                        ]),
-                        self::disMax([
-                            self::term($prefixCfLang1 . 'evolvesInt', 2023, 400),
-                            self::term($prefixCfLang2 . 'evolvesInt', 2023, 320),
-                        ]),
-                        self::disMax([
-                            self::term($prefixCfLang1 . 'evolvesFloat', 2023, 500),
-                            self::term($prefixCfLang2 . 'evolvesFloat', 2023, 400),
-                        ]),
+                        self::textMatch($prefixCfLang1 . 'evolvesText', '2023', 500, null, false),
+                        self::term($prefixCfLang1 . 'evolvesInt', 2023, 400),
+                        self::term($prefixCfLang1 . 'evolvesFloat', 2023, 500),
                         self::nested('categories', self::term('categories.childCount', 2023, 500)),
                     ]),
                 ], BoolQuery::MUST),
-                self::disMax([
-                    self::textMatch($prefixCfLang1 . 'evolvesText', 'foo 2023', 500, null, false),
-                    self::textMatch($prefixCfLang2 . 'evolvesText', 'foo 2023', 400, null, false),
-                ]),
+                self::textMatch($prefixCfLang1 . 'evolvesText', 'foo 2023', 500, null, false),
             ]),
         ];
     }

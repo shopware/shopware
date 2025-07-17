@@ -70,7 +70,10 @@ class TokenQueryBuilder
             $root = EntityDefinitionQueryHelper::getRoot($config->getField(), $definition);
 
             $fieldQuery = $field instanceof TranslatedField ?
-                $this->translatedQuery($real, $token, $config, $languageIdChain) :
+                // If the field is a TranslatedField, we need to build a translated query
+                // translated query will use the languageIdChain to find the correct translation with fallback
+                // and if the field is prefilled fallback, we can use the current languageId as every languageId is filled with the fallback when indexing
+                $this->translatedQuery($real, $token, $config, $field->isPrefilledFallback() ? [$context->getLanguageId()] : $languageIdChain) :
                 $this->matchQuery($real, $token, $config);
 
             if (!$fieldQuery) {

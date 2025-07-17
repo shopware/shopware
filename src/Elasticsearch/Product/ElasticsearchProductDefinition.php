@@ -6,12 +6,14 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use OpenSearchDSL\BuilderInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SqlHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Shopware\Core\System\Language\SalesChannelLanguageLoader;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
@@ -33,9 +35,10 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         private readonly AbstractProductSearchQueryBuilder $searchQueryBuilder,
         private readonly ElasticsearchFieldBuilder $fieldBuilder,
         private readonly ElasticsearchFieldMapper $fieldMapper,
-        private readonly SalesChannelLanguageLoader $languageLoader,
+        private readonly SalesChannelLanguageLoader $salesChannelLanguageLoader,
         private readonly bool $excludeSource,
-        private readonly string $environment
+        private readonly string $environment,
+        private readonly LanguageLoaderInterface $languageLoader
     ) {
     }
 
@@ -188,12 +191,25 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
         $groups = $this->fetchProperties(\array_keys($groupIds));
 
+        $languageMapping = $this->getLanguageMapping();
+
         /** @var array<string, string> $item */
         foreach ($data as $id => $item) {
             /** @var array<int|string, array<string, string|null>> $translation */
             $translation = $item['translation'] ?? [];
             /** @var array<int, array{id: string, languageId?: string}> $categories */
             $categories = $item['categories'] ?? [];
+
+            $names = ElasticsearchFieldMapper::translated(field: 'name', items: $translation);
+            $names = $this->fillFallbackTranslation($languageMapping, $names);
+
+            $customFields = $this->mapCustomFields(
+                variantCustomFields: ElasticsearchFieldMapper::translated(field: 'customFields', items: $translation, stripText: false),
+                parentCustomFields: ElasticsearchFieldMapper::translated(field: 'parentCustomFields', items: $translation, stripText: false),
+                context: $context
+            );
+
+            $customFields = $this->fillFallbackTranslation($languageMapping, $customFields);
 
             $documents[$id] = [
                 'id' => $id,
@@ -265,12 +281,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'propertyIds' => ElasticsearchIndexingUtils::parseJson($item, 'propertyIds'),
                 'tagIds' => ElasticsearchIndexingUtils::parseJson($item, 'tagIds'),
                 'states' => ElasticsearchIndexingUtils::parseJson($item, 'states'),
-                'customFields' => $this->mapCustomFields(
-                    variantCustomFields: ElasticsearchFieldMapper::translated(field: 'customFields', items: $translation, stripText: false),
-                    parentCustomFields: ElasticsearchFieldMapper::translated(field: 'parentCustomFields', items: $translation, stripText: false),
-                    context: $context
-                ),
-                'name' => ElasticsearchFieldMapper::translated(field: 'name', items: $translation),
+                'customFields' => $customFields,
+                'name' => $names,
                 'description' => ElasticsearchFieldMapper::translated(field: 'description', items: $translation),
                 'metaTitle' => ElasticsearchFieldMapper::translated(field: 'metaTitle', items: $translation),
                 'metaDescription' => ElasticsearchFieldMapper::translated(field: 'metaDescription', items: $translation),
@@ -289,7 +301,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
      */
     private function fetchProducts(array $ids, Context $context): array
     {
-        $languages = \array_keys($this->languageLoader->loadLanguages());
+        $languages = \array_keys($this->salesChannelLanguageLoader->loadLanguages());
 
         $baseSql = <<<'SQL'
 SELECT
@@ -571,5 +583,53 @@ SQL;
         }
 
         return $this->fieldMapper->customFields(ProductDefinition::ENTITY_NAME, $customFields, $context);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getLanguageMapping(): array
+    {
+        $languages = $this->languageLoader->loadLanguages();
+        $salesChannelLanguages = $this->salesChannelLanguageLoader->loadLanguages();
+
+        $mapping = [];
+
+        foreach ($languages as $languageId => $language) {
+            if (!isset($salesChannelLanguages[$languageId])) {
+                continue;
+            }
+            // If the has parent language, we add the parent language into the mapping
+            if (isset($language['parentId'])) {
+                $mapping[$language['parentId']] = Defaults::LANGUAGE_SYSTEM;
+            }
+
+            $mapping[$languageId] = $language['parentId'] ?? Defaults::LANGUAGE_SYSTEM;
+        }
+
+        return $mapping;
+    }
+
+    /**
+     * @param array<string, string> $languageMapping
+     * @param array<string, mixed> $value
+     *
+     * @return array<string, mixed>
+     */
+    private function fillFallbackTranslation(array $languageMapping, array $value): array
+    {
+        foreach ($languageMapping as $languageId => $fallback) {
+            if ($languageId === Defaults::LANGUAGE_SYSTEM) {
+                continue;
+            }
+
+            if (isset($value[$languageId])) {
+                continue;
+            }
+
+            $value[$languageId] = $value[$fallback] ?? $value[Defaults::LANGUAGE_SYSTEM];
+        }
+
+        return $value;
     }
 }

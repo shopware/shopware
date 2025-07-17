@@ -64,7 +64,6 @@ class CartOrderRouteTest extends TestCase
         $this->orderPersister = $this->createMock(OrderPersister::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->cartContextHasher = new CartContextHasher(new EventDispatcher());
-
         $this->cartLocker = $this->createMock(CartLocker::class);
         $this->cartLocker->method('locked')->willReturnCallback(fn (string $token, \Closure $closure) => $closure());
 
@@ -79,8 +78,7 @@ class CartOrderRouteTest extends TestCase
             $this->createMock(TaxProviderProcessor::class),
             $this->createMock(AbstractCheckoutGatewayRoute::class),
             $this->cartContextHasher,
-            new ExtensionDispatcher(new EventDispatcher()),
-            $this->cartLocker
+            $this->cartLocker,
         );
 
         $this->context = Generator::generateSalesChannelContext();
@@ -306,48 +304,5 @@ class CartOrderRouteTest extends TestCase
         static::expectExceptionObject($exception);
 
         $this->route->order($cart, $this->context, $data);
-    }
-
-    public function testExtensionIsDispatched(): void
-    {
-        $cart = new Cart('test');
-
-        $context = $this->createMock(SalesChannelContext::class);
-
-        $dispatcher = new EventDispatcher();
-        $extensions = new ExtensionDispatcher($dispatcher);
-
-        $route = new CartOrderRoute(
-            $this->cartCalculator,
-            $this->orderRepository,
-            $this->orderPersister,
-            $this->createMock(AbstractCartPersister::class),
-            $this->eventDispatcher,
-            $this->createMock(PaymentProcessor::class),
-            $this->createMock(TaxProviderProcessor::class),
-            $this->createMock(AbstractCheckoutGatewayRoute::class),
-            $this->cartContextHasher,
-            $extensions,
-            $this->cartLocker,
-        );
-
-        $post = $this->createMock(CallableClass::class);
-        $post->expects($this->exactly(1))->method('__invoke');
-        $dispatcher->addListener(ExtensionDispatcher::post(CheckoutPlaceOrderExtension::NAME), $post);
-
-        $dispatcher->addListener(
-            ExtensionDispatcher::pre(CheckoutPlaceOrderExtension::NAME),
-            function (CheckoutPlaceOrderExtension $extension): void {
-                $extension->stopPropagation();
-
-                $extension->result = new OrderPlaceResult(Uuid::randomHex());
-            }
-        );
-
-        // we don't care about the follow-up order process, the event listener above are already tested
-        static::expectException(CartException::class);
-        static::expectExceptionMessage('Order payment failed. The order was not stored.');
-
-        $route->order($cart, $context, new RequestDataBag());
     }
 }

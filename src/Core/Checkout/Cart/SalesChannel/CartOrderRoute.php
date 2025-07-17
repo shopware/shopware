@@ -50,8 +50,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
         private readonly TaxProviderProcessor $taxProviderProcessor,
         private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
         private readonly CartContextHasher $cartContextHasher,
-        private readonly ExtensionDispatcher $extensions,
-        private readonly CartLocker $cartLocker
+        private readonly CartLocker $cartLocker,
     ) {
     }
 
@@ -73,15 +72,19 @@ class CartOrderRoute extends AbstractCartOrderRoute
             // we use this state in stock updater class, to prevent duplicate available stock updates
             $context->addState('checkout-order-route');
 
+            $calculatedCart = $this->cartCalculator->calculate($cart, $context);
+
             $response = $this->checkoutGatewayRoute->load(new Request($data->all(), $data->all()), $cart, $context);
             $calculatedCart->addErrors(...$response->getErrors());
 
             $this->taxProviderProcessor->process($calculatedCart, $context);
 
-            if (Feature::isActive('v6.8.0.0')) {
-                // @deprecated tag:v6.8.0 - After the cart is deleted, the lock is no longer needed. The following operations should be moved outside the locked closure.
-                $this->cartPersister->delete($context->getToken(), $context);
-            }
+            $this->addCustomerComment($calculatedCart, $data);
+            $this->addAffiliateTracking($calculatedCart, $data);
+
+            $preOrderPayment = Profiler::trace('checkout-order::pre-payment', fn () => $this->paymentProcessor->validate($calculatedCart, $data, $context));
+
+            $orderId = Profiler::trace('checkout-order::order-persist', fn () => $this->orderPersister->persist($calculatedCart, $context));
 
             $criteria = new Criteria([$orderId]);
             $criteria
@@ -117,10 +120,18 @@ class CartOrderRoute extends AbstractCartOrderRoute
                 $this->eventDispatcher->dispatch($event);
             });
 
-            if (!Feature::isActive('v6.8.0.0')) {
-                // cart will delete immediately after order is created to avoid inconsistencies.
-                $this->cartPersister->delete($context->getToken(), $context);
-            }
+            $this->cartPersister->delete($context->getToken(), $context);
+
+            // @deprecated tag:v6.7.0 - remove post payment completely
+            Feature::callSilentIfInactive('v6.7.0.0', function () use ($orderEntity, $data, $context, $orderId, $preOrderPayment): void {
+                try {
+                    Profiler::trace('checkout-order::post-payment', function () use ($orderEntity, $data, $context, $preOrderPayment): void {
+                        $this->preparedPaymentService->handlePostOrderPayment($orderEntity, $data, $context, $preOrderPayment);
+                    });
+                } catch (PaymentException) {
+                    throw CartException::invalidPaymentButOrderStored($orderId);
+                }
+            });
 
             return new CartOrderRouteResponse($orderEntity);
         });

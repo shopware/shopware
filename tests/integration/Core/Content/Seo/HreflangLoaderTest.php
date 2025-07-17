@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\Seo;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Seo\HreflangLoaderInterface;
 use Shopware\Core\Content\Seo\HreflangLoaderParameter;
@@ -85,6 +86,7 @@ class HreflangLoaderTest extends TestCase
         $domain->setUrl('https://test.de');
         $domain->setHreflangUseOnlyLocale(false);
         $domain->setLanguageId($languageId);
+        $domain->setMeasurementUnits(MeasurementUnits::createDefaultUnits());
 
         static::assertInstanceOf(SalesChannelDomainCollection::class, $this->salesChannelContext->getSalesChannel()->getDomains());
         $this->salesChannelContext->getSalesChannel()->getDomains()->add($domain);

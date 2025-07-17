@@ -138,13 +138,22 @@
       "labelAvailableStock": "Available stock",
       "labelPurchaseSteps": "Purchase steps"
     },
+    "measurementForm": {
+      "description": "Enter the product measurements using the units available to you. When displayed to your customers, they will be automatically converted based on the {link}.",
+      "linkText": "Sales Channel settings"
+    },
     "packagingForm": {
-      "placeholderUnit": "Select...",
-      "labelUnit": "Scale unit",
-      "referenceUnitHelpText": "Required to calculate the product's unit price. The base value to be entered depends on the selected scale unit.<ul><li>Unit price = (product price * basic unit) / selling unit.</li></ul>Unit price not displayed, if selling unit and basic unit have the same value.",
-      "packUnitHelpText": "Type of packing: e.g. bottle, crate, tin...",
-      "packUnitPluralHelpText": "Type of packing (plural): e.g. bottles, crates, tins...",
-      "purchaseUnitHelpText": "Required to calculate the product's unit price. The value to be entered depends on the selected scale unit.<ul><li>Unit price = (product price * basic unit) / selling unit.</li></ul>Unit price not displayed, if selling unit and basic unit have the same value."
+      "description": "Define how the product is sold and packaged. This information is shown to customers in the storefront.",
+      "labelProductUnit": "Product unit",
+      "placeholderSellingUnit": "e.g. 6...",
+      "placeholderProductUnit": "Select product unit...",
+      "placeholderBasicUnit": "e.g. 1...",
+      "placeholderPackagingUnit": "e.g. Bottle...",
+      "placeholderPackagingUnitPlural": "e.g. Bottles...",
+      "helpTextBasicUnit": "Required to calculate the product's unit price. The base value to be entered depends on the selected scale unit.<ul><li>Unit price = (product price * basic unit) / selling unit.</li></ul>Unit price not displayed, if selling unit and basic unit have the same value.",
+      "helpTextPackUnit": "Type of packing: e.g. bottle, crate, tin...",
+      "helpTextPackUnitPlural": "Type of packing (plural): e.g. bottles, crates, tins...",
+      "helpTextSellingUnit": "Required to calculate the product's unit price. The value to be entered depends on the selected scale unit.<ul><li>Unit price = (product price * basic unit) / selling unit.</li></ul>Unit price not displayed, if selling unit and basic unit have the same value."
     },
     "detailBase": {
       "cardTitleDeliverabilityInfo": "Deliverability",
@@ -168,7 +177,8 @@
       "manageStockTooltip": "If the stock is not managed, the digital product is available for an infinite amount of transactions."
     },
     "specifications": {
-      "cardTitleMeasuresPackaging": "Measures & packaging",
+      "cardTitleMeasurement": "Product measurements",
+      "cardTitleSellingPackaging": "Selling & Packaging Information",
       "cardTitleEssentialCharacteristics": "Essential Characteristics",
       "cardTitleCustomFields": "Custom fields",
       "cardTitleProperties": "Properties",

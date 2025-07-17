@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Permission\PermissionsService;
+use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -45,6 +46,7 @@ class LifecycleManager
         private readonly AbstractAppLifecycle $appLifecycle,
         private readonly AllServiceInstaller $serviceInstaller,
         private readonly PermissionsService $permissionsService,
+        private readonly Client $client,
     ) {
     }
 
@@ -60,6 +62,12 @@ class LifecycleManager
         }
 
         return $this->serviceInstaller->install($context);
+    }
+
+    public function sync(Context $context): void
+    {
+        $services = $this->getAllServices($context);
+        $this->removeOrphanedServices($services, $context);
     }
 
     public function syncState(string $service, Context $context): void
@@ -134,6 +142,28 @@ class LifecycleManager
     public function enabled(): bool
     {
         return !$this->areDisabledFromEnv() && !$this->areDisabledFromConfig();
+    }
+
+    private function removeOrphanedServices(AppCollection $services, Context $context): void
+    {
+        $registryServices = $this->client->getAll();
+
+        if (\count($registryServices) === 0) {
+            // this is not safe to do if there are zero services.
+            // it could be a transient error or a misconfiguration.
+            return;
+        }
+
+        $registryServiceNames = [];
+        foreach ($registryServices as $registryService) {
+            $registryServiceNames[$registryService->name] = true;
+        }
+
+        foreach ($services as $service) {
+            if (!isset($registryServiceNames[$service->getName()])) {
+                $this->appLifecycle->delete($service->getName(), ['id' => $service->getId()], $context);
+            }
+        }
     }
 
     private function areDisabledFromEnv(): bool

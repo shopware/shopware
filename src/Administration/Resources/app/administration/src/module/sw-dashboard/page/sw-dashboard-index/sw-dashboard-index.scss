@@ -5,7 +5,7 @@ $content-max-width: 960px;
 .sw-dashboard-index {
     &__welcome-text {
         max-width: $content-max-width;
-        margin: 0 auto;
+        margin: 0 auto 32px;
     }
 
     &__welcome-title {
@@ -53,7 +53,7 @@ $content-max-width: 960px;
 
     &__card-grid {
         max-width: $content-max-width;
-        margin: 32px auto;
+        margin: 0 auto var(--scale-size-40);
 
         @media (min-width: 1024px) {
             display: grid;
@@ -69,13 +69,11 @@ $content-max-width: 960px;
         border-radius: $border-radius-lg;
         box-shadow: 0 4px 9px 0 rgba(120, 138, 155, 5%);
         padding: 21px 27px;
-        margin-bottom: 32px;
         height: 200px;
         max-height: 200px;
         overflow-y: auto;
 
         &--dimmed {
-            border: 1px solid $color-gray-300;
             background-color: $color-gray-50;
             text-align: center;
         }
@@ -96,7 +94,6 @@ $content-max-width: 960px;
 
     &__card-title {
         font-size: $font-size-s;
-        color: $color-darkgray-200;
         margin-bottom: 12px;
     }
 
@@ -163,6 +160,6 @@ $content-max-width: 960px;
     }
 
     .sw-dashboard__before-content {
-        margin-top: 32px;
+        margin-bottom: var(--scale-size-40);
     }
 }

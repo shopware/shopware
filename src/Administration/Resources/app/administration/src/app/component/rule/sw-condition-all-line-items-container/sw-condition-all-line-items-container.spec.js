@@ -39,7 +39,7 @@ async function createWrapper(customProps = {}, customProvide = {}, customStubs =
                     'sw-condition-tree-node': true,
                     'sw-condition-base': await wrapTestComponent('sw-condition-base'),
                     'sw-condition-goods-price': await wrapTestComponent('sw-condition-goods-price'),
-                    ...customStubs
+                    ...customStubs,
                 },
                 provide: {
                     conditionDataProviderService: {
@@ -54,7 +54,7 @@ async function createWrapper(customProps = {}, customProvide = {}, customStubs =
                     insertNodeIntoTree,
                     removeNodeFromTree,
                     childAssociationField: 'children',
-                    ...customProvide
+                    ...customProvide,
                 },
             },
         },
@@ -120,98 +120,88 @@ describe('src/app/component/rule/sw-condition-all-line-items-container', () => {
                 });
         });
 
-       const wrapper = await createWrapper(
-           {
-               parentCondition: {
-                   id: 'parent-id',
-                   type: 'andContainer',
-                   children: new EntityCollection(
-                       '',
-                       'rule_condition',
-                       Shopware.Context.api,
-                       null,
-                       [{
-                           id: 'all-line-items-container-id',
-                           type: 'allLineItemsContainer',
-                           children: new EntityCollection(
-                               '',
-                               'rule_condition',
-                               Shopware.Context.api,
-                               null,
-                               [{
-                                   id: 'child-1',
-                                   type: 'cartLineItemInCategory',
-                                   value: {
-                                       operator: 'oneOf',
-                                       categoryIds: ['category-home-id']
-                                   }
-                               }]
-                           )
-                       }]
-                   ),
-               },
-               condition: {
-                   type: 'allLineItemsContainer',
-                   children: new EntityCollection(
-                       '',
-                       'rule_condition',
-                       Shopware.Context.api,
-                       null,
-                       [{
-                           id: 'all-line-items-container-id',
-                           type: 'cartLineItemInCategory',
-                           value: {
-                               operator: '=',
-                               categoryIds: ['category-id']
-                           },
-                           parentId: 'all-line-items-container-id',
-                       }]
-                   ),
-               },
-           },
-           {
-               conditionDataProviderService: {
-                   getByType: jest.fn(() => ({
-                       component: 'sw-condition-base',
-                   })),
-                   getComponentByCondition: jest.fn(() => 'sw-condition-base'),
-               },
-               removeNodeFromTree : removeNodeFromTreeUi,
-               availableTypes: [],
-               availableGroups: [],
-           },
-           {
-               'sw-condition-tree-node': await wrapTestComponent('sw-condition-tree-node', {
-                   sync: true,
-               }),
-               'sw-condition-base': await wrapTestComponent('sw-condition-base', {
-                   sync: true,
-               }),
-               'sw-context-button': await wrapTestComponent('sw-context-button', {
-                   sync: true,
-               }),
-               'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', {
-                   sync: true,
-               }),
-               'sw-context-menu': await wrapTestComponent('sw-context-menu', {
-                   sync: true,
-               }),
-               'sw-condition-type-select': true,
-               'sw-field-error': true,
-               'sw-popover': {
-                   template: `
+        const wrapper = await createWrapper(
+            {
+                parentCondition: {
+                    id: 'parent-id',
+                    type: 'andContainer',
+                    children: new EntityCollection('', 'rule_condition', Shopware.Context.api, null, [
+                        {
+                            id: 'all-line-items-container-id',
+                            type: 'allLineItemsContainer',
+                            children: new EntityCollection('', 'rule_condition', Shopware.Context.api, null, [
+                                {
+                                    id: 'child-1',
+                                    type: 'cartLineItemInCategory',
+                                    value: {
+                                        operator: 'oneOf',
+                                        categoryIds: ['category-home-id'],
+                                    },
+                                },
+                            ]),
+                        },
+                    ]),
+                },
+                condition: {
+                    type: 'allLineItemsContainer',
+                    children: new EntityCollection('', 'rule_condition', Shopware.Context.api, null, [
+                        {
+                            id: 'all-line-items-container-id',
+                            type: 'cartLineItemInCategory',
+                            value: {
+                                operator: '=',
+                                categoryIds: ['category-id'],
+                            },
+                            parentId: 'all-line-items-container-id',
+                        },
+                    ]),
+                },
+            },
+            {
+                conditionDataProviderService: {
+                    getByType: jest.fn(() => ({
+                        component: 'sw-condition-base',
+                    })),
+                    getComponentByCondition: jest.fn(() => 'sw-condition-base'),
+                },
+                removeNodeFromTree: removeNodeFromTreeUi,
+                availableTypes: [],
+                availableGroups: [],
+            },
+            {
+                'sw-condition-tree-node': await wrapTestComponent('sw-condition-tree-node', {
+                    sync: true,
+                }),
+                'sw-condition-base': await wrapTestComponent('sw-condition-base', {
+                    sync: true,
+                }),
+                'sw-context-button': await wrapTestComponent('sw-context-button', {
+                    sync: true,
+                }),
+                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', {
+                    sync: true,
+                }),
+                'sw-context-menu': await wrapTestComponent('sw-context-menu', {
+                    sync: true,
+                }),
+                'sw-condition-type-select': true,
+                'sw-field-error': true,
+                'sw-popover': {
+                    template: `
                             <div class="sw-popover sw-context-button__menu-popover">
                                 <slot></slot>
                             </div>
                         `,
-               },
-               'router-link': true,
-           }
-       );
+                },
+                'router-link': true,
+            },
+        );
 
         await flushPromises();
 
-        const initialConditions = wrapper.findAll('.condition-all-line-items-container .sw-condition .sw-condition__container');
+        const initialConditions = wrapper.findAll(
+            '.condition-all-line-items-container .sw-condition .sw-condition__container',
+        );
         expect(initialConditions).toHaveLength(1);
         expect(wrapper.vm.childrenLength).toBe(1);
 
@@ -245,7 +235,9 @@ describe('src/app/component/rule/sw-condition-all-line-items-container', () => {
         expect(parentCondition2.type).toBe('andContainer');
         expect(condition2.type).toBe('allLineItemsContainer');
 
-        const remainingConditions = wrapper.findAll('.condition-all-line-items-container .sw-condition .sw-condition__container');
+        const remainingConditions = wrapper.findAll(
+            '.condition-all-line-items-container .sw-condition .sw-condition__container',
+        );
         expect(remainingConditions).toHaveLength(0);
         expect(wrapper.vm.childrenLength).toBe(0);
     });

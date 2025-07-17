@@ -200,7 +200,7 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
         await activateBanner.getComponent(MtButton).trigger('click');
         await flushPromises();
 
-        expect(page.findComponent(SwSettingsServicesGrantPermissionsCard).exists()).toBe(true);
+        expect(page.findComponent(SwSettingsServicesGrantPermissionsCard).exists()).toBe(false);
         expect(page.findAll('sw-settings-services-service-card-stub')).toHaveLength(0);
         expect(page.find('.sw-settings-services-index__installing-card').exists()).toBe(true);
     });

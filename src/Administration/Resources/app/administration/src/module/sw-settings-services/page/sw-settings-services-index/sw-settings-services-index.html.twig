@@ -21,7 +21,7 @@
 
         <div class="sw-settings-services-index__content">
             <sw-settings-services-grant-permissions-card
-                v-if="!consentGiven && !config.disabled"
+                v-if="!consentGiven && !config.disabled && services.length > 0"
                 :docs-link="currentRevision.links['docs-url']"
             />
 

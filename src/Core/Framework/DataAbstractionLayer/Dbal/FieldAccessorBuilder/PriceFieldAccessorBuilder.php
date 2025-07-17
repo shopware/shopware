@@ -63,7 +63,7 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             $currencyId = $lastPart;
             $currencyFactor = \sprintf(
                 '* (SELECT `factor` FROM `currency` WHERE `id` = %s)',
-                (string) $this->connection->quote($currencyId)
+                $this->connection->quote($currencyId)
             );
         }
 
@@ -81,7 +81,7 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
         $variables = [
             '#root#' => EntityDefinitionQueryHelper::escape($root),
             '#field#' => EntityDefinitionQueryHelper::escape($field->getStorageName()),
-            '#currencyId#' => (string) $currencyId,
+            '#currencyId#' => $currencyId,
             '#property#' => (string) $jsonAccessor,
             '#factor#' => '+ 0.0',
         ];

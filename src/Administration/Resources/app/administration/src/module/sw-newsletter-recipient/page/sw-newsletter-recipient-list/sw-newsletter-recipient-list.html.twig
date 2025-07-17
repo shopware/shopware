@@ -42,10 +42,10 @@
         {% block sw_newsletter_recipientlist_list_content_card %}
         {% block sw_newsletter_recipientlist_list_grid %}
         <sw-entity-listing
-            v-if="items && entitySearchable"
+            v-if="entitySearchable"
             ref="swNewsletterRecipientGrid"
             class="sw-newsletter-recipient-list__grid"
-            :is-loading="isLoading"
+            :is-loading="true"
             identifier="sw-newsletter-recipient"
             :show-selection="false"
             :items="items"

@@ -60,14 +60,14 @@ class DeliveryCalculator
         if ($delivery->getShippingCosts()->getUnitPrice() > 0 || $manualShippingCost) {
             $costs = $this->calculateShippingCosts(
                 $delivery->getShippingMethod(),
-                new PriceCollection([
+                $this->getCurrencyPrice(new PriceCollection([
                     new Price(
                         Defaults::CURRENCY,
                         $delivery->getShippingCosts()->getTotalPrice(),
                         $delivery->getShippingCosts()->getTotalPrice(),
                         false
                     ),
-                ]),
+                ]), $context),
                 $delivery->getPositions()->getLineItems(),
                 $context,
                 $manualShippingCost
@@ -84,7 +84,7 @@ class DeliveryCalculator
         ) {
             $costs = $this->calculateShippingCosts(
                 $delivery->getShippingMethod(),
-                new PriceCollection([new Price(Defaults::CURRENCY, 0, 0, false)]),
+                0,
                 $delivery->getPositions()->getLineItems(),
                 $context
             );
@@ -141,28 +141,7 @@ class DeliveryCalculator
         return true;
     }
 
-    private function matches(Delivery $delivery, ShippingMethodPriceEntity $shippingMethodPrice, SalesChannelContext $context): bool
-    {
-        if ($shippingMethodPrice->getCalculationRuleId()) {
-            return \in_array($shippingMethodPrice->getCalculationRuleId(), $context->getRuleIds(), true);
-        }
-
-        $start = $shippingMethodPrice->getQuantityStart();
-        $end = $shippingMethodPrice->getQuantityEnd();
-
-        $value = match ($shippingMethodPrice->getCalculation()) {
-            self::CALCULATION_BY_PRICE => $delivery->getPositions()->getWithoutDeliveryFree()->getPrices()->getTotalPriceAmount(),
-            self::CALCULATION_BY_LINE_ITEM_COUNT => $delivery->getPositions()->getWithoutDeliveryFree()->getQuantity(),
-            self::CALCULATION_BY_WEIGHT => $delivery->getPositions()->getWithoutDeliveryFree()->getWeight(),
-            self::CALCULATION_BY_VOLUME => $delivery->getPositions()->getWithoutDeliveryFree()->getVolume(),
-            default => $delivery->getPositions()->getWithoutDeliveryFree()->getLineItems()->getPrices()->getTotalPriceAmount() / 100,
-        };
-
-        // $end (optional) exclusive
-        return (!$start || FloatComparator::greaterThanOrEquals($value, $start)) && (!$end || FloatComparator::lessThanOrEquals($value, $end));
-    }
-
-    private function calculateShippingCosts(ShippingMethodEntity $shippingMethod, PriceCollection $priceCollection, LineItemCollection $calculatedLineItems, SalesChannelContext $context, ?CalculatedPrice $manualShippingCost = null): CalculatedPrice
+    private function calculateShippingCosts(ShippingMethodEntity $shippingMethod, float $matchingPrice, LineItemCollection $calculatedLineItems, SalesChannelContext $context, ?CalculatedPrice $manualShippingCost = null): CalculatedPrice
     {
         switch ($shippingMethod->getTaxType()) {
             case ShippingMethodEntity::TAX_TYPE_HIGHEST:
@@ -190,7 +169,7 @@ class DeliveryCalculator
         if ($manualShippingCost !== null) {
             $price = $manualShippingCost->getTotalPrice();
         } else {
-            $price = $this->getCurrencyPrice($priceCollection, $context);
+            $price = $matchingPrice;
         }
 
         $definition = new QuantityPriceDefinition($price, $rules, 1);
@@ -237,16 +216,14 @@ class DeliveryCalculator
 
         $costs = null;
         foreach ($shippingPrices as $shippingPrice) {
-            if (!$this->matches($delivery, $shippingPrice, $context)) {
+            $matchingPrice = $this->getMatchingPrice($delivery, $shippingPrice, $context);
+            if ($matchingPrice === null) {
                 continue;
             }
-            $price = $shippingPrice->getCurrencyPrice();
-            if (!$price) {
-                continue;
-            }
+
             $costs = $this->calculateShippingCosts(
                 $delivery->getShippingMethod(),
-                $price,
+                $matchingPrice,
                 $delivery->getPositions()->getLineItems(),
                 $context
             );
@@ -255,6 +232,61 @@ class DeliveryCalculator
         }
 
         return $costs;
+    }
+
+    private function getMatchingPrice(Delivery $delivery, ShippingMethodPriceEntity $shippingMethodPrice, SalesChannelContext $context): ?float
+    {
+        $price = $shippingMethodPrice->getCurrencyPrice();
+        if (!$price) {
+            return null;
+        }
+
+        $price = $this->getCurrencyPrice($price, $context);
+
+        if ($shippingMethodPrice->getCalculationRuleId()) {
+            if (\in_array($shippingMethodPrice->getCalculationRuleId(), $context->getRuleIds(), true)) {
+                return $price;
+            }
+
+            return null;
+        }
+
+        $start = $shippingMethodPrice->getQuantityStart();
+        $end = $shippingMethodPrice->getQuantityEnd();
+
+        $value = match ($shippingMethodPrice->getCalculation()) {
+            self::CALCULATION_BY_PRICE => $delivery->getPositions()->getWithoutDeliveryFree()->getPrices()->getTotalPriceAmount(),
+            self::CALCULATION_BY_LINE_ITEM_COUNT => $delivery->getPositions()->getWithoutDeliveryFree()->getQuantity(),
+            self::CALCULATION_BY_WEIGHT => $delivery->getPositions()->getWithoutDeliveryFree()->getWeight(),
+            self::CALCULATION_BY_VOLUME => $delivery->getPositions()->getWithoutDeliveryFree()->getVolume(),
+            default => $delivery->getPositions()->getWithoutDeliveryFree()->getLineItems()->getPrices()->getTotalPriceAmount() / 100,
+        };
+
+        // $end (optional) exclusive
+        $inRange = (!$start || FloatComparator::greaterThanOrEquals($value, $start)) && (!$end || FloatComparator::lessThanOrEquals($value, $end));
+        if (!$inRange) {
+            return null;
+        }
+
+        $quantityStep = $shippingMethodPrice->getQuantityStep();
+        $quantityStepPrice = $shippingMethodPrice->getQuantityStepPrice();
+
+        if ($quantityStep !== null && $quantityStepPrice !== null) {
+            // Use ceil to round up, because the steps are used as "to" checkpoints
+            $steps = ceil(($value - ($start ?? 0)) / $quantityStep);
+
+            return (float) bcadd(
+                (string) $price,
+                bcmul(
+                    (string) $steps,
+                    (string) $this->getCurrencyPrice($quantityStepPrice, $context),
+                    $context->getTotalRounding()->getDecimals()
+                ),
+                $context->getTotalRounding()->getDecimals()
+            );
+        }
+
+        return $price;
     }
 
     private function hasDeliveryPriceRecalculationSkipWithZeroUnitPrice(?CartBehavior $behavior, float $unitPrice): bool

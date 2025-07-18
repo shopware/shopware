@@ -59,6 +59,8 @@ class ShippingMethodPriceDefinition extends EntityDefinition
             (new FloatField('quantity_start', 'quantityStart'))->addFlags(new ApiAware()),
             (new FloatField('quantity_end', 'quantityEnd'))->addFlags(new ApiAware()),
             (new PriceField('currency_price', 'currencyPrice'))->addFlags(new ApiAware()),
+            (new FloatField('quantity_step', 'quantityStep'))->addFlags(new ApiAware()),
+            (new PriceField('quantity_step_price', 'quantityStepPrice'))->addFlags(new ApiAware()),
             (new CustomFields())->addFlags(new ApiAware()),
             new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, 'id', false),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id', false),

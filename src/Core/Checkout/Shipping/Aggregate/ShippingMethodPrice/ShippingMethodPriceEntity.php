@@ -37,6 +37,10 @@ class ShippingMethodPriceEntity extends Entity implements IdAware
 
     protected ?PriceCollection $currencyPrice = null;
 
+    protected ?float $quantityStep = null;
+
+    protected ?PriceCollection $quantityStepPrice = null;
+
     public function getShippingMethodId(): string
     {
         return $this->shippingMethodId;
@@ -135,5 +139,25 @@ class ShippingMethodPriceEntity extends Entity implements IdAware
     public function setCurrencyPrice(?PriceCollection $price): void
     {
         $this->currencyPrice = $price;
+    }
+
+    public function getQuantityStep(): ?float
+    {
+        return $this->quantityStep;
+    }
+
+    public function setQuantityStep(?float $quantityStep): void
+    {
+        $this->quantityStep = $quantityStep;
+    }
+
+    public function getQuantityStepPrice(): ?PriceCollection
+    {
+        return $this->quantityStepPrice;
+    }
+
+    public function setQuantityStepPrice(?PriceCollection $quantityStepPrice): void
+    {
+        $this->quantityStepPrice = $quantityStepPrice;
     }
 }

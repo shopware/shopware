@@ -19,6 +19,7 @@ use Symfony\Component\Console\Question\Question;
 
 /**
  * @phpstan-type Snippets array<string, string|array<string, mixed>>
+ *
  * @phpstan-import-type InvalidPluralization from SnippetValidationStruct
  */
 #[AsCommand(
@@ -111,7 +112,7 @@ class ValidateSnippetsCommand extends Command
     }
 
     /**
-     * @param array<String, Snippets> $missingSnippetsArray
+     * @param array<string, Snippets> $missingSnippetsArray
      */
     private function hydrateMissingSnippets(array $missingSnippetsArray): MissingSnippetCollection
     {

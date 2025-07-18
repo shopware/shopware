@@ -10,6 +10,7 @@ use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
 
 /**
  * @phpstan-import-type Snippets from ValidateSnippetsCommand
+ *
  * @phpstan-import-type InvalidPluralization from SnippetValidationStruct
  */
 #[Package('discovery')]
@@ -27,7 +28,7 @@ class SnippetFixer
      *
      * @param InvalidPluralization $invalidPluralization
      */
-    public function fix(MissingSnippetCollection $missingSnippetCollection /*, array $invalidPluralization */): void
+    public function fix(MissingSnippetCollection $missingSnippetCollection /* , array $invalidPluralization */): void
     {
         /** @var Snippets $invalidPluralization */
         $invalidPluralization = \func_num_args() === 2 ? func_get_arg(1) : [];

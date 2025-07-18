@@ -8,17 +8,22 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
+use Shopware\Core\System\Snippet\Service\TranslationLoader;
+use Shopware\Core\System\Snippet\Struct\Language;
 use Shopware\Core\System\Snippet\Struct\LanguageCollection;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
+use Shopware\Tests\Unit\Administration\Snippet\SnippetFileTrait;
 use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\BaseSnippetSet\BaseSnippetSet;
 use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\ShopwareBundleWithSnippets\ShopwareBundleWithSnippets;
 use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\SnippetSet\SnippetSet;
+use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
 
 /**
  * @internal
@@ -26,15 +31,17 @@ use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\SnippetSet\SnippetSe
 #[CoversClass(SnippetFileLoader::class)]
 class SnippetFileLoaderTest extends TestCase
 {
+    use SnippetFileTrait;
+
     private TranslationConfig $config;
 
     protected function setUp(): void
     {
         $this->config = new TranslationConfig(
             'https://example.com',
-            ['de-DE', 'en-GB'],
-            [],
-            new LanguageCollection([]),
+            ['es-ES'],
+            ['activePlugin'],
+            new LanguageCollection([new Language('es-ES', 'Español')]),
             []
         );
     }
@@ -279,12 +286,67 @@ class SnippetFileLoaderTest extends TestCase
         static::assertTrue($snippetFile->isBase());
     }
 
+    public function testLoadInstalledCoreAndPluginSnippets(): void
+    {
+        $this->createSnippetFiles();
+
+        $path = __DIR__ . '/_fixtures/activePlugin';
+
+        $plugin = new TestPlugin(true, $path);
+        $plugin->setName('activePlugin');
+        $plugin->setPath($path);
+
+        $kernel = $this->getKernel([], $plugin);
+
+        $collection = new SnippetFileCollection();
+
+        $snippetFileLoader = new SnippetFileLoader(
+            $kernel,
+            $this->createMock(Connection::class),
+            $this->createMock(AppSnippetFileLoader::class),
+            new ActiveAppsLoader(
+                $this->createMock(Connection::class),
+                $this->createMock(AppLoader::class),
+                '/'
+            ),
+            $this->config
+        );
+
+        $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
+        static::assertCount(6, $collection);
+
+        $files = $collection->getElements();
+        static::assertContainsOnlyInstancesOf(GenericSnippetFile::class, $files);
+
+        $actualPaths = [];
+        foreach ($files as $file) {
+            $actualPaths[] = $file->getPath();
+        }
+
+        $expectedPaths = [
+            TranslationLoader::TRANSLATION_DESTINATION . '/es-ES/Plugins/activePlugin/storefront.json',
+            TranslationLoader::TRANSLATION_DESTINATION . '/es-ES/Plugins/activePlugin/messages.es-ES.base.json',
+            TranslationLoader::TRANSLATION_DESTINATION . '/es-ES/Plugins/activePlugin/administration.json',
+            TranslationLoader::TRANSLATION_DESTINATION . '/es-ES/Platform/storefront.json',
+            TranslationLoader::TRANSLATION_DESTINATION . '/es-ES/Platform/messages.es-ES.base.json',
+            TranslationLoader::TRANSLATION_DESTINATION . '/es-ES/Platform/administration.json',
+        ];
+
+        static::assertEquals($expectedPaths, $actualPaths);
+
+        $this->cleanupSnippetFiles();
+    }
+
     /**
      * @param array<string, Bundle> $bundles
      */
-    private function getKernel(array $bundles): MockedKernel
+    private function getKernel(array $bundles, ?Plugin $plugin = null): MockedKernel
     {
         $pluginCollection = new KernelPluginCollection();
+
+        if ($plugin) {
+            $pluginCollection->add($plugin);
+        }
 
         $pluginLoader = $this->createMock(KernelPluginLoader::class);
         $pluginLoader->method('getPluginInstances')->willReturn($pluginCollection);

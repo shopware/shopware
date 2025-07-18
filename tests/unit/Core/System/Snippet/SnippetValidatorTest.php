@@ -39,8 +39,8 @@ class SnippetValidatorTest extends TestCase
             });
 
         $snippetValidator = new SnippetValidator(new SnippetFileCollection(), $snippetFileHandler, '');
-        $invalidData = $snippetValidator->validate();
-        $missingSnippets = $invalidData['missingSnippets'];
+        $invalidData = $snippetValidator->getValidation();
+        $missingSnippets = $invalidData->missingSnippets;
 
         static::assertCount(2, $missingSnippets);
         static::assertArrayHasKey('german', $missingSnippets['en-GB']);
@@ -51,7 +51,7 @@ class SnippetValidatorTest extends TestCase
         static::assertSame('english', $missingSnippets['de-DE']['english']['keyPath']);
         static::assertSame('exampleEnglish', $missingSnippets['de-DE']['english']['availableValue']);
 
-        $invalidPluralization = $invalidData['invalidPluralization'];
+        $invalidPluralization = $invalidData->invalidPluralization;
         static::assertCount(0, $invalidPluralization);
     }
 
@@ -72,9 +72,9 @@ class SnippetValidatorTest extends TestCase
             ->willReturnCallback(fn () => ['foo' => 'bar']);
 
         $snippetValidator = new SnippetValidator(new SnippetFileCollection(), $snippetFileHandler, '');
-        $invalidData = $snippetValidator->validate();
+        $invalidData = $snippetValidator->getValidation();
 
-        static::assertCount(0, $invalidData['missingSnippets']);
+        static::assertCount(0, $invalidData->missingSnippets);
     }
 
     public function testValidateShouldFindInvalidPluralization(): void
@@ -106,8 +106,8 @@ class SnippetValidatorTest extends TestCase
             ->willReturnCallback(fn () => $actualSnippets);
 
         $snippetValidator = new SnippetValidator(new SnippetFileCollection(), $snippetFileHandler, '');
-        $invalidData = $snippetValidator->validate();
-        $invalidPluralization = $invalidData['invalidPluralization'];
+        $invalidData = $snippetValidator->getValidation();
+        $invalidPluralization = $invalidData->invalidPluralization;
 
         static::assertCount(5, $invalidPluralization);
         static::assertArrayNotHasKey('somethingValid', $invalidPluralization);

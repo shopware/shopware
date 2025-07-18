@@ -143,7 +143,8 @@ async function createWrapper() {
                         }
 
                         return {
-                            search: () => Promise.resolve(new EntityCollection('', 'order', Shopware.Context.api, null, [orderMock])),
+                            search: () =>
+                                Promise.resolve(new EntityCollection('', 'order', Shopware.Context.api, null, [orderMock])),
                             delete: deleteFn,
                             assign: assignFn,
                         };

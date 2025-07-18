@@ -27,7 +27,7 @@ import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
-import CookieStorageHelper from "../../helper/storage/cookie-storage.helper";
+import CookieStorageHelper from '../../helper/storage/cookie-storage.helper';
 
 // These events will be published via a global (document) EventEmitter
 export const COOKIE_CONFIGURATION_UPDATE = 'CookieConfiguration_Update';
@@ -255,7 +255,7 @@ export default class CookieConfiguration extends Plugin {
             consentAcceptButtonSelector,
             consentLoginButtonSelector,
             consentCancelButtonSelector,
-            consentPreferencesButtonSelector
+            consentPreferencesButtonSelector,
         } = this.options;
 
         const acceptBtn = offcanvas.querySelector(consentAcceptButtonSelector);
@@ -609,14 +609,14 @@ export default class CookieConfiguration extends Plugin {
         window.location.href = window.router['frontend.account.login.page'];
     }
 
-     /**
+    /**
      * @private
      */
     _onCancel() {
         AjaxOffCanvas.close();
     }
 
-     /**
+    /**
      * @private
      */
     _onPreferences(e) {

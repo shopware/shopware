@@ -81,7 +81,7 @@ export default class AddToWishlistPlugin extends Plugin {
         ) {
             document.$emitter.publish('CookieConfiguration/requestConsent', {
                 route: `${window.router['frontend.cookie.consent.offcanvas']}?featureName=wishlist&cookieName=wishlist-enabled`,
-                cookieName: 'wishlist-enabled'
+                cookieName: 'wishlist-enabled',
             });
             return;
         }

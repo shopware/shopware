@@ -10,7 +10,6 @@ use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
 
 /**
  * @phpstan-import-type Snippets from ValidateSnippetsCommand
- *
  * @phpstan-import-type InvalidPluralization from SnippetValidationStruct
  */
 #[Package('discovery')]

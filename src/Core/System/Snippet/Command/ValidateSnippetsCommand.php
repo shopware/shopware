@@ -127,7 +127,7 @@ class ValidateSnippetsCommand extends Command
     }
 
     /**
-     * @param InvalidPluralization $invalidPluralization
+     * @param array<string, InvalidPluralization> $invalidPluralization
      */
     private function renderPluralizationErrors(ShopwareStyle $io, OutputInterface $output, array $invalidPluralization): void
     {

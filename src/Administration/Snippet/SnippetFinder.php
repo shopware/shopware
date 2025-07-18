@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Snippet\Service\TranslationConfigLoader;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
+use Shopware\Core\System\Snippet\Struct\SnippetPaths;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -47,10 +48,10 @@ class SnippetFinder implements SnippetFinderInterface
      */
     private function findSnippetFiles(string $locale): array
     {
-        $paths = [];
+        $paths = new SnippetPaths();
         $this->addInstalledPlatformPaths($paths, $locale);
 
-        if (empty($paths)) {
+        if ($paths->empty()) {
             // @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
             $this->addShopwareLegacyPaths($paths);
         }
@@ -68,7 +69,7 @@ class SnippetFinder implements SnippetFinderInterface
                 'administration.json',
                 \sprintf('%s.json', $locale), // @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
             ])
-            ->in($paths);
+            ->in($paths->all());
 
         $iterator = $finder->getIterator();
         $files = [];
@@ -80,10 +81,7 @@ class SnippetFinder implements SnippetFinderInterface
         return \array_unique($files);
     }
 
-    /**
-     * @param list<string> &$paths
-     */
-    private function addInstalledPlatformPaths(array &$paths, string $locale): void
+    private function addInstalledPlatformPaths(SnippetPaths $paths, string $locale): void
     {
         $path = \sprintf(TranslationLoader::TRANSLATION_DESTINATION . '/%s/Platform', $locale);
 
@@ -91,13 +89,10 @@ class SnippetFinder implements SnippetFinderInterface
             return;
         }
 
-        $paths[] = $path;
+        $paths->add($path);
     }
 
-    /**
-     * @param list<string> &$paths
-     */
-    private function addPluginPaths(array &$paths, string $locale): void
+    private function addPluginPaths(SnippetPaths $paths, string $locale): void
     {
         $activePlugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();
 
@@ -107,7 +102,7 @@ class SnippetFinder implements SnippetFinderInterface
 
             // add the path of the installed plugin translation if it exists
             if (\is_dir($path)) {
-                $paths[] = $path;
+                $paths->add($path);
 
                 continue;
             }
@@ -116,20 +111,17 @@ class SnippetFinder implements SnippetFinderInterface
             $pluginPath = $plugin->getPath() . '/Resources/app/administration/src';
 
             if (\is_dir($pluginPath)) {
-                $paths[] = $pluginPath;
+                $paths->add($pluginPath);
             }
 
             $meteorPluginPath = $plugin->getPath() . '/Resources/app/meteor-app';
             if (\is_dir($meteorPluginPath)) {
-                $paths[] = $meteorPluginPath;
+                $paths->add($meteorPluginPath);
             }
         }
     }
 
-    /**
-     * @param list<string> &$paths
-     */
-    private function addMeteorBundlePaths(array &$paths): void
+    private function addMeteorBundlePaths(SnippetPaths $paths): void
     {
         $plugins = $this->kernel->getPluginLoader()->getPluginInstances()->all();
         $bundles = $this->kernel->getBundles();
@@ -146,17 +138,15 @@ class SnippetFinder implements SnippetFinderInterface
                 continue;
             }
 
-            $paths[] = $meteorBundlePath;
+            $paths->add($meteorBundlePath);
         }
     }
 
     /**
-     * @param list<string> &$paths
-     *
      * @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
      * The method `getInstalledSnippetPaths` will be used to fetch the paths.
      */
-    private function addShopwareLegacyPaths(array &$paths): void
+    private function addShopwareLegacyPaths(SnippetPaths $paths): void
     {
         $plugins = $this->kernel->getPluginLoader()->getPluginInstances()->all();
         $bundles = $this->kernel->getBundles();
@@ -167,7 +157,7 @@ class SnippetFinder implements SnippetFinderInterface
             }
 
             if ($bundle->getName() === 'Administration') {
-                $paths = array_merge($paths, [
+                $paths->merge([
                     $bundle->getPath() . '/Resources/app/administration/src/app/snippet',
                     $bundle->getPath() . '/Resources/app/administration/src/module/*/snippet',
                     $bundle->getPath() . '/Resources/app/administration/src/app/component/*/*/snippet',
@@ -177,7 +167,7 @@ class SnippetFinder implements SnippetFinderInterface
             }
 
             if ($bundle->getName() === 'Storefront') {
-                $paths = array_merge($paths, [
+                $paths->merge([
                     $bundle->getPath() . '/Resources/app/administration/src/app/snippet',
                     $bundle->getPath() . '/Resources/app/administration/src/modules/*/snippet',
                 ]);
@@ -190,12 +180,12 @@ class SnippetFinder implements SnippetFinderInterface
 
             // Add the bundle path if it exists
             if (\is_dir($bundlePath)) {
-                $paths[] = $bundlePath;
+                $paths->add($bundlePath);
             }
 
             // Add the meteor bundle path if it exists
             if (\is_dir($meteorBundlePath)) {
-                $paths[] = $meteorBundlePath;
+                $paths->add($meteorBundlePath);
             }
         }
     }

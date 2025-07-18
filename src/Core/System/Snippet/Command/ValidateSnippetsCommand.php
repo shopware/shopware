@@ -21,6 +21,7 @@ use Symfony\Component\Console\Question\Question;
  * @phpstan-type Snippets array<string, string|array<string, mixed>>
  *
  * @phpstan-import-type InvalidPluralization from SnippetValidationStruct
+ * @phpstan-import-type MissingSnippets from SnippetValidationStruct
  */
 #[AsCommand(
     name: 'snippets:validate',
@@ -112,7 +113,7 @@ class ValidateSnippetsCommand extends Command
     }
 
     /**
-     * @param array<string, array<string, Snippets>> $missingSnippetsArray
+     * @param MissingSnippets $missingSnippetsArray
      */
     private function hydrateMissingSnippets(array $missingSnippetsArray): MissingSnippetCollection
     {
@@ -127,7 +128,7 @@ class ValidateSnippetsCommand extends Command
     }
 
     /**
-     * @param array<string, InvalidPluralization> $invalidPluralization
+     * @param InvalidPluralization $invalidPluralization
      */
     private function renderPluralizationErrors(ShopwareStyle $io, OutputInterface $output, array $invalidPluralization): void
     {

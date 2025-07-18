@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Snippet;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
@@ -9,7 +10,6 @@ use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
 
 /**
  * @phpstan-import-type MissingSnippets from SnippetValidationStruct
- * @phpstan-import-type InvalidPluralization from SnippetValidationStruct
  */
 #[Package('discovery')]
 class SnippetValidator implements SnippetValidatorInterface
@@ -31,6 +31,11 @@ class SnippetValidator implements SnippetValidatorInterface
      */
     public function validate(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'The method  Will be removed, use `getValidation()` instead.'
+        );
+
         return $this->getValidation()->missingSnippets;
     }
 
@@ -52,7 +57,11 @@ class SnippetValidator implements SnippetValidatorInterface
 
             foreach ($this->getRecursiveArrayKeys($json) as $keyValue) {
                 $key = key($keyValue);
+                \assert(\is_string($key));
+
                 $value = array_shift($keyValue);
+                \assert(\is_string($value));
+
                 $path = str_ireplace($this->projectDir, '', $snippetFile->getPath());
 
                 $snippetFileMappings[$snippetFile->getIso()][$key] = [
@@ -190,7 +199,7 @@ class SnippetValidator implements SnippetValidatorInterface
     }
 
     /**
-     * @return InvalidPluralization
+     * @return array{isInvalid: bool, isFixable: bool}
      */
     private function hasInvalidPluralization(string $snippetContent, string $filePath): array
     {

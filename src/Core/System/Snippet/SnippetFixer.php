@@ -25,11 +25,11 @@ class SnippetFixer
     /**
      * @deprecated tag:v6.8.0 reason:new-optional-parameter - Will get a second parameter `$invalidPluralization`
      *
-     * @param InvalidPluralization $invalidPluralization
+     * @toDo: Add `@param InvalidPluralization $invalidPluralization`
      */
     public function fix(MissingSnippetCollection $missingSnippetCollection /* , array $invalidPluralization */): void
     {
-        /** @var Snippets $invalidPluralization */
+        /** @var InvalidPluralization $invalidPluralization */
         $invalidPluralization = \func_num_args() === 2 ? func_get_arg(1) : [];
 
         if (!Feature::isActive('v6.8.0.0') && \func_num_args() < 2) {

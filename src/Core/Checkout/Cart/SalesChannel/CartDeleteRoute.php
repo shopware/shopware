@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
+use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\CartDeletedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -20,7 +21,8 @@ class CartDeleteRoute extends AbstractCartDeleteRoute
      */
     public function __construct(
         private readonly AbstractCartPersister $cartPersister,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CartLocker $cartLocker
     ) {
     }
 
@@ -32,11 +34,13 @@ class CartDeleteRoute extends AbstractCartDeleteRoute
     #[Route(path: '/store-api/checkout/cart', name: 'store-api.checkout.cart.delete', methods: ['DELETE'])]
     public function delete(SalesChannelContext $context): NoContentResponse
     {
-        $this->cartPersister->delete($context->getToken(), $context);
+        return $this->cartLocker->locked($context->getToken(), function () use ($context) {
+            $this->cartPersister->delete($context->getToken(), $context);
 
-        $cartDeleteEvent = new CartDeletedEvent($context);
-        $this->eventDispatcher->dispatch($cartDeleteEvent);
+            $cartDeleteEvent = new CartDeletedEvent($context);
+            $this->eventDispatcher->dispatch($cartDeleteEvent);
 
-        return new NoContentResponse();
+            return new NoContentResponse();
+        });
     }
 }

@@ -50,7 +50,7 @@ class CriteriaQueryBuilder
         }
 
         if ($criteria->getTerm()) {
-            $pattern = $this->interpreter->interpret((string) $criteria->getTerm());
+            $pattern = $this->interpreter->interpret($criteria->getTerm());
             $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition->getEntityName(), $context);
             $criteria->addQuery(...$queries);
         }

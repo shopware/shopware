@@ -68,7 +68,6 @@
         cursor: col-resize;
         background: transparent;
         z-index: 10;
-        transition: background 0.2s ease-in-out;
         
         &:hover {
             background: var(--color-interaction-primary-default);

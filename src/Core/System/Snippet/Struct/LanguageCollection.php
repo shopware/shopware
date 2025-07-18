@@ -19,12 +19,22 @@ class LanguageCollection extends Collection
     public function __construct(
         array $elements,
     ) {
-        $indexed = [];
-        foreach ($elements as $element) {
-            $indexed[$element->locale] = $element;
-        }
+        parent::__construct($elements);
 
-        parent::__construct($indexed);
+        foreach ($elements as $element) {
+            $this->set($element->locale, $element);
+        }
+    }
+
+    /**
+     * @param array-key|null $key
+     * @param Language $element
+     */
+    public function set($key, $element): void
+    {
+        $this->validateType($element);
+
+        $this->elements[$key] = $element;
     }
 
     protected function getExpectedClass(): string

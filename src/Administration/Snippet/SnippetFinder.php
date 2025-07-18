@@ -81,13 +81,13 @@ class SnippetFinder implements SnippetFinderInterface
     }
 
     /**
-     * @param list<string> $paths
+     * @param list<string> &$paths
      */
     private function addInstalledPlatformPaths(array &$paths, string $locale): void
     {
         $path = \sprintf(TranslationLoader::TRANSLATION_DESTINATION . '/%s/Platform', $locale);
 
-        if (!is_dir($path)) {
+        if (!\is_dir($path)) {
             return;
         }
 
@@ -95,7 +95,7 @@ class SnippetFinder implements SnippetFinderInterface
     }
 
     /**
-     * @param list<string> $paths
+     * @param list<string> &$paths
      */
     private function addPluginPaths(array &$paths, string $locale): void
     {
@@ -106,7 +106,7 @@ class SnippetFinder implements SnippetFinderInterface
             $path = \sprintf(TranslationLoader::TRANSLATION_DESTINATION . '/%s/Plugins/%s', $locale, $name);
 
             // add the path of the installed plugin translation if it exists
-            if (is_dir($path)) {
+            if (\is_dir($path)) {
                 $paths[] = $path;
 
                 continue;
@@ -127,7 +127,7 @@ class SnippetFinder implements SnippetFinderInterface
     }
 
     /**
-     * @param list<string> $paths
+     * @param list<string> &$paths
      */
     private function addMeteorBundlePaths(array &$paths): void
     {
@@ -151,7 +151,7 @@ class SnippetFinder implements SnippetFinderInterface
     }
 
     /**
-     * @param list<string> $paths
+     * @param list<string> &$paths
      *
      * @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
      * The method `getInstalledSnippetPaths` will be used to fetch the paths.

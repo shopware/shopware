@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdminProductStreamController;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -53,15 +55,26 @@ class AdminProductStreamControllerTest extends TestCase
 
         $collection = new ProductCollection();
 
+        $this->requestCriteriaBuilder->expects($this->once())->method('handleRequest')->willReturn(new Criteria());
+
         $this->salesChannelRepository->expects($this->once())->method('search')
-            ->willReturn(new EntitySearchResult(
-                'product',
-                1,
-                $collection,
-                null,
-                new Criteria(),
-                $context
-            ));
+            ->willReturnCallback(function (Criteria &$criteria, SalesChannelContext $context) use ($collection) {
+                static::assertSame(Criteria::TOTAL_COUNT_MODE_EXACT, $criteria->getTotalCountMode());
+                static::assertTrue($criteria->hasAssociation('manufacturer'));
+                static::assertTrue($criteria->hasAssociation('options'));
+                static::assertTrue($criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
+                static::assertCount(1, $criteria->getFilters());
+                static::assertInstanceOf(ProductAvailableFilter::class, $criteria->getFilters()[0]);
+
+                return new EntitySearchResult(
+                    'product',
+                    1,
+                    $collection,
+                    null,
+                    $criteria,
+                    $context->getContext()
+                );
+            });
 
         $response = $controller->productStreamPreview('salesChannelId', new Request(), $context);
         static::assertNotFalse($response->getContent());

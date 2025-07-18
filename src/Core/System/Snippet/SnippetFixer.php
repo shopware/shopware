@@ -33,7 +33,10 @@ class SnippetFixer
         $invalidPluralization = \func_num_args() === 2 ? func_get_arg(1) : [];
 
         if (!Feature::isActive('v6.8.0.0') && \func_num_args() < 2) {
-            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'New required parameter `$invalidPluralization` missing');
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'New required parameter `$invalidPluralization` missing'
+            );
         }
 
         $this->fixMissingSnippets($missingSnippetCollection);

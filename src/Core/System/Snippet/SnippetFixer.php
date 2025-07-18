@@ -6,9 +6,11 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand;
 use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
+use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
 
 /**
  * @phpstan-import-type Snippets from ValidateSnippetsCommand
+ * @phpstan-import-type InvalidPluralization from SnippetValidationStruct
  */
 #[Package('discovery')]
 class SnippetFixer
@@ -64,7 +66,7 @@ class SnippetFixer
     }
 
     /**
-     * @param Snippets $invalidPluralization
+     * @param InvalidPluralization $invalidPluralization
      */
     private function fixInvalidPluralization(array $invalidPluralization): void
     {

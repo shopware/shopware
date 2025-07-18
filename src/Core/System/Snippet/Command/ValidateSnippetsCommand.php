@@ -8,6 +8,7 @@ use Shopware\Core\System\Snippet\SnippetFixer;
 use Shopware\Core\System\Snippet\SnippetValidatorInterface;
 use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
 use Shopware\Core\System\Snippet\Struct\MissingSnippetStruct;
+use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
@@ -18,6 +19,7 @@ use Symfony\Component\Console\Question\Question;
 
 /**
  * @phpstan-type Snippets array<string, string|array<string, mixed>>
+ * @phpstan-import-type InvalidPluralization from SnippetValidationStruct
  */
 #[AsCommand(
     name: 'snippets:validate',
@@ -109,7 +111,7 @@ class ValidateSnippetsCommand extends Command
     }
 
     /**
-     * @param Snippets $missingSnippetsArray
+     * @param array<String, Snippets> $missingSnippetsArray
      */
     private function hydrateMissingSnippets(array $missingSnippetsArray): MissingSnippetCollection
     {
@@ -124,12 +126,7 @@ class ValidateSnippetsCommand extends Command
     }
 
     /**
-     * @param array<string, array{
-     *     snippetKey: string,
-     *     snippetValue: string,
-     *     isFixable: bool,
-     *     path: string
-     * }> $invalidPluralization
+     * @param InvalidPluralization $invalidPluralization
      */
     private function renderPluralizationErrors(ShopwareStyle $io, OutputInterface $output, array $invalidPluralization): void
     {

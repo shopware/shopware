@@ -17,6 +17,9 @@ class SnippetFileHandler
 {
     private readonly Filesystem $filesystem;
 
+    /**
+     * @internal
+     */
     public function __construct()
     {
         $this->filesystem = new Filesystem();
@@ -27,9 +30,9 @@ class SnippetFileHandler
      */
     public function openJsonFile(string $path): array
     {
-        $fileContents = $this->filesystem->readFile($path);
-
-        if ($fileContents === false) {
+        try {
+            $fileContents = $this->filesystem->readFile($path);
+        } catch (\Throwable) {
             throw SnippetException::jsonNotFound();
         }
 

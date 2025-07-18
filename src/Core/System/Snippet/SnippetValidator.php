@@ -12,7 +12,7 @@ use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
  * @phpstan-import-type InvalidPluralization from SnippetValidationStruct
  */
 #[Package('discovery')]
-class SnippetValidator
+class SnippetValidator implements SnippetValidatorInterface
 {
     /**
      * @internal

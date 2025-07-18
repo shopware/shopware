@@ -112,7 +112,7 @@ class ValidateSnippetsCommand extends Command
     }
 
     /**
-     * @param array<string, Snippets> $missingSnippetsArray
+     * @param array<string, array<string, Snippets>> $missingSnippetsArray
      */
     private function hydrateMissingSnippets(array $missingSnippetsArray): MissingSnippetCollection
     {

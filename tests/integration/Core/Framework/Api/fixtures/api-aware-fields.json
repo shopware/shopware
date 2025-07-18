@@ -1525,6 +1525,8 @@
     "shipping_method_price.calculation",
     "shipping_method_price.calculationRuleId",
     "shipping_method_price.quantityStart",
+    "shipping_method_price.quantityStep",
+    "shipping_method_price.quantityStepPrice",
     "shipping_method_price.quantityEnd",
     "shipping_method_price.currencyPrice",
     "shipping_method_price.customFields",

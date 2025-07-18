@@ -271,7 +271,7 @@ class DeliveryCalculator
         $quantityStep = $shippingMethodPrice->getQuantityStep();
         $quantityStepPrice = $shippingMethodPrice->getQuantityStepPrice();
 
-        if ($quantityStep !== null && $quantityStepPrice !== null) {
+        if ($quantityStep > 0 && $quantityStepPrice !== null) {
             // Use ceil to round up, because the steps are used as "to" checkpoints
             $steps = ceil(($value - ($start ?? 0)) / $quantityStep);
 

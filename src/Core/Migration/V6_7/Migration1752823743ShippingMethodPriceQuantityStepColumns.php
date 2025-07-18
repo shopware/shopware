@@ -19,6 +19,10 @@ class Migration1752823743ShippingMethodPriceQuantityStepColumns extends Migratio
 
     public function update(Connection $connection): void
     {
+        if ($this->columnExists($connection, 'shipping_method_price', 'quantity_step')) {
+            return;
+        }
+
         $this->addColumn($connection, 'shipping_method_price', 'quantity_step', 'DOUBLE');
         $this->addColumn($connection, 'shipping_method_price', 'quantity_step_price', 'JSON');
 

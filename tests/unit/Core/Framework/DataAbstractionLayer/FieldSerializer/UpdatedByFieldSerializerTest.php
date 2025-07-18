@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -168,10 +169,9 @@ class UpdatedByFieldSerializerTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - remove this test, as the behavior will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testEncodeWithNoUserIdDeprecated(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $data = new KeyValuePair('key', null, false);
         $existence = $this->createMock(EntityExistence::class);
         $existence->method('exists')->willReturn(true);
@@ -194,8 +194,6 @@ class UpdatedByFieldSerializerTest extends TestCase
 
     public function testEncodeWithNoUserId(): void
     {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
         $data = new KeyValuePair('key', null, false);
         $existence = $this->createMock(EntityExistence::class);
         $existence->method('exists')->willReturn(true);

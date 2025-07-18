@@ -48,6 +48,11 @@ trait SnippetFileTrait
     {
         $dir = TranslationLoader::TRANSLATION_DESTINATION . '/es-ES';
 
+        if (!\is_dir($dir)) {
+            // If the directory does not exist, there's nothing to clean up.
+            return;
+        }
+
         $items = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),
             \RecursiveIteratorIterator::CHILD_FIRST

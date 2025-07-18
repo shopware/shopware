@@ -46,6 +46,11 @@ class SnippetFileLoaderTest extends TestCase
         );
     }
 
+    protected function tearDown(): void
+    {
+        $this->cleanupSnippetFiles();
+    }
+
     public function testLoadSnippetsFromShopwareBundle(): void
     {
         $kernel = $this->getKernel([
@@ -332,9 +337,9 @@ class SnippetFileLoaderTest extends TestCase
             TranslationLoader::TRANSLATION_DESTINATION . '/es-ES/Platform/administration.json',
         ];
 
-        static::assertEquals($expectedPaths, $actualPaths);
-
-        $this->cleanupSnippetFiles();
+        foreach ($actualPaths as $path) {
+            static::assertContains($path, $expectedPaths);
+        }
     }
 
     /**

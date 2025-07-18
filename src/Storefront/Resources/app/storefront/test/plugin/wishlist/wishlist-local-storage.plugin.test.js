@@ -22,7 +22,7 @@ describe('WishlistLocalStoragePlugin tests', () => {
         CookieStorageHelper.setItem('wishlist-enabled', true);
 
         window.router = {
-            'frontend.wishlist.cookie.offcanvas': '/wishlist/cookie-offcanvas'
+            'frontend.cookie.consent.offcanvas': '/cookie/consent-offcanvas'
         };
         window.wishlistEnabled = true;
 

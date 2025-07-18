@@ -13,6 +13,7 @@ use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Returns the cookie-configuration.html.twig template including all cookies returned by the "getCookieGroup"-method
@@ -197,5 +198,17 @@ class CookieController extends StorefrontController
         }
 
         return $cookieGroup;
+    }
+
+    #[Route(path: '/cookie/consent-offcanvas', name: 'frontend.cookie.consent.offcanvas', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
+    public function cookieConsentOffcanvas(Request $request, SalesChannelContext $context): Response
+    {
+        $featureName = $request->get('featureName', 'wishlist');
+        $cookieName = $request->get('cookieName', 'wishlist-enabled');
+
+        return $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-consent-offcanvas.html.twig', [
+            'featureName' => $featureName,
+            'cookieName' => $cookieName,
+        ]);
     }
 }

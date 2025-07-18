@@ -20,23 +20,7 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
     }
 
     add(productId) {
-        if (
-            !window.customerLoggedInState &&
-            window.useDefaultCookieConsent &&
-            !CookieStorageHelper.getItem('wishlist-enabled')
-        ) {
-            document.$emitter.publish('WishlistCookie/requestConsent', {
-                productId,
-                onAccept: () => {
-                    super.add(productId);
-                    this._save();
-                },
-            });
-            return false;
-        }
-
         super.add(productId);
-
         this._save();
         return true;
     }

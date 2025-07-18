@@ -209,10 +209,4 @@ class WishlistController extends StorefrontController
             'searchResult' => $page->getWishlist()->getProductListing(),
         ]);
     }
-
-    #[Route(path: '/wishlist/cookie-offcanvas', name: 'frontend.wishlist.cookie.offcanvas', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
-    public function wishlistCookieOffcanvas(Request $request, SalesChannelContext $context): Response
-    {
-        return $this->renderStorefront('@Storefront/storefront/component/wishlist/wishlist-cookie-offcanvas.html.twig');
-    }
 }

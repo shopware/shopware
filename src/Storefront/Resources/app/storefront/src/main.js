@@ -127,40 +127,6 @@ if (window.useDefaultCookieConsent) {
     PluginManager.register('CookieConfiguration', () => import('src/plugin/cookie/cookie-configuration.plugin'), '[data-cookie-permission]');
 }
 
-function registerWishlistConsentPlugin() {
-    const addBtnSelector    = '[data-add-to-wishlist]';
-    const offcanvasSelector = '[data-offcanvas-wishlist-cookie]';
-
-    // only if add to wishlist button is present
-    if (!document.querySelector(addBtnSelector)) {
-        return;
-    }
-
-    document.$emitter.subscribe(
-        'WishlistCookie/requestConsent',
-        async ({ productId, onAccept }) => {
-            const { default: WishlistCookieOffcanvasPlugin } =
-                await import('src/plugin/wishlist/wishlist-cookie-offcanvas.plugin');
-
-            WishlistCookieOffcanvasPlugin.requestConsent(productId, onAccept);
-        }
-    );
-
-    const wishlistConsentGiven = CookieStorageHelper.getItem('wishlist-enabled') === '1';
-
-    if (window.useDefaultCookieConsent && !wishlistConsentGiven) {
-        try {
-            PluginManager.register(
-                'WishlistCookieOffcanvas',
-                () => import('src/plugin/wishlist/wishlist-cookie-offcanvas.plugin'),
-                `${addBtnSelector}, ${offcanvasSelector}`
-            );
-        } catch (e) {
-            // already registered—ignore
-        }
-    }
-}
-
 if (window.wishlistEnabled) {
     if (window.customerLoggedInState) {
         PluginManager.register('WishlistStorage', () => import('src/plugin/wishlist/persist-wishlist.plugin'), '[data-wishlist-storage]');
@@ -171,10 +137,6 @@ if (window.wishlistEnabled) {
 
     PluginManager.register('AddToWishlist', () => import('src/plugin/wishlist/add-to-wishlist.plugin'), '[data-add-to-wishlist]');
     PluginManager.register('WishlistWidget', () => import('src/plugin/header/wishlist-widget.plugin'), '[data-wishlist-widget]');
-}
-
-if (window.wishlistEnabled && !window.customerLoggedInState) {
-    registerWishlistConsentPlugin();
 }
 
 if (window.gtagActive) {

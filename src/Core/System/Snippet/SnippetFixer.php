@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\System\Snippet;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand;
 use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
 
 /**
- * @phpstan-type Snippets array<string, string|mixed>
+ * @phpstan-import-type Snippets from ValidateSnippetsCommand
  */
 #[Package('discovery')]
 class SnippetFixer
@@ -21,10 +23,14 @@ class SnippetFixer
     /**
      * @deprecated tag:v6.8.0 reason:new-optional-parameter - Will get a second parameter `$invalidPluralization`
      */
-    public function fix(MissingSnippetCollection $missingSnippetCollection): void
+    public function fix(MissingSnippetCollection $missingSnippetCollection /*, array $invalidPluralization*/): void
     {
         /** @var Snippets $invalidPluralization */
         $invalidPluralization = \func_num_args() === 2 ? func_get_arg(1) : [];
+
+        if (!Feature::isActive('v6.8.0.0') && \func_num_args() < 2) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'New required parameter `$invalidPluralization` missing');
+        }
 
         $this->fixMissingSnippets($missingSnippetCollection);
         $this->fixInvalidPluralization($invalidPluralization);

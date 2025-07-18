@@ -5,7 +5,12 @@ namespace Shopware\Core\System\Snippet;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
 
+/**
+ * @phpstan-import-type MissingSnippets from SnippetValidationStruct
+ * @phpstan-import-type InvalidPluralization from SnippetValidationStruct
+ */
 #[Package('discovery')]
 class SnippetValidator implements SnippetValidatorInterface
 {
@@ -20,9 +25,19 @@ class SnippetValidator implements SnippetValidatorInterface
     }
 
     /**
-     * @return array<string, array<string, mixed>>
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return SnippetValidationStruct
+     *
+     * @return MissingSnippets
      */
     public function validate(): array
+    {
+        return $this->getValidation()->missingSnippets;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use validate() instead
+     */
+    public function getValidation(): SnippetValidationStruct
     {
         $files = $this->getAllFiles();
 
@@ -61,10 +76,10 @@ class SnippetValidator implements SnippetValidatorInterface
             }
         }
 
-        return [
-            'missingSnippets' => $this->findMissingSnippets($snippetFileMappings, $availableISOs),
-            'invalidPluralization' => $invalidPluralization,
-        ];
+        return new SnippetValidationStruct(
+            $this->findMissingSnippets($snippetFileMappings, $availableISOs),
+            $invalidPluralization,
+        );
     }
 
     protected function getAllFiles(): SnippetFileCollection
@@ -140,7 +155,7 @@ class SnippetValidator implements SnippetValidatorInterface
      * @param array<string, array<string, array<string, mixed>>> $snippetFileMappings
      * @param array<int, string> $availableISOs
      *
-     * @return array<string, mixed>
+     * @return MissingSnippets
      */
     private function findMissingSnippets(array $snippetFileMappings, array $availableISOs): array
     {
@@ -178,7 +193,7 @@ class SnippetValidator implements SnippetValidatorInterface
     }
 
     /**
-     * @return array{isInvalid: bool, isFixable: bool}
+     * @return InvalidPluralization
      */
     private function hasInvalidPluralization(string $snippetContent, string $filePath): array
     {

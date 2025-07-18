@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
 /**
- * @phpstan-type Snippets array<string, string|mixed>
+ * @phpstan-type Snippets array<string, string|array<string, mixed>>
  */
 #[AsCommand(
     name: 'snippets:validate',
@@ -43,12 +43,12 @@ class ValidateSnippetsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $invalidSnippets = $this->snippetValidator->validate();
+        $invalidSnippetsStruct = $this->snippetValidator->getValidation();
 
-        $missingSnippetsCollection = $this->hydrateMissingSnippets($invalidSnippets['missingSnippets']);
+        $missingSnippetsCollection = $this->hydrateMissingSnippets($invalidSnippetsStruct->missingSnippets);
         $hasMissingSnippets = $missingSnippetsCollection->count() > 0;
 
-        $invalidPluralization = $invalidSnippets['invalidPluralization'];
+        $invalidPluralization = $invalidSnippetsStruct->invalidPluralization;
         $hasInvalidPluralization = \count($invalidPluralization) > 0;
 
         $io = new ShopwareStyle($input, $output);
@@ -79,7 +79,7 @@ class ValidateSnippetsCommand extends Command
             }
 
             if ($hasInvalidPluralization) {
-                $this->renderPluralizationErrors($io, $output, $invalidSnippets['invalidPluralization']);
+                $this->renderPluralizationErrors($io, $output, $invalidPluralization);
             }
 
             return -1;
@@ -101,7 +101,7 @@ class ValidateSnippetsCommand extends Command
         $this->snippetFixer->fix($missingSnippetsCollection, $invalidPluralization);
 
         if ($hasInvalidPluralization) {
-            $this->renderPluralizationErrors($io, $output, $invalidSnippets['invalidPluralization']);
+            $this->renderPluralizationErrors($io, $output, $invalidPluralization);
             $io->warning('Only invalid pluralization range can be fixed automatically. Please review carefully.');
         }
 

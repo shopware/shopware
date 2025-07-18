@@ -4,11 +4,12 @@ namespace Shopware\Core\System\Snippet;
 
 use Shopware\Administration\Administration;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand;
 use Shopware\Storefront\Storefront;
 use Symfony\Component\Finder\Finder;
 
 /**
- * @phpstan-type Snippets array<string, string|mixed>
+ * @phpstan-import-type Snippets from ValidateSnippetsCommand
  */
 #[Package('discovery')]
 class SnippetFileHandler
@@ -24,11 +25,10 @@ class SnippetFileHandler
             throw SnippetException::jsonNotFound();
         }
 
-        $json = json_decode($fileContents, true, 512, \JSON_THROW_ON_ERROR);
-
-        $jsonError = json_last_error();
-        if ($jsonError !== 0) {
-            throw SnippetException::invalidSnippetFile($path, new \RuntimeException(json_last_error_msg(), $jsonError));
+        try {
+            $json = json_decode($fileContents, true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\Throwable $e) {
+            throw SnippetException::invalidSnippetFile($path, $e);
         }
 
         return $json;
@@ -39,16 +39,18 @@ class SnippetFileHandler
      */
     public function writeJsonFile(string $path, array $content): void
     {
-        $json = \json_encode(
-            $content,
-            \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES
-        ) ?: '';
+        try {
+            $json = \json_encode($content, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
+        } catch (\Throwable $e) {
+            throw SnippetException::invalidSnippetFile($path, $e);
+        }
+
         $json = str_replace('    ', '  ', $json); // Workaround because of wrong indentation
         file_put_contents($path, $json);
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     public function findAdministrationSnippetFiles(): array
     {
@@ -60,7 +62,7 @@ class SnippetFileHandler
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     public function findStorefrontSnippetFiles(): array
     {
@@ -81,7 +83,7 @@ class SnippetFileHandler
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     private function findSnippetFilesByPath(string $path): array
     {

@@ -6,6 +6,7 @@ use Shopware\Administration\Administration;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand;
 use Shopware\Storefront\Storefront;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -14,12 +15,19 @@ use Symfony\Component\Finder\Finder;
 #[Package('discovery')]
 class SnippetFileHandler
 {
+    private readonly Filesystem $filesystem;
+
+    public function __construct()
+    {
+        $this->filesystem = new Filesystem();
+    }
+
     /**
      * @return Snippets
      */
     public function openJsonFile(string $path): array
     {
-        $fileContents = file_get_contents($path);
+        $fileContents = $this->filesystem->readFile($path);
 
         if ($fileContents === false) {
             throw SnippetException::jsonNotFound();
@@ -46,7 +54,7 @@ class SnippetFileHandler
         }
 
         $json = str_replace('    ', '  ', $json); // Workaround because of wrong indentation
-        file_put_contents($path, $json);
+        $this->filesystem->dumpFile($path, $json);
     }
 
     /**

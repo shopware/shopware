@@ -15,6 +15,4 @@ interface SnippetValidatorInterface
      * @return array<string, array<string, mixed>>
      */
     public function validate(): array;
-
-    public function getValidation(): SnippetValidationStruct;
 }

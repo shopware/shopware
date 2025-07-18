@@ -91,8 +91,6 @@ describe('AddToWishlistPlugin tests', () => {
 
         mockElement.click();
 
-        expect(document.getElementById('add-to-wishlist').classList.contains('product-wishlist-loading')).toBe(false);
-
         // called by WishlistWidgetPlugin
         plugin.initStateClasses();
 

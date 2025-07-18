@@ -33,7 +33,6 @@ import (synchronously) plugins
  */
 import SetBrowserClassPlugin from 'src/plugin/set-browser-class/set-browser-class.plugin';
 import SpeculationRulesPlugin from 'src/plugin/speculation-rules/speculation-rules.plugin';
-import CookieStorageHelper from './helper/storage/cookie-storage.helper';
 
 window.Feature = Feature;
 window.eventEmitter = new NativeEventEmitter();

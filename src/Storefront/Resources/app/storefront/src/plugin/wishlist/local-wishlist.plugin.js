@@ -7,6 +7,8 @@ import CookieStorageHelper from '../../helper/storage/cookie-storage.helper';
  */
 export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugin {
     init() {
+        this.cookieEnabledName = 'wishlist-enabled';
+
         this.storage = Storage;
 
         super.init();
@@ -22,7 +24,6 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
     add(productId) {
         super.add(productId);
         this._save();
-        return true;
     }
 
     remove(productId) {
@@ -35,7 +36,7 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
      * @private
      */
     _fetch() {
-        if (window.useDefaultCookieConsent && CookieStorageHelper.getItem('wishlist-enabled') !== '1') {
+        if (window.useDefaultCookieConsent && !CookieStorageHelper.getItem(this.cookieEnabledName)) {
             this.storage.removeItem(this._getStorageKey());
         }
 

@@ -15,15 +15,8 @@ describe('WishlistLocalStoragePlugin tests', () => {
     guestLogoutBtn.$emitter = new NativeEventEmitter();
 
     beforeEach(() => {
-        jest.spyOn(AjaxOffCanvas, 'open')
-            .mockImplementation((url, push, cb) => cb());
-        jest.spyOn(AjaxOffCanvas, 'close')
-            .mockImplementation(() => {});
         CookieStorageHelper.setItem('wishlist-enabled', true);
 
-        window.router = {
-            'frontend.cookie.consent.offcanvas': '/cookie/consent-offcanvas'
-        };
         window.wishlistEnabled = true;
 
         const mockElement = document.createElement('div');
@@ -32,8 +25,6 @@ describe('WishlistLocalStoragePlugin tests', () => {
             return [guestLogoutBtn];
         }
 
-        window.PluginManager.initializePlugins = jest.fn();
-        window.PluginManager.getPluginInstanceFromElement = jest.fn();
         wishlistStoragePlugin = new WishlistLocalStoragePlugin(mockElement);
     });
 
@@ -66,45 +57,6 @@ describe('WishlistLocalStoragePlugin tests', () => {
         wishlistStoragePlugin.remove('PRODUCT_001');
         expect(wishlistStoragePlugin.getCurrentCounter()).toEqual(0);
         expect(Storage.getItem(key)).toBeFalsy();
-    });
-
-    test('LocalWishlistStoragePlugin clear wishlist storage on guest logout', () => {
-        const key = wishlistStoragePlugin._getStorageKey();
-
-        wishlistStoragePlugin.add('PRODUCT_001');
-
-        guestLogoutBtn.$emitter.publish('guest-logout');
-
-        expect(Storage.getItem(key)).toBeFalsy();
-    });
-
-    test('LocalWishlistStoragePlugin opens consent offcanvas when no consent', () => {
-        window.customerLoggedInState = false;
-        window.useDefaultCookieConsent = true;
-        CookieStorageHelper.removeItem('wishlist-enabled');
-
-        const spyPublish = jest.spyOn(document.$emitter, 'publish');
-
-        const added = wishlistStoragePlugin.add('testProduct');
-        expect(added).toBe(false);
-        expect(spyPublish).toHaveBeenCalledWith(
-            'WishlistCookie/requestConsent',
-            expect.objectContaining({
-                productId: 'testProduct',
-                onAccept: expect.any(Function)
-            })
-        );
-    });
-
-    test('LocalWishlistStoragePlugin actually adds when consent already given', () => {
-        // ensure the cookie is set
-        CookieStorageHelper.setItem('wishlist-enabled', '1', 30);
-
-        const added = wishlistStoragePlugin.add('addTestProduct');
-        expect(added).toBe(true);
-
-        const key = wishlistStoragePlugin._getStorageKey();
-        expect(JSON.parse(Storage.getItem(key))).toHaveProperty('addTestProduct');
     });
 });
 

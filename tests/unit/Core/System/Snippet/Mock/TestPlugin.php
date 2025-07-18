@@ -17,4 +17,9 @@ class TestPlugin extends Plugin
     {
         $this->name = $name;
     }
+
+    public function setPath(string $path): void
+    {
+        $this->path = $path;
+    }
 }

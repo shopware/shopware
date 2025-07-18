@@ -14,7 +14,9 @@ use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Storefront\Storefront;
+use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
 
 /**
  * @internal
@@ -205,11 +207,12 @@ class SnippetFinderTest extends TestCase
         array $activePluginPaths = [],
         array $bundlePaths = []
     ): Kernel&MockObject {
-        $getBundleMockByPath = function (string $path): Plugin&MockObject {
-            $plugin = $this->createMock(Plugin::class);
-            $plugin
-                ->method('getPath')
-                ->willReturn(__DIR__ . '/fixtures/' . $path);
+        $getBundleMockByPath = function (string $path): Plugin {
+            $path = __DIR__ . '/fixtures/' . $path;
+
+            $plugin = new TestPlugin(true, $path);
+            $plugin->setName('activePlugin');
+            $plugin->setPath($path);
 
             return $plugin;
         };
@@ -265,6 +268,74 @@ class SnippetFinderTest extends TestCase
         return $kernelMock;
     }
 
+    public function testFindInstalledSnippetsWithoutPluginsActive(): void
+    {
+        $this->createSnippetFiles();
+
+        $snippetFinder = new SnippetFinder(
+            $this->getKernelMock(),
+            $this->getConnectionMock('es-ES', [])
+        );
+
+        $snippets = $snippetFinder->findSnippets('es-ES');
+
+        static::assertEquals(['shop' => 'Demo Shop'], $snippets);
+
+        $this->cleanupSnippetFiles();
+    }
+
+    public function testFindInstalledSnippetsWithActivePlugin(): void
+    {
+        $this->createSnippetFiles();
+
+        $snippetFinder = new SnippetFinder(
+            $this->getKernelMock(pluginPaths: ['activePlugin'], activePluginPaths: ['activePlugin']),
+            $this->getConnectionMock('es-ES', [])
+        );
+
+        $snippets = $snippetFinder->findSnippets('es-ES');
+
+        static::assertEquals([
+            'plugin' => 'activePlugin',
+            'shop' => 'Demo Shop',
+        ], $snippets);
+
+        $this->cleanupSnippetFiles();
+    }
+
+    public function createSnippetFiles(): void
+    {
+        $paths = [
+            'platform' => TranslationLoader::TRANSLATION_DESTINATION . '/es-ES/Platform',
+            'plugin' => TranslationLoader::TRANSLATION_DESTINATION . '/es-ES/Plugins/activePlugin',
+        ];
+
+        $files = [
+            'administration.json',
+            'storefront.json',
+            'messages.es-ES.base.json',
+        ];
+
+        foreach ($paths as $scope => $path) {
+            if (!is_dir($path)) {
+                mkdir($path, 0777, true);
+            }
+
+            if ($scope === 'platform') {
+                $snippet = ['shop' => 'Demo Shop'];
+            } else {
+                $snippet = ['plugin' => 'activePlugin'];
+            }
+
+            foreach ($files as $file) {
+                $filePath = $path . '/' . $file;
+                if (!is_file($filePath)) {
+                    file_put_contents($filePath, json_encode($snippet, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE));
+                }
+            }
+        }
+    }
+
     /**
      * @param array<string, mixed> $snippets
      */
@@ -304,5 +375,27 @@ class SnippetFinderTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    private function cleanupSnippetFiles(): void
+    {
+        $dir = TranslationLoader::TRANSLATION_DESTINATION . '/es-ES';
+
+        $items = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($items as $item) {
+            static::assertInstanceOf(\SplFileInfo::class, $item);
+
+            if ($item->isDir()) {
+                rmdir($item->getPathname());
+            } else {
+                unlink($item->getPathname());
+            }
+        }
+
+        rmdir($dir);
     }
 }

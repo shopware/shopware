@@ -62,6 +62,10 @@ class OrderConverter
 
     final public const ORIGINAL_DOWNLOADS = 'originalDownloads';
 
+    final public const ORIGINAL_PRIMARY_ORDER_DELIVERY = 'originalPrimaryOrderDelivery';
+
+    final public const ORIGINAL_PRIMARY_ORDER_TRANSACTION = 'originalPrimaryOrderTransaction';
+
     final public const ADMIN_EDIT_ORDER_PERMISSIONS = [
         ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
         ProductCartProcessor::SKIP_PRODUCT_RECALCULATION => true,
@@ -207,15 +211,17 @@ class OrderConverter
         $idStruct = $cart->getExtensionOfType(self::ORIGINAL_ID, IdStruct::class);
         $data['id'] = $idStruct ? $idStruct->getId() : Uuid::randomHex();
 
-        $orderNumberStruct = $cart->getExtensionOfType(self::ORIGINAL_ORDER_NUMBER, IdStruct::class);
-        if ($orderNumberStruct !== null) {
-            $data['orderNumber'] = $orderNumberStruct->getId();
-        } else {
-            $data['orderNumber'] = $this->numberRangeValueGenerator->getValue(
-                OrderDefinition::ENTITY_NAME,
-                $context->getContext(),
-                $context->getSalesChannelId()
-            );
+        if ($conversionContext->shouldIncludeOrderNumber()) {
+            $orderNumberStruct = $cart->getExtensionOfType(self::ORIGINAL_ORDER_NUMBER, IdStruct::class);
+            if ($orderNumberStruct !== null) {
+                $data['orderNumber'] = $orderNumberStruct->getId();
+            } else {
+                $data['orderNumber'] = $this->numberRangeValueGenerator->getValue(
+                    OrderDefinition::ENTITY_NAME,
+                    $context->getContext(),
+                    $context->getSalesChannelId()
+                );
+            }
         }
 
         $data['ruleIds'] = $context->getRuleIds();
@@ -260,8 +266,17 @@ class OrderConverter
         $lineItems = LineItemTransformer::transformFlatToNested($order->getLineItems());
 
         $cart->addLineItems($lineItems);
+
+        if ($order->getPrimaryOrderTransactionId()) {
+            $cart->addExtension(self::ORIGINAL_PRIMARY_ORDER_TRANSACTION, new IdStruct($order->getPrimaryOrderTransactionId()));
+        }
+
+        if ($order->getPrimaryOrderDeliveryId()) {
+            $cart->addExtension(self::ORIGINAL_PRIMARY_ORDER_DELIVERY, new IdStruct($order->getPrimaryOrderDeliveryId()));
+        }
+
         $cart->setDeliveries(
-            $this->convertDeliveries($order->getDeliveries(), $lineItems)
+            $this->convertDeliveries($order->getPrimaryOrderDeliveryId(), $order->getDeliveries(), $lineItems)
         );
 
         $event = new OrderConvertedEvent($order, $cart, $context);
@@ -392,10 +407,21 @@ class OrderConverter
         return $salesChannelContext;
     }
 
-    private function convertDeliveries(OrderDeliveryCollection $orderDeliveries, LineItemCollection $lineItems): DeliveryCollection
+    private function convertDeliveries(?string $primaryOrderDeliveryId, OrderDeliveryCollection $orderDeliveries, LineItemCollection $lineItems): DeliveryCollection
     {
+        // Ensure primary delivery is first, so `$deliveries->first()` returns the primary delivery.
+        $keys = \array_filter(\array_unique([$primaryOrderDeliveryId, ...$orderDeliveries->getKeys()]));
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $keys = $orderDeliveries->getKeys();
+        }
+
         $cartDeliveries = new DeliveryCollection();
-        foreach ($orderDeliveries as $orderDelivery) {
+        foreach ($keys as $id) {
+            if (!$orderDelivery = $orderDeliveries->get($id)) {
+                throw OrderException::orderDeliveryNotFound($id);
+            }
+
             $deliveryDate = new DeliveryDate(
                 $orderDelivery->getShippingDateEarliest(),
                 $orderDelivery->getShippingDateLatest()

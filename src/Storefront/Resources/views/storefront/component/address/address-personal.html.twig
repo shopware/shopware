@@ -7,6 +7,8 @@
 #}
 {% block component_address_personal_fields %}
     {% block component_address_personal_account_type %}
+        {% set accountTypeFieldName = prefix ? prefix ~ '[accountType]' : 'accountType' %}
+
         {% if (onlyCompanyRegistration or (config('core.loginRegistration.showAccountTypeSelection') and not hideCustomerTypeSelect)) and not hasSelectedBusiness %}
             <div class="row g-2">
                 {% set toggleTarget = ".js-field-toggle-contact-type-company" %}
@@ -59,7 +61,7 @@
                     {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
                         label: 'account.personalTypeLabel'|trans|sw_sanitize,
                         id: idPrefix ~ prefix ~ '-accountType',
-                        name: prefix ? prefix ~ '[accountType]' : 'accountType',
+                        name: accountTypeFieldName,
                         options: accountTypeOptions,
                         validationRules: 'required',
                         disabled: (onlyCompanyRegistration) ? 'true',
@@ -79,14 +81,14 @@
                     {# This is rendered on the profile edit page if the customer registered via a custom commercial registration form. #}
                     {# The selection field is then disabled and the account type is set to "business". #}
                     <input type="hidden"
-                           name="accountType"
+                           name="{{ accountTypeFieldName }}"
                            value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
                 {% endif %}
             </div>
         {% elseif not hideCustomerTypeSelect %}
             {# This case applies to custom registration forms with the "Company signup form" config enabled. #}
             {# The registration is always of type "commercial" then. #}
-            <input type="hidden" name="accountType">
+            <input type="hidden" name="{{ accountTypeFieldName }}">
         {% endif %}
     {% endblock %}
 

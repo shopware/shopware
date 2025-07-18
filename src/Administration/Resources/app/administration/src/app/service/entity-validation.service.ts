@@ -68,7 +68,11 @@ export default class EntityValidationService {
      * A CustomValidator callback can be provided to modify or add to the found errors.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    public validate(entity: Entity<any>, customValidator: CustomValidator | undefined): boolean {
+    public validate(
+        entity: Entity<any>,
+        customValidator: CustomValidator | undefined,
+        ignoreFields: string[] = [],
+    ): boolean {
         // eslint-disable-next-line max-len
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
         const entityName = entity.getEntityName();
@@ -78,7 +82,12 @@ export default class EntityValidationService {
         let errors: ValidationError[] = [];
 
         // check for required fields
-        const requiredFields = definition.getRequiredFields() as Record<string, never>;
+        const requiredFields = Object.fromEntries(
+            Object.entries(definition.getRequiredFields() as Record<string, never>).filter(
+                ([key]) => !ignoreFields.includes(key),
+            ),
+        ) as Omit<Record<string, any>, (typeof ignoreFields)[number]>;
+
         errors.push(...this.getRequiredErrors(entity, requiredFields));
 
         // run custom validator

@@ -22,7 +22,11 @@
         "replace": "Ersetzen",
         "settings": "Einstellungen",
         "ar": "AR-Ansicht aktivieren",
-        "arHelpText": "AR-Funktion aktiviert, wenn sie in der Storefront präsentiert wird. Sie können die Standardeinstellung in <a href=\"{settingsLink}\">den 3D-Einstellungen</a> ändern."
+        "arHelpText": "AR-Funktion aktiviert, wenn sie in der Storefront präsentiert wird. Sie können die Standardeinstellung in <a href=\"{settingsLink}\">den 3D-Einstellungen</a> ändern.",
+        "arPlacement": "AR-Platzierung",
+        "arPlacementHelpText": "Wählen Sie aus, ob das Objekt auf einer horizontalen Fläche, wie dem Boden, oder auf einer vertikalen Fläche, wie einer Wand, platziert ist.",
+        "horizontal": "Horizontal",
+        "vertical": "Vertikal"
       },
       "sections": {
         "actions": "Aktionen",

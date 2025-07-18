@@ -412,4 +412,12 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         const createContextMenu = wrapper.find('.sw-context-button');
         expect(createContextMenu.attributes().disabled).toBeUndefined();
     });
+
+    it('should allow any text input in the document number field', async () => {
+        const documentNumberFieldInput = wrapper.findByLabel('sw-order.documentModal.labelDocumentNumber');
+        expect(documentNumberFieldInput.exists()).toBeTruthy();
+
+        await documentNumberFieldInput.setValue('Prefix-1000-Suffix');
+        expect(documentNumberFieldInput.element.value).toBe('Prefix-1000-Suffix');
+    });
 });

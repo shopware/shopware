@@ -148,6 +148,10 @@ async function createWrapper(
                             return privileges.includes(key);
                         },
                     },
+                    userConfigService: {
+                        search: jest.fn().mockResolvedValue({ data: {} }),
+                        upsert: jest.fn().mockResolvedValue(),
+                    },
                 },
             },
         },
@@ -349,5 +353,95 @@ describe('module/sw-settings/page/sw-settings-index', () => {
 
         const barSetting = shopGroup.find((setting) => setting.id === 'sw-settings-bar');
         expect(barSetting).toBeDefined();
+    });
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
+    it('should load user config for banner on created', async () => {
+        const wrapper = await createWrapper();
+        const userConfigService = wrapper.vm.userConfigService;
+        expect(userConfigService.search).toHaveBeenCalledWith(['settings.hideRenameBanner']);
+    });
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
+    it('should show banner by default when no config is set', async () => {
+        const wrapper = await createWrapper();
+        const userConfigService = wrapper.vm.userConfigService;
+        userConfigService.search.mockResolvedValueOnce({ data: {} });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.hideSettingRenameBanner).toBe(false);
+    });
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
+    it('should hide banner when config is set to true', async () => {
+        const wrapper = await createWrapper();
+        const userConfigService = wrapper.vm.userConfigService;
+        userConfigService.search.mockResolvedValueOnce({
+            data: {
+                'settings.hideRenameBanner': {
+                    value: true,
+                },
+            },
+        });
+
+        await wrapper.vm.getUserConfig();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.hideSettingRenameBanner).toBe(true);
+    });
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
+    it('should show banner when config is set to false', async () => {
+        const wrapper = await createWrapper();
+        const userConfigService = wrapper.vm.userConfigService;
+        userConfigService.search.mockResolvedValueOnce({
+            data: {
+                'settings.hideRenameBanner': {
+                    data: false,
+                },
+            },
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.hideSettingRenameBanner).toBe(false);
+    });
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
+    it('should toggle banner visibility and save config', async () => {
+        const wrapper = await createWrapper();
+        const userConfigService = wrapper.vm.userConfigService;
+        userConfigService.search.mockResolvedValueOnce({
+            data: {
+                'settings.hideRenameBanner': {
+                    value: true,
+                },
+            },
+        });
+
+        await wrapper.vm.getUserConfig();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.hideSettingRenameBanner).toBe(true);
+
+        await wrapper.vm.onCloseSettingRenameBanner();
+
+        expect(wrapper.vm.hideSettingRenameBanner).toBe(true);
+        expect(userConfigService.upsert).toHaveBeenCalledWith({
+            'settings.hideRenameBanner': {
+                value: true,
+            },
+        });
     });
 });

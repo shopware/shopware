@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Cookie;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 
 #[Package('framework')]
 class CookieProvider implements CookieProviderInterface
@@ -14,7 +15,6 @@ class CookieProvider implements CookieProviderInterface
         'entries' => [
             [
                 'snippet_name' => 'cookie.groupRequiredSession',
-                'cookie' => 'session-',
             ],
             [
                 'snippet_name' => 'cookie.groupRequiredTimezone',
@@ -79,6 +79,19 @@ class CookieProvider implements CookieProviderInterface
         ],
     ];
 
+    private readonly string $sessionName;
+
+    /**
+     * @internal
+     *
+     * @param array<string, mixed> $sessionOptions
+     */
+    public function __construct(
+        array $sessionOptions = [],
+    ) {
+        $this->sessionName = $sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME;
+    }
+
     /**
      * A group CAN be a cookie, it's entries MUST be a cookie.
      * If a "group" is a cookie itself, it should not contain "children", because it may lead to unexpected UI behavior.
@@ -110,6 +123,7 @@ class CookieProvider implements CookieProviderInterface
     public function getCookieGroups(): array
     {
         $requiredCookies = self::REQUIRED_COOKIES;
+        $requiredCookies['entries'][0]['cookie'] = $this->sessionName;
 
         return [
             $requiredCookies,

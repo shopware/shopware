@@ -20,12 +20,14 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * @phpstan-type Shop array{name: string, locale: string, currency: string, additionalCurrencies: null|list<string>, country: string, email: string, host: string, basePath: string, schema: string, blueGreenDeployment: bool}
  * @phpstan-type AdminUser array{email: string, username: string, firstName: string, lastName: string, password: string}
+ *
+ * @phpstan-import-type SupportedLanguages from \Shopware\Core\Installer\Controller\InstallerController
  */
 #[Package('framework')]
 class ShopConfigurationController extends InstallerController
 {
     /**
-     * @param array<string, string> $supportedLanguages
+     * @param SupportedLanguages $supportedLanguages
      * @param list<string> $supportedCurrencies
      */
     public function __construct(
@@ -61,7 +63,7 @@ class ShopConfigurationController extends InstallerController
                 'firstName' => (string) $request->request->get('config_admin_firstName'),
                 'lastName' => (string) $request->request->get('config_admin_lastName'),
                 'password' => (string) $request->request->get('config_admin_password'),
-                'locale' => $this->supportedLanguages[$request->attributes->get('_locale')],
+                'locale' => $this->supportedLanguages[$request->attributes->get('_locale')]['id'],
             ];
 
             /** @var list<string> $availableCurrencies */
@@ -107,17 +109,24 @@ class ShopConfigurationController extends InstallerController
         }
 
         if (!$request->request->has('config_shop_language')) {
-            $request->request->set('config_shop_language', $this->supportedLanguages[$request->attributes->get('_locale')]);
+            $request->request->set('config_shop_language', $this->supportedLanguages[$request->attributes->get('_locale')]['id']);
         }
+
+        $locale = $request->attributes->get('_locale');
+        /** @var array<string, array{currency: string }> $preselection */
+        $preselection = $this->container->getParameter('shopware.installer.configurationPreselection');
+
+        $parameters = $request->request->all();
+        $parameters['config_shop_currency'] ??= $preselection[$locale]['currency'] ?? 'EUR';
 
         return $this->renderInstaller(
             '@Installer/installer/shop-configuration.html.twig',
             [
                 'error' => $error,
-                'countryIsos' => $this->getCountryIsos($connection, $request->attributes->get('_locale')),
+                'countryIsos' => $this->getCountryIsos($connection, $locale),
                 'languageIsos' => $this->supportedLanguages,
                 'currencyIsos' => $this->supportedCurrencies,
-                'parameters' => $request->request->all(),
+                'parameters' => $parameters,
             ]
         );
     }
@@ -131,7 +140,7 @@ class ShopConfigurationController extends InstallerController
         $countries = $connection->fetchAllAssociative('SELECT iso3, iso FROM country');
 
         // formatting string e.g. "en-GB" to "GB"
-        $localeIsoCode = mb_substr($this->supportedLanguages[$currentLocale], -2, 2);
+        $localeIsoCode = mb_substr($this->supportedLanguages[$currentLocale]['id'], -2, 2);
 
         // flattening array
         $countryIsos = array_map(fn ($country) => [

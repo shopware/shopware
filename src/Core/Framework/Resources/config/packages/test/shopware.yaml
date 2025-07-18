@@ -2,10 +2,12 @@ shopware:
     filesystem:
         private:
             type: "memory"
+            visibility: "private"
             config:
                 root: ~
         public:
             type: "memory"
+            visibility: "public"
             config:
                 root: ~
 

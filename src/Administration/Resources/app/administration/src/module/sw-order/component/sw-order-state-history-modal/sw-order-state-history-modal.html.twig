@@ -17,7 +17,10 @@
 
         {% block sw_order_state_history_modal_content_columns_created_at %}
         <template #column-createdAt="{ item }">
-            <sw-time-ago :date="item.createdAt" />
+            <sw-time-ago
+                :date="item.createdAt"
+                :date-time-format="{ month: '2-digit', day: '2-digit' }"
+            />
         </template>
         {% endblock %}
 

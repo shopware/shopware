@@ -59,7 +59,7 @@ class AdminProductStreamController extends AbstractController
             $context
         );
 
-        $criteria->setTotalCountMode(1);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
         $criteria->addAssociation('manufacturer');
         $criteria->addAssociation('options.group');
 
@@ -69,6 +69,8 @@ class AdminProductStreamController extends AbstractController
         array_pop($queries);
         $availableFilter->assign(['queries' => $queries]);
         $criteria->addFilter($availableFilter);
+
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $previewResult = $this->salesChannelProductRepository->search($criteria, $salesChannelContext);
 

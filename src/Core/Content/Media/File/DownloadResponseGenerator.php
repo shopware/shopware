@@ -76,7 +76,7 @@ class DownloadResponseGenerator
                     $location = stream_get_meta_data($stream)['uri'] ?? $location;
                 }
 
-                $response = new Response(null, 200, $this->getStreamHeaders($media));
+                $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($media));
                 $response->headers->set(self::X_SENDFILE_DOWNLOAD_STRATEGY, $location);
 
                 return $response;
@@ -88,7 +88,7 @@ class DownloadResponseGenerator
                     $location = $this->privateLocalPathPrefix . '/' . ltrim($location, '/');
                 }
 
-                $response = new Response(null, 200, $this->getStreamHeaders($media));
+                $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($media));
                 $response->headers->set(self::X_ACCEL_REDIRECT, $location);
 
                 return $response;

@@ -160,7 +160,7 @@
                         <a
                             v-if="['add', 'overwrite'].includes(bulkEditProduct[formField.name].type)"
                             :class="{ 'is--disabled': !!bulkEditProduct[formField.name].isInherited }"
-                            class="sw-card__quick-link"
+                            class="quick-link"
                             role="link"
                             tabindex="0"
                             @click="displayAdvancePricesModal = true"
@@ -343,14 +343,35 @@
             </mt-card>
             {% endblock %}
 
+            {# @deprecated tag:v6.8.0 - Block will be removed. #}
             {% block sw_bulk_edit_product_content_meansures_packaging_card %}
+            {% endblock %}
+
+            {% block sw_bulk_edit_product_content_measurement_card %}
             <mt-card
                 class="sw-bulk-edit-product-base__measures"
                 position-identifier="sw-bulk-edit-product-measures"
-                :title="$tc('sw-bulk-edit.product.measuresAndPackaging.cardTitle')"
+                :title="$tc('sw-bulk-edit.product.measurements.cardTitle')"
             >
                 <sw-bulk-edit-change-type-field-renderer
                     :form-fields="measuresPackagingFields"
+                    :bulk-edit-data="bulkEditProduct"
+                    :entity="product"
+                    @update:default-unit="onUpdateDefaultUnit"
+                    @inheritance-restore="onInheritanceRestore"
+                    @inheritance-remove="onInheritanceRemove"
+                />
+            </mt-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_product_content_selling_packaging_card %}
+            <mt-card
+                class="sw-bulk-edit-product-base__selling-packaging"
+                position-identifier="sw-bulk-edit-product-selling-packaging"
+                :title="$tc('sw-bulk-edit.product.sellingPackaging.cardTitle')"
+            >
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="sellingPackagingFields"
                     :bulk-edit-data="bulkEditProduct"
                     :entity="product"
                     @inheritance-restore="onInheritanceRestore"

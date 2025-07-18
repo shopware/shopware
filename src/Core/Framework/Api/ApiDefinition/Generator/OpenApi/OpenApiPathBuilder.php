@@ -21,7 +21,7 @@ class OpenApiPathBuilder
 {
     private const EXPERIMENTAL_ANNOTATION_NAME = 'experimental';
 
-    private CamelCaseToSnakeCaseNameConverter $converter;
+    private readonly CamelCaseToSnakeCaseNameConverter $converter;
 
     /**
      * @internal

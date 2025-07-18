@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
@@ -180,7 +181,7 @@ class Generator extends TestCase
 
         $areaRuleIds ??= [];
 
-        $languageInfo ??= new LanguageInfo(self::LANGUAGE_INFO_NAME, self::LANGUAGE_INFO_LOCALE_CODE);
+        $languageInfo ??= self::createLanguageInfo();
 
         $salesChannelContext = new SalesChannelContext(
             $baseContext,
@@ -267,5 +268,15 @@ class Generator extends TestCase
         $cart->addDeliveries(new DeliveryCollection([$delivery]));
 
         return $cart;
+    }
+
+    public static function createLanguageInfo(
+        ?string $id = null,
+        ?string $name = null,
+    ): LanguageInfo {
+        return new LanguageInfo(
+            $id ?? Defaults::LANGUAGE_SYSTEM,
+            $name ?? self::LANGUAGE_INFO_NAME,
+        );
     }
 }

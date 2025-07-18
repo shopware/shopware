@@ -12,7 +12,7 @@ use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
  * @phpstan-import-type InvalidPluralization from SnippetValidationStruct
  */
 #[Package('discovery')]
-class SnippetValidator implements SnippetValidatorInterface
+class SnippetValidator
 {
     /**
      * @internal
@@ -25,7 +25,7 @@ class SnippetValidator implements SnippetValidatorInterface
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return SnippetValidationStruct
+     * @deprecated tag:v6.8.0 - Will be removed, use `getValidation()` instead
      *
      * @return MissingSnippets
      */
@@ -34,9 +34,6 @@ class SnippetValidator implements SnippetValidatorInterface
         return $this->getValidation()->missingSnippets;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed, use validate() instead
-     */
     public function getValidation(): SnippetValidationStruct
     {
         $files = $this->getAllFiles();

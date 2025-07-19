@@ -3,7 +3,6 @@
  */
 
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
 
 export default class QuantitySelectorPlugin extends Plugin {
 
@@ -22,9 +21,9 @@ export default class QuantitySelectorPlugin extends Plugin {
     };
 
     init() {
-        this._input = DomAccess.querySelector(this.el, 'input.js-quantity-selector');
-        this._btnPlus = DomAccess.querySelector(this.el, '.js-btn-plus');
-        this._btnMinus = DomAccess.querySelector(this.el, '.js-btn-minus');
+        this._input = this.el.querySelector('input.js-quantity-selector');
+        this._btnPlus = this.el.querySelector('.js-btn-plus');
+        this._btnMinus = this.el.querySelector('.js-btn-minus');
 
         if (this.options.ariaLiveUpdates) {
             this._initAriaLiveUpdates();

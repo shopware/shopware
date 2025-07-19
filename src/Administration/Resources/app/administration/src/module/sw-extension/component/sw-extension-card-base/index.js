@@ -10,8 +10,6 @@ const { Utils, Filter } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inheritAttrs: false,
 
     inject: [
@@ -47,12 +45,15 @@ export default {
     },
 
     computed: {
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
 
         defaultThemeAsset() {
-            return this.assetFilter('administration/static/img/theme/default_theme_preview.jpg');
+            return this.assetFilter('administration/administration/static/img/theme/default_theme_preview.jpg');
         },
 
         extensionCardClasses() {
@@ -137,7 +138,7 @@ export default {
         },
 
         isUpdateable() {
-            if (!this.extension || this.extension.latestVersion === null || this.extension.managedByComposer) {
+            if (!this.extension || this.extension.latestVersion === null || !this.extension.allowUpdate) {
                 return false;
             }
 
@@ -149,7 +150,7 @@ export default {
         },
 
         extensionMainModule() {
-            return Shopware.State.get('extensionMainModules').mainModules.find(
+            return Shopware.Store.get('extensionMainModules').mainModules.find(
                 (mainModule) => mainModule.extensionName === this.extension.name,
             );
         },
@@ -180,19 +181,27 @@ export default {
         },
 
         consentAffirmationModalTitle() {
-            return this.$tc('sw-extension-store.component.sw-extension-permissions-modal.titleNewPermissions', 1, {
-                extensionLabel: this.extension.label,
-            });
+            return this.$tc(
+                'sw-extension-store.component.sw-extension-permissions-modal.titleNewPermissions',
+                {
+                    extensionLabel: this.extension.label,
+                },
+                1,
+            );
         },
 
         consentAffirmationModalDescription() {
-            return this.$tc('sw-extension-store.component.sw-extension-permissions-modal.descriptionNewPermissions', 1, {
-                extensionLabel: this.extension.label,
-            });
+            return this.$tc(
+                'sw-extension-store.component.sw-extension-permissions-modal.descriptionNewPermissions',
+                {
+                    extensionLabel: this.extension.label,
+                },
+                1,
+            );
         },
 
         extensionManagementDisabled() {
-            return Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            return Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
         },
 
         showContextMenu() {

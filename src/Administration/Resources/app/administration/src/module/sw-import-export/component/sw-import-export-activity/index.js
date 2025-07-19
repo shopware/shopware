@@ -14,8 +14,6 @@ const { format } = Shopware.Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'importExport',
@@ -201,6 +199,9 @@ export default {
                 : this.$t('sw-import-export.activity.emptyState.titleImport');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -308,10 +309,10 @@ export default {
                 const config = {
                     message: this.$tc(
                         this.stateText?.[log.activity]?.[log.state] ?? '',
-                        log.state === 'failed' && log.invalidRecordsLog ? 2 : 1,
                         {
                             profile: log.profileName,
                         },
+                        log.state === 'failed' && log.invalidRecordsLog ? 2 : 1,
                     ),
                 };
 

@@ -6,8 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Event\EventData\EntityType;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\FrameworkException;
 
 /**
  * @internal
@@ -25,18 +23,7 @@ class EntityTypeTest extends TestCase
             'entityName' => 'customer',
         ];
 
-        static::assertEquals($expected, (new EntityType($definition))->toArray());
-        static::assertEquals($expected, (new EntityType(new CustomerDefinition()))->toArray());
-    }
-
-    public function testConstructWithInvalidDefinitionClass(): void
-    {
-        Feature::skipTestIfInActive('v6.7.0.0', $this);
-
-        $this->expectException(FrameworkException::class);
-        $this->expectExceptionMessage('Expected an instance of Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition or a class name that extends Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition');
-
-        /* @phpstan-ignore-next-line */
-        new EntityType(\stdClass::class);
+        static::assertSame($expected, (new EntityType($definition))->toArray());
+        static::assertSame($expected, (new EntityType(new CustomerDefinition()))->toArray());
     }
 }

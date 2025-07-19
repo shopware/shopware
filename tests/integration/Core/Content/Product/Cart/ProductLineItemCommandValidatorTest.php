@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -89,11 +88,11 @@ class ProductLineItemCommandValidatorTest extends TestCase
         /** @var OrderLineItemEntity $first */
         $first = $lineItems->first();
 
-        static::assertEquals($id, $first->getReferencedId());
-        static::assertEquals($id, $first->getProductId());
+        static::assertSame($id, $first->getReferencedId());
+        static::assertSame($id, $first->getProductId());
         static::assertIsArray($first->getPayload());
         static::assertArrayHasKey('productNumber', $first->getPayload());
-        static::assertEquals(LineItem::PRODUCT_LINE_ITEM_TYPE, $first->getType());
+        static::assertSame(LineItem::PRODUCT_LINE_ITEM_TYPE, $first->getType());
     }
 
     public function testUpdateLineItemQuantity(): void
@@ -113,8 +112,8 @@ class ProductLineItemCommandValidatorTest extends TestCase
         /** @var OrderLineItemEntity $first */
         $first = $lineItems->first();
 
-        static::assertEquals($id, $first->getReferencedId());
-        static::assertEquals($id, $first->getProductId());
+        static::assertSame($id, $first->getReferencedId());
+        static::assertSame($id, $first->getProductId());
         static::assertIsArray($first->getPayload());
         static::assertArrayHasKey('productNumber', $first->getPayload());
 
@@ -125,11 +124,11 @@ class ProductLineItemCommandValidatorTest extends TestCase
         $lineItems = $this->lineItemRepository->search($criteria, $context);
         $first = $lineItems->getEntities()->first();
         static::assertNotNull($first);
-        static::assertEquals($id, $first->getReferencedId());
-        static::assertEquals($id, $first->getProductId());
+        static::assertSame($id, $first->getReferencedId());
+        static::assertSame($id, $first->getProductId());
         static::assertIsArray($first->getPayload());
         static::assertArrayHasKey('productNumber', $first->getPayload());
-        static::assertEquals(10, $first->getQuantity());
+        static::assertSame(10, $first->getQuantity());
     }
 
     public function testUpdateFailsIfProductNumberIsMissing(): void
@@ -150,13 +149,13 @@ class ProductLineItemCommandValidatorTest extends TestCase
 
         $first = $lineItems->getEntities()->first();
         static::assertNotNull($first);
-        static::assertEquals($id, $first->getReferencedId());
-        static::assertEquals($id, $first->getProductId());
+        static::assertSame($id, $first->getReferencedId());
+        static::assertSame($id, $first->getProductId());
         static::assertIsArray($first->getPayload());
         static::assertArrayHasKey('productNumber', $first->getPayload());
 
         static::expectException(WriteException::class);
-        static::expectExceptionMessage('To change the product of line item (' . $first->getId() . '), the following properties must also be updated: `productId`, `referenceId`, `payload.productNumber`.');
+        static::expectExceptionMessage('To change the product of line item (' . $first->getId() . '), the following properties must also be updated: `productId`, `referencedId`, `payload.productNumber`.');
 
         $this->lineItemRepository->update([
             ['id' => $first->getId(), 'productId' => $secondId],
@@ -180,8 +179,8 @@ class ProductLineItemCommandValidatorTest extends TestCase
         static::assertCount(1, $lineItems);
         $first = $lineItems->getEntities()->first();
         static::assertNotNull($first);
-        static::assertEquals($id, $first->getReferencedId());
-        static::assertEquals($id, $first->getProductId());
+        static::assertSame($id, $first->getReferencedId());
+        static::assertSame($id, $first->getProductId());
         static::assertIsArray($first->getPayload());
         static::assertArrayHasKey('productNumber', $first->getPayload());
 
@@ -237,10 +236,6 @@ class ProductLineItemCommandValidatorTest extends TestCase
                 ],
             ],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         static::getContainer()
             ->get('customer.repository')

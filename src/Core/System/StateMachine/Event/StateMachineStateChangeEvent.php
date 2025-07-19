@@ -16,61 +16,21 @@ class StateMachineStateChangeEvent extends Event
     final public const STATE_MACHINE_TRANSITION_SIDE_ENTER = 'state_enter';
     final public const STATE_MACHINE_TRANSITION_SIDE_LEAVE = 'state_leave';
 
-    /**
-     * @var Context
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $context;
+    protected Context $context;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelId;
+    protected string $salesChannelId;
 
-    /**
-     * @var StateMachineEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $stateMachine;
+    protected StateMachineEntity $stateMachine;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $transitionSide;
+    protected string $transitionSide;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $stateName;
+    protected string $stateName;
 
-    /**
-     * @var StateMachineStateEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $previousState;
+    protected StateMachineStateEntity $previousState;
 
-    /**
-     * @var StateMachineStateEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $nextState;
+    protected StateMachineStateEntity $nextState;
 
-    /**
-     * @var Transition
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $transition;
+    protected Transition $transition;
 
     public function __construct(
         Context $context,

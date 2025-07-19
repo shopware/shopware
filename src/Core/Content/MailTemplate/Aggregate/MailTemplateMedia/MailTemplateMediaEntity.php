@@ -13,40 +13,15 @@ class MailTemplateMediaEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mailTemplateId;
+    protected string $mailTemplateId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $languageId;
+    protected ?string $languageId = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mediaId;
+    protected string $mediaId;
 
-    /**
-     * @var MediaEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $media;
+    protected ?MediaEntity $media = null;
 
-    /**
-     * @var MailTemplateEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mailTemplate;
+    protected ?MailTemplateEntity $mailTemplate = null;
 
     public function getMailTemplateId(): string
     {

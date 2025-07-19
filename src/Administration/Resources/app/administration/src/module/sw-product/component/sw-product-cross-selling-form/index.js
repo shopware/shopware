@@ -7,13 +7,11 @@ import './sw-product-cross-selling-form.scss';
 
 const { Criteria } = Shopware.Data;
 const { Component, Mixin } = Shopware;
-const { mapPropertyErrors, mapGetters, mapState } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -66,14 +64,17 @@ export default {
             'position',
         ]),
 
-        ...mapState('swProductDetail', [
-            'product',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapGetters('swProductDetail', [
-            'isLoading',
-        ]),
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
 
+        /**
+         * @deprecated tag:v6.8.0 - Unused, will be removed without replacement
+         */
         productCrossSellingRepository() {
             return this.repositoryFactory.create('product_cross_selling');
         },
@@ -100,8 +101,19 @@ export default {
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Unused, will be removed without replacement
+         */
         crossSellingAssigmentRepository() {
             return this.repositoryFactory.create('product_cross_selling_assigned_products');
+        },
+
+        crossSellingTitle() {
+            return (
+                this.crossSelling.name ||
+                this.crossSelling.translated?.name ||
+                this.$tc('sw-product.crossselling.newCrossSellingTitle')
+            );
         },
 
         sortingTypes() {
@@ -150,12 +162,35 @@ export default {
             return `${this.crossSelling.sortBy}:${this.crossSelling.sortDirection}`;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Unused, will be removed without replacement
+         */
         disablePositioning() {
             return !!this.term || this.sortBy !== 'position';
         },
 
         associationValue() {
             return this.crossSelling?.productStreamId || '';
+        },
+
+        crossSellingTypeOptions() {
+            return this.crossSellingTypes.map((item) => {
+                return {
+                    id: item.value,
+                    value: item.value,
+                    label: item.label,
+                };
+            });
+        },
+
+        sortingTypeOptions() {
+            return this.sortingTypes.map((item) => {
+                return {
+                    id: item.value,
+                    value: item.value,
+                    label: item.label,
+                };
+            });
         },
     },
 

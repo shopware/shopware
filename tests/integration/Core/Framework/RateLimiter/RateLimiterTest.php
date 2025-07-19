@@ -113,11 +113,11 @@ class RateLimiterTest extends TestCase
             static::assertArrayHasKey('errors', $response);
 
             if ($i >= 10) {
-                static::assertEquals(429, $response['errors'][0]['status']);
-                static::assertEquals('CHECKOUT__CUSTOMER_AUTH_THROTTLED', $response['errors'][0]['code']);
+                static::assertSame(429, (int) $response['errors'][0]['status']);
+                static::assertSame('CHECKOUT__CUSTOMER_AUTH_THROTTLED', $response['errors'][0]['code']);
             } else {
-                static::assertEquals(401, $response['errors'][0]['status']);
-                static::assertEquals('Unauthorized', $response['errors'][0]['title']);
+                static::assertSame(401, (int) $response['errors'][0]['status']);
+                static::assertSame('Unauthorized', $response['errors'][0]['title']);
             }
         }
     }
@@ -166,11 +166,11 @@ class RateLimiterTest extends TestCase
             static::assertArrayHasKey('errors', $response);
 
             if ($i >= 10) {
-                static::assertEquals(429, $response['errors'][0]['status']);
-                static::assertEquals('FRAMEWORK__AUTH_THROTTLED', $response['errors'][0]['code']);
+                static::assertSame(429, (int) $response['errors'][0]['status']);
+                static::assertSame('FRAMEWORK__AUTH_THROTTLED', $response['errors'][0]['code']);
             } else {
-                static::assertEquals(400, $response['errors'][0]['status']);
-                static::assertEquals(6, $response['errors'][0]['code']);
+                static::assertSame(400, (int) $response['errors'][0]['status']);
+                static::assertSame('6', $response['errors'][0]['code']);
             }
         }
     }
@@ -218,10 +218,10 @@ class RateLimiterTest extends TestCase
 
             if ($i >= 3) {
                 static::assertArrayHasKey('errors', $response, print_r($response, true));
-                static::assertEquals(429, $response['errors'][0]['status']);
-                static::assertEquals('FRAMEWORK__RATE_LIMIT_EXCEEDED', $response['errors'][0]['code']);
+                static::assertSame(429, (int) $response['errors'][0]['status']);
+                static::assertSame('FRAMEWORK__RATE_LIMIT_EXCEEDED', $response['errors'][0]['code']);
             } else {
-                static::assertEquals(200, $this->browser->getResponse()->getStatusCode());
+                static::assertSame(200, $this->browser->getResponse()->getStatusCode());
             }
         }
     }
@@ -245,10 +245,10 @@ class RateLimiterTest extends TestCase
                 $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
                 static::assertIsArray($response);
                 static::assertArrayHasKey('errors', $response);
-                static::assertEquals(429, $response['errors'][0]['status']);
-                static::assertEquals('FRAMEWORK__RATE_LIMIT_EXCEEDED', $response['errors'][0]['code']);
+                static::assertSame(429, (int) $response['errors'][0]['status']);
+                static::assertSame('FRAMEWORK__RATE_LIMIT_EXCEEDED', $response['errors'][0]['code']);
             } else {
-                static::assertEquals(200, $this->browser->getResponse()->getStatusCode());
+                static::assertSame(200, $this->browser->getResponse()->getStatusCode());
             }
         }
     }
@@ -327,10 +327,10 @@ class RateLimiterTest extends TestCase
                 $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
 
                 static::assertArrayHasKey('errors', $response);
-                static::assertEquals(429, $response['errors'][0]['status']);
-                static::assertEquals(NewsletterException::NEWSLETTER_RECIPIENT_THROTTLED, $response['errors'][0]['code']);
+                static::assertSame(429, (int) $response['errors'][0]['status']);
+                static::assertSame(NewsletterException::NEWSLETTER_RECIPIENT_THROTTLED, $response['errors'][0]['code']);
             } else {
-                static::assertEquals(204, $this->browser->getResponse()->getStatusCode());
+                static::assertSame(204, $this->browser->getResponse()->getStatusCode());
             }
         }
     }

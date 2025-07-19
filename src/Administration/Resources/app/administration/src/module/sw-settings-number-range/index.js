@@ -54,7 +54,7 @@ Module.register('sw-settings-number-range', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'general',
         to: 'sw.settings.number.range.index',
         icon: 'regular-file-signature',
         privilege: 'number_ranges.viewer',

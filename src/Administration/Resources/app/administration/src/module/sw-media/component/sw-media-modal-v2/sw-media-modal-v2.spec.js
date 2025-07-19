@@ -19,7 +19,6 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
                         template: '<div><slot name="content" active="upload"></slot></div>',
                     },
                     'sw-media-sidebar': true,
-                    'sw-button': true,
                     'sw-media-upload-v2': true,
                     'sw-upload-listener': true,
                     'sw-media-grid': true,

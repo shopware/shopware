@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -64,11 +63,7 @@ class LogoutRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        if (Feature::isActive('v6.7.0.0')) {
-            static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $response['errors'][0]['code']);
-        } else {
-            static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
-        }
+        static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $response['errors'][0]['code']);
     }
 
     public function testValidLogout(): void
@@ -229,7 +224,7 @@ class LogoutRouteTest extends TestCase
         );
 
         static::assertInstanceOf(ContextTokenResponse::class, $logoutResponse);
-        static::assertNotEquals($loginResponse->getToken(), $logoutResponse->getToken());
+        static::assertNotSame($loginResponse->getToken(), $logoutResponse->getToken());
     }
 
     public function testLogoutForcedForGuestAccounts(): void
@@ -266,7 +261,7 @@ class LogoutRouteTest extends TestCase
             ->logout($context, $request);
 
         static::assertInstanceOf(ContextTokenResponse::class, $logout);
-        static::assertNotEquals($login->getToken(), $logout->getToken());
+        static::assertNotSame($login->getToken(), $logout->getToken());
 
         $exists = static::getContainer()->get(Connection::class)
             ->fetchAllAssociative('SELECT * FROM sales_channel_api_context WHERE token = :token', ['token' => $login->getToken()]);

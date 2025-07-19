@@ -50,7 +50,7 @@ const createWrapper = async (privileges = []) => {
                 },
             },
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot name="grid"></slot></div>',
                 },
                 'sw-entity-listing': {

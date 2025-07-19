@@ -7,8 +7,6 @@ import template from './sw-settings-rule-assignment-listing.html.twig';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['delete-items'],
 
     methods: {

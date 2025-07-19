@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,6 +30,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @internal
  */
 #[CoversClass(PromotionValidator::class)]
+#[Package('checkout')]
 class PromotionValidatorTest extends TestCase
 {
     private WriteContext $context;
@@ -98,7 +100,7 @@ class PromotionValidatorTest extends TestCase
 
             $violation = $firstException->getViolations()->get(0);
 
-            static::assertEquals('/0/code', $violation->getPropertyPath());
+            static::assertSame('/0/code', $violation->getPropertyPath());
 
             throw $e;
         }
@@ -135,7 +137,7 @@ class PromotionValidatorTest extends TestCase
             $event->getExceptions()->tryToThrow();
             static::fail('Validation with invalid until was not triggered.');
         } catch (WriteException $e) {
-            static::assertEquals(WriteConstraintViolationException::class, $e->getExceptions()[0]::class);
+            static::assertSame(WriteConstraintViolationException::class, $e->getExceptions()[0]::class);
 
             throw $e;
         }
@@ -208,7 +210,7 @@ class PromotionValidatorTest extends TestCase
             $event->getExceptions()->tryToThrow();
             static::fail('Validation with invalid until was not triggered.');
         } catch (WriteException $e) {
-            static::assertEquals(WriteConstraintViolationException::class, $e->getExceptions()[0]::class);
+            static::assertSame(WriteConstraintViolationException::class, $e->getExceptions()[0]::class);
 
             throw $e;
         }

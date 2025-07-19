@@ -22,187 +22,66 @@ class OrderLineItemEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderId;
+    protected string $orderId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $identifier;
+    protected string $identifier;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $referencedId;
+    protected ?string $referencedId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productId;
+    protected ?string $productId = null;
 
     /**
      * @internal
      */
     protected ?string $promotionId = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $quantity;
+    protected int $quantity;
+
+    protected float $unitPrice;
+
+    protected float $totalPrice;
+
+    protected string $label;
+
+    protected ?string $description = null;
+
+    protected bool $good;
+
+    protected bool $removable;
+
+    protected ?string $coverId = null;
+
+    protected bool $stackable;
+
+    protected int $position;
+
+    protected ?CalculatedPrice $price = null;
+
+    protected ?PriceDefinitionInterface $priceDefinition = null;
 
     /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var array<mixed>|null
      */
-    protected $unitPrice;
+    protected ?array $payload = null;
+
+    protected ?string $parentId = null;
+
+    protected ?OrderLineItemEntity $parent = null;
+
+    protected ?string $type = null;
+
+    protected ?OrderEntity $order = null;
+
+    protected ?OrderDeliveryPositionCollection $orderDeliveryPositions = null;
+
+    protected ?MediaEntity $cover = null;
 
     /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $totalPrice;
-
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $label;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $description;
-
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $good;
-
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $removable;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $coverId;
-
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $stackable;
-
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $position;
-
-    /**
-     * @var CalculatedPrice|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $price;
-
-    /**
-     * @var PriceDefinitionInterface|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $priceDefinition;
-
-    /**
-     * @var array<string>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $payload;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $parentId;
-
-    /**
-     * @var OrderLineItemEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $parent;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $type;
-
-    /**
-     * @var OrderEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $order;
-
-    /**
-     * @var OrderDeliveryPositionCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderDeliveryPositions;
-
-    /**
-     * @var MediaEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cover;
-
-    /**
-     * @var OrderLineItemCollection|null
-     *
      * @internal
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $children;
+    protected ?OrderLineItemCollection $children = null;
 
-    /**
-     * @var ProductEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $product;
+    protected ?ProductEntity $product = null;
 
     protected ?OrderTransactionCaptureRefundPositionCollection $orderTransactionCaptureRefundPositions = null;
 
@@ -215,26 +94,11 @@ class OrderLineItemEntity extends Entity
 
     protected ?PromotionEntity $promotion = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderVersionId;
+    protected string $orderVersionId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productVersionId;
+    protected string $productVersionId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $parentVersionId;
+    protected string $parentVersionId;
 
     public function getOrderId(): string
     {
@@ -382,6 +246,20 @@ class OrderLineItemEntity extends Entity
     public function getPayload(): ?array
     {
         return $this->payload;
+    }
+
+    public function getPayloadValue(string $key): mixed
+    {
+        if (!$this->hasPayloadValue($key)) {
+            return null;
+        }
+
+        return $this->payload[$key] ?? null;
+    }
+
+    public function hasPayloadValue(string $key): bool
+    {
+        return isset($this->payload[$key]);
     }
 
     /**

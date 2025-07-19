@@ -21,7 +21,7 @@ describe('src/core/service/utils/format.utils.js', () => {
                 () => locale,
             );
         };
-        const setTimeZone = (timeZone) => Shopware.State.commit('setCurrentUser', { timeZone });
+        const setTimeZone = (timeZone) => Shopware.Store.get('session').setCurrentUser({ timeZone });
 
         beforeEach(async () => {
             setLocale('en-GB');
@@ -92,7 +92,7 @@ describe('src/core/service/utils/format.utils.js', () => {
                 () => locale,
             );
         };
-        const setTimeZone = (timeZone) => Shopware.State.commit('setCurrentUser', { timeZone });
+        const setTimeZone = (timeZone) => Shopware.Store.get('session').setCurrentUser({ timeZone });
 
         beforeEach(async () => {
             setLocale('en-GB');
@@ -142,7 +142,7 @@ describe('src/core/service/utils/format.utils.js', () => {
         });
 
         it('should use a different fallback language', async () => {
-            Shopware.State.commit('setAdminLocale', {
+            Shopware.Store.get('session').setAdminLocaleState({
                 locales: ['de-DE'],
                 locale: 'de-DE',
                 languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
@@ -150,7 +150,7 @@ describe('src/core/service/utils/format.utils.js', () => {
 
             expect(currencyFilter(42, 'EUR', 0)).toBe('42 €');
 
-            Shopware.State.commit('setAdminLocale', {
+            Shopware.Store.get('session').setAdminLocaleState({
                 locales: ['en-GB'],
                 locale: 'en-GB',
                 languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',

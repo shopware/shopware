@@ -1,16 +1,16 @@
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-preview-image-slider', () => import('./preview'));
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-config-image-slider', () => import('./config'));
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-image-slider', () => import('./component'));
 
@@ -28,7 +28,7 @@ type ImageSliderItem = {
 
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'image-slider',

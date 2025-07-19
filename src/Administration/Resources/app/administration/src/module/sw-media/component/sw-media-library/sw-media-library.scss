@@ -12,15 +12,24 @@ $sw-media-library-color-background: $color-white;
 
     .sw-media-library__options-container {
         padding: 0 24px 16px;
-        display: grid;
-        grid-auto-flow: column;
-        grid-gap: 16px;
-        justify-content: end;
-        justify-items: end;
-        z-index: $z-index-overlay;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: flex-end;
+        align-items: end;
 
-        @media (max-width: 1550px) {
-            grid-auto-flow: row;
+        > * {
+            flex: 0 0 auto;
+        }
+
+        .sw-media-display-options__label-presentation,
+        .sw-media-display-options__label-sort {
+            max-width: 12rem;
+        }
+
+        .mt-field {
+            margin-bottom: 0;
         }
     }
 
@@ -57,5 +66,10 @@ $sw-media-library-color-background: $color-white;
     .sw-media-library__load-more-button {
         margin: 16px auto;
         grid-column: 1 / -1;
+    }
+
+    &__empty-state {
+        height: calc(100% - 64px);
+        bottom: 0;
     }
 }

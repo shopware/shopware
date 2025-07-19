@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Event;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
-use Shopware\Core\Checkout\Customer\Event\CustomerChangedPaymentMethodEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
@@ -25,7 +24,6 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 
@@ -60,17 +58,6 @@ class BusinessEventRegistry
         NewsletterUnsubscribeEvent::class,
         ProductExportLoggingEvent::class,
     ];
-
-    /**
-     * @internal
-     */
-    public function __construct()
-    {
-        // @deprecated tag:v6.7.0 - whole constructor can be removed again
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->classes[] = CustomerChangedPaymentMethodEvent::class;
-        }
-    }
 
     /**
      * @param list<class-string> $classes

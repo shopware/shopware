@@ -167,7 +167,7 @@ const foo = 'bar';
 const foo = 'bar';
 `,
             errors: [{
-                message: 'Invalid domain \'missing\'. Must be one of \'buyers-experience\', \'services-settings\', \'administration\', \'data-services\', \'innovation\', \'framework\', \'inventory\', \'discovery\', \'checkout\', \'after-sales\', \'b2b\', \'fundamentals@framework\', \'fundamentals@discovery\', \'fundamentals@checkout\', \'fundamentals@after-sales\'',
+                message: 'Invalid domain \'missing\'. Must be one of \'framework\', \'inventory\', \'discovery\', \'checkout\', \'after-sales\', \'b2b\', \'fundamentals@framework\', \'fundamentals@discovery\', \'fundamentals@checkout\', \'fundamentals@after-sales\', \'data-services\', \'innovation\'',
                 line: 3,
             }]
         },
@@ -182,7 +182,7 @@ const foo = 'bar';
 const foo = 'bar';
 `,
             errors: [{
-                message: 'Invalid domain \'missing\'. Must be one of \'buyers-experience\', \'services-settings\', \'administration\', \'data-services\', \'innovation\', \'framework\', \'inventory\', \'discovery\', \'checkout\', \'after-sales\', \'b2b\', \'fundamentals@framework\', \'fundamentals@discovery\', \'fundamentals@checkout\', \'fundamentals@after-sales\'',
+                message: 'Invalid domain \'missing\'. Must be one of \'framework\', \'inventory\', \'discovery\', \'checkout\', \'after-sales\', \'b2b\', \'fundamentals@framework\', \'fundamentals@discovery\', \'fundamentals@checkout\', \'fundamentals@after-sales\', \'data-services\', \'innovation\'',
                 line: 3,
             }]
         },

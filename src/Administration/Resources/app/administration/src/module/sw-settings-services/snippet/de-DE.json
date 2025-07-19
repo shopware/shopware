@@ -1,0 +1,69 @@
+{
+  "sw-settings-services": {
+    "general": {
+      "title": "Shopware Services",
+      "description": "Verwalte die Services, die in Deiner Shopware-Instanz verfügbar sind.",
+      "activate": "Aktivieren",
+      "deactivate": "Deaktivieren"
+    },
+    "exception": {
+      "service-list": "Fehler beim Laden der Services"
+    },
+    "sw-settings-services-hero": {
+      "title": "Mach Deinen Shop zukunftssicher mit Shopware Services",
+      "intro": "Services sind cloudbasierte Erweiterungen, die Deinem Shopware-Shop spezifische Funktionen hinzufügen. Im Gegensatz zu traditionellen Softwarekomponenten laufen Services unabhängig vom Kernprodukt und können ohne Änderungen am Kernprodukt aktiviert oder aktualisiert werden. Sie ermöglichen es uns, schnell auf neue Anforderungen zu reagieren und dabei Dein Hauptsystem stabil und schlank zu halten.",
+      "bullet-point-integrated": "Nahtlos integriert und automatisch aktualisiert",
+      "bullet-point-flexible": "Hochflexibel und unabhängig vom Shopware-Kern",
+      "bullet-point-transparent": "Transparente und zustimmungsbasierte Datennutzung",
+      "bullet-point-scalable": "Skalierbar und zuverlässig für anspruchsvolle Workflows inklusive KI und maschinellem Lernen",
+      "give-feedback": "Feedback geben",
+      "learn-more": "Mehr erfahren"
+    },
+    "index": {
+      "available-services": "Verfügbare Services",
+      "services-are-disabled": "Shopware Services sind deaktiviert",
+      "services-are-disabled-cta": "Dir entgehen derzeit alle Shopware Services, einschließlich fortschrittlicher KI-Tools und vielem mehr. Aktiviere Shopware Services, um alle aktuellen und zukünftigen Services nutzen zu können.",
+      "services-are-disabled-button-label": "Services aktivieren",
+      "services-enabled": "Services aktiviert",
+      "services-scheduled": "Services sind zur Installation und Aktivierung eingeplant. Dies kann einen Moment dauern.",
+      "label-documentation-link": "Dokumentation",
+      "label-tos-link": "AGB",
+      "installing-services-title": "Shopware Services werden installiert",
+      "installing-services-description": "Dies kann eine Weile dauern. Du wirst benachrichtigt, sobald die Installationen abgeschlossen sind. In der Zwischenzeit kannst Du Deine Shopware Administration frei nutzen."
+    },
+    "service-card": {
+      "status-active": "Aktiv",
+      "status-awaiting-permissions": "Wartet auf Berechtigungen",
+      "status-inactive": "Inaktiv",
+      "updated-at-label": "Zuletzt aktualisiert: {updatedAt}",
+      "version": "Version: {version}",
+      "deactivate-modal": {
+        "warning": "Bist Du sicher, dass Du „{serviceName}“ deaktivieren möchtest?",
+        "consequences": "Dadurch verlierst Du sofort den Zugriff auf den Service und alle zugehörigen Prozesse."
+      }
+    },
+    "grant-permissions": {
+      "title": "Schalte das volle Potenzial von Shopware Services frei",
+      "description": "Um ihren vollen Nutzen zu entfalten, benötigen bestimmte Shopware Services Berechtigungen für wichtige Bereiche Deines Shops, wie Produktinformationen oder Bestelldaten. Diese Berechtigungen entsprechen denen, die auch von Shopware-Erweiterungen genutzt werden. Jeder Service greift nur auf die Berechtigungen zu, die er zum Funktionieren benötigt. Deine Daten werden stets verantwortungsbewusst behandelt.",
+      "label-button-grant-permissions": "Berechtigungen erteilen",
+      "label-link-more-information": "Weitere Informationen"
+    },
+    "revoke-permissions-modal": {
+      "title": "Berechtigungen widerrufen",
+      "p-1": "Bist Du sicher, dass Du die Berechtigungen widerrufen möchtest?",
+      "p-2": "Dadurch werden bestimmte Shopware Services deaktiviert und alle damit verbundenen Funktionen gehen verloren.",
+      "label-button-revoke-permissions": "Berechtigungen widerrufen"
+    },
+    "deactivate-modal": {
+      "title": "Shopware Services deaktivieren",
+      "p-1": "Bist Du sicher, dass Du die Shopware Services deaktivieren möchtest?",
+      "p-2": "Dadurch verlierst Du den Zugriff auf alle aktuellen und zukünftigen Shopware Services. Wir würden gerne wissen, was Dir an den Shopware Services nicht gefällt. Gib uns Feedback, damit wir die Services künftig verbessern können!",
+      "label-feedback-link": "Feedback geben"
+    },
+    "dashboard-banner": {
+      "title": "Entdecke Shopware Services",
+      "description": "Verwandle Deine Shopware-Erfahrung mit unseren cloudbasierten Services, die sich nahtlos in Deine Administration einfügen. Genieße automatische Updates und modernste Funktionen. Entwickelt von Shopware, um Dein Geschäft voranzubringen.",
+      "label-button-explore": "Jetzt entdecken"
+    }
+  }
+}

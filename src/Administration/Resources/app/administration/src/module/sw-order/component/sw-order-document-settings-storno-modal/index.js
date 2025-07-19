@@ -8,10 +8,6 @@ import template from './sw-order-document-settings-storno-modal.html.twig';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['feature'],
-
     emits: [
         'loading-document',
         'loading-preview',
@@ -49,7 +45,30 @@ export default {
 
         invoices() {
             return this.order.documents.filter((document) => {
-                return document.documentType.technicalName === 'invoice';
+                return (
+                    document.documentType.technicalName === 'invoice' ||
+                    document.documentType.technicalName === 'zugferd_invoice' ||
+                    document.documentType.technicalName === 'zugferd_embedded_invoice'
+                );
+            });
+        },
+
+        documentNumber: {
+            get() {
+                return String(this.documentConfig.documentNumber);
+            },
+            set(value) {
+                this.documentConfig.documentNumber = value;
+            },
+        },
+
+        invoiceOptions() {
+            return this.invoices.map((item, index) => {
+                return {
+                    id: index,
+                    value: item.config.custom.invoiceNumber,
+                    label: `${item.config.custom.invoiceNumber}`,
+                };
             });
         },
     },

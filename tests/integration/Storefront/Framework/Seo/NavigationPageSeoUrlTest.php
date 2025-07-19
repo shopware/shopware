@@ -26,7 +26,6 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
  */
 #[Package('inventory')]
 #[Group('slow')]
-#[Group('skip-paratest')]
 class NavigationPageSeoUrlTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -404,10 +403,10 @@ class NavigationPageSeoUrlTest extends TestCase
     private function getSeoUrls(array $ids, ?string $salesChannelId): array
     {
         $query = $this->connection->createQueryBuilder();
-        $query->addSelect([
+        $query->addSelect(
             'seo_path_info',
             'path_info',
-        ]);
+        );
         $query->from('seo_url');
         $query->andWhere('foreign_key IN (:ids)');
         $query->andWhere('route_name = :routeName');

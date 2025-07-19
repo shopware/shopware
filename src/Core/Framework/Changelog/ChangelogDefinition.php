@@ -15,7 +15,7 @@ class ChangelogDefinition
 {
     private const VIOLATION_MESSAGE_SECTION_SEPARATOR = 'You should use "___" to separate %s and %s section';
     private const VIOLATION_MESSAGE_STARTING_KEYWORD = "Changelog entry \"%s\" does not start with a valid keyword (%s).\nPlease have look at the handbook: https://handbook.shopware.com/Product/Guides/Development/WritingChangelog#changelog-entries";
-    private const SEPERATOR_REGEX = '/(```(?:[a-zA-Z]+)?[\s\S]*?```)|\n+#\s+(\w+)/';
+    private const SEPARATOR_REGEX = '/(```(?:[a-zA-Z]+)?[\s\S]*?```)|\n+#\s+(\w+)/';
 
     #[Assert\NotBlank(message: 'The title should not be blank')]
     private string $title;
@@ -97,7 +97,7 @@ class ChangelogDefinition
         return $this->issue ?? '';
     }
 
-    public function setIssue(string $issue): ChangelogDefinition
+    public function setIssue(?string $issue): ChangelogDefinition
     {
         $this->issue = $issue;
 
@@ -228,8 +228,7 @@ class ChangelogDefinition
     {
         $template = <<<EOD
 ---
-title: $this->title
-issue: $this->issue
+title: $this->title%ISSUE%
 %FEATURE_FLAG%
 %AUTHOR%
 %AUTHOR_EMAIL%
@@ -266,6 +265,7 @@ to
 self
 ```
 EOD;
+        $template = str_replace('%ISSUE%', $this->issue ? "\nissue: {$this->issue}" : '', $template);
         $template = str_replace('%FEATURE_FLAG%', $this->flag ? 'flag: ' . $this->flag : '', $template);
         $template = str_replace('%AUTHOR%', $this->author ? 'author: ' . $this->author : '', $template);
         $template = str_replace('%AUTHOR_EMAIL%', $this->authorEmail ? 'author_email: ' . $this->authorEmail : '', $template);
@@ -281,7 +281,7 @@ EOD;
             return;
         }
 
-        preg_match(self::SEPERATOR_REGEX, $sectionContent, $matches);
+        preg_match(self::SEPARATOR_REGEX, $sectionContent, $matches);
 
         if (isset($matches[2])) {
             $this->buildViolationSectionSeparator($context, $section, $matches[2]);

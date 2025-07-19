@@ -15,26 +15,26 @@ export default {
             },
             types: [
                 {
-                    id: 'datetime',
-                    name: this.$tc('sw-settings-custom-field.customField.detail.labelDatetime'),
+                    option: 'datetime',
+                    label: this.$tc('sw-settings-custom-field.customField.detail.labelDatetime'),
                 },
                 {
-                    id: 'date',
-                    name: this.$tc('sw-settings-custom-field.customField.detail.labelDate'),
+                    option: 'date',
+                    label: this.$tc('sw-settings-custom-field.customField.detail.labelDate'),
                 },
                 {
-                    id: 'time',
-                    name: this.$tc('sw-settings-custom-field.customField.detail.labelTime'),
+                    option: 'time',
+                    label: this.$tc('sw-settings-custom-field.customField.detail.labelTime'),
                 },
             ],
             timeForms: [
                 {
-                    id: 'true',
-                    name: this.$tc('global.default.yes'),
+                    option: 'true',
+                    label: this.$tc('global.default.yes'),
                 },
                 {
-                    id: 'false',
-                    name: this.$tc('global.default.no'),
+                    option: 'false',
+                    label: this.$tc('global.default.no'),
                 },
             ],
         };
@@ -47,13 +47,13 @@ export default {
     methods: {
         createdComponent() {
             if (!this.currentCustomField.config.hasOwnProperty('dateType')) {
-                this.$set(this.currentCustomField.config, 'dateType', 'datetime');
+                this.currentCustomField.config.dateType = 'datetime';
             }
 
             if (!this.currentCustomField.config.hasOwnProperty('config')) {
-                this.$set(this.currentCustomField.config, 'config', {
+                this.currentCustomField.config.config = {
                     time_24hr: true,
-                });
+                };
             }
         },
     },

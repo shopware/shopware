@@ -5,11 +5,18 @@
 export default function initializeSettingItems(): void {
     Shopware.ExtensionAPI.handle('settingsItemAdd', async (settingsItemConfig, additionalInformation) => {
         const allowedTabs = [
-            'shop',
+            'general',
+            'localization',
+            'customer',
+            'commerce',
+            'content',
+            'automation',
             'system',
+            'account',
             'plugins',
         ];
-        const extension = Object.values(Shopware.State.get('extensions')).find((ext) =>
+
+        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
             ext.baseUrl.startsWith(additionalInformation._event_.origin),
         );
 
@@ -27,30 +34,41 @@ export default function initializeSettingItems(): void {
             group = settingsItemConfig.tab;
         }
 
-        await Shopware.State.dispatch('extensionSdkModules/addModule', {
-            heading: settingsItemConfig.label,
-            locationId: settingsItemConfig.locationId,
-            displaySearchBar: settingsItemConfig.displaySearchBar,
-            baseUrl: extension.baseUrl,
-        }).then((moduleId) => {
-            if (typeof moduleId !== 'string') {
-                return;
-            }
+        await Shopware.Store.get('extensionSdkModules')
+            .addModule({
+                heading: settingsItemConfig.label,
+                locationId: settingsItemConfig.locationId,
+                displaySearchBar: settingsItemConfig.displaySearchBar!,
+                baseUrl: extension.baseUrl,
+            })
+            .then((moduleId) => {
+                if (typeof moduleId !== 'string') {
+                    return;
+                }
 
-            Shopware.State.commit('settingsItems/addItem', {
-                group: group,
-                icon: settingsItemConfig.icon,
-                id: settingsItemConfig.locationId,
-                label: settingsItemConfig.label,
-                name: settingsItemConfig.locationId,
-                to: {
-                    name: 'sw.extension.sdk.index',
-                    params: {
-                        id: moduleId,
-                        back: `sw.settings.index.${group}`,
+                Shopware.Store.get('settingsItems').addItem({
+                    group: group as
+                        | 'general'
+                        | 'localization'
+                        | 'customer'
+                        | 'commerce'
+                        | 'content'
+                        | 'automation'
+                        | 'system'
+                        | 'account'
+                        | 'plugins',
+                    icon: settingsItemConfig.icon,
+                    id: settingsItemConfig.locationId,
+                    label: settingsItemConfig.label,
+                    name: settingsItemConfig.locationId,
+                    to: {
+                        name: 'sw.extension.sdk.index',
+                        params: {
+                            id: moduleId,
+                            back: `sw.settings.index.${group}`,
+                        },
                     },
-                },
+                });
             });
-        });
     });
 }

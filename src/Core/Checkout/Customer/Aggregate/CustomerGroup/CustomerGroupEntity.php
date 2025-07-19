@@ -16,82 +16,27 @@ class CustomerGroupEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $displayGross;
+    protected bool $displayGross;
 
-    /**
-     * @var CustomerGroupTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?CustomerGroupTranslationCollection $translations = null;
 
-    /**
-     * @var CustomerCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customers;
+    protected ?CustomerCollection $customers = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannels;
+    protected ?SalesChannelCollection $salesChannels = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $registrationActive;
+    protected bool $registrationActive;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $registrationTitle;
+    protected string $registrationTitle;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $registrationIntroduction;
+    protected string $registrationIntroduction;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $registrationOnlyCompanyRegistration;
+    protected bool $registrationOnlyCompanyRegistration;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $registrationSeoMetaDescription;
+    protected string $registrationSeoMetaDescription;
 
-    /**
-     * @var SalesChannelCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $registrationSalesChannels;
+    protected ?SalesChannelCollection $registrationSalesChannels = null;
 
     public function getName(): ?string
     {

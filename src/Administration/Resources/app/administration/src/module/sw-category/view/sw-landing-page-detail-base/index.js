@@ -1,8 +1,7 @@
 import template from './sw-landing-page-detail-base.html.twig';
-import './sw-landing-page-detail-base.scss';
 
 const { Mixin } = Shopware;
-const { mapState, mapPropertyErrors } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
  * @sw-package discovery
@@ -10,8 +9,6 @@ const { mapState, mapPropertyErrors } = Shopware.Component.getComponentHelper();
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -30,15 +27,9 @@ export default {
     },
 
     computed: {
-        ...mapState('swCategoryDetail', {
-            customFieldSetsArray: (state) => {
-                if (!state.customFieldSets) {
-                    return [];
-                }
-
-                return state.customFieldSets;
-            },
-        }),
+        customFieldSetsArray() {
+            return Shopware.Store.get('swCategoryDetail').customFieldSets ?? [];
+        },
 
         ...mapPropertyErrors('landingPage', [
             'name',
@@ -47,7 +38,7 @@ export default {
         ]),
 
         landingPage() {
-            return Shopware.State.get('swCategoryDetail').landingPage;
+            return Shopware.Store.get('swCategoryDetail').landingPage;
         },
 
         cmsPage() {

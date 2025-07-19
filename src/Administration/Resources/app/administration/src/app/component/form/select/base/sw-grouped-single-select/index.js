@@ -1,8 +1,6 @@
 import './sw-grouped-single-select.scss';
 import template from './sw-grouped-single-select.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -35,7 +33,7 @@ const { Component } = Shopware;
  *      ]"
  * </sw-grouped-single-select>
  */
-Component.extend('sw-grouped-single-select', 'sw-single-select', {
+export default {
     template,
 
     inject: ['feature'],
@@ -73,4 +71,4 @@ Component.extend('sw-grouped-single-select', 'sw-single-select', {
             return item.group && item.group !== this.visibleResults[index - 1]?.group;
         },
     },
-});
+};

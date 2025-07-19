@@ -14,10 +14,7 @@ class LanguageExceptionHandler implements ExceptionHandlerInterface
         return ExceptionHandlerInterface::PRIORITY_LATE;
     }
 
-    /**
-     * @param \Exception $e - @deprecated tag:v6.7.0 - in v6.7.0 parameter type will be changed to \Throwable
-     */
-    public function matchException(\Exception $e): ?\Exception
+    public function matchException(\Throwable $e): ?\Throwable
     {
         if (preg_match('/SQLSTATE\[23000\]:.*(1217|1216).*a foreign key constraint/', $e->getMessage())) {
             return new LanguageForeignKeyDeleteException($e);

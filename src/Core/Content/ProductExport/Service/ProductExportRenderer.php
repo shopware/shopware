@@ -8,8 +8,7 @@ use Shopware\Core\Content\ProductExport\Event\ProductExportRenderFooterContextEv
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderHeaderContextEvent;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
-use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
-use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -25,7 +24,6 @@ class ProductExportRenderer implements ProductExportRendererInterface
     public function __construct(
         private readonly StringTemplateRenderer $templateRenderer,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler
     ) {
     }
 
@@ -47,18 +45,20 @@ class ProductExportRenderer implements ProductExportRendererInterface
         );
 
         try {
-            $content = $this->templateRenderer->render(
+            return $this->templateRenderer->render(
                 $productExport->getHeaderTemplate(),
                 $headerContext->getContext(),
                 $salesChannelContext->getContext()
             ) . \PHP_EOL;
+        } catch (AdapterException $exception) {
+            if ($exception->getErrorCode() === AdapterException::STRING_TEMPLATE_RENDERING_FAILED) {
+                $renderHeaderException = ProductExportException::renderHeaderException($exception->getMessage());
+                $this->logException($salesChannelContext->getContext(), $renderHeaderException);
 
-            return $this->replaceSeoUrlPlaceholder($content, $productExport, $salesChannelContext);
-        } catch (StringTemplateRenderingException $exception) {
-            $renderHeaderException = ProductExportException::renderHeaderException($exception->getMessage());
-            $this->logException($salesChannelContext->getContext(), $renderHeaderException);
+                throw $renderHeaderException;
+            }
 
-            throw $renderHeaderException;
+            throw $exception;
         }
     }
 
@@ -80,14 +80,12 @@ class ProductExportRenderer implements ProductExportRendererInterface
         );
 
         try {
-            $content = $this->templateRenderer->render(
+            return $this->templateRenderer->render(
                 $productExport->getFooterTemplate(),
                 $footerContext->getContext(),
                 $salesChannelContext->getContext()
             ) . \PHP_EOL;
-
-            return $this->replaceSeoUrlPlaceholder($content, $productExport, $salesChannelContext);
-        } catch (StringTemplateRenderingException $exception) {
+        } catch (AdapterException $exception) {
             $renderFooterException = ProductExportException::renderFooterException($exception->getMessage());
             $this->logException($salesChannelContext->getContext(), $renderFooterException);
 
@@ -109,14 +107,12 @@ class ProductExportRenderer implements ProductExportRendererInterface
         }
 
         try {
-            $content = $this->templateRenderer->render(
+            return $this->templateRenderer->render(
                 $bodyTemplate,
                 $data,
                 $salesChannelContext->getContext()
             ) . \PHP_EOL;
-
-            return $this->replaceSeoUrlPlaceholder($content, $productExport, $salesChannelContext);
-        } catch (StringTemplateRenderingException $exception) {
+        } catch (AdapterException $exception) {
             $renderProductException = ProductExportException::renderProductException($exception->getMessage());
             $this->logException($salesChannelContext->getContext(), $renderProductException);
 
@@ -136,17 +132,5 @@ class ProductExportRenderer implements ProductExportRendererInterface
         );
 
         $this->eventDispatcher->dispatch($loggingEvent);
-    }
-
-    private function replaceSeoUrlPlaceholder(
-        string $content,
-        ProductExportEntity $productExportEntity,
-        SalesChannelContext $salesChannelContext
-    ): string {
-        return $this->seoUrlPlaceholderHandler->replace(
-            $content,
-            $productExportEntity->getSalesChannelDomain()->getUrl(),
-            $salesChannelContext
-        );
     }
 }

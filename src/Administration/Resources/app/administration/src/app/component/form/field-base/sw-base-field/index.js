@@ -4,17 +4,14 @@
 import template from './sw-base-field.html.twig';
 import './sw-base-field.scss';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
  * @private
  */
-Component.register('sw-base-field', {
+export default {
     template,
     inheritAttrs: false,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -141,18 +138,9 @@ Component.register('sw-base-field', {
         showLabel() {
             return !!this.label || this.$slots.label?.()[0]?.children.length > 0;
         },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
     },
 
     mounted() {
         this.$emit('base-field-mounted');
     },
-});
+};

@@ -45,7 +45,7 @@ class LanguageSerializer extends EntitySerializer implements ResetInterface
             }
 
             if ($language) {
-                $deserialized = array_merge_recursive($deserialized, $language);
+                $deserialized = array_merge($deserialized, $language);
             }
         }
 

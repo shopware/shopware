@@ -12,8 +12,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -400,11 +398,7 @@ export default {
             });
 
             if (foundVariantIndex >= 0) {
-                if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                    this.$delete(variant.price, foundVariantIndex);
-                } else {
-                    delete variant.price[foundVariantIndex];
-                }
+                delete variant.price[foundVariantIndex];
             }
 
             if (variant.price.length <= 0) {
@@ -427,11 +421,7 @@ export default {
             };
 
             // add new price currency to variant
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(variant.price, variant.price.length, newPrice);
-            } else {
-                variant.price.push(newPrice);
-            }
+            variant.price.push(newPrice);
         },
 
         /**
@@ -551,9 +541,13 @@ export default {
                     this.isDeletionOver = true;
 
                     this.createNotificationError({
-                        message: this.$tc('sw-product.list.notificationVariantDeleteErrorCanonicalUrl', amount, {
-                            variantName,
-                        }),
+                        message: this.$tc(
+                            'sw-product.list.notificationVariantDeleteErrorCanonicalUrl',
+                            {
+                                variantName,
+                            },
+                            amount,
+                        ),
                     });
 
                     return;
@@ -563,10 +557,14 @@ export default {
                     .syncDeleted(variantIds)
                     .then(() => {
                         this.createNotificationSuccess({
-                            message: this.$tc('sw-product.list.notificationVariantDeleteSuccess', amount, {
-                                variantName,
+                            message: this.$tc(
+                                'sw-product.list.notificationVariantDeleteSuccess',
+                                {
+                                    variantName,
+                                    amount,
+                                },
                                 amount,
-                            }),
+                            ),
                         });
 
                         this.$refs.variantGrid.resetSelection();
@@ -575,10 +573,14 @@ export default {
                     })
                     .catch(() => {
                         this.createNotificationError({
-                            message: this.$tc('sw-product.list.notificationVariantDeleteError', amount, {
-                                variantName,
+                            message: this.$tc(
+                                'sw-product.list.notificationVariantDeleteError',
+                                {
+                                    variantName,
+                                    amount,
+                                },
                                 amount,
-                            }),
+                            ),
                         });
                     })
                     .finally(() => {

@@ -20,166 +20,51 @@ class ProductExportEntity extends Entity
     final public const FILE_FORMAT_CSV = 'csv';
     final public const FILE_FORMAT_XML = 'xml';
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productStreamId;
+    protected string $productStreamId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $storefrontSalesChannelId;
+    protected string $storefrontSalesChannelId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelId;
+    protected string $salesChannelId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelDomainId;
+    protected string $salesChannelDomainId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currencyId;
+    protected string $currencyId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $fileName;
+    protected string $fileName;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $accessKey;
+    protected string $accessKey;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $encoding;
+    protected string $encoding;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $fileFormat;
+    protected string $fileFormat;
 
-    /**
-     * @var ProductStreamEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productStream;
+    protected ?ProductStreamEntity $productStream = null;
 
-    /**
-     * @var SalesChannelEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $storefrontSalesChannel;
+    protected ?SalesChannelEntity $storefrontSalesChannel = null;
 
-    /**
-     * @var SalesChannelEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
-    /**
-     * @var SalesChannelDomainEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelDomain;
+    protected ?SalesChannelDomainEntity $salesChannelDomain = null;
 
-    /**
-     * @var CurrencyEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currency;
+    protected ?CurrencyEntity $currency = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $includeVariants;
+    protected bool $includeVariants;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $generateByCronjob;
+    protected bool $generateByCronjob;
 
-    /**
-     * @var \DateTimeInterface|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $generatedAt;
+    protected ?\DateTimeInterface $generatedAt = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $interval;
+    protected int $interval;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $headerTemplate;
+    protected ?string $headerTemplate = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $bodyTemplate;
+    protected ?string $bodyTemplate = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $footerTemplate;
+    protected ?string $footerTemplate = null;
 
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $pausedSchedule;
+    protected ?bool $pausedSchedule = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $isRunning;
+    protected bool $isRunning;
 
     public function getProductStreamId(): string
     {
@@ -271,7 +156,7 @@ class ProductExportEntity extends Entity
         $this->fileFormat = $fileFormat;
     }
 
-    public function getProductStream(): ProductStreamEntity
+    public function getProductStream(): ?ProductStreamEntity
     {
         return $this->productStream;
     }
@@ -281,7 +166,7 @@ class ProductExportEntity extends Entity
         $this->productStream = $productStream;
     }
 
-    public function getStorefrontSalesChannel(): SalesChannelEntity
+    public function getStorefrontSalesChannel(): ?SalesChannelEntity
     {
         return $this->storefrontSalesChannel;
     }
@@ -291,7 +176,7 @@ class ProductExportEntity extends Entity
         $this->storefrontSalesChannel = $storefrontSalesChannel;
     }
 
-    public function getSalesChannel(): SalesChannelEntity
+    public function getSalesChannel(): ?SalesChannelEntity
     {
         return $this->salesChannel;
     }
@@ -301,7 +186,7 @@ class ProductExportEntity extends Entity
         $this->salesChannel = $salesChannel;
     }
 
-    public function getSalesChannelDomain(): SalesChannelDomainEntity
+    public function getSalesChannelDomain(): ?SalesChannelDomainEntity
     {
         return $this->salesChannelDomain;
     }
@@ -311,7 +196,7 @@ class ProductExportEntity extends Entity
         $this->salesChannelDomain = $salesChannelDomain;
     }
 
-    public function getCurrency(): CurrencyEntity
+    public function getCurrency(): ?CurrencyEntity
     {
         return $this->currency;
     }

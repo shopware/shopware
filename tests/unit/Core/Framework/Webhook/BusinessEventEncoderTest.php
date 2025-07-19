@@ -27,6 +27,7 @@ class BusinessEventEncoderTest extends TestCase
             'array' => ['test'],
             'string' => 'test',
             'mail' => new MailRecipientStruct(['firstName' => 'name']),
+            'notExistentInStored' => 'notExistentInStored',
         ];
 
         $stored = [
@@ -47,5 +48,8 @@ class BusinessEventEncoderTest extends TestCase
         static::assertIsArray($data['mail']);
         static::assertIsArray($data['array']);
         static::assertIsString($data['string']);
+
+        static::assertArrayHasKey('notExistentInStored', $data);
+        static::assertSame('notExistentInStored', $data['notExistentInStored']);
     }
 }

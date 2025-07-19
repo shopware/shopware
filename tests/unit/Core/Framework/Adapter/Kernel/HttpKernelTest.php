@@ -40,7 +40,7 @@ class HttpKernelTest extends TestCase
     {
         $requestTransformer = $this->createMock(RequestTransformerInterface::class);
         $requestTransformer
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('transform');
 
         $kernel = new HttpKernel(
@@ -62,7 +62,7 @@ class HttpKernelTest extends TestCase
     {
         $requestTransformer = $this->createMock(RequestTransformerInterface::class);
         $requestTransformer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('transform')
             ->willThrowException(new \Exception());
 
@@ -86,7 +86,7 @@ class HttpKernelTest extends TestCase
     {
         $requestTransformer = $this->createMock(RequestTransformerInterface::class);
         $requestTransformer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('transform')
             ->willThrowException(new SalesChannelMappingException('test'));
 
@@ -116,7 +116,7 @@ class HttpKernelTest extends TestCase
     {
         $requestTransformer = $this->createMock(RequestTransformerInterface::class);
         $requestTransformer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('transform')
             ->willReturnArgument(0);
 
@@ -138,7 +138,7 @@ class HttpKernelTest extends TestCase
     {
         $requestTransformer = $this->createMock(RequestTransformerInterface::class);
         $requestTransformer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('transform')
             ->willReturnArgument(0);
 

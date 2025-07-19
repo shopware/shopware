@@ -59,7 +59,7 @@
             left: auto;
             right: 0;
 
-            .sw-icon {
+            .mt-icon {
                 padding-top: 7px;
                 padding-right: 5px;
                 padding-bottom: 7px;
@@ -68,7 +68,7 @@
         }
 
         &.sw-tabs__arrow--left {
-            .sw-icon {
+            .mt-icon {
                 padding-top: 7px;
                 padding-right: 5px;
                 padding-bottom: 7px;
@@ -81,7 +81,7 @@
             opacity: 0.25;
         }
 
-        .sw-icon {
+        .mt-icon {
             transition: 0.3s all ease;
         }
 
@@ -93,7 +93,7 @@
             outline: none;
             cursor: pointer;
 
-            .sw-icon {
+            .mt-icon {
                 color: $color-shopware-brand-500;
             }
         }

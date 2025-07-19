@@ -1,7 +1,7 @@
 import template from './sw-data-grid-column-position.html.twig';
 import './sw-data-grid-column-position.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 /**
  * @sw-package framework
@@ -21,10 +21,8 @@ const { Component, Mixin } = Shopware;
  *      </sw-data-grid-column-position>
  *  </template>
  */
-Component.register('sw-data-grid-column-position', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'lower-position-value',
@@ -85,4 +83,4 @@ Component.register('sw-data-grid-column-position', {
             this.$emit('position-changed', this.value);
         },
     },
-});
+};

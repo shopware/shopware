@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionColl
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedCriteriaEvent;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -20,7 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
@@ -36,6 +37,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('checkout')]
 class SetPaymentOrderRouteTest extends TestCase
 {
     use CustomerTestTrait;
@@ -118,10 +120,11 @@ class SetPaymentOrderRouteTest extends TestCase
         static::assertNotNull($this->paymentMethodChangedCriteriaEventResult);
         static::assertNotNull($this->paymentMethodChangedEventResult);
         static::assertSame($lastTransaction->getId(), $this->paymentMethodChangedEventResult->getOrderTransaction()->getId());
-        static::assertNotNull($this->transactionStateEventResult);
-        static::assertSame($firstTransaction->getId(), $this->transactionStateEventResult->getEntityId());
-        static::assertSame('open', $this->transactionStateEventResult->getFromPlace()->getTechnicalName());
-        static::assertSame('cancelled', $this->transactionStateEventResult->getToPlace()->getTechnicalName());
+        $result = $this->transactionStateEventResult;
+        static::assertNotNull($result);
+        static::assertSame($firstTransaction->getId(), $result->getEntityId());
+        static::assertSame('open', $result->getFromPlace()->getTechnicalName());
+        static::assertSame('cancelled', $result->getToPlace()->getTechnicalName());
     }
 
     public function testSetPaymentMethodOwnOrderOtherPaymentMethodCancelled(): void
@@ -141,8 +144,8 @@ class SetPaymentOrderRouteTest extends TestCase
         static::assertSame('cancelled', $firstTransaction->getStateMachineState()->getTechnicalName());
         static::assertSame('open', $lastTransaction->getStateMachineState()->getTechnicalName());
 
-        static::assertNotNull($this->paymentMethodChangedEventResult);
         static::assertNotNull($this->paymentMethodChangedCriteriaEventResult);
+        static::assertNotNull($this->paymentMethodChangedEventResult);
         static::assertSame($lastTransaction->getId(), $this->paymentMethodChangedEventResult->getOrderTransaction()->getId());
         static::assertNull($this->transactionStateEventResult);
     }
@@ -177,10 +180,11 @@ class SetPaymentOrderRouteTest extends TestCase
         static::assertSame('open', $lastTransaction->getStateMachineState()->getTechnicalName());
         static::assertNotNull($this->paymentMethodChangedCriteriaEventResult);
         static::assertNull($this->paymentMethodChangedEventResult);
-        static::assertNotNull($this->transactionStateEventResult);
-        static::assertSame($lastTransaction->getId(), $this->transactionStateEventResult->getEntityId());
-        static::assertSame('cancelled', $this->transactionStateEventResult->getFromPlace()->getTechnicalName());
-        static::assertSame('open', $this->transactionStateEventResult->getToPlace()->getTechnicalName());
+        $result = $this->transactionStateEventResult;
+        static::assertNotNull($result);
+        static::assertSame($lastTransaction->getId(), $result->getEntityId());
+        static::assertSame('cancelled', $result->getFromPlace()->getTechnicalName());
+        static::assertSame('open', $result->getToPlace()->getTechnicalName());
     }
 
     public function testSetPaymentMethodOwnOrderWithSamePaymentMethodInNotMostRecentTransaction(): void
@@ -226,7 +230,7 @@ class SetPaymentOrderRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
-        static::assertSame('FRAMEWORK__ENTITY_NOT_FOUND', $response['errors'][0]['code']);
+        static::assertSame('CHECKOUT__ORDER_ORDER_NOT_FOUND', $response['errors'][0]['code']);
         static::assertNotNull($this->paymentMethodChangedCriteriaEventResult);
         static::assertNull($this->paymentMethodChangedEventResult);
         static::assertNull($this->transactionStateEventResult);
@@ -247,7 +251,7 @@ class SetPaymentOrderRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
-        static::assertSame('FRAMEWORK__ENTITY_NOT_FOUND', $response['errors'][0]['code']);
+        static::assertSame('CHECKOUT__ORDER_ORDER_NOT_FOUND', $response['errors'][0]['code']);
         static::assertNotNull($this->paymentMethodChangedCriteriaEventResult);
         static::assertNull($this->paymentMethodChangedEventResult);
         static::assertNull($this->transactionStateEventResult);
@@ -272,11 +276,7 @@ class SetPaymentOrderRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_FORBIDDEN, $this->browser->getResponse()->getStatusCode());
-        if (Feature::isActive('v6.7.0.0')) {
-            static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $response['errors'][0]['code']);
-        } else {
-            static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
-        }
+        static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $response['errors'][0]['code']);
         static::assertNull($this->paymentMethodChangedCriteriaEventResult);
         static::assertNull($this->paymentMethodChangedEventResult);
         static::assertNull($this->transactionStateEventResult);
@@ -301,10 +301,11 @@ class SetPaymentOrderRouteTest extends TestCase
         static::assertNotNull($this->paymentMethodChangedCriteriaEventResult);
         static::assertNotNull($this->paymentMethodChangedEventResult);
         static::assertSame($lastTransaction->getId(), $this->paymentMethodChangedEventResult->getOrderTransaction()->getId());
-        static::assertNotNull($this->transactionStateEventResult);
-        static::assertSame($firstTransaction->getId(), $this->transactionStateEventResult->getEntityId());
-        static::assertSame('open', $this->transactionStateEventResult->getFromPlace()->getTechnicalName());
-        static::assertSame('cancelled', $this->transactionStateEventResult->getToPlace()->getTechnicalName());
+        $result = $this->transactionStateEventResult;
+        static::assertNotNull($result);
+        static::assertSame($firstTransaction->getId(), $result->getEntityId());
+        static::assertSame('open', $result->getFromPlace()->getTechnicalName());
+        static::assertSame('cancelled', $result->getToPlace()->getTechnicalName());
     }
 
     public function testSetPaymentMethodValidatePaymentStateInvalidChange(): void
@@ -322,7 +323,7 @@ class SetPaymentOrderRouteTest extends TestCase
                 ]
             );
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_FORBIDDEN, $this->browser->getResponse()->getStatusCode());
     }
 
     private function createOrder(string $customerId): string
@@ -411,7 +412,7 @@ class SetPaymentOrderRouteTest extends TestCase
 
     private function getAvailablePaymentMethodId(int $offset = 0): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<PaymentMethodCollection> $repository */
         $repository = static::getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())

@@ -2,23 +2,18 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Facade;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ApiProtectionException;
+use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacade;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\SumResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -50,150 +45,127 @@ class SalesChannelRepositoryFacadeTest extends TestCase
     {
         $this->factory = static::getContainer()->get(SalesChannelRepositoryFacadeHookFactory::class);
         $this->context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $this->ids = new IdsCollection();
+        $this->createProducts();
     }
 
-    /**
-     * @param array<string, array<int, mixed>> $criteria
-     * @param callable(EntitySearchResult<EntityCollection<Entity>>): void $expectation
-     */
-    #[DataProvider('testCases')]
-    public function testFacade(array $criteria, string $method, IdsCollection $ids, callable $expectation): void
+    public function testEmptySearch(): void
     {
-        $this->ids = $ids;
-        $this->createProducts();
+        $result = $this->createFacade()->search('product', []);
 
-        $facade = $this->factory->factory(
-            new SalesChannelTestHook('test', $this->context),
-            new Script('test', '', new \DateTimeImmutable())
+        static::assertCount(3, $result);
+    }
+
+    public function testSearchFilter(): void
+    {
+        $result = $this->createFacade()->search(
+            'product',
+            [
+                'filter' => [
+                    ['type' => 'equals', 'field' => 'childCount', 'value' => 0],
+                ],
+            ]
         );
 
-        $result = $facade->$method('product', $criteria); /* @phpstan-ignore-line */
-
-        $expectation($result);
+        static::assertCount(1, $result);
+        static::assertContains($this->ids->get('p3'), $result->getIds());
     }
 
-    /**
-     * @return array<string, array<int, mixed>>
-     */
-    public static function testCases(): array
+    public function testSearchRead(): void
     {
-        $ids = new IdsCollection();
+        $result = $this->createFacade()->search(
+            'product',
+            [
+                'ids' => [$this->ids->get('p1'), $this->ids->get('p2')],
+            ]
+        );
 
-        return [
-            'testEmptySearch' => [
-                [],
-                'search',
-                $ids,
-                function (EntitySearchResult $result): void {
-                    static::assertCount(3, $result);
-                },
-            ],
-            'testSearchFilter' => [
-                [
-                    'filter' => [
-                        ['type' => 'equals', 'field' => 'childCount', 'value' => 0],
-                    ],
-                ],
-                'search',
-                $ids,
-                function (EntitySearchResult $result) use ($ids): void {
-                    static::assertCount(1, $result);
-                    static::assertContains($ids->get('p3'), $result->getIds());
-                },
-            ],
-            'testSearchRead' => [
-                [
-                    'ids' => [$ids->get('p1'), $ids->get('p2')],
-                ],
-                'search',
-                $ids,
-                function (EntitySearchResult $result) use ($ids): void {
-                    static::assertCount(1, $result);
-                    static::assertContains($ids->get('p1'), $result->getIds());
-                },
-            ],
-            'testSearchAggregation' => [
-                [
-                    'aggregations' => [
-                        ['name' => 'sum', 'type' => 'sum', 'field' => 'childCount'],
-                    ],
-                ],
-                'search',
-                $ids,
-                function (EntitySearchResult $result): void {
-                    static::assertCount(3, $result);
-                    $agg = $result->getAggregations()->get('sum');
-                    static::assertInstanceOf(SumResult::class, $agg);
-                    static::assertEquals(1, $agg->getSum());
-                },
-            ],
-            'testSearchSort' => [
-                [
-                    'sort' => [['field' => 'id']],
-                ],
-                'search',
-                $ids,
-                function (EntitySearchResult $result): void {
-                    $actual = $result->getIds();
+        static::assertCount(1, $result);
+        static::assertContains($this->ids->get('p1'), $result->getIds());
+    }
 
-                    $expected = $actual;
-                    sort($expected);
+    public function testSearchAggregation(): void
+    {
+        $result = $this->createFacade()->search(
+            'product',
+            [
+                'aggregations' => [
+                    ['name' => 'sum', 'type' => 'sum', 'field' => 'childCount'],
+                ],
+            ]
+        );
 
-                    static::assertEquals($expected, array_values($actual));
-                },
-            ],
-            'testEmptySearchIds' => [
-                [],
-                'ids',
-                $ids,
-                function (IdSearchResult $result): void {
-                    static::assertCount(3, $result->getIds());
-                },
-            ],
-            'testSearchIdsFilter' => [
-                [
-                    'filter' => [
-                        ['type' => 'equals', 'field' => 'childCount', 'value' => 0],
-                    ],
+        static::assertCount(3, $result);
+        $agg = $result->getAggregations()->get('sum');
+        static::assertInstanceOf(SumResult::class, $agg);
+        static::assertSame(1.0, $agg->getSum());
+    }
+
+    public function testSearchSort(): void
+    {
+        $result = $this->createFacade()->search(
+            'product',
+            [
+                'sort' => [['field' => 'id']],
+            ]
+        );
+
+        $actual = $result->getIds();
+
+        $expected = $actual;
+        sort($expected);
+
+        static::assertSame($expected, array_values($actual));
+    }
+
+    public function testSearchIds(): void
+    {
+        $result = $this->createFacade()->ids('product', []);
+
+        static::assertCount(3, $result->getIds());
+    }
+
+    public function testSearchIdsFilter(): void
+    {
+        $result = $this->createFacade()->ids(
+            'product',
+            [
+                'filter' => [
+                    ['type' => 'equals', 'field' => 'childCount', 'value' => 0],
                 ],
-                'ids',
-                $ids,
-                function (IdSearchResult $result) use ($ids): void {
-                    static::assertCount(1, $result->getIds());
-                    static::assertContains($ids->get('p3'), $result->getIds());
-                },
-            ],
-            'testEmptyAggregation' => [
-                [],
-                'aggregate',
-                $ids,
-                function (AggregationResultCollection $result): void {
-                    static::assertCount(0, $result);
-                },
-            ],
-            'testAggregation' => [
-                [
-                    'aggregations' => [
-                        ['name' => 'sum', 'type' => 'sum', 'field' => 'childCount'],
-                    ],
+            ]
+        );
+
+        static::assertCount(1, $result->getIds());
+        static::assertContains($this->ids->get('p3'), $result->getIds());
+    }
+
+    public function testEmptyAggregation(): void
+    {
+        $result = $this->createFacade()->aggregate('product', []);
+
+        static::assertCount(0, $result);
+    }
+
+    public function testAggregation(): void
+    {
+        $result = $this->createFacade()->aggregate(
+            'product',
+            [
+                'aggregations' => [
+                    ['name' => 'sum', 'type' => 'sum', 'field' => 'childCount'],
                 ],
-                'aggregate',
-                $ids,
-                function (AggregationResultCollection $result): void {
-                    static::assertCount(1, $result);
-                    $agg = $result->get('sum');
-                    static::assertInstanceOf(SumResult::class, $agg);
-                    static::assertEquals(1, $agg->getSum());
-                },
-            ],
-        ];
+            ]
+        );
+
+        static::assertCount(1, $result);
+        $agg = $result->get('sum');
+        static::assertInstanceOf(SumResult::class, $agg);
+        static::assertSame(1.0, $agg->getSum());
     }
 
     public function testIntegrationCase(): void
     {
-        $this->ids = new IdsCollection();
-        $this->createProducts();
-
         $this->installApp(__DIR__ . '/_fixtures/apps/pageLoadedExample');
 
         $page = new ArrayStruct();
@@ -214,14 +186,11 @@ class SalesChannelRepositoryFacadeTest extends TestCase
         static::assertTrue($page->hasExtension('myProduct'));
         $product = $page->getExtension('myProduct');
         static::assertInstanceOf(SalesChannelProductEntity::class, $product);
-        static::assertEquals($this->ids->get('p1'), $product->getId());
+        static::assertSame($this->ids->get('p1'), $product->getId());
     }
 
     public function testSearchWithFilterIntegration(): void
     {
-        $this->ids = new IdsCollection();
-        $this->createProducts();
-
         $this->installApp(__DIR__ . '/_fixtures/apps/pageLoadedExample');
 
         $page = new ArrayStruct();
@@ -241,14 +210,11 @@ class SalesChannelRepositoryFacadeTest extends TestCase
         static::assertTrue($page->hasExtension('myProduct'));
         $product = $page->getExtension('myProduct');
         static::assertInstanceOf(SalesChannelProductEntity::class, $product);
-        static::assertEquals($this->ids->get('p1'), $product->getId());
+        static::assertSame($this->ids->get('p1'), $product->getId());
     }
 
     public function testSearchWithAssociationIntegration(): void
     {
-        $this->ids = new IdsCollection();
-        $this->createProducts();
-
         $this->installApp(__DIR__ . '/_fixtures/apps/pageLoadedExample');
 
         $page = new ArrayStruct();
@@ -269,19 +235,16 @@ class SalesChannelRepositoryFacadeTest extends TestCase
         static::assertTrue($page->hasExtension('myProduct'));
         $product = $page->getExtension('myProduct');
         static::assertInstanceOf(SalesChannelProductEntity::class, $product);
-        static::assertEquals($this->ids->get('p1'), $product->getId());
+        static::assertSame($this->ids->get('p1'), $product->getId());
         static::assertInstanceOf(ProductManufacturerEntity::class, $product->getManufacturer());
 
         $manufacturer = $page->getExtension('myManufacturer');
         static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
-        static::assertEquals($this->ids->get('m1'), $manufacturer->getId());
+        static::assertSame($this->ids->get('m1'), $manufacturer->getId());
     }
 
     public function testSearchIdsIntegration(): void
     {
-        $this->ids = new IdsCollection();
-        $this->createProducts();
-
         $this->installApp(__DIR__ . '/_fixtures/apps/pageLoadedExample');
 
         $page = new ArrayStruct();
@@ -301,14 +264,11 @@ class SalesChannelRepositoryFacadeTest extends TestCase
         static::assertTrue($page->hasExtension('myProductIds'));
         $extension = $page->getExtension('myProductIds');
         static::assertInstanceOf(ArrayStruct::class, $extension);
-        static::assertEquals([$this->ids->get('p1')], $extension->get('ids'));
+        static::assertSame([$this->ids->get('p1')], $extension->get('ids'));
     }
 
     public function testAggregateIntegration(): void
     {
-        $this->ids = new IdsCollection();
-        $this->createProducts();
-
         $this->installApp(__DIR__ . '/_fixtures/apps/pageLoadedExample');
 
         $page = new ArrayStruct();
@@ -328,19 +288,11 @@ class SalesChannelRepositoryFacadeTest extends TestCase
         static::assertTrue($page->hasExtension('myProductAggregations'));
         $extension = $page->getExtension('myProductAggregations');
         static::assertInstanceOf(ArrayStruct::class, $extension);
-        static::assertEquals(1, $extension->get('sum'));
+        static::assertSame(1.0, $extension->get('sum'));
     }
 
     public function testItThrowsForNotApiAwareField(): void
     {
-        $this->ids = new IdsCollection();
-        $this->createProducts();
-
-        $facade = $this->factory->factory(
-            new SalesChannelTestHook('test', $this->context),
-            new Script('test', '', new \DateTimeImmutable())
-        );
-
         $criteria = [
             'aggregations' => [
                 ['name' => 'sum', 'type' => 'sum', 'field' => 'autoIncrement'],
@@ -348,7 +300,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
         ];
 
         static::expectException(ApiProtectionException::class);
-        $facade->search('product', $criteria);
+        $this->createFacade()->search('product', $criteria);
     }
 
     private function createProducts(): void
@@ -403,5 +355,13 @@ class SalesChannelRepositoryFacadeTest extends TestCase
         static::assertIsString($taxId);
 
         return $taxId;
+    }
+
+    private function createFacade(): SalesChannelRepositoryFacade
+    {
+        return $this->factory->factory(
+            new SalesChannelTestHook('test', $this->context),
+            new Script('test', '', new \DateTimeImmutable())
+        );
     }
 }

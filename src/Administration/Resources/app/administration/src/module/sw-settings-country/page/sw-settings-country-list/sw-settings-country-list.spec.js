@@ -92,9 +92,9 @@ async function createWrapper(privileges = []) {
                     </div>
                 `,
                     },
-                    'sw-card': {
+                    'mt-card': {
                         template: `
-                    <div class="sw-card">
+                    <div class="mt-card">
                         <slot name="grid"></slot>
                     </div>
                 `,
@@ -120,8 +120,6 @@ async function createWrapper(privileges = []) {
                     'sw-language-switch': true,
                     'sw-search-bar': true,
                     'sw-context-menu-item': true,
-                    'sw-icon': true,
-                    'sw-button': true,
                     'sw-checkbox-field': true,
                 },
             },
@@ -166,7 +164,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
         const createButton = wrapper.find('.sw-settings-country-list__button-create');
 
-        expect(createButton.attributes().disabled).toBeTruthy();
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to edit a country', async () => {

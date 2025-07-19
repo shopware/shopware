@@ -76,7 +76,7 @@ class ThemeChangeCommandTest extends TestCase
         }
 
         $themeService = $this->createMock(ThemeService::class);
-        $themeService->expects(static::exactly(\count($salesChannels)))
+        $themeService->expects($this->exactly(\count($salesChannels)))
             ->method('assignTheme');
 
         $themeChangeCommand = new ThemeChangeCommand(
@@ -110,7 +110,7 @@ class ThemeChangeCommandTest extends TestCase
         $this->pluginRegistry = $this->getPluginRegistryMock();
 
         $themeService = $this->createMock(ThemeService::class);
-        $themeService->expects(static::exactly(1))
+        $themeService->expects($this->exactly(1))
             ->method('assignTheme')
             ->with($themes[0]['id'], $salesChannel['id'], $context);
 
@@ -187,7 +187,7 @@ class ThemeChangeCommandTest extends TestCase
         $this->pluginRegistry = $this->getPluginRegistryMock();
 
         $themeService = $this->createMock(ThemeService::class);
-        $themeService->expects(static::exactly(1))
+        $themeService->expects($this->exactly(1))
             ->method('assignTheme')
             ->with($themes[0]['id'], $salesChannel['id'], $context, true);
 
@@ -224,7 +224,7 @@ class ThemeChangeCommandTest extends TestCase
         $this->pluginRegistry = $this->getPluginRegistryMock();
 
         $themeService = $this->createMock(ThemeService::class);
-        $themeService->expects(static::exactly(1))
+        $themeService->expects($this->exactly(1))
             ->method('assignTheme')
             ->with($themes[0]['id'], $salesChannel['id'], $context, false);
 

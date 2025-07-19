@@ -44,6 +44,7 @@
 .finish-ordernumber {
     font-size: $font-size-lg;
     font-weight: $headings-font-weight;
+    text-align: center;
 }
 
 .finish-teaser {
@@ -52,10 +53,6 @@
 
 .finish-header {
     margin-bottom: $spacer-lg;
-    text-align: center;
-}
-
-.finish-ordernumber {
     text-align: center;
 }
 

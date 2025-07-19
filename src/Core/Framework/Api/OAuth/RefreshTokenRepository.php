@@ -32,23 +32,28 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
      */
     public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity): void
     {
-        $this->connection->createQueryBuilder()
-            ->insert('refresh_token')
-            ->values([
-                'id' => ':id',
-                'user_id' => ':userId',
-                'token_id' => ':tokenId',
-                'issued_at' => ':issuedAt',
-                'expires_at' => ':expiresAt',
-            ])
-            ->setParameters([
-                'id' => Uuid::randomBytes(),
-                'userId' => Uuid::fromHexToBytes($refreshTokenEntity->getAccessToken()->getUserIdentifier()),
-                'tokenId' => $refreshTokenEntity->getIdentifier(),
-                'issuedAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'expiresAt' => $refreshTokenEntity->getExpiryDateTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ])
-            ->executeStatement();
+        // User identifier is by design null in case of authentication with integration (and no real user)
+        $userIdentifier = $refreshTokenEntity->getAccessToken()->getUserIdentifier();
+
+        if ($userIdentifier) {
+            $this->connection->createQueryBuilder()
+                ->insert('refresh_token')
+                ->values([
+                    'id' => ':id',
+                    'user_id' => ':userId',
+                    'token_id' => ':tokenId',
+                    'issued_at' => ':issuedAt',
+                    'expires_at' => ':expiresAt',
+                ])
+                ->setParameters([
+                    'id' => Uuid::randomBytes(),
+                    'userId' => Uuid::fromHexToBytes($userIdentifier),
+                    'tokenId' => $refreshTokenEntity->getIdentifier(),
+                    'issuedAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'expiresAt' => $refreshTokenEntity->getExpiryDateTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ])
+                ->executeStatement();
+        }
 
         $this->cleanUpExpiredRefreshTokens();
     }
@@ -56,7 +61,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function revokeRefreshToken($tokenId): void
+    public function revokeRefreshToken(string $tokenId): void
     {
         $this->connection->createQueryBuilder()
             ->delete('refresh_token')
@@ -70,7 +75,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function isRefreshTokenRevoked($tokenId): bool
+    public function isRefreshTokenRevoked(string $tokenId): bool
     {
         $refreshToken = $this->connection->createQueryBuilder()
             ->select('token_id')

@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import { MtPopover } from '@shopware-ag/meteor-component-library';
 import template from './sw-extension-teaser-popover.html.twig';
 import './sw-extension-teaser-popover.scss';
@@ -25,10 +24,8 @@ interface TeaserPopoverConfig {
  * @component-example
  * <sw-extension-teaser-popover position-identifier="my-special-position" />
  */
-Shopware.Component.register('sw-extension-teaser-popover', {
+export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     components: {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

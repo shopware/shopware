@@ -32,16 +32,12 @@ async function createWrapper(privileges = []) {
                 },
 
                 stubs: {
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot></slot></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot></slot></div>',
                     },
                     'sw-container': {
                         template: '<div class="sw-container"><slot></slot></div>',
                     },
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
-                    'sw-icon': true,
                     'sw-tabs': true,
                     'sw-tabs-item': true,
                     'sw-settings-search-example-modal': await wrapTestComponent('sw-settings-search-example-modal'),

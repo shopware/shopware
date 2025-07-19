@@ -14,47 +14,20 @@ class AclRoleEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
+
+    protected ?string $description = null;
 
     /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var list<string>
      */
-    protected $description;
+    protected array $privileges = [];
 
-    /**
-     * @var array
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $privileges = [];
+    protected ?UserCollection $users = null;
 
-    /**
-     * @var UserCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $users;
+    protected ?AppEntity $app = null;
 
-    /**
-     * @var AppEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $app;
-
-    /**
-     * @var IntegrationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $integrations;
+    protected ?IntegrationCollection $integrations = null;
 
     protected ?\DateTimeInterface $deletedAt = null;
 
@@ -78,11 +51,17 @@ class AclRoleEntity extends Entity
         $this->users = $users;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getPrivileges(): array
     {
         return $this->privileges;
     }
 
+    /**
+     * @param list<string> $privileges
+     */
     public function setPrivileges(array $privileges): void
     {
         $this->privileges = $privileges;

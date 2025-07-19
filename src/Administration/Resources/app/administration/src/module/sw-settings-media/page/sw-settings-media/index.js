@@ -10,8 +10,6 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'systemConfigApiService',
     ],
@@ -86,10 +84,6 @@ export default {
 
         onLoadingChanged(loading) {
             this.isLoading = loading;
-        },
-
-        onSliderChange(value) {
-            this.sliderValue = value;
         },
     },
 };

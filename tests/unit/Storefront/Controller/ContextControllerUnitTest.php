@@ -78,7 +78,7 @@ class ContextControllerUnitTest extends TestCase
     public function testSwitchLangNotFound(): void
     {
         $contextSwitchRoute = $this->createMock(ContextSwitchRoute::class);
-        $contextSwitchRoute->expects(static::once())->method('switchContext')->willThrowException(
+        $contextSwitchRoute->expects($this->once())->method('switchContext')->willThrowException(
             new ConstraintViolationException(new ConstraintViolationList(), [])
         );
         $controller = new ContextController(
@@ -108,13 +108,13 @@ class ContextControllerUnitTest extends TestCase
         $language->setSalesChannelDomains(new SalesChannelDomainCollection([$scDomain]));
 
         $routerMock = $this->createMock(RouterInterface::class);
-        $routerMock->expects(static::once())->method('getContext')->willReturn(new RequestContext());
-        $routerMock->expects(static::once())->method('generate')->willReturn('http://localhost');
+        $routerMock->expects($this->once())->method('getContext')->willReturn(new RequestContext());
+        $routerMock->expects($this->once())->method('generate')->willReturn('http://localhost');
         $requestStackMock = $this->createMock(RequestStack::class);
-        $requestStackMock->expects(static::exactly(2))->method('getMainRequest')->willReturn(new Request());
+        $requestStackMock->expects($this->exactly(2))->method('getMainRequest')->willReturn(new Request());
 
         $contextSwitchRoute = $this->createMock(ContextSwitchRoute::class);
-        $contextSwitchRoute->expects(static::once())->method('switchContext')->willReturn(
+        $contextSwitchRoute->expects($this->once())->method('switchContext')->willReturn(
             new ContextTokenResponse(Uuid::randomHex(), 'http://localhost')
         );
 
@@ -142,13 +142,13 @@ class ContextControllerUnitTest extends TestCase
         $language->setSalesChannelDomains(new SalesChannelDomainCollection([$scDomain]));
 
         $routerMock = $this->createMock(RouterInterface::class);
-        $routerMock->expects(static::once())->method('getContext')->willReturn(new RequestContext());
-        $routerMock->expects(static::exactly(2))->method('generate')->willReturn('http://localhost');
+        $routerMock->expects($this->once())->method('getContext')->willReturn(new RequestContext());
+        $routerMock->expects($this->exactly(2))->method('generate')->willReturn('http://localhost');
         $requestStackMock = $this->createMock(RequestStack::class);
-        $requestStackMock->expects(static::exactly(2))->method('getMainRequest')->willReturn(new Request());
+        $requestStackMock->expects($this->exactly(2))->method('getMainRequest')->willReturn(new Request());
 
         $contextSwitchRoute = $this->createMock(ContextSwitchRoute::class);
-        $contextSwitchRoute->expects(static::once())->method('switchContext')->willReturn(
+        $contextSwitchRoute->expects($this->once())->method('switchContext')->willReturn(
             new ContextTokenResponse(Uuid::randomHex(), 'http://localhost')
         );
 
@@ -178,13 +178,13 @@ class ContextControllerUnitTest extends TestCase
         $language->setSalesChannelDomains(new SalesChannelDomainCollection([$scDomain]));
 
         $routerMock = $this->createMock(RouterInterface::class);
-        $routerMock->expects(static::once())->method('getContext')->willReturn(new RequestContext());
-        $routerMock->expects(static::exactly(2))->method('generate')->willReturn('http://localhost');
+        $routerMock->expects($this->once())->method('getContext')->willReturn(new RequestContext());
+        $routerMock->expects($this->exactly(2))->method('generate')->willReturn('http://localhost');
         $requestStackMock = $this->createMock(RequestStack::class);
-        $requestStackMock->expects(static::exactly(2))->method('getMainRequest')->willReturn(new Request());
+        $requestStackMock->expects($this->exactly(2))->method('getMainRequest')->willReturn(new Request());
 
         $contextSwitchRoute = $this->createMock(ContextSwitchRoute::class);
-        $contextSwitchRoute->expects(static::once())->method('switchContext')->willReturn(
+        $contextSwitchRoute->expects($this->once())->method('switchContext')->willReturn(
             new ContextTokenResponse(Uuid::randomHex(), 'http://localhost')
         );
 

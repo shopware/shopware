@@ -13,8 +13,6 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
     ],
@@ -47,6 +45,7 @@ export default {
                 currencyId: null,
                 snippetSet: null,
                 snippetSetId: null,
+                measurementUnits: null,
             },
             isLoadingDomains: false,
             deleteDomain: null,
@@ -54,6 +53,7 @@ export default {
             sortDirection: 'ASC',
             error: null,
             isEditingDomain: false,
+            measurementSystems: [],
         };
     },
 
@@ -67,7 +67,7 @@ export default {
                 return this.$t('sw-sales-channel.detail.titleCreateDomain');
             }
 
-            return this.$t('sw-sales-channel.detail.titleEditDomain', 0, {
+            return this.$t('sw-sales-channel.detail.titleEditDomain', {
                 name: this.unicodeUriFilter(this.currentDomainBackup.url),
             });
         },
@@ -127,9 +127,28 @@ export default {
 
             return this.localSortDomains(domains);
         },
+
+        measurementSystemRepository() {
+            return this.repositoryFactory.create('measurement_system');
+        },
+
+        measurementSystemCriteria() {
+            const criteria = new Criteria(1, null);
+            criteria.addFields('name', 'technicalName');
+
+            return criteria;
+        },
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {
+        async createdComponent() {
+            this.measurementSystems = await this.measurementSystemRepository.search(this.measurementSystemCriteria);
+        },
+
         sortColumns(column) {
             if (this.sortBy === column.dataIndex) {
                 // If the same column, that is already being sorted, is clicked again, change direction
@@ -223,6 +242,7 @@ export default {
                 currencyId: domain.currencyId,
                 snippetSet: domain.snippetSet,
                 snippetSetId: domain.snippetSetId,
+                measurementUnits: domain.measurementUnits,
             };
         },
 
@@ -234,6 +254,7 @@ export default {
             this.currentDomain.currencyId = this.currentDomainBackup.currencyId;
             this.currentDomain.snippetSet = this.currentDomainBackup.snippetSet;
             this.currentDomain.snippetSetId = this.currentDomainBackup.snippetSetId;
+            this.currentDomain.measurementUnits = this.currentDomainBackup.measurementUnits;
         },
 
         setInitialCurrency(domain) {
@@ -264,6 +285,7 @@ export default {
             }
 
             domain.hreflangUseOnlyLocale = false;
+            domain.measurementUnits = this.salesChannel.measurementUnits;
 
             this.currentDomain = domain;
             this.isEditingDomain = false;
@@ -314,9 +336,13 @@ export default {
         onConfirmDeleteDomain(domain) {
             if (domain.productExports.length > 0) {
                 this.createNotificationError({
-                    message: this.$tc('sw-sales-channel.detail.messageDeleteDomainError', 0, {
-                        url: this.unicodeUriFilter(domain.url),
-                    }),
+                    message: this.$tc(
+                        'sw-sales-channel.detail.messageDeleteDomainError',
+                        {
+                            url: this.unicodeUriFilter(domain.url),
+                        },
+                        0,
+                    ),
                 });
 
                 this.deleteDomain = null;
@@ -378,7 +404,21 @@ export default {
                     allowResize: false,
                     inlineEdit: false,
                 },
+                {
+                    property: 'measurementSystemName',
+                    dataIndex: 'measurementSystemName',
+                    label: this.$t('sw-sales-channel.detail.columnDomainUnitSystem'),
+                    allowResize: false,
+                    inlineEdit: false,
+                },
             ];
+        },
+
+        getMeasurementName(technicalName) {
+            return (
+                this.measurementSystems.find((system) => system.technicalName === technicalName)?.translated.name ??
+                technicalName
+            );
         },
     },
 };

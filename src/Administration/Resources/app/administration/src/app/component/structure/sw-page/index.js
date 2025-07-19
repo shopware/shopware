@@ -1,7 +1,6 @@
 import template from './sw-page.html.twig';
 import './sw-page.scss';
 
-const { Component } = Shopware;
 const { dom } = Shopware.Utils;
 
 /**
@@ -42,16 +41,10 @@ const { dom } = Shopware.Utils;
  * </sw-page>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-page', {
+export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     provide() {
-        if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-            return {};
-        }
-
         return {
             setSwPageSidebarOffset: this.setSidebarOffset,
             removeSwPageSidebarOffset: this.removeSidebarOffset,
@@ -89,6 +82,8 @@ Component.register('sw-page', {
         return {
             module: null,
             parentRoute: null,
+            previousPath: null,
+            previousRoute: null,
             sidebarOffset: 0,
             scrollbarOffset: 0,
             hasFullWidthHeader: false,
@@ -97,6 +92,16 @@ Component.register('sw-page', {
     },
 
     computed: {
+        routerBack() {
+            if (this.previousPath && this.previousRoute === this.parentRoute) {
+                return this.previousPath;
+            }
+
+            return {
+                name: this.parentRoute,
+            };
+        },
+
         pageColor() {
             if (this.headerBorderColor) {
                 return this.headerBorderColor;
@@ -161,20 +166,16 @@ Component.register('sw-page', {
             };
         },
 
-        additionalEventListeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
-
         smartBarContentStyle() {
             const rowNumber = this.showSearchBar ? 2 : 1;
 
             return {
                 'grid-row': rowNumber,
             };
+        },
+
+        sidebars() {
+            return Shopware.Store.get('sidebar').sidebars;
         },
     },
 
@@ -191,19 +192,12 @@ Component.register('sw-page', {
     },
 
     beforeUnmount() {
-        Shopware.State.dispatch('error/resetApiErrors');
+        Shopware.Store.get('error').resetApiErrors();
         this.beforeDestroyComponent();
     },
 
     methods: {
         createdComponent() {
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                // eslint-disable-next-line vue/no-deprecated-events-api
-                this.$on('mount', this.setSidebarOffset);
-                // eslint-disable-next-line vue/no-deprecated-events-api
-                this.$on('destroy', this.removeSidebarOffset);
-            }
-
             window.addEventListener('resize', this.readScreenWidth);
         },
 
@@ -253,6 +247,16 @@ Component.register('sw-page', {
             if (this.$route.meta.parentPath) {
                 this.parentRoute = this.$route.meta.parentPath;
             }
+
+            this.previousPath = this.$router.options?.history?.state?.back;
+
+            if (this.previousPath) {
+                this.previousRoute = this.$router.resolve({ path: this.previousPath }).name;
+            }
+        },
+
+        setActiveSidebar(locationId) {
+            Shopware.Store.get('sidebar').setActiveSidebar(locationId);
         },
     },
-});
+};

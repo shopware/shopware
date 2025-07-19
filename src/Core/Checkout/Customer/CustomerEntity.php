@@ -14,7 +14,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollectio
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -32,11 +31,6 @@ class CustomerEntity extends Entity implements \Stringable
     final public const ACCOUNT_TYPE_BUSINESS = 'business';
 
     protected string $groupId;
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    protected string $defaultPaymentMethodId;
 
     protected string $salesChannelId;
 
@@ -123,11 +117,6 @@ class CustomerEntity extends Entity implements \Stringable
 
     protected ?CustomerGroupEntity $group = null;
 
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    protected ?PaymentMethodEntity $defaultPaymentMethod = null;
-
     protected ?SalesChannelEntity $salesChannel = null;
 
     protected ?LanguageEntity $language = null;
@@ -196,26 +185,6 @@ class CustomerEntity extends Entity implements \Stringable
     public function setGroupId(string $groupId): void
     {
         $this->groupId = $groupId;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function getDefaultPaymentMethodId(): string
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The default payment method of a customer will be removed.');
-
-        return $this->defaultPaymentMethodId;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function setDefaultPaymentMethodId(string $defaultPaymentMethodId): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The default payment method of a customer will be removed.');
-
-        $this->defaultPaymentMethodId = $defaultPaymentMethodId;
     }
 
     public function getSalesChannelId(): string
@@ -573,26 +542,6 @@ class CustomerEntity extends Entity implements \Stringable
     public function setGroup(CustomerGroupEntity $group): void
     {
         $this->group = $group;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function getDefaultPaymentMethod(): ?PaymentMethodEntity
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The default payment method of a customer will be removed.');
-
-        return $this->defaultPaymentMethod;
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function setDefaultPaymentMethod(PaymentMethodEntity $defaultPaymentMethod): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The default payment method of a customer will be removed.');
-
-        $this->defaultPaymentMethod = $defaultPaymentMethod;
     }
 
     public function getSalesChannel(): ?SalesChannelEntity

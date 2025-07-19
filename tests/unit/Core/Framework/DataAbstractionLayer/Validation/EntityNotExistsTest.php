@@ -7,11 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityNotExists;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Validator\Exception\InvalidOptionsException;
-use Symfony\Component\Validator\Exception\MissingOptionsException;
 
 /**
  * @internal
@@ -89,13 +86,9 @@ class EntityNotExistsTest extends TestCase
         $context = Context::createDefaultContext();
         $criteria = new Criteria();
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            static::expectException(MissingOptionsException::class);
-        } else {
-            static::expectException(FrameworkException::class);
-        }
+        static::expectException(FrameworkException::class);
 
-        /** @phpstan-ignore-next-line push wrong data to test */
+        /** @phpstan-ignore argument.type (for test purpose) */
         new EntityNotExists([
             'context' => $context,
             'criteria' => $criteria,
@@ -107,13 +100,9 @@ class EntityNotExistsTest extends TestCase
     {
         $criteria = new Criteria();
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            static::expectException(MissingOptionsException::class);
-        } else {
-            static::expectException(FrameworkException::class);
-        }
+        static::expectException(FrameworkException::class);
 
-        /** @phpstan-ignore-next-line push wrong data to test */
+        /** @phpstan-ignore argument.type (for test purpose) */
         new EntityNotExists([
             'entity' => 'product_review',
             'criteria' => $criteria,
@@ -125,13 +114,9 @@ class EntityNotExistsTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            static::expectException(InvalidOptionsException::class);
-        } else {
-            static::expectException(FrameworkException::class);
-        }
+        static::expectException(FrameworkException::class);
 
-        /** @phpstan-ignore-next-line push wrong data to test */
+        /** @phpstan-ignore argument.type (for test purpose) */
         new EntityNotExists([
             'entity' => 'product_review',
             'context' => $context,
@@ -145,13 +130,9 @@ class EntityNotExistsTest extends TestCase
         $context = Context::createDefaultContext();
         $criteria = new Criteria();
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            static::expectException(InvalidOptionsException::class);
-        } else {
-            static::expectException(FrameworkException::class);
-        }
+        static::expectException(FrameworkException::class);
 
-        /** @phpstan-ignore-next-line push wrong data to test */
+        /** @phpstan-ignore argument.type (for test purpose) */
         new EntityNotExists([
             'entity' => 'product_review',
             'context' => $context,

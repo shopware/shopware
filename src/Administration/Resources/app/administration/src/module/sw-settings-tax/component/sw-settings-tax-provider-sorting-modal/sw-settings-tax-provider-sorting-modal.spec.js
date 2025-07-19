@@ -4,7 +4,12 @@
 
 import { mount } from '@vue/test-utils';
 
+let repositoryFactoryMock;
 async function createWrapper(privileges = []) {
+    repositoryFactoryMock = {
+        saveAll: jest.fn(() => Promise.resolve()),
+    };
+
     return mount(
         await wrapTestComponent('sw-settings-tax-provider-sorting-modal', {
             sync: true,
@@ -13,7 +18,7 @@ async function createWrapper(privileges = []) {
             global: {
                 provide: {
                     repositoryFactory: {
-                        create: () => Promise.resolve(),
+                        create: () => repositoryFactoryMock,
                     },
                     acl: {
                         can: (identifier) => {
@@ -27,10 +32,8 @@ async function createWrapper(privileges = []) {
                 },
                 stubs: {
                     'sw-modal': true,
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-sortable-list': true,
-                    'sw-icon': true,
                 },
             },
             props: {

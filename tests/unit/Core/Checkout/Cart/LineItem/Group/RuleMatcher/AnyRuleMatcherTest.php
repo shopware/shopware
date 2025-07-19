@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -27,6 +28,7 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\RulesTe
  * @internal
  */
 #[CoversClass(AnyRuleMatcher::class)]
+#[Package('checkout')]
 class AnyRuleMatcherTest extends TestCase
 {
     use LineItemGroupTestFixtureBehaviour;

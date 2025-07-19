@@ -22,8 +22,8 @@
     {% endblock %}
 
     {% block sw_condition_line_item_with_quantity_field_quantity %}
-    <sw-number-field
-        v-model:value="quantity"
+    <mt-number-field
+        v-model="quantity"
         name="sw-field--quantity"
         :disabled="disabled || undefined"
         size="medium"

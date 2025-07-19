@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeConfigField;
 use Shopware\Storefront\Theme\ThemeEntity;
@@ -29,7 +28,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
      */
     public function __construct(
         private readonly EntityRepository $themeRepository,
-        private readonly StorefrontPluginRegistryInterface $extensionRegistry,
+        private readonly StorefrontPluginRegistry $extensionRegistry,
         private readonly EntityRepository $mediaRepository,
         private readonly string $baseTheme = StorefrontPluginRegistry::BASE_THEME_NAME
     ) {
@@ -75,7 +74,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
             $config[$name] = $clone;
         }
 
-        return json_decode((string) json_encode($config, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        return json_decode(json_encode($config, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -301,22 +300,40 @@ class DatabaseConfigLoader extends AbstractConfigLoader
      */
     private function getConfigInheritance(ThemeEntity $mainTheme): array
     {
-        if (!\is_array($mainTheme->getBaseConfig())) {
-            return [];
+        $baseConfig = $mainTheme->getBaseConfig();
+
+        if (\is_array($baseConfig)
+            && \array_key_exists('configInheritance', $baseConfig)
+            && \is_array($baseConfig['configInheritance'])
+            && !empty($baseConfig['configInheritance'])
+        ) {
+            return $baseConfig['configInheritance'];
         }
 
-        if (!\array_key_exists('configInheritance', $mainTheme->getBaseConfig())) {
-            return [];
+        // For database copies (child themes), inherit config from parent theme.
+        if ($baseConfig === null
+            && $mainTheme->getTechnicalName() === null
+            && $mainTheme->getParentThemeId() !== null) {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('id', $mainTheme->getParentThemeId()));
+
+            $parentTheme = $this->themeRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+
+            if ($parentTheme instanceof ThemeEntity) {
+                $parentConfigInheritance = $this->getConfigInheritance($parentTheme);
+                if (!empty($parentConfigInheritance)) {
+                    return $parentConfigInheritance;
+                }
+            }
         }
 
-        if (!\is_array($mainTheme->getBaseConfig()['configInheritance'])) {
-            return [];
+        // Fallback: ensure every theme (except base theme) inherits from Storefront by default
+        if ($mainTheme->getTechnicalName() !== StorefrontPluginRegistry::BASE_THEME_NAME) {
+            return [
+                '@' . StorefrontPluginRegistry::BASE_THEME_NAME,
+            ];
         }
 
-        if (empty($mainTheme->getBaseConfig()['configInheritance'])) {
-            return [];
-        }
-
-        return $mainTheme->getBaseConfig()['configInheritance'];
+        return [];
     }
 }

@@ -2,8 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Order\Validation;
 
-use Monolog\Test\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Validation\OrderValidationFactory;

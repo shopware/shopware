@@ -245,7 +245,7 @@ class SystemConfigControllerTest extends TestCase
     public function testInheritFlag(Request $request, bool $expectedFlag): void
     {
         $systemConfigService = static::createMock(SystemConfigService::class);
-        $systemConfigService->expects(static::once())
+        $systemConfigService->expects($this->once())
             ->method('getDomain')
             ->with('dummy domain', 'dummy sales channel', $expectedFlag);
 

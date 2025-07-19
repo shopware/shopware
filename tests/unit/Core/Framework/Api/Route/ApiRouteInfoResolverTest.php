@@ -38,7 +38,7 @@ class ApiRouteInfoResolverTest extends TestCase
         $route3 = new Route(path: '/route3', methods: ['POST']);
         $routeCollection->add('route3', $route3);
 
-        $this->routerInterface->expects(static::once())
+        $this->routerInterface->expects($this->once())
             ->method('getRouteCollection')
             ->willReturn($routeCollection);
 

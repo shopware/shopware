@@ -11,7 +11,7 @@ jobs:
     env:
       SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION: "1"
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
-      COMPOSER_ROOT_VERSION: 6.6.9999999-dev
+      COMPOSER_ROOT_VERSION: 6.7.9999999-dev
       APP_URL: http://localhost:8000
     services:
       database:
@@ -24,28 +24,33 @@ jobs:
           - "3306:3306"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
         with:
           fetch-depth: "0"
           fetch-tags: "true"
+
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@6c489b2fc701c5f9ed70ccebe221b567bee578c0 # 2
         with:
           php-version: 8.2
           coverage: none
           extensions: gd, xml, dom, curl, pdo, mysqli, mbstring, pdo_mysql, bcmath
-      - uses: actions/setup-node@v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # 4
         with:
-          node-version: 20
+          node-version: 22
+
       - name: build shopware
         run: |
           composer setup
-      - uses: actions/upload-artifact@v4
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # 4
         with:
           name: context
           include-hidden-files: true
           path: |
             .
+            !.git/config
             .github/
             !var/cache
             !tests/
@@ -59,12 +64,12 @@ jobs:
     if: github.repository == 'shopware/shopware' && github.ref_type == 'tag'
     env:
       GH_TOKEN: ${{ github.token }}
-      CHECK_REPOSITORY: 'shopware/recipes'
-      CHECK_WORKFLOW: 'nightly.yml'
-      CHECK_STATUS: 'success'
+      CHECK_REPOSITORY: "shopware/recipes"
+      CHECK_WORKFLOW: "nightly.yml"
+      CHECK_STATUS: "success"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
         with:
           fetch-depth: 0
       - name: Check whether the nightly workflow of the recipe repository is successful
@@ -74,10 +79,13 @@ jobs:
   split:
     needs: build
     runs-on: ubuntu-24.04
-    environment: ${{ format('manyrepos ({0})', github.ref_type) }}
+    environment: ${{ format('manyrepos_{0}', github.ref_type) }}
     # we use this image to get an older git version, which does not suffer from a performance regression
-    container: alpine:3.19
+    container: node:alpine3.19
     if: github.repository == 'shopware/shopware'
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       matrix:
         package:
@@ -90,33 +98,47 @@ jobs:
       GIT_AUTHOR_NAME: "shopwareBot"
       GIT_COMMITTER_EMAIL: "shopwarebot@shopware.com"
       GIT_COMMITTER_NAME: "shopwareBot"
+      DEBUG: ${{ github.event.act && '1' || '' }}
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # 4
         with:
           name: context
+
+      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
+        id: sts-shopware-split
+        with:
+          scope: shopware
+          identity: ShopwareSplit
+
       - name: Is protected
         if: github.ref_protected
         run: echo 'is protected'
 
       - name: install deps
         run: apk add git git-subtree bash composer
+
       - name: Mark dir as safe
         run: git config --global --add safe.directory $PWD
+
       - name: split
         run: |
           bash .github/bin/split.bash split_repo "${{ matrix.package }}"
           git config --global --add safe.directory $PWD/repos/${{ matrix.package }}
           rm -Rf .git
+
       - name: Include assets
         run: |
           bash .github/bin/split.bash include_assets "${{ matrix.package }}"
+
       - name: Require core version
         run: |
           bash .github/bin/split.bash require_core_version "${{ matrix.package }}" "${{ github.ref_name }}" ${{ github.ref_type }}
+
       - name: Commit assets
         if: matrix.package != 'core'
         run: |
           bash .github/bin/split.bash commit "${{ matrix.package }}" "${{ github.ref_name }} (+ assets)"
+
       - name: Tag commit
         if: github.ref_type == 'tag'
         run: |
@@ -128,18 +150,26 @@ jobs:
           cat repos/${{ matrix.package }}/composer.json
           git -C repos/${{ matrix.package }} log -n 2
           git -C repos/${{ matrix.package }} diff @^.. | head -n 100
+
       - name: Create temporary branch
         if: github.ref_type != 'tag' && !github.ref_protected
         run: |
           bash .github/bin/split.bash branch "${{ matrix.package }}" "tmp-${{ github.sha }}"
+
+      - name: Create named branch
+        if: github.ref_type != 'tag' && github.ref_protected
+        run: |
+          bash .github/bin/split.bash branch "${{ matrix.package }}" "${{ github.ref_name }}"
+
       - name: Push
         if: github.ref_type == 'tag' || github.ref_protected
         run: |
-          bash .github/bin/split.bash push "${{ matrix.package }}" https://git:${{ secrets.MANYREPO_SYNC_TOKEN }}@github.com/shopware "${{ github.ref_name }}"
+          bash .github/bin/split.bash push "${{ matrix.package }}" https://x-access-token:${{ steps.sts-shopware-split.outputs.token }}@github.com/shopware "${{ github.ref_name }}"
+
       - name: Push temporary branch
-        if: github.ref_type != 'tag' && !github.ref_protected
+        if: github.ref_type != 'tag' && !github.ref_protected && !env.ACT
         run: |
-          bash .github/bin/split.bash push "${{ matrix.package }}" https://git:${{ secrets.MANYREPO_SYNC_TOKEN }}@github.com/shopware "tmp-${{ github.sha }}"
+          bash .github/bin/split.bash push "${{ matrix.package }}" https://x-access-token:${{ steps.sts-shopware-split.outputs.token }}@github.com/shopware "tmp-${{ github.sha }}"
 
   draft-release-notes:
     needs: split
@@ -149,7 +179,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
         with:
           fetch-depth: 0
       - name: Draft release
@@ -176,8 +206,8 @@ jobs:
     continue-on-error: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
       - name: Create sbp release
         run: |
           echo DRY_RUN: "${DRY_RUN}"
-          bash .github/bin/sbp_release.bash create "${{ github.ref_type == 'tag' && github.ref_name || 'v6.6.9999999.9999999-dev' }}"
+          bash .github/bin/sbp_release.bash create "${{ github.ref_type == 'tag' && github.ref_name || 'v6.7.9999999.9999999-dev' }}"

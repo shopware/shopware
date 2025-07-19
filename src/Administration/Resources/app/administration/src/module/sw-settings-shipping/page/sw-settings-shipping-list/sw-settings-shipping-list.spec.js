@@ -55,12 +55,10 @@ async function createWrapper(privileges = []) {
                     'sw-page': {
                         template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>',
                     },
-                    'sw-button': true,
                     'sw-entity-listing': true,
                     'sw-empty-state': true,
                     'router-link': true,
                     'sw-search-bar': true,
-                    'sw-icon': true,
                     'sw-language-switch': true,
                     'sw-checkbox-field': true,
                     'sw-single-select': true,
@@ -84,12 +82,12 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         const wrapper = await createWrapper();
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
-        const button = wrapper.find('sw-button-stub');
+        const button = wrapper.findByText('button', 'sw-settings-shipping.list.buttonAddShippingMethod');
 
         expect(entityListing.attributes()['allow-edit']).toBeFalsy();
         expect(entityListing.attributes()['allow-delete']).toBeFalsy();
         expect(entityListing.attributes()['show-selection']).toBeFalsy();
-        expect(button.attributes().disabled).toBe('true');
+        expect(button.attributes('disabled')).toBeDefined();
     });
 
     it('should have edit fields enabled', async () => {
@@ -98,13 +96,13 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         ]);
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
-        const button = wrapper.find('sw-button-stub');
+        const button = wrapper.findByText('button', 'sw-settings-shipping.list.buttonAddShippingMethod');
 
         expect(entityListing.attributes()['allow-edit']).toBe('true');
         expect(entityListing.attributes()['allow-delete']).toBeFalsy();
         expect(entityListing.attributes()['show-selection']).toBeFalsy();
 
-        expect(button.attributes().disabled).toBe('true');
+        expect(button.attributes('disabled')).toBeDefined();
     });
 
     it('should have delete fields enabled', async () => {
@@ -114,12 +112,12 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         ]);
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
-        const button = wrapper.find('sw-button-stub');
+        const button = wrapper.findByText('button', 'sw-settings-shipping.list.buttonAddShippingMethod');
 
         expect(entityListing.attributes()['allow-edit']).toBe('true');
         expect(entityListing.attributes()['allow-delete']).toBe('true');
 
-        expect(button.attributes().disabled).toBe('true');
+        expect(button.attributes('disabled')).toBeDefined();
     });
 
     it('should have creator fields enabled', async () => {
@@ -130,12 +128,12 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         ]);
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
-        const button = wrapper.find('sw-button-stub');
+        const button = wrapper.findByText('button', 'sw-settings-shipping.list.buttonAddShippingMethod');
 
         expect(entityListing.attributes()['allow-edit']).toBe('true');
         expect(entityListing.attributes()['allow-delete']).toBe('true');
 
-        expect(button.attributes().disabled).toBeUndefined();
+        expect(button.attributes('disabled')).toBeUndefined();
     });
 
     it('should add query score to the criteria', async () => {

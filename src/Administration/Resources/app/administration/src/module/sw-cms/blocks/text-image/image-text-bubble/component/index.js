@@ -7,6 +7,4 @@ import './sw-cms-block-image-text-bubble.scss';
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

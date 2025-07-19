@@ -1,5 +1,5 @@
 /**
- * @package framework
+ * @sw-package framework
  */
 import AssetPathPlugin from './index';
 
@@ -9,7 +9,7 @@ describe('build/vite-plugins/asset-path-plugin', () => {
     });
 
     it('should return plugin', async () => {
-        const plugin = AssetPathPlugin();
+        const plugin = AssetPathPlugin('testbundle');
 
         // Identify plugin by name
         expect(plugin).toHaveProperty('name');
@@ -23,9 +23,9 @@ describe('build/vite-plugins/asset-path-plugin', () => {
         expect(plugin.renderChunk('import foo from "./bar";')).toBe(null);
 
         // Test renderChunk method modifies code if it contains the module preload function
-        const code = 'const assetsURL = function(dep) { return "/bundles/administration/"+dep };';
+        const code = 'const assetsURL = function(dep) { return "/bundles/testbundle/administration/"+dep };';
         const modified =
-            'const assetsURL = function(dep) { return window.__sw__.assetPath+"/bundles/administration/"+dep };';
+            'const assetsURL = function(dep) { return window.__sw__.assetPath+"/bundles/testbundle/administration/"+dep };';
         expect(plugin.renderChunk(code)).toEqual({ code: modified, map: null });
     });
 });

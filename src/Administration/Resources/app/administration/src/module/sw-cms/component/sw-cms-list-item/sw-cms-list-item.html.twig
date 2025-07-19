@@ -47,6 +47,10 @@
         ></div>
         <div
             v-if="page"
+            v-tooltip="{
+                message: page.translated.name,
+                position: 'bottom',
+            }"
             class="sw-cms-list-item__title"
             role="button"
             tabindex="0"
@@ -55,11 +59,11 @@
         >
             {{ page.translated.name }}
         </div>
-        <sw-icon
+        <mt-icon
             v-if="page && page.locked"
             class="sw-cms-list-item__locked"
             name="solid-lock"
-            small
+            size="16px"
         />
     </div>
     {% endblock %}

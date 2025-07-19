@@ -12,8 +12,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -104,6 +102,9 @@ export default {
             return Shopware.Service('salesChannelFavorites');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -111,7 +112,7 @@ export default {
 
     methods: {
         onAddSalesChannel() {
-            this.$root.$emit('on-add-sales-channel');
+            Shopware.Utils.EventBus.emit('sw-sales-channel-list-add-new-channel');
         },
 
         async getList() {
@@ -134,22 +135,6 @@ export default {
                 this.total = searchResult.total;
                 this.isLoading = false;
             });
-        },
-
-        /** @deprecated tag:v6.7.0 - Will be removed. */
-        setProductAggregations(buckets) {
-            this.productsForSalesChannel = buckets.reduce(
-                (productsForSalesChannel, bucket) => ({
-                    ...productsForSalesChannel,
-                    [bucket.key]: bucket.visible_products?.count,
-                }),
-                {},
-            );
-        },
-
-        /** @deprecated tag:v6.7.0 - Will be removed. */
-        getCountForSalesChannel(salesChannelId) {
-            return this.productsForSalesChannel[salesChannelId] ?? 0;
         },
 
         checkForDomainLink(salesChannel) {

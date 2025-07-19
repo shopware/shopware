@@ -54,7 +54,7 @@ class QueryStringParser
                     throw DataAbstractionLayerException::invalidFilterQuery('Parameter "field" for equals filter is missing.', $path . '/field');
                 }
 
-                if (!\array_key_exists('value', $query) || $query['value'] === '') {
+                if (!\array_key_exists('value', $query)) {
                     throw DataAbstractionLayerException::invalidFilterQuery('Parameter "value" for equals filter is missing.', $path . '/value');
                 }
 

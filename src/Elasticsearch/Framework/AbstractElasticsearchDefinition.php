@@ -2,7 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
-use OpenSearchDSL\Query\Compound\BoolQuery;
+use OpenSearchDSL\BuilderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -56,10 +56,7 @@ abstract class AbstractElasticsearchDefinition
         return [];
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - will return BuilderInterface in the future
-     */
-    abstract public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery;
+    abstract public function buildTermQuery(Context $context, Criteria $criteria): BuilderInterface;
 
     /**
      * @return array<string, mixed>

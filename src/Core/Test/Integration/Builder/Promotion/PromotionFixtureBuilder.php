@@ -22,12 +22,12 @@ class PromotionFixtureBuilder
     /**
      * @var list<array<string, mixed>>
      */
-    private array $dataSetGroups;
+    private array $dataSetGroups = [];
 
     /**
      * @var list<array<string, mixed>>
      */
-    private array $dataDiscounts;
+    private array $dataDiscounts = [];
 
     public function __construct(
         private readonly string $promotionId,
@@ -36,9 +36,6 @@ class PromotionFixtureBuilder
         private readonly EntityRepository $promotionSetgroupRepository,
         private readonly EntityRepository $promotionDiscountRepository
     ) {
-        $this->dataSetGroups = [];
-        $this->dataDiscounts = [];
-
         $this->context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 

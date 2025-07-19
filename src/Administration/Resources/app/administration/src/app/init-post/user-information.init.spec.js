@@ -2,9 +2,9 @@
  * @sw-package framework
  */
 import initializeUserContext from 'src/app/init-post/user-information.init';
-import { initializeUserNotifications } from 'src/app/state/notification.store';
+import { initializeUserNotifications } from 'src/app/store/notification.store';
 
-jest.mock('src/app/state/notification.store', () => ({
+jest.mock('src/app/store/notification.store', () => ({
     initializeUserNotifications: jest.fn(),
 }));
 
@@ -34,7 +34,7 @@ describe('src/app/init-post/user-information.init.ts', () => {
     });
 
     beforeEach(() => {
-        Shopware.State.commit('setCurrentUser', undefined);
+        Shopware.Store.get('session').setCurrentUser(undefined);
         initializeUserNotifications.mockClear();
         logoutMock.mockClear();
         isLoggedIn = true;
@@ -48,12 +48,12 @@ describe('src/app/init-post/user-information.init.ts', () => {
 
     it('should init the user context service correctly when user is logged in', async () => {
         expect(initializeUserNotifications).not.toHaveBeenCalled();
-        expect(Shopware.State.get('session').currentUser).toBeUndefined();
+        expect(Shopware.Store.get('session').currentUser).toBeUndefined();
 
         await initializeUserContext();
 
         expect(initializeUserNotifications).toHaveBeenCalled();
-        expect(Shopware.State.get('session').currentUser).toEqual({
+        expect(Shopware.Store.get('session').currentUser).toEqual({
             username: 'my-fancy-username',
         });
     });
@@ -63,13 +63,13 @@ describe('src/app/init-post/user-information.init.ts', () => {
 
         expect(initializeUserNotifications).not.toHaveBeenCalled();
         expect(logoutMock).not.toHaveBeenCalled();
-        expect(Shopware.State.get('session').currentUser).toBeUndefined();
+        expect(Shopware.Store.get('session').currentUser).toBeUndefined();
 
         await initializeUserContext();
 
         expect(logoutMock).toHaveBeenCalled();
         expect(initializeUserNotifications).not.toHaveBeenCalled();
-        expect(Shopware.State.get('session').currentUser).toBeUndefined();
+        expect(Shopware.Store.get('session').currentUser).toBeUndefined();
     });
 
     it('should call logout when user value is not correct', async () => {
@@ -79,12 +79,12 @@ describe('src/app/init-post/user-information.init.ts', () => {
 
         expect(initializeUserNotifications).not.toHaveBeenCalled();
         expect(logoutMock).not.toHaveBeenCalled();
-        expect(Shopware.State.get('session').currentUser).toBeUndefined();
+        expect(Shopware.Store.get('session').currentUser).toBeUndefined();
 
         await initializeUserContext();
 
         expect(logoutMock).toHaveBeenCalled();
         expect(initializeUserNotifications).not.toHaveBeenCalled();
-        expect(Shopware.State.get('session').currentUser).toBeUndefined();
+        expect(Shopware.Store.get('session').currentUser).toBeUndefined();
     });
 });

@@ -1,6 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import Hammer from 'hammerjs';
-import DomAccess from 'src/helper/dom-access.helper';
 import { Vector2, Vector3 } from 'src/helper/vector.helper';
 
 /**
@@ -86,10 +85,10 @@ export default class ImageZoomPlugin extends Plugin {
      */
     init() {
         this._modal = this.el.closest(this.options.imageZoomModalSelector);
-        this._image = DomAccess.querySelector(this.el, this.options.imageSelector);
-        this._zoomInActionElement = DomAccess.querySelector(this._modal, this.options.zoomInActionSelector);
-        this._zoomResetActionElement = DomAccess.querySelector(this._modal, this.options.zoomResetActionSelector);
-        this._zoomOutActionElement = DomAccess.querySelector(this._modal, this.options.zoomOutActionSelector);
+        this._image = this.el.querySelector(this.options.imageSelector);
+        this._zoomInActionElement = this._modal.querySelector(this.options.zoomInActionSelector);
+        this._zoomResetActionElement = this._modal.querySelector(this.options.zoomResetActionSelector);
+        this._zoomOutActionElement = this._modal.querySelector(this.options.zoomOutActionSelector);
 
         this._imageMaxSize = new Vector2(this._image.naturalWidth, this._image.naturalHeight).multiply(2);
         this._imageSize = new Vector2(this._image.offsetWidth, this._image.offsetHeight);

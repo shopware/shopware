@@ -3,10 +3,10 @@
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
-use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 #[Package('checkout')]
 class CustomerEmailUniqueValidator extends ConstraintValidator
@@ -21,7 +21,7 @@ class CustomerEmailUniqueValidator extends ConstraintValidator
     public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof CustomerEmailUnique) {
-            throw new UnexpectedTypeException($constraint, CustomerEmailUnique::class);
+            throw CustomerException::unexpectedType($constraint, CustomerEmailUnique::class);
         }
 
         if ($value === null || $value === '') {

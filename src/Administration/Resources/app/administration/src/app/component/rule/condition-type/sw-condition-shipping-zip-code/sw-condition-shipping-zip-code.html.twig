@@ -29,11 +29,11 @@
         :placeholder="taggedFieldPlaceholder"
         :disabled="disabled || undefined"
     />
-    <sw-number-field
+    <mt-number-field
         v-if="isNumeric && !isEmpty"
-        v-model:value="zipCodes"
+        v-model="zipCodes"
         name="sw-field--zipCodes"
-        size="medium"
+        size="small"
         :disabled="disabled || undefined"
         :min="0"
         :digits="20"

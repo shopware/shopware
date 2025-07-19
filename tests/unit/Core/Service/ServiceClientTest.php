@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Service\ServiceClient;
 use Shopware\Core\Service\ServiceException;
-use Shopware\Core\Service\ServiceRegistryEntry;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -71,7 +71,7 @@ class ServiceClientTest extends TestCase
         $client = new ServiceClient(
             $httpClient,
             '6.6.0.0',
-            new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
             new Filesystem()
         );
         $client->latestAppInfo();
@@ -80,7 +80,7 @@ class ServiceClientTest extends TestCase
     public function testLatestInfoThrowsExceptionWhenRequestFails(): void
     {
         $response = static::createMock(ResponseInterface::class);
-        $response->expects(static::any())->method('getStatusCode')->willReturn(Response::HTTP_BAD_REQUEST);
+        $response->expects($this->any())->method('getStatusCode')->willReturn(Response::HTTP_BAD_REQUEST);
 
         static::expectExceptionObject(ServiceException::requestFailed($response));
 
@@ -90,7 +90,7 @@ class ServiceClientTest extends TestCase
         $client = new ServiceClient(
             $httpClient,
             '6.6.0.0',
-            new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
             new Filesystem()
         );
         $client->latestAppInfo();
@@ -107,7 +107,7 @@ class ServiceClientTest extends TestCase
         $client = new ServiceClient(
             $httpClient,
             '6.6.0.0',
-            new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
             new Filesystem(),
         );
 
@@ -127,7 +127,7 @@ class ServiceClientTest extends TestCase
         $client = new ServiceClient(
             $httpClient,
             '6.6.0.0',
-            new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
             new Filesystem(),
         );
 
@@ -194,7 +194,7 @@ class ServiceClientTest extends TestCase
         ]);
         $fs = static::createMock(Filesystem::class);
 
-        $matcher = static::exactly(4);
+        $matcher = $this->exactly(4);
 
         $fs->expects($matcher)->method('appendToFile')->willReturnCallback(function (string $filename, string $content) use ($matcher): void {
             $expectedContent = match ($matcher->numberOfInvocations()) {
@@ -212,7 +212,7 @@ class ServiceClientTest extends TestCase
         $client = new ServiceClient(
             $httpClient,
             '6.6.0.0',
-            new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
             $fs
         );
 
@@ -240,7 +240,7 @@ class ServiceClientTest extends TestCase
         $client = new ServiceClient(
             $httpClient,
             '6.6.0.0',
-            new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
             new Filesystem(),
         );
 
@@ -250,7 +250,7 @@ class ServiceClientTest extends TestCase
     public function testDownloadAppZipForVersionThrowsExceptionWhenRequestFails(): void
     {
         $response = static::createMock(ResponseInterface::class);
-        $response->expects(static::any())->method('getStatusCode')->willReturn(Response::HTTP_BAD_REQUEST);
+        $response->expects($this->any())->method('getStatusCode')->willReturn(Response::HTTP_BAD_REQUEST);
 
         static::expectExceptionObject(ServiceException::requestFailed($response));
 
@@ -260,7 +260,7 @@ class ServiceClientTest extends TestCase
         $client = new ServiceClient(
             $httpClient,
             '6.6.0.0',
-            new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
             new Filesystem(),
         );
 
@@ -279,7 +279,7 @@ class ServiceClientTest extends TestCase
         $client = new ServiceClient(
             $httpClient,
             '6.6.0.0',
-            new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
             new Filesystem(),
         );
 
@@ -313,7 +313,7 @@ class ServiceClientTest extends TestCase
         $client = new ServiceClient(
             $httpClient,
             '6.6.0.0',
-            new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/app-endpoint'),
             $fs
         );
 

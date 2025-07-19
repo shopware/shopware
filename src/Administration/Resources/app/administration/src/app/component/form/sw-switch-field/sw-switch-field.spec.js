@@ -23,25 +23,14 @@ describe('src/app/component/base/sw-switch-field', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should render the deprecated switch-field when major feature flag is disabled', async () => {
-        global.activeFeatureFlags = [''];
-
-        const wrapper = await createWrapper();
-
-        expect(wrapper.html()).toContain('sw-switch-field-deprecated');
-        expect(wrapper.html()).not.toContain('mt-switch');
-    });
-
-    it('should render the mt-switch when major feature flag is enabled', async () => {
-        global.activeFeatureFlags = ['v6.7.0.0'];
-
+    it('should render the mt-switch', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.html()).toContain('mt-switch');
     });
 
     it('should use the correct checked value', async () => {
-        global.activeFeatureFlags = ['v6.7.0.0'];
+        global.activeFeatureFlags = ['ENABLE_METEOR_COMPONENTS'];
 
         const wrapper = await createWrapper();
         expect(wrapper.vm.checkedValue).toBe(false);

@@ -10,8 +10,6 @@ const { format } = Shopware.Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['importExport'],
 
     emits: ['result-close'],
@@ -53,6 +51,9 @@ export default {
             return this.$tc(`sw-import-export.activity.detail.${this.logEntity.activity}Label`);
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },

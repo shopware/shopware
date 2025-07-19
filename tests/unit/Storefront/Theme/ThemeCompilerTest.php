@@ -12,7 +12,6 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
-use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
@@ -27,7 +26,6 @@ use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
-use Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage;
 use Shopware\Storefront\Theme\ScssPhpCompiler;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -44,9 +42,6 @@ use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\TestTheme\TestT
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\MessageBus;
-use Symfony\Component\Messenger\Stamp\DelayStamp;
 
 /**
  * @internal
@@ -89,8 +84,6 @@ class ThemeCompilerTest extends TestCase
 
     private MD5ThemePathBuilder $pathBuilder;
 
-    private MessageBus $messageBus;
-
     private ThemeFilesystemResolver&MockObject $themeFilesystemResolver;
 
     /**
@@ -106,7 +99,6 @@ class ThemeCompilerTest extends TestCase
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->scssPhpCompiler = $this->createMock(ScssPhpCompiler::class);
         $this->pathBuilder = new MD5ThemePathBuilder();
-        $this->messageBus = new MessageBus();
         $this->copyBatchInputFactory = $this->createMock(CopyBatchInputFactory::class);
         $this->themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
 
@@ -118,13 +110,13 @@ class ThemeCompilerTest extends TestCase
 
     public function testThemeCompileExceptionIsThrownWhenFilesAreNotResolved(): void
     {
-        $this->themeFileResolver->method('resolveFiles')->willThrowException(new InvalidArgumentException());
+        $this->themeFileResolver->method('resolveFiles')->willThrowException(new \InvalidArgumentException());
         $compiler = $this->getThemeCompiler();
 
         $config = new StorefrontPluginConfiguration('test');
         $config->setName('faultyTheme');
 
-        static::expectExceptionObject(new ThemeCompileException('faultyTheme'));
+        $this->expectExceptionObject(new ThemeCompileException('faultyTheme'));
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,
             'test',
@@ -269,6 +261,11 @@ class ThemeCompilerTest extends TestCase
                         'type' => 'media',
                         'value' => [123],
                     ],
+                    'sw-custom-url' => [
+                        'name' => 'sw-custom-url',
+                        'type' => 'url',
+                        'value' => 'https://www.shopware.com',
+                    ],
                     'sw-custom-media' => [
                         'name' => 'sw-custom-media',
                         'type' => 'media',
@@ -316,6 +313,7 @@ class ThemeCompilerTest extends TestCase
 \$sw-custom-cart: 0;
 \$sw-custom-product-box: 1;
 \$sw-custom-textarea: '123';
+\$sw-custom-url: 'https://www.shopware.com';
 \$sw-custom-media: '456';
 \$sw-asset-theme-url: 'http://localhost';
 
@@ -381,7 +379,7 @@ $sw-asset-theme-url: \'http://localhost\';
             [
                 'fields' => [
                     'sw-zero-margin' => [
-                        'name' => 'sw-null-margin',
+                        'name' => 'sw-zero-margin',
                         'type' => 'text',
                         'value' => 0,
                     ],
@@ -395,7 +393,7 @@ $sw-asset-theme-url: \'http://localhost\';
                         'type' => 'text',
                     ],
                     'sw-empty-margin' => [
-                        'name' => 'sw-unset-margin',
+                        'name' => 'sw-empty-margin',
                         'type' => 'text',
                         'value' => '',
                     ],
@@ -406,9 +404,9 @@ $sw-asset-theme-url: \'http://localhost\';
 
 \$theme-id: themeId;
 \$sw-zero-margin: 0;
-\$sw-null-margin: 0;
-\$sw-unset-margin: 0;
-\$sw-empty-margin: 0;
+\$sw-null-margin: null;
+\$sw-unset-margin: null;
+\$sw-empty-margin: null;
 \$sw-asset-theme-url: 'http://localhost';
 
 PHP_EOL,
@@ -453,7 +451,7 @@ PHP_EOL,
 
         $expected = $styles . MockThemeCompilerConcatenatedSubscriber::STYLES_CONCAT;
 
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
     }
 
     public function testCompileWithoutAssets(): void
@@ -469,7 +467,7 @@ PHP_EOL,
         $config->setAssetPaths(['bla']);
 
         $pathBuilder = new MD5ThemePathBuilder();
-        static::assertEquals('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
+        static::assertSame('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
 
         try {
             $pathBuilder->getDecorated();
@@ -496,7 +494,7 @@ PHP_EOL,
 
         $fs = new StaticFilesystem(['Resources/assets' => 'directory']);
 
-        $this->themeFilesystemResolver->expects(static::once())
+        $this->themeFilesystemResolver->expects($this->once())
             ->method('getFilesystemForStorefrontConfig')
             ->with($config)
             ->willReturn($fs);
@@ -519,7 +517,7 @@ PHP_EOL,
         $compiler = $this->getThemeCompiler();
 
         $pathBuilder = new MD5ThemePathBuilder();
-        static::assertEquals('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
+        static::assertSame('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
 
         try {
             $pathBuilder->getDecorated();
@@ -550,7 +548,7 @@ PHP_EOL,
         $this->filesystem->createDirectory('theme/9a11a759d278b4a55cb5e2c3414733c1');
         $this->filesystem->write('theme/9a11a759d278b4a55cb5e2c3414733c1/all.js', '');
 
-        $this->scssPhpCompiler->expects(static::once())->method('compileString')->willThrowException(new \Exception());
+        $this->scssPhpCompiler->expects($this->once())->method('compileString')->willThrowException(new \Exception());
 
         $compiler = $this->getThemeCompiler();
 
@@ -558,7 +556,7 @@ PHP_EOL,
         $config->setAssetPaths(['assets']);
 
         $pathBuilder = new MD5ThemePathBuilder();
-        static::assertEquals('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
+        static::assertSame('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
 
         $wasThrown = false;
 
@@ -590,15 +588,15 @@ PHP_EOL,
         $this->filesystem->createDirectory('theme/current');
         $this->filesystem->write('theme/current/all.js', '');
 
-        $this->copyBatchInputFactory->expects(static::never())
+        $this->copyBatchInputFactory->expects($this->never())
             ->method('fromDirectory');
 
-        $this->scssPhpCompiler->expects(static::once())->method('compileString')->willThrowException(new \Exception());
+        $this->scssPhpCompiler->expects($this->once())->method('compileString')->willThrowException(new \Exception());
 
         $this->pathBuilder = $this->createMock(MD5ThemePathBuilder::class);
         $this->pathBuilder->method('assemblePath')->willReturn('current');
         $this->pathBuilder->method('generateNewPath')->willReturn('new');
-        $this->pathBuilder->expects(static::never())->method('saveSeed');
+        $this->pathBuilder->expects($this->never())->method('saveSeed');
 
         $compiler = $this->getThemeCompiler();
 
@@ -636,33 +634,22 @@ PHP_EOL,
         $this->filesystem->createDirectory('theme/current');
         $this->filesystem->write('theme/current/all.js', '');
 
-        $this->scssPhpCompiler->expects(static::once())->method('compileString')->willReturn('');
+        $this->scssPhpCompiler->expects($this->once())->method('compileString')->willReturn('');
 
         $this->pathBuilder = $this->createMock(MD5ThemePathBuilder::class);
         $this->pathBuilder->method('assemblePath')->willReturn('current');
-        $this->pathBuilder->expects(static::once())
+        $this->pathBuilder->expects($this->once())
             ->method('generateNewPath')
             ->with(
                 TestDefaults::SALES_CHANNEL,
                 'test'
             )
             ->willReturn('new');
-        $this->pathBuilder->expects(static::once())
+        $this->pathBuilder->expects($this->once())
             ->method('saveSeed')
             ->with(TestDefaults::SALES_CHANNEL, 'test');
 
-        $expectedMessage = new DeleteThemeFilesMessage('current', TestDefaults::SALES_CHANNEL, 'test');
-        $expectedStamps = [new DelayStamp(900000)];
-
-        $expectedEnvelop = new Envelope($expectedMessage, $expectedStamps);
-
-        $this->messageBus = $this->createMock(MessageBus::class);
-        $this->messageBus->expects(static::once())
-            ->method('dispatch')
-            ->with($expectedMessage, $expectedStamps)
-            ->willReturn($expectedEnvelop);
-
-        $compiler = $this->getThemeCompiler(900);
+        $compiler = $this->getThemeCompiler();
 
         $config = new StorefrontPluginConfiguration('test');
         $config->setAssetPaths(['assets']);
@@ -691,9 +678,9 @@ PHP_EOL,
         $this->filesystem->createDirectory($distLocation);
         $this->filesystem->write($distLocation . '/test-theme.js', '');
 
-        $this->scssPhpCompiler->expects(static::once())->method('compileString')->willReturn('');
+        $this->scssPhpCompiler->expects($this->once())->method('compileString')->willReturn('');
 
-        $this->logger->expects(static::once())->method('error');
+        $this->logger->expects($this->once())->method('error');
 
         $this->setEnvVars([
             'V6_6_0_0' => 1,
@@ -710,7 +697,7 @@ PHP_EOL,
 
         $sourceResolver = new StaticSourceResolver($filesystems);
 
-        $this->themeFilesystemResolver->expects(static::exactly(\count($filesystems)))
+        $this->themeFilesystemResolver->expects($this->exactly(\count($filesystems)))
             ->method('getFilesystemForStorefrontConfig')
             ->willReturnCallback(fn (StorefrontPluginConfiguration $config) => $filesystems[$config->getTechnicalName()]);
 
@@ -795,7 +782,7 @@ PHP_EOL,
         ];
     }
 
-    protected function getThemeCompiler(int $themeFileDeleteDelay = 0): ThemeCompiler
+    protected function getThemeCompiler(): ThemeCompiler
     {
         return new ThemeCompiler(
             $this->filesystem,
@@ -810,8 +797,7 @@ PHP_EOL,
             $this->logger,
             $this->pathBuilder,
             $this->scssPhpCompiler,
-            $this->messageBus,
-            $themeFileDeleteDelay,
+            [],
             false
         );
     }

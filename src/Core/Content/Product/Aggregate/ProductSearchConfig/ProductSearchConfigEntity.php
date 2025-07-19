@@ -13,47 +13,20 @@ class ProductSearchConfigEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $languageId;
+    protected string $languageId;
+
+    protected bool $andLogic;
+
+    protected int $minSearchLength;
 
     /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var array<string>|null
      */
-    protected $andLogic;
+    protected ?array $excludedTerms = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $minSearchLength;
+    protected ?LanguageEntity $language = null;
 
-    /**
-     * @var array|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $excludedTerms;
-
-    /**
-     * @var LanguageEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $language;
-
-    /**
-     * @var ProductSearchConfigFieldCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $configFields;
+    protected ?ProductSearchConfigFieldCollection $configFields = null;
 
     public function getLanguageId(): string
     {
@@ -85,11 +58,17 @@ class ProductSearchConfigEntity extends Entity
         $this->minSearchLength = $minSearchLength;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getExcludedTerms(): ?array
     {
         return $this->excludedTerms;
     }
 
+    /**
+     * @param array<string>|null $excludedTerms
+     */
     public function setExcludedTerms(?array $excludedTerms): void
     {
         $this->excludedTerms = $excludedTerms;

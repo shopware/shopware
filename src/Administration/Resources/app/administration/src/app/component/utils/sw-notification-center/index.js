@@ -6,15 +6,13 @@ import { POLL_BACKGROUND_INTERVAL, POLL_FOREGROUND_INTERVAL } from 'src/core/wor
 import template from './sw-notification-center.html.twig';
 import './sw-notification-center.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 /**
  * @private
  */
-Component.register('sw-notification-center', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -34,7 +32,7 @@ Component.register('sw-notification-center', {
 
     computed: {
         notifications() {
-            return Object.values(Shopware.State.getters['notification/getNotificationsObject']).reverse();
+            return Object.values(Shopware.Store.get('notification').notifications).reverse();
         },
 
         additionalContextButtonClass() {
@@ -45,39 +43,29 @@ Component.register('sw-notification-center', {
     },
 
     created() {
-        this.unsubscribeFromStore = Shopware.State.subscribeAction(this.createNotificationFromSystemError);
-        if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-            this.$root.$on('on-change-notification-center-visibility', this.changeVisibility);
-        } else {
-            Shopware.Utils.EventBus.on('on-change-notification-center-visibility', this.changeVisibility);
-        }
+        this.unsubscribeFromStore = Shopware.Store.get('notification').$onAction(this.createNotificationFromSystemError);
+        Shopware.Utils.EventBus.on('on-change-notification-center-visibility', this.changeVisibility);
     },
 
     beforeDestroyed() {
-        if (typeof this.unsubscribeFromStore === 'function') {
-            this.unsubscribeFromStore();
-        }
+        this.unsubscribeFromStore?.();
 
-        if (!this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-            this.$root.$off('on-change-notification-center-visibility', this.changeVisibility);
-        } else {
-            Shopware.Utils.EventBus.$off('on-change-notification-center-visibility', this.changeVisibility);
-        }
+        this.$root.$off('on-change-notification-center-visibility', this.changeVisibility);
     },
 
     methods: {
         onContextMenuOpen() {
-            Shopware.State.commit('notification/setWorkerProcessPollInterval', POLL_FOREGROUND_INTERVAL);
+            Shopware.Store.get('notification').workerProcessPollInterval = POLL_FOREGROUND_INTERVAL;
         },
         onContextMenuClose() {
-            Shopware.State.dispatch('notification/setAllNotificationsVisited');
-            Shopware.State.commit('notification/setWorkerProcessPollInterval', POLL_BACKGROUND_INTERVAL);
+            Shopware.Store.get('notification').setAllNotificationsVisited();
+            Shopware.Store.get('notification').workerProcessPollInterval = POLL_BACKGROUND_INTERVAL;
         },
         openDeleteModal() {
             this.showDeleteModal = true;
         },
         onConfirmDelete() {
-            Shopware.State.commit('notification/clearNotificationsForCurrentUser');
+            Shopware.Store.get('notification').clearNotificationsForCurrentUser();
             this.showDeleteModal = false;
         },
         onCloseDeleteModal() {
@@ -97,15 +85,15 @@ Component.register('sw-notification-center', {
             this.$refs.notificationCenterContextButton.removeMenuFromBody();
             this.$refs.notificationCenterContextButton.$emit('context-menu-after-close');
         },
-        createNotificationFromSystemError({ type, payload }) {
-            if (type !== 'addSystemError') {
+        createNotificationFromSystemError({ name, args }) {
+            if (name !== 'addSystemError') {
                 return;
             }
 
             this.createSystemNotificationError({
-                id: payload.id,
-                message: payload.error.detail,
+                id: args.id,
+                message: args.error.detail,
             });
         },
     },
-});
+};

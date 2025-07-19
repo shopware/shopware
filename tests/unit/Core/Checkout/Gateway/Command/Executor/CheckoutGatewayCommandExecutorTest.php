@@ -86,7 +86,7 @@ class CheckoutGatewayCommandExecutorTest extends TestCase
     {
         $psrLogger = $this->createMock(LoggerInterface::class);
         $psrLogger
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('log')
             ->with(LogLevel::ERROR, 'Handler not found for command "this-one-throws"');
 

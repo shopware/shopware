@@ -36,6 +36,18 @@
             <label>Maximum addable products to cart per minute through API</label>
             <label lang="de-DE">Maximal hinzufügbare Produkte pro Minute in den Warenkorb durch die API</label>
         </input-field>
+
+        <input-field type="bool">
+            <name>showSubtotal</name>
+            <label>Show subtotal column</label>
+            <label lang="de-DE">Summenspalte anzeigen</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>columnTaxInsteadUnitPrice</name>
+            <label>Order confirm page: tax column instead of unit price</label>
+            <label lang="de-DE">Bestellbestätigung: Steuerspalte anstatt Stückpreis</label>
+        </input-field>
     </card>
 
     <card>

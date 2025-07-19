@@ -103,7 +103,7 @@ class CustomLineItemFactoryTest extends TestCase
 
         $mediaRepo = $this->createMock(EntityRepository::class);
         $mediaRepo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->with(static::equalTo($expectedCriteria), $context->getContext())
             ->willReturn($result);
@@ -142,7 +142,7 @@ class CustomLineItemFactoryTest extends TestCase
 
         $priceDefinitionFactory = $this->createMock(PriceDefinitionFactory::class);
         $priceDefinitionFactory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('factory')
             ->with(
                 static::equalTo($context->getContext()),

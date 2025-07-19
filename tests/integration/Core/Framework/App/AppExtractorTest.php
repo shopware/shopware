@@ -41,7 +41,7 @@ class AppExtractorTest extends TestCase
         $this->createZip(__DIR__ . '/_fixtures/App/TestApp');
 
         $validator = $this->createMock(AppArchiveValidator::class);
-        $validator->expects(static::once())
+        $validator->expects($this->once())
             ->method('validate')
             ->with(static::isInstanceOf(\ZipArchive::class), 'TestApp');
 
@@ -58,7 +58,7 @@ class AppExtractorTest extends TestCase
         $this->createZip(__DIR__ . '/_fixtures/App/TestApp');
 
         $validator = $this->createMock(AppArchiveValidator::class);
-        $validator->expects(static::once())
+        $validator->expects($this->once())
             ->method('validate')
             ->with(static::isInstanceOf(\ZipArchive::class), 'TestApp')
             ->willThrowException(AppArchiveValidationFailure::appEmpty());

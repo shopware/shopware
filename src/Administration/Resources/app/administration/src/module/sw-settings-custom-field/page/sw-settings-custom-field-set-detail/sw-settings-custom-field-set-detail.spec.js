@@ -48,11 +48,9 @@ async function createWrapper(privileges = []) {
                 stubs: {
                     'sw-page': true,
                     'sw-custom-field-set-detail-base': true,
-                    'sw-button': true,
                     'sw-button-process': true,
                     'sw-custom-field-list': true,
                     'sw-card-view': true,
-                    'sw-icon': true,
                     'sw-loader': true,
                     'sw-skeleton': true,
                 },

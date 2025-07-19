@@ -2,14 +2,24 @@
     {# @var page \Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage #}
     {% if page.order %}
         {% set order = page.order %}
-        {% set deliveries = order.deliveries.elements %}
         {% set billingAddress = order.billingAddress %}
+        {# @deprecated tag:v6.8.0 - deliveries will be removed, use primaryOrderDelivery instead #}
+        {% set deliveries = order.deliveries.elements %}
 
-        {% if deliveries|length > 0 and order.billingAddress.id != deliveries|first.shippingOrderAddressId %}
-            {% set shippingAddress = deliveries|first.shippingOrderAddress %}
+        {% if feature('v6.8.0.0') %}
+            {% if order.billingAddress.id != order.primaryOrderDelivery.shippingOrderAddressId %}
+                {% set shippingAddress = order.primaryOrderDelivery.shippingOrderAddress %}
+            {% else %}
+                {% set shippingAddress = billingAddress %}
+            {% endif %}
         {% else %}
-            {% set shippingAddress = billingAddress %}
+            {% if deliveries|length > 0 and order.billingAddress.id != deliveries|first.shippingOrderAddressId %}
+                {% set shippingAddress = deliveries|first.shippingOrderAddress %}
+            {% else %}
+                {% set shippingAddress = billingAddress %}
+            {% endif %}
         {% endif %}
+
     {% else %}
         {% set billingAddress = context.customer.activeBillingAddress %}
         {% set shippingAddress = context.customer.activeShippingAddress %}
@@ -43,18 +53,21 @@
                                 {% endblock %}
 
                                 {% block page_checkout_confirm_address_shipping_actions %}
-                                    <div class="card-actions">
-                                        {% set addressEditorOptions = {
-                                            changeShipping: true,
-                                            addressId: shippingAddress.id,
-                                        } %}
+                                    {% set addressManagerOptions = {
+                                        initialTab: 'shipping',
+                                        activeShippingAddressId: shippingAddress.id,
+                                        addressManagerUrl: path('frontend.account.addressmanager.get'),
+                                        addressSwitchUrl: path('frontend.account.address.switch-default'),
+                                    } %}
 
+                                    <div class="card-actions">
                                         {% block page_checkout_confirm_address_shipping_actions_link %}
                                             <a href="{{ path('frontend.account.address.edit.page', {addressId: shippingAddress.id}) }}"
                                                title="{{ 'account.overviewChangeShipping'|trans|striptags }}"
                                                class="btn btn-light"
-                                               data-address-editor="true"
-                                               data-address-editor-options="{{ addressEditorOptions|json_encode }}">
+                                               data-address-manager="true"
+                                               data-address-manager-options="{{ addressManagerOptions|json_encode }}"
+                                            >
                                                 {{ 'account.overviewChangeShipping'|trans|sw_sanitize }}
                                             </a>
                                         {% endblock %}
@@ -77,8 +90,8 @@
                             {% endblock %}
 
                             {% block page_checkout_confirm_address_billing_data %}
-                                <div class="confirm-address-billing">
-                                    {% if billingAddress.id is same as(shippingAddress.id) %}
+                                <div class="confirm-address-billing mb-3">
+                                    {% if billingAddress.id is same as(shippingAddress.id) and not page.isHideShippingAddress()%}
                                         {% block page_checkout_confirm_address_billing_data_equal %}
                                             <p>
                                                 {{ 'checkout.addressEqualText'|trans|sw_sanitize }}
@@ -94,17 +107,20 @@
 
                             {% block page_checkout_confirm_address_billing_actions %}
                                 <div class="card-actions">
-                                    {% set addressEditorOptions = {
-                                        changeBilling: true,
+                                    {% set addressManagerOptions = {
+                                        initialTab: 'billing',
                                         addressId: billingAddress.id,
+                                        addressManagerUrl: path('frontend.account.addressmanager.get'),
+                                        addressSwitchUrl: path('frontend.account.address.switch-default'),
                                     } %}
 
                                     {% block page_checkout_confirm_address_billing_actions_link %}
                                         <a href="{{ path('frontend.account.address.edit.page', {addressId: billingAddress.id}) }}"
                                            title="{{ 'account.overviewChangeBilling'|trans|striptags }}"
                                            class="btn btn-light"
-                                           data-address-editor="true"
-                                           data-address-editor-options="{{ addressEditorOptions|json_encode }}">
+                                           data-address-manager="true"
+                                           data-address-manager-options="{{ addressManagerOptions|json_encode }}"
+                                        >
                                             {{ 'account.overviewChangeBilling'|trans|sw_sanitize }}
                                         </a>
                                     {% endblock %}

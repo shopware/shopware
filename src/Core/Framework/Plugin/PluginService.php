@@ -95,7 +95,6 @@ class PluginService
 
             $pluginData['translations'] = $this->getTranslations($shopwareContext, $extra);
 
-            /** @var PluginEntity $currentPluginEntity */
             $currentPluginEntity = $installedPlugins->filterByProperty('baseClass', $baseClass)->first();
             if ($currentPluginEntity !== null) {
                 $currentPluginId = $currentPluginEntity->getId();
@@ -151,7 +150,7 @@ class PluginService
 
         $pluginEntity = $this->getPlugins($criteria, $context)->first();
         if ($pluginEntity === null) {
-            throw new PluginNotFoundException($pluginName);
+            throw PluginException::notFound($pluginName);
         }
 
         return $pluginEntity;
@@ -159,10 +158,7 @@ class PluginService
 
     private function getPlugins(Criteria $criteria, Context $context): PluginCollection
     {
-        /** @var PluginCollection $pluginCollection */
-        $pluginCollection = $this->pluginRepo->search($criteria, $context)->getEntities();
-
-        return $pluginCollection;
+        return $this->pluginRepo->search($criteria, $context)->getEntities();
     }
 
     private function hasPluginUpdate(string $updateVersion, string $currentVersion): bool

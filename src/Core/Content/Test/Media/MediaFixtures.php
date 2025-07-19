@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\Traits\EntityFixturesBase;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 trait MediaFixtures
 {
@@ -20,10 +20,8 @@ trait MediaFixtures
 
     /**
      * @var array<string, array<string, mixed>>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    public $mediaFixtures;
+    public array $mediaFixtures;
 
     #[Before]
     public function initializeMediaFixtures(): void

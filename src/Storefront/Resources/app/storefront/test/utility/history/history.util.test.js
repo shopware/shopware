@@ -21,7 +21,7 @@ describe('history.util tests', () => {
         HistoryUtil.push('/listing', '?page=5', { some: 'state' });
         HistoryUtil.pushParams({ 'big-image': 1, 'mode': 'detailed' }, { some: 'state' });
 
-        expect(HistoryUtil.getSearch()).toBe('?big-image=1&mode=detailed&page=5');
+        expect(HistoryUtil.getSearch()).toBe('?page=5&big-image=1&mode=detailed');
     });
 
     test('is able to execute callback on history changes', () => {

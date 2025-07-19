@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Pagelet\Header;
 
-use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -16,59 +15,23 @@ use Shopware\Storefront\Pagelet\NavigationPagelet;
 class HeaderPagelet extends NavigationPagelet
 {
     /**
-     * @var LanguageCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @deprecated tag:v6.8.0 - Will be removed, access the active language through the context
      */
-    protected $languages;
+    protected LanguageEntity $activeLanguage;
 
     /**
-     * @var CurrencyCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @deprecated tag:v6.8.0 - Will be removed, access the active currency through the context
      */
-    protected $currencies;
-
-    /**
-     * @var LanguageEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $activeLanguage;
-
-    /**
-     * @var CurrencyEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $activeCurrency;
-
-    /**
-     * @var CategoryCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be removed as it is unused
-     */
-    protected $serviceMenu;
+    protected CurrencyEntity $activeCurrency;
 
     /**
      * @internal
-     *
-     * @deprecated tag:v6.7.0 - Parameter `serviceMenu` will be removed as it is unused
      */
     public function __construct(
         Tree $navigation,
-        LanguageCollection $languages,
-        CurrencyCollection $currencies,
-        LanguageEntity $activeLanguage,
-        CurrencyEntity $activeCurrency,
-        CategoryCollection $serviceMenu
+        protected LanguageCollection $languages,
+        protected CurrencyCollection $currencies,
     ) {
-        $this->languages = $languages;
-        $this->currencies = $currencies;
-        $this->activeLanguage = $activeLanguage;
-        $this->activeCurrency = $activeCurrency;
-        $this->serviceMenu = $serviceMenu;
-
         parent::__construct($navigation);
     }
 
@@ -82,23 +45,55 @@ class HeaderPagelet extends NavigationPagelet
         return $this->currencies;
     }
 
-    public function getActiveLanguage(): LanguageEntity
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, access the active language through the context
+     */
+    public function setActiveLanguage(LanguageEntity $activeLanguage): void
     {
-        return $this->activeLanguage;
-    }
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
 
-    public function getActiveCurrency(): CurrencyEntity
-    {
-        return $this->activeCurrency;
+        $this->activeLanguage = $activeLanguage;
     }
 
     /**
-     * @deprecated tag:v6.7.0 - Method will be removed as `serviceMenu` is unused
+     * @deprecated tag:v6.8.0 - Will be removed, access the active language through the context
      */
-    public function getServiceMenu(): CategoryCollection
+    public function getActiveLanguage(): LanguageEntity
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0'));
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
 
-        return $this->serviceMenu;
+        return $this->activeLanguage;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, access the active language through the context
+     */
+    public function setActiveCurrency(CurrencyEntity $activeCurrency): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
+        $this->activeCurrency = $activeCurrency;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, access the active language through the context
+     */
+    public function getActiveCurrency(): CurrencyEntity
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
+        return $this->activeCurrency;
     }
 }

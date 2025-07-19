@@ -186,7 +186,7 @@ class MediaUrlLoaderTest extends TestCase
             'private' => false,
         ]);
 
-        $remoteThumbnailLoader->expects(static::once())->method('load')->with([$entity]);
+        $remoteThumbnailLoader->expects($this->once())->method('load')->with([$entity]);
 
         $subscriber->loaded([$entity]);
     }

@@ -62,7 +62,8 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
             fn (array $tax) => new CalculatedTax(
                 (float) $tax['tax'],
                 (float) $tax['taxRate'],
-                (float) $tax['price']
+                (float) $tax['price'],
+                $tax['label'] ?? null,
             ),
             $decoded['calculatedTaxes']
         );

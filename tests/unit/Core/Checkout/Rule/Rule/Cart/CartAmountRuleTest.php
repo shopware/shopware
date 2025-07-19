@@ -9,8 +9,9 @@ use Shopware\Core\Checkout\Cart\Rule\CartAmountRule;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 
@@ -144,7 +145,7 @@ class CartAmountRuleTest extends TestCase
     #[DataProvider('unsupportedOperators')]
     public function testUnsupportedOperators(string $operator): void
     {
-        $this->expectException(UnsupportedOperatorException::class);
+        $this->expectExceptionObject(RuleException::unsupportedOperator($operator, RuleComparison::class));
 
         $rule = (new CartAmountRule())->assign(['amount' => 100, 'operator' => $operator]);
 

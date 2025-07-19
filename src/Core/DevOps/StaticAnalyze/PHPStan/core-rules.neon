@@ -17,3 +17,4 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsInMethodRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsInRouteAttributesRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ShopwareNamespaceStyleRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AttributeFinalRule

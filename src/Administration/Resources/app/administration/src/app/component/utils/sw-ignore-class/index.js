@@ -11,7 +11,7 @@
  *
  * // add attrs classes to main card
  * staticClasses.forEach((className) => {
- *     this.$set(classes, className, true);
+ *     classes[className] = true;
  * });
  * ```
  *
@@ -25,8 +25,6 @@
  *     Your normal content
  * </sw-ignore-class>
  */
-Shopware.Component.register('sw-ignore-class', {
+export default {
     template: '<div><slot></slot></div>',
-
-    compatConfig: Shopware.compatConfig,
-});
+};

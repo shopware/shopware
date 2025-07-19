@@ -14,10 +14,6 @@ async function createWrapper(action) {
                 tooltip: {},
             },
             stubs: {
-                'sw-icon': await wrapTestComponent('sw-icon'),
-                'icons-regular-external-link': {
-                    template: '<span class="sw-icon sw-icon--regular-external-link"></span>',
-                },
                 'sw-extension-icon': await wrapTestComponent('sw-extension-icon'),
             },
             provide: {

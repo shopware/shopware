@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Util\Random;
@@ -54,11 +53,18 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
 
         // Retrieve context for current request
         $usedContextToken = (string) $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+
+        // Check for currency header first, fallback to domain currency attribute
+        $currencyId = $request->headers->get(PlatformRequest::HEADER_CURRENCY_ID);
+        if ($currencyId === null) {
+            $currencyId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID);
+        }
+
         $contextServiceParameters = new SalesChannelContextServiceParameters(
             (string) $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID),
             $usedContextToken,
             $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
-            $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID),
+            $currencyId,
             $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID),
             $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT),
             null,
@@ -83,26 +89,6 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         $this->eventDispatcher->dispatch(
             new SalesChannelContextResolvedEvent($context, $usedContextToken)
         );
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Not used anymore, will be removed without replacement
-     */
-    public function handleSalesChannelContext(Request $request, string $salesChannelId, string $contextToken): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            'SalesChannelRequestContextResolver::handleSalesChannelContext does not need to be called anymore. Will be removed with no replacement',
-        );
-
-        $language = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID);
-        $currencyId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID);
-
-        $context = $this->contextService
-            ->get(new SalesChannelContextServiceParameters($salesChannelId, $contextToken, $language, $currencyId));
-
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
     }
 
     protected function getScopeRegistry(): RouteScopeRegistry

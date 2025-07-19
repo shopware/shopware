@@ -13,11 +13,9 @@ function main() {
     updateBlocksList(blocks);
 }
 
-function updateBlocksList(blocks: string[]) {
-    console.log('Updating blocks list...');
-    const uniqueBlocks = unique(blocks);
-    fs.writeFileSync(BLOCKS_LIST_FILE, JSON.stringify(uniqueBlocks));
-    console.log(`Blocks list updated with ${uniqueBlocks.length} blocks in total.`);
+export function updateBlocksList(blocks: string[]) {
+    const uniqueBlocks = unique(blocks).sort((a, b) => a.localeCompare(b));
+    fs.writeFileSync(BLOCKS_LIST_FILE, JSON.stringify(uniqueBlocks, null, 1));
 }
 
 // Most performant way to remove duplicates from an array
@@ -25,7 +23,7 @@ function updateBlocksList(blocks: string[]) {
 function unique(array: string[]) {
     const seen: Record<string, boolean> = {};
     const output: string[] = [];
-    array.forEach(item => {
+    array.forEach((item) => {
         if (!seen[item]) {
             seen[item] = true;
             output.push(item);

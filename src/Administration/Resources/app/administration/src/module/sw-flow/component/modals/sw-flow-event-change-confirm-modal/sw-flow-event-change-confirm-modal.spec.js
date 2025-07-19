@@ -1,5 +1,3 @@
-import flowState from 'src/module/sw-flow/state/flow.state';
-
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 import { mount } from '@vue/test-utils';
@@ -28,23 +26,11 @@ async function createWrapper() {
                     id: 'action-name',
                 },
             },
-            global: {
-                stubs: {
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
-                    'sw-icon': true,
-                },
-            },
         },
     );
 }
 
 describe('module/sw-flow/component/modals/sw-flow-event-change-confirm-modal', () => {
-    Shopware.State.registerModule('swFlowState', {
-        ...flowState,
-    });
-
     it('should show element correctly', async () => {
         const wrapper = await createWrapper();
 
@@ -57,8 +43,7 @@ describe('module/sw-flow/component/modals/sw-flow-event-change-confirm-modal', (
         const wrapper = await createWrapper();
         await flushPromises();
 
-        Shopware.State.commit(
-            'swFlowState/setSequences',
+        Shopware.Store.get('swFlow').setSequences(
             new EntityCollection(
                 '/flow_sequence',
                 'flow_sequence',
@@ -84,14 +69,14 @@ describe('module/sw-flow/component/modals/sw-flow-event-change-confirm-modal', (
             ),
         );
 
-        let sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        let sequencesState = Shopware.Store.get('swFlow').sequences;
         expect(sequencesState).toHaveLength(1);
 
         const buttonConfirm = wrapper.find(btnConfirmClass);
         await buttonConfirm.trigger('click');
         await flushPromises();
 
-        sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        sequencesState = Shopware.Store.get('swFlow').sequences;
         expect(sequencesState).toHaveLength(0);
 
         expect(wrapper.emitted()['modal-confirm']).toBeTruthy();

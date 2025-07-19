@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 
@@ -25,11 +24,7 @@ class FrameworkExceptionTest extends TestCase
 
     public function testCollectionElementInvalidType(): void
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            static::expectException(FrameworkException::class);
-        } else {
-            static::expectException(\InvalidArgumentException::class);
-        }
+        static::expectException(FrameworkException::class);
 
         static::expectExceptionMessage('Expected collection element of type foo got bar');
 

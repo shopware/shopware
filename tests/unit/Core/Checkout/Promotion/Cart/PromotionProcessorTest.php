@@ -49,7 +49,7 @@ class PromotionProcessorTest extends TestCase
             [new LineItem('B', PromotionProcessor::LINE_ITEM_TYPE, Uuid::randomHex(), 1)],
         ));
 
-        $promotionCalculatorMock->expects(static::once())
+        $promotionCalculatorMock->expects($this->once())
             ->method('calculate')
             ->with(
                 static::callback(function (LineItemCollection $data) {
@@ -88,12 +88,12 @@ class PromotionProcessorTest extends TestCase
             [(new LineItem('B', PromotionProcessor::LINE_ITEM_TYPE, Uuid::randomHex(), 1))->setPayload(['promotionCodeType' => PromotionItemBuilder::PROMOTION_TYPE_GLOBAL])],
         ));
 
-        $promotionCalculatorMock->expects(static::never())
+        $promotionCalculatorMock->expects($this->never())
             ->method('calculate');
 
         $promotionProcessor->process($data, $originalCart, $toCalculateCart, $context, $behavior);
 
-        static::assertEquals(0, $toCalculateCart->getErrors()->count());
+        static::assertCount(0, $toCalculateCart->getErrors());
     }
 
     public function testProcessWithCartZeroPriceAndPromotionIsNotGlobal(): void
@@ -118,12 +118,12 @@ class PromotionProcessorTest extends TestCase
             [(new LineItem('B', PromotionProcessor::LINE_ITEM_TYPE, Uuid::randomHex(), 1))->setPayload(['promotionCodeType' => PromotionItemBuilder::PROMOTION_TYPE_FIXED])],
         ));
 
-        $promotionCalculatorMock->expects(static::never())
+        $promotionCalculatorMock->expects($this->never())
             ->method('calculate');
 
         $promotionProcessor->process($data, $originalCart, $toCalculateCart, $context, $behavior);
 
-        static::assertEquals(1, $toCalculateCart->getErrors()->count());
+        static::assertCount(1, $toCalculateCart->getErrors());
         static::assertInstanceOf(PromotionsOnCartPriceZeroError::class, $toCalculateCart->getErrors()->first());
     }
 }

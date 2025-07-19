@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration;
-use Shopware\Administration\Snippet\SnippetException;
 use Shopware\Administration\Snippet\SnippetFinder;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
@@ -16,6 +15,7 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Storefront\Storefront;
+use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
 
 /**
  * @internal
@@ -23,6 +23,8 @@ use Shopware\Storefront\Storefront;
 #[CoversClass(SnippetFinder::class)]
 class SnippetFinderTest extends TestCase
 {
+    use SnippetFileTrait;
+
     public function testFindSnippetsFromAppNoSnippetsAdded(): void
     {
         $snippetFinder = new SnippetFinder(
@@ -45,7 +47,7 @@ class SnippetFinderTest extends TestCase
 
         $expectedSnippets = $this->getSnippetFixtures();
         $key = array_key_first($expectedSnippets);
-        static::assertEquals($expectedSnippets[$key], $snippets[$key]);
+        static::assertSame($expectedSnippets[$key], $snippets[$key]);
     }
 
     public function testNoSnippetsFound(): void
@@ -86,6 +88,7 @@ class SnippetFinderTest extends TestCase
         static::assertEquals([
             'activePlugin' => 'successfully loaded',
             'existingBundle' => 'successfully loaded as well',
+            'activeMeteorApp' => 'Snippet',
         ], $actualSnippets);
     }
 
@@ -106,23 +109,23 @@ class SnippetFinderTest extends TestCase
         }
     }
 
-    /**
-     * @param array<string, mixed> $appSnippets
-     * @param list<string> $duplicateSnippetKeys
-     */
-    #[DataProvider('invalidAppSnippetsDataProvider')]
-    public function testValidateInvalidSnippets(array $appSnippets, array $duplicateSnippetKeys): void
+    public function testDuplicateAppSnippets(): void
     {
-        $expectedExceptionMessage = 'The following keys on the first level are duplicated and can not be overwritten: ' . implode(', ', $duplicateSnippetKeys);
+        $appSnippets = [
+            'sw-category' => [],
+            'sw-cms' => [],
+            'sw-wizard' => [],
+        ];
 
         $snippetFinder = new SnippetFinder(
             $this->getKernelMock(),
             $this->getConnectionMock('en-GB', $appSnippets)
         );
 
-        $this->expectException(SnippetException::class);
-        $this->expectExceptionMessage($expectedExceptionMessage);
-        $snippetFinder->findSnippets('en-GB');
+        $snippets = $snippetFinder->findSnippets('en-GB');
+        static::assertContains($appSnippets['sw-category'], $snippets);
+        static::assertContains($appSnippets['sw-cms'], $snippets);
+        static::assertContains($appSnippets['sw-wizard'], $snippets);
     }
 
     /**
@@ -140,7 +143,7 @@ class SnippetFinderTest extends TestCase
         $result = $snippetFinder->findSnippets('en-GB');
         $result = array_intersect_key($result, $before); // filter out all others snippets
 
-        static::assertEquals($after, $result);
+        static::assertSame($after, $result);
     }
 
     /**
@@ -148,7 +151,7 @@ class SnippetFinderTest extends TestCase
      */
     public static function validAppSnippetsDataProvider(): iterable
     {
-        yield 'Everything is valid with no illegal intersections' => [
+        yield 'Everything is valid even with no intersections' => [
             'appSnippets' => [
                 'sw-unique-app-key' => [],
             ],
@@ -164,43 +167,10 @@ class SnippetFinderTest extends TestCase
             }
         );
 
-        yield 'Everything is valid with only allowed duplicates' => [
+        yield 'Everything is valid with duplicates' => [
             'appSnippets' => [
                 ...$allowedIntersectingFirstLevelSnippets,
                 'sw-unique-app-key' => [],
-            ],
-        ];
-    }
-
-    /**
-     * @return array<string, array{appSnippets: array<string, mixed>, duplicateSnippetKeys: list<string>}>
-     */
-    public static function invalidAppSnippetsDataProvider(): iterable
-    {
-        yield 'Throw exception if existing snippets will be overwritten' => [
-            'appSnippets' => [
-                'sw-category' => [],
-                'sw-cms' => [],
-                'sw-wizard' => [],
-            ],
-            'duplicateSnippetKeys' => [
-                'sw-category',
-                'sw-cms',
-                'sw-wizard',
-            ],
-        ];
-
-        yield 'Throw exception if existing snippets contain legal and illegal duplicates' => [
-            'appSnippets' => [
-                ...array_flip(SnippetFinder::ALLOWED_INTERSECTING_FIRST_LEVEL_SNIPPET_KEYS),
-                'sw-category' => [],
-                'sw-cms' => [],
-                'sw-wizard' => [],
-            ],
-            'duplicateSnippetKeys' => [
-                'sw-category',
-                'sw-cms',
-                'sw-wizard',
             ],
         ];
     }
@@ -238,11 +208,12 @@ class SnippetFinderTest extends TestCase
         array $activePluginPaths = [],
         array $bundlePaths = []
     ): Kernel&MockObject {
-        $getBundleMockByPath = function (string $path): Plugin&MockObject {
-            $plugin = $this->createMock(Plugin::class);
-            $plugin
-                ->method('getPath')
-                ->willReturn(__DIR__ . '/fixtures/' . $path);
+        $getBundleMockByPath = function (string $path): Plugin {
+            $path = __DIR__ . '/fixtures/' . $path;
+
+            $plugin = new TestPlugin(true, $path);
+            $plugin->setName('activePlugin');
+            $plugin->setPath($path);
 
             return $plugin;
         };
@@ -296,6 +267,41 @@ class SnippetFinderTest extends TestCase
             ->willReturn($bundles);
 
         return $kernelMock;
+    }
+
+    public function testFindInstalledSnippetsWithoutPluginsActive(): void
+    {
+        $this->createSnippetFiles();
+
+        $snippetFinder = new SnippetFinder(
+            $this->getKernelMock(),
+            $this->getConnectionMock('es-ES', [])
+        );
+
+        $snippets = $snippetFinder->findSnippets('es-ES');
+
+        static::assertEquals(['shop' => 'Demo Shop'], $snippets);
+
+        $this->cleanupSnippetFiles();
+    }
+
+    public function testFindInstalledSnippetsWithActivePlugin(): void
+    {
+        $this->createSnippetFiles();
+
+        $snippetFinder = new SnippetFinder(
+            $this->getKernelMock(pluginPaths: ['activePlugin'], activePluginPaths: ['activePlugin']),
+            $this->getConnectionMock('es-ES', [])
+        );
+
+        $snippets = $snippetFinder->findSnippets('es-ES');
+
+        static::assertEquals([
+            'plugin' => 'activePlugin',
+            'shop' => 'Demo Shop',
+        ], $snippets);
+
+        $this->cleanupSnippetFiles();
     }
 
     /**

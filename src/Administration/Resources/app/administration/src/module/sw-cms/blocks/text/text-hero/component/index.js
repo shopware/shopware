@@ -7,6 +7,4 @@ import './sw-cms-block-text-hero.scss';
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

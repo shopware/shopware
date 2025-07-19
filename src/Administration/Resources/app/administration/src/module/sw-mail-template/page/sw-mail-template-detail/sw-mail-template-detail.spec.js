@@ -148,16 +148,12 @@ async function createWrapper(privileges = []) {
                 'sw-card-view': {
                     template: '<div><slot></slot></div>',
                 },
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-container': {
                     template: '<div><slot></slot></div>',
                 },
-                'sw-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-button-process': true,
                 'sw-language-info': true,
                 'sw-entity-single-select': true,
@@ -166,7 +162,7 @@ async function createWrapper(privileges = []) {
                 'sw-modal': true,
                 'sw-text-field': true,
                 'sw-context-menu-item': true,
-                'sw-alert': true,
+
                 'sw-code-editor': {
                     props: [
                         'disabled',
@@ -178,11 +174,6 @@ async function createWrapper(privileges = []) {
                 },
                 'sw-upload-listener': true,
                 'sw-media-upload-v2': true,
-                'sw-icon': await wrapTestComponent('sw-icon'),
-                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated'),
-                'icons-regular-products-s': {
-                    template: '<div class="sw-mail-template-detail__copy_icon" @click="$emit(\'click\')"></div>',
-                },
                 'sw-tree': await wrapTestComponent('sw-tree'),
                 'sw-tree-item': await wrapTestComponent('sw-tree-item'),
                 'sw-tree-input-field': await wrapTestComponent('sw-tree-input-field'),

@@ -3,6 +3,7 @@
  */
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
+import './page/sw-category-detail/store';
 
 const { Module } = Shopware;
 
@@ -150,7 +151,7 @@ Module.register('sw-category', {
             props: {
                 default(route) {
                     return {
-                        categoryId: route.params.id,
+                        categoryId: route.params.id.toLowerCase(),
                     };
                 },
             },
@@ -188,7 +189,7 @@ Module.register('sw-category', {
             props: {
                 default(route) {
                     return {
-                        landingPageId: route.params.id,
+                        landingPageId: route.params.id.toLowerCase(),
                     };
                 },
             },

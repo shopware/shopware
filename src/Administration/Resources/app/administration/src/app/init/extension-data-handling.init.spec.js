@@ -87,8 +87,8 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
         createResult = { createFoo: 'bar' };
 
         // create mock extension
-        Shopware.State._store.state.extensions = {};
-        Shopware.State.commit('extensions/addExtension', {
+        Shopware.Store.get('extensions').extensionsState = {};
+        Shopware.Store.get('extensions').addExtension({
             name: 'MyAwesomeExtension',
             permissions: {},
             baseUrl: '',
@@ -291,7 +291,7 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
 
     it('should throw an error if no extension with the given event origin was found', async () => {
         // create mock extension with a different baseUrl
-        Shopware.State._store.state.extensions = {};
+        Shopware.Store.get('extensions').extensionsState = {};
 
         const searchCriteria = new Criteria();
         searchCriteria.setPage(1);
@@ -320,8 +320,8 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
     });
 
     it('should handle repositorySearch with integrationId', async () => {
-        Shopware.State._store.state.extensions = {};
-        Shopware.State.commit('extensions/addExtension', {
+        Shopware.Store.get('extensions').extensionsState = {};
+        Shopware.Store.get('extensions').addExtension({
             name: 'MyAwesomeExtension',
             permissions: {},
             baseUrl: '',

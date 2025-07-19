@@ -27,8 +27,8 @@ async function createWrapper() {
                         template: '<div class="sw-context-menu-item"></div>',
                         props: ['disabled'],
                     },
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot /><slot name="grid"></slot></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot /><slot name="grid"></slot></div>',
                     },
                     'sw-select-result-list': true,
                     'sw-select-result': true,

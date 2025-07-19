@@ -1,5 +1,5 @@
 /**
- * @sw-package buyers-experience
+ * @sw-package fundamentals@discovery
  */
 import template from './sw-settings-country-currency-dependent-modal.html.twig';
 import './sw-settings-country-currency-dependent-modal.scss';
@@ -9,8 +9,6 @@ const utils = Shopware.Utils;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -65,7 +63,7 @@ export default {
 
     computed: {
         currentUserId() {
-            return Shopware.State.get('session').currentUser.id;
+            return Shopware.Store.get('session').currentUser.id;
         },
 
         currencyTaxFreeDependentRepository() {

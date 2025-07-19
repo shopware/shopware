@@ -2,6 +2,7 @@ import Iterator from 'src/helper/iterator.helper.js';
 
 /**
  * @package storefront
+ * @deprecated tag:v6.8.0 - Use native alternatives like forEach instead. Test case will be removed.
  */
 describe('iterator.helper.js', () => {
     test('it iterates over maps', () => {

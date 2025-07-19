@@ -8,8 +8,6 @@ import './sw-category-detail-cms.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['acl'],
 
     props: {
@@ -21,7 +19,7 @@ export default {
 
     computed: {
         category() {
-            return Shopware.State.get('swCategoryDetail').category;
+            return Shopware.Store.get('swCategoryDetail').category;
         },
 
         cmsPage() {

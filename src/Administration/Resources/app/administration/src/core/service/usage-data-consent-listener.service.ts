@@ -1,4 +1,5 @@
 import type { LoginService } from './login.service';
+import useUsageData from '../../app/composables/use-usage-data';
 
 /**
  * @sw-package data-services
@@ -6,6 +7,7 @@ import type { LoginService } from './login.service';
  * @private
  */
 export default function addUsageDataConsentListener(loginService: LoginService, serviceContainer: ServiceContainer) {
+    const usageDataStore = useUsageData();
     loginService.addOnLoginListener(fetchUsageDataConsent);
     loginService.addOnLogoutListener(resetUsageDataConsent);
 
@@ -13,13 +15,13 @@ export default function addUsageDataConsentListener(loginService: LoginService, 
         try {
             const consent = await serviceContainer.usageDataService.getConsent();
 
-            Shopware.State.commit('usageData/updateConsent', consent);
+            usageDataStore.updateConsent(consent);
         } catch {
             resetUsageDataConsent();
         }
     }
 
     function resetUsageDataConsent() {
-        Shopware.State.commit('usageData/resetConsent');
+        usageDataStore.resetConsent();
     }
 }

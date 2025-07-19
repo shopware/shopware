@@ -113,7 +113,7 @@ class FormCmsElementResolverTest extends TestCase
     private function getSalutationRoute(SalutationCollection $salutationCollection): AbstractSalutationRoute
     {
         $salutationRoute = $this->createMock(AbstractSalutationRoute::class);
-        $salutationRoute->expects(static::once())
+        $salutationRoute->expects($this->once())
             ->method('load')
             ->willReturn(new SalutationRouteResponse(
                 new EntitySearchResult(

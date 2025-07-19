@@ -18,7 +18,6 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
-use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -34,15 +33,13 @@ class AccountOrderPageLoader
 
     /**
      * @internal
-     *
-     * @deprecated tag:v6.7.0 - translator will be mandatory from 6.7
      */
     public function __construct(
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractOrderRoute $orderRoute,
         private readonly AccountService $accountService,
-        private readonly ?AbstractTranslator $translator = null
+        private readonly AbstractTranslator $translator
     ) {
     }
 
@@ -58,9 +55,6 @@ class AccountOrderPageLoader
         $this->setMetaInformation($page);
 
         $orders = $this->getOrders($request, $salesChannelContext);
-        if (!Feature::isActive('v6.7.0.0')) {
-            $orders = StorefrontSearchResult::createFrom($orders);
-        }
 
         $page->setOrders($orders);
 
@@ -85,15 +79,13 @@ class AccountOrderPageLoader
             $page->getMetaInformation()->setRobots('noindex,follow');
         }
 
-        if ($this->translator !== null && $page->getMetaInformation() === null) {
+        if ($page->getMetaInformation() === null) {
             $page->setMetaInformation(new MetaInformation());
         }
 
-        if ($this->translator !== null) {
-            $page->getMetaInformation()?->setMetaTitle(
-                $this->translator->trans('account.ordersMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
-            );
-        }
+        $page->getMetaInformation()?->setMetaTitle(
+            $this->translator->trans('account.ordersMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
+        );
     }
 
     /**
@@ -130,10 +122,11 @@ class AccountOrderPageLoader
 
         $criteria = (new Criteria())
             ->addSorting(new FieldSorting('order.createdAt', FieldSorting::DESCENDING))
-            ->addAssociation('transactions.paymentMethod')
-            ->addAssociation('transactions.stateMachineState')
+            ->addAssociation('primaryOrderTransaction.paymentMethod')
+            ->addAssociation('primaryOrderTransaction.stateMachineState')
+            ->addAssociation('primaryOrderDelivery.shippingMethod')
+            ->addAssociation('primaryOrderDelivery.stateMachineState')
             ->addAssociation('deliveries.shippingMethod')
-            ->addAssociation('deliveries.stateMachineState')
             ->addAssociation('orderCustomer.customer')
             ->addAssociation('lineItems')
             ->addAssociation('lineItems.cover')
@@ -148,9 +141,16 @@ class AccountOrderPageLoader
             ->setOffset(($page - 1) * self::DEFAULT_LIMIT)
             ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
-        $criteria
-            ->getAssociation('transactions')
-            ->addSorting(new FieldSorting('createdAt'));
+        if (!Feature::isActive('v6.8.0.0')) {
+            $criteria
+                ->addAssociation('transactions.paymentMethod')
+                ->addAssociation('transactions.stateMachineState')
+                ->addAssociation('deliveries.stateMachineState');
+
+            $criteria
+                ->getAssociation('transactions')
+                ->addSorting(new FieldSorting('createdAt'));
+        }
 
         $criteria
             ->addSorting(new FieldSorting('orderDateTime', FieldSorting::DESCENDING));

@@ -32,16 +32,23 @@ class StagingAppHandlerTest extends TestCase
 
         $connection
             ->method('delete')
-            ->willReturnCallback(function (string $table, array $criteria) use (&$tables, &$ids): void {
+            ->willReturnCallback(function (string $table, array $criteria) use (&$tables, &$ids): int {
                 $tables[] = $table;
                 $ids[] = $criteria['id'];
+
+                return 1;
             });
 
         $configService = new StaticSystemConfigService();
         $configService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, 'test');
 
         $handler = new StagingAppHandler($connection, $configService);
-        $handler->__invoke(new SetupStagingEvent(Context::createDefaultContext(), $this->createMock(SymfonyStyle::class)));
+        $handler->__invoke(new SetupStagingEvent(
+            Context::createDefaultContext(),
+            $this->createMock(SymfonyStyle::class),
+            false,
+            []
+        ));
 
         static::assertNull($configService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
 

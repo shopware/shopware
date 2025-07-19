@@ -1,7 +1,5 @@
 import './sw-boolean-radio-group.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -17,7 +15,7 @@ const { Component } = Shopware;
  *      :bordered="bordered">
  * </sw-boolean-radio-group>
  */
-Component.register('sw-boolean-radio-group', {
+export default {
     template: `
 <sw-radio-field
     class="sw-boolean-radio-group"
@@ -30,8 +28,6 @@ Component.register('sw-boolean-radio-group', {
 `,
 
     inject: ['feature'],
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['update:value'],
 
@@ -78,4 +74,4 @@ Component.register('sw-boolean-radio-group', {
             },
         },
     },
-});
+};

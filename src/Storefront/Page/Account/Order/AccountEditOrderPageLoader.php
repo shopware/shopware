@@ -128,18 +128,28 @@ class AccountEditOrderPageLoader
         } else {
             $criteria = new Criteria();
         }
-        $criteria->addAssociation('lineItems.cover')
+        $criteria
+            ->addAssociation('primaryOrderDelivery.shippingOrderAddress.salutation')
+            ->addAssociation('primaryOrderDelivery.shippingOrderAddress.country')
+            ->addAssociation('primaryOrderDelivery.shippingOrderAddress.countryState')
+            ->addAssociation('primaryOrderDelivery.stateMachineState')
+            ->addAssociation('primaryOrderTransaction.stateMachineState')
+            ->addAssociation('lineItems.cover')
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('billingAddress.salutation')
             ->addAssociation('billingAddress.country')
-            ->addAssociation('billingAddress.countryState')
-            ->addAssociation('deliveries.shippingOrderAddress.salutation')
-            ->addAssociation('deliveries.shippingOrderAddress.country')
-            ->addAssociation('deliveries.shippingOrderAddress.countryState')
-            ->addAssociation('deliveries.stateMachineState')
-            ->addAssociation('transactions.stateMachineState')
-            ->addAssociation('stateMachineState');
+            ->addAssociation('stateMachineState')
+            ->addAssociation('billingAddress.countryState');
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $criteria
+                ->addAssociation('deliveries.shippingOrderAddress.salutation')
+                ->addAssociation('deliveries.shippingOrderAddress.country')
+                ->addAssociation('deliveries.shippingOrderAddress.countryState')
+                ->addAssociation('deliveries.stateMachineState')
+                ->addAssociation('transactions.stateMachineState');
+        }
 
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 
@@ -157,12 +167,7 @@ class AccountEditOrderPageLoader
     private function getPaymentMethods(SalesChannelContext $context, Request $request, OrderEntity $order): PaymentMethodCollection
     {
         $routeRequest = $request->duplicate();
-        if (!Feature::isActive('v6.7.0.0')) {
-            /**
-             * @deprecated tag:v6.7.0 - onlyAvailable is no longer set in query
-             */
-            $routeRequest->query->set('onlyAvailable', '1');
-        }
+        $routeRequest->query->set('onlyAvailable', '1');
 
         $event = new PaymentMethodRouteRequestEvent($request, $routeRequest, $context);
         $this->eventDispatcher->dispatch($event);
@@ -194,13 +199,18 @@ class AccountEditOrderPageLoader
 
     private function isOrderPaid(OrderEntity $order): bool
     {
-        $transactions = $order->getTransactions();
+        $transaction = $order->getPrimaryOrderTransaction();
 
-        if ($transactions === null) {
-            return false;
+        if (!Feature::isActive('v6.8.0.0')) {
+            $transactions = $order->getTransactions();
+
+            if ($transactions === null) {
+                return false;
+            }
+
+            $transaction = $transactions->last();
         }
 
-        $transaction = $transactions->last();
         if ($transaction === null) {
             return false;
         }

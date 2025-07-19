@@ -11,8 +11,6 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     mixins: [
         Mixin.getByName('placeholder'),
     ],
@@ -76,5 +74,25 @@ export default {
             'displayType',
             'sortingType',
         ]),
+
+        displayTypeOptions() {
+            return this.displayTypes.map((displayType) => {
+                return {
+                    id: displayType.value,
+                    value: displayType.value,
+                    label: displayType.label,
+                };
+            });
+        },
+
+        sortingTypeOptions() {
+            return this.sortingTypes.map((sortingType) => {
+                return {
+                    id: sortingType.value,
+                    value: sortingType.value,
+                    label: sortingType.label,
+                };
+            });
+        },
     },
 };

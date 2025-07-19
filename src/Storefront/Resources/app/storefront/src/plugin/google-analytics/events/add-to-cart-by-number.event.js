@@ -1,5 +1,4 @@
 import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
-import DomAccessHelper from 'src/helper/dom-access.helper';
 
 export default class AddToCartByNumberEvent extends AnalyticsEvent
 {
@@ -8,7 +7,7 @@ export default class AddToCartByNumberEvent extends AnalyticsEvent
     }
 
     execute() {
-        const addToCartForm = DomAccessHelper.querySelector(document, '.cart-add-product', false);
+        const addToCartForm = document.querySelector('.cart-add-product');
         if (!addToCartForm) {
             return;
         }
@@ -21,7 +20,7 @@ export default class AddToCartByNumberEvent extends AnalyticsEvent
             return;
         }
 
-        const input = DomAccessHelper.querySelector(event.currentTarget, '.form-control');
+        const input = event.currentTarget.querySelector('.form-control');
 
         gtag('event', 'add_to_cart', {
             'items': [

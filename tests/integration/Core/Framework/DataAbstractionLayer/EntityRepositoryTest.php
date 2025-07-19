@@ -43,7 +43,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -91,7 +90,7 @@ class EntityRepositoryTest extends TestCase
 
         $result = $repository->search($criteria, Context::createDefaultContext());
 
-        static::assertEquals(0, $result->count());
+        static::assertCount(0, $result);
     }
 
     /**
@@ -311,7 +310,7 @@ class EntityRepositoryTest extends TestCase
 
         $found = !empty($found->getIds());
 
-        static::assertEquals($match, $found);
+        static::assertSame($match, $found);
     }
 
     public static function orderTransactionsProvider(): \Generator
@@ -484,11 +483,11 @@ class EntityRepositoryTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'locale.written', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'locale_translation.written', $listener);
 
         $repository->create(
@@ -517,7 +516,7 @@ class EntityRepositoryTest extends TestCase
         $criteria = new Criteria([$id]);
         $locale = $repository->search($criteria, $context);
 
-        static::assertEquals([$id], $criteria->getIds());
+        static::assertSame([$id], $criteria->getIds());
         static::assertEmpty($criteria->getSorting());
         static::assertEmpty($criteria->getFilters());
         static::assertEmpty($criteria->getPostFilters());
@@ -552,12 +551,12 @@ class EntityRepositoryTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'locale.loaded', $listener);
 
         $criteria = new Criteria([$id]);
         $locale = $repository->search($criteria, $context);
-        static::assertEquals([$id], $criteria->getIds());
+        static::assertSame([$id], $criteria->getIds());
         static::assertEmpty($criteria->getSorting());
         static::assertEmpty($criteria->getFilters());
         static::assertEmpty($criteria->getPostFilters());
@@ -610,11 +609,11 @@ class EntityRepositoryTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'product.loaded', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'product_manufacturer.loaded', $listener);
 
         $criteria = new Criteria([$id, $id2]);
@@ -622,7 +621,7 @@ class EntityRepositoryTest extends TestCase
 
         $products = $repository->search($criteria, $context);
 
-        static::assertEquals([$id, $id2], $criteria->getIds());
+        static::assertSame([$id, $id2], $criteria->getIds());
         static::assertEmpty($criteria->getSorting());
         static::assertEmpty($criteria->getFilters());
         static::assertEmpty($criteria->getPostFilters());
@@ -659,23 +658,23 @@ class EntityRepositoryTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'product.written', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'product_manufacturer.written', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'tax.written', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'product_price.written', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'rule.written', $listener);
 
         $repository->create(
@@ -741,15 +740,15 @@ class EntityRepositoryTest extends TestCase
         );
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'product.loaded', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'product_manufacturer.loaded', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'product_price.loaded', $listener);
 
         $criteria = new Criteria([$id, $id2]);
@@ -757,7 +756,7 @@ class EntityRepositoryTest extends TestCase
         $criteria->addAssociation('manufacturer');
 
         $products = $repository->search($criteria, $context);
-        static::assertEquals([$id, $id2], $criteria->getIds());
+        static::assertSame([$id, $id2], $criteria->getIds());
         static::assertEmpty($criteria->getSorting());
         static::assertEmpty($criteria->getFilters());
         static::assertEmpty($criteria->getPostFilters());
@@ -817,7 +816,7 @@ class EntityRepositoryTest extends TestCase
 
         $criteria = new Criteria([$id, $newId]);
         $entities = $repository->search($criteria, $context);
-        static::assertEquals([$id, $newId], $criteria->getIds());
+        static::assertSame([$id, $newId], $criteria->getIds());
         static::assertEmpty($criteria->getSorting());
         static::assertEmpty($criteria->getFilters());
         static::assertEmpty($criteria->getPostFilters());
@@ -879,7 +878,7 @@ class EntityRepositoryTest extends TestCase
         $criteria = new Criteria([$id, $newId]);
         $entities = $this->categoryRepository->search($criteria, $context)->getEntities();
 
-        static::assertEquals([$id, $newId], $criteria->getIds());
+        static::assertSame([$id, $newId], $criteria->getIds());
         static::assertEmpty($criteria->getSorting());
         static::assertEmpty($criteria->getFilters());
         static::assertEmpty($criteria->getPostFilters());
@@ -903,7 +902,7 @@ class EntityRepositoryTest extends TestCase
         static::assertEquals($preCloneEntity->getUpdatedAt(), $postClone->getUpdatedAt());
 
         // Assert that createdAt changed
-        static::assertNotEquals($postClone->getCreatedAt(), $cloned->getCreatedAt());
+        static::assertNotSame($postClone->getCreatedAt(), $cloned->getCreatedAt());
         static::assertNull($cloned->getUpdatedAt());
     }
 
@@ -931,12 +930,12 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(3, $written->getIds());
         $newId = $written->getIds();
         $newId = array_shift($newId);
-        static::assertNotEquals($id, $newId);
+        static::assertNotSame($id, $newId);
 
         $criteria = new Criteria([$id, $newId]);
         $criteria->addAssociation('children');
         $entities = $this->categoryRepository->search($criteria, $context)->getEntities();
-        static::assertEquals([$id, $newId], $criteria->getIds());
+        static::assertSame([$id, $newId], $criteria->getIds());
         static::assertEmpty($criteria->getSorting());
         static::assertEmpty($criteria->getFilters());
         static::assertEmpty($criteria->getPostFilters());
@@ -1011,10 +1010,6 @@ class EntityRepositoryTest extends TestCase
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $record['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         $repository = $this->createRepository(CustomerDefinition::class);
         $context = Context::createDefaultContext();
 
@@ -1031,7 +1026,7 @@ class EntityRepositoryTest extends TestCase
         $criteria->addAssociation('addresses');
 
         $entities = $repository->search($criteria, $context);
-        static::assertEquals([$recordA, $newId], $criteria->getIds());
+        static::assertSame([$recordA, $newId], $criteria->getIds());
         static::assertEmpty($criteria->getSorting());
         static::assertEmpty($criteria->getFilters());
         static::assertEmpty($criteria->getPostFilters());
@@ -1110,7 +1105,7 @@ class EntityRepositoryTest extends TestCase
         $category = $repo->search($criteria, $context)
             ->getEntities()
             ->get($newId);
-        static::assertEquals([$newId], $criteria->getIds());
+        static::assertSame([$newId], $criteria->getIds());
         static::assertEmpty($criteria->getSorting());
         static::assertEmpty($criteria->getFilters());
         static::assertEmpty($criteria->getPostFilters());
@@ -1444,7 +1439,7 @@ class EntityRepositoryTest extends TestCase
         $folder = $repository->search($criteria, $context)
             ->getEntities()
             ->get($id);
-        static::assertEquals([$id], $criteria->getIds());
+        static::assertSame([$id], $criteria->getIds());
         static::assertEmpty($criteria->getSorting());
         static::assertEmpty($criteria->getFilters());
         static::assertEmpty($criteria->getPostFilters());
@@ -1459,8 +1454,8 @@ class EntityRepositoryTest extends TestCase
         static::assertEmpty($childrenCriteria->getPostFilters());
         static::assertEmpty($childrenCriteria->getAggregations());
         static::assertEmpty($childrenCriteria->getAssociations());
-        static::assertEquals(2, $childrenCriteria->getLimit());
-        static::assertEquals(0, $childrenCriteria->getOffset());
+        static::assertSame(2, $childrenCriteria->getLimit());
+        static::assertSame(0, $childrenCriteria->getOffset());
 
         static::assertInstanceOf(MediaFolderEntity::class, $folder);
         static::assertInstanceOf(MediaFolderCollection::class, $folder->getChildren());
@@ -1474,7 +1469,7 @@ class EntityRepositoryTest extends TestCase
         $folder = $repository->search($criteria, $context)
             ->getEntities()
             ->get($id);
-        static::assertEquals([$id], $criteria->getIds());
+        static::assertSame([$id], $criteria->getIds());
         static::assertEmpty($criteria->getSorting());
         static::assertEmpty($criteria->getFilters());
         static::assertEmpty($criteria->getPostFilters());
@@ -1489,8 +1484,8 @@ class EntityRepositoryTest extends TestCase
         static::assertEmpty($childrenCriteria->getPostFilters());
         static::assertEmpty($childrenCriteria->getAggregations());
         static::assertEmpty($childrenCriteria->getAssociations());
-        static::assertEquals(3, $childrenCriteria->getLimit());
-        static::assertEquals(2, $childrenCriteria->getOffset());
+        static::assertSame(3, $childrenCriteria->getLimit());
+        static::assertSame(2, $childrenCriteria->getOffset());
 
         static::assertInstanceOf(MediaFolderEntity::class, $folder);
         static::assertInstanceOf(MediaFolderCollection::class, $folder->getChildren());
@@ -1532,7 +1527,7 @@ class EntityRepositoryTest extends TestCase
             new EqualsFilter('name', 'Child2'),
         ]));
         $this->categoryRepository->search($criteria, $context);
-        static::assertEquals([], $criteria->getIds());
+        static::assertSame([], $criteria->getIds());
         static::assertEmpty($criteria->getSorting());
         static::assertCount(1, $criteria->getFilters());
         static::assertEmpty($criteria->getPostFilters());
@@ -1542,14 +1537,14 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($criteria->getOffset());
         $multiFilter = $criteria->getFilters()[0];
         static::assertInstanceOf(MultiFilter::class, $multiFilter);
-        static::assertEquals(MultiFilter::CONNECTION_OR, $multiFilter->getOperator());
+        static::assertSame(MultiFilter::CONNECTION_OR, $multiFilter->getOperator());
         static::assertCount(2, $multiFilter->getQueries());
     }
 
     public function testEmptyFiltersAreHandledByEntityReaderWithoutPriorSearch(): void
     {
         $searcherMock = $this->createMock(EntitySearcherInterface::class);
-        $searcherMock->expects(static::never())
+        $searcherMock->expects($this->never())
             ->method('search');
 
         $repository = new EntityRepository(
@@ -1565,10 +1560,7 @@ class EntityRepositoryTest extends TestCase
         $result = $repository->search(new Criteria(), Context::createDefaultContext());
         $currencyCount = (int) static::getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(`id`) FROM `currency`');
 
-        static::assertEquals(
-            $currencyCount,
-            $result->getEntities()->count()
-        );
+        static::assertCount($currencyCount, $result->getEntities());
     }
 
     public function testSnippetWriteWithoutValueFieldThrowsWriteValidationError(): void

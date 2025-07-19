@@ -48,6 +48,8 @@ class AppRefundHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertSame('POST', $request->getMethod());
         static::assertJson($body);
         $content = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertIsArray($content);
         static::assertArrayHasKey('source', $content);
         static::assertSame([
             'url' => $this->shopUrl,

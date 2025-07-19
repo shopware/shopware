@@ -2,8 +2,6 @@
 import template from './sw-meteor-card.html.twig';
 import './sw-meteor-card.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -26,10 +24,8 @@ const { Component } = Shopware;
  *     </template>
  * </sw-meteor-card>
  */
-Component.register('sw-meteor-card', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         // eslint-disable-next-line vue/require-default-prop
@@ -69,34 +65,18 @@ Component.register('sw-meteor-card', {
 
     computed: {
         hasTabs() {
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return !!this.$slots.tabs || !!this.$scopedSlots.tabs;
-            }
-
             return !!this.$slots.tabs;
         },
 
         hasToolbar() {
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return !!this.$slots.toolbar || !!this.$scopedSlots.toolbar;
-            }
-
             return !!this.$slots.toolbar;
         },
 
         hasContent() {
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return !!this.$slots.default || !!this.$scopedSlots.default || !!this.$slots.grid;
-            }
-
             return !!this.$slots.default || !!this.$slots.grid;
         },
 
         hasDefaultSlot() {
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return !!this.$slots.default || !!this.$scopedSlots.default;
-            }
-
             return !!this.$slots.default;
         },
 
@@ -132,4 +112,4 @@ Component.register('sw-meteor-card', {
             this.activeTab = name;
         },
     },
-});
+};

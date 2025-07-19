@@ -11,9 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryExcep
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -80,10 +78,10 @@ class DataAbstractionLayerExceptionTest extends TestCase
         $e = DataAbstractionLayerException::invalidFilterQuery('foo', 'baz');
 
         static::assertInstanceOf(InvalidFilterQueryException::class, $e);
-        static::assertEquals('foo', $e->getMessage());
-        static::assertEquals('baz', $e->getParameters()['path']);
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertEquals(DataAbstractionLayerException::INVALID_FILTER_QUERY, $e->getErrorCode());
+        static::assertSame('foo', $e->getMessage());
+        static::assertSame('baz', $e->getParameters()['path']);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::INVALID_FILTER_QUERY, $e->getErrorCode());
     }
 
     public function testInvalidSortQuery(): void
@@ -91,54 +89,52 @@ class DataAbstractionLayerExceptionTest extends TestCase
         $e = DataAbstractionLayerException::invalidSortQuery('foo', 'baz');
 
         static::assertInstanceOf(InvalidSortQueryException::class, $e);
-        static::assertEquals('foo', $e->getMessage());
-        static::assertEquals('baz', $e->getParameters()['path']);
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertEquals(DataAbstractionLayerException::INVALID_SORT_QUERY, $e->getErrorCode());
+        static::assertSame('foo', $e->getMessage());
+        static::assertSame('baz', $e->getParameters()['path']);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::INVALID_SORT_QUERY, $e->getErrorCode());
     }
 
     public function testCannotCreateNewVersion(): void
     {
         $e = DataAbstractionLayerException::cannotCreateNewVersion('product', 'product-id');
 
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertEquals('Cannot create new version. product by id product-id not found.', $e->getMessage());
-        static::assertEquals(DataAbstractionLayerException::CANNOT_CREATE_NEW_VERSION, $e->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('Cannot create new version. product by id product-id not found.', $e->getMessage());
+        static::assertSame(DataAbstractionLayerException::CANNOT_CREATE_NEW_VERSION, $e->getErrorCode());
     }
 
     public function testVersionMergeAlreadyLocked(): void
     {
         $e = DataAbstractionLayerException::versionMergeAlreadyLocked('version-id');
 
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertEquals(DataAbstractionLayerException::VERSION_MERGE_ALREADY_LOCKED, $e->getErrorCode());
-        static::assertEquals('Merging of version version-id is locked, as the merge is already running by another process.', $e->getMessage());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::VERSION_MERGE_ALREADY_LOCKED, $e->getErrorCode());
+        static::assertSame('Merging of version version-id is locked, as the merge is already running by another process.', $e->getMessage());
     }
 
     public function testExpectedArray(): void
     {
         $e = DataAbstractionLayerException::expectedArray('some/path/0');
 
-        static::assertEquals('Expected data at some/path/0 to be an array.', $e->getMessage());
-        static::assertEquals('some/path/0', $e->getParameters()['path']);
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertEquals('FRAMEWORK__WRITE_MALFORMED_INPUT', $e->getErrorCode());
+        static::assertSame('Expected data at some/path/0 to be an array.', $e->getMessage());
+        static::assertSame('some/path/0', $e->getParameters()['path']);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__WRITE_MALFORMED_INPUT', $e->getErrorCode());
     }
 
     public function testExpectedAssociativeArray(): void
     {
         $e = DataAbstractionLayerException::expectedAssociativeArray('some/path/0');
 
-        static::assertEquals('Expected data at some/path/0 to be an associative array.', $e->getMessage());
-        static::assertEquals('some/path/0', $e->getParameters()['path']);
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertEquals('FRAMEWORK__INVALID_WRITE_INPUT', $e->getErrorCode());
+        static::assertSame('Expected data at some/path/0 to be an associative array.', $e->getMessage());
+        static::assertSame('some/path/0', $e->getParameters()['path']);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__INVALID_WRITE_INPUT', $e->getErrorCode());
     }
 
     public function testDecodeHandledByHydrator(): void
     {
-        Feature::skipTestIfInActive('v6.7.0.0', $this);
-
         $field = new ManyToManyAssociationField(
             'galleries',
             'MediaGallery',
@@ -149,92 +145,50 @@ class DataAbstractionLayerExceptionTest extends TestCase
 
         $e = DataAbstractionLayerException::decodeHandledByHydrator($field);
 
-        static::assertEquals(
+        static::assertSame(
             \sprintf('Decoding of %s is handled by the entity hydrator.', ManyToManyAssociationField::class),
             $e->getMessage()
         );
-        static::assertEquals(ManyToManyAssociationField::class, $e->getParameters()['fieldClass']);
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertEquals(DataAbstractionLayerException::DECODE_HANDLED_BY_HYDRATOR, $e->getErrorCode());
-    }
-
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testFkFieldByStorageNameNotFound66(): void
-    {
-        $e = DataAbstractionLayerException::fkFieldByStorageNameNotFound(ProductDefinition::class, 'taxId');
-
-        static::assertEquals(
-            'Could not find FK field "taxId" from definition "Shopware\Core\Content\Product\ProductDefinition"',
-            $e->getMessage()
-        );
+        static::assertSame(ManyToManyAssociationField::class, $e->getParameters()['fieldClass']);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::DECODE_HANDLED_BY_HYDRATOR, $e->getErrorCode());
     }
 
     public function testFkFieldByStorageNameNotFound(): void
     {
-        Feature::skipTestIfInActive('v6.7.0.0', $this);
-
-        /** @var DataAbstractionLayerException $e */
         $e = DataAbstractionLayerException::fkFieldByStorageNameNotFound(ProductDefinition::class, 'taxId');
 
-        static::assertEquals(
+        static::assertSame(
             'Can not detect FK field with storage name taxId in definition Shopware\Core\Content\Product\ProductDefinition',
             $e->getMessage()
         );
 
-        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
-        static::assertEquals(DataAbstractionLayerException::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND, $e->getErrorCode());
-    }
-
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testLanguageFieldByStorageNameNotFound66(): void
-    {
-        $e = DataAbstractionLayerException::languageFieldByStorageNameNotFound(ProductDefinition::class, 'taxId');
-
-        static::assertEquals(
-            'Could not find language field "taxId" in definition "Shopware\Core\Content\Product\ProductDefinition"',
-            $e->getMessage()
-        );
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND, $e->getErrorCode());
     }
 
     public function testLanguageFieldByStorageNameNotFound(): void
     {
-        Feature::skipTestIfInActive('v6.7.0.0', $this);
-
-        /** @var DataAbstractionLayerException $e */
         $e = DataAbstractionLayerException::languageFieldByStorageNameNotFound(ProductDefinition::class, 'taxId');
 
-        static::assertEquals(
+        static::assertSame(
             'Can not detect language field with storage name taxId in definition Shopware\Core\Content\Product\ProductDefinition',
             $e->getMessage()
         );
-        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
-        static::assertEquals(DataAbstractionLayerException::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND, $e->getErrorCode());
-    }
-
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testDefinitionFieldDoesNotExist66(): void
-    {
-        $e = DataAbstractionLayerException::definitionFieldDoesNotExist(ProductDefinition::class, 'taxId');
-
-        static::assertEquals(
-            'Could not find reference field "taxId" from definition "Shopware\Core\Content\Product\ProductDefinition"',
-            $e->getMessage()
-        );
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND, $e->getErrorCode());
     }
 
     public function testDefinitionFieldDoesNotExist(): void
     {
-        Feature::skipTestIfInActive('v6.7.0.0', $this);
-
-        /** @var DataAbstractionLayerException $e */
         $e = DataAbstractionLayerException::definitionFieldDoesNotExist(ProductDefinition::class, 'taxId');
 
-        static::assertEquals(
+        static::assertSame(
             'Can not detect reference field with storage name taxId in definition Shopware\Core\Content\Product\ProductDefinition',
             $e->getMessage()
         );
-        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
-        static::assertEquals(DataAbstractionLayerException::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND, $e->getErrorCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND, $e->getErrorCode());
     }
 
     public function testExpectedArrayWithType(): void
@@ -265,5 +219,23 @@ class DataAbstractionLayerExceptionTest extends TestCase
             'A value for the field "test_field" is required, but it is missing or `null`.',
             $exception->getMessage()
         );
+    }
+
+    public function testUnsupportedQueryFilter(): void
+    {
+        $exception = DataAbstractionLayerException::unsupportedQueryFilter('foo');
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::UNSUPPORTED_QUERY_FILTER, $exception->getErrorCode());
+        static::assertSame('Unsupported query foo', $exception->getMessage());
+    }
+
+    public function testInvalidSortingDirection(): void
+    {
+        $e = DataAbstractionLayerException::invalidSortingDirection('foo');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__INVALID_SORT_DIRECTION', $e->getErrorCode());
+        static::assertSame('The given sort direction "foo" is invalid.', $e->getMessage());
     }
 }

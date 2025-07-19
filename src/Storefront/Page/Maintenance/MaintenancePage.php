@@ -9,12 +9,7 @@ use Shopware\Storefront\Page\Page;
 #[Package('framework')]
 class MaintenancePage extends Page
 {
-    /**
-     * @var CmsPageEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cmsPage;
+    protected ?CmsPageEntity $cmsPage = null;
 
     public function getCmsPage(): ?CmsPageEntity
     {

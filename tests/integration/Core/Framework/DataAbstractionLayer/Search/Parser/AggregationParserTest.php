@@ -75,13 +75,13 @@ class AggregationParserTest extends TestCase
 
         $maxAggregation = $criteria->getAggregation('max_agg');
         static::assertInstanceOf(MaxAggregation::class, $maxAggregation);
-        static::assertEquals('max_agg', $maxAggregation->getName());
-        static::assertEquals('product.tax.taxRate', $maxAggregation->getField());
+        static::assertSame('max_agg', $maxAggregation->getName());
+        static::assertSame('product.tax.taxRate', $maxAggregation->getField());
 
         $avgAggregation = $criteria->getAggregation('avg_agg');
         static::assertInstanceOf(AvgAggregation::class, $avgAggregation);
-        static::assertEquals('avg_agg', $avgAggregation->getName());
-        static::assertEquals('product.stock', $avgAggregation->getField());
+        static::assertSame('avg_agg', $avgAggregation->getName());
+        static::assertSame('product.stock', $avgAggregation->getField());
     }
 
     public function testBuildAggregationsWithSameName(): void
@@ -112,13 +112,13 @@ class AggregationParserTest extends TestCase
 
         $maxAggregation = $criteria->getAggregation('max');
         static::assertInstanceOf(MaxAggregation::class, $maxAggregation);
-        static::assertEquals('max', $maxAggregation->getName());
-        static::assertEquals('product.tax.taxRate', $maxAggregation->getField());
+        static::assertSame('max', $maxAggregation->getName());
+        static::assertSame('product.tax.taxRate', $maxAggregation->getField());
 
         $avgAggregation = $criteria->getAggregation('avg');
         static::assertInstanceOf(AvgAggregation::class, $avgAggregation);
-        static::assertEquals('avg', $avgAggregation->getName());
-        static::assertEquals('product.stock', $avgAggregation->getField());
+        static::assertSame('avg', $avgAggregation->getName());
+        static::assertSame('product.stock', $avgAggregation->getField());
     }
 
     public function testICanCreateNestedAggregations(): void
@@ -249,8 +249,8 @@ class AggregationParserTest extends TestCase
 
         $entity = $criteria->getAggregation('entity_test');
         static::assertInstanceOf(EntityAggregation::class, $entity);
-        static::assertEquals('product.manufacturerId', $entity->getField());
-        static::assertEquals(ProductManufacturerDefinition::ENTITY_NAME, $entity->getEntity());
+        static::assertSame('product.manufacturerId', $entity->getField());
+        static::assertSame(ProductManufacturerDefinition::ENTITY_NAME, $entity->getEntity());
     }
 
     public function testThrowExceptionByEntityAggregationWithoutDefinition(): void
@@ -308,8 +308,8 @@ class AggregationParserTest extends TestCase
         static::assertInstanceOf(RangeAggregation::class, $agg);
         $computedRanges = $agg->getRanges();
 
-        static::assertEquals($expectedRanges[0] + ['key' => '1-2'], $computedRanges[0]);
-        static::assertEquals($expectedRanges[1] + ['key' => '2-3'], $computedRanges[1]);
+        static::assertSame($expectedRanges[0] + ['key' => '1-2'], $computedRanges[0]);
+        static::assertSame($expectedRanges[1] + ['key' => '2-3'], $computedRanges[1]);
     }
 
     public function testQuestionMarkNotAllowedInAggregationName(): void

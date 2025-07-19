@@ -8,8 +8,6 @@ import './sw-extension-uninstall-modal.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'modal-close',
         'uninstall-extension',

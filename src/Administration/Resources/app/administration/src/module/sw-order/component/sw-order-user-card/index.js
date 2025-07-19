@@ -14,13 +14,10 @@ const format = Shopware.Utils.format;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'customSnippetApiService',
         'orderService',
         'repositoryFactory',
-        'feature',
     ],
 
     emits: [
@@ -81,7 +78,11 @@ export default {
         },
 
         delivery() {
-            return this.currentOrder.deliveries[0];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.currentOrder.deliveries[0];
+            }
+
+            return this.currentOrder.primaryOrderDelivery;
         },
 
         orderDate() {

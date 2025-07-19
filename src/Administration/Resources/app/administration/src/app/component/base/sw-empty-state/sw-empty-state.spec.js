@@ -10,14 +10,11 @@ describe('components/base/sw-empty-state', () => {
     beforeEach(async () => {
         wrapper = mount(await wrapTestComponent('sw-empty-state'), {
             global: {
-                stubs: {
-                    'sw-icon': true,
-                },
                 mocks: {
                     $route: {
                         meta: {
                             $module: {
-                                icon: 'default-symbol-content',
+                                icon: 'regular-content',
                                 description: 'Foo bar',
                             },
                         },
@@ -28,7 +25,7 @@ describe('components/base/sw-empty-state', () => {
                 title: 'Oh no, nothing was found.',
             },
             slots: {
-                actions: '<button class="sw-button">Primary action</button>',
+                actions: '<button class="button">Primary action</button>',
             },
         });
     });
@@ -66,6 +63,6 @@ describe('components/base/sw-empty-state', () => {
     });
 
     it('should be render a button element when using the actions slot', async () => {
-        expect(wrapper.find('.sw-button').text()).toBe('Primary action');
+        expect(wrapper.find('.button').text()).toBe('Primary action');
     });
 });

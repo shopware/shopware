@@ -18,10 +18,10 @@ class SystemCheckTest extends TestCase
     {
         $check = new SystemCheck('name', RequirementCheck::STATUS_SUCCESS, 'requiredValue', 'installedValue');
 
-        static::assertEquals('name', $check->getName());
-        static::assertEquals('requiredValue', $check->getRequiredValue());
-        static::assertEquals('installedValue', $check->getInstalledValue());
-        static::assertEquals(RequirementCheck::STATUS_SUCCESS, $check->getStatus());
+        static::assertSame('name', $check->getName());
+        static::assertSame('requiredValue', $check->getRequiredValue());
+        static::assertSame('installedValue', $check->getInstalledValue());
+        static::assertSame(RequirementCheck::STATUS_SUCCESS, $check->getStatus());
     }
 
     public function testEmptyNameThrowsException(): void

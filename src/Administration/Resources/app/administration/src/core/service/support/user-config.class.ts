@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  */
-const { Context, Data, Service, State } = Shopware;
+const { Context, Data, Service } = Shopware;
 const { Criteria } = Data;
 
 enum USER_CONFIG_PERMISSIONS {
@@ -100,7 +100,7 @@ abstract class UserConfigClass {
     }
 
     private getCurrentUserId(): string {
-        return State.get('session').currentUser.id;
+        return Shopware.Store.get('session').currentUser?.id ?? '';
     }
 }
 

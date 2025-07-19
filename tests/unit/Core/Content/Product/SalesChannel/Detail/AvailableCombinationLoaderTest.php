@@ -56,7 +56,7 @@ class AvailableCombinationLoaderTest extends TestCase
         $salesChanelContext = Generator::generateSalesChannelContext($context);
 
         $stockStorage = $this->createMock(AbstractStockStorage::class);
-        $stockStorage->expects(static::once())
+        $stockStorage->expects($this->once())
             ->method('load')
             ->willReturn(new StockDataCollection([
                 new StockData('product-1', 10, false),

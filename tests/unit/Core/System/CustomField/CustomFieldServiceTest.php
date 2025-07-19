@@ -146,7 +146,7 @@ class CustomFieldServiceTest extends TestCase
 
     public function testGetCustomFieldShouldNotRefetch(): void
     {
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('fetchAllKeyValue')
             ->willReturn([
                 ['test' => CustomFieldTypes::TEXT],
@@ -156,9 +156,19 @@ class CustomFieldServiceTest extends TestCase
         $this->customFieldService->getCustomField('test');
     }
 
+    public function testGetCustomFieldShouldNotRefetchWithoutFields(): void
+    {
+        $this->connection->expects($this->once())
+            ->method('fetchAllKeyValue')
+            ->willReturn([]);
+
+        $this->customFieldService->getCustomField('test');
+        $this->customFieldService->getCustomField('test');
+    }
+
     public function testReset(): void
     {
-        $this->connection->expects(static::exactly(2))
+        $this->connection->expects($this->exactly(2))
             ->method('fetchAllKeyValue')
             ->willReturnOnConsecutiveCalls(
                 [],

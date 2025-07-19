@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\App\GuzzleHistoryCollector;
 use Shopware\Core\Test\Integration\App\TestAppServer;
-use Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -196,14 +196,14 @@ class CheckoutGatewayRouteTest extends TestCase
                 'name' => 'Payment 1',
                 'technicalName' => 'payment_test',
                 'active' => true,
-                'handlerIdentifier' => AsyncTestPaymentHandler::class,
+                'handlerIdentifier' => TestPaymentHandler::class,
             ],
             [
                 'id' => $this->ids->create('new-payment'),
                 'name' => 'Payment 2',
                 'technicalName' => 'payment_new-test',
                 'active' => true,
-                'handlerIdentifier' => AsyncTestPaymentHandler::class,
+                'handlerIdentifier' => TestPaymentHandler::class,
             ],
         ];
 

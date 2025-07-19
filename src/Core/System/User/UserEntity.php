@@ -24,184 +24,61 @@ class UserEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $localeId;
+    protected string $localeId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $avatarId;
+    protected ?string $avatarId = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $username;
+    protected string $username;
 
     /**
      * @internal
-     *
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $password;
+    protected string $password;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $firstName;
+    protected string $firstName;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $lastName;
+    protected string $lastName;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $title;
+    protected ?string $title = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $email;
+    protected string $email;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $admin;
+    protected bool $admin;
 
-    /**
-     * @var AclRoleCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $aclRoles;
+    protected ?AclRoleCollection $aclRoles = null;
 
-    /**
-     * @var LocaleEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $locale;
+    protected ?LocaleEntity $locale = null;
 
-    /**
-     * @var MediaEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $avatarMedia;
+    protected ?MediaEntity $avatarMedia = null;
 
-    /**
-     * @var MediaCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $media;
+    protected ?MediaCollection $media = null;
 
-    /**
-     * @var UserAccessKeyCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $accessKeys;
+    protected ?UserAccessKeyCollection $accessKeys = null;
 
-    /**
-     * @var UserConfigCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $configs;
+    protected ?UserConfigCollection $configs = null;
 
-    /**
-     * @var StateMachineHistoryCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $stateMachineHistoryEntries;
+    protected ?StateMachineHistoryCollection $stateMachineHistoryEntries = null;
 
-    /**
-     * @var ImportExportLogCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $importExportLogEntries;
+    protected ?ImportExportLogCollection $importExportLogEntries = null;
 
-    /**
-     * @var UserRecoveryEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $recoveryUser;
+    protected ?UserRecoveryEntity $recoveryUser = null;
 
     /**
      * @internal
-     *
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $storeToken;
+    protected ?string $storeToken = null;
 
-    /**
-     * @var \DateTimeInterface|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $lastUpdatedPasswordAt;
+    protected ?\DateTimeInterface $lastUpdatedPasswordAt = null;
 
-    /**
-     * @var OrderCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $createdOrders;
+    protected ?OrderCollection $createdOrders = null;
 
-    /**
-     * @var OrderCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $updatedOrders;
+    protected ?OrderCollection $updatedOrders = null;
 
-    /**
-     * @var CustomerCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $createdCustomers;
+    protected ?CustomerCollection $createdCustomers = null;
 
-    /**
-     * @var CustomerCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $updatedCustomers;
+    protected ?CustomerCollection $updatedCustomers = null;
 
     protected string $timeZone;
 
@@ -401,7 +278,7 @@ class UserEntity extends Entity
         $this->admin = $admin;
     }
 
-    public function getAclRoles(): AclRoleCollection
+    public function getAclRoles(): ?AclRoleCollection
     {
         return $this->aclRoles;
     }

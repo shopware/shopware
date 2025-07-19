@@ -9,16 +9,19 @@
     >
         <template #content="props">
 
-            <sw-switch-field
+            <mt-switch
                 class="product-deliverability-downloadable-form__manage-stock-switch"
                 name="sw-field--product-is-closeout"
                 :error="productIsCloseoutError"
-                :map-inheritance="props"
+                :is-inheritance-field="props.isInheritField"
+                :is-inherited="props.isInherited"
                 :label="$tc('sw-product.detailBase.manageStockLabel')"
                 :help-text="$tc('sw-product.detailBase.manageStockTooltip')"
                 :disabled="props.isInherited || disabled"
-                :value="props.currentValue"
-                @update:value="props.updateCurrentValue"
+                :model-value="props.currentValue"
+                @update:model-value="props.updateCurrentValue"
+                @inheritance-restore="props.restoreInheritance"
+                @inheritance-remove="props.removeInheritance"
             />
 
         </template>
@@ -30,8 +33,8 @@
         gap="0px 30px"
     >
 
-        <sw-number-field
-            v-model:value="product.stock"
+        <mt-number-field
+            v-model="product.stock"
             name="sw-field--product-stock"
             number-type="int"
             :disabled="disabled"
@@ -40,8 +43,8 @@
             :error="productStockError"
         />
 
-        <sw-number-field
-            v-model:value="product.availableStock"
+        <mt-number-field
+            v-model="product.availableStock"
             name="sw-field--product-available-stock"
             number-type="int"
             :disabled="true"

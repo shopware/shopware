@@ -3,8 +3,9 @@
         {% block page_checkout_summary_tax %}
             {% block page_checkout_summary_tax_label %}
                 <dt class="col-7 checkout-aside-summary-label summary-tax">
-                    {{ 'checkout.summaryTax'|trans({
-                        '%rate%': taxItem.taxRate
+                    {{ (taxItem.label ? 'checkout.summaryTaxLabeled' : 'checkout.summaryTax')|trans({
+                        '%rate%': taxItem.taxRate,
+                        '%label%': taxItem.label
                     })|sw_sanitize }}
                 </dt>
             {% endblock %}

@@ -1,5 +1,5 @@
 /**
- * @sw-package buyers-experience
+ * @sw-package fundamentals@framework
  */
 import './acl';
 
@@ -45,7 +45,7 @@ Module.register('sw-settings-currency', {
             props: {
                 default(route) {
                     return {
-                        currencyId: route.params.id,
+                        currencyId: route.params.id.toLowerCase(),
                     };
                 },
             },
@@ -61,7 +61,7 @@ Module.register('sw-settings-currency', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'localization',
         to: 'sw.settings.currency.index',
         icon: 'regular-euro',
         privilege: 'currencies.viewer',

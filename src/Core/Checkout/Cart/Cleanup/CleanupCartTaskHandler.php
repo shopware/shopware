@@ -6,6 +6,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -18,14 +19,16 @@ final class CleanupCartTaskHandler extends ScheduledTaskHandler
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
      */
     public function __construct(
-        EntityRepository $repository,
+        EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
         private readonly AbstractCartPersister $cartPersister,
         private readonly int $days
     ) {
-        parent::__construct($repository, $logger);
+        parent::__construct($scheduledTaskRepository, $logger);
     }
 
     public function run(): void

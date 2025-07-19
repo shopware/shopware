@@ -146,8 +146,6 @@ class ThumbnailService
             return 0;
         }
 
-        $strict = \func_get_args()[2] ?? false;
-
         if ($config->getMediaThumbnailSizes() === null) {
             return 0;
         }

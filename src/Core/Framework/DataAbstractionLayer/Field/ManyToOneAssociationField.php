@@ -11,12 +11,7 @@ class ManyToOneAssociationField extends AssociationField
 {
     final public const PRIORITY = 80;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $storageName;
+    protected string $storageName;
 
     public function __construct(
         string $propertyName,

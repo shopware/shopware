@@ -19,7 +19,6 @@ async function createWrapper(privileges = [], fieldType = null, conditionType = 
         'sw-product-variant-info': true,
         'sw-select-result': true,
         'sw-tagged-field': true,
-        'sw-number-field': true,
         'sw-inheritance-switch': true,
         'sw-loader': true,
         'sw-ai-copilot-badge': true,
@@ -39,9 +38,6 @@ async function createWrapper(privileges = [], fieldType = null, conditionType = 
             'sw-popover-deprecated': true,
             'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
             'sw-field-error': await wrapTestComponent('sw-field-error'),
-            'sw-icon': {
-                template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
-            },
         };
     }
 

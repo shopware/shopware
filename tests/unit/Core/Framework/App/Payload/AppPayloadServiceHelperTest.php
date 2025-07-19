@@ -127,7 +127,7 @@ class AppPayloadServiceHelperTest extends TestCase
 
         $payload = $this->createMock(SourcedPayloadInterface::class);
         $payload
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('setSource')
             ->with(static::isInstanceOf(Source::class));
         $payload
@@ -168,7 +168,7 @@ class AppPayloadServiceHelperTest extends TestCase
 
         $payload = $this->createMock(SourcedPayloadInterface::class);
         $payload
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('setSource')
             ->with(static::isInstanceOf(Source::class));
         $payload

@@ -2,9 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Header;
 
-use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
-use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -46,58 +44,35 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
     {
         $salesChannel = $context->getSalesChannel();
 
-        $navigationId = null;
-        if (!Feature::isActive('cache_rework')) {
-            $navigationId = $request->get('navigationId');
-            if ($navigationId !== null) {
-                Feature::triggerDeprecationOrThrow(
-                    'cache_rework',
-                    'The parameter "navigationId" is deprecated and will not be considered anymore with the next major release.'
-                );
-            }
-        }
-
-        $navigationId ??= $salesChannel->getNavigationCategoryId();
-
         $navigation = $this->navigationLoader->load(
-            $navigationId,
+            $salesChannel->getNavigationCategoryId(),
             $context,
             $salesChannel->getNavigationCategoryId(),
             $salesChannel->getNavigationCategoryDepth()
         );
         $languages = $this->getLanguages($context, $request);
-        $currencies = $this->getCurrencies($request, $context);
-
-        $contextLanguage = $languages->get($context->getLanguageId());
-        if (!$contextLanguage) {
-            throw SalesChannelException::languageNotFound($context->getLanguageId());
-        }
 
         $page = new HeaderPagelet(
             $navigation,
             $languages,
-            $currencies,
-            $contextLanguage,
-            $context->getCurrency(),
-            $this->getServiceMenu($context)
+            $this->getCurrencies($request, $context),
         );
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $contextLanguage = $languages->get($context->getLanguageId());
+            if (!$contextLanguage) {
+                throw SalesChannelException::languageNotFound($context->getLanguageId());
+            }
+
+            Feature::callSilentIfInactive('v6.8.0.0', function () use ($contextLanguage, $context, $page): void {
+                $page->setActiveLanguage($contextLanguage);
+                $page->setActiveCurrency($context->getCurrency());
+            });
+        }
 
         $this->eventDispatcher->dispatch(new HeaderPageletLoadedEvent($page, $context, $request));
 
         return $page;
-    }
-
-    private function getServiceMenu(SalesChannelContext $context): CategoryCollection
-    {
-        $serviceId = $context->getSalesChannel()->getServiceCategoryId();
-
-        if ($serviceId === null) {
-            return new CategoryCollection();
-        }
-
-        $navigation = $this->navigationLoader->load($serviceId, $context, $serviceId, 1);
-
-        return new CategoryCollection(array_map(static fn (TreeItem $treeItem) => $treeItem->getCategory(), $navigation->getTree()));
     }
 
     private function getLanguages(SalesChannelContext $context, Request $request): LanguageCollection
@@ -109,10 +84,6 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
             new EqualsFilter('language.salesChannelDomains.salesChannelId', $context->getSalesChannelId())
         );
         $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
-
-        if (!Feature::isActive('cache_rework')) {
-            $criteria->addAssociation('productSearchConfig');
-        }
 
         $event = new LanguageRouteRequestEvent($request, new Request(), $context, $criteria);
         $this->eventDispatcher->dispatch($event);

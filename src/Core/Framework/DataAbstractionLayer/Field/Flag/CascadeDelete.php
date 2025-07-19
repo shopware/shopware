@@ -10,16 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class CascadeDelete extends Flag
 {
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cloneRelevant;
-
-    public function __construct(bool $cloneRelevant = true)
+    public function __construct(protected bool $cloneRelevant = true)
     {
-        $this->cloneRelevant = $cloneRelevant;
     }
 
     public function parse(): \Generator

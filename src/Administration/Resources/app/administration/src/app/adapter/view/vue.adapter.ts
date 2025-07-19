@@ -5,7 +5,6 @@ import ViewAdapter from 'src/core/adapter/view.adapter';
 import { createI18n } from 'vue-i18n';
 import type { FallbackLocale, I18n } from 'vue-i18n';
 import type { Router } from 'vue-router';
-import type { Store as VuexStore } from 'vuex';
 import { createApp, defineAsyncComponent, h } from 'vue';
 import type { Component as VueComponent, App } from 'vue';
 import VuePlugins from 'src/app/plugin';
@@ -13,11 +12,11 @@ import setupShopwareDevtools from 'src/app/adapter/view/sw-vue-devtools';
 import type ApplicationBootstrapper from 'src/core/application';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import type { ComponentPublicInstance } from '@vue/runtime-core';
-// @ts-expect-error - compatUtils is not typed
-import { compatUtils } from '@vue/compat';
 
 import * as MeteorImport from '@shopware-ag/meteor-component-library';
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
+import useSystem from '../../composables/use-system';
+import useSession from '../../composables/use-session';
 
 const { Component, State, Mixin } = Shopware;
 
@@ -62,7 +61,7 @@ export default class VueAdapter extends ViewAdapter {
 
         const vuexRoot = State._store;
         // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-        const i18n = this.initLocales(vuexRoot) as I18n<{}, {}, {}, string, true>;
+        const i18n = this.initLocales();
 
         // add router to View
         this.router = router;
@@ -73,10 +72,43 @@ export default class VueAdapter extends ViewAdapter {
             throw new Error('Vue app is not initialized yet');
         }
 
+        function fixI18NParametersOrder(args: Parameters<typeof i18n.global.t>): Parameters<typeof i18n.global.t> {
+            if (args.length === 3 && typeof args[1] === 'number' && typeof args[2] === 'object') {
+                console.warn(
+                    'the order of the parameters for $t has changed in the latest version.',
+                    'Please, check Vue I18n documentation for more details:',
+                    // eslint-disable-next-line max-len
+                    'https://vue-i18n.intlify.dev/guide/migration/breaking10#tc-key-key-resourcekeys-choice-number-named-record-string-unknown-translateresult',
+                );
+                // This is a workaround to avoid breaking changes for the $tc function which that swap the second and
+                // third parameters in the latest version.
+                return [
+                    args[0],
+                    args[1],
+                    args[2],
+                ];
+            }
+            return args;
+        }
+
         this.app.config.compilerOptions.whitespace = 'preserve';
         this.app.config.performance = process.env.NODE_ENV !== 'production';
-        this.app.config.globalProperties.$t = i18n.global.t;
-        this.app.config.globalProperties.$tc = i18n.global.tc;
+        this.app.config.globalProperties.$t = function (...args: Parameters<typeof i18n.global.t>) {
+            return i18n.global.t(...fixI18NParametersOrder(args));
+        } as typeof i18n.global.t;
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use $t instead.
+         */
+        this.app.config.globalProperties.$tc = function (...args: Parameters<typeof i18n.global.t>) {
+            if (window._features_.V6_8_0_0) {
+                console.warn(
+                    'Deprecation Warning',
+                    'The $tc function is deprecated and will be removed in future versions. Please use $t instead.',
+                );
+            }
+            return i18n.global.t(...fixI18NParametersOrder(args));
+        } as typeof i18n.global.t;
+
         this.app.config.warnHandler = (msg: string, instance: unknown, trace: string) => {
             const warnArgs = [
                 `[Vue warn]: ${msg}`,
@@ -97,6 +129,7 @@ export default class VueAdapter extends ViewAdapter {
                 throw new Error(msg);
             }
         };
+
         // This is a hack for providing the data scope to the components.
         Object.defineProperty(this.app.config.globalProperties, '$dataScope', {
             get: getBlockDataScope,
@@ -127,21 +160,17 @@ export default class VueAdapter extends ViewAdapter {
         this.app.use(vuexRoot);
         this.app.use(i18n);
 
-        // Custom compatUtils check on component basis
-        this.app.use({
-            install: (app) => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                app.config.globalProperties.isCompatEnabled = function (key: string) {
-                    // eslint-disable-next-line max-len
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
-                    return this.$options.compatConfig?.[key] ?? compatUtils.isCompatEnabled(key);
-                };
+        // This is a hack for providing the i18n scope to the components.
+        Object.defineProperty(this.app.config.globalProperties, '$i18n', {
+            get: () => {
+                return i18n.global;
             },
+            enumerable: true,
         });
 
         // Add global properties to root view instance
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-        this.app.$tc = i18n.global.tc;
+        this.app.$tc = i18n.global.t;
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         this.app.$t = i18n.global.t;
 
@@ -165,7 +194,7 @@ export default class VueAdapter extends ViewAdapter {
         const initContainer = this.Application.getContainer('init');
 
         // make specific components synchronous
-        [
+        const syncComponents = [
             'sw-admin',
             'sw-admin-menu',
             'sw-button',
@@ -213,7 +242,116 @@ export default class VueAdapter extends ViewAdapter {
             'sw-settings-product-feature-sets-detail',
             'sw-system-config',
             'sw-settings-search-searchable-content',
-        ].forEach((componentName) => {
+            // base
+            'sw-address',
+            'sw-alert',
+            'sw-alert-deprecated',
+            'sw-avatar',
+            'sw-avatar-deprecated',
+            'sw-button-deprecated',
+            'sw-button-group',
+            'sw-card-deprecated',
+            'sw-card-filter',
+            'sw-chart',
+            'sw-chart-card',
+            'sw-circle-icon',
+            'sw-collapse',
+            'sw-description-list',
+            'sw-error-summary',
+            'sw-help-text',
+            'sw-highlight-text',
+            'sw-icon',
+            'sw-icon-deprecated',
+            'sw-inheritance-switch',
+            'sw-label',
+            'sw-price-preview',
+            'sw-product-image',
+            'sw-product-variant-info',
+            'sw-property-search',
+            'sw-radio-panel',
+            'sw-rating-stars',
+            'sw-simple-search-field',
+            'sw-sorting-select',
+            'sw-tabs-deprecated',
+            'sw-user-card',
+            // form
+            'sw-url-field',
+            'sw-textarea-field-deprecated',
+            'sw-textarea-field',
+            'sw-text-field-deprecated',
+            'sw-text-field',
+            'sw-text-editor',
+            'sw-text-editor-toolbar-table-button',
+            'sw-text-editor-toolbar-button',
+            'sw-text-editor-toolbar',
+            'sw-text-editor-table-toolbar',
+            'sw-text-editor-link-menu',
+            'sw-tagged-field',
+            'sw-switch-field',
+            'sw-snippet-field-edit-modal',
+            'sw-snippet-field',
+            'sw-select-rule-create',
+            'sw-select-option',
+            'sw-select-field-deprecated',
+            'sw-select-field',
+            'sw-radio-field',
+            'sw-purchase-price-field',
+            'sw-price-field',
+            'sw-password-field',
+            'sw-number-field',
+            'sw-maintain-currencies-modal',
+            'sw-list-price-field',
+            'sw-gtc-checkbox',
+            'sw-form-field-renderer',
+            'sw-file-input',
+            'sw-field-copyable',
+            'sw-email-field',
+            'sw-dynamic-url-field',
+            'sw-custom-field-set-renderer',
+            'sw-confirm-field',
+            'sw-colorpicker-deprecated',
+            'sw-colorpicker',
+            'sw-checkbox-field-deprecated',
+            'sw-checkbox-field',
+            'sw-boolean-radio-group',
+            'sw-entity-single-select',
+            'sw-entity-multi-select',
+            'sw-entity-multi-id-select',
+            'sw-entity-many-to-many-select',
+            'sw-entity-advanced-selection-modal',
+            'sw-advanced-selection-rule',
+            'sw-advanced-selection-product',
+            'sw-single-select',
+            'sw-select-selection-list',
+            'sw-select-result-list',
+            'sw-select-result',
+            'sw-select-base',
+            'sw-multi-tag-select',
+            'sw-multi-select',
+            'sw-field-error',
+            'sw-contextual-field',
+            'sw-block-field',
+            'sw-base-field',
+            'sw-code-editor',
+            'sw-datepicker',
+            'sw-datepicker-deprecated',
+            'sw-url-field-deprecated',
+            'sw-switch-field-deprecated',
+            'sw-select-number-field',
+            'sw-password-field-deprecated',
+            'sw-number-field-deprecated',
+            'sw-email-field-deprecated',
+            'sw-compact-colorpicker',
+            'sw-entity-tag-select',
+            'sw-entity-advanced-selection-modal-grid',
+            'sw-multi-tag-ip-select',
+            'sw-grouped-single-select',
+            'sw-price-preview',
+            'sw-context-menu',
+            'sw-context-menu-item',
+        ];
+
+        syncComponents.forEach((componentName) => {
             Component.markComponentAsSync(componentName);
         });
 
@@ -256,9 +394,8 @@ export default class VueAdapter extends ViewAdapter {
             'MtButton',
             'MtCheckbox',
             'MtColorpicker',
-            'MtDatepicker',
             'MtEmailField',
-            'MtExternalLink',
+            'MtEmptyState',
             'MtNumberField',
             'MtPasswordField',
             'MtSelect',
@@ -266,7 +403,6 @@ export default class VueAdapter extends ViewAdapter {
             'MtSwitch',
             'MtTextField',
             'MtTextarea',
-            'MtUrlField',
             'MtIcon',
             'MtDataTable',
             'MtPagination',
@@ -274,22 +410,20 @@ export default class VueAdapter extends ViewAdapter {
             'MtToast',
             'MtFloatingUi',
             'MtPopover',
+            'MtTextEditorToolbarButton',
+            'MtModal',
+            'MtModalRoot',
+            'MtModalClose',
+            'MtModalTrigger',
+            'MtModalAction',
+            'MtUrlField',
+            'MtSearch',
+            'MtLink',
+            'MtUnitField',
         ];
-
-        // Disable compat for meteor components
-        meteorComponents.forEach((componentName) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, max-len
-            MeteorImport[componentName].compatConfig = Object.fromEntries(
-                Object.keys(Shopware.compatConfig).map((key) => [
-                    key,
-                    false,
-                ]),
-            );
-        });
 
         meteorComponents.forEach((componentName) => {
             const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this.app.component(componentNameAsKebabCase, MeteorImport[componentName]);
         });
 
@@ -465,7 +599,7 @@ export default class VueAdapter extends ViewAdapter {
      * Returns the Vue.set function
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setReactive(target: any, propertyName: string, value: unknown) {
+    setReactive(this: void, target: any, propertyName: string, value: unknown) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         target[propertyName] = value;
 
@@ -523,43 +657,47 @@ export default class VueAdapter extends ViewAdapter {
     /**
      * Initialises the standard locales.
      */
-    initLocales(store: VuexStore<VuexRootState>) {
+    initLocales() {
         const registry = this.localeFactory.getLocaleRegistry();
         const messages = {};
         const fallbackLocale = Shopware.Context.app.fallbackLocale as FallbackLocale;
+        const { registerAdminLocale } = useSystem();
 
         registry.forEach((localeMessages, key) => {
-            store.commit('registerAdminLocale', key);
+            registerAdminLocale(key);
             // @ts-expect-error - key is safe because we iterate through the registry
             messages[key] = localeMessages;
         });
 
         const lastKnownLocale = this.localeFactory.getLastKnownLocale();
-        void store.dispatch('setAdminLocale', lastKnownLocale);
+        void useSession().setAdminLocale(lastKnownLocale);
 
         const options = {
+            legacy: false,
             locale: lastKnownLocale,
             fallbackLocale,
             silentFallbackWarn: true,
             sync: true,
             messages,
-        };
+            allowComposition: true,
+        } as const;
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         const i18n = createI18n(options);
 
-        store.subscribe(({ type }, state) => {
-            if (type === 'setAdminLocale') {
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                i18n.global.locale = state.session.currentLocale!;
-            }
-        });
+        Shopware.Vue.watch(
+            useSession().currentLocale,
+            (currentLocale: string | null) => {
+                i18n.global.locale.value = currentLocale ?? '';
+            },
+            { immediate: true },
+        );
 
-        this.setLocaleFromUser(store);
+        this.setLocaleFromUser();
 
         // watch for changes of the user to update the locale
-        Shopware.State.watch(
-            (state) => state.session.currentUser,
+        Shopware.Vue.watch(
+            useSession().currentUser,
             (newValue, oldValue) => {
                 const currentUserLocaleId = newValue?.localeId;
                 const oldUserLocaleId = oldValue?.localeId;
@@ -575,8 +713,8 @@ export default class VueAdapter extends ViewAdapter {
         return i18n;
     }
 
-    setLocaleFromUser(store: VuexStore<VuexRootState>) {
-        const currentUser = store.state.session.currentUser;
+    setLocaleFromUser() {
+        const currentUser = useSession().currentUser.value;
 
         if (currentUser) {
             const userLocaleId = currentUser.localeId;

@@ -19,7 +19,7 @@ class AppControllerTest extends TestCase
     public function testGenerate(): void
     {
         $appJWTGenerateRoute = $this->createMock(AppJWTGenerateRoute::class);
-        $appJWTGenerateRoute->expects(static::once())->method('generate')->with('test');
+        $appJWTGenerateRoute->expects($this->once())->method('generate')->with('test');
 
         $controller = new AppController($appJWTGenerateRoute);
         $controller->generateToken('test', Generator::generateSalesChannelContext());
@@ -28,7 +28,7 @@ class AppControllerTest extends TestCase
     public function testGenerateFails(): void
     {
         $appJWTGenerateRoute = $this->createMock(AppJWTGenerateRoute::class);
-        $appJWTGenerateRoute->expects(static::once())->method('generate')->willThrowException(AppException::jwtGenerationRequiresCustomerLoggedIn());
+        $appJWTGenerateRoute->expects($this->once())->method('generate')->willThrowException(AppException::jwtGenerationRequiresCustomerLoggedIn());
 
         $controller = new AppController($appJWTGenerateRoute);
         $response = $controller->generateToken('test', Generator::generateSalesChannelContext());

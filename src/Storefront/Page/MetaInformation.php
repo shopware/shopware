@@ -8,68 +8,23 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class MetaInformation extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $metaTitle = '';
+    protected string $metaTitle = '';
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $metaDescription = '';
+    protected string $metaDescription = '';
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $metaKeywords = '';
+    protected string $metaKeywords = '';
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $author = '';
+    protected string $author = '';
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $xmlLang = '';
+    protected string $xmlLang = '';
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $copyrightYear = '';
+    protected string $copyrightYear = '';
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $revisit = '';
+    protected string $revisit = '';
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $robots = '';
+    protected string $robots = '';
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $canonical;
+    protected ?string $canonical = null;
 
     public function getMetaTitle(): string
     {

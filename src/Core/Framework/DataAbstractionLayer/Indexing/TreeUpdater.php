@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
@@ -31,15 +32,10 @@ class TreeUpdater
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:new-optional-parameter - Parameter bool $recursive = false will be added
-     *
-     * @param bool $recursive
      * @param array<string> $updateIds
      */
-    public function batchUpdate(array $updateIds, string $entity, Context $context/* , bool $recursive = false */): void
+    public function batchUpdate(array $updateIds, string $entity, Context $context, bool $recursive = false): void
     {
-        $recursive = \func_num_args() > 3 ? func_get_arg(3) : false;
-
         $updateIds = Uuid::fromHexToBytesList(array_unique($updateIds));
         if (empty($updateIds)) {
             return;
@@ -408,7 +404,7 @@ class TreeUpdater
         RetryableQuery::retryable(
             connection: $this->connection,
             closure: function () use ($statement, $update): void {
-                $statement->executeStatement($update);
+                StatementHelper::executeStatement($statement, $update);
             }
         );
 

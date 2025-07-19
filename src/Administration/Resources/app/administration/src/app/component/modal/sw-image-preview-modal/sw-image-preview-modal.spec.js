@@ -83,7 +83,6 @@ async function createWrapper(props = {}, listeners = {}) {
         {
             global: {
                 stubs: {
-                    'sw-icon': true,
                     'sw-image-slider': await wrapTestComponent('sw-image-slider', {
                         sync: true,
                     }),

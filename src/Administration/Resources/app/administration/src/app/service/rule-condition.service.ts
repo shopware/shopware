@@ -739,13 +739,17 @@ export default class RuleConditionService {
             showOnDisabledElements: true,
             disabled: false,
             width: 400,
-            message: app.$tc('sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip', 0, {
-                conditions: this.getTranslatedConditionViolationList(
-                    restrictionConfig.equalsAnyNotMatched,
-                    'sw-restricted-rules.or',
-                ),
-                entityLabel: app.$tc(restrictionConfig.assignmentSnippet ?? '', 2),
-            }),
+            message: app.$tc(
+                'sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip',
+                {
+                    conditions: this.getTranslatedConditionViolationList(
+                        restrictionConfig.equalsAnyNotMatched,
+                        'sw-restricted-rules.or',
+                    ),
+                    entityLabel: app.$tc(restrictionConfig.assignmentSnippet ?? '', 2),
+                },
+                0,
+            ),
         };
     }
 

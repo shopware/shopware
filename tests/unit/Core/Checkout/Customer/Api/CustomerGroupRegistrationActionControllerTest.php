@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -28,6 +29,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[CoversClass(CustomerGroupRegistrationActionController::class)]
+#[Package('checkout')]
 class CustomerGroupRegistrationActionControllerTest extends TestCase
 {
     private CustomerGroupRegistrationActionController $controllerMock;

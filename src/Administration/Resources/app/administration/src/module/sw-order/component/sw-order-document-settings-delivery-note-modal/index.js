@@ -8,8 +8,6 @@ import template from './sw-order-document-settings-delivery-note-modal.html.twig
 export default {
     template,
 
-    inject: ['feature'],
-
     emits: [
         'loading-document',
         'loading-preview',

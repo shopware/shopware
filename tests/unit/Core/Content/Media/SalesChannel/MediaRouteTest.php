@@ -48,7 +48,7 @@ class MediaRouteTest extends TestCase
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getContext')
             ->willReturn(Context::createDefaultContext());
 
@@ -64,7 +64,7 @@ class MediaRouteTest extends TestCase
         );
 
         $this->mediaRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn($mediaEntitySearchResult);
 
@@ -85,7 +85,7 @@ class MediaRouteTest extends TestCase
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('getContext')
             ->willReturn(Context::createDefaultContext());
 

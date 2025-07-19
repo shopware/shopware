@@ -9,19 +9,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('framework')]
 class GenericPageLoadedEvent extends PageLoadedEvent
 {
-    /**
-     * @var Page
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $page;
-
     public function __construct(
-        Page $page,
+        protected Page $page,
         SalesChannelContext $salesChannelContext,
         Request $request
     ) {
-        $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }
 

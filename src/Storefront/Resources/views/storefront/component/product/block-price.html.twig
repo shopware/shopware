@@ -5,8 +5,7 @@
     <div>
         {% block component_product_detail_block_price_content %}
             {% if price.listprice and isListPrice %}
-                {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed as text in the buy-widget on the product detail page. #}
-                <div class="product-detail-price{% if price %} with-advanced-list-price{% endif %}">{{ price.unitPrice|currency }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}</div>
+                <div class="product-detail-price{% if price %} with-advanced-list-price{% endif %}">{{ price.unitPrice|currency }}</div>
 
                 {% block component_product_detail_block_list_price_wrapper %}
                     {% set afterListPriceSnippetExists = 'listing.afterListPrice'|trans|length > 0 %}
@@ -15,8 +14,7 @@
                     <span class="product-detail-advanced-list-price-wrapper{% if beforeListPriceSnippetExists or afterListPriceSnippetExists %} product-detail-advanced-list-price-wrapper-no-line-through{% endif %}">
                         {% if beforeListPriceSnippetExists %}{{ 'listing.beforeListPrice'|trans }}{% endif %}
 
-                        {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed as text in the buy-widget on the product detail page. #}
-                        <span class="list-price-price">{{ price.listprice.price|currency }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}</span>
+                        <span class="list-price-price">{{ price.listprice.price|currency }}</span>
 
                         {% if afterListPriceSnippetExists %}{{ 'listing.afterListPrice'|trans }}{% endif %}
 
@@ -24,13 +22,11 @@
                     </span>
                 {% endblock %}
             {% else %}
-                {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed as text in the buy-widget on the product detail page. #}
-                {{ price.unitPrice|currency }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}
+                {{ price.unitPrice|currency }}
             {% endif %}
             {% if isRegulationPrice %}
                 <span class="product-detail-advanced-regulation-price-wrapper{% if isListPrice %} with-list-price{% endif %}">
-                    {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed as text in the buy-widget on the product detail page. #}
-                    <span class="regulation-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}</span>
+                    <span class="regulation-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}</span>
                 </span>
             {% endif %}
         {% endblock %}

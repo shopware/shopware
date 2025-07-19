@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -70,6 +71,7 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
                 'content' => $context->getFaker()->text(),
                 'points' => $context->getFaker()->randomElement($points),
                 'status' => (bool) random_int(0, 1),
+                'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
             ];
 
             if (\count($payload) >= 100) {

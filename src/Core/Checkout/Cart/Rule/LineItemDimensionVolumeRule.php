@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @final
+ */
 #[Package('fundamentals@after-sales')]
 class LineItemDimensionVolumeRule extends Rule
 {

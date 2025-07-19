@@ -24,7 +24,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
-use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
@@ -36,6 +35,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
@@ -62,14 +62,19 @@ class OrderConverter
 
     final public const ORIGINAL_DOWNLOADS = 'originalDownloads';
 
+    final public const ORIGINAL_PRIMARY_ORDER_DELIVERY = 'originalPrimaryOrderDelivery';
+
+    final public const ORIGINAL_PRIMARY_ORDER_TRANSACTION = 'originalPrimaryOrderTransaction';
+
     final public const ADMIN_EDIT_ORDER_PERMISSIONS = [
         ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
         ProductCartProcessor::SKIP_PRODUCT_RECALCULATION => true,
         DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION => true,
         DeliveryProcessor::SKIP_DELIVERY_TAX_RECALCULATION => true,
-        PromotionCollector::SKIP_PROMOTION => true,
         ProductCartProcessor::SKIP_PRODUCT_STOCK_VALIDATION => true,
         ProductCartProcessor::KEEP_INACTIVE_PRODUCT => true,
+        PromotionCollector::PIN_MANUAL_PROMOTIONS => true,
+        PromotionCollector::PIN_AUTOMATIC_PROMOTIONS => true,
     ];
 
     /**
@@ -84,7 +89,6 @@ class OrderConverter
         protected AbstractSalesChannelContextFactory $salesChannelContextFactory,
         protected EventDispatcherInterface $eventDispatcher,
         private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
-        private readonly OrderDefinition $orderDefinition,
         private readonly EntityRepository $orderAddressRepository,
         private readonly InitialStateIdLoader $initialStateIdLoader,
         private readonly LineItemDownloadLoader $downloadLoader,
@@ -93,7 +97,7 @@ class OrderConverter
     }
 
     /**
-     * @throws DeliveryWithoutAddressException
+     * @throws OrderException
      *
      * @return array<string, mixed|float|string|array<int, array<string, string|int|bool|mixed>>|null>
      */
@@ -113,7 +117,7 @@ class OrderConverter
             $cart,
             $context,
             $this->initialStateIdLoader->get(OrderStates::STATE_MACHINE),
-            $conversionContext->shouldIncludeOrderDate()
+            $conversionContext->shouldIncludePersistentData(),
         );
 
         if ($conversionContext->shouldIncludeCustomer()) {
@@ -144,6 +148,19 @@ class OrderConverter
                 $context->getContext(),
                 $shippingAddresses
             );
+
+            // In order to reference the primary order delivery we need to set ids. The primary order delivery is the
+            // order delivery with the highest shipping costs (i.e. _not_ a shipping discount).
+            if (!$cart->getBehavior()?->isRecalculation() && $cart->getDeliveries()->count() > 0) {
+                usort(
+                    $data['deliveries'],
+                    function (array $deliveryA, array $deliveryB) {
+                        return $deliveryB['shippingCosts']->getTotalPrice() <=> $deliveryA['shippingCosts']->getTotalPrice();
+                    }
+                );
+                $data['deliveries'][0]['id'] ??= Uuid::randomHex();
+                $data['primaryOrderDeliveryId'] = $data['deliveries'][0]['id'];
+            }
         }
 
         if ($conversionContext->shouldIncludeBillingAddress()) {
@@ -174,6 +191,11 @@ class OrderConverter
                 $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE),
                 $context->getContext()
             );
+
+            if (!$cart->getBehavior()?->isRecalculation() && $cart->getTransactions()->count() > 0) {
+                $data['transactions'][0]['id'] ??= Uuid::randomHex();
+                $data['primaryOrderTransactionId'] = $data['transactions'][0]['id'];
+            }
         }
 
         $data['lineItems'] = array_values($convertedLineItems);
@@ -189,18 +211,21 @@ class OrderConverter
         $idStruct = $cart->getExtensionOfType(self::ORIGINAL_ID, IdStruct::class);
         $data['id'] = $idStruct ? $idStruct->getId() : Uuid::randomHex();
 
-        $orderNumberStruct = $cart->getExtensionOfType(self::ORIGINAL_ORDER_NUMBER, IdStruct::class);
-        if ($orderNumberStruct !== null) {
-            $data['orderNumber'] = $orderNumberStruct->getId();
-        } else {
-            $data['orderNumber'] = $this->numberRangeValueGenerator->getValue(
-                $this->orderDefinition->getEntityName(),
-                $context->getContext(),
-                $context->getSalesChannelId()
-            );
+        if ($conversionContext->shouldIncludeOrderNumber()) {
+            $orderNumberStruct = $cart->getExtensionOfType(self::ORIGINAL_ORDER_NUMBER, IdStruct::class);
+            if ($orderNumberStruct !== null) {
+                $data['orderNumber'] = $orderNumberStruct->getId();
+            } else {
+                $data['orderNumber'] = $this->numberRangeValueGenerator->getValue(
+                    OrderDefinition::ENTITY_NAME,
+                    $context->getContext(),
+                    $context->getSalesChannelId()
+                );
+            }
         }
 
         $data['ruleIds'] = $context->getRuleIds();
+        $data['taxCalculationType'] = $context->getTaxCalculationType();
 
         $event = new CartConvertedEvent($cart, $data, $context, $conversionContext);
         $this->eventDispatcher->dispatch($event);
@@ -241,8 +266,17 @@ class OrderConverter
         $lineItems = LineItemTransformer::transformFlatToNested($order->getLineItems());
 
         $cart->addLineItems($lineItems);
+
+        if ($order->getPrimaryOrderTransactionId()) {
+            $cart->addExtension(self::ORIGINAL_PRIMARY_ORDER_TRANSACTION, new IdStruct($order->getPrimaryOrderTransactionId()));
+        }
+
+        if ($order->getPrimaryOrderDeliveryId()) {
+            $cart->addExtension(self::ORIGINAL_PRIMARY_ORDER_DELIVERY, new IdStruct($order->getPrimaryOrderDeliveryId()));
+        }
+
         $cart->setDeliveries(
-            $this->convertDeliveries($order->getDeliveries(), $lineItems)
+            $this->convertDeliveries($order->getPrimaryOrderDeliveryId(), $order->getDeliveries(), $lineItems)
         );
 
         $event = new OrderConvertedEvent($order, $cart, $context);
@@ -266,34 +300,69 @@ class OrderConverter
         }
 
         $customerId = $order->getOrderCustomer()->getCustomerId();
-        $customerGroupId = null;
+        $customer = null;
 
         if ($customerId) {
-            $customer = $this->customerRepository->search(new Criteria([$customerId]), $context)->getEntities()->get($customerId);
-            if ($customer !== null) {
-                $customerGroupId = $customer->getGroupId();
-            }
+            $customerCriteria = (new Criteria([$customerId]))
+                ->addAssociation('addresses');
+
+            $customer = $this->customerRepository->search($customerCriteria, $context)->getEntities()->first();
         }
 
-        $billingAddressId = $order->getBillingAddressId();
-        $billingAddress = $this->orderAddressRepository->search(new Criteria([$billingAddressId]), $context)->getEntities()->get($billingAddressId);
-        if ($billingAddress === null) {
-            throw CartException::addressNotFound($billingAddressId);
+        $orderBillingAddressId = $order->getBillingAddressId();
+
+        $orderShippingAddressId = $order->getPrimaryOrderDelivery()?->getShippingOrderAddressId();
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $orderShippingAddressId = $order->getDeliveries()?->first()?->getShippingOrderAddressId() ?? '';
+        }
+
+        $orderAddresses = $this->orderAddressRepository->search(new Criteria(\array_filter([$orderBillingAddressId, $orderShippingAddressId])), $context)->getEntities();
+        $orderBillingAddress = $orderAddresses->get($orderBillingAddressId);
+        $orderShippingAddress = $orderShippingAddressId ? $orderAddresses->get($orderShippingAddressId) : null;
+
+        if ($orderBillingAddress === null) {
+            throw CartException::addressNotFound($orderBillingAddressId);
+        }
+
+        $billingAddressId = null;
+        $shippingAddressId = null;
+        foreach ($customer?->getAddresses() ?? [] as $address) {
+            if ($address->getHash() === $orderBillingAddress->getHash()) {
+                $billingAddressId = $address->getId();
+            }
+
+            if ($address->getHash() === $orderShippingAddress?->getHash()) {
+                $shippingAddressId = $address->getId();
+            }
         }
 
         $options = [
             SalesChannelContextService::CURRENCY_ID => $order->getCurrencyId(),
             SalesChannelContextService::LANGUAGE_ID => $order->getLanguageId(),
             SalesChannelContextService::CUSTOMER_ID => $customerId,
-            SalesChannelContextService::COUNTRY_STATE_ID => $billingAddress->getCountryStateId(),
-            SalesChannelContextService::CUSTOMER_GROUP_ID => $customerGroupId,
+            SalesChannelContextService::COUNTRY_STATE_ID => $orderBillingAddress->getCountryStateId(),
+            SalesChannelContextService::CUSTOMER_GROUP_ID => $customer?->getGroupId(),
             SalesChannelContextService::PERMISSIONS => self::ADMIN_EDIT_ORDER_PERMISSIONS,
             SalesChannelContextService::VERSION_ID => $context->getVersionId(),
         ];
 
-        $delivery = $order->getDeliveries()?->first();
-        if ($delivery !== null) {
-            $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $delivery->getShippingMethodId();
+        if ($billingAddressId) {
+            $options[SalesChannelContextService::BILLING_ADDRESS_ID] = $billingAddressId;
+        }
+
+        if ($shippingAddressId) {
+            $options[SalesChannelContextService::SHIPPING_ADDRESS_ID] = $shippingAddressId;
+        }
+
+        $shippingMethodId = $order->getPrimaryOrderDelivery()?->getShippingMethodId();
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $shippingMethodId = $order->getDeliveries()?->first()?->getShippingMethodId();
+        }
+
+        if ($shippingMethodId !== null) {
+            $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $shippingMethodId;
         }
 
         foreach ($order->getTransactions() as $transaction) {
@@ -313,7 +382,7 @@ class OrderConverter
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
         $salesChannelContext->getContext()->addExtensions($context->getExtensions());
         $salesChannelContext->addState(...$context->getStates());
-        $salesChannelContext->setTaxState($order->getTaxStatus());
+        $salesChannelContext->setTaxState($order->getTaxStatus() ?? $order->getPrice()->getTaxStatus());
 
         if ($context->hasState(Context::SKIP_TRIGGER_FLOW)) {
             $salesChannelContext->getContext()->addState(Context::SKIP_TRIGGER_FLOW);
@@ -338,10 +407,21 @@ class OrderConverter
         return $salesChannelContext;
     }
 
-    private function convertDeliveries(OrderDeliveryCollection $orderDeliveries, LineItemCollection $lineItems): DeliveryCollection
+    private function convertDeliveries(?string $primaryOrderDeliveryId, OrderDeliveryCollection $orderDeliveries, LineItemCollection $lineItems): DeliveryCollection
     {
+        // Ensure primary delivery is first, so `$deliveries->first()` returns the primary delivery.
+        $keys = \array_filter(\array_unique([$primaryOrderDeliveryId, ...$orderDeliveries->getKeys()]));
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $keys = $orderDeliveries->getKeys();
+        }
+
         $cartDeliveries = new DeliveryCollection();
-        foreach ($orderDeliveries as $orderDelivery) {
+        foreach ($keys as $id) {
+            if (!$orderDelivery = $orderDeliveries->get($id)) {
+                throw OrderException::orderDeliveryNotFound($id);
+            }
+
             $deliveryDate = new DeliveryDate(
                 $orderDelivery->getShippingDateEarliest(),
                 $orderDelivery->getShippingDateLatest()

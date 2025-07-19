@@ -85,7 +85,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             ]
         );
         static::assertIsArray($templateDefault);
-        static::assertEquals('Password recovery', $templateDefault['subject']);
+        static::assertSame('Password recovery', $templateDefault['subject']);
 
         $deDeLanguage = $connection->fetchAssociative(
             'SELECT * FROM `language` WHERE `name` = :name',
@@ -105,7 +105,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
         );
 
         static::assertIsArray($templateDeDe);
-        static::assertEquals('Password-Wiederherstellung', $templateDeDe['subject']);
+        static::assertSame('Password-Wiederherstellung', $templateDeDe['subject']);
 
         $orgConnection->beginTransaction();
     }
@@ -195,7 +195,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             ]
         );
         static::assertIsArray($templateDefault);
-        static::assertEquals('Password recovery', $templateDefault['subject']);
+        static::assertSame('Password recovery', $templateDefault['subject']);
 
         $templateDeLu = $connection->fetchAssociative(
             'SELECT subject FROM mail_template_translation
@@ -286,7 +286,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             ]
         );
         static::assertIsArray($templateDefault);
-        static::assertEquals('Password recovery', $templateDefault['subject']);
+        static::assertSame('Password recovery', $templateDefault['subject']);
 
         $templateEnGb = $connection->fetchAssociative(
             'SELECT subject FROM mail_template_translation
@@ -297,7 +297,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             ]
         );
         static::assertIsArray($templateEnGb);
-        static::assertEquals('Password recovery', $templateEnGb['subject']);
+        static::assertSame('Password recovery', $templateEnGb['subject']);
 
         $orgConnection->beginTransaction();
     }

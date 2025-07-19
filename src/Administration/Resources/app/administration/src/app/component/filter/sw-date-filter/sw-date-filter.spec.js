@@ -17,15 +17,15 @@ async function createWrapper() {
                     sync: true,
                 }),
                 'sw-single-select': true,
-                'sw-datepicker': {
-                    props: ['value'],
+                'mt-datepicker': {
+                    props: ['modelValue'],
                     template: `
                     <div class="sw-field--datepicker">
-                        <input type="text" ref="flatpickrInput" :value="value" @input="onChange">
+                        <input type="text" ref="flatpickrInput" :value="modelValue" @input="onChange">
                     </div>`,
                     methods: {
                         onChange(e) {
-                            this.$emit('update:value', e.target.value);
+                            this.$emit('update:modelValue', e.target.value);
                         },
                     },
                 },

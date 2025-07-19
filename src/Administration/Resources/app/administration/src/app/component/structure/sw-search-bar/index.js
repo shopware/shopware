@@ -1,7 +1,7 @@
 import template from './sw-search-bar.html.twig';
 import './sw-search-bar.scss';
 
-const { Component, Application, Context } = Shopware;
+const { Application, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
@@ -16,10 +16,8 @@ const { cloneDeep } = utils.object;
  * @example-type code-only
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-search-bar', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'searchService',
@@ -195,7 +193,7 @@ Component.register('sw-search-bar', {
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         showSearchTipForEsSearch() {
@@ -284,11 +282,6 @@ Component.register('sw-search-bar', {
 
         registerListener() {
             document.addEventListener('click', this.closeOnClickOutside);
-
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                // eslint-disable-next-line vue/no-deprecated-events-api
-                this.$on('mouse-over', this.setActiveResultPosition);
-            }
         },
 
         onMouseOver(index, column) {
@@ -381,11 +374,7 @@ Component.register('sw-search-bar', {
             this.isActive = true;
             this.isOffCanvasShown = false;
 
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                this.$root.$emit('toggle-offcanvas', this.isOffCanvasShown);
-            } else {
-                Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
-            }
+            Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
         },
 
         hideSearchBar() {
@@ -474,11 +463,7 @@ Component.register('sw-search-bar', {
         toggleOffCanvas() {
             this.isOffCanvasShown = !this.isOffCanvasShown;
 
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                this.$root.$emit('toggle-offcanvas', this.isOffCanvasShown);
-            } else {
-                Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
-            }
+            Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
         },
 
         resetSearchType() {
@@ -721,6 +706,12 @@ Component.register('sw-search-bar', {
                 index: this.activeResultIndex,
                 column: this.activeResultColumn,
             });
+            this.activeItemIndexSelectHandler.forEach((callback) =>
+                callback({
+                    index: this.activeResultIndex,
+                    column: this.activeResultColumn,
+                }),
+            );
         },
 
         navigateUpResults() {
@@ -805,6 +796,8 @@ Component.register('sw-search-bar', {
         onKeyUpEnter() {
             this.$emit('keyup-enter', this.activeResultIndex, this.activeResultColumn);
 
+            this.keyupEnterHandler.forEach((callback) => callback(this.activeResultIndex, this.activeResultColumn));
+
             if (this.showTypeSelectContainer) {
                 if (this.typeSelectResults.length > 0) {
                     this.setSearchType(this.typeSelectResults[this.activeTypeListIndex].entityName);
@@ -877,7 +870,7 @@ Component.register('sw-search-bar', {
                 return [];
             }
 
-            const moduleEntities = [];
+            let moduleEntities = [];
 
             this.searchableModules.forEach((module) => {
                 const matcher =
@@ -901,6 +894,8 @@ Component.register('sw-search-bar', {
             });
 
             moduleEntities.push(...this.getSalesChannelTypesBySearchTerm(regex));
+
+            moduleEntities = moduleEntities.filter((item) => item?.entity);
 
             return moduleEntities.slice(0, limit);
         },
@@ -985,19 +980,55 @@ Component.register('sw-search-bar', {
             ]).then((response) => response.filter((item) => item?.total));
         },
 
-        getFrequentlyUsedModules() {
-            return this.userActivityApiService
-                .getIncrement({ cluster: this.currentUser.id })
-                .then((response) => {
-                    const entities = Object.keys(response);
+        async getFrequentlyUsedModules(checkNonExistentKeys = true) {
+            try {
+                const initialResponse = await this.userActivityApiService.getIncrement({ cluster: this.currentUser.id });
+                const initialKeys = Object.keys(initialResponse || {});
 
-                    return {
-                        entity: 'frequently_used',
-                        total: entities.length,
-                        entities: entities?.map((item) => this.getInfoModuleFrequentlyUsed(item)),
-                    };
-                })
-                .catch(() => {});
+                const initialModuleProcessingResults = initialKeys.map((key) => {
+                    return { key, info: this.getInfoModuleFrequentlyUsed(key) };
+                });
+
+                const nonExistentKeys = checkNonExistentKeys
+                    ? initialModuleProcessingResults
+                          .filter((item) => Object.keys(item.info).length === 0)
+                          .map((item) => item.key)
+                    : [];
+
+                const validInitialModules = initialModuleProcessingResults
+                    .filter((item) => Object.keys(item.info).length > 0)
+                    .map((item) => item.info);
+
+                if (nonExistentKeys.length > 0) {
+                    try {
+                        await this.userActivityApiService.deleteActivityKeys({
+                            keys: nonExistentKeys,
+                            cluster: this.currentUser.id,
+                        });
+
+                        return await this.getFrequentlyUsedModules(false);
+                    } catch {
+                        // In case deleting keys or fetching fresh data fails, fallback to initially valid modules
+                        return {
+                            entity: 'frequently_used',
+                            total: validInitialModules.length,
+                            entities: validInitialModules,
+                        };
+                    }
+                }
+
+                return {
+                    entity: 'frequently_used',
+                    total: validInitialModules.length,
+                    entities: validInitialModules,
+                };
+            } catch (error) {
+                return {
+                    entity: 'frequently_used',
+                    total: 0,
+                    entities: [],
+                };
+            }
         },
 
         getRecentlySearch() {
@@ -1067,7 +1098,7 @@ Component.register('sw-search-bar', {
             const module = this.moduleFactory.getModuleByKey('name', moduleName);
 
             if (!module) {
-                return {};
+                return null;
             }
 
             const { routes, ...manifest } = module.manifest;
@@ -1093,4 +1124,4 @@ Component.register('sw-search-bar', {
             };
         },
     },
-});
+};

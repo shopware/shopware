@@ -50,7 +50,7 @@ Module.register('sw-settings-shipping', {
                 privilege: 'shipping.viewer',
             },
             props: {
-                default: (route) => ({ shippingMethodId: route.params.id }),
+                default: (route) => ({ shippingMethodId: route.params.id?.toLowerCase() }),
             },
         },
         create: {
@@ -64,7 +64,7 @@ Module.register('sw-settings-shipping', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'commerce',
         to: 'sw.settings.shipping.index',
         icon: 'regular-truck',
         privilege: 'shipping.viewer',

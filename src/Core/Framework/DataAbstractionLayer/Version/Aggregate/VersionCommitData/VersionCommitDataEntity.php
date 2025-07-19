@@ -12,68 +12,29 @@ class VersionCommitDataEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $autoIncrement;
+    protected int $autoIncrement;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $versionCommitId;
+    protected string $versionCommitId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $entityName;
+    protected string $entityName;
 
     /**
      * @var array{id: string, versionId: string}
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $entityId;
+    protected array $entityId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $action;
+    protected string $action;
 
     /**
      * @var array<string, mixed>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $payload;
+    protected ?array $payload = null;
 
-    /**
-     * @var VersionCommitEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $commit;
+    protected ?VersionCommitEntity $commit = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $userId;
+    protected ?string $userId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $integrationId;
+    protected ?string $integrationId = null;
 
     public function getAutoIncrement(): int
     {

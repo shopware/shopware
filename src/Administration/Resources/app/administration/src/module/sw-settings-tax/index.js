@@ -72,7 +72,7 @@ Module.register('sw-settings-tax', {
             props: {
                 default(route) {
                     return {
-                        taxId: route.params.id,
+                        taxId: route.params.id.toLowerCase(),
                     };
                 },
             },
@@ -95,7 +95,7 @@ Module.register('sw-settings-tax', {
             props: {
                 default(route) {
                     return {
-                        taxProviderId: route.params.id,
+                        taxProviderId: route.params.id.toLowerCase(),
                     };
                 },
             },
@@ -103,7 +103,7 @@ Module.register('sw-settings-tax', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'localization',
         to: 'sw.settings.tax.index',
         icon: 'regular-chart-pie',
         privilege: 'tax.viewer',

@@ -11,18 +11,11 @@ use Twig\Environment;
 class ErrorTemplateResolver
 {
     /**
-     * @var Environment
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $twig;
-
-    /**
      * @internal
      */
-    public function __construct(Environment $twig)
-    {
-        $this->twig = $twig;
+    public function __construct(
+        protected Environment $twig,
+    ) {
     }
 
     public function resolve(\Throwable $exception, Request $request): ErrorTemplateStruct

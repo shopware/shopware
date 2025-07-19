@@ -15,8 +15,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'mailService',
         'repositoryFactory',
@@ -92,6 +90,9 @@ export default {
             return this.mailTemplateId === null || this.subject.length <= 0 || this.recipient.length <= 0;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -150,15 +151,22 @@ export default {
                 return Promise.resolve();
             }
 
-            this.subject = mailTemplate.subject;
-
-            if (!this.order.salesChannel || !this.order.salesChannel.mailHeaderFooterId) {
-                return this.mailService.buildRenderPreview(mailTemplate.mailTemplateType, mailTemplate).then((result) => {
-                    this.content = result;
-                });
+            const localMailTemplate = { ...mailTemplate };
+            if (localMailTemplate?.mailTemplateType?.templateData?.order && this?.order) {
+                localMailTemplate.mailTemplateType.templateData.order = this.order;
             }
 
-            const mailTemplateWithHeaderFooter = { ...mailTemplate };
+            this.subject = localMailTemplate.subject;
+
+            if (!this.order.salesChannel || !this.order.salesChannel.mailHeaderFooterId) {
+                return this.mailService
+                    .buildRenderPreview(localMailTemplate.mailTemplateType, localMailTemplate)
+                    .then((result) => {
+                        this.content = result;
+                    });
+            }
+
+            const mailTemplateWithHeaderFooter = { ...localMailTemplate };
             return this.mailHeaderFooterRepository
                 .search(new Criteria(1, 1).addFilter(Criteria.equals('id', this.order.salesChannel.mailHeaderFooterId)))
                 .then((mailHeaderFooter) => {

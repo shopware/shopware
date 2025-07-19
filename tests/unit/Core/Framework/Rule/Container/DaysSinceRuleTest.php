@@ -46,12 +46,12 @@ class DaysSinceRuleTest extends TestCase
         $operators = RuleConfig::OPERATOR_SET_NUMBER;
         $operators[] = Rule::OPERATOR_EMPTY;
 
-        static::assertEquals([
+        static::assertSame([
             'operators' => $operators,
             'isMatchAny' => false,
         ], $config['operatorSet']);
 
-        static::assertEquals([
+        static::assertSame([
             'name' => 'daysPassed',
             'type' => 'float',
             'config' => [

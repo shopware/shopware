@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-class Required
+final class Required
 {
     public function __construct()
     {

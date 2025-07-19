@@ -6,7 +6,6 @@
     :name="formFieldName"
     @inheritance-restore="$emit('inheritance-restore', $event)"
     @inheritance-remove="$emit('inheritance-remove', $event)"
-    v-on="listeners"
 >
 
     {% block sw_email_field_prefix %}
@@ -41,7 +40,6 @@
             @change="onChange"
             @focus="setFocusClass"
             @blur="removeFocusClass"
-            v-on="additionalListeners"
         >
         {% endblock %}
     </template>

@@ -72,7 +72,7 @@ class ProductExportGenerateCommandTest extends TestCase
 
         $this->salesChannelContextFactory->method('create')->willReturn($salesChannelContext);
 
-        $this->productExporter->expects(static::once())->method('export');
+        $this->productExporter->expects($this->once())->method('export');
 
         $this->commandTester->execute([
             'sales-channel-id' => $salesChannelId,

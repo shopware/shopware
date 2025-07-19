@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Rule;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\FlowRule;
 use Shopware\Core\Framework\Rule\Rule;
@@ -11,7 +12,10 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
-#[Package('after-sales')]
+/**
+ * @final
+ */
+#[Package('fundamentals@after-sales')]
 class OrderDeliveryStatusRule extends FlowRule
 {
     public const RULE_NAME = 'orderDeliveryStatus';
@@ -22,9 +26,9 @@ class OrderDeliveryStatusRule extends FlowRule
     public array $salutationIds = [];
 
     /**
-     * @internal
-     *
      * @param list<string> $stateIds
+     *
+     * @internal
      */
     public function __construct(
         public string $operator = Rule::OPERATOR_EQ,
@@ -47,16 +51,28 @@ class OrderDeliveryStatusRule extends FlowRule
             return false;
         }
 
-        if (!$deliveries = $scope->getOrder()->getDeliveries()) {
+        if (!Feature::isActive('v6.8.0.0')) {
+            if (!$deliveries = $scope->getOrder()->getDeliveries()) {
+                return false;
+            }
+
+            $deliveryStateIds = [];
+            foreach ($deliveries->getElements() as $delivery) {
+                $deliveryStateIds[] = $delivery->getStateId();
+            }
+
+            return RuleComparison::uuids($deliveryStateIds, $this->stateIds, $this->operator);
+        }
+
+        if (!$scope->getOrder()->getPrimaryOrderDelivery()) {
             return false;
         }
 
-        $deliveryStateIds = [];
-        foreach ($deliveries->getElements() as $delivery) {
-            $deliveryStateIds[] = $delivery->getStateId();
-        }
-
-        return RuleComparison::uuids($deliveryStateIds, $this->stateIds, $this->operator);
+        return RuleComparison::uuids(
+            [$scope->getOrder()->getPrimaryOrderDelivery()->getStateId()],
+            $this->stateIds,
+            $this->operator,
+        );
     }
 
     public function getConfig(): RuleConfig

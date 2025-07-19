@@ -27,6 +27,9 @@ class RawUrlFunctionExtension extends AbstractExtension
         ];
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     public function rawUrl(string $name, array $parameters = [], ?string $domain = null): string
     {
         $request = $this->stack->getMainRequest();

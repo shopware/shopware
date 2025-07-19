@@ -22,6 +22,6 @@ class Migration1707807389ChangeAvailableDefaultTest extends TestCase
 
         $available = $connection->fetchOne('SELECT COLUMN_DEFAULT FROM information_schema.COLUMNS WHERE TABLE_NAME = "product" AND COLUMN_NAME = "available"');
 
-        static::assertEquals('0', $available);
+        static::assertSame('0', $available);
     }
 }

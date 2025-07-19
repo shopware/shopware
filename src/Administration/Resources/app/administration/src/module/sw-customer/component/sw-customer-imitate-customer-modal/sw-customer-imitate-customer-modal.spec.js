@@ -17,7 +17,9 @@ responses.addResponse({
                     id: 'sales-channel-domain-id',
                     salesChannelId: 'sales-channel-id',
                     salesChannel: {
-                        name: 'Test sales channel',
+                        translated: {
+                            name: 'Test sales channel',
+                        },
                     },
                     url: 'http://localhost:8000',
                 },
@@ -40,10 +42,9 @@ async function createWrapper() {
                     }),
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                    'i18n-t': true,
-                    'sw-alert': true,
-                    'sw-icon': true,
-                    'sw-button': true,
+                    'i18n-t': {
+                        template: '<div class="i18n-stub"><slot></slot></div>',
+                    },
                     'sw-loader': true,
                     'router-link': true,
                 },

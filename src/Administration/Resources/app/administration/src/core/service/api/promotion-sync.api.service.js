@@ -1,5 +1,5 @@
 /**
- * @sw-package buyers-experience
+ * @sw-package checkout
  */
 import SyncApiService from './sync.api.service';
 

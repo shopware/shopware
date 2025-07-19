@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
@@ -83,6 +84,8 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertTrue(static::getContainer()->has('attribute_entity_translation.repository'));
         static::assertTrue(static::getContainer()->has('attribute_entity_translation.definition'));
 
+        static::assertTrue(static::getContainer()->has('my_own_mapping_table_name.definition'));
+
         static::assertInstanceOf(AttributeEntityDefinition::class, static::getContainer()->get('attribute_entity.definition'));
         static::assertSame(AttributeEntityCollection::class, static::getContainer()->get('attribute_entity.definition')->getCollectionClass());
 
@@ -91,7 +94,9 @@ class AttributeEntityIntegrationTest extends TestCase
 
         static::assertInstanceOf(AttributeEntityDefinition::class, static::getContainer()->get('attribute_entity_with_hydrator.definition'));
         static::assertSame(EntityCollection::class, static::getContainer()->get('attribute_entity_with_hydrator.definition')->getCollectionClass());
-        static::assertSame(DummyHydrator::class, static::getContainer()->get('attribute_entity_with_hydrator.definition')->getHydratorClass());
+        $definition = static::getContainer()->get('attribute_entity_with_hydrator.definition');
+        static::assertInstanceOf(EntityDefinition::class, $definition);
+        static::assertSame(DummyHydrator::class, $definition->getHydratorClass());
 
         static::assertInstanceOf(AttributeMappingDefinition::class, static::getContainer()->get('attribute_entity_currency.definition'));
         static::assertInstanceOf(AttributeTranslationDefinition::class, static::getContainer()->get('attribute_entity_translation.definition'));
@@ -133,6 +138,8 @@ class AttributeEntityIntegrationTest extends TestCase
             [
                 'id' => $ids->create('first-key'),
                 'string' => 'string',
+                'emptyString' => '',
+                'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
                 'transString' => 'transString',
                 'differentName' => 'storageString',
             ],
@@ -154,6 +161,7 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertSame($ids->get('first-key'), $record->id);
         static::assertSame('string', $record->string);
+        static::assertSame('<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>', $record->htmlString);
         static::assertSame('transString', $record->getTranslation('transString'));
         static::assertSame('storageString', $record->differentName);
 
@@ -207,6 +215,8 @@ class AttributeEntityIntegrationTest extends TestCase
         $data = [
             'id' => $ids->get('first-key'),
             'string' => 'string',
+            'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
+            'emptyString' => '',
             'text' => 'text',
             'int' => 1,
             'float' => 1.1,
@@ -252,13 +262,14 @@ class AttributeEntityIntegrationTest extends TestCase
 
         static::assertInstanceOf(AttributeEntity::class, $record);
         static::assertSame('string', $record->string);
+        static::assertSame('', $record->emptyString);
         static::assertSame('text', $record->text);
         static::assertSame(1, $record->int);
         static::assertSame(1.1, $record->float);
         static::assertTrue($record->bool);
-        static::assertEquals(new \DateTimeImmutable('2020-01-01 15:15:15'), $record->datetime);
-        static::assertEquals(new \DateTimeImmutable('2020-01-01 00:00:00'), $record->date);
-        static::assertEquals(new DateInterval('P1D'), $record->dateInterval);
+        static::assertSame((new \DateTimeImmutable('2020-01-01 15:15:15'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $record->datetime?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame((new \DateTimeImmutable('2020-01-01 00:00:00'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $record->date?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame((new DateInterval('P1D'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $record->dateInterval?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         static::assertSame('Europe/Berlin', $record->timeZone);
         static::assertSame(StringEnum::B, $record->enum);
         static::assertSame(['key' => 'value'], $record->json);
@@ -276,9 +287,9 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertSame(1, $record->transInt);
         static::assertSame(1.1, $record->transFloat);
         static::assertTrue($record->transBool);
-        static::assertEquals(new \DateTimeImmutable('2020-01-01 15:15:15'), $record->transDatetime);
-        static::assertEquals(new \DateTimeImmutable('2020-01-01 00:00:00'), $record->transDate);
-        static::assertEquals(new DateInterval('P1D'), $record->transDateInterval);
+        static::assertSame((new \DateTimeImmutable('2020-01-01 15:15:15'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $record->transDatetime?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame((new \DateTimeImmutable('2020-01-01 00:00:00'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $record->transDate?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame((new DateInterval('P1D'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $record->transDateInterval?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         static::assertSame('Europe/Berlin', $record->transTimeZone);
         static::assertSame(['key' => 'value'], $record->transJson);
         static::assertSame('string', $record->differentName);
@@ -298,11 +309,11 @@ class AttributeEntityIntegrationTest extends TestCase
             'int' => 1,
             'float' => 1.1,
             'bool' => true,
-            'datetime' => $record->datetime?->format(\DateTimeInterface::RFC3339_EXTENDED),
+            'datetime' => $record->datetime->format(\DateTimeInterface::RFC3339_EXTENDED),
             'autoIncrement' => 1,
             'enum' => StringEnum::B,
             'json' => ['key' => 'value'],
-            'date' => $record->date?->format(\DateTimeInterface::RFC3339_EXTENDED),
+            'date' => $record->date->format(\DateTimeInterface::RFC3339_EXTENDED),
             'dateInterval' => new DateInterval('P1D'),
             'timeZone' => 'Europe/Berlin',
             'serialized' => new PriceCollection([new Price(Defaults::CURRENCY, 1, 1, true)]),
@@ -312,9 +323,9 @@ class AttributeEntityIntegrationTest extends TestCase
             'transInt' => 1,
             'transFloat' => 1.1,
             'transBool' => true,
-            'transDatetime' => $record->transDatetime?->format(\DateTimeInterface::RFC3339_EXTENDED),
+            'transDatetime' => $record->transDatetime->format(\DateTimeInterface::RFC3339_EXTENDED),
             'transJson' => ['key' => 'value'],
-            'transDate' => $record->transDate?->format(\DateTimeInterface::RFC3339_EXTENDED),
+            'transDate' => $record->transDate->format(\DateTimeInterface::RFC3339_EXTENDED),
             'transDateInterval' => new DateInterval('P1D'),
             'transTimeZone' => 'Europe/Berlin',
             'differentName' => 'string',
@@ -329,6 +340,9 @@ class AttributeEntityIntegrationTest extends TestCase
             'orders' => null,
             'translations' => null,
             'customFields' => null,
+            'emptyString' => '',
+            'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
+            'ownMapping' => [],
         ], $json);
     }
 
@@ -357,6 +371,8 @@ class AttributeEntityIntegrationTest extends TestCase
         $data = [
             'id' => $ids->get('first-key'),
             'string' => 'string',
+            'emptyString' => '',
+            'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
             'transString' => 'transString',
             'follow' => self::currency($ids->get('currency-1'), 'ABC'),
         ];
@@ -409,7 +425,9 @@ class AttributeEntityIntegrationTest extends TestCase
         $data = [
             'id' => $ids->get('first-key'),
             'string' => 'string',
+            'emptyString' => '',
             'transString' => 'transString',
+            'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
             'aggs' => [
                 ['id' => $ids->get('agg-1'), 'number' => 'agg-1'],
                 ['id' => $ids->get('agg-2'), 'number' => 'agg-2'],
@@ -475,7 +493,9 @@ class AttributeEntityIntegrationTest extends TestCase
         $data = [
             'id' => $ids->get('first-key'),
             'string' => 'string',
+            'emptyString' => '',
             'transString' => 'transString',
+            'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
             'currency' => self::currency($ids->get('currency-1'), 'ABC'),
         ];
 
@@ -560,7 +580,9 @@ class AttributeEntityIntegrationTest extends TestCase
         $data = [
             'id' => $ids->get('first-key'),
             'string' => 'string',
+            'emptyString' => '',
             'transString' => 'transString',
+            'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
             'currencies' => [
                 self::currency($ids->get('currency-1'), 'ABC'),
                 self::currency($ids->get('currency-2'), 'DEF'),
@@ -620,7 +642,9 @@ class AttributeEntityIntegrationTest extends TestCase
         $data = [
             'id' => $ids->get('first-key'),
             'string' => 'string',
+            'emptyString' => '',
             'transString' => 'transString',
+            'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
             'stateId' => $stateId,
         ];
 
@@ -695,6 +719,8 @@ class AttributeEntityIntegrationTest extends TestCase
         $data = [
             'id' => $ids->get('first-key'),
             'string' => 'string',
+            'emptyString' => '',
+            'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
             'transString' => [
                 'en-GB' => 'transString',
                 'de-DE' => 'transString-de',
@@ -750,6 +776,8 @@ class AttributeEntityIntegrationTest extends TestCase
         $data = [
             'id' => $ids->get('first-key'),
             'string' => 'string',
+            'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
+            'emptyString' => '',
             'transString' => 'transString',
         ];
 
@@ -781,10 +809,7 @@ class AttributeEntityIntegrationTest extends TestCase
 
         $record = $search->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
-        static::assertEquals([
-            'foo' => 'bar',
-            'bar' => 'baz',
-        ], $record->getCustomFields());
+        static::assertEquals(['bar' => 'baz', 'foo' => 'bar'], $record->getCustomFields());
         static::assertSame('bar', $record->getCustomFieldsValue('foo'));
         static::assertSame('baz', $record->getCustomFieldsValue('bar'));
     }
@@ -796,7 +821,9 @@ class AttributeEntityIntegrationTest extends TestCase
         $data = [
             'id' => $ids->get('first-key'),
             'string' => 'string',
+            'emptyString' => '',
             'transString' => 'transString',
+            'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
             'orders' => [
                 self::order($ids->get('order-1'), $this->getStateMachineState(), $this->getValidCountryId()),
                 self::order($ids->get('order-2'), $this->getStateMachineState(), $this->getValidCountryId()),

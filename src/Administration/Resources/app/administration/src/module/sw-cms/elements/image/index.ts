@@ -1,22 +1,22 @@
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-preview-image', () => import('./preview'));
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-config-image', () => import('./config'));
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Component.register('sw-cms-el-image', () => import('./component'));
 
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'image',

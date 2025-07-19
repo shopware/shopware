@@ -17,7 +17,7 @@
     {% block sw_single_select_option_item_icon_transition %}
     <transition name="sw-select-appear">
         {% block sw_single_select_option_item_icon %}
-        <sw-icon
+        <mt-icon
             v-if="isInSelections(item) && !selected || selected"
             name="regular-checkmark-xs"
             size="16px"

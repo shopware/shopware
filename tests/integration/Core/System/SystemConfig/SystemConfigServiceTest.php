@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\System\SystemConfig;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -38,12 +39,12 @@ class SystemConfigServiceTest extends TestCase
             static::getContainer()->get(SystemConfigLoader::class),
             static::getContainer()->get('event_dispatcher'),
             new SymfonySystemConfigService([]),
-            false
+            static::getContainer()->get(CacheTagCollector::class),
         );
     }
 
     /**
-     * @return array<mixed>
+     * @return list<array{mixed}>
      */
     public static function differentTypesProvider(): array
     {
@@ -61,10 +62,10 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @param array<mixed>|bool|int|float|string|null $expected
+     * @param float|bool|int|string|array<mixed>|null $expected
      */
     #[DataProvider('differentTypesProvider')]
-    public function testSetGetDifferentTypes($expected): void
+    public function testSetGetDifferentTypes(array|float|bool|int|string|null $expected): void
     {
         $this->systemConfigService->set('foo.bar', $expected);
         $actual = $this->systemConfigService->get('foo.bar');
@@ -72,7 +73,7 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return list<array{mixed, string}>
      */
     public static function getStringProvider(): array
     {
@@ -105,7 +106,7 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return list<array{mixed, int}>
      */
     public static function getIntProvider(): array
     {
@@ -123,10 +124,10 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @param array<mixed>|bool|int|float|string|null $writtenValue
+     * @param float|bool|int|string|array<mixed>|null $writtenValue
      */
     #[DataProvider('getIntProvider')]
-    public function testGetInt($writtenValue, int $expected): void
+    public function testGetInt(array|float|bool|int|string|null $writtenValue, int $expected): void
     {
         $this->systemConfigService->set('foo.bar', $writtenValue);
         if (\is_array($writtenValue)) {
@@ -138,7 +139,7 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return list<array{mixed, float}>
      */
     public static function getFloatProvider(): array
     {
@@ -156,10 +157,10 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @param array<mixed>|bool|int|float|string|null $writtenValue
+     * @param float|bool|int|string|array<mixed>|null $writtenValue
      */
     #[DataProvider('getFloatProvider')]
-    public function testGetFloat($writtenValue, float $expected): void
+    public function testGetFloat(array|float|bool|int|string|null $writtenValue, float $expected): void
     {
         $this->systemConfigService->set('foo.bar', $writtenValue);
         if (\is_array($writtenValue)) {
@@ -171,7 +172,7 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return list<array{mixed, bool}>
      */
     public static function getBoolProvider(): array
     {
@@ -190,10 +191,10 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @param array<mixed>|bool|int|float|string|null $writtenValue
+     * @param float|bool|int|string|array<mixed>|null $writtenValue
      */
     #[DataProvider('getBoolProvider')]
-    public function testGetBool($writtenValue, bool $expected): void
+    public function testGetBool(array|float|bool|int|string|null $writtenValue, bool $expected): void
     {
         $this->systemConfigService->set('foo.bar', $writtenValue);
         $actual = $this->systemConfigService->getBool('foo.bar');
@@ -207,22 +208,22 @@ class SystemConfigServiceTest extends TestCase
     {
         $this->systemConfigService->set('foo.bar', 0.0);
         $actual = $this->systemConfigService->get('foo.bar');
-        static::assertEquals(0.0, $actual);
+        static::assertSame(0.0, $actual);
     }
 
     public function testSetGetSalesChannel(): void
     {
         $this->systemConfigService->set('foo.bar', 'test');
         $actual = $this->systemConfigService->get('foo.bar', TestDefaults::SALES_CHANNEL);
-        static::assertEquals('test', $actual);
+        static::assertSame('test', $actual);
 
         $this->systemConfigService->set('foo.bar', 'override', TestDefaults::SALES_CHANNEL);
         $actual = $this->systemConfigService->get('foo.bar', TestDefaults::SALES_CHANNEL);
-        static::assertEquals('override', $actual);
+        static::assertSame('override', $actual);
 
         $this->systemConfigService->set('foo.bar', '', TestDefaults::SALES_CHANNEL);
         $actual = $this->systemConfigService->get('foo.bar', TestDefaults::SALES_CHANNEL);
-        static::assertEquals('', $actual);
+        static::assertSame('', $actual);
     }
 
     public function testSetGetSalesChannelBool(): void
@@ -239,16 +240,16 @@ class SystemConfigServiceTest extends TestCase
     public function testGetDomainNoData(): void
     {
         $actual = $this->systemConfigService->getDomain('foo');
-        static::assertEquals([], $actual);
+        static::assertSame([], $actual);
 
         $actual = $this->systemConfigService->getDomain('foo', null, true);
-        static::assertEquals([], $actual);
+        static::assertSame([], $actual);
 
         $actual = $this->systemConfigService->getDomain('foo', TestDefaults::SALES_CHANNEL);
-        static::assertEquals([], $actual);
+        static::assertSame([], $actual);
 
         $actual = $this->systemConfigService->getDomain('foo', TestDefaults::SALES_CHANNEL, true);
-        static::assertEquals([], $actual);
+        static::assertSame([], $actual);
     }
 
     public function testGetDomain(): void
@@ -264,7 +265,7 @@ class SystemConfigServiceTest extends TestCase
             'foo.c' => 'c',
         ];
         $actual = $this->systemConfigService->getDomain('foo');
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
 
         $expected = [
             'foo.a' => 'a',
@@ -272,13 +273,13 @@ class SystemConfigServiceTest extends TestCase
             'foo.c' => 'c override',
         ];
         $actual = $this->systemConfigService->getDomain('foo', TestDefaults::SALES_CHANNEL, true);
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
 
         $expected = [
             'foo.c' => 'c override',
         ];
         $actual = $this->systemConfigService->getDomain('foo', TestDefaults::SALES_CHANNEL);
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
     }
 
     public function testGetDomainInherit(): void
@@ -290,7 +291,7 @@ class SystemConfigServiceTest extends TestCase
         $expected = ['foo.bar' => 'test'];
         $actual = $this->systemConfigService->getDomain('foo', TestDefaults::SALES_CHANNEL, true);
 
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
     }
 
     public function testGetDomainInheritWithBooleanValue(): void
@@ -312,7 +313,7 @@ class SystemConfigServiceTest extends TestCase
     {
         $this->systemConfigService->set('foo.a', 'a');
         $actual = $this->systemConfigService->getDomain('foo.');
-        static::assertEquals(['foo.a' => 'a'], $actual);
+        static::assertSame(['foo.a' => 'a'], $actual);
     }
 
     public function testDeleteNonExisting(): void
@@ -330,7 +331,7 @@ class SystemConfigServiceTest extends TestCase
         $actual = $this->systemConfigService->get('foo');
         static::assertNull($actual);
         $actual = $this->systemConfigService->get('foo', TestDefaults::SALES_CHANNEL);
-        static::assertEquals('bar override', $actual);
+        static::assertSame('bar override', $actual);
 
         $this->systemConfigService->delete('foo', TestDefaults::SALES_CHANNEL);
         $actual = $this->systemConfigService->get('foo', TestDefaults::SALES_CHANNEL);
@@ -374,8 +375,9 @@ class SystemConfigServiceTest extends TestCase
         $called = false;
 
         $this->addEventListener($eventDispatcher, SystemConfigChangedHook::class, function (SystemConfigChangedHook $event) use (&$called): void {
-            static::assertEquals([
+            static::assertSame([
                 'changes' => ['foo.bar'],
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
             ], $event->getWebhookPayload());
 
             $called = true;

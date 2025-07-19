@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import template from './sw-order-customer-address-select.html.twig';
 import './sw-order-customer-address-select.scss';
 import type CriteriaType from '../../../../core/data/criteria.data';
@@ -15,11 +14,8 @@ const { Criteria } = Shopware.Data;
 export default Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
-        'feature',
     ],
 
     props: {
@@ -86,8 +82,8 @@ export default Component.wrapComponentConfig({
 
         addressRepository(): Repository<'customer_address'> {
             return this.repositoryFactory.create(
-                this.customer.addresses?.entity ?? 'customer_address',
-                this.customer.addresses?.source,
+                this.customer?.addresses?.entity ?? 'customer_address',
+                this.customer?.addresses?.source,
             );
         },
 
@@ -102,6 +98,14 @@ export default Component.wrapComponentConfig({
             }
 
             return criteria;
+        },
+    },
+
+    watch: {
+        'customer.id': {
+            handler(): void {
+                void this.getCustomerAddresses();
+            },
         },
     },
 

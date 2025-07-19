@@ -12,8 +12,6 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -156,7 +154,7 @@ export default {
             this.loadCustomFieldSets();
 
             this.deliveryTimeRepository
-                .get(this.$route.params.id)
+                .get(this.$route.params.id.toLowerCase())
                 .then((deliveryTime) => {
                     this.deliveryTime = deliveryTime;
                     this.isLoading = false;

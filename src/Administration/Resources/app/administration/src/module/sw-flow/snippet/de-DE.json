@@ -77,13 +77,16 @@
       "tabFlow": "Flow"
     },
     "flowNotification": {
+      "emptyFields": {
+        "general": "Bitte fülle alle Pflichtfelder aus.",
+        "sequences": "Wähle vor dem Speichern eine Regel oder Aktion aus."
+      },
       "messageDeleteSuccess": "Flow gelöscht.",
       "messageDeleteError": "Flow konnte nicht gelöscht werden.",
       "messageSaveError": "Flow konnte nicht gespeichert werden.",
       "messageWarningSave": "Flow Templates können nicht bearbeitet werden.",
       "messageError": "Ein Fehler ist aufgetreten.",
       "messageRequiredEventName": "Wähle vor dem Speichern ein Auslöser-Ereignis aus.",
-      "messageRequiredEmptyFields": "Wähle vor dem Speichern eine Regel oder Aktion aus.",
       "messageDuplicateSuccess": "Flow dupliziert.",
       "messageDuplicateError": "Flow konnte nicht dupliziert werden.",
       "messageCreateSuccess": "Flow erstellt.",

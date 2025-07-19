@@ -1,0 +1,18 @@
+
+{% block component_address_field_company_department %}
+    {% if formViolations.getViolations('/department') is not empty %}
+        {% set violationPath = '/department' %}
+    {% elseif formViolations.getViolations("/#{prefix}/department") is not empty %}
+        {% set violationPath = "/#{prefix}/department" %}
+    {% endif %}
+
+    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+        label: 'address.companyDepartmentLabel'|trans|sw_sanitize,
+        id: idPrefix ~ prefix ~ '-department',
+        name: prefix ~ '[department]',
+        value: data.get('department'),
+        autocomplete: 'organization',
+        violationPath: violationPath,
+        additionalClass: additionalClass ?? 'col-sm-6',
+    } %}
+{% endblock %}

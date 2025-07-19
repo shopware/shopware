@@ -18,7 +18,7 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-state-history-card', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-container': await wrapTestComponent('sw-container'),
@@ -42,6 +42,7 @@ async function createWrapper() {
                         search: () => Promise.resolve([]),
                     }),
                 },
+                swOrderDetailAskAndSaveEdits: () => Promise.resolve(true),
             },
         },
         props: {

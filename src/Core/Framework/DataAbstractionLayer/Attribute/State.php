@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-class State extends Field
+final class State extends Field
 {
     public const TYPE = 'state';
 

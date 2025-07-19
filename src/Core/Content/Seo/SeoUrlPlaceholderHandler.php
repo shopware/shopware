@@ -92,7 +92,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
 
         $query = new QueryBuilder($this->connection);
         $query->setTitle('seo_url::replacement');
-        $query->addSelect(['seo_path_info', 'path_info', 'sales_channel_id']);
+        $query->addSelect('seo_path_info', 'path_info', 'sales_channel_id');
 
         $query->from('seo_url');
         $query->andWhere('seo_url.is_canonical = 1');

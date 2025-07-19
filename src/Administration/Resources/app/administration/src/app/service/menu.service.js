@@ -73,7 +73,7 @@ export default function createMenuService(moduleFactory) {
     }
 
     function getTranslatedLabel(label) {
-        const locale = Shopware.State.get('session').currentLocale;
+        const locale = Shopware.Store.get('session').currentLocale;
         const fallbackLocale = Shopware.Context.app.fallbackLocale;
 
         return label[locale] || label[fallbackLocale];

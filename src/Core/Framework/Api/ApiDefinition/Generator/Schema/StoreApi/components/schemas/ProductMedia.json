@@ -1,16 +1,12 @@
 {
-    "openapi": "3.0.0",
+    "openapi": "3.1.0",
     "info": [],
     "paths": [],
     "components": {
         "schemas": {
             "ProductMedia": {
                 "type": "object",
-                "properties": {
-                    "thumbnails": {
-                        "$ref": "#/components/schemas/MediaThumbnail"
-                    }
-                }
+                "required": ["media"]
             }
         }
     }

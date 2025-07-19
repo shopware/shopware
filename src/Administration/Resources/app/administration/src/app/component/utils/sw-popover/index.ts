@@ -1,7 +1,5 @@
 import template from './sw-popover.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -9,10 +7,8 @@ const { Component } = Shopware;
  * @status ready
  * @description Wrapper component for sw-popover and mt-floating-ui. Autoswitches between the two components.
  */
-Component.register('sw-popover', {
+export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         isOpened: {
@@ -25,7 +21,7 @@ Component.register('sw-popover', {
     computed: {
         useMeteorComponent() {
             // Use new meteor component in major
-            if (Shopware.Feature.isActive('v6.7.0.0')) {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
                 return true;
             }
 
@@ -33,32 +29,16 @@ Component.register('sw-popover', {
             Shopware.Utils.debug.warn(
                 'sw-popover',
                 // eslint-disable-next-line max-len
-                'The old usage of "sw-popover" is deprecated and will be removed in v6.7.0.0. Please use "mt-floating-ui" instead.',
+                'The old usage of "sw-popover" is deprecated and will be removed in v6.8.0.0. Please use "mt-floating-ui" instead.',
             );
 
             return false;
-        },
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-        listeners(): Record<string, Function | Function[]> {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 
     methods: {
         getSlots() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return {
-                    ...this.$slots,
-                    ...this.$scopedSlots,
-                };
-            }
 
             return this.$slots;
         },

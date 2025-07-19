@@ -4,16 +4,13 @@
 
 import template from './sw-existence-filter.html.twig';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.register('sw-existence-filter', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'filter-update',
@@ -34,6 +31,19 @@ Component.register('sw-existence-filter', {
     computed: {
         value() {
             return this.filter.value;
+        },
+
+        filterOptions() {
+            return [
+                {
+                    value: 'true',
+                    label: String(this.filter.optionHasCriteria),
+                },
+                {
+                    value: 'false',
+                    label: String(this.filter.optionNoCriteria),
+                },
+            ];
         },
     },
 
@@ -59,4 +69,4 @@ Component.register('sw-existence-filter', {
             this.$emit('filter-reset', this.filter.name);
         },
     },
-});
+};

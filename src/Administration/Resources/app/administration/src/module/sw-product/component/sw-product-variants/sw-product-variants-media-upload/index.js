@@ -12,8 +12,6 @@ const { isEmpty } = Shopware.Utils.types;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'mediaDefaultFolderService',
@@ -147,7 +145,7 @@ export default {
             media.forEach((item) => {
                 this.addMedia(item).catch(({ fileName }) => {
                     this.createNotificationError({
-                        message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated', 0, { fileName }),
+                        message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated', { fileName }, 0),
                     });
                 });
             });

@@ -4,28 +4,19 @@ namespace Shopware\Core\Checkout\Payment\SalesChannel;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
-use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
+/**
+ * @extends StoreApiResponse<ArrayStruct<array{redirectResponse: RedirectResponse|null}>>
+ */
 #[Package('checkout')]
 class HandlePaymentMethodRouteResponse extends StoreApiResponse
 {
-    /**
-     * @var ArrayStruct<string, mixed>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $object;
-
     public function __construct(?RedirectResponse $response)
     {
         parent::__construct(
-            new ArrayStruct(
-                [
-                    'redirectResponse' => $response,
-                ]
-            )
+            new ArrayStruct(['redirectResponse' => $response])
         );
     }
 
@@ -34,10 +25,15 @@ class HandlePaymentMethodRouteResponse extends StoreApiResponse
         return $this->object->get('redirectResponse');
     }
 
-    public function getObject(): Struct
+    /**
+     * @return ArrayStruct<array{redirectUrl: string|null}>
+     *
+     * @phpstan-ignore method.childReturnType (it is intended to return a different ArrayStruct)
+     */
+    public function getObject(): ArrayStruct
     {
         return new ArrayStruct([
-            'redirectUrl' => $this->getRedirectResponse() ? $this->getRedirectResponse()->getTargetUrl() : null,
+            'redirectUrl' => $this->getRedirectResponse()?->getTargetUrl(),
         ]);
     }
 }

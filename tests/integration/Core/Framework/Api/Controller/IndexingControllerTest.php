@@ -53,7 +53,7 @@ class IndexingControllerTest extends TestCase
         }
         $registry = $this->getMockBuilder(EntityIndexerRegistry::class)->disableOriginalConstructor()->getMock();
         $registry->method('getIndexer')->willReturn($productIndexer);
-        $indexer = new IndexingController($registry, static::getContainer()->get('messenger.bus.shopware'));
+        $indexer = new IndexingController($registry, static::getContainer()->get('messenger.default_bus'));
 
         $response = $indexer->iterate('product.indexer', new Request([], ['offset' => $offset]));
         $content = $response->getContent();
@@ -64,7 +64,7 @@ class IndexingControllerTest extends TestCase
             static::assertTrue($response['finish']);
         } else {
             static::assertFalse($response['finish']);
-            static::assertEquals(['offset' => $offset + 50], $response['offset']);
+            static::assertSame(['offset' => $offset + 50], $response['offset']);
         }
     }
 

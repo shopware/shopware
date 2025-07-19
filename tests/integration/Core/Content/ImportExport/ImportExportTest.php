@@ -889,14 +889,14 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
     public function testFinishedImportDoesNothing(): void
     {
         $reader = $this->createMock(AbstractReader::class);
-        $reader->expects(static::never())->method('read');
+        $reader->expects($this->never())->method('read');
 
         $writer = $this->createMock(AbstractWriter::class);
-        $writer->expects(static::never())->method('append');
+        $writer->expects($this->never())->method('append');
 
         $pipe = $this->createMock(AbstractPipe::class);
-        $pipe->expects(static::never())->method('in');
-        $pipe->expects(static::never())->method('out');
+        $pipe->expects($this->never())->method('in');
+        $pipe->expects($this->never())->method('out');
 
         $logEntity = new ImportExportLogEntity();
         $logEntity->assign([
@@ -1711,7 +1711,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         $numberOfCategoriesInCsv = 67;
 
         $categories = $categoryRepository->search(new Criteria(), Context::createDefaultContext());
-        static::assertEquals($categoryCount + $numberOfCategoriesInCsv, $categories->getTotal());
+        static::assertSame($categoryCount + $numberOfCategoriesInCsv, $categories->getTotal());
     }
 
     public function testBatchImportNumberOfCalls(): void
@@ -1762,7 +1762,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
-        static::assertEquals(6, $mockRepository->upsertCalls);
+        static::assertSame(6, $mockRepository->upsertCalls);
     }
 
     public function testInvalidFileInBatch(): void

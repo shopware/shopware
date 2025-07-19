@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
@@ -53,6 +54,9 @@ class DocumentGeneratorControllerTest extends TestCase
 
     private DocumentGenerator $documentGenerator;
 
+    /**
+     * @var EntityRepository<OrderCollection>
+     */
     private EntityRepository $orderRepository;
 
     private string $customerId;
@@ -102,11 +106,10 @@ class DocumentGeneratorControllerTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        /** @var EntityRepository $documentTypeRepository */
         $documentTypeRepository = static::getContainer()->get('document_type.repository');
         $criteria = (new Criteria())->addFilter(new EqualsFilter('technicalName', 'invoice'));
-        /** @var DocumentTypeEntity $type */
         $type = $documentTypeRepository->search($criteria, $context)->first();
+        static::assertInstanceOf(DocumentTypeEntity::class, $type);
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
@@ -155,10 +158,10 @@ class DocumentGeneratorControllerTest extends TestCase
         static::assertNotEmpty($response['documentMediaId']);
         $this->getBrowser()->request('GET', $baseResource . '_action/document/' . $response['documentId'] . '/' . $response['documentDeepLink']);
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
-        static::assertEquals($expectedFileContent, $response->getContent());
-        static::assertEquals($expectedContentType, $response->headers->get('content-type'));
+        static::assertSame($expectedFileContent, $response->getContent());
+        static::assertSame($expectedContentType, $response->headers->get('content-type'));
     }
 
     public function testCreateDocuments(): void
@@ -228,7 +231,7 @@ class DocumentGeneratorControllerTest extends TestCase
             );
 
             $response = $this->getBrowser()->getResponse();
-            static::assertEquals(200, $response->getStatusCode());
+            static::assertSame(200, $response->getStatusCode());
             $response = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
             static::assertNotEmpty($response);
             static::assertNotEmpty($data = $response['data']);
@@ -265,9 +268,9 @@ class DocumentGeneratorControllerTest extends TestCase
         $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertNotEmpty($response['errors']);
-        static::assertEquals('DOCUMENT__INVALID_RENDERER_TYPE', $response['errors'][0]['code']);
+        static::assertSame('DOCUMENT__INVALID_RENDERER_TYPE', $response['errors'][0]['code']);
     }
 
     public function testCreateWithoutDocumentsParameter(): void
@@ -284,9 +287,9 @@ class DocumentGeneratorControllerTest extends TestCase
         $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertNotEmpty($response['errors']);
-        static::assertEquals('FRAMEWORK__INVALID_REQUEST_PARAMETER', $response['errors'][0]['code']);
+        static::assertSame('FRAMEWORK__INVALID_REQUEST_PARAMETER', $response['errors'][0]['code']);
     }
 
     public function testCreateStornoDocumentsWithoutInvoiceDocument(): void
@@ -312,11 +315,11 @@ class DocumentGeneratorControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         $response = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
         static::assertArrayHasKey($order->getId(), $response['errors']);
         $error = $response['errors'][$order->getId()][0];
-        static::assertEquals('Unable to generate document. Can not generate storno document because no invoice document exists. OrderId: ' . $order->getId(), $error['detail']);
+        static::assertSame('Unable to generate document. Can not generate storno document because no invoice document exists. OrderId: ' . $order->getId(), $error['detail']);
     }
 
     public function testDownloadNoDocuments(): void
@@ -333,9 +336,9 @@ class DocumentGeneratorControllerTest extends TestCase
         static::assertIsString($this->getBrowser()->getResponse()->getContent());
         $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals('FRAMEWORK__INVALID_REQUEST_PARAMETER', $response['errors'][0]['code']);
+        static::assertSame('FRAMEWORK__INVALID_REQUEST_PARAMETER', $response['errors'][0]['code']);
 
         $this->getBrowser()->request(
             'POST',
@@ -350,7 +353,7 @@ class DocumentGeneratorControllerTest extends TestCase
 
         static::assertIsString($this->getBrowser()->getResponse()->getContent());
 
-        static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
     public function testDownloadDocuments(): void
@@ -385,8 +388,8 @@ class DocumentGeneratorControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(200, $response->getStatusCode());
-        static::assertEquals('application/pdf', $response->headers->get('Content-Type'));
+        static::assertSame(200, $response->getStatusCode());
+        static::assertSame('application/pdf', $response->headers->get('Content-Type'));
     }
 
     private function createOrder(string $customerId, Context $context): OrderEntity
@@ -447,7 +450,6 @@ class DocumentGeneratorControllerTest extends TestCase
 
         $this->orderRepository->upsert([$order], $context);
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
 
         static::assertNotNull($order);

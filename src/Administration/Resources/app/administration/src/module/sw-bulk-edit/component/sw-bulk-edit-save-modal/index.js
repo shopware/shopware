@@ -8,8 +8,6 @@ import './sw-bulk-edit-save-modal.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'modal-close',
         'bulk-save',

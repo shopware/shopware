@@ -14,47 +14,21 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class DefinitionInstanceRegistry
 {
     /**
-     * @var ContainerInterface
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $container;
-
-    /**
-     * @var array<string, string>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $repositoryMap;
-
-    /**
-     * @var array<string, string|class-string<EntityDefinition>>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $definitions;
-
-    /**
      * @var array<class-string<Entity>, EntityDefinition>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $entityClassMapping;
+    protected ?array $entityClassMapping = null;
 
     /**
-     * @internal
-     *
-     * @param array<string, class-string<EntityDefinition>> $definitionMap array of $entityName => $definitionServiceId, e.g. 'product' => '\Shopware\Core\Content\Product\ProductDefinition'
+     * @param array<string, string|class-string<EntityDefinition>> $definitions array of $entityName => $definitionServiceId, e.g. 'product' => '\Shopware\Core\Content\Product\ProductDefinition'
      * @param array<string, string> $repositoryMap array of $entityName => $repositoryServiceId, e.g. 'product' => 'product.repository'
+     *
+     *@internal
      */
     public function __construct(
-        ContainerInterface $container,
-        array $definitionMap,
-        array $repositoryMap
+        protected ContainerInterface $container,
+        protected array $definitions,
+        protected array $repositoryMap
     ) {
-        $this->container = $container;
-        $this->definitions = $definitionMap;
-        $this->repositoryMap = $repositoryMap;
     }
 
     /**

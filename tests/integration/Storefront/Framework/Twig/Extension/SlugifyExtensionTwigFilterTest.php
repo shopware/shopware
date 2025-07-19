@@ -17,7 +17,7 @@ class SlugifyExtensionTwigFilterTest extends TestCase
     #[DataProvider('sampleAnchorIdProvider')]
     public function testSlugifyAnchorIds(?string $input, ?string $expected): void
     {
-        static::assertEquals($expected, $this->renderTestTemplate($input), 'Slugify needed for plugins missing or invalid.');
+        static::assertSame($expected, $this->renderTestTemplate($input), 'Slugify needed for plugins missing or invalid.');
     }
 
     /**

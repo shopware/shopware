@@ -8,6 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Util\ArrayComparator;
 use Shopware\Core\Framework\Util\Exception\ComparatorException;
+use Shopware\Core\Framework\Util\UtilException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -45,10 +47,22 @@ class ArrayComparatorTest extends TestCase
         static::assertSame($expected, ArrayComparator::notEquals($a, $b));
     }
 
-    public function testCompareThrowException(): void
+    /**
+     * @deprecated tag:v6.8.0 - reason: see UtilException::operatorNotSupported - to be removed
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testCompareThrowExceptionDeprecated(): void
     {
         static::expectException(ComparatorException::class);
         $this->expectExceptionMessage(ComparatorException::operatorNotSupported('>')->getMessage());
+
+        ArrayComparator::compare([1], [2], '>');
+    }
+
+    public function testCompareThrowException(): void
+    {
+        static::expectException(UtilException::class);
+        $this->expectExceptionMessage(UtilException::operatorNotSupported('>')->getMessage());
 
         ArrayComparator::compare([1], [2], '>');
     }

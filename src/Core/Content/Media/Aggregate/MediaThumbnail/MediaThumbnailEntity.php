@@ -16,40 +16,15 @@ class MediaThumbnailEntity extends Entity
 
     protected ?string $path = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be native `int` type
-     */
-    protected $width;
+    protected int $width;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be native `int` type
-     */
-    protected $height;
+    protected int $height;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $url = '';
+    protected ?string $url = '';
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mediaId;
+    protected string $mediaId;
 
-    /**
-     * @var MediaEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $media;
+    protected ?MediaEntity $media = null;
 
     public function getWidth(): int
     {
@@ -71,11 +46,21 @@ class MediaThumbnailEntity extends Entity
         $this->height = $height;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
+     */
     public function getUrl(): string
     {
+        if ($this->url === null) {
+            return '';
+        }
+
         return $this->url;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:parameter-type-extension - parameter $url will be nullable
+     */
     public function setUrl(string $url): void
     {
         $this->url = $url;
@@ -103,9 +88,7 @@ class MediaThumbnailEntity extends Entity
 
     public function getIdentifier(): string
     {
-        $identifier = \sprintf('%dx%d', $this->getWidth(), $this->getHeight());
-
-        return $identifier;
+        return \sprintf('%dx%d', $this->getWidth(), $this->getHeight());
     }
 
     public function getPath(): string

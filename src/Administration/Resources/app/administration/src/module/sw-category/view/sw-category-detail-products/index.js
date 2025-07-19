@@ -12,8 +12,6 @@ const ShopwareError = Shopware.Classes.ShopwareError;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -41,7 +39,7 @@ export default {
 
     computed: {
         category() {
-            return Shopware.State.get('swCategoryDetail').category;
+            return Shopware.Store.get('swCategoryDetail').category;
         },
 
         productStreamRepository() {
@@ -79,20 +77,7 @@ export default {
         },
 
         productCriteria() {
-            return new Criteria(1, 10)
-                .addAssociation('options.group')
-                .addAssociation('manufacturer')
-                .addFilter(
-                    Criteria.multi('OR', [
-                        Criteria.equals('parentId', null),
-                        Criteria.multi('AND', [
-                            Criteria.not('AND', [
-                                Criteria.equals('parentId', null),
-                            ]),
-                            Criteria.equals('categories.id', this.category.id),
-                        ]),
-                    ]),
-                );
+            return new Criteria(1, 10).addAssociation('options.group').addAssociation('manufacturer');
         },
 
         productStreamInvalidError() {
@@ -128,13 +113,17 @@ export default {
                 name: 'sw.product.stream.index',
             };
 
-            const helpText = this.$tc('sw-category.base.products.dynamicProductGroupHelpText.label', 0, {
-                link: `<sw-internal-link
+            const helpText = this.$tc(
+                'sw-category.base.products.dynamicProductGroupHelpText.label',
+                {
+                    link: `<sw-internal-link
                            :router-link=${JSON.stringify(link)}
                            :inline="true">
                            ${this.$tc('sw-category.base.products.dynamicProductGroupHelpText.linkText')}
                        </sw-internal-link>`,
-            });
+                },
+                0,
+            );
 
             try {
                 // eslint-disable-next-line no-new
@@ -209,6 +198,23 @@ export default {
                     this.parentProducts = parentProducts;
                 });
             }
+        },
+
+        getItemName(product) {
+            const name = product.name ? product.name : product.translated.name;
+            if (name) {
+                return name;
+            }
+
+            const parent = this.parentProducts.find((parentProduct) => {
+                return parentProduct.id === product.parentId;
+            });
+
+            if (parent) {
+                return parent.name ? parent.name : product.translated.name;
+            }
+
+            return null;
         },
 
         getManufacturer(product) {

@@ -5,18 +5,13 @@
 import template from './sw-app-wrong-app-url-modal.html.twig';
 import './sw-app-wrong-app-url-modal.scss';
 
-const { mapState } = Shopware.Component.getComponentHelper();
-const { Component } = Shopware;
-
 const STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN = 'sw-app-wrong-app-url-modal-shown';
 
 /**
  * @private
  */
-Component.register('sw-app-wrong-app-url-modal', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['modal-close'],
 
@@ -27,8 +22,7 @@ Component.register('sw-app-wrong-app-url-modal', {
             wasModalAlreadyShown: !!localStorage.getItem(STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN),
             notification: {
                 title: this.$tc('sw-app.component.sw-app-wrong-app-url-modal.title'),
-                message: `${this.$tc('sw-app.component.sw-app-wrong-app-url-modal.explanation')}<br>
-                     ${this.$tc('sw-app.component.sw-app-wrong-app-url-modal.textGetSupport')}`,
+                message: this.$tc('sw-app.component.sw-app-wrong-app-url-modal.explanation'),
                 actions: [
                     {
                         label: this.$tc('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton'),
@@ -41,10 +35,13 @@ Component.register('sw-app-wrong-app-url-modal', {
     },
 
     computed: {
-        ...mapState('context', {
-            isAppUrlReachable: (state) => state.app.config.settings.appUrlReachable,
-            hasAppsThatRequireAppUrl: (state) => state.app.config.settings.appsRequireAppUrl,
-        }),
+        isAppUrlReachable() {
+            return Shopware.Store.get('context').app.config.settings?.appUrlReachable;
+        },
+
+        hasAppsThatRequireAppUrl() {
+            return Shopware.Store.get('context').app.config.settings.appsRequireAppUrl;
+        },
 
         display() {
             return !this.isAppUrlReachable && this.hasAppsThatRequireAppUrl && !this.wasModalAlreadyShown;
@@ -80,7 +77,7 @@ Component.register('sw-app-wrong-app-url-modal', {
         },
 
         removeAlertNotification() {
-            Shopware.State.commit('notification/removeNotification', this.notification);
+            Shopware.Store.get('notification').removeNotification(this.notification);
         },
     },
-});
+};

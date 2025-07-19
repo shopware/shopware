@@ -10,8 +10,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         // eslint-disable-next-line vue/require-prop-types
         salesChannel: {

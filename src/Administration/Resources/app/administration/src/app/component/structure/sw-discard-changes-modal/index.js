@@ -1,7 +1,5 @@
 import template from './sw-discard-changes-modal.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -15,10 +13,8 @@ const { Component } = Shopware;
  *  <sw-discard-changes-modal v-if="showDiscardChangesModal" @keep-editing="keepEditing" @discard-changes="discardChanges">
  *  </sw-discard-changes-modal>
  */
-Component.register('sw-discard-changes-modal', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'keep-editing',
@@ -34,4 +30,4 @@ Component.register('sw-discard-changes-modal', {
             this.$emit('discard-changes');
         },
     },
-});
+};

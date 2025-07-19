@@ -59,7 +59,7 @@ class ConfigSetCommandTest extends TestCase
     {
         $key = 'fake_config_key';
 
-        $this->systemConfigService->expects(static::once())
+        $this->systemConfigService->expects($this->once())
             ->method('set')
             ->with(
                 $key,

@@ -41,7 +41,7 @@ readonly class Metric
     /**
      * This factory is intended to simplify testing of transports. To emit metrics please use the Meter class and ConfiguredMetric class.
      *
-     * @experimental feature:TELEMETRY_METRICS stableVersion:v6.7.0
+     * @experimental feature:TELEMETRY_METRICS stableVersion:v6.8.0
      *
      * @param array{ name: string, type: Type, value: int|float, labels?: array<non-empty-string, string|bool|float|int>, description?: string, unit?: string|null } $data
      */

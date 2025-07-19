@@ -10,12 +10,14 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\State;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
 #[CoversClass(LineItemTransformer::class)]
+#[Package('checkout')]
 class LineItemTransformerTest extends TestCase
 {
     private int $position = 1;
@@ -175,7 +177,7 @@ class LineItemTransformerTest extends TestCase
         $allLineItems = $nestedCollection->getFlat();
         static::assertCount(3, $allLineItems);
         foreach ($allLineItems as $item) {
-            static::assertNotEquals($noneExistingParent, $item->getId());
+            static::assertNotSame($noneExistingParent, $item->getId());
         }
     }
 
@@ -227,7 +229,7 @@ class LineItemTransformerTest extends TestCase
         $allLineItems = $nestedCollection->getFlat();
         static::assertCount(4, $allLineItems);
         foreach ($allLineItems as $item) {
-            static::assertNotEquals($noneExistingParent, $item->getId());
+            static::assertNotSame($noneExistingParent, $item->getId());
         }
     }
 

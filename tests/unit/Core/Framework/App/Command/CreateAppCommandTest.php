@@ -46,10 +46,11 @@ class CreateAppCommandTest extends TestCase
         );
 
         static::assertFileExists($this->appDir . '/TestApp/manifest.xml');
-        static::assertEquals(
+        static::assertSame(
             <<<EOL
             <?xml version="1.0" encoding="UTF-8"?>
-            <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
+            <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
                 <meta>
                     <name>TestApp</name>
                     <label>My Example App</label>
@@ -79,10 +80,11 @@ class CreateAppCommandTest extends TestCase
 
         static::assertFileExists($this->appDir . '/TestApp/manifest.xml');
         static::assertFileExists($this->appDir . '/TestApp/Resources/theme.json');
-        static::assertEquals(
+        static::assertSame(
             <<<EOL
             <?xml version="1.0" encoding="UTF-8"?>
-            <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
+            <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
                 <meta>
                     <name>TestApp</name>
                     <label>My Example App</label>
@@ -98,7 +100,7 @@ class CreateAppCommandTest extends TestCase
             file_get_contents($this->appDir . '/TestApp/manifest.xml')
         );
 
-        static::assertEquals(
+        static::assertSame(
             <<<EOL
             {
               "name": "TestApp",
@@ -140,10 +142,11 @@ class CreateAppCommandTest extends TestCase
 
         static::assertFileExists($this->appDir . '/TestApp/manifest.xml');
 
-        static::assertEquals(
+        static::assertSame(
             <<<EOL
             <?xml version="1.0" encoding="UTF-8"?>
-            <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
+            <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
                 <meta>
                     <name>TestApp</name>
                     <label>My Example App</label>
@@ -180,10 +183,11 @@ class CreateAppCommandTest extends TestCase
 
         static::assertFileExists($this->appDir . '/TestApp/manifest.xml');
 
-        static::assertEquals(
+        static::assertSame(
             <<<EOL
             <?xml version="1.0" encoding="UTF-8"?>
-            <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
+            <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
                 <meta>
                     <name>TestApp</name>
                     <label>My Example App</label>
@@ -227,7 +231,7 @@ class CreateAppCommandTest extends TestCase
         );
 
         static::assertStringContainsString(
-            'App directory TestApp already exists',
+            'Directory for app "TestApp" already exists',
             (string) preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true)))
         );
     }

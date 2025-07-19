@@ -1,8 +1,6 @@
 import template from './sw-tagged-field.html.twig';
 import './sw-tagged-field.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -13,10 +11,8 @@ const { Component } = Shopware;
  * <sw-tagged-field label="Label" :addOnKey="['enter', ',']">
  * </sw-tagged-field>
  */
-Component.register('sw-tagged-field', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -67,17 +63,6 @@ Component.register('sw-tagged-field', {
                 'sw-tagged-field__input--full-width': !this.hasValues,
                 'sw-tagged-field__input--hidden': this.hasValues && !this.hasFocus,
             };
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 
@@ -133,4 +118,4 @@ Component.register('sw-tagged-field', {
             return false;
         },
     },
-});
+};

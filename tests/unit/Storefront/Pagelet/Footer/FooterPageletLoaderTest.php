@@ -87,7 +87,6 @@ class FooterPageletLoaderTest extends TestCase
         $footer = $footerPageletLoader->load(new Request(), $salesChannelContext);
 
         $serviceMenu = $footer->getServiceMenu();
-        static::assertNotNull($serviceMenu);
         static::assertCount(2, $serviceMenu);
         static::assertSame($category1, $serviceMenu->get($categoryId1));
         static::assertSame($category2, $serviceMenu->get($categoryId2));

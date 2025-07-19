@@ -1,17 +1,14 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-create-wizard.html.twig';
 import './sw-cms-create-wizard.scss';
 
 const { Filter } = Shopware;
 
 /**
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'feature',
@@ -88,7 +85,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return '';
             }
 
-            const imgPath = 'administration/static/img/cms';
+            const imgPath = 'administration/administration/static/img/cms';
 
             return `url(${this.assetFilter(`${imgPath}/preview_${this.page.type}_${sections[0].type}.png`)})`;
         },

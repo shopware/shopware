@@ -1,34 +1,10 @@
 import { mount } from '@vue/test-utils';
-import flowState from 'src/module/sw-flow/state/flow.state';
 
 /**
  * @sw-package after-sales
  */
 
 const { ShopwareError } = Shopware.Classes;
-
-Shopware.State.registerModule('swFlowState', {
-    ...flowState,
-    state: {
-        invalidSequences: [],
-        triggerEvent: {
-            data: {
-                order: {
-                    type: 'entity',
-                },
-            },
-            customerAware: false,
-            extensions: [],
-            logAware: false,
-            mailAware: false,
-            name: 'action.grant.download.access',
-            orderAware: true,
-            salesChannelAware: false,
-            userAware: false,
-            webhookAware: false,
-        },
-    },
-});
 
 async function createWrapper(config = null) {
     return mount(
@@ -40,11 +16,6 @@ async function createWrapper(config = null) {
                 stubs: {
                     'sw-modal': await wrapTestComponent('sw-modal'),
                     'sw-single-select': true,
-                    'sw-button': {
-                        emits: ['click'],
-                        template: '<button @click="$emit(\'click\')"><slot></slot></button>',
-                    },
-                    'sw-icon': true,
                     'sw-loader': true,
                 },
                 provide: {
@@ -66,6 +37,25 @@ async function createWrapper(config = null) {
 }
 
 describe('module/sw-flow/component/sw-flow-grant-download-access-modal', () => {
+    beforeAll(() => {
+        Shopware.Store.get('swFlow').triggerEvent = {
+            data: {
+                order: {
+                    type: 'entity',
+                },
+            },
+            customerAware: false,
+            extensions: [],
+            logAware: false,
+            mailAware: false,
+            name: 'action.grant.download.access',
+            orderAware: true,
+            salesChannelAware: false,
+            userAware: false,
+            webhookAware: false,
+        };
+    });
+
     it('should get config', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

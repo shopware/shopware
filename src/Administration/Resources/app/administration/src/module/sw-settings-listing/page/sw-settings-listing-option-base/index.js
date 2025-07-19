@@ -12,8 +12,6 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'systemConfigApiService',
@@ -115,7 +113,7 @@ export default {
         },
 
         getProductSortingEntityId() {
-            return this.$route.params.id;
+            return this.$route.params.id.toLowerCase();
         },
 
         async isValidSortingOption() {

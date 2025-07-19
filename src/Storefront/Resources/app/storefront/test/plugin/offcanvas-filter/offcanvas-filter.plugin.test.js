@@ -52,7 +52,7 @@ describe('Offcanvas filter tests', () => {
 
         // Open offCanvas filter and wait until opened
         mockDomElement.click();
-        jest.advanceTimersByTime(OffCanvas.REMOVE_OFF_CANVAS_DELAY);
+        jest.advanceTimersByTime(350);
 
         // Verify filter offCanvas exists and is shown
         expect(document.querySelector('.offcanvas.offcanvas-filter.show')).toBeTruthy();

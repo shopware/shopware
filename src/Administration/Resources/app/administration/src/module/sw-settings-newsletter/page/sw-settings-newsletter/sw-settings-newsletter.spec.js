@@ -8,7 +8,7 @@ const classes = {
     root: 'sw-page__main-content',
     cardView: 'sw-card-view',
     systemConfig: 'sw-system-config',
-    settingsCard: 'sw-card',
+    settingsCard: 'mt-card',
     newsletterSubscribeUrl: 'core.newsletter.subscribeUrl',
 };
 
@@ -51,9 +51,8 @@ async function createWrapper() {
                           <slot></slot>settingsCard
                      </div>`,
                     },
-                    'sw-icon': true,
-                    'sw-card': {
-                        template: '<div class="sw-card"><slot></slot></div>',
+                    'mt-card': {
+                        template: '<div class="mt-card"><slot></slot></div>',
                     },
                     'sw-card-view': {
                         template: '<div class="sw-card-view"><slot></slot></div>',
@@ -64,8 +63,7 @@ async function createWrapper() {
                     'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
@@ -78,7 +76,7 @@ async function createWrapper() {
                     'sw-loader': true,
                     'sw-skeleton': true,
                     'sw-sales-channel-switch': true,
-                    'sw-alert': true,
+
                     'sw-inheritance-switch': true,
                     'sw-field-copyable': true,
                     'sw-ai-copilot-badge': true,
@@ -110,17 +108,17 @@ function createConfig() {
                     defaultValue: '/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%',
                     config: {
                         label: {
-                            'en-GB': 'Subscription url',
-                            'de-DE': 'Anmelde-Url',
+                            'en-GB': 'Subscription URL',
+                            'de-DE': 'Anmelde-URL',
                         },
                         placeholder: {
                             'en-GB': '/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%',
                         },
                         helpText: {
                             'en-GB':
-                                'Url to confirm the subscription to the newsletter.<br/>Available placeholders: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%',
+                                'URL to confirm the subscription to the newsletter.<br/>Available placeholders: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%',
                             'de-DE':
-                                'Url um die Newsletteranmeldung zu bestätigen.<br/>Verfügbare Platzhalter: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%',
+                                'URL um die Newsletter-Anmeldung zu bestätigen.<br/>Verfügbare Platzhalter: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%',
                         },
                     },
                 },
@@ -128,10 +126,10 @@ function createConfig() {
                     name: 'core.newsletter.doubleOptIn',
                     type: 'bool',
                     config: {
-                        label: { 'en-GB': 'Double Opt-in' },
+                        label: { 'en-GB': 'Double opt-in' },
                         helpText: {
-                            'en-GB': 'Use Double Opt-in for newsletter subscriptions',
-                            'de-DE': 'Nutze das Double Opt-In Verfahren für Newsletter Anmeldungen.',
+                            'en-GB': 'Use double opt-in for newsletter subscriptions.',
+                            'de-DE': 'Nutze das Double-Opt-In-Verfahren für Newsletter-Anmeldungen.',
                         },
                     },
                 },

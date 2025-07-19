@@ -23,9 +23,7 @@ class FeatureFlagCallTokenParserTest extends TestCase
     public function testCodeRun(string $twigCode, bool $shouldThrow): void
     {
         // deprecation warning wouldn't be rendered otherwise
-        $this->setEnvVars(['TESTS_RUNNING' => false]);
-
-        $_SERVER['TEST_TWIG'] = false;
+        $this->setEnvVars(['TESTS_RUNNING' => false, 'TEST_TWIG' => false]);
 
         $deprecationMessage = null;
         set_error_handler(function ($errno, $errstr) use (&$deprecationMessage) {
@@ -47,8 +45,6 @@ class FeatureFlagCallTokenParserTest extends TestCase
         } else {
             static::assertNull($deprecationMessage);
         }
-
-        unset($_SERVER['TEST_TWIG']);
     }
 
     /**

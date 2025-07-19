@@ -68,6 +68,10 @@ class SearchKeywordUpdaterTest extends TestCase
     #[DataProvider('productKeywordProvider')]
     public function testItUpdatesKeywordsForAvailableLanguagesOnly(array $productData, IdsCollection $ids, array $englishKeywords, array $germanKeywords, array $additionalDictionaries = []): void
     {
+        $this->connection->executeStatement('DELETE FROM product');
+        $this->connection->executeStatement('DELETE FROM product_search_keyword');
+        $this->connection->executeStatement('DELETE FROM product_keyword_dictionary');
+
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
@@ -153,6 +157,7 @@ class SearchKeywordUpdaterTest extends TestCase
                 '1000', // productNumber
                 'product', // part of name
                 'test', // part of name
+                'test product', // product name
             ]
         );
         $this->assertKeywords($ids->get('1000'), $ids->get('language'), []);
@@ -177,11 +182,13 @@ class SearchKeywordUpdaterTest extends TestCase
                     '1000', // productNumber
                     'product', // part of name
                     'test', // part of name
+                    'test product', // product name
                 ],
                 [
                     '1000', // productNumber
                     'produkt', // part of name
                     'test', // part of name
+                    'test produkt', // product name
                 ],
             ],
             'test it uses parent languages' => [
@@ -194,11 +201,13 @@ class SearchKeywordUpdaterTest extends TestCase
                     '1000', // productNumber
                     'product', // part of name
                     'test', // part of name
+                    'test product', // product name
                 ],
                 [
                     '1000', // productNumber
                     'product', // part of name
                     'test', // part of name
+                    'test product', // product name
                 ],
             ],
             'test it uses correct languages for association' => [
@@ -213,12 +222,14 @@ class SearchKeywordUpdaterTest extends TestCase
                     'manufacturer', // manufacturer name
                     'product', // part of name
                     'test', // part of name
+                    'test product', // product name
                 ],
                 [
                     '1000', // productNumber
                     'Hersteller', // manufacturer name
                     'product', // part of name
                     'test', // part of name
+                    'test product', // product name
                 ],
             ],
             'test it uses correct translation from parent' => [
@@ -238,11 +249,13 @@ class SearchKeywordUpdaterTest extends TestCase
                     '1000', // productNumber
                     'product', // part of name
                     'test', // part of name
+                    'test product', // product name
                 ],
                 [
                     '1000', // productNumber
                     'produkt', // part of name
                     'test', // part of name
+                    'test produkt', // product name
                 ],
                 ['1001'],
             ],
@@ -264,12 +277,14 @@ class SearchKeywordUpdaterTest extends TestCase
                     'manufacturer', // manufacturer name
                     'product', // part of name
                     'test', // part of name
+                    'test product', // product name
                 ],
                 [
                     '1000', // productNumber
                     'Hersteller', // manufacturer name
                     'product', // part of name
                     'test', // part of name
+                    'test product', // product name
                 ],
                 ['1001'],
             ],
@@ -325,7 +340,7 @@ class SearchKeywordUpdaterTest extends TestCase
             ]
         );
 
-        static::assertEquals($expectedKeywords, $dictionary);
+        static::assertSame($expectedKeywords, $dictionary);
     }
 
     private function assertLanguageHasNoDictionary(string $languageId): void

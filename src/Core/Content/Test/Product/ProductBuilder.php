@@ -52,7 +52,7 @@ class ProductBuilder
     /**
      * @var Manufacturer
      */
-    protected ?array $manufacturer;
+    protected ?array $manufacturer = null;
 
     /**
      * @var Tax
@@ -96,7 +96,7 @@ class ProductBuilder
     /**
      * @var array<CurrencyPrice>|null
      */
-    protected ?array $purchasePrices;
+    protected ?array $purchasePrices = null;
 
     protected ?float $purchasePrice = null;
 
@@ -151,7 +151,7 @@ class ProductBuilder
      */
     protected array $tags = [];
 
-    protected ?string $createdAt;
+    protected ?string $createdAt = null;
 
     /**
      * @var array<array{salesChannelId: string, languageId: string, routeName: TestProductSeoUrlRoute::ROUTE_NAME, pathInfo: string, seoPathInfo: string}>
@@ -167,6 +167,14 @@ class ProductBuilder
      * @var array<array<mixed>>
      */
     protected array $variantListingConfig = [];
+
+    protected ?float $width = null;
+
+    protected ?float $height = null;
+
+    protected ?float $length = null;
+
+    protected ?float $weight = null;
 
     /**
      * @var array<string, array<array<mixed>>>
@@ -316,7 +324,7 @@ class ProductBuilder
         return $this;
     }
 
-    public function prices(string $ruleKey, float $gross, string $currencyKey = 'default', ?float $net = null, int $start = 1, bool $valid = false, ?float $listPriceGross = null, ?float $listPriceNet = null): self
+    public function prices(string $ruleKey, float $gross, string $currencyKey = 'default', ?float $net = null, int $start = 1, bool $valid = false, ?float $listPriceGross = null, ?float $listPriceNet = null, ?int $end = null): self
     {
         $net ??= $gross / 115 * 100;
 
@@ -363,6 +371,7 @@ class ProductBuilder
 
         $this->prices[] = [
             'quantityStart' => $start,
+            'quantityEnd' => $end,
             'rule' => [
                 'id' => $this->ids->create($ruleKey),
                 'priority' => 1,
@@ -427,6 +436,34 @@ class ProductBuilder
     public function stock(int $stock): self
     {
         $this->stock = $stock;
+
+        return $this;
+    }
+
+    public function width(?float $width): self
+    {
+        $this->width = $width;
+
+        return $this;
+    }
+
+    public function height(?float $height): self
+    {
+        $this->height = $height;
+
+        return $this;
+    }
+
+    public function length(?float $length): self
+    {
+        $this->length = $length;
+
+        return $this;
+    }
+
+    public function weight(?float $weight): self
+    {
+        $this->weight = $weight;
 
         return $this;
     }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Product;
 
+use OpenSearchDSL\BuilderInterface;
 use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\Compound\DisMaxQuery;
 use Shopware\Core\Framework\Context;
@@ -37,7 +38,7 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
         throw new DecorationPatternException(self::class);
     }
 
-    public function build(Criteria $criteria, Context $context): BoolQuery
+    public function build(Criteria $criteria, Context $context): BuilderInterface
     {
         $originalTerm = mb_strtolower((string) $criteria->getTerm());
 
@@ -110,9 +111,6 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
         $dismax->addQuery($tokensQuery);
         $dismax->addQuery($originalTermQuery);
 
-        // @deprecated tag:v6.7.0 - will just return $dismax when return type is changed to BuilderInterface
-        return new BoolQuery([
-            BoolQuery::MUST => [$dismax],
-        ]);
+        return $dismax;
     }
 }

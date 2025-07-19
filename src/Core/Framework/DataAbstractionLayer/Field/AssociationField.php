@@ -9,26 +9,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 abstract class AssociationField extends Field
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $referenceClass;
+    protected string $referenceClass;
 
-    /**
-     * @var EntityDefinition
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $referenceDefinition;
+    protected ?EntityDefinition $referenceDefinition = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $referenceField;
+    protected string $referenceField;
 
     protected bool $autoload = false;
 
@@ -51,6 +36,7 @@ abstract class AssociationField extends Field
     {
         if ($this->referenceDefinition === null) {
             $this->compileLazy();
+            \assert($this->referenceDefinition !== null);
         }
 
         return $this->referenceDefinition;

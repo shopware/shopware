@@ -14,8 +14,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
- *
- * @phpstan-import-type Option from RuleIdMatcher
  */
 #[CoversClass(RuleIdMatcher::class)]
 #[Package('framework')]

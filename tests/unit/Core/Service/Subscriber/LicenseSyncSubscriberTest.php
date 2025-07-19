@@ -21,10 +21,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\AuthenticatedServiceClient;
 use Shopware\Core\Service\ServiceClientFactory;
 use Shopware\Core\Service\ServiceException;
-use Shopware\Core\Service\ServiceRegistryClient;
-use Shopware\Core\Service\ServiceRegistryEntry;
+use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Shopware\Core\Service\Subscriber\LicenseSyncSubscriber;
-use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
+use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 
@@ -69,15 +69,15 @@ class LicenseSyncSubscriberTest extends TestCase
         $expectedEvents = [
             AppInstalledEvent::class => 'serviceInstalled',
             AppUpdatedEvent::class => 'serviceInstalled',
-            SystemConfigChangedEvent::class => 'syncLicense',
+            BeforeSystemConfigChangedEvent::class => 'syncLicense',
         ];
 
-        static::assertEquals($expectedEvents, LicenseSyncSubscriber::getSubscribedEvents());
+        static::assertSame($expectedEvents, LicenseSyncSubscriber::getSubscribedEvents());
     }
 
     public function testLicenseSyncWithValidLicense(): void
     {
-        $event = new SystemConfigChangedEvent(
+        $event = new BeforeSystemConfigChangedEvent(
             LicenseSyncSubscriber::CONFIG_STORE_LICENSE_KEY,
             'valid_license_key',
             Uuid::randomHex(),
@@ -102,10 +102,15 @@ class LicenseSyncSubscriberTest extends TestCase
         $app3->setUniqueIdentifier('app_id_3');
         $app3->setSelfManaged(false);
 
-        $serviceEntry = new ServiceRegistryEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
+        $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
 
         $this->appRepository = new StaticEntityRepository([
             new EntityCollection([$app, $app2, $app3]),
+        ]);
+
+        // Set up system config with a different initial value so the comparison doesn't match
+        $this->systemConfigService = new StaticSystemConfigService([
+            LicenseSyncSubscriber::CONFIG_STORE_LICENSE_KEY => 'different_license_key',
         ]);
 
         $this->subscriber = new LicenseSyncSubscriber(
@@ -121,14 +126,14 @@ class LicenseSyncSubscriberTest extends TestCase
         $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
         $this->clientFactory->method('newAuthenticatedFor')->willReturn($serviceAuthedClient);
 
-        $this->clientFactory->expects(static::exactly(2))->method('newAuthenticatedFor');
-        $serviceAuthedClient->expects(static::exactly(2))->method('syncLicense');
+        $this->clientFactory->expects($this->exactly(2))->method('newAuthenticatedFor');
+        $serviceAuthedClient->expects($this->exactly(2))->method('syncLicense');
         $this->subscriber->syncLicense($event);
     }
 
     public function testLicenseSyncWithLicenseHostIsEmpty(): void
     {
-        $event = new SystemConfigChangedEvent(
+        $event = new BeforeSystemConfigChangedEvent(
             LicenseSyncSubscriber::CONFIG_STORE_LICENSE_HOST,
             '',
             Uuid::randomHex(),
@@ -153,10 +158,15 @@ class LicenseSyncSubscriberTest extends TestCase
         $app3->setUniqueIdentifier('app_id_3');
         $app3->setSelfManaged(false);
 
-        $serviceEntry = new ServiceRegistryEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
+        $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
 
         $this->appRepository = new StaticEntityRepository([
             new EntityCollection([$app, $app2, $app3]),
+        ]);
+
+        // Set up system config with a different initial value so the comparison doesn't match
+        $this->systemConfigService = new StaticSystemConfigService([
+            LicenseSyncSubscriber::CONFIG_STORE_LICENSE_HOST => 'different_host',
         ]);
 
         $this->subscriber = new LicenseSyncSubscriber(
@@ -172,14 +182,14 @@ class LicenseSyncSubscriberTest extends TestCase
         $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
         $this->clientFactory->method('newAuthenticatedFor')->willReturn($serviceAuthedClient);
 
-        $this->clientFactory->expects(static::exactly(2))->method('newAuthenticatedFor');
-        $serviceAuthedClient->expects(static::exactly(2))->method('syncLicense');
+        $this->clientFactory->expects($this->exactly(2))->method('newAuthenticatedFor');
+        $serviceAuthedClient->expects($this->exactly(2))->method('syncLicense');
         $this->subscriber->syncLicense($event);
     }
 
     public function testLicenseSyncWithLicenseKeyIsEmpty(): void
     {
-        $event = new SystemConfigChangedEvent(
+        $event = new BeforeSystemConfigChangedEvent(
             LicenseSyncSubscriber::CONFIG_STORE_LICENSE_KEY,
             '',
             Uuid::randomHex(),
@@ -204,10 +214,15 @@ class LicenseSyncSubscriberTest extends TestCase
         $app3->setUniqueIdentifier('app_id_3');
         $app3->setSelfManaged(false);
 
-        $serviceEntry = new ServiceRegistryEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
+        $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
 
         $this->appRepository = new StaticEntityRepository([
             new EntityCollection([$app, $app2, $app3]),
+        ]);
+
+        // Set up system config with a different initial value so the comparison doesn't match
+        $this->systemConfigService = new StaticSystemConfigService([
+            LicenseSyncSubscriber::CONFIG_STORE_LICENSE_KEY => 'different_key',
         ]);
 
         $this->subscriber = new LicenseSyncSubscriber(
@@ -223,14 +238,14 @@ class LicenseSyncSubscriberTest extends TestCase
         $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
         $this->clientFactory->method('newAuthenticatedFor')->willReturn($serviceAuthedClient);
 
-        $this->clientFactory->expects(static::exactly(2))->method('newAuthenticatedFor');
-        $serviceAuthedClient->expects(static::exactly(2))->method('syncLicense');
+        $this->clientFactory->expects($this->exactly(2))->method('newAuthenticatedFor');
+        $serviceAuthedClient->expects($this->exactly(2))->method('syncLicense');
         $this->subscriber->syncLicense($event);
     }
 
     public function testLicenseIsNotSyncedWhenAppSecretIsNull(): void
     {
-        $event = new SystemConfigChangedEvent(
+        $event = new BeforeSystemConfigChangedEvent(
             LicenseSyncSubscriber::CONFIG_STORE_LICENSE_KEY,
             'valid_license_key',
             Uuid::randomHex(),
@@ -242,7 +257,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $app->setName('app_name');
         $app->setSelfManaged(true);
 
-        $serviceEntry = new ServiceRegistryEntry('serviceA', 'description', 'host', 'appEndpoint', true);
+        $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true);
 
         $this->appRepository = new StaticEntityRepository([
             new EntitySearchResult(
@@ -267,14 +282,14 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
 
-        $this->clientFactory->expects(static::never())->method('newAuthenticatedFor');
-        $serviceAuthedClient->expects(static::never())->method('syncLicense');
+        $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
+        $serviceAuthedClient->expects($this->never())->method('syncLicense');
         $this->subscriber->syncLicense($event);
     }
 
     public function testLicenseIsNotSyncedWhenAppIsNotService(): void
     {
-        $event = new SystemConfigChangedEvent(
+        $event = new BeforeSystemConfigChangedEvent(
             LicenseSyncSubscriber::CONFIG_STORE_LICENSE_KEY,
             'valid_license_key',
             Uuid::randomHex(),
@@ -287,7 +302,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $app->setSelfManaged(false);
         $app->setAppSecret('app_secret');
 
-        $serviceEntry = new ServiceRegistryEntry('serviceA', 'description', 'host', 'appEndpoint', true);
+        $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true);
 
         $this->appRepository = new StaticEntityRepository([
             new EntitySearchResult(
@@ -312,8 +327,8 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
 
-        $this->clientFactory->expects(static::never())->method('newAuthenticatedFor');
-        $serviceAuthedClient->expects(static::never())->method('syncLicense');
+        $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
+        $serviceAuthedClient->expects($this->never())->method('syncLicense');
         $this->subscriber->syncLicense($event);
     }
 
@@ -336,7 +351,7 @@ class LicenseSyncSubscriberTest extends TestCase
             )),
         );
 
-        $this->clientFactory->expects(static::never())->method('newAuthenticatedFor');
+        $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
         $this->subscriber->serviceInstalled($event);
     }
 
@@ -359,15 +374,20 @@ class LicenseSyncSubscriberTest extends TestCase
             )),
         );
 
-        $this->clientFactory->method('newAuthenticatedFor')->willThrowException(new \Exception('error'));
-        $this->clientFactory->expects(static::never())->method('newAuthenticatedFor');
+        $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
+        $this->serviceRegistryClient->expects($this->once())->method('get')->willReturn($serviceEntry);
 
+        $this->clientFactory->expects($this->once())
+            ->method('newAuthenticatedFor')
+            ->willThrowException(new ServiceException(500, 'Client factory error', 'error'));
+
+        // no exception, just silently logged.
         $this->subscriber->serviceInstalled($event);
     }
 
     public function testLicenseIsNotSyncedWhenServiceDefinitionDoesNotSpecifyLicenseEndpoint(): void
     {
-        $event = new SystemConfigChangedEvent(
+        $event = new BeforeSystemConfigChangedEvent(
             LicenseSyncSubscriber::CONFIG_STORE_LICENSE_KEY,
             'valid_license_key',
             Uuid::randomHex(),
@@ -380,7 +400,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $app->setName('app_name');
         $app->setSelfManaged(true);
 
-        $serviceEntry = new ServiceRegistryEntry('serviceA', 'description', 'host', 'appEndpoint', true);
+        $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true);
 
         $this->appRepository = new StaticEntityRepository([
             new EntitySearchResult(
@@ -405,14 +425,14 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
 
-        $this->clientFactory->expects(static::never())->method('newAuthenticatedFor');
-        $serviceAuthedClient->expects(static::never())->method('syncLicense');
+        $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
+        $serviceAuthedClient->expects($this->never())->method('syncLicense');
         $this->subscriber->syncLicense($event);
     }
 
     public function testLicenseIsNotSyncedWhenLicenseIsNull(): void
     {
-        $event = new SystemConfigChangedEvent(
+        $event = new BeforeSystemConfigChangedEvent(
             LicenseSyncSubscriber::CONFIG_STORE_LICENSE_KEY,
             null,
             Uuid::randomHex(),
@@ -425,7 +445,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $app->setName('app_name');
         $app->setSelfManaged(true);
 
-        $serviceEntry = new ServiceRegistryEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
+        $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
 
         $this->appRepository = new StaticEntityRepository([
             new EntitySearchResult(
@@ -450,44 +470,44 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
 
-        $this->clientFactory->expects(static::never())->method('newAuthenticatedFor');
-        $serviceAuthedClient->expects(static::never())->method('syncLicense');
+        $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
+        $serviceAuthedClient->expects($this->never())->method('syncLicense');
         $this->subscriber->syncLicense($event);
     }
 
     public function testLicenseIsNotSyncedWithValueIsNotString(): void
     {
-        $event = new SystemConfigChangedEvent(
+        $event = new BeforeSystemConfigChangedEvent(
             LicenseSyncSubscriber::CONFIG_STORE_LICENSE_KEY,
             1,
             Uuid::randomHex(),
         );
 
-        $this->serviceRegistryClient->expects(static::never())->method('get');
+        $this->serviceRegistryClient->expects($this->never())->method('get');
         $this->subscriber->syncLicense($event);
     }
 
     public function testLicenseIsNotSyncedWithInvalidConfigChanges(): void
     {
-        $event = new SystemConfigChangedEvent(
+        $event = new BeforeSystemConfigChangedEvent(
             'invalid_key',
             'valid_license_key',
             Uuid::randomHex(),
         );
 
-        $this->serviceRegistryClient->expects(static::never())->method('get');
+        $this->serviceRegistryClient->expects($this->never())->method('get');
         $this->subscriber->syncLicense($event);
     }
 
     public function testLicenseIsNotSyncedWithInvalidConfigValue(): void
     {
-        $event = new SystemConfigChangedEvent(
+        $event = new BeforeSystemConfigChangedEvent(
             LicenseSyncSubscriber::CONFIG_STORE_LICENSE_KEY,
             null,
             Uuid::randomHex(),
         );
 
-        $this->serviceRegistryClient->expects(static::never())->method('get');
+        $this->serviceRegistryClient->expects($this->never())->method('get');
         $this->subscriber->syncLicense($event);
     }
 
@@ -516,11 +536,11 @@ class LicenseSyncSubscriberTest extends TestCase
             $this->clientFactory,
         );
 
-        $serviceEntry = new ServiceRegistryEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
+        $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
 
         $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
 
-        $this->clientFactory->expects(static::once())->method('newAuthenticatedFor');
+        $this->clientFactory->expects($this->once())->method('newAuthenticatedFor');
         $this->subscriber->serviceInstalled($event);
     }
 
@@ -535,13 +555,13 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $this->systemConfigService = new StaticSystemConfigService([]);
 
-        $this->serviceRegistryClient->expects(static::never())->method('get');
+        $this->serviceRegistryClient->expects($this->never())->method('get');
         $this->subscriber->serviceInstalled($event);
     }
 
     public function testLicenseIsNotSyncIfThrowException(): void
     {
-        $event = new SystemConfigChangedEvent(
+        $event = new BeforeSystemConfigChangedEvent(
             LicenseSyncSubscriber::CONFIG_STORE_LICENSE_KEY,
             'valid_license_key',
             Uuid::randomHex(),
@@ -554,7 +574,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $app->setSelfManaged(true);
         $app->setAppSecret('app_secret');
 
-        $serviceEntry = new ServiceRegistryEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
+        $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
 
         $this->appRepository = new StaticEntityRepository([
             new EntitySearchResult(
@@ -580,7 +600,32 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $this->clientFactory->method('newAuthenticatedFor')->willThrowException(new ServiceException(301, 'error', 'error'));
 
-        $serviceAuthedClient->expects(static::never())->method('syncLicense');
+        $serviceAuthedClient->expects($this->never())->method('syncLicense');
+        $this->subscriber->syncLicense($event);
+    }
+
+    public function testLicenseIsNotSyncedWhenValueHasNotChanged(): void
+    {
+        // Set up system config with existing value
+        $this->systemConfigService = new StaticSystemConfigService([
+            LicenseSyncSubscriber::CONFIG_STORE_LICENSE_KEY => 'existing_license_key',
+        ]);
+
+        $this->subscriber = new LicenseSyncSubscriber(
+            $this->systemConfigService,
+            $this->serviceRegistryClient,
+            $this->appRepository,
+            new Logger('test'),
+            $this->clientFactory,
+        );
+
+        $event = new BeforeSystemConfigChangedEvent(
+            LicenseSyncSubscriber::CONFIG_STORE_LICENSE_KEY,
+            'existing_license_key', // Same value as current
+            null,
+        );
+
+        $this->serviceRegistryClient->expects($this->never())->method('get');
         $this->subscriber->syncLicense($event);
     }
 }

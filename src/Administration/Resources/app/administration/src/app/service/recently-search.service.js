@@ -1,6 +1,6 @@
 /**
  * @module app/recently-search-service
- * @sw-package buyers-experience
+ * @sw-package inventory
  */
 
 /**

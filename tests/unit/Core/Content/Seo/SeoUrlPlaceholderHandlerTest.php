@@ -89,7 +89,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
     #[DataProvider('replaceDataProvider')]
     public function testReplace(string $host, string $content, string $expected): void
     {
-        $this->connection->expects(static::once())->method('executeQuery')->willReturn($this->createMock(Result::class));
+        $this->connection->expects($this->once())->method('executeQuery')->willReturn($this->createMock(Result::class));
 
         static::assertSame($expected, $this->seoUrlPlaceholderHandler->replace($content, $host, $this->salesChannelContext));
     }
@@ -99,7 +99,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
         $productId = Uuid::randomHex();
         $categoryId = Uuid::randomHex();
         $result = $this->createMock(Result::class);
-        $result->expects(static::once())->method('fetchAllAssociative')->willReturn([
+        $result->expects($this->once())->method('fetchAllAssociative')->willReturn([
             [
                 'seo_path_info' => 'awesome-product',
                 'path_info' => '/detail/' . $productId,

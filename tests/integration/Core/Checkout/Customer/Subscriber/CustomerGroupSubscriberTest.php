@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -258,7 +259,7 @@ class CustomerGroupSubscriberTest extends TestCase
      */
     private function createSalesChannel(array $salesChannelOverride = []): array
     {
-        /** @var EntityRepository $salesChannelRepository */
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
         $paymentMethod = $this->getAvailablePaymentMethod();
         $salesChannel = array_merge([

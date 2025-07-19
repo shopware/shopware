@@ -102,7 +102,7 @@ class IntegrationControllerTest extends TestCase
             ->search(new Criteria([$ids->get('integration')]), $context);
 
         static::assertNotNull($assigned);
-        static::assertEquals(1, $assigned->count());
+        static::assertCount(1, $assigned);
         static::assertNotNull($assigned->first());
         static::assertTrue($assigned->first()->getAdmin());
     }
@@ -219,7 +219,7 @@ class IntegrationControllerTest extends TestCase
         $expectedIds = $ids->getList(['role-1', 'role-2']);
         sort($expectedIds);
 
-        static::assertEquals($expectedIds, $aclRoleIds);
+        static::assertSame($expectedIds, $aclRoleIds);
     }
 
     public function testPreventUpdateIntegrationWithAdministratorRoleAsNonAdmin(): void
@@ -261,7 +261,7 @@ class IntegrationControllerTest extends TestCase
         $assigned = static::getContainer()->get('integration.repository')
             ->search(new Criteria([$ids->get('integration')]), $context);
 
-        static::assertEquals(1, $assigned->count());
+        static::assertCount(1, $assigned);
         static::assertNotNull($assigned->first());
         static::assertFalse($assigned->first()->getAdmin());
     }

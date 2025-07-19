@@ -84,7 +84,7 @@ class CurrencyRepositoryTest extends TestCase
 
         static::assertCount(2, $result->getIds());
 
-        static::assertEquals(
+        static::assertSame(
             [$recordA, $recordB],
             $result->getIds()
         );
@@ -119,7 +119,7 @@ class CurrencyRepositoryTest extends TestCase
         $deleteEventElement = $this->currencyRepository->delete([['id' => $recordA]], $context)->getEventByEntityName(CurrencyDefinition::ENTITY_NAME);
 
         static::assertNotNull($deleteEventElement);
-        static::assertEquals($recordA, $deleteEventElement->getWriteResults()[0]->getPrimaryKey());
+        static::assertSame($recordA, $deleteEventElement->getWriteResults()[0]->getPrimaryKey());
     }
 
     public function testDeleteDefaultCurrency(): void

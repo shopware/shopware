@@ -12,12 +12,10 @@ const { Criteria, EntityCollection } = Shopware.Data;
 /**
  * @private
  */
-Component.register('sw-entity-multi-select', {
+export default {
     template,
 
     inheritAttrs: false,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -181,15 +179,6 @@ Component.register('sw-entity-multi-select', {
     },
 
     computed: {
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
-
         repository() {
             return this.repositoryFactory.create(this.entityName || this.entityCollection.entity);
         },
@@ -461,4 +450,4 @@ Component.register('sw-entity-multi-select', {
             this.$refs.selectionList.blur();
         },
     },
-});
+};

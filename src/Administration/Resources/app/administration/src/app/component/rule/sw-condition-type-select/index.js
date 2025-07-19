@@ -1,16 +1,12 @@
 import template from './sw-condition-type-select.html.twig';
 import './sw-condition-type-select.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  * @sw-package fundamentals@after-sales
  */
-Component.register('sw-condition-type-select', {
+export default {
     template: template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'removeNodeFromTree',
@@ -217,4 +213,4 @@ Component.register('sw-condition-type-select', {
             );
         },
     },
-});
+};

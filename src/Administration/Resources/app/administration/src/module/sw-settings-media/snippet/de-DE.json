@@ -4,6 +4,12 @@
       "title": "Medien",
       "description": "Verwaltung von Medieneinstellungen.",
       "buttonSave": "Speichern"
+    },
+    "3d": {
+      "lightIntensity": {
+        "label": "Lichtintensität",
+        "helpText": "Verändert die Lichtintensität in der 3D-Ansicht."
+      }
     }
   }
 }

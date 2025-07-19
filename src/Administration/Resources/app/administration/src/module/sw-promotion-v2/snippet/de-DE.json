@@ -17,7 +17,8 @@
             "placeholderSearchBar": "Durchsuche alle Rabattaktionen ...",
             "textDeleteConfirm": "Möchtest Du die Rabattaktion \"{name}\" wirklich löschen?",
             "titleSidebarItemRefresh": "Aktualisieren",
-            "duplicatePromotionInfo": "Aktionscodes werden nicht dupliziert und müssen neu generiert werden."
+            "duplicatePromotionInfo": "Aktionscodes werden nicht dupliziert und müssen neu generiert werden.",
+            "deleteDisabledToolTip": "Die Aktion kann nicht gelöscht werden, da sie bereits verwendet wird."
         },
         "detail": {
             "header": {
@@ -93,7 +94,7 @@
                             "placeholderSuffix": "Gib einen Suffix an ...",
                             "labelCustomPattern": "Eigenes Muster",
                             "placeholderCustomPattern": "Gib ein eigenes Muster an",
-                            "helpTextCustomPattern": "Beachte, dass nur ein aufeinanderfolgender Satz an Variablen umgewandelt werden kann.<br><br>Mögliche Variablen:<br>- %d - Ziffern (0-9)<br>- %s - Buchstaben (A-Z)",
+                            "helpTextCustomPattern": "Beachte, dass nur ein aufeinanderfolgender Satz an Variablen umgewandelt werden kann. <strong>Mögliche Variablen:</strong><ul><li>%d - Ziffern (0-9)</li><li>%s - Buchstaben (A-Z)</li></ul>",
                             "labelUseCustomPattern": "Eigenes Muster nutzen",
                             "labelPreview": "Aktionscode-Vorschau",
                             "labelCodeAmount": "Anzahl der Aktionscodes",

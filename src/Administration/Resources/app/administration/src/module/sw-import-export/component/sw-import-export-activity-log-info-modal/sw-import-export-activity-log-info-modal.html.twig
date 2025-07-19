@@ -36,7 +36,10 @@
         {% block sw_import_export_activity_log_info_modal_description_date %}
         <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-date">
             <dt>{{ $tc('sw-import-export.activity.logInfo.labelDate') }}</dt>
-            <dd>{{ dateFilter(logEntity.createdAt, { hour: '2-digit', minute: '2-digit' }) }}</dd>
+            <dd><sw-time-ago
+                :date="logEntity.createdAt"
+                :date-time-format="{ month: '2-digit', day: '2-digit' }"
+            /></dd>
         </div>
         {% endblock %}
         {% block sw_import_export_activity_log_info_modal_description_user %}
@@ -83,14 +86,15 @@
     {% endblock %}
 
     {% block sw_import_export_activity_log_info_modal_download %}
-    <sw-button
+    <mt-button
         class="sw-import-export-activity-log-info-modal__download-button"
         size="small"
         :disabled="(logEntity.activity === 'export' && logEntity.state !== 'succeeded') || undefined"
+        variant="secondary"
         @click="openDownload(logEntity.fileId)"
     >
         {{ $tc('sw-import-export.activity.logInfo.labelDownloadFile') }}
-    </sw-button>
+    </mt-button>
     {% endblock %}
 </sw-modal>
 {% endblock %}

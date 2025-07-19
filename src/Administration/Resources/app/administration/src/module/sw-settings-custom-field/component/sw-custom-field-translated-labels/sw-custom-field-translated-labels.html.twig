@@ -7,13 +7,14 @@
             :key="locale"
             class="sw-custom-field-translated-labels__single"
         >
-            <sw-text-field
+
+            <mt-text-field
                 v-for="(label, name) in propertyNames"
                 :key="getInlineSnippet(name)"
-                v-model:value="config[name][locale]"
+                v-model="config[name][locale]"
                 :disabled="disabled"
                 :label="getLabel(label, locale)"
-                @update:value="onInput($event, name, locale)"
+                @update:model-value="onInput($event, name, locale)"
             />
         </div>
     </template>
@@ -52,14 +53,15 @@
             >
                 <div v-if="active === locale">
                     {% block sw_custom_field_translated_labels_translated_content_field %}
-                    <sw-text-field
+
+                    <mt-text-field
                         v-for="(label, name) in propertyNames"
                         :key="getInlineSnippet(name)"
-                        v-model:value="config[name][locale]"
+                        v-model="config[name][locale]"
                         class="sw-custom-field-translated-labels__translated-content-field"
                         :disabled="disabled"
                         :label="getLabel(label, locale)"
-                        @update:value="onInput($event, name, locale)"
+                        @update:model-value="onInput($event, name, locale)"
                     />
                     {% endblock %}
                 </div>

@@ -7,9 +7,6 @@ async function createWrapper(propsData) {
                 $t: (...args) => JSON.stringify([...args]),
                 $tc: (...args) => JSON.stringify([...args]),
             },
-            stubs: {
-                'sw-button': true,
-            },
         },
         props: {
             extensionLabel: 'SEO Professional App',

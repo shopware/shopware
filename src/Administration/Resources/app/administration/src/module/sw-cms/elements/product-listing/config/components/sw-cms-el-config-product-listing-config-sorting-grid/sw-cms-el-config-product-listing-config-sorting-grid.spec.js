@@ -64,7 +64,7 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
                               <slot name="column-fields" v-bind="{ item: item }"></slot>
                               <slot name="column-priority" v-bind="{ item: item }">
                                   <div :class="'column-priority_' + item.id">
-                                      <sw-number-field v-model:value="item.priority" class="sw-grid-priority"></sw-number-field>
+                                      <mt-number-field v-model:value="item.priority" class="sw-grid-priority"></mt-number-field>
                                   </div>
                               </slot>
                           </template>
@@ -75,7 +75,7 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
                     template: '<div @click="$emit(\'click\')"></div>',
                 },
                 'sw-pagination': true,
-                'sw-number-field': {
+                'mt-number-field': {
                     template: `
                     <input type="number" :value="value" @input="$emit('update:value', Number($event.target.value))" />
                 `,

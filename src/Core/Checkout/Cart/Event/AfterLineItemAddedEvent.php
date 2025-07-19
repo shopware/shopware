@@ -13,37 +13,13 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class AfterLineItemAddedEvent implements ShopwareSalesChannelEvent, CartEvent
 {
     /**
-     * @var LineItem[]
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $lineItems;
-
-    /**
-     * @var Cart
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cart;
-
-    /**
-     * @var SalesChannelContext
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelContext;
-
-    /**
      * @param LineItem[] $lineItems
      */
     public function __construct(
-        array $lineItems,
-        Cart $cart,
-        SalesChannelContext $salesChannelContext
+        protected array $lineItems,
+        protected Cart $cart,
+        protected SalesChannelContext $salesChannelContext
     ) {
-        $this->lineItems = $lineItems;
-        $this->cart = $cart;
-        $this->salesChannelContext = $salesChannelContext;
     }
 
     /**

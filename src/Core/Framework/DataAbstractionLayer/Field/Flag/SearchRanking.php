@@ -15,26 +15,10 @@ class SearchRanking extends Flag
     final public const LOW_SEARCH_RANKING = 80;
     final public const HIGH_SEARCH_RANKING = 500;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $ranking;
-
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $tokenize;
-
     public function __construct(
-        float $ranking,
-        bool $tokenize = true
+        protected float $ranking,
+        protected bool $tokenize = true
     ) {
-        $this->ranking = $ranking;
-        $this->tokenize = $tokenize;
     }
 
     public function getRanking(): float

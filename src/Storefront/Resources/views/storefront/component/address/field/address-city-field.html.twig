@@ -1,0 +1,26 @@
+{% block component_address_field_city %}
+    {% if formViolations.getViolations('/city') is not empty %}
+        {% set violationPath = '/city' %}
+    {% elseif formViolations.getViolations("/#{prefix}/city") is not empty %}
+        {% set violationPath = "/#{prefix}/city" %}
+    {% endif %}
+
+    {% set cityAutocomplete = 'address-level2' %}
+
+    {% if prefix == 'shippingAddress' %}
+        {% set cityAutocomplete = 'shipping address-level2' %}
+    {% elseif prefix == 'billingAddress' %}
+        {% set cityAutocomplete = 'billing address-level2' %}
+    {% endif %}
+
+    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+        label: 'address.cityLabel'|trans|sw_sanitize,
+        id: idPrefix ~ prefix ~ 'AddressCity',
+        name: prefix ~ '[city]',
+        value: data.get('city'),
+        autocomplete: cityAutocomplete,
+        violationPath: violationPath,
+        validationRules: 'required',
+        additionalClass: additionalClass ?? 'col-md-3 col-8',
+    } %}
+{% endblock %}

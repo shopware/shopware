@@ -1,0 +1,64 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Message Queue statistics",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "\/_info\/message-stats.json": {
+            "get": {
+                "summary": "Get statistics for recently processed messages in the message queue",
+                "operationId": "getMessageStats",
+                "responses": {
+                    "200": {
+                        "description": "Statistics received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["enabled"],
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean",
+                                            "description": "Whether message queue statistics are enabled in configuration"
+                                        },
+                                        "stats": {
+                                            "type": ["object", "null"],
+                                            "properties": {
+                                                "totalMessagesProcessed": {
+                                                    "type": "integer"
+                                                },
+                                                "processedSince": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "averageTimeInQueue": {
+                                                    "type": "number",
+                                                    "format": "float"
+                                                },
+                                                "messageTypeStats": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "type": {
+                                                                "type": "string"
+                                                            },
+                                                            "count": {
+                                                                "type": "integer"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -7,82 +7,30 @@ namespace Shopware\Storefront\Test\Framework\Routing\Helper;
  */
 class ExpectedRequest
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $url;
+    public string $url;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $baseUrl;
+    public ?string $baseUrl = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $domainId;
+    public ?string $domainId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $salesChannelId;
+    public ?string $salesChannelId = null;
 
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $isStorefrontRequest;
+    public ?bool $isStorefrontRequest = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $locale;
+    public ?string $locale = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $currency;
+    public ?string $currency = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $languageCode;
+    public ?string $languageCode = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $snippetLanguageCode;
+    public ?string $snippetLanguageCode = null;
 
     /**
      * @var class-string<\Throwable>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    public $exception;
+    public ?string $exception = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    public $resolvedUrl;
+    public ?string $resolvedUrl = null;
 
     /**
      * @param class-string<\Throwable>|null $exception

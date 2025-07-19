@@ -1,5 +1,4 @@
 import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
-import DomAccessHelper from 'src/helper/dom-access.helper';
 
 export default class ViewSearchResults extends AnalyticsEvent
 {
@@ -12,7 +11,7 @@ export default class ViewSearchResults extends AnalyticsEvent
             return;
         }
 
-        const searchInput = DomAccessHelper.querySelector(document, '.header-search-input');
+        const searchInput = document.querySelector('.header-search-input');
 
         gtag('event', 'view_search_results', {
             'search_term': searchInput.value,

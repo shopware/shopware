@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Migration\Traits\EnsureThumbnailSizesTrait;
@@ -43,7 +44,7 @@ class Migration1687463180ProductMediaThumbnails extends MigrationStep
                 ');
 
         foreach ($thumbnailSizeIds as $thumbnailSizeId) {
-            $statement->executeStatement([
+            StatementHelper::executeStatement($statement, [
                 'folderConfigurationId' => $configurationId,
                 'thumbnailSizeId' => $thumbnailSizeId,
             ]);

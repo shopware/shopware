@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @final
+ */
 #[Package('fundamentals@after-sales')]
 class AlwaysValidRule extends Rule
 {

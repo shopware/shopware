@@ -6,8 +6,6 @@ use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
-use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 
 #[Package('framework')]
 class MigrationCollectionLoader
@@ -38,11 +36,6 @@ class MigrationCollectionLoader
         self::VERSION_SELECTION_SAFE,
     ];
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed. Use VALID_VERSION_SELECTION_VALUES instead
-     */
-    public const VALID_VERSION_SELECTION_SAFE_VALUES = self::VALID_VERSION_SELECTION_VALUES;
-
     private const SW_MAJOR_VERSION_WHICH_INTRODUCED_MIGRATION_NAMESPACES = 3;
     private const BEFORE_PREVIOUS_MAJOR_VERSION_SUBTRAHEND = 2;
     private const FIRST_MINOR_VERSION = 1;
@@ -60,8 +53,8 @@ class MigrationCollectionLoader
     public function __construct(
         private readonly Connection $connection,
         private readonly MigrationRuntime $migrationRuntime,
+        private readonly LoggerInterface $logger,
         iterable $migrationSources = [],
-        private readonly ?LoggerInterface $logger = null
     ) {
         foreach ($migrationSources as $migrationSource) {
             $this->addSource($migrationSource);
@@ -73,10 +66,6 @@ class MigrationCollectionLoader
         $this->migrationSources[$migrationSource->getName()] = $migrationSource;
     }
 
-    /**
-     * @throws UnknownMigrationSourceException
-     * @throws InvalidMigrationClassException
-     */
     public function collect(string $name): MigrationCollection
     {
         if (!isset($this->migrationSources[$name])) {
@@ -143,9 +132,6 @@ class MigrationCollectionLoader
     }
 
     /**
-     * @throws InvalidMigrationClassException
-     * @throws UnknownMigrationSourceException
-     *
      * @return array<string, MigrationCollection>
      */
     public function collectAll(): array

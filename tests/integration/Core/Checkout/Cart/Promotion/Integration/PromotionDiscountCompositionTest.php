@@ -6,11 +6,12 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -34,10 +35,16 @@ class PromotionDiscountCompositionTest extends TestCase
     use PromotionIntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     protected EntityRepository $productRepository;
 
     protected CartService $cartService;
 
+    /**
+     * @var EntityRepository<PromotionCollection>
+     */
     protected EntityRepository $promotionRepository;
 
     protected function setUp(): void
@@ -61,7 +68,7 @@ class PromotionDiscountCompositionTest extends TestCase
      * The absolute discount needs to contain all products and items in the composition. The price of these
      * composition-products need to be divided individually across all included products.
      * We have a product with price 50 EUR and quantity 3 and another product with price 100 and quantity 1.
-     * If we have a absolute discount of 30 EUR, then product one should be referenced with 18 EUR and product 2 with 12 EUR (150 EUR vs. 100 EUR).
+     * If we have an absolute discount of 30 EUR, then product one should be referenced with 18 EUR and product 2 with 12 EUR (150 EUR vs. 100 EUR).
      **/
     #[Group('promotions')]
     public function testCompositionInAbsoluteDiscount(): void
@@ -76,7 +83,7 @@ class PromotionDiscountCompositionTest extends TestCase
         $this->createTestFixtureProduct($productId2, 100, 19, static::getContainer(), $this->context);
 
         // add a new promotion
-        $this->createTestFixtureAbsolutePromotion($promotionId, $code, 30, static::getContainer(), PromotionDiscountEntity::SCOPE_CART);
+        $this->createTestFixtureAbsolutePromotion($promotionId, $code, 30, static::getContainer());
 
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
@@ -92,16 +99,15 @@ class PromotionDiscountCompositionTest extends TestCase
 
         static::assertTrue($discountItem->hasPayloadValue('composition'), 'composition node is missing');
 
-        /** @var array<int, mixed> $composition */
         $composition = $discountItem->getPayload()['composition'];
 
-        static::assertEquals($productId1, $composition[0]['id']);
-        static::assertEquals(3, $composition[0]['quantity']);
-        static::assertEquals(18, $composition[0]['discount']);
+        static::assertSame($productId1, $composition[0]['id']);
+        static::assertSame(3, $composition[0]['quantity']);
+        static::assertSame(18.0, $composition[0]['discount']);
 
-        static::assertEquals($productId2, $composition[1]['id']);
-        static::assertEquals(1, $composition[1]['quantity']);
-        static::assertEquals(12, $composition[1]['discount']);
+        static::assertSame($productId2, $composition[1]['id']);
+        static::assertSame(1, $composition[1]['quantity']);
+        static::assertSame(12.0, $composition[1]['discount']);
     }
 
     /**
@@ -122,7 +128,7 @@ class PromotionDiscountCompositionTest extends TestCase
         $this->createTestFixtureProduct($productId2, 100, 19, static::getContainer(), $this->context);
 
         // add a new promotion
-        $this->createTestFixturePercentagePromotion($promotionId, $code, 25, null, static::getContainer(), PromotionDiscountEntity::SCOPE_CART);
+        $this->createTestFixturePercentagePromotion($promotionId, $code, 25, null, static::getContainer());
 
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
@@ -138,16 +144,15 @@ class PromotionDiscountCompositionTest extends TestCase
 
         static::assertTrue($discountItem->hasPayloadValue('composition'), 'composition node is missing');
 
-        /** @var array<int, mixed> $composition */
         $composition = $discountItem->getPayload()['composition'];
 
-        static::assertEquals($productId1, $composition[0]['id']);
-        static::assertEquals(3, $composition[0]['quantity']);
-        static::assertEquals(150 * 0.25, $composition[0]['discount']);
+        static::assertSame($productId1, $composition[0]['id']);
+        static::assertSame(3, $composition[0]['quantity']);
+        static::assertSame(150 * 0.25, $composition[0]['discount']);
 
-        static::assertEquals($productId2, $composition[1]['id']);
-        static::assertEquals(1, $composition[1]['quantity']);
-        static::assertEquals(100 * 0.25, $composition[1]['discount']);
+        static::assertSame($productId2, $composition[1]['id']);
+        static::assertSame(1, $composition[1]['quantity']);
+        static::assertSame(100 * 0.25, $composition[1]['discount']);
     }
 
     #[Group('slow')]
@@ -170,7 +175,7 @@ class PromotionDiscountCompositionTest extends TestCase
         $this->createTestFixtureProduct($productId2, 100, 19, static::getContainer(), $context);
 
         // add a new promotion
-        $this->createTestFixturePercentagePromotion($promotionId, $code, 25, null, static::getContainer(), PromotionDiscountEntity::SCOPE_CART);
+        $this->createTestFixturePercentagePromotion($promotionId, $code, 25, null, static::getContainer());
 
         // order promotion with two products
         $this->orderWithPromotion($code, [$productId1, $productId2], $context);
@@ -181,10 +186,10 @@ class PromotionDiscountCompositionTest extends TestCase
 
         static::assertInstanceOf(PromotionEntity::class, $promotion);
 
-        // verify that the promotion has an total order count of 1 and the current customer is although tracked
-        static::assertEquals(1, $promotion->getOrderCount());
+        // verify that the promotion has a total order count of 1 and the current customer is although tracked
+        static::assertSame(1, $promotion->getOrderCount());
         static::assertNotNull($context->getCustomer());
-        static::assertEquals(
+        static::assertSame(
             [$context->getCustomerId() => 1],
             $promotion->getOrdersPerCustomerCount()
         );
@@ -192,15 +197,14 @@ class PromotionDiscountCompositionTest extends TestCase
         // order promotion with two products
         $this->orderWithPromotion($code, [$productId1, $productId2], $context);
 
-        /** @var PromotionEntity $promotion */
         $promotion = $this->promotionRepository
             ->search(new Criteria([$promotionId]), Context::createDefaultContext())
             ->get($promotionId);
         static::assertNotNull($promotion);
 
         // verify that the promotion has a total order count of 1 and the current customer is although tracked
-        static::assertEquals(2, $promotion->getOrderCount());
-        static::assertEquals(
+        static::assertSame(2, $promotion->getOrderCount());
+        static::assertSame(
             [$context->getCustomerId() => 2],
             $promotion->getOrdersPerCustomerCount()
         );
@@ -218,13 +222,12 @@ class PromotionDiscountCompositionTest extends TestCase
         // order promotion with two products and another customer
         $this->orderWithPromotion($code, [$productId1, $productId2], $context);
 
-        /** @var PromotionEntity $promotion */
         $promotion = $this->promotionRepository
             ->search(new Criteria([$promotionId]), Context::createDefaultContext())
             ->get($promotionId);
         static::assertNotNull($promotion);
 
-        static::assertEquals(3, $promotion->getOrderCount());
+        static::assertSame(3, $promotion->getOrderCount());
         $expected = [
             $context->getCustomerId() => 1,
             $customerId1 => 2,
@@ -232,7 +235,9 @@ class PromotionDiscountCompositionTest extends TestCase
 
         $actual = $promotion->getOrdersPerCustomerCount() ?? [];
 
-        static::assertEquals(ksort($expected), ksort($actual));
+        ksort($expected);
+        ksort($actual);
+        static::assertSame($expected, $actual);
     }
 
     /**
@@ -270,16 +275,15 @@ class PromotionDiscountCompositionTest extends TestCase
 
         static::assertTrue($discountItem->hasPayloadValue('composition'), 'composition node is missing');
 
-        /** @var array<int, mixed> $composition */
         $composition = $discountItem->getPayload()['composition'];
 
-        static::assertEquals($productId1, $composition[0]['id']);
-        static::assertEquals(3, $composition[0]['quantity']);
-        static::assertEquals(120, $composition[0]['discount']);
+        static::assertSame($productId1, $composition[0]['id']);
+        static::assertSame(3, $composition[0]['quantity']);
+        static::assertSame(120.0, $composition[0]['discount']);
 
-        static::assertEquals($productId2, $composition[1]['id']);
-        static::assertEquals(1, $composition[1]['quantity']);
-        static::assertEquals(90, $composition[1]['discount']);
+        static::assertSame($productId2, $composition[1]['id']);
+        static::assertSame(1, $composition[1]['quantity']);
+        static::assertSame(90.0, $composition[1]['discount']);
     }
 
     /**
@@ -319,16 +323,15 @@ class PromotionDiscountCompositionTest extends TestCase
 
         static::assertTrue($discountItem->hasPayloadValue('composition'), 'composition node is missing');
 
-        /** @var array<int, mixed> $composition */
         $composition = $discountItem->getPayload()['composition'];
 
-        static::assertEquals($productId1, $composition[0]['id']);
-        static::assertEquals(3, $composition[0]['quantity']);
-        static::assertEquals(108, $composition[0]['discount']);
+        static::assertSame($productId1, $composition[0]['id']);
+        static::assertSame(3, $composition[0]['quantity']);
+        static::assertSame(108.0, $composition[0]['discount']);
 
-        static::assertEquals($productId2, $composition[1]['id']);
-        static::assertEquals(1, $composition[1]['quantity']);
-        static::assertEquals(72, $composition[1]['discount']);
+        static::assertSame($productId2, $composition[1]['id']);
+        static::assertSame(1, $composition[1]['quantity']);
+        static::assertSame(72.0, $composition[1]['discount']);
     }
 
     /**
@@ -382,10 +385,6 @@ class PromotionDiscountCompositionTest extends TestCase
                 ],
             ],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         static::getContainer()
             ->get('customer.repository')

@@ -1,7 +1,7 @@
 import template from './sw-price-field.html.twig';
 import './sw-price-field.scss';
 
-const { Component, Application } = Shopware;
+const { Application } = Shopware;
 const { debounce } = Shopware.Utils;
 
 /**
@@ -17,11 +17,9 @@ const { debounce } = Shopware.Utils;
  *                 :currency="{...}">
  * </sw-price-field>
  */
-Component.register('sw-price-field', {
+export default {
     template,
     inheritAttrs: false,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -201,10 +199,6 @@ Component.register('sw-price-field', {
         },
 
         attributesWithoutListeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$attrs;
-            }
-
             const attributes = {};
 
             // Filter all listeners from the $attrs object
@@ -425,4 +419,4 @@ Component.register('sw-price-field', {
             this.onPriceNetChange(this.priceForCurrency.net);
         }, 300),
     },
-});
+};

@@ -6,27 +6,29 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\Snippet\Service\TranslationConfigLoader;
+use Shopware\Core\System\Snippet\Service\TranslationLoader;
+use Shopware\Core\System\Snippet\Struct\SnippetPaths;
 use Symfony\Component\Finder\Finder;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
+ *
+ * @description Loads administration snippets from the core, plugins, and apps.
  */
 #[Package('discovery')]
 class SnippetFinder implements SnippetFinderInterface
 {
     /**
-     * @internal
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
      */
     public const ALLOWED_INTERSECTING_FIRST_LEVEL_SNIPPET_KEYS = [
         'sw-flow-custom-event',
     ];
 
-    /**
-     * @internal
-     */
     public function __construct(
         private readonly Kernel $kernel,
-        private readonly Connection $connection
+        private readonly Connection $connection,
     ) {
     }
 
@@ -38,68 +40,7 @@ class SnippetFinder implements SnippetFinderInterface
         $snippetFiles = $this->findSnippetFiles($locale);
         $snippets = $this->parseFiles($snippetFiles);
 
-        $snippets = [...$snippets, ...$this->getAppAdministrationSnippets($locale, $snippets)];
-
-        if (!\count($snippets)) {
-            return [];
-        }
-
-        return $snippets;
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private function getBundlePaths(): array
-    {
-        $plugins = $this->kernel->getPluginLoader()->getPluginInstances()->all();
-        $activePlugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();
-        $bundles = $this->kernel->getBundles();
-        $paths = [];
-
-        foreach ($activePlugins as $plugin) {
-            $pluginPath = $plugin->getPath() . '/Resources/app/administration/src';
-            if (!file_exists($pluginPath)) {
-                continue;
-            }
-
-            $paths[] = $pluginPath;
-        }
-
-        foreach ($bundles as $bundle) {
-            if (\in_array($bundle, $plugins, true)) {
-                continue;
-            }
-
-            if ($bundle->getName() === 'Administration') {
-                $paths = array_merge($paths, [
-                    $bundle->getPath() . '/Resources/app/administration/src/app/snippet',
-                    $bundle->getPath() . '/Resources/app/administration/src/module/*/snippet',
-                    $bundle->getPath() . '/Resources/app/administration/src/app/component/*/*/snippet',
-                ]);
-
-                continue;
-            }
-
-            if ($bundle->getName() === 'Storefront') {
-                $paths = array_merge($paths, [
-                    $bundle->getPath() . '/Resources/app/administration/src/app/snippet',
-                    $bundle->getPath() . '/Resources/app/administration/src/modules/*/snippet',
-                ]);
-
-                continue;
-            }
-
-            $bundlePath = $bundle->getPath() . '/Resources/app/administration/src';
-
-            if (!file_exists($bundlePath)) {
-                continue;
-            }
-
-            $paths[] = $bundlePath;
-        }
-
-        return $paths;
+        return [...$snippets, ...$this->getAppAdministrationSnippets($locale)];
     }
 
     /**
@@ -107,14 +48,28 @@ class SnippetFinder implements SnippetFinderInterface
      */
     private function findSnippetFiles(string $locale): array
     {
+        $paths = new SnippetPaths();
+        $this->addInstalledPlatformPaths($paths, $locale);
+
+        if ($paths->empty()) {
+            // @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
+            $this->addShopwareLegacyPaths($paths);
+        }
+
+        $this->addPluginPaths($paths, $locale);
+        $this->addMeteorBundlePaths($paths);
+
         $finder = (new Finder())
             ->files()
             ->exclude('node_modules')
             ->ignoreDotFiles(true)
             ->ignoreVCS(true)
             ->ignoreUnreadableDirs()
-            ->name(\sprintf('%s.json', $locale))
-            ->in($this->getBundlePaths());
+            ->name([
+                'administration.json',
+                \sprintf('%s.json', $locale), // @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
+            ])
+            ->in($paths->all());
 
         $iterator = $finder->getIterator();
         $files = [];
@@ -124,6 +79,115 @@ class SnippetFinder implements SnippetFinderInterface
         }
 
         return \array_unique($files);
+    }
+
+    private function addInstalledPlatformPaths(SnippetPaths $paths, string $locale): void
+    {
+        $path = \sprintf(TranslationLoader::TRANSLATION_DESTINATION . '/%s/Platform', $locale);
+
+        if (!\is_dir($path)) {
+            return;
+        }
+
+        $paths->add($path);
+    }
+
+    private function addPluginPaths(SnippetPaths $paths, string $locale): void
+    {
+        $activePlugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();
+
+        foreach ($activePlugins as $plugin) {
+            $name = TranslationConfigLoader::getMappedPluginName($plugin);
+            $path = \sprintf(TranslationLoader::TRANSLATION_DESTINATION . '/%s/Plugins/%s', $locale, $name);
+
+            // add the path of the installed plugin translation if it exists
+            if (\is_dir($path)) {
+                $paths->add($path);
+
+                continue;
+            }
+
+            // add the plugin specific paths if the translation does not exist
+            $pluginPath = $plugin->getPath() . '/Resources/app/administration/src';
+
+            if (\is_dir($pluginPath)) {
+                $paths->add($pluginPath);
+            }
+
+            $meteorPluginPath = $plugin->getPath() . '/Resources/app/meteor-app';
+            if (\is_dir($meteorPluginPath)) {
+                $paths->add($meteorPluginPath);
+            }
+        }
+    }
+
+    private function addMeteorBundlePaths(SnippetPaths $paths): void
+    {
+        $plugins = $this->kernel->getPluginLoader()->getPluginInstances()->all();
+        $bundles = $this->kernel->getBundles();
+
+        foreach ($bundles as $bundle) {
+            if (\in_array($bundle, $plugins, true)) {
+                continue;
+            }
+
+            $meteorBundlePath = $bundle->getPath() . '/Resources/app/meteor-app';
+
+            // Add the meteor bundle path if it exists
+            if (!\is_dir($meteorBundlePath)) {
+                continue;
+            }
+
+            $paths->add($meteorBundlePath);
+        }
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
+     * The method `getInstalledSnippetPaths` will be used to fetch the paths.
+     */
+    private function addShopwareLegacyPaths(SnippetPaths $paths): void
+    {
+        $plugins = $this->kernel->getPluginLoader()->getPluginInstances()->all();
+        $bundles = $this->kernel->getBundles();
+
+        foreach ($bundles as $bundle) {
+            if (\in_array($bundle, $plugins, true)) {
+                continue;
+            }
+
+            if ($bundle->getName() === 'Administration') {
+                $paths->merge([
+                    $bundle->getPath() . '/Resources/app/administration/src/app/snippet',
+                    $bundle->getPath() . '/Resources/app/administration/src/module/*/snippet',
+                    $bundle->getPath() . '/Resources/app/administration/src/app/component/*/*/snippet',
+                ]);
+
+                continue;
+            }
+
+            if ($bundle->getName() === 'Storefront') {
+                $paths->merge([
+                    $bundle->getPath() . '/Resources/app/administration/src/app/snippet',
+                    $bundle->getPath() . '/Resources/app/administration/src/modules/*/snippet',
+                ]);
+
+                continue;
+            }
+
+            $bundlePath = $bundle->getPath() . '/Resources/app/administration/src';
+            $meteorBundlePath = $bundle->getPath() . '/Resources/app/meteor-app';
+
+            // Add the bundle path if it exists
+            if (\is_dir($bundlePath)) {
+                $paths->add($bundlePath);
+            }
+
+            // Add the meteor bundle path if it exists
+            if (\is_dir($meteorBundlePath)) {
+                $paths->add($meteorBundlePath);
+            }
+        }
     }
 
     /**
@@ -149,11 +213,9 @@ class SnippetFinder implements SnippetFinderInterface
     }
 
     /**
-     * @param array<string, mixed> $existingSnippets
-     *
      * @return array<string, mixed>
      */
-    private function getAppAdministrationSnippets(string $locale, array $existingSnippets): array
+    private function getAppAdministrationSnippets(string $locale): array
     {
         $result = $this->connection->fetchAllAssociative(
             'SELECT app_administration_snippet.value
@@ -170,26 +232,8 @@ class SnippetFinder implements SnippetFinderInterface
         );
 
         $appSnippets = array_replace_recursive([], ...$decodedSnippets);
-        $appSnippets = $this->sanitizeAppSnippets($appSnippets);
 
-        $this->validateAppSnippets($existingSnippets, $appSnippets);
-
-        return $appSnippets;
-    }
-
-    /**
-     * @param array<string, mixed> $existingSnippets
-     * @param array<string, mixed> $appSnippets
-     */
-    private function validateAppSnippets(array $existingSnippets, array $appSnippets): void
-    {
-        $existingSnippetKeys = array_keys($existingSnippets);
-        $appSnippetKeys = array_keys($appSnippets);
-        $duplicatedKeys = $this->getInvalidIntersections($existingSnippetKeys, $appSnippetKeys);
-
-        if (!empty($duplicatedKeys)) {
-            throw SnippetException::duplicatedFirstLevelKey($duplicatedKeys);
-        }
+        return $this->sanitizeAppSnippets($appSnippets);
     }
 
     /**
@@ -215,25 +259,5 @@ class SnippetFinder implements SnippetFinderInterface
         }
 
         return $sanitizedSnippets;
-    }
-
-    /**
-     * @param list<string> $snippetKeys
-     * @param list<string> $additionalSnippetKeys
-     *
-     * @return list<string>
-     */
-    private function getInvalidIntersections(array $snippetKeys, array $additionalSnippetKeys): array
-    {
-        $intersections = array_intersect($snippetKeys, $additionalSnippetKeys);
-
-        if (empty($intersections)) {
-            return [];
-        }
-
-        return array_values(array_filter(
-            $intersections,
-            fn ($key) => !\in_array($key, self::ALLOWED_INTERSECTING_FIRST_LEVEL_SNIPPET_KEYS, true)
-        ));
     }
 }

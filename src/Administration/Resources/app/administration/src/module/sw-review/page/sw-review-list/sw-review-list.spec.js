@@ -53,8 +53,6 @@ async function createWrapper() {
                         <slot></slot>
                     </div>`,
                 },
-                'sw-button': true,
-                'sw-icon': true,
                 'sw-search-bar': true,
                 'sw-entity-listing': true,
                 'sw-language-switch': true,
@@ -65,6 +63,7 @@ async function createWrapper() {
                 'sw-rating-stars': true,
                 'sw-sidebar-item': true,
                 'sw-sidebar': true,
+                'sw-time-ago': true,
             },
         },
     });

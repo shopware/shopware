@@ -8,12 +8,11 @@ import './sw-bulk-edit-change-type-field-renderer.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
     emits: [
         'change-value',
+        'update:default-unit',
         'inheritance-restore',
         'inheritance-remove',
     ],

@@ -42,6 +42,9 @@ class Repository {
 }
 
 async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5], folderAmount: [5] }) {
+    const mediaRepositoryMock = new Repository('media', mediaAmount);
+    const folderRepositoryMock = new Repository('media_folder', folderAmount);
+
     return mount(await wrapTestComponent('sw-media-library', { sync: true }), {
         props: {
             selection: [],
@@ -55,7 +58,6 @@ async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5],
                 'sw-media-grid': true,
                 'sw-empty-state': true,
                 'sw-skeleton': true,
-                'sw-button': true,
                 'sw-media-folder-item': true,
                 'router-link': true,
                 'sw-extension-teaser-popover': true,
@@ -66,9 +68,9 @@ async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5],
                     create: (repositoryName) => {
                         switch (repositoryName) {
                             case 'media':
-                                return new Repository('media', mediaAmount);
+                                return mediaRepositoryMock;
                             case 'media_folder':
-                                return new Repository('folder', folderAmount);
+                                return folderRepositoryMock;
                             case 'media_folder_configuration':
                                 return {};
                             default:
@@ -384,5 +386,73 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+    });
+
+    it('should refresh media item in items and selectedItems arrays', async () => {
+        const wrapper = await createWrapper();
+
+        const mockMediaItems = [
+            {
+                id: 'test-media-id-foo',
+                getEntityName: () => 'media',
+                title: 'Foo Title',
+            },
+            {
+                id: 'test-media-id-bar',
+                getEntityName: () => 'media',
+                title: 'Bar Title',
+            },
+        ];
+
+        wrapper.vm.items.push(...mockMediaItems);
+        wrapper.vm.selectedItems.push(...mockMediaItems);
+
+        const refreshMediaItem = {
+            id: 'test-media-id-foo',
+            getEntityName: () => 'media',
+            title: 'New Title',
+        };
+
+        wrapper.vm.mediaRepository.get = jest.fn().mockResolvedValue(refreshMediaItem);
+
+        await wrapper.vm.refreshItem(refreshMediaItem.id);
+
+        expect(wrapper.vm.mediaRepository.get).toHaveBeenCalledWith(refreshMediaItem.id, expect.any(Object));
+        expect(wrapper.vm.items).toContainEqual(refreshMediaItem);
+        expect(wrapper.vm.selectedItems).toContainEqual(refreshMediaItem);
+    });
+
+    it('should handle refreshItem when media item not found in arrays', async () => {
+        const wrapper = await createWrapper();
+
+        const mockMediaItems = [
+            {
+                id: 'test-media-id-foo',
+                getEntityName: () => 'media',
+                title: 'Foo Title',
+            },
+            {
+                id: 'test-media-id-bar',
+                getEntityName: () => 'media',
+                title: 'Bar Title',
+            },
+        ];
+
+        wrapper.vm.items.push(...mockMediaItems);
+        wrapper.vm.selectedItems.push(...mockMediaItems);
+
+        const refreshMediaItem = {
+            id: 'test-media-id-new',
+            getEntityName: () => 'media',
+            title: 'New Title',
+        };
+
+        wrapper.vm.mediaRepository.get = jest.fn().mockResolvedValue(refreshMediaItem);
+
+        await wrapper.vm.refreshItem(refreshMediaItem.id);
+
+        expect(wrapper.vm.mediaRepository.get).toHaveBeenCalledWith(refreshMediaItem.id, expect.any(Object));
+        expect(wrapper.vm.items).not.toContainEqual(refreshMediaItem);
+        expect(wrapper.vm.selectedItems).not.toContainEqual(refreshMediaItem);
     });
 });

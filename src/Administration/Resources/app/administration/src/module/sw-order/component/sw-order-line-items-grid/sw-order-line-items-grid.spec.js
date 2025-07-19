@@ -231,9 +231,6 @@ async function createWrapper() {
                 'sw-container': await wrapTestComponent('sw-container', {
                     sync: true,
                 }),
-                'sw-button': await await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
                 'sw-button-group': {
                     template: '<div class="sw-button-group"><slot></slot></div>',
                 },
@@ -252,17 +249,14 @@ async function createWrapper() {
                     sync: true,
                 }),
                 'sw-data-grid-settings': true,
-                'sw-icon': await await wrapTestComponent('sw-icon', {
-                    sync: true,
-                }),
                 'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info', { sync: true }),
-                'sw-switch-field': true,
+
                 'router-link': {
                     template: '<a class="router-link" href="#"><slot></slot></a>',
                     props: ['to'],
                 },
-                'sw-number-field': {
-                    template: '<input class="sw-number-field" type="number" v-model="value" />',
+                'mt-number-field': {
+                    template: '<input class="mt-number-field" type="number" v-model="value" />',
                     props: {
                         value: 0,
                         size: 'default',
@@ -283,21 +277,16 @@ async function createWrapper() {
                     `,
                 },
                 'sw-order-nested-line-items-modal': true,
-                'sw-button-deprecated': {
-                    emits: ['click'],
-                    template: '<button @click="$emit(\'click\')"><slot></slot></button>',
-                },
                 'sw-data-grid-column-boolean': true,
                 'sw-data-grid-inline-edit': true,
                 'sw-data-grid-skeleton': true,
                 'sw-base-field': true,
                 'sw-field-error': true,
-                'sw-icon-deprecated': true,
                 'sw-highlight-text': true,
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             mocks: {
-                $tc: (t, count, value) => {
+                $tc: (t, value) => {
                     if (t === 'sw-order.detailBase.taxDetail') {
                         return `${value.taxRate}%: ${value.tax}`;
                     }
@@ -492,10 +481,10 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const columnVat = header.find('.sw-data-grid__cell--4');
-        const columnPrice = header.find('.sw-data-grid__cell--1');
+        const firstRow = wrapper.find('.sw-data-grid__row--0');
+        const columnVat = firstRow.find('.sw-data-grid__cell--price-taxRules\\[0\\]');
         expect(columnVat.exists()).toBe(true);
-        expect(columnPrice.text()).not.toBe('sw-order.createBase.columnPriceTaxFree');
+        expect(header.text()).not.toContain('sw-order.createBase.columnPriceTaxFree');
     });
 
     it('should not have vat column and price label is tax free when tax status is tax free', async () => {
@@ -510,10 +499,10 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const columnVat = header.find('.sw-data-grid__cell--5');
-        const columnPrice = header.find('.sw-data-grid__cell--3');
+        const firstRow = wrapper.find('.sw-data-grid__row--0');
+        const columnVat = firstRow.find('.sw-data-grid__cell--price-taxRules\\[0\\]');
         expect(columnVat.exists()).toBe(false);
-        expect(columnPrice.text()).toBe('sw-order.detailBase.columnPriceTaxFree');
+        expect(header.text()).toContain('sw-order.detailBase.columnPriceTaxFree');
     });
 
     // eslint-disable-next-line max-len
@@ -545,7 +534,6 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         const wrapper = await createWrapper();
 
         let header;
-        let columnTotal;
 
         await wrapper.setProps({
             order: {
@@ -556,8 +544,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         header = wrapper.find('.sw-data-grid__header');
-        columnTotal = header.find('.sw-data-grid__cell--4');
-        expect(columnTotal.text()).toBe('sw-order.detailBase.columnTotalPriceNet');
+        expect(header.text()).toContain('sw-order.detailBase.columnTotalPriceNet');
 
         await wrapper.setProps({
             order: {
@@ -568,8 +555,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         header = wrapper.find('.sw-data-grid__header');
-        columnTotal = header.find('.sw-data-grid__cell--5');
-        expect(columnTotal.text()).toBe('sw-order.detailBase.columnTotalPriceGross');
+        expect(header.text()).toContain('sw-order.detailBase.columnTotalPriceGross');
 
         await wrapper.setProps({
             order: {
@@ -580,8 +566,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         header = wrapper.find('.sw-data-grid__header');
-        columnTotal = header.find('.sw-data-grid__cell--5');
-        expect(columnTotal.text()).toBe('sw-order.detailBase.columnTotalPriceNet');
+        expect(header.text()).toContain('sw-order.detailBase.columnTotalPriceNet');
     });
 
     it('should able to create new empty line item', async () => {
@@ -886,9 +871,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const columnProductNumber = header.find('.sw-data-grid__cell--2');
-
-        expect(columnProductNumber.text()).toBe('sw-order.detailBase.columnProductNumber');
+        expect(header.text()).toContain('sw-order.detailBase.columnProductNumber');
     });
 
     it('should show items correctly when search by product number', async () => {

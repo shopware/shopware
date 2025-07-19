@@ -73,7 +73,7 @@ class AnnotatePackageProcessor implements ProcessorInterface
         }
 
         if (\is_string($controller)) {
-            [$controllerClass, $_] = explode('::', (string) $controller);
+            [$controllerClass, $_] = explode('::', $controller);
         } elseif (\is_array($controller) && \count($controller) === 2) {
             [$controllerClass, $_] = $controller;
         } else {

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -101,6 +102,7 @@ class PromotionGenerator implements DemodataGeneratorInterface
             'code' => $this->faker->unique()->format('promotionCode'),
             'useCodes' => true,
             'discounts' => $this->createDiscounts(),
+            'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
         ];
     }
 

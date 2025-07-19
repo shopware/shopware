@@ -11,8 +11,6 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'cacheApiService',
         'feature',
@@ -125,6 +123,19 @@ export default {
 
             return this.cacheInfo.cacheAdapter;
         },
+
+        indexingMethodOptions() {
+            return [
+                {
+                    label: this.$tc('sw-settings-cache.section.indexingModeOptionSkipLabel'),
+                    value: 'skip',
+                },
+                {
+                    label: this.$tc('sw-settings-cache.section.indexingModeOptionOnlyLabel'),
+                    value: 'only',
+                },
+            ];
+        },
     },
 
     created() {
@@ -148,10 +159,10 @@ export default {
         },
 
         decreaseWorkerPoll() {
-            Shopware.State.commit('notification/setWorkerProcessPollInterval', POLL_FOREGROUND_INTERVAL);
+            Shopware.Store.get('notification').workerProcessPollInterval = POLL_FOREGROUND_INTERVAL;
 
             setTimeout(() => {
-                Shopware.State.commit('notification/setWorkerProcessPollInterval', POLL_BACKGROUND_INTERVAL);
+                Shopware.Store.get('notification').workerProcessPollInterval = POLL_BACKGROUND_INTERVAL;
             }, 60000);
         },
 
@@ -275,27 +286,6 @@ export default {
 
                 only.push(...selectedUpdaters);
             }
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        flipIndexers() {
-            const leafs = [];
-
-            // eslint-disable-next-line no-restricted-syntax
-            for (const [
-                indexerName,
-                updaters,
-            ] of Object.entries(this.indexers)) {
-                if (updaters.length > 0) {
-                    leafs.push(...updaters);
-                } else {
-                    leafs.push(indexerName);
-                }
-            }
-
-            this.indexerSelection = leafs.filter((entry) => this.indexerSelection.indexOf(entry) === -1);
         },
     },
 };

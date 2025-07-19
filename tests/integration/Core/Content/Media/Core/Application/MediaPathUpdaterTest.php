@@ -55,7 +55,7 @@ class MediaPathUpdaterTest extends TestCase
 
         static::assertCount(1, $paths);
         static::assertArrayHasKey($ids->get('media-1'), $paths);
-        static::assertEquals('media/90/e6/f2/test-file-1.png', $paths[$ids->get('media-1')]);
+        static::assertSame('media/90/e6/f2/test-file-1.png', $paths[$ids->get('media-1')]);
     }
 
     public function testUpdateThumbnail(): void
@@ -105,9 +105,9 @@ class MediaPathUpdaterTest extends TestCase
 
         static::assertCount(2, $paths);
         static::assertArrayHasKey($ids->get('thumbnail-1'), $paths);
-        static::assertEquals('thumbnail/test-file-1_100x100.png', $paths[$ids->get('thumbnail-1')]);
+        static::assertSame('thumbnail/test-file-1_100x100.png', $paths[$ids->get('thumbnail-1')]);
 
         static::assertArrayHasKey($ids->get('thumbnail-2'), $paths);
-        static::assertEquals('thumbnail/test-file-1_240x240.png', $paths[$ids->get('thumbnail-2')]);
+        static::assertSame('thumbnail/test-file-1_240x240.png', $paths[$ids->get('thumbnail-2')]);
     }
 }

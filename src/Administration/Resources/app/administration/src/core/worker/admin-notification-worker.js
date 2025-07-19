@@ -61,7 +61,7 @@ export default class AdminNotificationWorker {
     }
 
     createNotification(variant, message) {
-        Shopware.State.dispatch('notification/createNotification', {
+        Shopware.Store.get('notification').createNotification({
             variant,
             message,
         });

@@ -70,14 +70,14 @@ $sw-order-address-modal-link: $color-shopware-brand-500;
         padding: unset !important;
     }
 
-    .sw-card.sw-card--grid {
-        .sw-card__toolbar {
+    .mt-card.mt-card--grid {
+        .mt-card__toolbar {
             input {
                 padding: 4px 12px !important;
             }
         }
 
-        .sw-card__content {
+        .mt-card__content {
             padding: 20px;
             border: unset;
         }

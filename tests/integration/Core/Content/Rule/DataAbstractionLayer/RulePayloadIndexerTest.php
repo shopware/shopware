@@ -458,7 +458,7 @@ class RulePayloadIndexerTest extends TestCase
             ->fetchAllAssociative();
 
         foreach ($rules as $rule) {
-            static::assertEquals(0, $rule['invalid']);
+            static::assertSame('0', $rule['invalid']);
             static::assertNull($rule['payload']);
             static::assertNotNull($rule['id']);
         }
@@ -477,10 +477,13 @@ class RulePayloadIndexerTest extends TestCase
         $context = Context::createDefaultContext();
         $rulePlugin = new RulePlugin(false, '');
 
+        $nullConnection = new NullConnection();
+        $nullLogger = new NullLogger();
         $collection = new MigrationCollection(
             new MigrationSource('asd', []),
-            new MigrationRuntime(new NullConnection(), new NullLogger()),
-            new NullConnection()
+            new MigrationRuntime($nullConnection, $nullLogger),
+            $nullConnection,
+            $nullLogger,
         );
 
         return [

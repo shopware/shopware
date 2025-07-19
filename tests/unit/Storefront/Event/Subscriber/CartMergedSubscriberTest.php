@@ -35,7 +35,7 @@ class CartMergedSubscriberTest extends TestCase
         $requestStack->push($request);
 
         $translator = $this->createMock(TranslatorInterface::class);
-        $translator->expects(static::once())
+        $translator->expects($this->once())
             ->method('trans')
             ->with('checkout.cart-merged-hint')
             ->willReturn('checkout.cart-merged-hint');
@@ -47,12 +47,12 @@ class CartMergedSubscriberTest extends TestCase
         $subscriber->addCartMergedNoticeFlash($cartMergedEvent);
 
         static::assertNotEmpty($infoFlash = $session->getFlashBag()->get('info'));
-        static::assertEquals('checkout.cart-merged-hint', $infoFlash[0]);
+        static::assertSame('checkout.cart-merged-hint', $infoFlash[0]);
     }
 
     public function testGetSubscribedEventsReturnsAddCartMergedNoticeFlash(): void
     {
-        static::assertEquals(
+        static::assertSame(
             [CartMergedEvent::class => 'addCartMergedNoticeFlash'],
             CartMergedSubscriber::getSubscribedEvents()
         );
@@ -66,7 +66,7 @@ class CartMergedSubscriberTest extends TestCase
         $requestStack->push($request);
 
         $translator = $this->createMock(TranslatorInterface::class);
-        $translator->expects(static::never())->method('trans');
+        $translator->expects($this->never())->method('trans');
 
         $subscriber = new CartMergedSubscriber($translator, $requestStack);
 
@@ -83,7 +83,7 @@ class CartMergedSubscriberTest extends TestCase
         $requestStack = new RequestStack();
 
         $translator = $this->createMock(TranslatorInterface::class);
-        $translator->expects(static::never())->method('trans');
+        $translator->expects($this->never())->method('trans');
 
         $subscriber = new CartMergedSubscriber($translator, $requestStack);
 
@@ -103,7 +103,7 @@ class CartMergedSubscriberTest extends TestCase
         $requestStack->push($request);
 
         $translator = $this->createMock(TranslatorInterface::class);
-        $translator->expects(static::never())->method('trans');
+        $translator->expects($this->never())->method('trans');
 
         $subscriber = new CartMergedSubscriber($translator, $requestStack);
 

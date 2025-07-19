@@ -24,15 +24,12 @@ async function createWrapper(customPropsData = {}) {
                     'sw-context-button': {
                         template: '<div class="sw-context-button"><slot></slot></div>',
                     },
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-context-menu-item': {
                         template: `
                     <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
                         <slot></slot>
                     </div>`,
                     },
-                    'sw-icon': true,
                     'sw-inheritance-switch': true,
                     'sw-color-badge': true,
                     'sw-loader': true,

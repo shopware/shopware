@@ -46,16 +46,16 @@ class SendMailHandlerTest extends TestCase
 
         $message = new SendMailMessage('mail-data/test');
 
-        $this->fileSystem->expects(static::once())
+        $this->fileSystem->expects($this->once())
             ->method('read')
             ->with('mail-data/test')
             ->willReturn(serialize($mail));
 
-        $this->transport->expects(static::once())
+        $this->transport->expects($this->once())
             ->method('send')
             ->with($mail);
 
-        $this->fileSystem->expects(static::once())
+        $this->fileSystem->expects($this->once())
             ->method('delete')
             ->with('mail-data/test');
 
@@ -66,12 +66,12 @@ class SendMailHandlerTest extends TestCase
     {
         $message = new SendMailMessage('mail-data/test');
 
-        $this->fileSystem->expects(static::once())
+        $this->fileSystem->expects($this->once())
             ->method('read')
             ->with('mail-data/test')
             ->willThrowException(new UnableToReadFile());
 
-        $this->fileSystem->expects(static::once())
+        $this->fileSystem->expects($this->once())
             ->method('fileExists')
             ->with('mail-data/test')
             ->willReturn(true);
@@ -84,17 +84,17 @@ class SendMailHandlerTest extends TestCase
     {
         $message = new SendMailMessage('mail-data/test');
 
-        $this->fileSystem->expects(static::once())
+        $this->fileSystem->expects($this->once())
             ->method('read')
             ->with('mail-data/test')
             ->willThrowException(new UnableToReadFile());
 
-        $this->fileSystem->expects(static::once())
+        $this->fileSystem->expects($this->once())
             ->method('fileExists')
             ->with('mail-data/test')
             ->willReturn(false);
 
-        $this->logger->expects(static::once())
+        $this->logger->expects($this->once())
             ->method('error')
             ->with('The mail data file does not exist. Mail could not be sent.', ['mailDataPath' => 'mail-data/test', 'exception' => '']);
 
@@ -105,17 +105,17 @@ class SendMailHandlerTest extends TestCase
     {
         $message = new SendMailMessage('mail-data/test');
 
-        $this->fileSystem->expects(static::once())
+        $this->fileSystem->expects($this->once())
             ->method('read')
             ->with('mail-data/test')
             ->willReturn(serialize('invalid-data'));
 
-        $this->fileSystem->expects(static::never())->method('delete');
-        $this->logger->expects(static::once())
+        $this->fileSystem->expects($this->never())->method('delete');
+        $this->logger->expects($this->once())
             ->method('error')
             ->with('The mail data file does not contain a valid email object. Mail could not be sent.', ['mailDataPath' => 'mail-data/test']);
 
-        $this->transport->expects(static::never())->method('send');
+        $this->transport->expects($this->never())->method('send');
 
         $this->handler->__invoke($message);
     }
@@ -124,13 +124,13 @@ class SendMailHandlerTest extends TestCase
     {
         $message = new SendMailMessage('mail-data/test');
 
-        $this->fileSystem->expects(static::once())
+        $this->fileSystem->expects($this->once())
             ->method('read')
             ->with('mail-data/test')
             ->willReturn(serialize('invalid-data'));
 
-        $this->fileSystem->expects(static::never())->method('delete');
-        $this->logger->expects(static::once())
+        $this->fileSystem->expects($this->never())->method('delete');
+        $this->logger->expects($this->once())
             ->method('error')
             ->with('The mail data file does not contain a valid email object. Mail could not be sent.', ['mailDataPath' => 'mail-data/test']);
 
@@ -143,21 +143,21 @@ class SendMailHandlerTest extends TestCase
 
         $message = new SendMailMessage('mail-data/test');
 
-        $this->fileSystem->expects(static::once())
+        $this->fileSystem->expects($this->once())
             ->method('read')
             ->with('mail-data/test')
             ->willReturn(serialize($mail));
 
-        $this->transport->expects(static::once())
+        $this->transport->expects($this->once())
             ->method('send')
             ->with($mail);
 
-        $this->fileSystem->expects(static::once())
+        $this->fileSystem->expects($this->once())
             ->method('delete')
             ->with('mail-data/test')
             ->willThrowException(new UnableToDeleteFile());
 
-        $this->logger->expects(static::once())
+        $this->logger->expects($this->once())
             ->method('error')
             ->with('Could not delete mail data file after sending mail.', ['mailDataPath' => 'mail-data/test', 'exception' => '']);
 

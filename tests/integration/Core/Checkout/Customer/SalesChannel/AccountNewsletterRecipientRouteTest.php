@@ -5,9 +5,9 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientResult;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -31,6 +31,9 @@ class AccountNewsletterRecipientRouteTest extends TestCase
 
     private IdsCollection $ids;
 
+    /**
+     * @var EntityRepository<NewsletterRecipientCollection>
+     */
     private EntityRepository $newsletterRecipientRepository;
 
     protected function setUp(): void
@@ -57,11 +60,7 @@ class AccountNewsletterRecipientRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        if (Feature::isActive('v6.7.0.0')) {
-            static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $response['errors'][0]['code']);
-        } else {
-            static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
-        }
+        static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $response['errors'][0]['code']);
     }
 
     public function testValidNotSubscribed(): void
@@ -173,12 +172,7 @@ class AccountNewsletterRecipientRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-
-        if (Feature::isActive('v6.7.0.0')) {
-            static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $response['errors'][0]['code']);
-        } else {
-            static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
-        }
+        static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $response['errors'][0]['code']);
     }
 
     /**

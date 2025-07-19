@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -51,7 +50,7 @@ class ContextSwitchRouteTest extends TestCase
         $this->getSalesChannelBrowser()->request('PATCH', '/store-api/context', ['shippingMethodId' => $testId]);
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(
+        static::assertSame(
             \sprintf('The "shipping_method" entity with id "%s" does not exist.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
@@ -62,7 +61,7 @@ class ContextSwitchRouteTest extends TestCase
         $this->getSalesChannelBrowser()->request('PATCH', '/store-api/context', ['paymentMethodId' => $testId]);
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(
+        static::assertSame(
             \sprintf('The "payment_method" entity with id "%s" does not exist.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
@@ -79,7 +78,7 @@ class ContextSwitchRouteTest extends TestCase
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_FORBIDDEN, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
 
-        static::assertEquals(
+        static::assertSame(
             'Customer is not logged in.',
             $content['errors'][0]['detail'] ?? null
         );
@@ -91,7 +90,7 @@ class ContextSwitchRouteTest extends TestCase
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_FORBIDDEN, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
 
-        static::assertEquals(
+        static::assertSame(
             'Customer is not logged in.',
             $content['errors'][0]['detail'] ?? null
         );
@@ -134,14 +133,14 @@ class ContextSwitchRouteTest extends TestCase
         static::assertArrayHasKey('/countryStateId', $mapped);
         static::assertArrayHasKey('/languageId', $mapped);
 
-        static::assertEquals('This value should be of type string.', $mapped['/currencyId']);
-        static::assertEquals('This value should be of type string.', $mapped['/billingAddressId']);
-        static::assertEquals('This value should be of type string.', $mapped['/shippingAddressId']);
-        static::assertEquals('This value should be of type string.', $mapped['/paymentMethodId']);
-        static::assertEquals('This value should be of type string.', $mapped['/shippingMethodId']);
-        static::assertEquals('This value should be of type string.', $mapped['/countryId']);
-        static::assertEquals('This value should be of type string.', $mapped['/countryStateId']);
-        static::assertEquals('This value should be of type string.', $mapped['/languageId']);
+        static::assertSame('This value should be of type string.', $mapped['/currencyId']);
+        static::assertSame('This value should be of type string.', $mapped['/billingAddressId']);
+        static::assertSame('This value should be of type string.', $mapped['/shippingAddressId']);
+        static::assertSame('This value should be of type string.', $mapped['/paymentMethodId']);
+        static::assertSame('This value should be of type string.', $mapped['/shippingMethodId']);
+        static::assertSame('This value should be of type string.', $mapped['/countryId']);
+        static::assertSame('This value should be of type string.', $mapped['/countryStateId']);
+        static::assertSame('This value should be of type string.', $mapped['/languageId']);
     }
 
     public function testUpdateContextWithLoggedInCustomerAndNonExistingAddresses(): void
@@ -158,7 +157,7 @@ class ContextSwitchRouteTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(
+        static::assertSame(
             \sprintf('The "customer_address" entity with id "%s" does not exist.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
@@ -170,7 +169,7 @@ class ContextSwitchRouteTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(
+        static::assertSame(
             \sprintf('The "customer_address" entity with id "%s" does not exist.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
@@ -210,7 +209,7 @@ class ContextSwitchRouteTest extends TestCase
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($content, true));
 
-        static::assertEquals(
+        static::assertSame(
             \sprintf('The "language" entity with id "%s" does not exist.', $id),
             $content['errors'][0]['detail'] ?? null
         );
@@ -289,7 +288,7 @@ class ContextSwitchRouteTest extends TestCase
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($content, true));
 
-        static::assertEquals(
+        static::assertSame(
             \sprintf('The "currency" entity with id "%s" does not exist.', $id),
             $content['errors'][0]['detail'] ?? null
         );
@@ -347,10 +346,6 @@ class ContextSwitchRouteTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'customerNumber' => '12345',
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         $this->customerRepository->create([$customer], Context::createDefaultContext());
 

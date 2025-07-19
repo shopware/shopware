@@ -46,14 +46,14 @@ class ImportExportTest extends TestCase
     public function testImportWithFinishedProgress(): void
     {
         $reader = $this->createMock(AbstractReader::class);
-        $reader->expects(static::never())->method('read');
+        $reader->expects($this->never())->method('read');
 
         $writer = $this->createMock(AbstractWriter::class);
-        $writer->expects(static::never())->method('append');
+        $writer->expects($this->never())->method('append');
 
         $pipe = $this->createMock(AbstractPipe::class);
-        $pipe->expects(static::never())->method('in');
-        $pipe->expects(static::never())->method('out');
+        $pipe->expects($this->never())->method('in');
+        $pipe->expects($this->never())->method('out');
 
         $logEntity = new ImportExportLogEntity();
         $logEntity->assign([
@@ -99,18 +99,18 @@ class ImportExportTest extends TestCase
     public function testImport(): void
     {
         $reader = $this->createMock(AbstractReader::class);
-        $reader->expects(static::once())->method('read')->willReturn([
+        $reader->expects($this->once())->method('read')->willReturn([
             ['id' => 'id1', 'name' => 'foo'],
             ['id' => 'id2', 'name' => 'baz'],
             ['id' => 'id3', 'name' => 'bar'],
         ]);
 
         $writer = $this->createMock(AbstractWriter::class);
-        $writer->expects(static::never())->method('append');
+        $writer->expects($this->never())->method('append');
 
         $pipe = $this->createMock(AbstractPipe::class);
-        $pipe->expects(static::never())->method('in');
-        $pipe->expects(static::exactly(3))->method('out')->willReturnOnConsecutiveCalls([
+        $pipe->expects($this->never())->method('in');
+        $pipe->expects($this->exactly(3))->method('out')->willReturnOnConsecutiveCalls([
             'id1' => ['id' => 'id1', 'name' => 'foo'],
         ], [
             'id2' => ['id' => 'id2', 'name' => 'baz'],
@@ -201,14 +201,14 @@ class ImportExportTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $pipe = $this->createMock(AbstractPipe::class);
-        $pipe->expects(static::never())->method('in');
-        $pipe->expects(static::never())->method('out');
+        $pipe->expects($this->never())->method('in');
+        $pipe->expects($this->never())->method('out');
 
         $reader = $this->createMock(AbstractReader::class);
-        $reader->expects(static::never())->method('read');
+        $reader->expects($this->never())->method('read');
 
         $writer = $this->createMock(AbstractWriter::class);
-        $writer->expects(static::never())->method('append');
+        $writer->expects($this->never())->method('append');
 
         $importExport = new ImportExport(
             $importExportService,
@@ -291,7 +291,7 @@ class ImportExportTest extends TestCase
         );
 
         $pipe = $this->createMock(AbstractPipe::class);
-        $pipe->expects(static::exactly(1))->method('in')->willReturnCallback(
+        $pipe->expects($this->exactly(1))->method('in')->willReturnCallback(
             function (Config $config, array $originalRecord): iterable {
                 $serializedRecord = [];
 
@@ -300,21 +300,21 @@ class ImportExportTest extends TestCase
                 return $serializedRecord;
             }
         );
-        $pipe->expects(static::never())->method('out');
+        $pipe->expects($this->never())->method('out');
 
         $reader = $this->createMock(AbstractReader::class);
-        $reader->expects(static::never())->method('read');
+        $reader->expects($this->never())->method('read');
 
         $writer = $this->createMock(AbstractWriter::class);
-        $writer->expects(static::exactly(1))->method('append')->with(
+        $writer->expects($this->exactly(1))->method('append')->with(
             new Config([], [], []),
             [
                 'id' => $orderId,
             ],
             0
         );
-        $writer->expects(static::exactly(1))->method('flush');
-        $writer->expects(static::exactly(1))->method('finish');
+        $writer->expects($this->exactly(1))->method('flush');
+        $writer->expects($this->exactly(1))->method('finish');
 
         $importExport = new ImportExport(
             $importExportService,
@@ -372,7 +372,7 @@ class ImportExportTest extends TestCase
             ->willReturnCallback(
                 static fn (string $logId, int $offset) => new Progress($logId, Progress::STATE_PROGRESS)
             );
-        $importExportService->expects(static::exactly(1))->method('prepareExport')
+        $importExportService->expects($this->exactly(1))->method('prepareExport')
             ->willReturnCallback(
                 fn () => (new ImportExportLogEntity())->assign([
                     'id' => $invalidRecordsLogId,
@@ -426,7 +426,7 @@ class ImportExportTest extends TestCase
         );
 
         $pipe = $this->createMock(AbstractPipe::class);
-        $pipe->expects(static::exactly(2))->method('in')->willReturnCallback(
+        $pipe->expects($this->exactly(2))->method('in')->willReturnCallback(
             function (Config $config, array $originalRecord): iterable {
                 $serializedRecord = [];
 
@@ -441,15 +441,15 @@ class ImportExportTest extends TestCase
                 return $serializedRecord;
             }
         );
-        $pipe->expects(static::never())->method('out');
+        $pipe->expects($this->never())->method('out');
 
         $reader = $this->createMock(AbstractReader::class);
-        $reader->expects(static::never())->method('read');
+        $reader->expects($this->never())->method('read');
 
         $writer = $this->createMock(AbstractWriter::class);
-        $writer->expects(static::exactly(1))->method('append');
-        $writer->expects(static::exactly(2))->method('flush');
-        $writer->expects(static::exactly(2))->method('finish');
+        $writer->expects($this->exactly(1))->method('append');
+        $writer->expects($this->exactly(2))->method('flush');
+        $writer->expects($this->exactly(2))->method('finish');
 
         $importExport = new ImportExport(
             $importExportService,
@@ -510,7 +510,7 @@ class ImportExportTest extends TestCase
             ->willReturnCallback(
                 static fn (string $logId, int $offset) => new Progress($logId, Progress::STATE_PROGRESS)
             );
-        $importExportService->expects(static::exactly(1))->method('prepareExport')
+        $importExportService->expects($this->exactly(1))->method('prepareExport')
             ->willReturnCallback(
                 fn () => (new ImportExportLogEntity())->assign([
                     'id' => $invalidRecordsLogId,
@@ -536,7 +536,7 @@ class ImportExportTest extends TestCase
         );
 
         $pipe = $this->createMock(AbstractPipe::class);
-        $pipe->expects(static::exactly(1))->method('in')->willReturnCallback(
+        $pipe->expects($this->exactly(1))->method('in')->willReturnCallback(
             function (Config $config, iterable $originalRecord) use ($errorMessage): iterable {
                 static::assertSame(['_error' => $errorMessage], $originalRecord);
 
@@ -549,19 +549,19 @@ class ImportExportTest extends TestCase
                 return $serializedRecord;
             }
         );
-        $pipe->expects(static::never())->method('out');
+        $pipe->expects($this->never())->method('out');
 
         $reader = $this->createMock(AbstractReader::class);
-        $reader->expects(static::never())->method('read');
+        $reader->expects($this->never())->method('read');
 
         $writer = $this->createMock(AbstractWriter::class);
-        $writer->expects(static::exactly(1))->method('append')->with(
+        $writer->expects($this->exactly(1))->method('append')->with(
             new Config([], [], []),
             ['_error' => $errorMessage],
             0
         );
-        $writer->expects(static::exactly(1))->method('flush');
-        $writer->expects(static::exactly(1))->method('finish');
+        $writer->expects($this->exactly(1))->method('flush');
+        $writer->expects($this->exactly(1))->method('finish');
 
         $importExport = new ImportExport(
             $importExportService,

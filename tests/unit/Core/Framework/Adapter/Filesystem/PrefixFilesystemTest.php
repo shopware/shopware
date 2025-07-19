@@ -3,10 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem;
 
 use League\Flysystem\Filesystem;
+use League\Flysystem\StorageAttributes;
 use League\Flysystem\UrlGeneration\TemporaryUrlGenerator;
 use League\Flysystem\Visibility;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 
@@ -62,8 +64,12 @@ class PrefixFilesystemTest extends TestCase
 
         $prefix->createDirectory('test');
 
-        $files = $prefix->listContents('', true)->toArray();
-        static::assertCount(2, $files);
+        $filesAndDirectories = $prefix->listContents('', true)->toArray();
+        static::assertCount(2, $filesAndDirectories);
+        static::assertContainsOnlyInstancesOf(StorageAttributes::class, $filesAndDirectories);
+        foreach ($filesAndDirectories as $fileOrDirectory) {
+            static::assertStringStartsNotWith('foo/', $fileOrDirectory->path());
+        }
     }
 
     public function testWriteStream(): void
@@ -84,7 +90,7 @@ class PrefixFilesystemTest extends TestCase
 
     public function testEmptyPrefix(): void
     {
-        static::expectException(\InvalidArgumentException::class);
+        $this->expectExceptionObject(AdapterException::invalidArgument('The prefix must not be empty.'));
         new PrefixFilesystem(new Filesystem(new MemoryFilesystemAdapter()), '');
     }
 }

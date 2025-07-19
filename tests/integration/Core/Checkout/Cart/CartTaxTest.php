@@ -11,7 +11,6 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -146,9 +145,9 @@ class CartTaxTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($testCase === 'tax-free') {
-            static::assertEquals((500 * $quantity) + 10, $response['price']['totalPrice']);
+            static::assertSame((500 * $quantity) + 10, $response['price']['totalPrice']);
         } else {
-            static::assertEquals((550 * $quantity) + 11, $response['price']['totalPrice']);
+            static::assertSame((550 * $quantity) + 11, $response['price']['totalPrice']);
         }
     }
 
@@ -229,9 +228,9 @@ class CartTaxTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($testCase === 'tax-free') {
-            static::assertEquals((550 * $quantity) + 11, $response['price']['totalPrice']);
+            static::assertSame((550 * $quantity) + 11, $response['price']['totalPrice']);
         } else {
-            static::assertEquals((605 * $quantity) + 12.1, $response['price']['totalPrice']);
+            static::assertSame((605 * $quantity) + 12.1, $response['price']['totalPrice']);
         }
     }
 
@@ -293,9 +292,9 @@ class CartTaxTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($testCase === 'tax-free') {
-            static::assertEquals(FloatComparator::cast((585.43 * $quantity) + 11.71), $response['price']['totalPrice']);
+            static::assertSame(FloatComparator::cast((585.43 * $quantity) + 11.71), $response['price']['totalPrice']);
         } else {
-            static::assertEquals(FloatComparator::cast((643.97 * $quantity) + 12.88), $response['price']['totalPrice']);
+            static::assertSame(FloatComparator::cast((643.97 * $quantity) + 12.88), $response['price']['totalPrice']);
         }
     }
 
@@ -446,10 +445,6 @@ class CartTaxTest extends TestCase
             'vatIds' => ['DE123456789'],
             'company' => 'Test',
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         $this->customerRepository->create([$customer], Context::createDefaultContext());
     }

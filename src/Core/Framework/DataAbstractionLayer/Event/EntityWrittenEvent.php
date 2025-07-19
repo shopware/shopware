@@ -13,82 +13,29 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class EntityWrittenEvent extends NestedEvent implements GenericEvent
 {
-    /**
-     * @var array
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $ids;
+    protected ?array $ids = null;
 
-    /**
-     * @var NestedEventCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $events;
+    protected NestedEventCollection $events;
 
-    /**
-     * @var array
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $errors;
-
-    /**
-     * @var Context
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $context;
-
-    /**
-     * @var array
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $payloads;
-
-    /**
-     * @var EntityWriteResult[]
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $writeResults;
+    protected ?array $payloads = null;
 
     /**
      * @var EntityExistence[]
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $existences;
+    protected ?array $existences = null;
+
+    protected string $name;
 
     /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @param EntityWriteResult[] $writeResults
      */
-    protected $name;
-
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $entityName;
-
     public function __construct(
-        string $entityName,
-        array $writeResults,
-        Context $context,
-        array $errors = []
+        protected string $entityName,
+        protected array $writeResults,
+        protected Context $context,
+        protected array $errors = []
     ) {
         $this->events = new NestedEventCollection();
-        $this->context = $context;
-        $this->errors = $errors;
-
-        $this->writeResults = $writeResults;
-
-        $this->entityName = $entityName;
         $this->name = $this->entityName . '.written';
     }
 
@@ -109,7 +56,7 @@ class EntityWrittenEvent extends NestedEvent implements GenericEvent
 
     public function getIds(): array
     {
-        if (empty($this->ids)) {
+        if ($this->ids === null) {
             $this->ids = [];
             foreach ($this->writeResults as $entityWriteResult) {
                 $this->ids[] = $entityWriteResult->getPrimaryKey();
@@ -136,7 +83,7 @@ class EntityWrittenEvent extends NestedEvent implements GenericEvent
 
     public function getPayloads(): array
     {
-        if (empty($this->payloads)) {
+        if ($this->payloads === null) {
             $this->payloads = [];
             foreach ($this->writeResults as $entityWriteResult) {
                 $this->payloads[] = $entityWriteResult->getPayload();
@@ -151,7 +98,7 @@ class EntityWrittenEvent extends NestedEvent implements GenericEvent
      */
     public function getExistences(): array
     {
-        if (empty($this->existences)) {
+        if ($this->existences === null) {
             $this->existences = [];
             foreach ($this->writeResults as $entityWriteResult) {
                 if ($entityWriteResult->getExistence()) {

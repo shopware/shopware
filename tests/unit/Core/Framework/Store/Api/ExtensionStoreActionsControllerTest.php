@@ -7,7 +7,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\PluginNotAZipFileException;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Store\Api\ExtensionStoreActionsController;
@@ -37,7 +36,23 @@ class ExtensionStoreActionsControllerTest extends TestCase
             true
         );
 
-        $pluginService->expects(static::once())->method('refreshPlugins');
+        $pluginService->expects($this->once())->method('refreshPlugins');
+
+        $controller->refreshExtensions(Context::createDefaultContext());
+    }
+
+    public function testRefreshExtensionsDisabled(): void
+    {
+        $controller = new ExtensionStoreActionsController(
+            $this->createMock(ExtensionLifecycleService::class),
+            $this->createMock(ExtensionDownloader::class),
+            $pluginService = $this->createMock(PluginService::class),
+            $this->createMock(PluginManagementService::class),
+            $this->createFileSystemMock(),
+            false,
+        );
+
+        $pluginService->expects($this->never())->method('refreshPlugins');
 
         $controller->refreshExtensions(Context::createDefaultContext());
     }
@@ -59,7 +74,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
         $file->method('getPathname')->willReturn(tempnam(sys_get_temp_dir(), __METHOD__));
         $request->files->set('file', $file);
 
-        static::expectException(PluginNotAZipFileException::class);
+        static::expectExceptionObject(StoreException::pluginNotAZipFile('foo'));
         $controller->uploadExtensions($request, Context::createDefaultContext());
     }
 
@@ -70,7 +85,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             static::fail('Filesystem mock is not a mock object');
         }
 
-        $fileSystemMock->expects(static::once())
+        $fileSystemMock->expects($this->once())
             ->method('remove')
             ->willThrowException(new \RuntimeException('Error'));
 
@@ -89,7 +104,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
         $file->method('getPathname')->willReturn(tempnam(sys_get_temp_dir(), __METHOD__));
         $request->files->set('file', $file);
 
-        static::expectException(PluginNotAZipFileException::class);
+        static::expectExceptionObject(StoreException::pluginNotAZipFile('foo'));
         $controller->uploadExtensions($request, Context::createDefaultContext());
     }
 
@@ -135,7 +150,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
 
         $response = $controller->uploadExtensions($request, Context::createDefaultContext());
 
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
     public function testUploadExtensionsShallThrowExceptionIfPathToFileIsEmpty(): void
@@ -169,9 +184,9 @@ class ExtensionStoreActionsControllerTest extends TestCase
             true
         );
 
-        $downloader->expects(static::once())->method('download');
+        $downloader->expects($this->once())->method('download');
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_NO_CONTENT,
             $controller->downloadExtension('test', Context::createDefaultContext())->getStatusCode()
         );
@@ -188,9 +203,9 @@ class ExtensionStoreActionsControllerTest extends TestCase
             true
         );
 
-        $lifecycle->expects(static::once())->method('install');
+        $lifecycle->expects($this->once())->method('install');
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_NO_CONTENT,
             $controller->installExtension('plugin', 'test', Context::createDefaultContext())->getStatusCode()
         );
@@ -207,9 +222,9 @@ class ExtensionStoreActionsControllerTest extends TestCase
             true
         );
 
-        $lifecycle->expects(static::once())->method('uninstall');
+        $lifecycle->expects($this->once())->method('uninstall');
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_NO_CONTENT,
             $controller->uninstallExtension('plugin', 'test', new Request(), Context::createDefaultContext())->getStatusCode()
         );
@@ -226,9 +241,9 @@ class ExtensionStoreActionsControllerTest extends TestCase
             true
         );
 
-        $lifecycle->expects(static::once())->method('remove');
+        $lifecycle->expects($this->once())->method('remove');
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_NO_CONTENT,
             $controller->removeExtension('plugin', 'test', new Request(), Context::createDefaultContext())->getStatusCode()
         );
@@ -245,9 +260,9 @@ class ExtensionStoreActionsControllerTest extends TestCase
             true
         );
 
-        $lifecycle->expects(static::once())->method('activate');
+        $lifecycle->expects($this->once())->method('activate');
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_NO_CONTENT,
             $controller->activateExtension('plugin', 'test', Context::createDefaultContext())->getStatusCode()
         );
@@ -264,9 +279,9 @@ class ExtensionStoreActionsControllerTest extends TestCase
             true
         );
 
-        $lifecycle->expects(static::once())->method('deactivate');
+        $lifecycle->expects($this->once())->method('deactivate');
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_NO_CONTENT,
             $controller->deactivateExtension('plugin', 'test', Context::createDefaultContext())->getStatusCode()
         );
@@ -283,11 +298,11 @@ class ExtensionStoreActionsControllerTest extends TestCase
             true
         );
 
-        $lifecycle->expects(static::once())->method('update');
+        $lifecycle->expects($this->once())->method('update');
 
         $request = new Request([], ['allowNewPermissions' => true]);
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_NO_CONTENT,
             $controller->updateExtension($request, 'plugin', 'test', Context::createDefaultContext())->getStatusCode()
         );
@@ -304,11 +319,11 @@ class ExtensionStoreActionsControllerTest extends TestCase
             true
         );
 
-        $lifecycle->expects(static::once())->method('update');
+        $lifecycle->expects($this->once())->method('update');
 
         $request = new Request([], ['allowNewPermissions' => false]);
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_NO_CONTENT,
             $controller->updateExtension($request, 'plugin', 'test', Context::createDefaultContext())->getStatusCode()
         );
@@ -322,7 +337,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            false,
+            false
         );
 
         $context = Context::createDefaultContext();
@@ -330,25 +345,25 @@ class ExtensionStoreActionsControllerTest extends TestCase
         try {
             $controller->deactivateExtension('plugin', 'test', $context);
         } catch (StoreException $e) {
-            static::assertEquals(StoreException::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED, $e->getErrorCode());
+            static::assertSame(StoreException::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED, $e->getErrorCode());
         }
 
         try {
             $controller->activateExtension('plugin', 'test', $context);
         } catch (StoreException $e) {
-            static::assertEquals(StoreException::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED, $e->getErrorCode());
+            static::assertSame(StoreException::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED, $e->getErrorCode());
         }
 
         try {
             $controller->removeExtension('plugin', 'test', new Request(), $context);
         } catch (StoreException $e) {
-            static::assertEquals(StoreException::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED, $e->getErrorCode());
+            static::assertSame(StoreException::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED, $e->getErrorCode());
         }
 
         try {
             $controller->installExtension('plugin', 'test', $context);
         } catch (StoreException $e) {
-            static::assertEquals(StoreException::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED, $e->getErrorCode());
+            static::assertSame(StoreException::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED, $e->getErrorCode());
         }
     }
 
@@ -357,7 +372,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
         $fileSystem = $this->createMock(Filesystem::class);
 
         if ($expectCallRemove) {
-            $fileSystem->expects(static::once())->method('remove');
+            $fileSystem->expects($this->once())->method('remove');
         }
 
         return $fileSystem;

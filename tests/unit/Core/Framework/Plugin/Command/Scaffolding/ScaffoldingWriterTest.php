@@ -38,7 +38,7 @@ class ScaffoldingWriterTest extends TestCase
             'custom/plugins/TestPlugin'
         );
 
-        $filesystem->expects(static::exactly(2))
+        $filesystem->expects($this->exactly(2))
             ->method('dumpFile')
             ->willReturnCallback(function (string $filename, string $content): void {
                 static::assertContains($filename, ['custom/plugins/TestPlugin/composer.json', 'custom/plugins/TestPlugin/phpunit.xml']);

@@ -39,21 +39,20 @@
     {% endif %}
 
     <div class="form-group{% if additionalClass is not empty %} {{ additionalClass }}{% endif %}">
-
         {% block component_form_textarea_label %}
             {% if label %}
                 <label class="form-label" for="{{ id }}">
                     {{ label|raw }}
 
                     {% if 'required' in validationRules %}
-                        <span class="form-required-label" aria-hidden="true">{{ "general.required"|trans|sw_sanitize }}</span>
+                        <span class="form-required-label" aria-hidden="true">{{ 'general.required'|trans|sw_sanitize }}</span>
                     {% endif %}
                 </label>
             {% endif %}
         {% endblock %}
 
         {% block component_form_textarea_input %}
-            {% set cssClass = "form-control" %}
+            {% set cssClass = 'form-control' %}
 
             {% if additionalInputClass is not empty %}
                 {% set cssClass = "#{cssClass} #{additionalInputClass}" %}
@@ -90,7 +89,6 @@
 
         {% block component_form_textarea_feedback %}
             <div id="{{ feedbackId }}" class="form-field-feedback">
-
                 {% block component_form_textarea_feedback_violations %}
                     {% if violationPath is not empty and formViolations.getViolations(violationPath) is not empty %}
                         {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}

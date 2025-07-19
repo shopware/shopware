@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -23,7 +22,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 #[Package('checkout')]
 class ExtensionDataProviderTest extends TestCase
 {

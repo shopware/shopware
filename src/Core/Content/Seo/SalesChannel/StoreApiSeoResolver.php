@@ -96,6 +96,10 @@ class StoreApiSeoResolver implements EventSubscriberInterface
             foreach ($struct->getEntities() as $entity) {
                 $this->findStruct($data, $entity);
             }
+
+            foreach ($struct->getExtensions() as $extension) {
+                $this->findStruct($data, $extension);
+            }
         }
 
         if ($struct instanceof Collection) {
@@ -117,7 +121,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
         }
 
         foreach ($struct->getVars() as $item) {
-            if ($item instanceof Collection) {
+            if ($item instanceof Collection || \is_array($item)) {
                 foreach ($item as $collectionItem) {
                     if ($collectionItem instanceof Struct) {
                         $this->findStruct($data, $collectionItem);

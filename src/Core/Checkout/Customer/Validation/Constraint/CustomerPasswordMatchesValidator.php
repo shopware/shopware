@@ -26,10 +26,22 @@ class CustomerPasswordMatchesValidator extends ConstraintValidator
 
         $context = $constraint->getContext();
 
-        try {
-            $email = $context->getCustomer()->getEmail();
+        $customer = $context->getCustomer();
 
-            $this->accountService->getCustomerByLogin($email, (string) $password, $constraint->getContext());
+        if (!$customer) {
+            $this->context->buildViolation($constraint->message)
+                ->setCode(CustomerPasswordMatches::CUSTOMER_PASSWORD_NOT_CORRECT)
+                ->addViolation();
+
+            return;
+        }
+
+        try {
+            $this->accountService->getCustomerByLogin(
+                $customer->getEmail(),
+                (string) $password,
+                $constraint->getContext()
+            );
 
             return;
         } catch (BadCredentialsException) {

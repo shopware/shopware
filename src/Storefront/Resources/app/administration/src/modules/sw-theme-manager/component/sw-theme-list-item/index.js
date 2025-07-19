@@ -2,7 +2,7 @@ import template from './sw-theme-list-item.html.twig';
 import './sw-theme-list-item.scss';
 
 /**
- * @package buyers-experience
+ * @package discovery
  */
 
 const { Component, Application } = Shopware;
@@ -54,7 +54,7 @@ Component.register('sw-theme-list-item', {
         lockToolTip() {
             return {
                 showDelay: 100,
-                message: this.$tc('sw-theme-manager.general.lockedToolTip')
+                message: this.$t('sw-theme-manager.general.lockedToolTip')
             };
         },
 

@@ -12,40 +12,15 @@ class PropertyGroupTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $propertyGroupId;
+    protected string $propertyGroupId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $position;
+    protected ?int $position = null;
 
-    /**
-     * @var PropertyGroupEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $propertyGroup;
+    protected ?PropertyGroupEntity $propertyGroup = null;
 
     public function getPropertyGroupId(): string
     {

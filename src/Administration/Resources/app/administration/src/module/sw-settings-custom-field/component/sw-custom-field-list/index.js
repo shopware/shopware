@@ -12,8 +12,6 @@ const types = Shopware.Utils.types;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -122,6 +120,7 @@ export default {
 
         onAddCustomField() {
             const customField = this.customFieldRepository.create();
+            customField.storeApiAware = true;
             this.onCustomFieldEdit(customField);
         },
 
@@ -180,11 +179,7 @@ export default {
                 }
 
                 if ((types.isEmpty(config[property]) || config[property] === undefined) && config[property !== null]) {
-                    if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                        this.$delete(config, property);
-                    } else {
-                        delete config[property];
-                    }
+                    delete config[property];
                 }
             });
         },

@@ -50,7 +50,7 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
     let spyRecentlySearchServiceAdd;
 
     async function createWrapper(props) {
-        swSearchBarItemComponent = await Shopware.Component.build('sw-search-bar-item');
+        swSearchBarItemComponent = await wrapTestComponent('sw-search-bar-item', { sync: true });
         spyOnClickSearchResult = jest.spyOn(swSearchBarItemComponent.methods, 'onClickSearchResult');
         jest.spyOn(swSearchBarItemComponent.methods, 'registerEvents').mockImplementation(() => {});
         jest.spyOn(swSearchBarItemComponent.methods, 'removeEvents').mockImplementation(() => {});
@@ -59,7 +59,6 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
         return mount(swSearchBarItemComponent, {
             global: {
                 stubs: {
-                    'sw-icon': true,
                     'sw-highlight-text': true,
                     'sw-shortcut-overview-item': true,
                     'router-link': {
@@ -80,21 +79,21 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
     }
 
     beforeAll(async () => {
-        swSearchBarItemComponent = await Shopware.Component.build('sw-search-bar-item');
+        swSearchBarItemComponent = await wrapTestComponent('sw-search-bar-item', { sync: true });
         recentlySearchService = new RecentlySearchService();
         spyOnClickSearchResult = jest.spyOn(swSearchBarItemComponent.methods, 'onClickSearchResult');
         spyRecentlySearchServiceAdd = jest.spyOn(recentlySearchService, 'add');
     });
 
     beforeEach(async () => {
-        Shopware.State.get('session').currentUser = {
+        Shopware.Store.get('session').setCurrentUser({
             id: 'userId',
-        };
+        });
     });
 
     it('should be a Vue.js component', async () => {
         wrapper = await createWrapper({
-            entityIconName: 'default-shopping-basket',
+            entityIconName: 'regular-shopping-basket',
             entityIconColor: 'blue',
             column: 1,
             index: 1,
@@ -110,7 +109,7 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
 
     it('should add clicked search result into recently search stack', async () => {
         wrapper = await createWrapper({
-            entityIconName: 'default-shopping-basket',
+            entityIconName: 'regular-shopping-basket',
             entityIconColor: 'blue',
             column: 1,
             index: 1,
@@ -159,7 +158,7 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
 
     it('should return filters from filter registry', async () => {
         wrapper = await createWrapper({
-            entityIconName: 'default-shopping-basket',
+            entityIconName: 'regular-shopping-basket',
             entityIconColor: 'blue',
             column: 1,
             index: 1,

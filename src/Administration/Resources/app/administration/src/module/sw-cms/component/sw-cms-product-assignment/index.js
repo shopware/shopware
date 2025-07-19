@@ -10,8 +10,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'change',
         'paginate',
@@ -23,15 +21,7 @@ export default {
         };
     },
 
-    computed: {
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
-    },
+    computed: {},
 
     watch: {
         criteria: {

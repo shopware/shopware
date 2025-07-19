@@ -11,7 +11,6 @@ use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -20,7 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -72,6 +71,7 @@ class AdministrationController extends AbstractController
         ParameterBagInterface $params,
         private readonly SystemConfigService $systemConfigService,
         private readonly FilesystemOperator $fileSystem,
+        private readonly string $serviceRegistryUrl,
         private readonly string $refreshTokenTtl = 'P1W',
     ) {
         // param is only available if the elasticsearch bundle is enabled
@@ -98,8 +98,6 @@ class AdministrationController extends AbstractController
             'systemLanguageId' => Defaults::LANGUAGE_SYSTEM,
             'defaultLanguageIds' => [Defaults::LANGUAGE_SYSTEM],
             'systemCurrencyId' => Defaults::CURRENCY,
-            // @deprecated tag:v6.7.0 - remove as read-only extension manager is a better solution
-            'disableExtensions' => EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false),
             'systemCurrencyISOCode' => $defaultCurrency?->getIsoCode(),
             'liveVersionId' => Defaults::LIVE_VERSION,
             'firstRunWizard' => $this->firstRunWizardService->frwShouldRun(),
@@ -108,6 +106,7 @@ class AdministrationController extends AbstractController
             'adminEsEnable' => $this->esAdministrationEnabled,
             'storefrontEsEnable' => $this->esStorefrontEnabled,
             'refreshTokenTtl' => $refreshTokenTtl * 1000,
+            'serviceRegistryUrl' => $this->serviceRegistryUrl,
         ]);
     }
 
@@ -145,21 +144,12 @@ class AdministrationController extends AbstractController
     {
         try {
             $publicAssetBaseUrl = $this->fileSystem->publicUrl('/');
-
-            if (Feature::isActive('ADMIN_VITE')) {
-                $viteIndexHtml = $this->fileSystem->read('bundles/' . $pluginName . '/meteor-app/index.html');
-            } else {
-                $webpackIndexHtml = $this->fileSystem->read('bundles/' . $pluginName . '/administration/index.html');
-            }
-        } catch (FilesystemException $e) {
+            $viteIndexHtml = $this->fileSystem->read('bundles/' . $pluginName . '/meteor-app/index.html');
+        } catch (FilesystemException) {
             return new Response('Plugin index.html not found', Response::HTTP_NOT_FOUND);
         }
 
-        if (Feature::isActive('ADMIN_VITE')) {
-            $indexHtml = str_replace('__$ASSET_BASE_PATH$__', \sprintf('%sbundles/%s/meteor-app/', $publicAssetBaseUrl, $pluginName), $viteIndexHtml);
-        } else {
-            $indexHtml = str_replace('__$ASSET_BASE_PATH$__', $publicAssetBaseUrl, $webpackIndexHtml);
-        }
+        $indexHtml = str_replace('__$ASSET_BASE_PATH$__', \sprintf('%sbundles/%s/meteor-app/', $publicAssetBaseUrl, $pluginName), $viteIndexHtml);
 
         $response = new Response($indexHtml, Response::HTTP_OK, [
             'Content-Type' => 'text/html',
@@ -193,7 +183,6 @@ class AdministrationController extends AbstractController
 
                 break;
             default:
-                /** @var PreResetExcludedSearchTermEvent $preResetExcludedSearchTermEvent */
                 $preResetExcludedSearchTermEvent = $this->eventDispatcher->dispatch(new PreResetExcludedSearchTermEvent($searchConfigId, [], $context));
                 $defaultExcludedTerm = $preResetExcludedSearchTermEvent->getExcludedTerms();
         }
@@ -241,7 +230,7 @@ class AdministrationController extends AbstractController
 
         if ($customer->getBoundSalesChannel()) {
             $message .= ' in the Sales Channel {{ salesChannel }}';
-            $params['{{ salesChannel }}'] = $customer->getBoundSalesChannel()->getName();
+            $params['{{ salesChannel }}'] = (string) $customer->getBoundSalesChannel()->getName();
         }
 
         $violations = new ConstraintViolationList();
@@ -333,10 +322,7 @@ class AdministrationController extends AbstractController
 
         $criteria->addFilter(new EqualsFilter('email', $email));
         $criteria->addFilter(new EqualsFilter('guest', false));
-        $criteria->addFilter(new NotFilter(
-            NotFilter::CONNECTION_AND,
-            [new EqualsFilter('id', $customerId)]
-        ));
+        $criteria->addFilter(new NotEqualsFilter('id', $customerId));
 
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
             new EqualsFilter('boundSalesChannelId', null),

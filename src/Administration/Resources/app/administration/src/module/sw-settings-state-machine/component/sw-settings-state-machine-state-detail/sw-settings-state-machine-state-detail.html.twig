@@ -1,0 +1,58 @@
+{% block sw_settings_state_machine_state_detail %}
+<sw-modal
+    class="sw-settings-state-machine-state-modal__settings-modal"
+    :title="$tc('sw-settings-state-machine.state.detail.stateMachineStateCardTitle')"
+    @modal-close="$emit('modal-close')"
+>
+    {% block sw_settings_state_machine_state_detail_content %}
+    <sw-container
+        columns="1fr 1fr"
+        gap="0px 32px"
+    >
+        {% block sw_settings_state_machine_state_detail_content_name %}
+
+        <mt-text-field
+            v-model="stateMachineState.name"
+            :label="$tc('sw-settings-state-machine.state.detail.labelName')"
+            :error="stateMachineStateNameError"
+            required
+        />
+        {% endblock %}
+
+        {% block sw_settings_state_machine_state_detail_content_technical_name %}
+
+        <mt-text-field
+            v-model="stateMachineState.technicalName"
+            :label="$tc('sw-settings-state-machine.state.detail.labelTechnicalName')"
+            :disabled="true"
+            required
+        />
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+
+    {% block sw_settings_state_machine_state_detail_footer %}
+    <template #modal-footer>
+        {% block sw_settings_state_machine_state_detail_footer_cancel %}
+        <mt-button
+            size="small"
+            variant="secondary"
+            @click="onCancel"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_settings_state_machine_state_detail_footer_save %}
+        <mt-button
+            variant="primary"
+            size="small"
+            @click="onSave"
+        >
+            {{ $tc('global.default.save') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

@@ -204,12 +204,12 @@ class TwigSwExtendsTest extends TestCase
         $twig = new Environment($loader, ['cache' => $this->cache]);
 
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects(static::any())
+        $kernel->expects($this->any())
             ->method('getBundles')
             ->willReturn($bundles);
 
         $scopeDetector = $this->createMock(TemplateScopeDetector::class);
-        $scopeDetector->expects(static::any())
+        $scopeDetector->expects($this->any())
             ->method('getScopes')
             ->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 

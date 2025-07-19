@@ -48,8 +48,4 @@ class Migration1718635021AddIntraCommunityLabelDocumentConfigToCreditNote extend
             );
         });
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

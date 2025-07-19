@@ -8,8 +8,6 @@ import template from './sw-order-leave-page-modal.html.twig';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'page-leave-confirm',
         'page-leave-cancel',

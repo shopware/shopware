@@ -2,7 +2,7 @@
 
 .sw-settings-product-feature-sets-values-card {
     &.is--empty {
-        .sw-card__content {
+        .mt-card__content {
             min-height: 390px;
         }
     }
@@ -32,11 +32,11 @@
         .sw-product-feature-set__delete-button {
             border-color: $color-crimson-500;
 
-            .sw-icon {
+            .mt-icon {
                 color: $color-crimson-500;
             }
 
-            &.sw-button--disabled {
+            &.mt-button--disabled {
                 opacity: 0.2;
             }
         }

@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * @final
+ */
 #[Package('fundamentals@after-sales')]
 class LineItemWithQuantityRule extends Rule
 {

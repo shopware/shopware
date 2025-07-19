@@ -7,25 +7,12 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
+use Shopware\Core\Framework\Webhook\Webhook;
 
 /**
  * @internal
  *
  * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\Webhook\Service\WebhookLoaderTest
- *
- * @phpstan-type Webhook array{
- *     webhookId: string,
- *     webhookName: string,
- *     eventName: string,
- *     webhookUrl: string,
- *     onlyLiveVersion: bool,
- *     appId: string|null,
- *     appName: string|null,
- *     appActive: bool,
- *     appVersion: string|null,
- *     appSecret: string|null,
- *     appAclRoleId: string|null
- * }
  */
 #[Package('framework')]
 class WebhookLoader
@@ -71,32 +58,41 @@ class WebhookLoader
     {
         $sql = <<<'SQL'
             SELECT
-                LOWER(HEX(MIN(w.id))) as webhookId,
-                MIN(w.name) as webhookName,
+                LOWER(HEX(w.id)) as webhookId,
+                w.name as webhookName,
                 w.event_name as eventName,
                 w.url as webhookUrl,
                 w.only_live_version as onlyLiveVersion,
-                LOWER(HEX(MIN(a.id))) AS appId,
-                MIN(a.name) AS appName,
-                MIN(a.active) AS appActive,
-                MIN(a.version) AS appVersion,
-                MIN(a.app_secret) AS appSecret,
-                LOWER(HEX(MIN(a.acl_role_id))) as appAclRoleId
-
+                LOWER(HEX(a.id)) AS appId,
+                a.name AS appName,
+                a.active AS appActive,
+                a.source_type AS appSourceType,
+                a.version AS appVersion,
+                a.app_secret AS appSecret,
+                LOWER(HEX(a.acl_role_id)) as appAclRoleId
             FROM webhook w
             LEFT JOIN app a ON (a.id = w.app_id)
             WHERE w.active = 1
-            GROUP BY event_name, url, only_live_version
         SQL;
 
         $webhooks = $this->connection->fetchAllAssociative($sql);
 
-        foreach ($webhooks as $k => $webhook) {
-            $webhooks[$k]['appActive'] = (bool) $webhook['appActive'];
-            $webhooks[$k]['onlyLiveVersion'] = (bool) $webhook['onlyLiveVersion'];
-        }
-        /** @var list<Webhook> $webhooks */
-
-        return $webhooks;
+        return array_map(
+            fn (array $webhook) => new Webhook(
+                $webhook['webhookId'],
+                $webhook['webhookName'],
+                $webhook['eventName'],
+                $webhook['webhookUrl'],
+                (bool) $webhook['onlyLiveVersion'],
+                $webhook['appId'],
+                $webhook['appName'],
+                $webhook['appSourceType'],
+                (bool) $webhook['appActive'],
+                $webhook['appVersion'],
+                $webhook['appSecret'],
+                $webhook['appAclRoleId']
+            ),
+            $webhooks
+        );
     }
 }

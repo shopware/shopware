@@ -10,8 +10,6 @@ import './sw-order-nested-line-items-row.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         lineItem: {
             type: Object,

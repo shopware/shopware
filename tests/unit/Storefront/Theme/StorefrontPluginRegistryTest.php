@@ -20,7 +20,7 @@ class StorefrontPluginRegistryTest extends TestCase
     public function testGetByTechnicalNameLoadsSingleApp(): void
     {
         $appLoader = $this->createMock(ActiveAppsLoader::class);
-        $appLoader->expects(static::once())
+        $appLoader->expects($this->once())
             ->method('getActiveApps')
             ->willReturn([
                 [
@@ -40,7 +40,7 @@ class StorefrontPluginRegistryTest extends TestCase
         $pluginFactory = $this->createMock(AbstractStorefrontPluginConfigurationFactory::class);
 
         $config = new StorefrontPluginConfiguration('App1');
-        $pluginFactory->expects(static::once())
+        $pluginFactory->expects($this->once())
             ->method('createFromApp')
             ->with('App1', 'App1')
             ->willReturn($config);
@@ -66,13 +66,13 @@ class StorefrontPluginRegistryTest extends TestCase
             protected string $name = 'Plugin1';
         };
 
-        $pluginFactory->expects(static::once())
+        $pluginFactory->expects($this->once())
             ->method('createFromBundle')
             ->with($bundle)
             ->willReturn($config);
 
         $kernel = $this->createMock(KernelInterface::class);
-        $kernel->expects(static::once())
+        $kernel->expects($this->once())
             ->method('getBundles')
             ->willReturn([$bundle]);
 
@@ -91,7 +91,7 @@ class StorefrontPluginRegistryTest extends TestCase
     public function testGetConfigurationsExcludesServices(): void
     {
         $appLoader = $this->createMock(ActiveAppsLoader::class);
-        $appLoader->expects(static::once())
+        $appLoader->expects($this->once())
             ->method('getActiveApps')
             ->willReturn([
                 [
@@ -111,13 +111,13 @@ class StorefrontPluginRegistryTest extends TestCase
         $pluginFactory = $this->createMock(AbstractStorefrontPluginConfigurationFactory::class);
 
         $config = new StorefrontPluginConfiguration('App1');
-        $pluginFactory->expects(static::once())
+        $pluginFactory->expects($this->once())
             ->method('createFromApp')
             ->with('App1', 'App1')
             ->willReturn($config);
 
         $kernel = $this->createMock(KernelInterface::class);
-        $kernel->expects(static::once())
+        $kernel->expects($this->once())
             ->method('getBundles')
             ->willReturn([]);
 

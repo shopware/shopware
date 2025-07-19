@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { nextTick } from 'vue';
 
 const advancedModeSettings = {
     value: {
@@ -85,6 +86,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                                         isNew: () => true,
                                     };
                                 }
+
                                 return {};
                             },
                             search: searchFunction,
@@ -93,7 +95,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                                     variation: [],
                                 });
                             },
-                            hasChanges: () => false,
+                            hasChanges: () => true,
                             save: () => Promise.resolve({}),
                         }),
                     },
@@ -114,6 +116,10 @@ describe('module/sw-product/page/sw-product-detail', () => {
                             return errors.length < 1;
                         },
                     },
+                    userConfigService: {
+                        search: () => Promise.resolve({ data: {} }),
+                        upsert: () => Promise.resolve(),
+                    },
                 },
                 stubs: {
                     'sw-page': {
@@ -126,11 +132,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
                         </div>`,
                     },
                     'sw-product-variant-info': true,
-                    'sw-button': true,
                     'sw-button-group': true,
                     'sw-button-process': true,
                     'sw-context-button': true,
-                    'sw-icon': true,
                     'sw-context-menu-item': true,
                     'sw-language-switch': true,
                     'sw-card-view': {
@@ -138,7 +142,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     },
                     'sw-language-info': true,
                     'router-view': true,
-                    'sw-switch-field': true,
+
                     'sw-context-menu-divider': true,
                     'sw-checkbox-field': true,
                     'sw-product-settings-mode': await wrapTestComponent('sw-product-settings-mode', { sync: true }),
@@ -180,6 +184,15 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
+
+        Shopware.Store.get('swProductDetail').setLengthUnit = jest.fn();
+        Shopware.Store.get('swProductDetail').setWeightUnit = jest.fn();
+    });
+
+    afterEach(() => {
+        if (wrapper) {
+            wrapper.unmount();
+        }
     });
 
     it('should be a Vue.js component', async () => {
@@ -187,9 +200,8 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should show advanced mode settings', async () => {
-        await Shopware.State.commit('swProductDetail/setProduct', {
-            parentId: '',
-        });
+        Shopware.Store.get('swProductDetail').product = { parentId: '' };
+        await nextTick();
         const contextButton = wrapper.find('.sw-product-settings-mode');
         expect(contextButton.exists()).toBe(true);
     });
@@ -207,6 +219,8 @@ describe('module/sw-product/page/sw-product-detail', () => {
             '.sw-product-detail__tab-reviews',
         ];
 
+        await nextTick();
+
         tabItemClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBe(true);
         });
@@ -214,21 +228,19 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
     it('should show item tabs when advanced mode deactivate', async () => {
         wrapper.vm.userModeSettingsRepository.save = jest.fn(() => Promise.resolve());
-        await Shopware.State.commit('swProductDetail/setProduct', {
-            parentId: '',
-        });
+        Shopware.Store.get('swProductDetail').product = { parentId: '' };
         await wrapper.setProps({
             productId: '1234',
         });
 
-        await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
+        Shopware.Store.get('swProductDetail').advancedModeSetting = {
             value: {
                 ...advancedModeSettings.value,
                 advancedMode: {
                     enabled: false,
                 },
             },
-        });
+        };
 
         const tabItemClassName = [
             '.sw-product-detail__tab-variants',
@@ -237,6 +249,8 @@ describe('module/sw-product/page/sw-product-detail', () => {
             '.sw-product-detail__tab-cross-selling',
             '.sw-product-detail__tab-reviews',
         ];
+
+        await nextTick();
 
         tabItemClassName.forEach((item) => {
             expect(wrapper.find(item).attributes().style).toBe('display: none;');
@@ -311,7 +325,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         });
 
         await wrapper.vm.loadCurrencies();
-        await wrapper.vm.$nextTick();
+        await nextTick();
 
         expect(wrapper.vm.product.purchasePrices).toStrictEqual([
             {
@@ -368,7 +382,10 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should show correct config when there is system config data', async () => {
-        wrapper.vm.salesChannelRepository.search = jest.fn(() => {
+        await flushPromises();
+        await wrapper.unmount();
+
+        wrapper = await createWrapper(() => {
             return Promise.resolve([
                 {
                     id: '98432def39fc4624b33213a56b8c944d',
@@ -385,7 +402,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         wrapper.vm.getCmsPageOverrides = jest.fn(() => {
             return null;
         });
-        await Shopware.State.commit('swProductDetail/setProduct', {
+        Shopware.Store.get('swProductDetail').product = {
             isNew: jest.fn(() => true),
             prices: [],
             price: [
@@ -408,10 +425,10 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     },
                 },
             ],
-        });
+        };
 
         // make it a download product which requires downloads
-        Shopware.State.commit('swProductDetail/setCreationStates', 'is-download');
+        Shopware.Store.get('swProductDetail').creationStates = 'is-download';
 
         wrapper.vm.saveProduct = jest.fn(() => {
             return Promise.resolve();
@@ -421,5 +438,332 @@ describe('module/sw-product/page/sw-product-detail', () => {
         // save shouldn't finish successfully (nothing should be sent to the server - no saveProduct call)
         expect(wrapper.vm.saveProduct.mock.calls).toHaveLength(0);
         await flushPromises();
+    });
+
+    it('should initialize with default units when no preferences exist', async () => {
+        wrapper.vm.userConfigService.search = jest.fn(() =>
+            Promise.resolve({
+                data: {},
+            }),
+        );
+
+        await wrapper.vm.initProductMeasurementUnits();
+
+        expect(wrapper.vm.previousLengthUnit).toBe('mm');
+        expect(wrapper.vm.previousWeightUnit).toBe('kg');
+        expect(Shopware.Store.get('swProductDetail').setLengthUnit).toHaveBeenCalledWith('mm');
+        expect(Shopware.Store.get('swProductDetail').setWeightUnit).toHaveBeenCalledWith('kg');
+    });
+
+    it('should initialize with preferred units when they exist', async () => {
+        const preferredUnits = {
+            length: 'cm',
+            weight: 'g',
+        };
+
+        wrapper.vm.userConfigService.search = jest.fn(() =>
+            Promise.resolve({
+                data: {
+                    'measurement.preferenceUnits': preferredUnits,
+                },
+            }),
+        );
+
+        await wrapper.vm.initProductMeasurementUnits();
+
+        expect(wrapper.vm.previousLengthUnit).toBe('cm');
+        expect(wrapper.vm.previousWeightUnit).toBe('g');
+        expect(Shopware.Store.get('swProductDetail').setLengthUnit).toHaveBeenCalledWith('cm');
+        expect(Shopware.Store.get('swProductDetail').setWeightUnit).toHaveBeenCalledWith('g');
+    });
+
+    it('should save preferences only when units have changed', async () => {
+        await wrapper.setData({
+            previousLengthUnit: 'cm',
+            previousWeightUnit: 'kg',
+        });
+
+        wrapper.vm.userConfigService.upsert = jest.fn(() => Promise.resolve());
+
+        await wrapper.vm.saveProduct();
+
+        expect(wrapper.vm.userConfigService.upsert).toHaveBeenCalled();
+        expect(wrapper.vm.previousLengthUnit).toBe('mm');
+        expect(wrapper.vm.previousWeightUnit).toBe('kg');
+    });
+
+    it('should not save preferences when units have not changed', async () => {
+        await wrapper.setData({
+            previousLengthUnit: 'mm',
+            previousWeightUnit: 'kg',
+        });
+
+        wrapper.vm.userConfigService.upsert = jest.fn(() => Promise.resolve());
+
+        await wrapper.vm.saveProduct();
+
+        expect(wrapper.vm.userConfigService.upsert).not.toHaveBeenCalled();
+        expect(wrapper.vm.previousLengthUnit).toBe('mm');
+        expect(wrapper.vm.previousWeightUnit).toBe('kg');
+    });
+
+    it('should handle errors when saving preferences', async () => {
+        await wrapper.setData({
+            previousLengthUnit: 'cm',
+            previousWeightUnit: 'kg',
+        });
+
+        wrapper.vm.userConfigService.upsert = jest.fn(() => Promise.reject(new Error('Save failed')));
+
+        await wrapper.vm.saveProduct();
+
+        expect(wrapper.vm.userConfigService.upsert).toHaveBeenCalled();
+        // Previous units should not be updated on error
+        expect(wrapper.vm.previousLengthUnit).toBe('cm');
+        expect(wrapper.vm.previousWeightUnit).toBe('kg');
+    });
+
+    it('should set isSaveSuccessful to true when no SEO promises exist', () => {
+        wrapper.vm.loadProduct = jest.fn();
+
+        wrapper.vm.updateSeoPromises = [];
+
+        wrapper.vm.onSaveFinished('success');
+
+        expect(wrapper.vm.isSaveSuccessful).toBe(true);
+        expect(wrapper.vm.loadProduct).not.toHaveBeenCalled();
+    });
+
+    it('should handle success response correctly', async () => {
+        wrapper.vm.updateSeoPromises = [Promise.resolve()];
+        Shopware.Store.get('swProductDetail').setLoading = jest.fn();
+        Shopware.Store.get('error').resetApiErrors = jest.fn();
+        wrapper.vm.loadProduct = jest.fn();
+
+        Shopware.Utils.EventBus.emit = jest.fn();
+
+        wrapper.vm.onSaveFinished('success');
+
+        expect(Shopware.Store.get('swProductDetail').setLoading).toHaveBeenCalledWith([
+            'product',
+            true,
+        ]);
+
+        await flushPromises();
+
+        expect(Shopware.Utils.EventBus.emit).toHaveBeenCalledWith('sw-product-detail-save-finish');
+        expect(wrapper.vm.isSaveSuccessful).toBe(true);
+        expect(Shopware.Store.get('error').resetApiErrors).not.toHaveBeenCalled();
+        expect(Shopware.Store.get('swProductDetail').setLoading).toHaveBeenCalledWith([
+            'product',
+            false,
+        ]);
+        expect(wrapper.vm.loadProduct).toHaveBeenCalled();
+    });
+
+    it('should handle duplicate product number error correctly', async () => {
+        wrapper.vm.updateSeoPromises = [Promise.resolve()];
+        wrapper.vm.isSaveSuccessful = false;
+        wrapper.vm.loadProduct = jest.fn();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        Shopware.Utils.EventBus.emit = jest.fn();
+
+        const duplicateErrorResponse = {
+            response: {
+                data: {
+                    errors: [
+                        {
+                            code: 'CONTENT__DUPLICATE_PRODUCT_NUMBER',
+                            meta: {
+                                parameters: {
+                                    number: 'SW-123',
+                                },
+                            },
+                        },
+                    ],
+                },
+            },
+        };
+
+        wrapper.vm.onSaveFinished(duplicateErrorResponse);
+
+        await flushPromises();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            title: 'global.default.error',
+            message: 'sw-product.notification.notificationSaveErrorProductNoAlreadyExists',
+        });
+        expect(wrapper.vm.isSaveSuccessful).toBe(false);
+        expect(wrapper.vm.loadProduct).toHaveBeenCalled();
+    });
+
+    it('should handle generic error with detail correctly', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.loadProduct = jest.fn();
+        wrapper.vm.updateSeoPromises = [Promise.resolve()];
+        const errorResponse = {
+            response: {
+                data: {
+                    errors: [
+                        {
+                            detail: 'Custom error message',
+                        },
+                    ],
+                },
+            },
+        };
+
+        wrapper.vm.onSaveFinished(errorResponse);
+
+        await flushPromises();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            title: 'global.default.error',
+            message: 'Custom error message',
+        });
+        expect(wrapper.vm.isSaveSuccessful).toBe(false);
+        expect(wrapper.vm.loadProduct).toHaveBeenCalled();
+    });
+
+    it('should handle SEO promise rejection correctly', async () => {
+        const rejectedPromise = Promise.reject(new Error('SEO error'));
+        wrapper.vm.updateSeoPromises = [rejectedPromise];
+        Shopware.Store.get('swProductDetail').setLoading = jest.fn();
+        wrapper.vm.loadProduct = jest.fn();
+
+        wrapper.vm.onSaveFinished('success');
+
+        await flushPromises();
+
+        expect(Shopware.Store.get('swProductDetail').setLoading).toHaveBeenCalledWith([
+            'product',
+            false,
+        ]);
+        expect(wrapper.vm.loadProduct).toHaveBeenCalled();
+    });
+
+    it('should not validate fields when language is inherited', async () => {
+        const spyValidationService = jest.spyOn(wrapper.vm.entityValidationService, 'validate');
+
+        wrapper.vm.getCmsPageOverrides = jest.fn(() => {
+            return null;
+        });
+        wrapper.vm.product.isNew = jest.fn(() => {
+            return false;
+        });
+        wrapper.vm.product.prices = [];
+        wrapper.vm.product.price = [
+            {
+                currencyId: undefined,
+                linked: true,
+                gross: 100,
+                net: 84.034,
+                listPrice: {
+                    currencyId: undefined,
+                    linked: true,
+                    gross: 0,
+                    net: 0,
+                },
+                regulationPrice: {
+                    currencyId: undefined,
+                    linked: true,
+                    gross: 0,
+                    net: 0,
+                },
+            },
+        ];
+
+        wrapper.vm.saveProduct = jest.fn(() => {
+            return Promise.resolve();
+        });
+
+        wrapper.vm.product.getEntityName = () => 'product';
+        Shopware.EntityDefinition.get = () => ({
+            properties: {
+                name: {
+                    type: 'string',
+                    flags: {
+                        required: true,
+                    },
+                },
+            },
+        });
+
+        Shopware.Store.get('context').api.language = {
+            id: '1a2b3c',
+            parentId: 'd4e5f6',
+        };
+
+        wrapper.vm.product.name = null;
+
+        await wrapper.vm.onSave();
+
+        expect(wrapper.vm.ignoreFieldsValidation).toContain('name');
+        expect(spyValidationService).toHaveBeenCalledWith(
+            wrapper.vm.product,
+            expect.anything(),
+            expect.arrayContaining(['name']),
+        );
+    });
+
+    it('should validate fields when language is not inherited', async () => {
+        const spyValidationService = jest.spyOn(wrapper.vm.entityValidationService, 'validate');
+
+        wrapper.vm.getCmsPageOverrides = jest.fn(() => {
+            return null;
+        });
+        wrapper.vm.product.isNew = jest.fn(() => {
+            return false;
+        });
+        wrapper.vm.product.prices = [];
+        wrapper.vm.product.price = [
+            {
+                currencyId: undefined,
+                linked: true,
+                gross: 100,
+                net: 84.034,
+                listPrice: {
+                    currencyId: undefined,
+                    linked: true,
+                    gross: 0,
+                    net: 0,
+                },
+                regulationPrice: {
+                    currencyId: undefined,
+                    linked: true,
+                    gross: 0,
+                    net: 0,
+                },
+            },
+        ];
+
+        wrapper.vm.saveProduct = jest.fn(() => {
+            return Promise.resolve();
+        });
+
+        wrapper.vm.product.getEntityName = () => 'product';
+        Shopware.EntityDefinition.get = () => ({
+            properties: {
+                name: {
+                    type: 'string',
+                    flags: {
+                        required: true,
+                    },
+                },
+            },
+        });
+
+        Shopware.Store.get('context').api.language = {
+            id: '1a2b3c',
+            parentId: null,
+        };
+
+        wrapper.vm.product.name = null;
+
+        await wrapper.vm.onSave();
+
+        expect(wrapper.vm.ignoreFieldsValidation).not.toContain('name');
+        expect(spyValidationService).toHaveBeenCalledWith(wrapper.vm.product, expect.anything(), []);
     });
 });

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
 use Shopware\Core\Framework\Context;
@@ -31,6 +32,8 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,
@@ -77,7 +80,7 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
 
         $definition
             ->add('newPassword', new NotBlank(), new Length(['min' => $minPasswordLength]), new EqualTo(['propertyPath' => 'newPasswordConfirm']))
-            ->add('password', new CustomerPasswordMatches(['context' => $context]));
+            ->add('password', new CustomerPasswordMatches(['salesChannelContext' => $context]));
 
         $this->dispatchValidationEvent($definition, $data, $context->getContext());
 
@@ -119,7 +122,7 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
             return;
         }
 
-        $message = str_replace('{{ compared_value }}', $compareValue, (string) $equalityValidation->message);
+        $message = str_replace('{{ compared_value }}', $compareValue, $equalityValidation->message);
 
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation($message, $equalityValidation->message, [], '', $field, $data[$field]));

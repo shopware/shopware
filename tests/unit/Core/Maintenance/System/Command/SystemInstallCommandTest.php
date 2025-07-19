@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Maintenance\System\Command\SystemInstallCommand;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
@@ -63,7 +64,6 @@ class SystemInstallCommandTest extends TestCase
                 'shopEmail' => 'admin@gmail.com',
                 'shopLocale' => 'de-DE',
                 'shopCurrency' => 'USD',
-                'skipJwtKeysGeneration' => true,
                 'basicSetup' => true,
                 'shopName_1' => 'Storefront',
                 'shopLocale_1' => 'de-DE',
@@ -117,26 +117,6 @@ class SystemInstallCommandTest extends TestCase
         static::assertSame(0, $result);
     }
 
-    public function testJwtGenerationCanBeSkipped(): void
-    {
-        $command = $this->prepareCommandInstance([
-            'database:migrate',
-            'database:migrate-destructive',
-            'system:configure-shop',
-            'dal:refresh:index',
-            'scheduled-task:register',
-            'plugin:refresh',
-            'theme:refresh',
-            'theme:compile',
-            'assets:install',
-            'cache:clear',
-        ]);
-
-        $result = $command->run(new ArrayInput(['--skip-jwt-keys-generation' => true]), new BufferedOutput());
-
-        static::assertSame(0, $result);
-    }
-
     public function testAssetsInstallCanBeSkipped(): void
     {
         $command = $this->prepareCommandInstance([
@@ -152,6 +132,27 @@ class SystemInstallCommandTest extends TestCase
         ]);
 
         $result = $command->run(new ArrayInput(['--skip-assets-install' => true]), new BufferedOutput());
+
+        static::assertSame(0, $result);
+    }
+
+    public function testSkipFirstRunWizardOption(): void
+    {
+        $command = $this->prepareCommandInstance([
+            'database:migrate',
+            'database:migrate-destructive',
+            'system:configure-shop',
+            'dal:refresh:index',
+            'scheduled-task:register',
+            'plugin:refresh',
+            'theme:refresh',
+            'theme:compile',
+            'assets:install',
+            'system:config:set',
+            'cache:clear',
+        ]);
+
+        $result = $command->run(new ArrayInput(['--skip-first-run-wizard' => true]), new BufferedOutput());
 
         static::assertSame(0, $result);
     }
@@ -183,7 +184,12 @@ class SystemInstallCommandTest extends TestCase
         $application = new Application();
         $application->setAutoExit(false);
         $application->add(
-            new SystemInstallCommand(__DIR__, $setupDatabaseAdapterMock, $connectionFactory)
+            new SystemInstallCommand(
+                __DIR__,
+                $setupDatabaseAdapterMock,
+                $connectionFactory,
+                $this->createMock(CacheClearer::class)
+            )
         );
         $application->setDispatcher($dispatcher);
 
@@ -205,13 +211,18 @@ class SystemInstallCommandTest extends TestCase
         $connectionFactory->method('getConnection')->willReturn($connection);
 
         $setupDatabaseAdapterMock = $this->createMock(SetupDatabaseAdapter::class);
-        $systemInstallCmd = new SystemInstallCommand(__DIR__, $setupDatabaseAdapterMock, $connectionFactory);
+        $systemInstallCmd = new SystemInstallCommand(
+            __DIR__,
+            $setupDatabaseAdapterMock,
+            $connectionFactory,
+            $this->createMock(CacheClearer::class)
+        );
 
         $application = $this->createMock(Application::class);
         $application->method('has')
             ->willReturn(true);
 
-        $application->expects(static::exactly(\count($expectedCommands)))
+        $application->expects($this->exactly(\count($expectedCommands)))
             ->method('doRun')
             ->willReturn(Command::SUCCESS);
 

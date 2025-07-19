@@ -1,10 +1,8 @@
-import DomAccess from 'src/helper/dom-access.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 const ARROW_NAVIGATION_ACTIVE_CLASS = 'is-active';
-
 const ARROW_NAVIGATION_ITERATOR_DEFAULT = -1;
 
+/** @deprecated tag:v6.8.0 - ArrowNavigationHelper will be removed without replacement. */
 export default class ArrowNavigationHelper {
 
     /**
@@ -46,7 +44,7 @@ export default class ArrowNavigationHelper {
      * @private
      */
     _onKeyDown(event) {
-        const parent = DomAccess.querySelector(document, this._parentSelector, false);
+        const parent = document.querySelector(this._parentSelector);
         if (!parent) return;
 
         this._items = parent.querySelectorAll(this._itemSelector);
@@ -72,7 +70,7 @@ export default class ArrowNavigationHelper {
         this._clampIterator();
 
         // remove all active classes
-        Iterator.iterate(this._items, (item) => item.classList.remove(ARROW_NAVIGATION_ACTIVE_CLASS));
+        this._items.forEach((item) => item.classList.remove(ARROW_NAVIGATION_ACTIVE_CLASS));
 
         // add active class to current iteration
         this._getCurrentSelection().classList.add(ARROW_NAVIGATION_ACTIVE_CLASS);
@@ -91,7 +89,7 @@ export default class ArrowNavigationHelper {
         }
 
         try {
-            const a = DomAccess.querySelector(this._getCurrentSelection(), 'a');
+            const a = this._getCurrentSelection().querySelector('a');
             event.preventDefault();
             a.click();
         } catch (e) {

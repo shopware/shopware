@@ -1,8 +1,6 @@
 import template from './sw-select-base.html.twig';
 import './sw-select-base.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -11,10 +9,8 @@ const { Component } = Shopware;
  * @description Base component for creating new select components. Uses sw-field base components as basic structure.
  * @example-type code-only
  */
-Component.register('sw-select-base', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inheritAttrs: false,
 
@@ -42,6 +38,12 @@ Component.register('sw-select-base', {
             required: false,
             default: false,
         },
+
+        size: {
+            type: String,
+            required: false,
+            default: 'default',
+        },
     },
 
     data() {
@@ -53,15 +55,6 @@ Component.register('sw-select-base', {
     computed: {
         swFieldClasses() {
             return { 'has--focus': this.expanded };
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 
@@ -185,4 +178,4 @@ Component.register('sw-select-base', {
             }
         },
     },
-});
+};

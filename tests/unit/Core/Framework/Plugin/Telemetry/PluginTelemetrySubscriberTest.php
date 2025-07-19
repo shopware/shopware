@@ -19,7 +19,7 @@ class PluginTelemetrySubscriberTest extends TestCase
     public function testEmitPluginInstallCountMetric(): void
     {
         $meter = $this->createMock(Meter::class);
-        $meter->expects(static::once())
+        $meter->expects($this->once())
             ->method('emit')
             ->with(static::callback(function (ConfiguredMetric $metric) {
                 return $metric->name === 'plugin.install.count' && $metric->value === 1;

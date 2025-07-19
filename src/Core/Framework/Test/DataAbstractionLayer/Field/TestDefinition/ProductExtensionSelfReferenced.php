@@ -42,11 +42,6 @@ class ProductExtensionSelfReferenced extends EntityExtension
         );
     }
 
-    public function getDefinitionClass(): string
-    {
-        return ProductDefinition::class;
-    }
-
     public function getEntityName(): string
     {
         return 'product';

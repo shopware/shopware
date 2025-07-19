@@ -13,12 +13,7 @@ use Shopware\Core\Framework\Struct\Collection;
 #[Package('checkout')]
 class LicenseCollection extends Collection
 {
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $total = 0;
+    protected int $total = 0;
 
     public function getTotal(): int
     {

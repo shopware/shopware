@@ -63,7 +63,7 @@ class ArrayEntity extends Entity implements \ArrayAccess
 
     public function getUniqueIdentifier(): string
     {
-        if (!$this->_uniqueIdentifier) {
+        if (!isset($this->_uniqueIdentifier)) {
             return $this->data['id'];
         }
 

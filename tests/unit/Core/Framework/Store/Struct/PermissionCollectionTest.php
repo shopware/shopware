@@ -40,7 +40,7 @@ class PermissionCollectionTest extends TestCase
         $categorizedCollection = $permissionCollection->getCategorizedPermissions();
 
         static::assertCount(3, $categorizedCollection);
-        static::assertEquals([
+        static::assertSame([
             'product',
             'promotion',
             'other',
@@ -61,7 +61,7 @@ class PermissionCollectionTest extends TestCase
             }
         }
 
-        static::assertEquals(4, $countReadPermissions);
+        static::assertSame(4, $countReadPermissions);
     }
 
     public function testItFiltersDuplicatePermissions(): void
@@ -81,10 +81,10 @@ class PermissionCollectionTest extends TestCase
 
         static::assertCount(2, $permissionCollection->getElements());
 
-        static::assertEquals('product', $permissionCollection->getElements()[0]->getEntity());
-        static::assertEquals('delete', $permissionCollection->getElements()[0]->getOperation());
+        static::assertSame('product', $permissionCollection->getElements()[0]->getEntity());
+        static::assertSame('delete', $permissionCollection->getElements()[0]->getOperation());
 
-        static::assertEquals('product', $permissionCollection->getElements()[1]->getEntity());
-        static::assertEquals('read', $permissionCollection->getElements()[1]->getOperation());
+        static::assertSame('product', $permissionCollection->getElements()[1]->getEntity());
+        static::assertSame('read', $permissionCollection->getElements()[1]->getOperation());
     }
 }

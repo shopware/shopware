@@ -1,5 +1,5 @@
 /**
- * @sw-package buyers-experience
+ * @sw-package fundamentals@discovery
  */
 import template from './sw-settings-country-currency-hamburger-menu.html.twig';
 import './sw-settings-country-currency-hamburger-menu.scss';
@@ -7,8 +7,6 @@ import './sw-settings-country-currency-hamburger-menu.scss';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['acl'],
 

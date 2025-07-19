@@ -28,15 +28,12 @@ class Context extends Struct
 
     protected bool $rulesLocked = false;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
     #[Ignore]
-    protected $extensions = [];
+    protected array $extensions = [];
 
     /**
-     * @param non-empty-list<string> $languageIdChain
      * @param array<string> $ruleIds
+     * @param non-empty-list<string> $languageIdChain
      */
     public function __construct(
         protected ContextSource $source,
@@ -63,6 +60,49 @@ class Context extends Struct
         }
 
         $this->languageIdChain = $languageIdChain;
+    }
+
+    /**
+     * Extension are not serialized, as they could be anything and make problems during serialization,
+     * for symfony serializer they are exlcuded by the #[Exclude] attribute already
+     *
+     * @return array<mixed>
+     */
+    public function __serialize(): array
+    {
+        return [
+            $this->source,
+            $this->ruleIds,
+            $this->currencyId,
+            $this->languageIdChain,
+            $this->versionId,
+            $this->currencyFactor,
+            $this->considerInheritance,
+            $this->taxState,
+            $this->rounding,
+            $this->scope,
+            $this->states,
+        ];
+    }
+
+    /**
+     * @param array<mixed> $data
+     */
+    public function __unserialize(array $data): void
+    {
+        [
+            $this->source,
+            $this->ruleIds,
+            $this->currencyId,
+            $this->languageIdChain,
+            $this->versionId,
+            $this->currencyFactor,
+            $this->considerInheritance,
+            $this->taxState,
+            $this->rounding,
+            $this->scope,
+            $this->states,
+        ] = $data;
     }
 
     /**
@@ -144,15 +184,13 @@ class Context extends Struct
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Return type will be native
-     *
      * @template TReturn of mixed
      *
      * @param \Closure(Context): TReturn $callback
      *
      * @return TReturn the return value of the provided callback function
      */
-    public function scope(string $scope, \Closure $callback)
+    public function scope(string $scope, \Closure $callback): mixed
     {
         $currentScope = $this->getScope();
         $this->scope = $scope;
@@ -213,15 +251,13 @@ class Context extends Struct
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Return type will be native
-     *
      * @template TReturn of mixed
      *
      * @param \Closure(Context): TReturn $function
      *
      * @return TReturn
      */
-    public function enableInheritance(\Closure $function)
+    public function enableInheritance(\Closure $function): mixed
     {
         $previous = $this->considerInheritance;
         $this->considerInheritance = true;
@@ -232,15 +268,13 @@ class Context extends Struct
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Return type will be native
-     *
      * @template TReturn of mixed
      *
      * @param \Closure(Context): TReturn $function
      *
      * @return TReturn
      */
-    public function disableInheritance(\Closure $function)
+    public function disableInheritance(\Closure $function): mixed
     {
         $previous = $this->considerInheritance;
         $this->considerInheritance = false;

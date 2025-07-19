@@ -243,7 +243,6 @@ class EntitySerializerTest extends TestCase
         $connection = static::getContainer()->get(Connection::class);
         $migration = new TestExtensionMigration();
         $migration->update($connection);
-        $connection->setNestTransactionsWithSavepoints(true);
         $connection->beginTransaction(); // do everything in a transaction
 
         // setup test extension
@@ -368,11 +367,6 @@ class TestExtension extends EntityExtension
         $collection->add(
             new OneToOneAssociationField('testExtension', 'id', 'product_id', TestExtensionDefinition::class, true)
         );
-    }
-
-    public function getDefinitionClass(): string
-    {
-        return ProductDefinition::class;
     }
 
     public function getEntityName(): string

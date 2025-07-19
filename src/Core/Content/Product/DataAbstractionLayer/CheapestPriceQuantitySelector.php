@@ -19,9 +19,9 @@ class CheapestPriceQuantitySelector extends AbstractCheapestPriceQuantitySelecto
 
     public function add(QueryBuilder $query): void
     {
-        $query->addSelect([
+        $query->addSelect(
             'price.quantity_start != 1 as is_ranged',
-        ]);
+        );
 
         $query->andWhere('price.quantity_end IS NULL');
     }

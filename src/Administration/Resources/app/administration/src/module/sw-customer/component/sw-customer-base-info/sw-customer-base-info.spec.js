@@ -46,6 +46,7 @@ async function createWrapper() {
                 'sw-help-text': true,
                 'sw-datepicker': true,
                 'sw-text-field': true,
+                'sw-time-ago': await wrapTestComponent('sw-time-ago', { sync: true }),
             },
             provide: {
                 repositoryFactory: {
@@ -70,11 +71,6 @@ async function createWrapper() {
                         name: 'Group test',
                     },
                 },
-                defaultPaymentMethod: {
-                    translated: {
-                        distinguishableName: 'Payment test',
-                    },
-                },
                 orderTotalAmount: 29.68,
             },
             customerEditMode: false,
@@ -96,7 +92,7 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
     });
 
     it('should display the birthday', async () => {
-        expect(wrapper.find('.sw-customer-base__label-birthday').text()).toBe('22 December 1992');
+        expect(wrapper.find('.sw-customer-base__label-birthday').text()).toBe('22/12/1992');
     });
 
     it('should display the empty birthday snippet placeholder', async () => {
@@ -112,7 +108,7 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
     });
 
     it('should display the last login date', async () => {
-        expect(wrapper.find('.sw-customer-base__label-last-login').text()).toBe('14 October 2021 at 11:23');
+        expect(wrapper.find('.sw-customer-base__label-last-login').text()).toBe('14/10/2021, 11:23');
     });
 
     it('should display the last login snippet placeholder', async () => {
@@ -198,23 +194,17 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
         );
         expect(leftColumn.findAll('.sw-description-list')[2].find('dd').text()).toBe('Group test');
 
-        // Default payment method
-        expect(leftColumn.findAll('.sw-description-list')[3].find('dt').text()).toBe(
-            'sw-customer.baseInfo.labelDefaultPayment',
-        );
-        expect(leftColumn.findAll('.sw-description-list')[3].find('dd').text()).toBe('Payment test');
-
         // Affiliate code
-        expect(leftColumn.findAll('.sw-description-list')[6].find('dt').text()).toBe(
+        expect(leftColumn.findAll('.sw-description-list')[5].find('dt').text()).toBe(
             'sw-customer.baseInfo.labelAffiliateCode',
         );
-        expect(leftColumn.findAll('.sw-description-list')[6].find('dd').text()).toBe('-');
+        expect(leftColumn.findAll('.sw-description-list')[5].find('dd').text()).toBe('-');
 
         // Campaign code
-        expect(leftColumn.findAll('.sw-description-list')[7].find('dt').text()).toBe(
+        expect(leftColumn.findAll('.sw-description-list')[6].find('dt').text()).toBe(
             'sw-customer.baseInfo.labelCampaignCode',
         );
-        expect(leftColumn.findAll('.sw-description-list')[7].find('dd').text()).toBe('-');
+        expect(leftColumn.findAll('.sw-description-list')[6].find('dd').text()).toBe('-');
 
         // Email confirmation shouldn't be displayed
         expect(leftColumn.findAll('.sw-description-list').map((w) => w.find('dt').text())).not.toContain(
@@ -247,8 +237,8 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
         const leftColumn = wrapper.findAll('.sw-customer-base-info-columns')[0];
 
         // Email confirmation status
-        expect(leftColumn.findAll('.sw-description-list')[3].find('dt').text()).toBe('sw-customer.baseInfo.labelConfirmed');
-        expect(leftColumn.findAll('.sw-description-list')[3].find('dd').text()).toBe(
+        expect(leftColumn.findAll('.sw-description-list')[2].find('dt').text()).toBe('sw-customer.baseInfo.labelConfirmed');
+        expect(leftColumn.findAll('.sw-description-list')[2].find('dd').text()).toBe(
             'sw-customer.baseInfo.contentConfirmed',
         );
     });
@@ -262,15 +252,15 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
 
         const leftColumn = wrapper.findAll('.sw-customer-base-info-columns')[0];
         // Affiliate code
-        expect(leftColumn.findAll('.sw-description-list')[4].find('dt').text()).toBe(
+        expect(leftColumn.findAll('.sw-description-list')[3].find('dt').text()).toBe(
             'sw-customer.baseInfo.labelAffiliateCode',
         );
-        expect(leftColumn.findAll('.sw-description-list')[4].find('dd').text()).not.toBe('-');
+        expect(leftColumn.findAll('.sw-description-list')[3].find('dd').text()).not.toBe('-');
 
         // Campaign code
-        expect(leftColumn.findAll('.sw-description-list')[5].find('dt').text()).toBe(
+        expect(leftColumn.findAll('.sw-description-list')[4].find('dt').text()).toBe(
             'sw-customer.baseInfo.labelCampaignCode',
         );
-        expect(leftColumn.findAll('.sw-description-list')[5].find('dd').text()).not.toBe('-');
+        expect(leftColumn.findAll('.sw-description-list')[4].find('dd').text()).not.toBe('-');
     });
 });

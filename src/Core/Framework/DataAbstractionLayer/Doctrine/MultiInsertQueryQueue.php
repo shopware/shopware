@@ -8,11 +8,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @phpstan-type DataRow array{data: array<string, mixed>, types: array<string, ParameterType>|null}
+ */
 #[Package('framework')]
 class MultiInsertQueryQueue
 {
     /**
-     * @var array<string, list<array{data: array<string, mixed>, columns: list<string>}>>
+     * @var array<string, list<DataRow>>
      */
     private array $inserts = [];
 
@@ -40,38 +43,19 @@ class MultiInsertQueryQueue
 
     /**
      * @param array<string, mixed> $data
-     * @param array<string, ParameterType::*>|null $types
+     * @param array<string, ParameterType>|null $types
      */
     public function addInsert(string $table, array $data, ?array $types = null): void
     {
-        $columns = [];
-
-        foreach ($data as $key => &$value) {
-            $columns[] = $key;
-
-            $type = ParameterType::STRING;
-
-            if ($types !== null && isset($types[$key])) {
-                $type = $types[$key];
-            }
-
-            if ($value === null) {
-                $value = 'NULL';
-            } else {
-                $value = $this->connection->quote($value, $type);
-            }
-        }
-
         $this->inserts[$table][] = [
             'data' => $data,
-            'columns' => $columns,
             'types' => $types,
         ];
     }
 
     /**
      * @param list<array<string, mixed>> $rows
-     * @param array<string, ParameterType::*>|null $types
+     * @param array<string, ParameterType>|null $types
      */
     public function addInserts(string $table, array $rows, ?array $types = null): void
     {
@@ -86,13 +70,13 @@ class MultiInsertQueryQueue
             return;
         }
 
-        $grouped = $this->prepare();
-        RetryableTransaction::retryable($this->connection, function () use ($grouped): void {
-            foreach ($grouped as $query) {
-                $this->connection->executeStatement($query);
+        $queries = $this->prepareQueries();
+        RetryableTransaction::retryable($this->connection, function () use ($queries): void {
+            foreach ($queries as $query) {
+                $this->connection->executeStatement($query['query'], $query['values'], $query['types']);
             }
         });
-        unset($grouped);
+        unset($queries);
 
         $this->inserts = [];
     }
@@ -106,9 +90,9 @@ class MultiInsertQueryQueue
     }
 
     /**
-     * @return list<string>
+     * @return array<array{query: string, values: list<string>, types: list<ParameterType>}>
      */
-    private function prepare(): array
+    private function prepareQueries(): array
     {
         $queries = [];
         $template = 'INSERT INTO %s (%s) VALUES %s';
@@ -122,32 +106,23 @@ class MultiInsertQueryQueue
         }
 
         foreach ($this->inserts as $table => $rows) {
-            $tableTemplate = $template;
-            if ($this->updateFieldsOnDuplicateKey !== []) {
-                $values = [];
-                foreach ($this->updateFieldsOnDuplicateKey[$table] ?? [] as $field) {
-                    // see https://stackoverflow.com/a/2714653/10064036
-                    $values[] = \sprintf('%s = VALUES(%s)', EntityDefinitionQueryHelper::escape($field), EntityDefinitionQueryHelper::escape($field));
-                }
-
-                $tableTemplate .= ' ON DUPLICATE KEY UPDATE ' . implode(', ', $values);
-            }
-
-            $tableTemplate .= ';';
-
             $columns = $this->prepareColumns($rows);
-            $data = $this->prepareValues($columns, $rows);
+            $escapedColumns = implode(', ', array_map(EntityDefinitionQueryHelper::escape(...), $columns));
+            $escapedTable = EntityDefinitionQueryHelper::escape($table);
 
-            $columns = array_map(EntityDefinitionQueryHelper::escape(...), $columns);
+            $onDuplicateKey = $this->prepareOnDuplicateKeyUpdatePart(
+                array_intersect($this->updateFieldsOnDuplicateKey[$table] ?? [], $columns) // only fields that are in the columns can be updated
+            );
+            $tableTemplate = \sprintf('%s%s;', $template, $onDuplicateKey);
 
-            $chunks = array_chunk($data, $this->chunkSize);
-            foreach ($chunks as $chunk) {
-                $queries[] = \sprintf(
-                    $tableTemplate,
-                    EntityDefinitionQueryHelper::escape($table),
-                    implode(', ', $columns),
-                    implode(', ', $chunk)
-                );
+            $rowsChunks = array_chunk($rows, $this->chunkSize);
+            foreach ($rowsChunks as $rowsChunk) {
+                $data = $this->prepareValues($columns, $rowsChunk);
+                $queries[] = [
+                    'query' => \sprintf($tableTemplate, $escapedTable, $escapedColumns, implode(', ', $data['placeholders'])),
+                    'values' => $data['values'],
+                    'types' => $data['types'],
+                ];
             }
         }
 
@@ -155,15 +130,34 @@ class MultiInsertQueryQueue
     }
 
     /**
-     * @param list<array{columns: list<string>}> $rows
+     * @param array<string> $fieldsToUpdate
+     */
+    private function prepareOnDuplicateKeyUpdatePart(array $fieldsToUpdate): string
+    {
+        if (\count($fieldsToUpdate) === 0) {
+            return '';
+        }
+
+        $updateParts = [];
+        foreach ($fieldsToUpdate as $field) {
+            // see https://stackoverflow.com/a/2714653/10064036
+            $updateParts[] = \sprintf('%s = VALUES(%s)', EntityDefinitionQueryHelper::escape($field), EntityDefinitionQueryHelper::escape($field));
+        }
+
+        return ' ON DUPLICATE KEY UPDATE ' . implode(', ', $updateParts);
+    }
+
+    /**
+     * @param list<DataRow> $rows
      *
      * @return list<string>
      */
     private function prepareColumns(array $rows): array
     {
+        /** @var array<string, int> $columns */
         $columns = [];
         foreach ($rows as $row) {
-            foreach ($row['columns'] as $column) {
+            foreach (array_keys($row['data']) as $column) {
                 $columns[$column] = 1;
             }
         }
@@ -173,35 +167,39 @@ class MultiInsertQueryQueue
 
     /**
      * @param list<string> $columns
-     * @param list<array{data: array<string, mixed>, columns: list<string>}> $rows
+     * @param list<DataRow> $rows
      *
-     * @return list<string>
+     * @return array{placeholders: list<string>, values: list<mixed>, types: list<ParameterType>}
      */
     private function prepareValues(array $columns, array $rows): array
     {
-        $stackedValues = [];
-        /** @var array<string, mixed> $defaults */
-        $defaults = array_combine(
-            $columns,
-            array_fill(0, \count($columns), 'DEFAULT')
-        );
-        foreach ($rows as $row) {
-            $data = $row['data'];
-            $values = $defaults;
-            if (!\is_array($values)) {
-                continue;
-            }
+        $placeholders = [];
+        $values = [];
+        $types = [];
 
-            /**
-             * @var string $key
-             * @var mixed $value
-             */
-            foreach ($data as $key => $value) {
-                $values[$key] = $value;
+        foreach ($rows as $row) {
+            $rowPlaceholders = [];
+            foreach ($columns as $column) {
+                if (!\array_key_exists($column, $row['data'])) { // to use default values if the column is not set
+                    $rowPlaceholders[] = 'DEFAULT';
+                    continue;
+                }
+                if ($row['data'][$column] === null) { // to insert nulls if the value is null
+                    $rowPlaceholders[] = 'NULL';
+                    continue;
+                }
+
+                $rowPlaceholders[] = '?';
+                $values[] = $row['data'][$column];
+                $types[] = $row['types'][$column] ?? ParameterType::STRING;
             }
-            $stackedValues[] = '(' . implode(',', $values) . ')';
+            $placeholders[] = '(' . implode(',', $rowPlaceholders) . ')';
         }
 
-        return $stackedValues;
+        return [
+            'placeholders' => $placeholders,
+            'values' => $values,
+            'types' => $types,
+        ];
     }
 }

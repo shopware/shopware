@@ -18,11 +18,11 @@ const insertIdIntoRoute = (to, from, next) => {
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     beforeRouteEnter: insertIdIntoRoute,
 
     beforeRouteUpdate: insertIdIntoRoute,
+
+    inject: ['systemConfigApiService'],
 
     computed: {
         allowSaving() {
@@ -31,18 +31,27 @@ export default {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
             if (!this.$route.params.typeId) {
                 return;
             }
 
-            if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
-                Shopware.State.commit('context/resetLanguageToDefault');
+            const measurementUnits = await this.getMeasurementUnits();
+
+            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
+                Shopware.Store.get('context').resetLanguageToDefault();
             }
 
             this.salesChannel = this.salesChannelRepository.create();
             this.salesChannel.typeId = this.$route.params.typeId;
             this.salesChannel.active = false;
+            this.salesChannel.measurementUnits = {
+                system: measurementUnits['core.measurementUnits.system'],
+                units: {
+                    length: measurementUnits['core.measurementUnits.length'],
+                    weight: measurementUnits['core.measurementUnits.weight'],
+                },
+            };
 
             this.$super('createdComponent');
         },
@@ -57,6 +66,10 @@ export default {
 
         onSave() {
             this.$super('onSave');
+        },
+
+        getMeasurementUnits() {
+            return this.systemConfigApiService.getValues('core.measurementUnits');
         },
     },
 };

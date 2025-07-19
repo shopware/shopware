@@ -12,8 +12,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'stateStyleDataProviderService',
@@ -32,20 +30,11 @@ export default {
             sortBy: 'orderDateTime',
             sortDirection: 'DESC',
             isLoading: false,
+            /**
+             * @deprecated tag:v6.8.0 - will be removed without replacement
+             */
             filterLoading: false,
             showDeleteModal: false,
-            /**
-             * @deprecated tag:v6.7.0 - will be removed without replacement
-             */
-            availableAffiliateCodes: [],
-            /**
-             * @deprecated tag:v6.7.0 - will be removed without replacement
-             */
-            availableCampaignCodes: [],
-            /**
-             * @deprecated tag:v6.7.0 - will be removed without replacement
-             */
-            availablePromotionCodes: [],
             filterCriteria: [],
             defaultFilters: [
                 'order-number-filter',
@@ -119,15 +108,29 @@ export default {
                 .addSorting(Criteria.sort('createdAt'));
 
             criteria
-                .getAssociation('deliveries')
-                .addAssociation('stateMachineState')
-                .addAssociation('shippingOrderAddress')
-                .addAssociation('shippingMethod')
+                .addAssociation('primaryOrderTransaction')
+                .addAssociation('primaryOrderTransaction.paymentMethod')
+                .addAssociation('primaryOrderTransaction.stateMachineState')
+                .addAssociation('primaryOrderDelivery.shippingMethod')
+                .addAssociation('primaryOrderDelivery.stateMachineState')
+                .addAssociation('primaryOrderDelivery.shippingOrderAddress.country')
                 .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
+
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                criteria
+                    .getAssociation('deliveries')
+                    .addAssociation('stateMachineState')
+                    .addAssociation('shippingOrderAddress')
+                    .addAssociation('shippingMethod')
+                    .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
+            }
 
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         filterSelectCriteria() {
             const criteria = new Criteria(1, 1);
 
@@ -164,13 +167,13 @@ export default {
                     toPlaceholder: this.$tc('global.default.to'),
                 },
                 'payment-status-filter': {
-                    property: 'transactions.stateMachineState',
+                    property: 'primaryOrderTransaction.stateMachineState',
                     criteria: this.getStatusCriteria('order_transaction.state'),
                     label: this.$tc('sw-order.filters.paymentStatusFilter.label'),
                     placeholder: this.$tc('sw-order.filters.paymentStatusFilter.placeholder'),
                 },
                 'delivery-status-filter': {
-                    property: 'deliveries.stateMachineState',
+                    property: 'primaryOrderDelivery.stateMachineState',
                     criteria: this.getStatusCriteria('order_delivery.state'),
                     label: this.$tc('sw-order.filters.deliveryStatusFilter.label'),
                     placeholder: this.$tc('sw-order.filters.deliveryStatusFilter.placeholder'),
@@ -210,7 +213,6 @@ export default {
                     placeholder: this.$tc('sw-order.filters.affiliateCodeFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: this.availableAffiliateCodes,
                 },
                 'campaign-code-filter': {
                     property: 'campaignCode',
@@ -219,7 +221,6 @@ export default {
                     placeholder: this.$tc('sw-order.filters.campaignCodeFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: this.availableCampaignCodes,
                 },
                 'promotion-code-filter': {
                     property: 'lineItems.payload.code',
@@ -228,7 +229,6 @@ export default {
                     placeholder: this.$tc('sw-order.filters.promotionCodeFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: this.availablePromotionCodes,
                 },
                 'document-filter': {
                     property: 'documents',
@@ -287,6 +287,9 @@ export default {
             return Shopware.Filter.getByName('currency');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -479,7 +482,12 @@ export default {
         },
 
         getVariantFromPaymentState(order) {
-            let technicalName = order.transactions.last().stateMachineState.technicalName;
+            let technicalName = order.primaryOrderTransaction?.stateMachineState.technicalName;
+
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                technicalName = order.transactions.last().stateMachineState.technicalName;
+            }
+
             // set the payment status to the first transaction that is not cancelled
             for (let i = 0; i < order.transactions.length; i += 1) {
                 if (
@@ -501,34 +509,10 @@ export default {
         getVariantFromDeliveryState(order) {
             const style = this.stateStyleDataProviderService.getStyle(
                 'order_delivery.state',
-                order.deliveries[0].stateMachineState.technicalName,
+                this.getDelivery(order).stateMachineState.technicalName,
             );
 
             return style.colorCode;
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - will be removed without replacement
-         */
-        loadFilterValues() {
-            this.filterLoading = true;
-
-            return this.orderRepository
-                .search(this.filterSelectCriteria)
-                .then(({ aggregations }) => {
-                    const { affiliateCodes, campaignCodes, promotionCodes } = aggregations;
-
-                    this.availableAffiliateCodes = affiliateCodes?.buckets.filter(({ key }) => key.length > 0) ?? [];
-                    this.availableCampaignCodes = campaignCodes?.buckets.filter(({ key }) => key.length > 0) ?? [];
-                    this.availablePromotionCodes = promotionCodes?.buckets.filter(({ key }) => key.length > 0) ?? [];
-
-                    this.filterLoading = false;
-
-                    return aggregations;
-                })
-                .catch(() => {
-                    this.filterLoading = false;
-                });
         },
 
         onDelete(id) {
@@ -566,7 +550,7 @@ export default {
             await this.$nextTick();
 
             const ordersExcludeDelivery = Object.values(this.$refs.orderGrid.selection).filter((order) => {
-                return !order.deliveries[0];
+                return !this.getDelivery(order);
             });
             const excludeDelivery = ordersExcludeDelivery.length > 0 ? '1' : '0';
 
@@ -590,7 +574,19 @@ export default {
                 }
             }
 
-            return item.transactions.last();
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return item.transactions.last();
+            }
+
+            return item.primaryOrderTransaction;
+        },
+
+        getDelivery(order) {
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return order.deliveries[0];
+            }
+
+            return order.primaryOrderDelivery;
         },
     },
 };

@@ -9,8 +9,6 @@ import extensionErrorHandler from '../../service/extension-error-handler.service
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     mixins: ['sw-extension-error'],
 
     props: {

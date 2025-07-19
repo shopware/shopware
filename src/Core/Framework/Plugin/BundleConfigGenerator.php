@@ -28,7 +28,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
     ) {
         $projectDir = $this->kernel->getContainer()->getParameter('kernel.project_dir');
         if (!\is_string($projectDir)) {
-            throw PluginException::projectDirNotInContainer();
+            throw PluginException::invalidContainerParameter('kernel.project_dir', 'string');
         }
         $this->projectDir = $projectDir;
     }
@@ -118,7 +118,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
 
     private function isTheme(string $path): bool
     {
-        return file_exists($path . '/Resources/theme.json');
+        return \is_file($path . '/Resources/theme.json');
     }
 
     private function getEntryFile(string $rootPath, string $componentPath): ?string
@@ -126,9 +126,13 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         $path = trim($componentPath, '/');
         $absolutePath = $rootPath . '/' . $path;
 
-        return file_exists($absolutePath . '/main.ts') ? $path . '/main.ts'
-            : (file_exists($absolutePath . '/main.js') ? $path . '/main.js'
-                : null);
+        foreach (['js', 'ts'] as $type) {
+            if (\is_file($absolutePath . '/main.' . $type)) {
+                return $path . '/main.' . $type;
+            }
+        }
+
+        return null;
     }
 
     private function getWebpackConfig(string $rootPath, string $componentPath): ?string
@@ -137,10 +141,10 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         $absolutePath = $rootPath . '/' . $path;
 
         $configFileName = match (true) {
-            file_exists($absolutePath . '/build/webpack.config.ts') => 'webpack.config.ts',
-            file_exists($absolutePath . '/build/webpack.config.cts') => 'webpack.config.cts',
-            file_exists($absolutePath . '/build/webpack.config.js') => 'webpack.config.js',
-            file_exists($absolutePath . '/build/webpack.config.cjs') => 'webpack.config.cjs',
+            \is_file($absolutePath . '/build/webpack.config.ts') => 'webpack.config.ts',
+            \is_file($absolutePath . '/build/webpack.config.cts') => 'webpack.config.cts',
+            \is_file($absolutePath . '/build/webpack.config.js') => 'webpack.config.js',
+            \is_file($absolutePath . '/build/webpack.config.cjs') => 'webpack.config.cjs',
             default => null,
         };
 

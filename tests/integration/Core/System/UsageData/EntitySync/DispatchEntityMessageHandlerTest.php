@@ -87,6 +87,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             static::assertContains('Shopware-Shop-Id: ' . $shopId, $headers);
             static::assertContains('Content-Type: application/json', $headers);
 
+            static::assertIsArray($payload);
             static::assertArrayHasKey('operation', $payload);
             static::assertSame(Operation::CREATE->value, $payload['operation']);
 
@@ -184,6 +185,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             static::assertContains('Shopware-Shop-Id: ' . $shopId, $headers);
             static::assertContains('Content-Type: application/json', $headers);
 
+            static::assertIsArray($payload);
             static::assertArrayHasKey('operation', $payload);
             static::assertSame(Operation::CREATE->value, $payload['operation']);
 
@@ -257,6 +259,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             static::assertContains('Shopware-Shop-Id: ' . $shopId, $headers);
             static::assertContains('Content-Type: application/json', $headers);
 
+            static::assertIsArray($payload);
             static::assertArrayHasKey('operation', $payload);
             static::assertSame(Operation::UPDATE->value, $payload['operation']);
 
@@ -315,6 +318,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             static::assertContains('Shopware-Shop-Id: ' . $shopId, $headers);
             static::assertContains('Content-Type: application/json', $headers);
 
+            static::assertIsArray($payload);
             static::assertArrayHasKey('operation', $payload);
             static::assertSame(Operation::DELETE->value, $payload['operation']);
 

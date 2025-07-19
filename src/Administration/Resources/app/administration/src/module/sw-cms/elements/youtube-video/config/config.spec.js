@@ -1,5 +1,5 @@
 /**
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
@@ -60,11 +60,11 @@ async function createWrapper() {
                 },
                 stubs: {
                     'sw-text-field': true,
-                    'sw-switch-field': true,
+
                     'sw-select-field': true,
                     'sw-cms-mapping-field': true,
                     'sw-media-upload-v2': true,
-                    'sw-alert': true,
+
                     'sw-upload-listener': true,
                     'sw-media-modal-v2': true,
                 },
@@ -170,5 +170,37 @@ describe('modules/sw-cms/elements/youtube-video/config', () => {
             },
         });
         expect(wrapper.vm.previewSource).toEqual({ id: 'bar-foo' });
+    });
+
+    it('should return the original input when URL construction fails', async () => {
+        const wrapper = await createWrapper();
+        const invalidInput = 'invalid-url-or-video-id';
+        const result = wrapper.vm.shortenLink(invalidInput);
+
+        expect(result).toBe(invalidInput);
+    });
+
+    it('should handle malformed URLs gracefully', async () => {
+        const wrapper = await createWrapper();
+        const malformedUrl = 'https://malformed url with spaces';
+        const result = wrapper.vm.shortenLink(malformedUrl);
+
+        expect(result).toBe(malformedUrl);
+    });
+
+    it('should return video ID when input is already a video ID', async () => {
+        const wrapper = await createWrapper();
+        const videoId = 'Bey4XXJAqS8';
+        const result = wrapper.vm.shortenLink(videoId);
+
+        expect(result).toBe(videoId);
+    });
+
+    it('should handle empty or null input', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.shortenLink('')).toBe('');
+        expect(wrapper.vm.shortenLink(null)).toBeNull();
+        expect(wrapper.vm.shortenLink(undefined)).toBeUndefined();
     });
 });

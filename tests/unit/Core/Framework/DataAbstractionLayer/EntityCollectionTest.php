@@ -28,7 +28,7 @@ class EntityCollectionTest extends TestCase
             'not-exists' => ['foo' => 5],
         ]);
 
-        static::assertEquals([
+        static::assertSame([
             'element-1' => ['foo' => 3, 'bar' => 3, 'baz' => 3],
             'element-2' => ['foo' => 4, 'bar' => 4],
         ], $collection->getCustomFieldsValues());
@@ -56,7 +56,7 @@ class EntityCollectionTest extends TestCase
             new MyCollectionEntity('element-2', ['foo' => 2]),
         ]);
 
-        static::assertEquals(
+        static::assertSame(
             [
                 'element-1' => 1,
                 'element-2' => 2,
@@ -64,7 +64,7 @@ class EntityCollectionTest extends TestCase
             $collection->getCustomFieldsValue('foo')
         );
 
-        static::assertEquals(
+        static::assertSame(
             [
                 'element-1' => 1,
                 'element-2' => null,
@@ -90,32 +90,32 @@ class EntityCollectionTest extends TestCase
             new MyCollectionEntity('element-2', ['foo' => 2, 'bar' => 2, 'baz' => 2]),
         ]);
 
-        static::assertEquals([
+        static::assertSame([
             'element-1' => ['foo' => 1, 'bar' => 1],
             'element-2' => ['foo' => 2, 'bar' => 2, 'baz' => 2],
         ], $collection->getCustomFieldsValues());
 
-        static::assertEquals([
+        static::assertSame([
             'element-1' => ['foo' => 1],
             'element-2' => ['foo' => 2],
         ], $collection->getCustomFieldsValues('foo'));
 
-        static::assertEquals([
+        static::assertSame([
             'element-1' => ['foo' => 1, 'bar' => 1],
             'element-2' => ['foo' => 2, 'bar' => 2],
         ], $collection->getCustomFieldsValues('foo', 'bar'));
 
-        static::assertEquals([
+        static::assertSame([
             'element-1' => ['foo' => 1],
             'element-2' => ['foo' => 2, 'baz' => 2],
         ], $collection->getCustomFieldsValues('foo', 'baz'));
 
-        static::assertEquals([
+        static::assertSame([
             'element-1' => [],
             'element-2' => [],
         ], $collection->getCustomFieldsValues('not-exists'));
 
-        static::assertEquals([
+        static::assertSame([
             'element-1' => [],
             'element-2' => [],
         ], $collection->getCustomFieldsValues('not-exists', 'both'));
@@ -137,14 +137,13 @@ class MyCollectionEntity extends Entity
     use EntityCustomFieldsTrait;
 
     /**
-     * @param string $_uniqueIdentifier
      * @param array<string, mixed>|null $customFields
      */
     public function __construct(
-        /** @deprecated tag:v6.7.0 - Will be natively typed */
-        protected $_uniqueIdentifier,
-        /** @deprecated tag:v6.7.0 - Will be natively typed */
-        protected $customFields = []
+        string $_uniqueIdentifier,
+        ?array $customFields = []
     ) {
+        $this->_uniqueIdentifier = $_uniqueIdentifier;
+        $this->customFields = $customFields;
     }
 }

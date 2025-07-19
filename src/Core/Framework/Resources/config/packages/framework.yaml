@@ -76,6 +76,10 @@ framework:
                     delay: 1000
                     multiplier: 2
                     max_delay: 0
+        buses:
+            messenger.bus.default:
+                middleware:
+                    - Shopware\Core\Framework\Adapter\Messenger\Middleware\QueuedTimeMiddleware
 
         routing:
             'Shopware\Core\Framework\MessageQueue\AsyncMessageInterface': async
@@ -132,8 +136,6 @@ framework:
         Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException:
             log_level: notice
         Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException:
-            log_level: notice
-        Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException:
             log_level: notice
         Shopware\Core\Checkout\Order\Exception\EmptyCartException:
             log_level: notice
@@ -214,16 +216,6 @@ framework:
         Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException:
             log_level: notice
         Shopware\Core\Content\Seo\Exception\InvalidTemplateException:
-            log_level: notice
-        Shopware\Core\Checkout\Document\Exception\InvalidDocumentException:
-            log_level: notice
-        Shopware\Core\Checkout\Document\Exception\DocumentGenerationException:
-            log_level: notice
-        Shopware\Core\Checkout\Document\Exception\DocumentNumberAlreadyExistsException:
-            log_level: notice
-        Shopware\Core\Checkout\Document\Exception\InvalidDocumentRendererException:
-            log_level: notice
-        Shopware\Core\Checkout\Document\Exception\InvalidFileGeneratorTypeException:
             log_level: notice
         Shopware\Core\Content\Product\Exception\VariantNotFoundException:
             log_level: notice

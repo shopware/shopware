@@ -6,9 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleException;
 
 /**
  * @internal
@@ -20,7 +20,7 @@ class RuleComparisonTest extends TestCase
     #[DataProvider('valuesForNumericEqualComparison')]
     public function testNumericComparisonWithEqualOperator(?float $itemValue, ?float $ruleValue, bool $result): void
     {
-        static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_EQ));
+        static::assertSame($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_EQ));
     }
 
     public static function valuesForNumericEqualComparison(): \Generator
@@ -38,7 +38,7 @@ class RuleComparisonTest extends TestCase
     #[DataProvider('valuesForNumericNotEqualComparison')]
     public function testNumericComparisonWithNotEqualOperator(?float $itemValue, ?float $ruleValue, bool $result): void
     {
-        static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_NEQ));
+        static::assertSame($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_NEQ));
     }
 
     public static function valuesForNumericNotEqualComparison(): \Generator
@@ -55,7 +55,7 @@ class RuleComparisonTest extends TestCase
     #[DataProvider('valuesForNumericGreaterThanComparison')]
     public function testNumericComparisonWithGreaterThanOperator(?float $itemValue, ?float $ruleValue, bool $result): void
     {
-        static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_GT));
+        static::assertSame($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_GT));
     }
 
     public static function valuesForNumericGreaterThanComparison(): \Generator
@@ -75,7 +75,7 @@ class RuleComparisonTest extends TestCase
     #[DataProvider('valuesForLessThanOrEqualComparison')]
     public function testNumericComparisonWithLessThanOrEqualOperator(?float $itemValue, ?float $ruleValue, bool $result): void
     {
-        static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_LTE));
+        static::assertSame($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_LTE));
     }
 
     public static function valuesForLessThanOrEqualComparison(): \Generator
@@ -95,7 +95,7 @@ class RuleComparisonTest extends TestCase
     #[DataProvider('valuesForGreaterThanOrEqualComparison')]
     public function testNumericComparisonWithGreaterThanOrEqualOperator(?float $itemValue, ?float $ruleValue, bool $result): void
     {
-        static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_GTE));
+        static::assertSame($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_GTE));
     }
 
     public static function valuesForGreaterThanOrEqualComparison(): \Generator
@@ -115,7 +115,7 @@ class RuleComparisonTest extends TestCase
     #[DataProvider('valuesForLessThanComparison')]
     public function testNumericComparisonWithLessThanOperator(?float $itemValue, ?float $ruleValue, bool $result): void
     {
-        static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_LT));
+        static::assertSame($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_LT));
     }
 
     public static function valuesForLessThanComparison(): \Generator
@@ -135,7 +135,7 @@ class RuleComparisonTest extends TestCase
     #[DataProvider('valuesForNumericEmptyComparison')]
     public function testNumericComparisonWithEmptyOperator(?float $itemValue, bool $result): void
     {
-        static::assertEquals($result, RuleComparison::numeric($itemValue, null, Rule::OPERATOR_EMPTY));
+        static::assertSame($result, RuleComparison::numeric($itemValue, null, Rule::OPERATOR_EMPTY));
     }
 
     public static function valuesForNumericEmptyComparison(): \Generator
@@ -147,8 +147,241 @@ class RuleComparisonTest extends TestCase
 
     public function testNumericComparisonThrowsExceptionIfUnsupportedOperatorIsUsed(): void
     {
-        $this->expectException(UnsupportedOperatorException::class);
+        $this->expectExceptionObject(RuleException::unsupportedOperator('unsupported', RuleComparison::class));
 
         RuleComparison::numeric(1.0, 1.0, 'unsupported');
+    }
+
+    public function testStringComparisonThrowsExceptionIfUnsupportedOperatorIsUsed(): void
+    {
+        $this->expectExceptionObject(RuleException::unsupportedOperator('unsupported', RuleComparison::class));
+
+        RuleComparison::string('test', 'test', 'unsupported');
+    }
+
+    public function testStringArrayComparisonThrowsExceptionIfUnsupportedOperatorIsUsed(): void
+    {
+        $this->expectExceptionObject(RuleException::unsupportedOperator('unsupported', RuleComparison::class));
+
+        RuleComparison::stringArray('test', ['test'], 'unsupported');
+    }
+
+    public function testDateComparisonThrowsExceptionIfUnsupportedOperatorIsUsed(): void
+    {
+        $this->expectExceptionObject(RuleException::unsupportedOperator('unsupported', RuleComparison::class));
+
+        RuleComparison::date(new \DateTime(), new \DateTime(), 'unsupported');
+    }
+
+    public function testDateTimeComparisonThrowsExceptionIfUnsupportedOperatorIsUsed(): void
+    {
+        $this->expectExceptionObject(RuleException::unsupportedOperator('unsupported', RuleComparison::class));
+
+        RuleComparison::datetime(new \DateTime(), new \DateTime(), 'unsupported');
+    }
+
+    public function testUuidsThrowsExceptionIfUnsupportedOperatorIsUsed(): void
+    {
+        $this->expectExceptionObject(RuleException::unsupportedOperator('unsupported', RuleComparison::class));
+
+        RuleComparison::uuids(null, null, 'unsupported');
+    }
+
+    #[DataProvider('valuesForDateTimeComparison')]
+    public function testDateTimeComparison(\DateTime $itemValue, \DateTime $ruleValue, bool $result, string $operator): void
+    {
+        static::assertSame($result, RuleComparison::datetime($itemValue, $ruleValue, $operator));
+    }
+
+    public static function valuesForDateTimeComparison(): \Generator
+    {
+        yield 'datetime equal - true' => [
+            new \DateTime('2025-02-27 10:00:00'),
+            new \DateTime('2025-02-27 10:00:00'),
+            true,
+            Rule::OPERATOR_EQ,
+        ];
+        yield 'datetime equal - false' => [
+            new \DateTime('2025-02-27 10:00:00'),
+            new \DateTime('2025-02-27 12:00:00'),
+            false,
+            Rule::OPERATOR_EQ,
+        ];
+
+        yield 'datetime not equal - true' => [
+            new \DateTime('2025-02-27 10:00:00'),
+            new \DateTime('2025-02-27 11:00:00'),
+            true,
+            Rule::OPERATOR_NEQ,
+        ];
+        yield 'datetime not equal - false' => [
+            new \DateTime('2025-02-27 10:00:00'),
+            new \DateTime('2025-02-27 10:00:00'),
+            false,
+            Rule::OPERATOR_NEQ,
+        ];
+
+        yield 'datetime greater than - true' => [
+            new \DateTime('2025-02-28 18:00:00'),
+            new \DateTime('2025-02-28 10:00:00'),
+            true,
+            Rule::OPERATOR_GT,
+        ];
+        yield 'datetime greater than - false' => [
+            new \DateTime('2025-02-28 10:00:00'),
+            new \DateTime('2025-02-28 10:00:00'),
+            false,
+            Rule::OPERATOR_GT,
+        ];
+
+        yield 'datetime less then - true' => [
+            new \DateTime('2025-02-27 09:00:00'),
+            new \DateTime('2025-02-27 10:00:00'),
+            true,
+            Rule::OPERATOR_LT,
+        ];
+        yield 'datetime less then - false' => [
+            new \DateTime('2025-02-27 10:00:00'),
+            new \DateTime('2025-02-27 10:00:00'),
+            false,
+            Rule::OPERATOR_LT,
+        ];
+
+        yield 'datetime greater then equal - true' => [
+            new \DateTime('2025-02-27 10:00:00'),
+            new \DateTime('2025-02-27 09:00:00'),
+            true,
+            Rule::OPERATOR_GTE,
+        ];
+        yield 'datetime greater then equal - true (equal)' => [
+            new \DateTime('2025-02-27 10:00:00'),
+            new \DateTime('2025-02-27 10:00:00'),
+            true,
+            Rule::OPERATOR_GTE,
+        ];
+        yield 'datetime greater then equal - false' => [
+            new \DateTime('2025-02-27 09:00:00'),
+            new \DateTime('2025-02-27 10:00:00'),
+            false,
+            Rule::OPERATOR_GTE,
+        ];
+
+        yield 'datetime less then equal - true' => [
+            new \DateTime('2025-02-27 10:00:00'),
+            new \DateTime('2025-02-27 11:00:00'),
+            true,
+            Rule::OPERATOR_LTE,
+        ];
+        yield 'datetime less then equal - true (equal)' => [
+            new \DateTime('2025-02-27 10:00:00'),
+            new \DateTime('2025-02-27 10:00:00'),
+            true,
+            Rule::OPERATOR_LTE,
+        ];
+        yield 'datetime less then equal - false' => [
+            new \DateTime('2025-02-27 11:00:00'),
+            new \DateTime('2025-02-27 10:00:00'),
+            false,
+            Rule::OPERATOR_LTE,
+        ];
+    }
+
+    #[DataProvider('valuesForDateComparison')]
+    public function testDateComparison(\DateTime $itemValue, \DateTime $ruleValue, bool $result, string $operator): void
+    {
+        static::assertSame($result, RuleComparison::date($itemValue, $ruleValue, $operator));
+    }
+
+    public static function valuesForDateComparison(): \Generator
+    {
+        yield 'date equal - true' => [
+            new \DateTime('2025-02-27'),
+            new \DateTime('2025-02-27'),
+            true,
+            Rule::OPERATOR_EQ,
+        ];
+        yield 'date equal - false' => [
+            new \DateTime('2025-02-27'),
+            new \DateTime('2025-02-28'),
+            false,
+            Rule::OPERATOR_EQ,
+        ];
+
+        yield 'date not equal - true' => [
+            new \DateTime('2025-02-27'),
+            new \DateTime('2025-02-28'),
+            true,
+            Rule::OPERATOR_NEQ,
+        ];
+        yield 'date not equal - false' => [
+            new \DateTime('2025-02-27'),
+            new \DateTime('2025-02-27'),
+            false,
+            Rule::OPERATOR_NEQ,
+        ];
+
+        yield 'date greater than - true' => [
+            new \DateTime('2025-02-29'),
+            new \DateTime('2025-02-28'),
+            true,
+            Rule::OPERATOR_GT,
+        ];
+        yield 'date greater than - false' => [
+            new \DateTime('2025-02-28'),
+            new \DateTime('2025-02-28'),
+            false,
+            Rule::OPERATOR_GT,
+        ];
+
+        yield 'date less then - true' => [
+            new \DateTime('2025-02-26'),
+            new \DateTime('2025-02-27'),
+            true,
+            Rule::OPERATOR_LT,
+        ];
+        yield 'date less then - false' => [
+            new \DateTime('2025-02-27'),
+            new \DateTime('2025-02-27'),
+            false,
+            Rule::OPERATOR_LT,
+        ];
+
+        yield 'date greater then equal - true' => [
+            new \DateTime('2025-02-28'),
+            new \DateTime('2025-02-27'),
+            true,
+            Rule::OPERATOR_GTE,
+        ];
+        yield 'date greater then equal - true (equal)' => [
+            new \DateTime('2025-02-27'),
+            new \DateTime('2025-02-27'),
+            true,
+            Rule::OPERATOR_GTE,
+        ];
+        yield 'date greater then equal - false' => [
+            new \DateTime('2025-02-26'),
+            new \DateTime('2025-02-27'),
+            false,
+            Rule::OPERATOR_GTE,
+        ];
+
+        yield 'date less then equal - true' => [
+            new \DateTime('2025-02-26'),
+            new \DateTime('2025-02-27'),
+            true,
+            Rule::OPERATOR_LTE,
+        ];
+        yield 'date less then equal - true (equal)' => [
+            new \DateTime('2025-02-27'),
+            new \DateTime('2025-02-27'),
+            true,
+            Rule::OPERATOR_LTE,
+        ];
+        yield 'date less then equal - false' => [
+            new \DateTime('2025-02-28'),
+            new \DateTime('2025-02-27'),
+            false,
+            Rule::OPERATOR_LTE,
+        ];
     }
 }

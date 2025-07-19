@@ -19,7 +19,7 @@ use Symfony\Component\Mime\RawMessage;
  * @internal
  */
 #[Package('after-sales')]
-class MailerTransportDecorator implements TransportInterface, \Stringable
+class MailerTransportDecorator implements TransportInterface
 {
     public function __construct(
         private readonly TransportInterface $decorated,

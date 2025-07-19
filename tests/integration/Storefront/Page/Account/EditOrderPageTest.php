@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Storefront\Page\Account;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
@@ -16,7 +15,6 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -151,23 +149,12 @@ class EditOrderPageTest extends TestCase
         $this->createCustomPaymentMethod($context, ['position' => 0]);
         $this->createCustomPaymentMethod($context, ['position' => 4]);
 
-        if (Feature::isActive('ACCESSIBILITY_TWEAKS')) {
-            $context->getSalesChannel()->setPaymentMethodId($primaryMethod->getId());
-        } else {
-            // replace active payment method with a new one
-            $context->assign(['paymentMethod' => $primaryMethod]);
-        }
+        $context->getSalesChannel()->setPaymentMethodId($primaryMethod->getId());
 
         $page = $this->getPageLoader()->load($request, $context);
         $paymentMethods = \array_values($page->getPaymentMethods()->getElements());
 
         static::assertSame($primaryMethod->getId(), $paymentMethods[0]->getId());
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            // default payment method of customer should be second
-            static::assertInstanceOf(CustomerEntity::class, $context->getCustomer());
-            static::assertSame($context->getCustomer()->getDefaultPaymentMethodId(), $paymentMethods[1]->getId());
-        }
     }
 
     public function testShouldNotAllowPaymentMethodChangeOnCertainTransactionStates(): void

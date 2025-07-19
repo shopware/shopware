@@ -7,24 +7,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @extends StoreApiResponse<EntitySearchResult<LanguageCollection>>
+ */
 #[Package('fundamentals@discovery')]
 class LanguageRouteResponse extends StoreApiResponse
 {
-    /**
-     * @var EntitySearchResult<LanguageCollection>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $object;
-
-    /**
-     * @param EntitySearchResult<LanguageCollection> $languages
-     */
-    public function __construct(EntitySearchResult $languages)
-    {
-        parent::__construct($languages);
-    }
-
     public function getLanguages(): LanguageCollection
     {
         return $this->object->getEntities();

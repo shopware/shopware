@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -97,8 +98,11 @@ class OrderGenerator implements DemodataGeneratorInterface
             foreach ($this->faker->randomElements($productLineItems, random_int(3, 5)) as $lineItem) {
                 $cart->add($lineItem);
             }
-            foreach ($this->faker->randomElements($promotionLineItems, random_int(0, 3)) as $lineItem) {
-                $cart->add($lineItem);
+
+            if ($promotionLineItems) {
+                foreach ($this->faker->randomElements($promotionLineItems, random_int(0, 3)) as $lineItem) {
+                    $cart->add($lineItem);
+                }
             }
 
             $cart = $this->cartCalculator->calculate($cart, $salesChannelContext);
@@ -108,6 +112,7 @@ class OrderGenerator implements DemodataGeneratorInterface
 
             $tempOrder['orderDateTime'] = $randomDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
             $tempOrder['tags'] = $this->getTags($tags);
+            $tempOrder['customFields'] = [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true];
 
             $orders[] = $tempOrder;
 

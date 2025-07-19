@@ -6,11 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(CartExtension::class)]
+#[Package('checkout')]
 class CartExtensionTest extends TestCase
 {
     /**
@@ -48,7 +50,7 @@ class CartExtensionTest extends TestCase
         $extension = new CartExtension();
         $extension->addCode('c123');
 
-        static::assertEquals(['c123'], $extension->getCodes());
+        static::assertSame(['c123'], $extension->getCodes());
     }
 
     /**
@@ -77,6 +79,59 @@ class CartExtensionTest extends TestCase
 
         $extension->removeCode('c123');
 
-        static::assertEquals(['c456'], $extension->getCodes());
+        static::assertSame(['c456'], $extension->getCodes());
+    }
+
+    #[Group('promotions')]
+    public function testMerge(): void
+    {
+        $extension1 = new CartExtension();
+        $extension1->addCode('c123');
+        $extension1->blockPromotion('p123');
+
+        $extension2 = new CartExtension();
+        $extension2->addCode('c456');
+        $extension2->blockPromotion('p456');
+
+        $merged = $extension1->merge($extension2);
+
+        static::assertEquals(['c123', 'c456'], $merged->getCodes());
+        static::assertTrue($merged->isPromotionBlocked('p123'));
+        static::assertTrue($merged->isPromotionBlocked('p456'));
+    }
+
+    #[Group('promotions')]
+    public function testMergeCreatesImmutable(): void
+    {
+        $extension1 = new CartExtension();
+        $extension1->addCode('c123');
+        $extension1->blockPromotion('p123');
+
+        $extension2 = new CartExtension();
+        $extension2->addCode('c456');
+        $extension2->blockPromotion('p456');
+
+        $merged = $extension1->merge($extension2);
+
+        static::assertNotSame($extension1, $merged);
+        static::assertNotSame($extension2, $merged);
+    }
+
+    #[Group('promotions')]
+    public function testMergeKillsDuplicates(): void
+    {
+        $extension1 = new CartExtension();
+        $extension1->addCode('c123');
+        $extension1->blockPromotion('p123');
+
+        $extension2 = new CartExtension();
+        $extension2->addCode('c123'); // Duplicate code
+        $extension2->blockPromotion('p456');
+
+        $merged = $extension1->merge($extension2);
+
+        static::assertEquals(['c123'], $merged->getCodes());
+        static::assertTrue($merged->isPromotionBlocked('p123'));
+        static::assertTrue($merged->isPromotionBlocked('p456'));
     }
 }

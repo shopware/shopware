@@ -9,29 +9,13 @@ use Shopware\Core\Framework\Struct\Struct;
 class File extends Struct
 {
     /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $filepath;
-
-    /**
-     * @var array<string, string>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $resolveMapping;
-
-    /**
      * @param array<string, string> $resolveMapping
      */
     public function __construct(
-        string $filepath,
-        array $resolveMapping = [],
+        protected string $filepath,
+        protected array $resolveMapping = [],
         public ?string $assetName = null
     ) {
-        $this->filepath = $filepath;
-        $this->resolveMapping = $resolveMapping;
     }
 
     public function getFilepath(): string

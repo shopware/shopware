@@ -57,7 +57,7 @@ describe('Form Preserver tests', () => {
 
         formPreserverPlugin._prepareElements();
 
-        expect(formPreserverPlugin._registerFormElementEvent).toHaveBeenCalledTimes(29 - 10);
+        expect(formPreserverPlugin._registerFormElementEvent).toHaveBeenCalledTimes(29 - 9);
 
         formPreserverPlugin._registerFormElementEvent.mockClear();
     });
@@ -115,7 +115,7 @@ describe('Form Preserver tests', () => {
             element.dispatchEvent(new Event('input'));
         });
 
-        jest.advanceTimersByTime(formPreserverPlugin.delay);
+        jest.runOnlyPendingTimers();
 
         Object.entries(testValuesNormal).forEach(([key, value]) => {
             expect(Storage.getItem(`test.${key}`)).toBe(value);

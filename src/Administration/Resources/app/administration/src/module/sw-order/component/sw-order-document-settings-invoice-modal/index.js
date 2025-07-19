@@ -16,6 +16,17 @@ export default {
         Mixin.getByName('notification'),
     ],
 
+    computed: {
+        documentNumber: {
+            get() {
+                return String(this.documentConfig.documentNumber);
+            },
+            set(value) {
+                this.documentConfig.documentNumber = value;
+            },
+        },
+    },
+
     created() {
         this.createdComponent();
     },

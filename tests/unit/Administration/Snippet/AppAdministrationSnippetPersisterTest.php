@@ -41,7 +41,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
     ): void {
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('invalidate')
             ->with([CachedSnippetFinder::CACHE_TAG]);
 
@@ -76,7 +76,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
         try {
             $persister->updateSnippets($appEntity, $snippets, Context::createDefaultContext());
         } catch (\Exception $exception) {
-            static::assertEquals($expectedExceptionMessage, $exception->getMessage());
+            static::assertSame($expectedExceptionMessage, $exception->getMessage());
 
             $exceptionWasThrown = true;
         } finally {

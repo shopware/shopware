@@ -33,9 +33,4 @@ class FilteredBulkEntityExtension extends EntityExtension
     {
         return $this->entityName;
     }
-
-    public function getDefinitionClass(): string
-    {
-        throw DataAbstractionLayerException::deprecatedDefinitionCall();
-    }
 }

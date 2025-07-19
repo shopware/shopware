@@ -53,6 +53,8 @@ class WishlistPageLoader
         $this->eventDispatcher->dispatch(new WishListPageProductCriteriaEvent($criteria, $context, $request));
 
         $page = $this->genericLoader->load($request, $context);
+        $page->getMetaInformation()?->setRobots('noindex,follow');
+
         $page = WishlistPage::createFrom($page);
 
         try {

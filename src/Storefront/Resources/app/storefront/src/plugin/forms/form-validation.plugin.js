@@ -1,7 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
 import Debouncer from 'src/helper/debouncer.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 /**
  * @deprecated tag:v6.8.0 - Use the `form-handler.plugin.js` instead.
@@ -25,7 +23,7 @@ import Iterator from 'src/helper/iterator.helper';
  *
  * <input data-form-validation-length='8' data-form-validation-equal-message='this field must be at least 8 characters long'>
  *
- * @package content
+ * @package framework
  */
 export default class FormValidation extends Plugin {
 
@@ -120,10 +118,10 @@ export default class FormValidation extends Plugin {
      * @private
      */
     _registerValidationListener(attribute, listener, events) {
-        const fields = DomAccess.querySelectorAll(this.el, `[${attribute}]`, false);
+        const fields = this.el.querySelectorAll(`[${attribute}]`);
         if (fields) {
-            Iterator.iterate(fields, field => {
-                Iterator.iterate(events, event => {
+            fields.forEach(field => {
+                events.forEach(event => {
                     field.removeEventListener(event, listener);
                     field.addEventListener(event, listener);
                 });
@@ -159,13 +157,13 @@ export default class FormValidation extends Plugin {
      * @private
      */
     _onValidateEqualTrigger(event) {
-        const selector = DomAccess.getDataAttribute(event.target, this.options.equalAttr);
-        const fields = DomAccess.querySelectorAll(this.el, `[${this.options.equalAttr}='${selector}']`);
+        const selector = event.target.getAttribute(this.options.equalAttr);
+        const fields = this.el.querySelectorAll(`[${this.options.equalAttr}='${selector}']`);
         const confirmField = fields[1];
         const confirmFieldValue = confirmField.value.trim();
 
         if (confirmFieldValue.length > 0) {
-            Iterator.iterate(fields, field => {
+            fields.forEach(field => {
                 field.dispatchEvent(new CustomEvent(this.options.eventName, {target: event.target}));
             });
         }
@@ -182,8 +180,8 @@ export default class FormValidation extends Plugin {
      * @private
      */
     _onValidateEqual(event) {
-        const selector = DomAccess.getDataAttribute(event.target, this.options.equalAttr);
-        const fields = DomAccess.querySelectorAll(this.el, `[${this.options.equalAttr}='${selector}']`);
+        const selector = event.target.getAttribute(this.options.equalAttr);
+        const fields = this.el.querySelectorAll(`[${this.options.equalAttr}='${selector}']`);
 
         let valid = true;
 
@@ -193,7 +191,7 @@ export default class FormValidation extends Plugin {
             }
         });
 
-        Iterator.iterate(fields, field => {
+        fields.forEach(field => {
             if (!valid) {
                 this._setFieldToInvalid(field, this.options.equalAttr);
             } else {
@@ -216,7 +214,7 @@ export default class FormValidation extends Plugin {
     _onValidateLength(event) {
         const field = event.target;
         const value = field.value.trim();
-        const expectedLength = DomAccess.getDataAttribute(event.target, this.options.lengthAttr);
+        const expectedLength = event.target.getAttribute(this.options.lengthAttr);
         const formText = field.nextElementSibling;
 
         if (value.length < expectedLength) {
@@ -289,7 +287,7 @@ export default class FormValidation extends Plugin {
             parent.classList.add(this.options.styleCls);
         }
 
-        const message = DomAccess.getDataAttribute(field, `${attribute}-message`, false);
+        const message = field.getAttribute(`${attribute}-message`);
 
         if (message) {
             if (!parent.querySelector('.js-validation-message')) {
@@ -338,7 +336,7 @@ export default class FormValidation extends Plugin {
         }
 
         if (parent) {
-            const message = DomAccess.querySelector(parent, `.js-validation-message[data-type=${attribute}]`, false);
+            const message = parent.querySelector(`.js-validation-message[data-type=${attribute}]`);
             if (message) {
                 message.remove();
             }

@@ -13,7 +13,8 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  * @component-example
  * <sw-condition-shipping-zip-code :condition="condition" :level="0"></sw-condition-shipping-zip-code>
  */
-Component.extend('sw-condition-shipping-zip-code', 'sw-condition-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     data() {
@@ -110,4 +111,4 @@ Component.extend('sw-condition-shipping-zip-code', 'sw-condition-base', {
             this.condition.value.operator = undefined;
         },
     },
-});
+};

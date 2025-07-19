@@ -129,27 +129,28 @@ const handleMtIcon = (context, node) => {
     }
 
     // Handle when no size, small or large attribute is set
-    if (!(sizeAttribute || sizeAttributeExpression) && !(smallAttribute || smallAttributeExpression) && !(largeAttribute || largeAttributeExpression)) {
-        context.report({
-            node,
-            message: '[mt-icon] The size of the icon is not 24px by default now. Please use the "size" prop with value "24px" to set the size explicitly if needed.',
-            *fix(fixer) {
-                if (context.options.includes('disableFix')) return;
-
-                // Handle no attributes
-                if (attributes.length === 0) {
-                    yield fixer.insertTextAfterRange([
-                        node.startTag.range[0],
-                        node.startTag.range[0] + mtComponentName.length + 1
-                    ], ' size="24px"');
-                    return;
-                }
-
-                const firstAttribute = attributes[0];
-                yield fixer.insertTextAfterRange(firstAttribute.range, ' size="24px"');
-            }
-        });
-    }
+    // INFORMATION: Deactivated for now because this can lead to styling issues if someone don't want to use a specific size value
+    // if (!(sizeAttribute || sizeAttributeExpression) && !(smallAttribute || smallAttributeExpression) && !(largeAttribute || largeAttributeExpression)) {
+    //     context.report({
+    //         node,
+    //         message: '[mt-icon] The size of the icon is not 24px by default now. Please use the "size" prop with value "24px" to set the size explicitly if needed.',
+    //         *fix(fixer) {
+    //             if (context.options.includes('disableFix')) return;
+    //
+    //             // Handle no attributes
+    //             if (attributes.length === 0) {
+    //                 yield fixer.insertTextAfterRange([
+    //                     node.startTag.range[0],
+    //                     node.startTag.range[0] + mtComponentName.length + 1
+    //                 ], ' size="24px"');
+    //                 return;
+    //             }
+    //
+    //             const firstAttribute = attributes[0];
+    //             yield fixer.insertTextAfterRange(firstAttribute.range, ' size="24px"');
+    //         }
+    //     });
+    // }
 }
 
 const mtIconValidTests = [
@@ -422,93 +423,93 @@ const mtIconInvalidTests = [
             message: '[mt-icon] The "large" prop is deprecated. Please use the "size" prop with value "32px" instead.',
         }]
     },
-    {
-        name: '"mt-icon" without a size prop should be replaced with size prop with value 24px',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-icon name="regular-times-s" />
-            </template>`,
-        output: `
-            <template>
-                <mt-icon name="regular-times-s" size="24px" />
-            </template>`,
-        errors: [{
-            message: '[mt-icon] The size of the icon is not 24px by default now. Please use the "size" prop with value "24px" to set the size explicitly if needed.',
-        }]
-    },
-    {
-        name: '"mt-icon" without a size prop should be replaced with size prop with value 24px [disableFix]',
-        filename: 'test.html.twig',
-        options: ['disableFix'],
-        code: `
-            <template>
-                <mt-icon name="regular-times-s" />
-            </template>`,
-        errors: [{
-            message: '[mt-icon] The size of the icon is not 24px by default now. Please use the "size" prop with value "24px" to set the size explicitly if needed.',
-        }]
-    },
-    {
-        name: '"mt-icon" without a size prop should be replaced with size prop with value 24px [nested]',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-icon
-                    name="regular-times-s"
-                />
-            </template>`,
-        output: `
-            <template>
-                <mt-icon
-                    name="regular-times-s" size="24px"
-                />
-            </template>`,
-        errors: [{
-            message: '[mt-icon] The size of the icon is not 24px by default now. Please use the "size" prop with value "24px" to set the size explicitly if needed.',
-        }]
-    },
-    {
-        name: '"mt-icon" without a size prop should be replaced with size prop with value 24px [nested, disableFix]',
-        filename: 'test.html.twig',
-        options: ['disableFix'],
-        code: `
-            <template>
-                <mt-icon
-                    name="regular-times-s"
-                />
-            </template>`,
-        errors: [{
-            message: '[mt-icon] The size of the icon is not 24px by default now. Please use the "size" prop with value "24px" to set the size explicitly if needed.',
-        }]
-    },
-    {
-        name: '"mt-icon" without a size prop should be replaced with size prop with value 24px [no other attributes]',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-icon />
-            </template>`,
-        output: `
-            <template>
-                <mt-icon size="24px" />
-            </template>`,
-        errors: [{
-            message: '[mt-icon] The size of the icon is not 24px by default now. Please use the "size" prop with value "24px" to set the size explicitly if needed.',
-        }]
-    },
-    {
-        name: '"mt-icon" without a size prop should be replaced with size prop with value 24px [no other attributes, disableFix]',
-        filename: 'test.html.twig',
-        options: ['disableFix'],
-        code: `
-            <template>
-                <mt-icon />
-            </template>`,
-        errors: [{
-            message: '[mt-icon] The size of the icon is not 24px by default now. Please use the "size" prop with value "24px" to set the size explicitly if needed.',
-        }]
-    },
+    // {
+    //     name: '"mt-icon" without a size prop should be replaced with size prop with value 24px',
+    //     filename: 'test.html.twig',
+    //     code: `
+    //         <template>
+    //             <mt-icon name="regular-times-s" />
+    //         </template>`,
+    //     output: `
+    //         <template>
+    //             <mt-icon name="regular-times-s" size="24px" />
+    //         </template>`,
+    //     errors: [{
+    //         message: '[mt-icon] The size of the icon is not 24px by default now. Please use the "size" prop with value "24px" to set the size explicitly if needed.',
+    //     }]
+    // },
+    // {
+    //     name: '"mt-icon" without a size prop should be replaced with size prop with value 24px [disableFix]',
+    //     filename: 'test.html.twig',
+    //     options: ['disableFix'],
+    //     code: `
+    //         <template>
+    //             <mt-icon name="regular-times-s" />
+    //         </template>`,
+    //     errors: [{
+    //         message: '[mt-icon] The size of the icon is not 24px by default now. Please use the "size" prop with value "24px" to set the size explicitly if needed.',
+    //     }]
+    // },
+    // {
+    //     name: '"mt-icon" without a size prop should be replaced with size prop with value 24px [nested]',
+    //     filename: 'test.html.twig',
+    //     code: `
+    //         <template>
+    //             <mt-icon
+    //                 name="regular-times-s"
+    //             />
+    //         </template>`,
+    //     output: `
+    //         <template>
+    //             <mt-icon
+    //                 name="regular-times-s" size="24px"
+    //             />
+    //         </template>`,
+    //     errors: [{
+    //         message: '[mt-icon] The size of the icon is not 24px by default now. Please use the "size" prop with value "24px" to set the size explicitly if needed.',
+    //     }]
+    // },
+    // {
+    //     name: '"mt-icon" without a size prop should be replaced with size prop with value 24px [nested, disableFix]',
+    //     filename: 'test.html.twig',
+    //     options: ['disableFix'],
+    //     code: `
+    //         <template>
+    //             <mt-icon
+    //                 name="regular-times-s"
+    //             />
+    //         </template>`,
+    //     errors: [{
+    //         message: '[mt-icon] The size of the icon is not 24px by default now. Please use the "size" prop with value "24px" to set the size explicitly if needed.',
+    //     }]
+    // },
+    // {
+    //     name: '"mt-icon" without a size prop should be replaced with size prop with value 24px [no other attributes]',
+    //     filename: 'test.html.twig',
+    //     code: `
+    //         <template>
+    //             <mt-icon />
+    //         </template>`,
+    //     output: `
+    //         <template>
+    //             <mt-icon size="24px" />
+    //         </template>`,
+    //     errors: [{
+    //         message: '[mt-icon] The size of the icon is not 24px by default now. Please use the "size" prop with value "24px" to set the size explicitly if needed.',
+    //     }]
+    // },
+    // {
+    //     name: '"mt-icon" without a size prop should be replaced with size prop with value 24px [no other attributes, disableFix]',
+    //     filename: 'test.html.twig',
+    //     options: ['disableFix'],
+    //     code: `
+    //         <template>
+    //             <mt-icon />
+    //         </template>`,
+    //     errors: [{
+    //         message: '[mt-icon] The size of the icon is not 24px by default now. Please use the "size" prop with value "24px" to set the size explicitly if needed.',
+    //     }]
+    // },
 ];
 
 module.exports = {

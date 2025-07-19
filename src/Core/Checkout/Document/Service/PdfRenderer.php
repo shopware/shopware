@@ -87,10 +87,6 @@ class PdfRenderer extends AbstractDocumentTypeRenderer
 
     private function getHtml(RenderedDocument $document): string
     {
-        if ($document->getHtml() !== '') {
-            return $document->getHtml();
-        }
-
         $document->setContentType(self::FILE_CONTENT_TYPE);
         $document->setFileExtension(self::FILE_EXTENSION);
 
@@ -105,14 +101,18 @@ class PdfRenderer extends AbstractDocumentTypeRenderer
 
         $language = $document->getOrder()->getLanguage();
 
+        $parameters = [
+            ...$document->getParameters(),
+            'order' => $document->getOrder(),
+            'config' => $config,
+            'rootDir' => $this->rootDir,
+            'context' => $document->getContext(),
+            ...$document->getExtensions(),
+        ];
+
         return $this->documentTemplateRenderer->render(
             $document->getTemplate(),
-            [
-                'order' => $document->getOrder(),
-                'config' => $config,
-                'rootDir' => $this->rootDir,
-                'context' => $document->getContext(),
-            ],
+            $parameters,
             $document->getContext(),
             $document->getOrder()->getSalesChannelId(),
             $document->getOrder()->getLanguageId(),

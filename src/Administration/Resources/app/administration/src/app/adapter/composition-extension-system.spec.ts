@@ -5,11 +5,11 @@
  * works correctly with the new Composition API extension system.
  */
 
-/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, max-len, @typescript-eslint/no-unsafe-call, filename-rules/match */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, max-len, @typescript-eslint/no-unsafe-call */
 
 import { createExtendableSetup, overrideComponentSetup, _overridesMap } from 'src/app/adapter/composition-extension-system';
 import { mount } from '@vue/test-utils';
-import type { EmitFn, PropType } from 'vue';
+import type { EmitFn } from 'vue';
 import { ref, computed, reactive, defineComponent } from 'vue';
 import type { SetupContext, Slot } from '@vue/runtime-core';
 import ExampleExtendableScriptSetupComponent from './_mocks_/example-extendable-script-setup-component.vue';
@@ -3382,6 +3382,7 @@ describe('src/app/adapter/composition-extension-system', () => {
      * If you need to run these tests remove the alias in "moduleNameMapper"
      * inside the jest config and remove global Vue registrations.
      */
+    // eslint-disable-next-line jest/no-disabled-tests
     describe.skip('Script Setup usage', () => {
         it('should be able to override refs in script setup', async () => {
             const originalComponent = ExampleExtendableScriptSetupComponent;

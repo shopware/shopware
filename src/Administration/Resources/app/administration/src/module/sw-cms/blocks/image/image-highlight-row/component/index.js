@@ -7,6 +7,4 @@ import './sw-cms-block-image-highlight-row.scss';
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

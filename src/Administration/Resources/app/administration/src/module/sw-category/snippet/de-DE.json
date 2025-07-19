@@ -144,6 +144,7 @@
         "internalDesc": "Wenn Du einen internen Link setzen möchtest, füge nur den Pfad ein, der auf die Domain folgt:",
         "linkLabel": "Linkziel",
         "linkNewTabLabel": "In neuem Tab öffnen",
+        "categoryHelpText": "Interne Links zu Kategorien unterstützen die folgenden Typen: {types}.",
         "type": {
           "internal": "Intern",
           "external": "Extern"

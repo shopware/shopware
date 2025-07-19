@@ -25,145 +25,54 @@ class RuleEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $priority;
+    protected int $priority;
 
     /**
      * @internal
-     *
-     * @var string|Rule|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $payload;
+    protected string|Rule|null $payload = null;
 
     /**
      * @var string[]|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $moduleTypes;
+    protected ?array $moduleTypes = null;
 
-    /**
-     * @var ProductPriceCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productPrices;
+    protected ?ProductPriceCollection $productPrices = null;
 
-    /**
-     * @var ShippingMethodCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingMethods;
+    protected ?ShippingMethodCollection $shippingMethods = null;
 
-    /**
-     * @var PaymentMethodCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentMethods;
+    protected ?PaymentMethodCollection $paymentMethods = null;
 
-    /**
-     * @var RuleConditionCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $conditions;
+    protected ?RuleConditionCollection $conditions = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $invalid;
+    protected bool $invalid;
 
     /**
      * @var string[]|null
      */
     protected ?array $areas = null;
 
-    /**
-     * @var ShippingMethodPriceCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingMethodPrices;
+    protected ?ShippingMethodPriceCollection $shippingMethodPrices = null;
 
-    /**
-     * @var PromotionDiscountCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $promotionDiscounts;
+    protected ?PromotionDiscountCollection $promotionDiscounts = null;
 
-    /**
-     * @var PromotionSetGroupCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $promotionSetGroups;
+    protected ?PromotionSetGroupCollection $promotionSetGroups = null;
 
-    /**
-     * @var ShippingMethodPriceCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingMethodPriceCalculations;
+    protected ?ShippingMethodPriceCollection $shippingMethodPriceCalculations = null;
 
-    /**
-     * @var PromotionCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $personaPromotions;
+    protected ?PromotionCollection $personaPromotions = null;
 
-    /**
-     * @var FlowSequenceCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $flowSequences;
+    protected ?FlowSequenceCollection $flowSequences = null;
 
-    /**
-     * @var TagCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $tags;
+    protected ?TagCollection $tags = null;
 
-    /**
-     * @var PromotionCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderPromotions;
+    protected ?PromotionCollection $orderPromotions = null;
 
-    /**
-     * @var PromotionCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cartPromotions;
+    protected ?PromotionCollection $cartPromotions = null;
 
     protected ?TaxProviderCollection $taxProviders = null;
 

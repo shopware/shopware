@@ -12,7 +12,6 @@ async function createWrapper(propsData = {}) {
                 'sw-label': {
                     template: '<div class="sw-label"><slot></slot></div>',
                 },
-                'sw-button': true,
             },
         },
         propsData: {

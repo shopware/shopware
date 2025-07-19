@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
@@ -54,6 +55,10 @@ class AccountOrderControllerTest extends TestCase
         $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testAjaxOrderDetail(): void
     {
         $context = Context::createDefaultContext();
@@ -326,8 +331,13 @@ class AccountOrderControllerTest extends TestCase
         static::assertArrayHasKey(AccountOrderPageLoadedHook::HOOK_NAME, $traces);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     public function testAccountOrderDetailPageLoadedScriptsAreExecuted(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $context = Context::createDefaultContext();
         $customer = $this->createCustomer($context);
 
@@ -348,7 +358,6 @@ class AccountOrderControllerTest extends TestCase
 
         $orderRepo = static::getContainer()->get('order.repository');
         $orderRepo->create($orderData, $context);
-
         $browser = $this->login($customer->getEmail());
         $browser->request(
             'GET',
@@ -448,10 +457,6 @@ class AccountOrderControllerTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'customerNumber' => '12345',
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         /** @var EntityRepository<CustomerCollection> $repo */
         $repo = static::getContainer()->get('customer.repository');

@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\SalesChannel;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\MeasurementSystem\Unit\ConvertedUnitSet;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
@@ -15,71 +16,29 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class SalesChannelProductEntity extends ProductEntity
 {
-    /**
-     * @var PriceCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $calculatedPrices;
+    protected PriceCollection $calculatedPrices;
 
-    /**
-     * @var CalculatedPrice
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $calculatedPrice;
+    protected CalculatedPrice $calculatedPrice;
 
-    /**
-     * @var PropertyGroupCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $sortedProperties;
+    protected ?PropertyGroupCollection $sortedProperties = null;
 
-    /**
-     * @var CalculatedCheapestPrice
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $calculatedCheapestPrice;
+    protected CalculatedCheapestPrice $calculatedCheapestPrice;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $isNew = false;
+    protected bool $isNew = false;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $calculatedMaxPurchase;
+    protected int $calculatedMaxPurchase;
 
-    /**
-     * @var CategoryEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $seoCategory;
+    protected ?CategoryEntity $seoCategory = null;
 
     /**
      * The container will be resolved on product.loaded event and
      * the detected cheapest price will be set for the current context rules
-     *
-     * @var CheapestPrice|CheapestPriceContainer|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $cheapestPrice;
+    protected CheapestPrice|CheapestPriceContainer|null $cheapestPrice = null;
 
-    /**
-     * @var CheapestPriceContainer|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cheapestPriceContainer;
+    protected ?CheapestPriceContainer $cheapestPriceContainer = null;
+
+    protected ?ConvertedUnitSet $measurements = null;
 
     public function setCalculatedPrices(PriceCollection $prices): void
     {
@@ -169,5 +128,15 @@ class SalesChannelProductEntity extends ProductEntity
     public function getCheapestPriceContainer(): ?CheapestPriceContainer
     {
         return $this->cheapestPriceContainer;
+    }
+
+    public function getMeasurements(): ?ConvertedUnitSet
+    {
+        return $this->measurements;
+    }
+
+    public function setMeasurements(ConvertedUnitSet $measurements): void
+    {
+        $this->measurements = $measurements;
     }
 }

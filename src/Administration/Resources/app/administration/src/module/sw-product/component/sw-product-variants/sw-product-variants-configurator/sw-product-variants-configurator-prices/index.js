@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     props: {
@@ -124,11 +122,7 @@ export default {
             }
 
             // set empty surcharge
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(option, 'price', []);
-            } else {
-                option.price = [];
-            }
+            option.price = [];
             this.currenciesList.forEach((currency) => {
                 if (!option.price.find((price) => price.currencyId === currency.id)) {
                     const newPriceForCurrency = {

@@ -98,7 +98,6 @@ class Migration1589379060AddVariantCharacteristicsToEmailTemplates extends Migra
 
     private function fetchLanguageId(string $code, Connection $connection): ?string
     {
-        /** @var string|null $langId */
         $langId = $connection->fetchOne('
         SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`locale_id` = `locale`.`id` WHERE `code` = :code LIMIT 1
         ', ['code' => $code]);

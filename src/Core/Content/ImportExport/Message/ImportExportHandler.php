@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\Message;
 
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
+use Shopware\Core\Content\ImportExport\Event\ImportExportAfterProcessFinishedEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportExportHandlerEvent;
 use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportException;
@@ -19,15 +20,15 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 #[AsMessageHandler]
 #[Package('fundamentals@after-sales')]
-final class ImportExportHandler
+final readonly class ImportExportHandler
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly MessageBusInterface $messageBus,
-        private readonly ImportExportFactory $importExportFactory,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private MessageBusInterface $messageBus,
+        private ImportExportFactory $importExportFactory,
+        private EventDispatcherInterface $eventDispatcher
     ) {
     }
 
@@ -68,15 +69,22 @@ final class ImportExportHandler
             }
         }
 
-        if ($logEntity instanceof ImportExportLogEntity && $progress instanceof Progress && !$progress->isFinished()) {
-            $nextMessage = new ImportExportMessage(
-                $context,
-                $logEntity->getId(),
-                $logEntity->getActivity(),
-                $progress->getOffset()
-            );
+        if ($logEntity instanceof ImportExportLogEntity && $progress instanceof Progress) {
+            if (!$progress->isFinished()) {
+                $nextMessage = new ImportExportMessage(
+                    $context,
+                    $logEntity->getId(),
+                    $logEntity->getActivity(),
+                    $progress->getOffset()
+                );
 
-            $this->messageBus->dispatch($nextMessage);
+                $this->messageBus->dispatch($nextMessage);
+            }
+
+            if ($logEntity->getState() !== Progress::STATE_PROGRESS && $progress->isFinished()) {
+                $event = new ImportExportAfterProcessFinishedEvent($context, $logEntity, $progress);
+                $this->eventDispatcher->dispatch($event);
+            }
         }
     }
 }

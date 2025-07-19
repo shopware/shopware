@@ -6,21 +6,12 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @extends StoreApiResponse<OrderEntity>
+ */
 #[Package('checkout')]
 class CartOrderRouteResponse extends StoreApiResponse
 {
-    /**
-     * @var OrderEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $object;
-
-    public function __construct(OrderEntity $object)
-    {
-        parent::__construct($object);
-    }
-
     public function getOrder(): OrderEntity
     {
         return $this->object;

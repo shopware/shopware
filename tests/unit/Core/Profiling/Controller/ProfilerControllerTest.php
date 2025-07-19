@@ -32,13 +32,13 @@ class ProfilerControllerTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $controller = new ProfilerController($twig, $profiler, $connection);
 
-        $profiler->expects(static::once())
+        $profiler->expects($this->once())
             ->method('loadProfile')
             ->with('some-token')
             ->willReturn(null);
 
         $response = $controller->explainAction('some-token', 'some-panel', 'default', 5);
-        static::assertEquals('This profile does not exist.', $response->getContent());
+        static::assertSame('This profile does not exist.', $response->getContent());
     }
 
     public function testErrorIsReturnedIfPanelDoesNotExist(): void
@@ -49,13 +49,13 @@ class ProfilerControllerTest extends TestCase
         $controller = new ProfilerController($twig, $profiler, $connection);
 
         $profile = new Profile('some-token');
-        $profiler->expects(static::once())
+        $profiler->expects($this->once())
             ->method('loadProfile')
             ->with('some-token')
             ->willReturn($profile);
 
         $response = $controller->explainAction('some-token', 'some-panel', 'default', 5);
-        static::assertEquals('This collector does not exist.', $response->getContent());
+        static::assertSame('This collector does not exist.', $response->getContent());
     }
 
     public function testErrorIsReturnedIfPanelIsIncorrect(): void
@@ -66,7 +66,7 @@ class ProfilerControllerTest extends TestCase
         $controller = new ProfilerController($twig, $profiler, $connection);
 
         $profile = new Profile('some-token');
-        $profiler->expects(static::once())
+        $profiler->expects($this->once())
             ->method('loadProfile')
             ->with('some-token')
             ->willReturn($profile);
@@ -89,7 +89,7 @@ class ProfilerControllerTest extends TestCase
         });
 
         $response = $controller->explainAction('some-token', 'some-panel', 'default', 5);
-        static::assertEquals('This collector does not exist.', $response->getContent());
+        static::assertSame('This collector does not exist.', $response->getContent());
     }
 
     public function testErrorIsReturnedIfQueryDoesNotExist(): void
@@ -101,14 +101,14 @@ class ProfilerControllerTest extends TestCase
         $profiler = $this->createMock(Profiler::class);
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::any())
+        $connection->expects($this->any())
             ->method('getConfiguration')
             ->willReturn($config);
 
         $controller = new ProfilerController($twig, $profiler, $connection);
 
         $profile = new Profile('some-token');
-        $profiler->expects(static::once())
+        $profiler->expects($this->once())
             ->method('loadProfile')
             ->with('some-token')
             ->willReturn($profile);
@@ -125,7 +125,7 @@ class ProfilerControllerTest extends TestCase
             5
         );
 
-        static::assertEquals('This query does not exist.', $response->getContent());
+        static::assertSame('This query does not exist.', $response->getContent());
     }
 
     public function testErrorIsReturnedIfQueryIsNotExplainable(): void
@@ -145,7 +145,7 @@ class ProfilerControllerTest extends TestCase
         $controller = new ProfilerController($twig, $profiler, $connection);
 
         $profile = new Profile('some-token');
-        $profiler->expects(static::once())
+        $profiler->expects($this->once())
             ->method('loadProfile')
             ->with('some-token')
             ->willReturn($profile);
@@ -175,7 +175,7 @@ class ProfilerControllerTest extends TestCase
             0
         );
 
-        static::assertEquals('This query cannot be explained.', $response->getContent());
+        static::assertSame('This query cannot be explained.', $response->getContent());
     }
 
     public function testExplainQuery(): void
@@ -193,14 +193,14 @@ class ProfilerControllerTest extends TestCase
             ->willReturn($config);
 
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('executeQuery')
             ->with('EXPLAIN SELECT 1', [], []);
 
         $controller = new ProfilerController($twig, $profiler, $connection);
 
         $profile = new Profile('some-token');
-        $profiler->expects(static::once())
+        $profiler->expects($this->once())
             ->method('loadProfile')
             ->with('some-token')
             ->willReturn($profile);
@@ -219,6 +219,6 @@ class ProfilerControllerTest extends TestCase
             0
         );
 
-        static::assertEquals('', $response->getContent());
+        static::assertSame('', $response->getContent());
     }
 }

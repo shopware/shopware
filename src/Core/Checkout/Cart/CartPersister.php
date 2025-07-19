@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -59,6 +60,7 @@ class CartPersister extends AbstractCartPersister
 
         $cart->setToken($token);
         $cart->setRuleIds(json_decode((string) $content['rule_ids'], true, 512, \JSON_THROW_ON_ERROR) ?? []);
+        $cart->setErrorHash($cart->getErrors()->getUniqueHash());
 
         $this->eventDispatcher->dispatch(new CartLoadedEvent($cart, $context));
 
@@ -138,7 +140,7 @@ class CartPersister extends AbstractCartPersister
         $timestamp = $time->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         do {
-            $result = $stmt->executeStatement(['timestamp' => $timestamp]);
+            $result = StatementHelper::executeStatement($stmt, ['timestamp' => $timestamp]);
         } while ($result > 0);
     }
 
@@ -148,9 +150,11 @@ class CartPersister extends AbstractCartPersister
     private function serializeCart(Cart $cart): array
     {
         $errors = $cart->getErrors();
-        $data = $cart->getData();
+        if (!$cart->getBehavior()?->hasPermission(static::PERSIST_CART_ERROR_PERMISSION)) {
+            $cart->setErrors(new ErrorCollection());
+        }
 
-        $cart->setErrors(new ErrorCollection());
+        $data = $cart->getData();
         $cart->setData(null);
 
         $this->cartSerializationCleaner->cleanupCart($cart);

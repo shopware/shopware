@@ -1,17 +1,12 @@
 import template from './sw-extension-adding-failed.html.twig';
 import './sw-extension-adding-failed.scss';
 
-const { Component } = Shopware;
-const { mapState } = Component.getComponentHelper();
-
 /**
  * @sw-package checkout
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'shopwareExtensionService',
@@ -45,7 +40,9 @@ export default {
     },
 
     computed: {
-        ...mapState('shopwareExtensions', ['myExtensions']),
+        myExtensions() {
+            return Shopware.Store.get('shopwareExtensions').myExtensions;
+        },
 
         extension() {
             return this.myExtensions.data.find((extension) => {

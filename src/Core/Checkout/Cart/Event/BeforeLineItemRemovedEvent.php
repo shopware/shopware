@@ -12,35 +12,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('checkout')]
 class BeforeLineItemRemovedEvent implements ShopwareSalesChannelEvent, CartEvent
 {
-    /**
-     * @var LineItem
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $lineItem;
-
-    /**
-     * @var Cart
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cart;
-
-    /**
-     * @var SalesChannelContext
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelContext;
-
     public function __construct(
-        LineItem $lineItem,
-        Cart $cart,
-        SalesChannelContext $salesChannelContext
+        protected LineItem $lineItem,
+        protected Cart $cart,
+        protected SalesChannelContext $salesChannelContext
     ) {
-        $this->lineItem = $lineItem;
-        $this->cart = $cart;
-        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getLineItem(): LineItem

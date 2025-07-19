@@ -8,8 +8,6 @@ import './sw-promotion-v2-empty-state-hero.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         title: {
             type: String,
@@ -37,7 +35,9 @@ export default {
 
     computed: {
         imagePath() {
-            return this.assetPath || '/administration/static/img/empty-states/promotion-v2-empty-state-hero.svg';
+            return (
+                this.assetPath || '/administration/administration/static/img/empty-states/promotion-v2-empty-state-hero.svg'
+            );
         },
 
         showDescription() {
@@ -49,10 +49,6 @@ export default {
         },
 
         actionSlotsAvailable() {
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return !!this.$slots.actions || !!this.$scopedSlots.actions;
-            }
-
             return !!this.$slots.actions;
         },
     },

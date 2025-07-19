@@ -7,35 +7,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class MailSubjectUpdate
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $type;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $enSubject;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $deSubject;
-
     public function __construct(
-        string $type,
-        ?string $enSubject = null,
-        ?string $deSubject = null
+        protected string $type,
+        protected ?string $enSubject = null,
+        protected ?string $deSubject = null
     ) {
-        $this->type = $type;
-        $this->enSubject = $enSubject;
-        $this->deSubject = $deSubject;
     }
 
     public function getType(): string

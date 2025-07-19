@@ -73,7 +73,7 @@ class EmailSenderTest extends TestCase
         $mailSender = $container->get(MailSender::class);
         $serializedMail = serialize($mail);
         $expectedMailPath = 'mail-data/' . Hasher::hash($serializedMail);
-        $transport->expects(static::once())
+        $transport->expects($this->once())
             ->method('send')
             ->with(
                 static::callback(

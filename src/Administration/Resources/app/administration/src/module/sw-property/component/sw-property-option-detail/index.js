@@ -4,18 +4,20 @@
 
 import template from './sw-property-option-detail.html.twig';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
+    ],
+
+    mixins: [
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
@@ -43,15 +45,27 @@ export default {
             return this.repositoryFactory.create('media');
         },
 
+        colorHexCode: {
+            set(value) {
+                this.currentOption.colorHexCode = value;
+            },
+
+            get() {
+                return this.currentOption?.colorHexCode || '';
+            },
+        },
+
+        modalTitle() {
+            return this.currentOption?.translated?.name || this.$tc('sw-property.detail.textOptionHeadline');
+        },
+
         ...mapPropertyErrors('currentOption', ['name']),
     },
 
     methods: {
         onCancel() {
             // Remove all property group options
-            Shopware.State.dispatch('error/removeApiError', {
-                expression: 'property_group_option',
-            });
+            Shopware.Store.get('error').removeApiError('property_group_option');
 
             this.$emit('cancel-option-edit', this.currentOption);
         },

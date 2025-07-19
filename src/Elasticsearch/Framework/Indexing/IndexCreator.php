@@ -44,8 +44,7 @@ class IndexCreator
 
     public function createIndex(AbstractElasticsearchDefinition $definition, string $index, string $alias, Context $context): void
     {
-        // NEXT-21735 - does not execute if there's no index yet
-        // @codeCoverageIgnoreStart
+        // @codeCoverageIgnoreStart - does not execute if there's no index yet
         if ($this->indexExists($index)) {
             $this->client->indices()->delete(['index' => $index]);
         }

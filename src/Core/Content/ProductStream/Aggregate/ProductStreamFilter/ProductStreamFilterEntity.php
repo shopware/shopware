@@ -14,82 +14,30 @@ class ProductStreamFilterEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $type;
+    protected string $type;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $field;
+    protected ?string $field = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $operator;
+    protected ?string $operator = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $value;
+    protected ?string $value = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productStreamId;
+    protected string $productStreamId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $parentId;
+    protected ?string $parentId = null;
 
-    /**
-     * @var ProductStreamEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productStream;
+    protected ?ProductStreamEntity $productStream = null;
 
-    /**
-     * @var ProductStreamFilterCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $queries;
+    protected ?ProductStreamFilterCollection $queries = null;
 
-    /**
-     * @var ProductStreamFilterEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $parent;
+    protected ?ProductStreamFilterEntity $parent = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $position;
+    protected int $position;
 
     /**
      * @var array<string>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $parameters;
+    protected ?array $parameters = null;
 
     public function getField(): ?string
     {

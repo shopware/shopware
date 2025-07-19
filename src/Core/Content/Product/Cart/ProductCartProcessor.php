@@ -26,7 +26,6 @@ use Shopware\Core\Content\Product\State;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -82,17 +81,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 foreach ($products as $product) {
                     $data->set($this->getDataKey($product->getId()), $product);
                 }
-
-                if (!Feature::isActive('v6.7.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS')) {
-                    // refresh data timestamp to prevent unnecessary gateway calls
-                    foreach ($items as $lineItem) {
-                        $product = $products->get((string) $lineItem->getReferencedId());
-
-                        if ($product) {
-                            $lineItem->setDataTimestamp(new \DateTimeImmutable());
-                        }
-                    }
-                }
             }
 
             // refresh data timestamp to prevent unnecessary gateway calls
@@ -101,9 +89,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
                 // product was fetched, update timestamp to not fetch it again
                 if ($product instanceof ProductEntity) {
-                    if (Feature::isActive('v6.7.0.0') || Feature::isActive('PERFORMANCE_TWEAKS')) {
-                        $lineItem->setDataTimestamp($product->getUpdatedAt() ?? $product->getCreatedAt());
-                    }
+                    $lineItem->setDataTimestamp($product->getUpdatedAt() ?? $product->getCreatedAt());
                 // we have asked for this product, but we didn't get it back, so we need to remove it
                 } elseif (\in_array($lineItem->getReferencedId(), $ids, true)) {
                     $lineItem->setDataTimestamp(null);
@@ -119,7 +105,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
             foreach ($lineItems as $match) {
                 // enrich all products in original cart
-                $this->enrich($context, $match['item'], $data, $behavior);
+                $this->enrich($match['item'], $data, $behavior);
 
                 // remove "parent" products which should never be displayed in storefront
                 $this->validateParents($match['item'], $data, $match['scope']);
@@ -294,7 +280,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
     }
 
-    private function enrich(SalesChannelContext $context, LineItem $lineItem, CartDataCollection $data, CartBehavior $behavior): void
+    private function enrich(LineItem $lineItem, CartDataCollection $data, CartBehavior $behavior): void
     {
         $id = $lineItem->getReferencedId();
 
@@ -343,7 +329,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         // Check if the price has to be updated
         if ($this->shouldPriceBeRecalculated($lineItem, $behavior)) {
             $lineItem->setPriceDefinition(
-                $this->getPriceDefinition($product, $context, $lineItem->getQuantity())
+                $this->getPriceDefinition($product, $lineItem->getQuantity())
             );
         }
 
@@ -393,7 +379,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $lineItem->replacePayload($payload, ['purchasePrices' => true]);
     }
 
-    private function getPriceDefinition(SalesChannelProductEntity $product, SalesChannelContext $context, int $quantity): QuantityPriceDefinition
+    private function getPriceDefinition(SalesChannelProductEntity $product, int $quantity): QuantityPriceDefinition
     {
         if ($product->getCalculatedPrices()->count() === 0) {
             return $this->buildPriceDefinition($product->getCalculatedPrice(), $quantity);

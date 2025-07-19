@@ -9,13 +9,10 @@ const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @deprecated tag:v6.7.0 - Will be private
+ * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'productIndexService',
@@ -87,6 +84,10 @@ export default {
             this.productSearchKeywordRepository
                 .search(this.productSearchKeywordsCriteria, Context.api)
                 .then((result) => {
+                    if (!result.total) {
+                        return;
+                    }
+
                     this.latestIndex = {
                         firstDate: result.aggregations.firstDate.min,
                         lastDate: result.aggregations.lastDate.max,

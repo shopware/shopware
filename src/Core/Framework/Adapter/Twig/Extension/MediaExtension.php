@@ -27,6 +27,9 @@ class MediaExtension extends AbstractExtension
         ];
     }
 
+    /**
+     * @param array<string> $ids
+     */
     public function searchMedia(array $ids, Context $context): MediaCollection
     {
         if (empty($ids)) {

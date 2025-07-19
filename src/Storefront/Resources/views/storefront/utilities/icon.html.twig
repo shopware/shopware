@@ -11,10 +11,14 @@
         {% set namespace = 'Storefront' %}
     {%- endif -%}
 
+    {%- if ariaHidden is not defined -%}
+        {% set ariaHidden = true %}
+    {%- endif -%}
+
     {%- if themeIconConfig[pack] is defined -%}
         <span class="icon icon-{{ pack }} icon-{{ pack }}-{{ name }}{% for entry in styles %}{% if entry != "" %} icon-{{ entry }}{% endif %}{% endfor %}"{% if ariaHidden %} aria-hidden="true"{% endif %}>
             {% set icon = source('@' ~ themeIconConfig[pack].namespace ~ '/' ~ themeIconConfig[pack].path ~'/'~ name ~ '.svg', ignore_missing = true) %}
-            {% if ariaLabel %}
+            {% if ariaLabel and not ariaHidden %}
                 {{ icon|sw_icon_cache|replace({'<svg ': '<svg aria-label="'~ariaLabel~'" '})|raw }}
             {% else %}
                 {{ icon|sw_icon_cache|raw }}
@@ -23,7 +27,7 @@
     {%- else -%}
         <span class="icon icon-{{ name }}{% for entry in styles %}{% if entry != "" %} icon-{{ entry }}{% endif %}{% endfor %}"{% if ariaHidden %} aria-hidden="true"{% endif %}>
             {% set icon = source('@' ~ namespace ~ '/assets/icon/'~ pack ~'/'~ name ~'.svg', ignore_missing = true) %}
-            {% if ariaLabel %}
+            {% if ariaLabel and not ariaHidden %}
                 {{ icon|sw_icon_cache|replace({'<svg ': '<svg aria-label="'~ariaLabel~'" '})|raw }}
             {% else %}
                 {{ icon|sw_icon_cache|raw }}

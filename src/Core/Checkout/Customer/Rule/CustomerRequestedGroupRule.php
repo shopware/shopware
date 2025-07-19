@@ -11,15 +11,18 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @final
+ */
 #[Package('fundamentals@after-sales')]
 class CustomerRequestedGroupRule extends Rule
 {
     final public const RULE_NAME = 'customerRequestedGroup';
 
     /**
-     * @internal
-     *
      * @param list<string>|null $customerGroupIds
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

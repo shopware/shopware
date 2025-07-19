@@ -53,5 +53,10 @@
             <argument>%kernel.project_dir%/public/.htaccess</argument>
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Update\Subscriber\UpdateSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Notification\NotificationService" />
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

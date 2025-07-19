@@ -2,10 +2,8 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
-use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
@@ -61,27 +59,10 @@ class CaptchaController extends StorefrontController
             return new JsonResponse(['session' => $fakeSession]);
         }
 
-        $violations = $this->basicCaptcha->getViolations();
-        $formViolations = new ConstraintViolationException($violations, []);
-
-        if (Feature::isActive('ACCESSIBILITY_TWEAKS')) {
-            $response[] = [
-                'type' => 'danger',
-                'error' => 'invalid_captcha',
-            ];
-        } else {
-            $response[] = [
-                'type' => 'danger',
-                'error' => 'invalid_captcha',
-                /**
-                 * @deprecated tag:v6.7.0 - Storefront implementation changed. The response no longer needs the rendered input.
-                 */
-                'input' => $this->renderView('@Storefront/storefront/component/captcha/basicCaptchaFields.html.twig', [
-                    'formId' => $request->get('formId'),
-                    'formViolations' => $formViolations,
-                ]),
-            ];
-        }
+        $response[] = [
+            'type' => 'danger',
+            'error' => 'invalid_captcha',
+        ];
 
         return new JsonResponse($response);
     }

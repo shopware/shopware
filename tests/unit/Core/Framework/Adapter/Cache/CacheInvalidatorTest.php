@@ -3,14 +3,14 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,16 +27,15 @@ class CacheInvalidatorTest extends TestCase
     {
         $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
         $tagAwareAdapter
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('invalidateTags');
 
         $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
         $redisInvalidatorStorage
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('store');
 
         $invalidator = new CacheInvalidator(
-            0,
             [
                 $tagAwareAdapter,
             ],
@@ -44,7 +43,9 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'test'
+            'test',
+            $this->createMock(TagAwareAdapterInterface::class),
+            false
         );
 
         $invalidator->invalidate([]);
@@ -54,23 +55,24 @@ class CacheInvalidatorTest extends TestCase
     {
         $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
         $tagAwareAdapter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('invalidateTags')
             ->with(['foo']);
 
         $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
         $redisInvalidatorStorage
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('store');
 
         $invalidator = new CacheInvalidator(
-            0,
             [$tagAwareAdapter],
             $redisInvalidatorStorage,
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'prod'
+            'prod',
+            $this->createMock(TagAwareAdapterInterface::class),
+            false
         );
 
         $invalidator->invalidate(['foo'], true);
@@ -80,23 +82,24 @@ class CacheInvalidatorTest extends TestCase
     {
         $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
         $tagAwareAdapter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('invalidateTags')
             ->with(['foo']);
 
         $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
         $redisInvalidatorStorage
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('store');
 
         $invalidator = new CacheInvalidator(
-            0,
             [$tagAwareAdapter],
             $redisInvalidatorStorage,
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'test'
+            'test',
+            $this->createMock(TagAwareAdapterInterface::class),
+            false
         );
 
         $invalidator->invalidate(['foo']);
@@ -106,26 +109,27 @@ class CacheInvalidatorTest extends TestCase
     {
         $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
         $tagAwareAdapter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('invalidateTags')
             ->with(['foo']);
 
         $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
         $redisInvalidatorStorage
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('store');
 
         $request = new Request();
         $request->headers->set(PlatformRequest::HEADER_FORCE_CACHE_INVALIDATE, '1');
 
         $invalidator = new CacheInvalidator(
-            0,
             [$tagAwareAdapter],
             $redisInvalidatorStorage,
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([$request]),
-            'prod'
+            'prod',
+            $this->createMock(TagAwareAdapterInterface::class),
+            false
         );
 
         $invalidator->invalidate(['foo']);
@@ -135,106 +139,42 @@ class CacheInvalidatorTest extends TestCase
     {
         $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
         $tagAwareAdapter
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('invalidateTags');
 
         $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
         $redisInvalidatorStorage
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('store');
 
         $invalidator = new CacheInvalidator(
-            1,
             [$tagAwareAdapter],
             $redisInvalidatorStorage,
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'prod'
+            'prod',
+            $this->createMock(TagAwareAdapterInterface::class),
+            false
         );
 
         $invalidator->invalidate(['foo']);
-    }
-
-    #[DataProvider('dataProviderInvalidation')]
-    #[DisabledFeatures(['cache_rework'])]
-    /**
-     * @deprecated tag:v6.7.0 - can be removed as it tests only deprecated functionality
-     */
-    public function testInvalidation(bool $enableDelay, bool $directInvalidate, bool $backgroundInvalidate, bool $force): void
-    {
-        $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
-        $tagAwareAdapter
-            ->expects($directInvalidate ? static::once() : static::never())
-            ->method('invalidateTags')
-            ->with(['foo']);
-
-        $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
-        $redisInvalidatorStorage
-            ->expects($backgroundInvalidate ? static::once() : static::never())
-            ->method('store');
-
-        $invalidator = new CacheInvalidator(
-            (int) $enableDelay,
-            [
-                $tagAwareAdapter,
-            ],
-            $redisInvalidatorStorage,
-            new EventDispatcher(),
-            new NullLogger(),
-            new RequestStack([new Request()]),
-            'prod'
-        );
-
-        $invalidator->invalidate(['foo'], $force);
-    }
-
-    public static function dataProviderInvalidation(): \Generator
-    {
-        yield 'no delay' => [
-            false,
-            true,
-            false,
-            false,
-        ];
-
-        yield 'no delay, with force' => [
-            false,
-            true,
-            false,
-            true,
-        ];
-
-        yield 'with delay, no force' => [
-            true,
-            false,
-            true,
-            false,
-        ];
-
-        yield 'with delay, force' => [
-            true,
-            true,
-            false,
-            true,
-        ];
     }
 
     public function testInvalidateExpiredEmpty(): void
     {
         $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
         $tagAwareAdapter
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('invalidateTags');
 
         $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
         $redisInvalidatorStorage
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('loadAndDelete')
             ->willReturn([]);
 
         $invalidator = new CacheInvalidator(
-            0,
             [
                 $tagAwareAdapter,
             ],
@@ -242,7 +182,9 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'test'
+            'test',
+            $this->createMock(TagAwareAdapterInterface::class),
+            false
         );
 
         $invalidator->invalidateExpired();
@@ -252,18 +194,17 @@ class CacheInvalidatorTest extends TestCase
     {
         $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
         $tagAwareAdapter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('invalidateTags')
             ->with(['foo']);
 
         $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
         $redisInvalidatorStorage
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('loadAndDelete')
             ->willReturn(['foo']);
 
         $invalidator = new CacheInvalidator(
-            0,
             [
                 $tagAwareAdapter,
             ],
@@ -271,9 +212,65 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
-            'test'
+            'test',
+            $this->createMock(TagAwareAdapterInterface::class),
+            false
         );
 
         $invalidator->invalidateExpired();
+    }
+
+    public function testSoftPurge(): void
+    {
+        $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
+        $redisInvalidatorStorage
+            ->expects($this->never())
+            ->method('store');
+
+        $adapter = new ArrayAdapter();
+        $invalidator = new CacheInvalidator(
+            [],
+            $redisInvalidatorStorage,
+            new EventDispatcher(),
+            new NullLogger(),
+            new RequestStack([new Request()]),
+            'prod',
+            new TagAwareAdapter($adapter, $adapter),
+            true
+        );
+
+        $invalidator->invalidate(['foo'], true);
+
+        static::assertTrue($adapter->hasItem('http_invalidation_foo_timestamp'));
+
+        $itemValue = $adapter->getItem('http_invalidation_foo_timestamp')->get();
+        static::assertIsInt($itemValue);
+
+        static::assertTrue(time() >= $itemValue, 'Timestamp should be set to current time or later');
+    }
+
+    public function testSoftPurgeIsSkipped(): void
+    {
+        $adapter = new ArrayAdapter();
+
+        $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
+        $redisInvalidatorStorage
+            ->expects($this->once())
+            ->method('store');
+
+        $invalidator = new CacheInvalidator(
+            [],
+            $redisInvalidatorStorage,
+            new EventDispatcher(),
+            new NullLogger(),
+            new RequestStack([new Request()]),
+            'prod',
+            new TagAwareAdapter($adapter, $adapter),
+            false
+        );
+
+        $invalidator->invalidate(['foo']);
+
+        static::assertFalse($adapter->hasItem('http_invalidation_foo_timestamp'));
     }
 }

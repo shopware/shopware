@@ -10,10 +10,7 @@ class AdminScope implements ScopeEntityInterface
 {
     final public const IDENTIFIER = 'admin';
 
-    /**
-     * @return string
-     */
-    public function getIdentifier()
+    public function getIdentifier(): string
     {
         return self::IDENTIFIER;
     }

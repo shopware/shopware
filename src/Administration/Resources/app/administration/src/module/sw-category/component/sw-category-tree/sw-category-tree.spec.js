@@ -3,7 +3,6 @@
  */
 import { mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
-import swCategoryState from 'src/module/sw-category/page/sw-category-detail/state';
 
 async function createWrapper() {
     const routes = [
@@ -61,14 +60,6 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-category/component/sw-category-tree', () => {
-    beforeAll(() => {
-        if (Shopware.State.get('swCategoryDetail')) {
-            Shopware.State.unregisterModule('swCategoryDetail');
-        }
-
-        Shopware.State.registerModule('swCategoryDetail', swCategoryState);
-    });
-
     it('should be able to sort the items', async () => {
         const wrapper = await createWrapper();
 

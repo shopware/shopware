@@ -16,19 +16,9 @@ class TestFlowBusinessEvent extends Event implements FlowEventAware
 {
     public const EVENT_NAME = 'test.flow_event';
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name = self::EVENT_NAME;
+    protected string $name = self::EVENT_NAME;
 
-    /**
-     * @var Context
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $context;
+    protected Context $context;
 
     public function __construct(Context $context)
     {

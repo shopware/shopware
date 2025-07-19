@@ -34,7 +34,7 @@ Module.register('sw-settings-seo', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'content',
         to: 'sw.settings.seo.index',
         icon: 'regular-search',
         privilege: 'system.system_config',

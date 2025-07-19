@@ -87,21 +87,12 @@ async function createWrapper(privileges = []) {
                 },
 
                 stubs: {
-                    'sw-card': true,
-                    'sw-button-process': await wrapTestComponent('sw-button-process'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                    'sw-progress-bar': {
-                        template: '<div class="sw-progress-bar"><slot></slot></div>',
+                    'mt-progress-bar': {
+                        template: '<div class="mt-progress-bar"><slot></slot></div>',
                     },
-                    'sw-alert': {
-                        template: '<div class="sw-alert"><slot></slot></div>',
-                    },
-                    'sw-icon': true,
                     'sw-loader': true,
                     'sw-time-ago': true,
-                    'sw-button': {
-                        template: '<button @click="$emit(\'click\')"><slot></slot></button>',
-                    },
+                    'sw-button-process': true,
                 },
             },
         },
@@ -190,5 +181,14 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
         expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledWith({
             message: 'sw-settings-search.notification.index.success',
         });
+    });
+
+    it('should return early and not set latestIndex when result.total === 0', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.productSearchKeywordRepository.search = jest.fn(() => Promise.resolve({ total: 0 }));
+        wrapper.vm.latestIndex = null;
+        await wrapper.vm.getLatestProductKeywordIndexed();
+        expect(wrapper.vm.latestIndex).toBeNull();
     });
 });

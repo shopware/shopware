@@ -16,17 +16,13 @@ class CartExtension extends Struct
 
     /**
      * @var array<string>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $addedCodes = [];
+    protected array $addedCodes = [];
 
     /**
      * @var array<string>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $blockedPromotionIds = [];
+    protected array $blockedPromotionIds = [];
 
     public function addCode(string $code): void
     {
@@ -83,5 +79,28 @@ class CartExtension extends Struct
     public function isPromotionBlocked(string $id): bool
     {
         return \in_array($id, $this->blockedPromotionIds, true);
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getBlockedPromotions(): array
+    {
+        return $this->blockedPromotionIds;
+    }
+
+    public function merge(self $extension): static
+    {
+        $new = clone $this;
+
+        foreach ($extension->getCodes() as $code) {
+            $new->addCode($code);
+        }
+
+        foreach ($extension->getBlockedPromotions() as $id) {
+            $new->blockPromotion($id);
+        }
+
+        return $new;
     }
 }

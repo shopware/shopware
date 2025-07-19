@@ -30,7 +30,7 @@ Module.register('sw-settings-login-registration', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'customer',
         to: 'sw.settings.login.registration.index',
         icon: 'regular-sign-in',
         privilege: 'system.system_config',

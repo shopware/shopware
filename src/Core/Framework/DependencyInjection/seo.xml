@@ -76,6 +76,11 @@
             <tag name="twig.extension"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Twig\Extension\TwigFeaturesWithInheritanceExtension">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder"/>
+            <tag name="twig.extension"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\CategoryUrlExtension">
             <argument type="service" id="twig.extension.routing"/>
             <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryUrlGenerator"/>
@@ -132,6 +137,7 @@
 
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\BuildBreadcrumbExtension">
             <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder"/>
+            <argument type="service" id="sales_channel.category.repository"/>
             <argument type="service" id="category.repository"/>
             <tag name="twig.extension"/>
         </service>

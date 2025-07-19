@@ -99,7 +99,7 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
             ->search(new Criteria([$this->ids->get('customer_group')]), Context::createDefaultContext())->first();
 
         $expect = $option === 'clear' ? null : [$customFieldName => $expectData];
-        static::assertEquals($customerGroup->getCustomFields(), $expect);
+        static::assertSame($customerGroup->getCustomFields(), $expect);
     }
 
     /**

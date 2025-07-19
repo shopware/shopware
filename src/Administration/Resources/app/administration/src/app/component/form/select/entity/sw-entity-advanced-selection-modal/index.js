@@ -5,7 +5,7 @@
 import template from './sw-entity-advanced-selection-modal.html.twig';
 import './sw-entity-advanced-selection-modal.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { debounce } = Shopware.Utils;
 const { Criteria } = Shopware.Data;
 
@@ -17,10 +17,8 @@ const { Criteria } = Shopware.Data;
  * Also have a look for already existing wrapper components for your entity.
  * @status prototype
  */
-Component.register('sw-entity-advanced-selection-modal', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',
@@ -157,9 +155,13 @@ Component.register('sw-entity-advanced-selection-modal', {
 
     computed: {
         modalTitle() {
-            return this.$tc('global.sw-entity-advanced-selection-modal.title', 1, {
-                entity: this.entityDisplayText,
-            });
+            return this.$tc(
+                'global.sw-entity-advanced-selection-modal.title',
+                {
+                    entity: this.entityDisplayText,
+                },
+                1,
+            );
         },
 
         entityRepository() {
@@ -342,4 +344,4 @@ Component.register('sw-entity-advanced-selection-modal', {
             this.$refs.filterPanel.resetAll();
         },
     },
-});
+};

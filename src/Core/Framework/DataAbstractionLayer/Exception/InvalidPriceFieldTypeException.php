@@ -2,9 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use CartException::invalidPriceFieldTypeException() instead
+ */
 #[Package('framework')]
 class InvalidPriceFieldTypeException extends ShopwareHttpException
 {

@@ -7,6 +7,4 @@ import './sw-cms-block-product-three-column.scss';
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

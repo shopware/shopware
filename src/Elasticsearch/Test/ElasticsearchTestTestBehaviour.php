@@ -109,8 +109,8 @@ trait ElasticsearchTestTestBehaviour
 
         $indices = $client->indices()->get(['index' => EnvironmentHelper::getVariable('SHOPWARE_ES_INDEX_PREFIX') . '*']);
 
-        foreach ($indices as $index) {
-            $client->indices()->delete(['index' => $index['settings']['index']['provided_name']]);
+        foreach ($indices as $name => $index) {
+            $client->indices()->delete(['index' => $name]);
         }
 
         $connection = $c->get(Connection::class);

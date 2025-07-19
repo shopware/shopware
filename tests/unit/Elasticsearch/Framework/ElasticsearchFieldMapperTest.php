@@ -75,7 +75,7 @@ class ElasticsearchFieldMapperTest extends TestCase
         ]]);
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())->method('fetchAllKeyValue')->willReturn([
+        $connection->expects($this->once())->method('fetchAllKeyValue')->willReturn([
             'cf_bool' => 'bool',
             'cf_text' => 'text',
         ]);
@@ -109,8 +109,8 @@ class ElasticsearchFieldMapperTest extends TestCase
          * Specifically check, that this case does not happen anymore:
          * https://github.com/shopware/shopware/issues/4459 (comments)
          **/
-        static::assertNotEquals($formatted[$deLanguageId]['cf_bar'], \INF);
-        static::assertNotEquals($formatted[$enLanguageId]['cf_bar'], \INF);
+        static::assertNotSame($formatted[$deLanguageId]['cf_bar'], \INF);
+        static::assertNotSame($formatted[$enLanguageId]['cf_bar'], \INF);
 
         static::assertEquals([
             $deLanguageId => [

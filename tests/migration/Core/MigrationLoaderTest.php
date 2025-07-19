@@ -5,9 +5,9 @@ namespace Shopware\Tests\Migration\Core;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -84,8 +84,8 @@ class MigrationLoaderTest extends TestCase
         static::assertNull($migrations[0]['message']);
         static::assertNotNull($migrations[0]['class']);
         static::assertNotNull($migrations[0]['creation_timestamp']);
-        static::assertEquals(1, $migrationsObjects[0]->getCreationTimestamp());
-        static::assertEquals(2, $migrationsObjects[1]->getCreationTimestamp());
+        static::assertSame(1, $migrationsObjects[0]->getCreationTimestamp());
+        static::assertSame(2, $migrationsObjects[1]->getCreationTimestamp());
     }
 
     public function testItGetsCorrectMigrationTimestamps(): void
@@ -94,15 +94,17 @@ class MigrationLoaderTest extends TestCase
         $migrations = $collection->getActiveMigrationTimestamps();
 
         static::assertCount(2, $migrations);
-        static::assertEquals(1, $migrations[0]);
-        static::assertEquals(2, $migrations[1]);
+        static::assertSame(1, $migrations[0]);
+        static::assertSame(2, $migrations[1]);
     }
 
     public function testThatInvalidMigrationClassesThrowOnLazyInit(): void
     {
         $collection = $this->loader->collect('_test_migrations_invalid_namespace');
 
-        $this->expectException(InvalidMigrationClassException::class);
+        $this->expectException(MigrationException::class);
+        $this->expectExceptionMessageMatches('/Unable to load migration Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\_test_migrations_invalid_namespace\\\\Migration1WithoutANamespace at path/');
+
         $collection->getMigrationSteps();
     }
 

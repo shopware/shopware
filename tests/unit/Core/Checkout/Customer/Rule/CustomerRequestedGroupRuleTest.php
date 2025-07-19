@@ -62,7 +62,7 @@ class CustomerRequestedGroupRuleTest extends TestCase
     public function testGetConfig(): void
     {
         $config = $this->rule->getConfig();
-        static::assertEquals([
+        static::assertSame([
             'operatorSet' => [
                 'operators' => [
                     ...RuleConfig::OPERATOR_SET_STRING,

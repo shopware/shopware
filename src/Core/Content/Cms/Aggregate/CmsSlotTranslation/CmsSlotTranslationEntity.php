@@ -13,31 +13,25 @@ class CmsSlotTranslationEntity extends TranslationEntity
     use EntityCustomFieldsTrait;
 
     /**
-     * @var array|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var array<mixed>|null
      */
-    protected $config;
+    protected ?array $config = null;
+
+    protected string $cmsSlotId;
+
+    protected ?CmsSlotEntity $cmsSlot = null;
 
     /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @return array<mixed>|null
      */
-    protected $cmsSlotId;
-
-    /**
-     * @var CmsSlotEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cmsSlot;
-
     public function getConfig(): ?array
     {
         return $this->config;
     }
 
+    /**
+     * @param array<mixed> $config
+     */
     public function setConfig(array $config): void
     {
         $this->config = $config;

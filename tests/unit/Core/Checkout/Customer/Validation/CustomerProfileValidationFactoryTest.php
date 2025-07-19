@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -37,20 +36,16 @@ class CustomerProfileValidationFactoryTest extends TestCase
      */
     private array $accountTypes;
 
-    private SalutationDefinition $salutationDefinition;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->accountTypes = [CustomerEntity::ACCOUNT_TYPE_BUSINESS, CustomerEntity::ACCOUNT_TYPE_PRIVATE];
-        $this->salutationDefinition = new SalutationDefinition();
     }
 
     public function testCreateWithSalesChannelContext(): void
     {
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
-            $this->salutationDefinition,
             $this->createMock(SystemConfigService::class),
             $this->accountTypes,
         );
@@ -70,7 +65,6 @@ class CustomerProfileValidationFactoryTest extends TestCase
         ]);
 
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
-            $this->salutationDefinition,
             $configService,
             $this->accountTypes,
         );
@@ -93,7 +87,6 @@ class CustomerProfileValidationFactoryTest extends TestCase
         ]);
 
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
-            $this->salutationDefinition,
             $configService,
             $this->accountTypes,
         );
@@ -116,7 +109,6 @@ class CustomerProfileValidationFactoryTest extends TestCase
         ]);
 
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
-            $this->salutationDefinition,
             $configService,
             $this->accountTypes,
         );
@@ -133,7 +125,6 @@ class CustomerProfileValidationFactoryTest extends TestCase
     public function testUpdateWithSalesChannelContext(): void
     {
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
-            $this->salutationDefinition,
             $this->createMock(SystemConfigService::class),
             $this->accountTypes,
         );
@@ -153,7 +144,6 @@ class CustomerProfileValidationFactoryTest extends TestCase
         ]);
 
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
-            $this->salutationDefinition,
             $configService,
             $this->accountTypes,
         );
@@ -176,7 +166,6 @@ class CustomerProfileValidationFactoryTest extends TestCase
         ]);
 
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
-            $this->salutationDefinition,
             $configService,
             $this->accountTypes,
         );
@@ -199,7 +188,6 @@ class CustomerProfileValidationFactoryTest extends TestCase
         ]);
 
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
-            $this->salutationDefinition,
             $configService,
             $this->accountTypes,
         );
@@ -227,17 +215,13 @@ class CustomerProfileValidationFactoryTest extends TestCase
     private function addConstraintsSalesChannelContext(DataValidationDefinition $definition, SalesChannelContext $context): void
     {
         $definition
-            ->add('salutationId', new EntityExists(['entity' => $this->salutationDefinition->getEntityName(), 'context' => $context->getContext()]))
+            ->add('salutationId', new EntityExists(['entity' => SalutationDefinition::ENTITY_NAME, 'context' => $context->getContext()]))
             ->add('firstName', new NotBlank())
             ->add('lastName', new NotBlank())
             ->add('accountType', new Choice($this->accountTypes))
-            ->add('title', new Length(['max' => CustomerDefinition::MAX_LENGTH_TITLE]));
-
-        if (Feature::isActive('v6.7.0.0')) {
-            $definition
-                ->add('firstName', new Length(['max' => CustomerDefinition::MAX_LENGTH_FIRST_NAME]))
-                ->add('lastName', new Length(['max' => CustomerDefinition::MAX_LENGTH_LAST_NAME]));
-        }
+            ->add('title', new Length(['max' => CustomerDefinition::MAX_LENGTH_TITLE]))
+            ->add('firstName', new Length(['max' => CustomerDefinition::MAX_LENGTH_FIRST_NAME]))
+            ->add('lastName', new Length(['max' => CustomerDefinition::MAX_LENGTH_LAST_NAME]));
     }
 
     private function addConstraintsBirthday(DataValidationDefinition $definition): void

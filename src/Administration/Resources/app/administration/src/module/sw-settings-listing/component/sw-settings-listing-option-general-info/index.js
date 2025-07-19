@@ -8,8 +8,6 @@ import template from './sw-settings-listing-option-general-info.html.twig';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         sortingOption: {
             type: Object,

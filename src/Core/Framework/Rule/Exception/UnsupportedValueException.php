@@ -2,10 +2,16 @@
 
 namespace Shopware\Core\Framework\Rule\Exception;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @codeCoverageIgnore
+ *
+ * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use CartException::unsupportedValue() or CustomerException::unsupportedValue() or RuleException::unsupportedValue() instead
+ */
 #[Package('fundamentals@after-sales')]
 class UnsupportedValueException extends ShopwareHttpException
 {

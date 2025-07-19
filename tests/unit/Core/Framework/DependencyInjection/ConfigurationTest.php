@@ -167,4 +167,34 @@ class ConfigurationTest extends TestCase
         static::assertArrayHasKey('default', $nodes);
         static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['default']);
     }
+
+    public function testUsageDataSection(): void
+    {
+        $configuration = new Configuration();
+
+        $rootNode = $configuration->getConfigTreeBuilder()->getRootNode();
+
+        static::assertInstanceOf(ArrayNodeDefinition::class, $rootNode);
+        $nodes = $rootNode->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('usage_data', $nodes);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['usage_data']);
+
+        $nodes = $nodes['usage_data']->getChildNodeDefinitions();
+        static::assertArrayHasKey('collection_enabled', $nodes);
+        static::assertInstanceOf(ScalarNodeDefinition::class, $nodes['collection_enabled']);
+
+        static::assertArrayHasKey('gateway', $nodes);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['gateway']);
+
+        $nodes = $nodes['gateway']->getChildNodeDefinitions();
+        static::assertArrayHasKey('dispatch_enabled', $nodes);
+        static::assertInstanceOf(ScalarNodeDefinition::class, $nodes['dispatch_enabled']);
+
+        static::assertArrayHasKey('base_uri', $nodes);
+        static::assertInstanceOf(ScalarNodeDefinition::class, $nodes['base_uri']);
+
+        static::assertArrayHasKey('batch_size', $nodes);
+        static::assertInstanceOf(ScalarNodeDefinition::class, $nodes['batch_size']);
+    }
 }

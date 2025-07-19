@@ -37,15 +37,13 @@ class AppScriptConditionEntity extends Entity
      * @internal
      *
      * @var string|array<string, list<Constraint>>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $constraints;
+    protected string|array|null $constraints = null;
 
     /**
      * @var CustomFieldTypeArray|null
      */
-    protected ?array $config;
+    protected ?array $config = null;
 
     protected ?RuleConditionCollection $ruleConditions = null;
 

@@ -43,13 +43,13 @@ class ConfigSet extends Command
             $input->getOption('salesChannelId')
         );
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 
     /**
-     * @return array|bool|float|int|string|null $value
+     * @return array<mixed>|bool|float|int|string|null $value
      */
-    protected function handleDecode(InputInterface $input)
+    protected function handleDecode(InputInterface $input): array|bool|float|int|string|null
     {
         $value = $input->getArgument('value');
         if ($input->getOption('json')) {

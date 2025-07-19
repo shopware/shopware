@@ -1,6 +1,6 @@
 import type RuleConditionService from '../service/rule-condition.service';
 
-const { Application, Feature } = Shopware;
+const { Application } = Shopware;
 
 /**
  * @sw-package fundamentals@after-sales
@@ -504,9 +504,9 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     });
 
     ruleConditionService.addCondition('promotionLineItem', {
-        component: 'sw-condition-generic',
+        component: 'sw-condition-generic-line-item',
         label: 'global.sw-condition.condition.promotionLineItemRule',
-        scopes: ['cart'],
+        scopes: ['lineItem'],
         group: 'promotion',
     });
 
@@ -551,15 +551,6 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         scopes: ['checkout'],
         group: 'customer',
     });
-
-    if (!Feature.isActive('v6.7.0.0')) {
-        ruleConditionService.addCondition('customerDefaultPaymentMethod', {
-            component: 'sw-condition-generic',
-            label: 'global.sw-condition.condition.customerDefaultPaymentMethodRule',
-            scopes: ['checkout'],
-            group: 'customer',
-        });
-    }
 
     ruleConditionService.addCondition('cartLineItemProductStates', {
         component: 'sw-condition-generic-line-item',
@@ -668,6 +659,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         notEquals: [
             'cartCartAmount',
             'cartShippingCost',
+            ...ruleConditionService.getRestrictionsByGroup('order'),
         ],
         snippet: 'sw-restricted-rules.restrictedAssignment.orderPromotions',
     });
@@ -676,6 +668,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         notEquals: [
             'cartCartAmount',
             'cartShippingCost',
+            ...ruleConditionService.getRestrictionsByGroup('order'),
         ],
         snippet: 'sw-restricted-rules.restrictedAssignment.cartPromotions',
     });

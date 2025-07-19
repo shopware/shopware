@@ -11,8 +11,6 @@ import './sw-product-stream-field-select.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'conditionDataProviderService',
         'productCustomFields',
@@ -84,6 +82,8 @@ export default {
                     entityFields.push(this.productCustomFields[customField]);
                 });
             }
+
+            entityFields.sort((a, b) => a.label.localeCompare(b.label));
 
             return entityFields;
         },

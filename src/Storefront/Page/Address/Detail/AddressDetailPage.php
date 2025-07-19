@@ -11,26 +11,11 @@ use Shopware\Storefront\Page\Page;
 #[Package('framework')]
 class AddressDetailPage extends Page
 {
-    /**
-     * @var CustomerAddressEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $address;
+    protected ?CustomerAddressEntity $address = null;
 
-    /**
-     * @var SalutationCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salutations;
+    protected SalutationCollection $salutations;
 
-    /**
-     * @var CountryCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $countries;
+    protected CountryCollection $countries;
 
     public function getAddress(): ?CustomerAddressEntity
     {

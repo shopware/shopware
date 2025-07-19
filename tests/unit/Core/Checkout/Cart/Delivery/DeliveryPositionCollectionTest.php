@@ -41,7 +41,7 @@ class DeliveryPositionCollectionTest extends TestCase
             )
         );
 
-        static::assertEquals(20, $deliveryPositionCollection->getWeight());
+        static::assertSame(20.0, $deliveryPositionCollection->getWeight());
     }
 
     public function testCalculateWithMultipleLineItems(): void
@@ -77,7 +77,7 @@ class DeliveryPositionCollectionTest extends TestCase
             )
         );
 
-        static::assertEquals(30, $deliveryPositionCollection->getWeight());
+        static::assertSame(30.0, $deliveryPositionCollection->getWeight());
     }
 
     public function testCalculateWithMultipleLineItemsWithMultipleQuantities(): void
@@ -111,7 +111,7 @@ class DeliveryPositionCollectionTest extends TestCase
             )
         );
 
-        static::assertEquals(100, $deliveryPositionCollection->getWeight());
+        static::assertSame(100.0, $deliveryPositionCollection->getWeight());
     }
 
     public function testCalculateWithoutFreeDelivery(): void
@@ -145,7 +145,7 @@ class DeliveryPositionCollectionTest extends TestCase
             )
         );
 
-        static::assertEquals(80, $deliveryPositionCollection->getWithoutDeliveryFree()->getWeight());
+        static::assertSame(80.0, $deliveryPositionCollection->getWithoutDeliveryFree()->getWeight());
     }
 
     #[DataProvider('volumeDataProvider')]
@@ -184,7 +184,7 @@ class DeliveryPositionCollectionTest extends TestCase
             )
         );
 
-        static::assertEquals($expect, $deliveryPositionCollection->getVolume());
+        static::assertSame($expect, $deliveryPositionCollection->getVolume());
     }
 
     public static function volumeDataProvider(): \Generator

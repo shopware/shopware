@@ -11,7 +11,7 @@ export default class RuleConditionsConfigApiService extends ApiService {
     }
 
     load() {
-        if (Shopware.State.getters['ruleConditionsConfig/getConfig']() !== null) {
+        if (Shopware.Store.get('ruleConditionsConfig').config !== null) {
             return Promise.resolve();
         }
 
@@ -20,7 +20,7 @@ export default class RuleConditionsConfigApiService extends ApiService {
                 headers: this.getBasicHeaders(),
             })
             .then((response) => {
-                Shopware.State.commit('ruleConditionsConfig/setConfig', ApiService.handleResponse(response));
+                Shopware.Store.get('ruleConditionsConfig').config = ApiService.handleResponse(response);
             });
     }
 }

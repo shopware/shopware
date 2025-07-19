@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Maintenance\System\Command\SystemSetupCommand;
-use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\ApplicationTester;
@@ -23,10 +22,6 @@ class SystemSetupCommandTest extends TestCase
         @unlink(__DIR__ . '/.env');
         @unlink(__DIR__ . '/symfony.lock');
         @unlink(__DIR__ . '/.env.local.php');
-        @unlink(__DIR__ . '/config/jwt/private.pem');
-        @unlink(__DIR__ . '/config/jwt/public.pem');
-        @rmdir(__DIR__ . '/config/jwt');
-        @rmdir(__DIR__ . '/config');
     }
 
     public function testEnvFileGeneration(): void
@@ -167,18 +162,10 @@ class SystemSetupCommandTest extends TestCase
 
         $application = new Application();
         $application->setAutoExit(false);
-        $application->add(
-            new SystemSetupCommand(
-                __DIR__,
-                new JwtCertificateGenerator(),
-                $dumpCommand
-            )
-        );
+        $application->add(new SystemSetupCommand(__DIR__, $dumpCommand));
 
         $application->add($dumpCommand);
 
-        return new ApplicationTester(
-            $application,
-        );
+        return new ApplicationTester($application);
     }
 }

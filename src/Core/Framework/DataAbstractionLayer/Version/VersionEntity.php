@@ -12,19 +12,9 @@ class VersionEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var VersionCommitCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $commits;
+    protected VersionCommitCollection $commits;
 
     public function __construct()
     {

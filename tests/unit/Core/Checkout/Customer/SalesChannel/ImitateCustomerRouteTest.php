@@ -60,6 +60,6 @@ class ImitateCustomerRouteTest extends TestCase
 
         $response = $route->imitateCustomerLogin($dataBag, $salesChannelContext);
 
-        static::assertEquals('newToken', $response->getToken());
+        static::assertSame('newToken', $response->getToken());
     }
 }

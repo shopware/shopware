@@ -1,5 +1,8 @@
 import Plugin from 'src/plugin-system/plugin.class';
 
+/**
+ * @package framework
+ */
 export default class FormAjaxPaginationPlugin extends Plugin {
 
     /**

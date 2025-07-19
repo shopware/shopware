@@ -33,8 +33,4 @@ class Migration1697112044PaymentAndShippingTechnicalNameRequired extends Migrati
             $connection->executeStatement('ALTER TABLE `shipping_method` MODIFY COLUMN `technical_name` VARCHAR(255) NOT NULL');
         }
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

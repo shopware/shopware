@@ -69,8 +69,4 @@ class Migration1718615305AddEuToCountryTable extends MigrationStep
             ],
         );
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

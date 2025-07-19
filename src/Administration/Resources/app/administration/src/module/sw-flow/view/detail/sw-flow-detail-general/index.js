@@ -1,7 +1,7 @@
 import template from './sw-flow-detail-general.html.twig';
 import './sw-flow-detail-general.scss';
 
-const { Component } = Shopware;
+const { Component, Store } = Shopware;
 const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 
 /**
@@ -10,8 +10,6 @@ const { mapPropertyErrors, mapState } = Component.getComponentHelper();
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['acl'],
 
@@ -74,7 +72,7 @@ export default {
             return this.$route.query?.type === 'template';
         },
 
-        ...mapState('swFlowState', ['flow']),
+        ...mapState(() => Store.get('swFlow'), ['flow']),
         ...mapPropertyErrors('flow', ['name']),
     },
 };

@@ -4,7 +4,7 @@ async function createWrapper(props) {
     return mount(await wrapTestComponent('sw-extension-privacy-policy-extensions-modal', { sync: true }), {
         global: {
             mocks: {
-                $tc: (path, choice, values) => {
+                $tc: (path, values, choice) => {
                     if (values) {
                         return JSON.stringify({ path, choice, values });
                     }
@@ -13,10 +13,6 @@ async function createWrapper(props) {
                 },
             },
             stubs: {
-                'sw-button': await wrapTestComponent('sw-button', {
-                    sync: true,
-                }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-modal': {
                     // eslint-disable-next-line max-len
                     template:

@@ -37,8 +37,8 @@ describe('element-replace.helper', () => {
             const markup = '<div class="replaceable-content"></div>';
             ElementReplaceHelper.replaceFromMarkup(markup, '.i-wont-be-found', false);
 
-            expect()
-        })
+            expect(document.body.innerHTML.trim()).toBe(`${template}`.trim());
+        });
     });
 
     describe('replaceElement', () => {
@@ -81,7 +81,7 @@ describe('element-replace.helper', () => {
             expect(replacedItems).toHaveProperty('length', 4);
             replacedItems.forEach((node) => {
                 expect(node.textContent).toBe('this is replaced');
-            })
+            });
         });
 
         test('it throws if src has more elements than target', () => {
@@ -148,7 +148,7 @@ describe('element-replace.helper', () => {
             expect(target).toHaveProperty('length', 4);
             target.forEach((listElement) => {
                 expect(listElement.textContent).toBe('updated content');
-            })
+            });
         });
 
         test('it does not remove content if single src has none', () => {
@@ -160,7 +160,7 @@ describe('element-replace.helper', () => {
             expect(target).toHaveProperty('length', 4);
             target.forEach((listElement) => {
                 expect(listElement.textContent).toBe('original content');
-            })
+            });
         });
 
         test('it returns with false if source or target are not found for none strict node', () => {

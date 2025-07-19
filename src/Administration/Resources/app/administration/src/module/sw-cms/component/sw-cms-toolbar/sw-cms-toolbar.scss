@@ -14,12 +14,12 @@
     .sw-cms-toolbar__back-btn {
         padding: 10px 20px;
 
-        .sw-icon {
+        .mt-icon {
             color: $color-gray-300;
             transform: rotate(180deg);
         }
 
-        a:hover .sw-icon {
+        a:hover .mt-icon {
             color: $color-darkgray-200;
         }
     }

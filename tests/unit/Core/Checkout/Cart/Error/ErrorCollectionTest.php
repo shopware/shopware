@@ -7,11 +7,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Error\GenericCartError;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(ErrorCollection::class)]
+#[Package('checkout')]
 class ErrorCollectionTest extends TestCase
 {
     public function testHashing(): void

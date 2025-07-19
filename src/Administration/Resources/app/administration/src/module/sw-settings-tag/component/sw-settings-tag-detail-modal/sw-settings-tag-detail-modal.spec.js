@@ -41,7 +41,6 @@ async function createWrapper() {
                     'sw-tabs-item': true,
                     'sw-text-field': true,
                     'sw-settings-tag-detail-assignments': true,
-                    'sw-button': true,
                     'sw-tabs-deprecated': true,
                 },
             },

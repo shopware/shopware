@@ -63,7 +63,7 @@ class RulePayloadSubscriberTest extends TestCase
         static::assertNull($rule->getPayload());
 
         $this->updater
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update')
             ->with([$id])
             ->willReturn([$id => ['payload' => serialize(new AndRule()), 'invalid' => false]]);
@@ -84,7 +84,7 @@ class RulePayloadSubscriberTest extends TestCase
         static::assertTrue($rule->isInvalid());
 
         $this->updater
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('update');
 
         $this->rulePayloadSubscriber->unserialize($loadedEvent);
@@ -102,7 +102,7 @@ class RulePayloadSubscriberTest extends TestCase
         static::assertNotNull($rule->getPayload());
 
         $this->updater
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('update');
         $this->rulePayloadSubscriber->unserialize($loadedEvent);
 
@@ -121,7 +121,7 @@ class RulePayloadSubscriberTest extends TestCase
         static::assertNull($rule->getPayload());
 
         $this->updater
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update')
             ->with([$id, $id2])
                 ->willReturn(
@@ -150,7 +150,7 @@ class RulePayloadSubscriberTest extends TestCase
         static::assertNull($rule->getPayload());
 
         $this->updater
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update')
             ->with([$id])
             ->willReturn(

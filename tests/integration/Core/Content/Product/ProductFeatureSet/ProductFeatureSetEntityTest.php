@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\ProductFeatureSet;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetCollection;
@@ -21,13 +20,19 @@ class ProductFeatureSetEntityTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    #[DataProvider('definitionMethodProvider')]
-    public function testEntityDefinitionIsComplete(string $method, string $returnValue): void
-    {
-        $definition = static::getContainer()->get(ProductFeatureSetDefinition::class);
+    private ProductFeatureSetDefinition $definition;
 
-        static::assertTrue(method_exists($definition, $method));
-        static::assertEquals($returnValue, $definition->$method()); /* @phpstan-ignore-line */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->definition = static::getContainer()->get(ProductFeatureSetDefinition::class);
+    }
+
+    public function testEntityDefinitionIsComplete(): void
+    {
+        static::assertSame(ProductFeatureSetDefinition::ENTITY_NAME, $this->definition->getEntityName());
+        static::assertSame(ProductFeatureSetCollection::class, $this->definition->getCollectionClass());
+        static::assertSame(ProductFeatureSetEntity::class, $this->definition->getEntityClass());
     }
 
     #[TestWith(['id'])]
@@ -36,9 +41,7 @@ class ProductFeatureSetEntityTest extends TestCase
     #[TestWith(['features'])]
     public function testDefinitionFieldsAreComplete(string $field): void
     {
-        $definition = static::getContainer()->get(ProductFeatureSetDefinition::class);
-
-        static::assertTrue($definition->getFields()->has($field));
+        static::assertTrue($this->definition->getFields()->has($field));
     }
 
     #[TestWith(['getName'])]
@@ -60,30 +63,9 @@ class ProductFeatureSetEntityTest extends TestCase
         $translationsField = static::getContainer()->get(ProductFeatureSetDefinition::class)->getField('translations');
 
         static::assertInstanceOf(TranslationsAssociationField::class, $translationsField);
-        static::assertEquals(
+        static::assertSame(
             \sprintf('%s_id', ProductFeatureSetDefinition::ENTITY_NAME),
             $translationsField->getReferenceField()
         );
-    }
-
-    /**
-     * @return list<array<string>>
-     */
-    public static function definitionMethodProvider(): array
-    {
-        return [
-            [
-                'getEntityName',
-                'product_feature_set',
-            ],
-            [
-                'getCollectionClass',
-                ProductFeatureSetCollection::class,
-            ],
-            [
-                'getEntityClass',
-                ProductFeatureSetEntity::class,
-            ],
-        ];
     }
 }

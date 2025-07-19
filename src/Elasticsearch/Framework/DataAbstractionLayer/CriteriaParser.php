@@ -548,12 +548,36 @@ class CriteriaParser
             $aggregation instanceof TermsAggregation => $this->parseTermsAggregation($aggregation, $fieldName, $definition, $context),
             $aggregation instanceof DateHistogramAggregation => $this->parseDateHistogramAggregation($aggregation, $fieldName, $definition, $context),
             $aggregation instanceof RangeAggregation => $this->parseRangeAggregation($aggregation, $fieldName),
-            default => throw new \RuntimeException(\sprintf('Provided aggregation of class %s not supported', $aggregation::class)),
+            default => throw ElasticsearchException::unsupportedAggregation($aggregation::class),
         };
     }
 
     private function parseEqualsFilter(EqualsFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface
     {
+        if ($this->isCheapestPriceField($filter->getField())) {
+            $scriptContent = $this->getScript('cheapest_price_filter');
+            $parameters = [
+                'params' => array_merge(
+                    ['eq' => $filter->getValue() === null ? null : (float) $filter->getValue()],
+                    $this->getCheapestPriceParameters($context)
+                ),
+            ];
+
+            return $this->constructScriptQuery($scriptContent, $parameters);
+        }
+
+        if ($this->isCheapestPriceField($filter->getField(), true)) {
+            $scriptContent = $this->getScript('cheapest_price_percentage_filter');
+            $parameters = [
+                'params' => array_merge(
+                    ['eq' => $filter->getValue() === null ? null : (float) $filter->getValue()],
+                    ['accessors' => $this->getCheapestPriceAccessors($context, true)]
+                ),
+            ];
+
+            return $this->constructScriptQuery($scriptContent, $parameters);
+        }
+
         $fieldName = $this->buildAccessor($definition, $filter->getField(), $context);
 
         $field = $this->getField($definition, $fieldName);
@@ -563,7 +587,7 @@ class CriteriaParser
 
             if ($field instanceof TranslatedField) {
                 foreach ($context->getLanguageIdChain() as $languageId) {
-                    $query->add(new ExistsQuery(\sprintf('%s.%s', $fieldName, $languageId)), BoolQuery::MUST_NOT);
+                    $query->add(new ExistsQuery($this->getTranslatedFieldName($fieldName, $languageId)), BoolQuery::MUST_NOT);
                 }
             } else {
                 $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
@@ -598,13 +622,13 @@ class CriteriaParser
 
         $value = $this->parseValue($definition, $filter, \array_values($filter->getValue()));
 
-        $query = new TermsQuery($fieldName, $value);
+        $query = $this->prepareTermsQueryWithNullSupport($fieldName, $value);
 
         if ($field instanceof TranslatedField) {
             $query = new DisMaxQuery();
             foreach ($context->getLanguageIdChain() as $languageId) {
                 $accessor = $this->getTranslatedFieldName($fieldName, $languageId);
-                $query->addQuery(new TermsQuery($accessor, $value));
+                $query->addQuery($this->prepareTermsQueryWithNullSupport($accessor, $value));
             }
         }
 
@@ -613,6 +637,30 @@ class CriteriaParser
             $definition,
             $filter->getField()
         );
+    }
+
+    /**
+     * @param array<string|null> $values
+     */
+    private function prepareTermsQueryWithNullSupport(string $fieldName, array $values): BuilderInterface
+    {
+        $nonNullValues = array_values(array_filter($values, static fn ($value) => $value !== null));
+        $hasNull = \count($nonNullValues) !== \count($values);
+
+        if (!$hasNull) {
+            return new TermsQuery($fieldName, $values);
+        }
+
+        $boolQuery = new BoolQuery();
+        if (!empty($nonNullValues)) {
+            $boolQuery->add(new TermsQuery($fieldName, $nonNullValues), BoolQuery::SHOULD);
+        }
+
+        $nullQuery = new BoolQuery();
+        $nullQuery->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
+        $boolQuery->add($nullQuery, BoolQuery::SHOULD);
+
+        return $boolQuery;
     }
 
     private function parseContainsFilter(ContainsFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface
@@ -803,7 +851,7 @@ class CriteriaParser
             MultiFilter::CONNECTION_OR => $this->parseOrMultiFilter($filter, $definition, $root, $context),
             MultiFilter::CONNECTION_AND => $this->parseAndMultiFilter($filter, $definition, $root, $context),
             MultiFilter::CONNECTION_XOR => $this->parseXorMultiFilter($filter, $definition, $root, $context),
-            default => throw new \InvalidArgumentException('Operator ' . $filter->getOperator() . ' not allowed'),
+            default => throw ElasticsearchException::operatorNotAllowed($filter->getOperator()),
         };
     }
 

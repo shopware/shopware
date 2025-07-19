@@ -107,7 +107,7 @@ class MediaUploadControllerTest extends TestCase
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
 
         $url = \sprintf(
@@ -141,7 +141,7 @@ class MediaUploadControllerTest extends TestCase
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
 
         $baseUrl = EnvironmentHelper::getVariable('APP_URL') . '/media/shopware-logo.png';
@@ -185,7 +185,7 @@ class MediaUploadControllerTest extends TestCase
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::never())->method('__invoke');
+        $listener->expects($this->never())->method('__invoke');
         $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
 
         $context = Context::createDefaultContext();
@@ -211,8 +211,8 @@ class MediaUploadControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(400, $response->getStatusCode());
-        static::assertEquals('CONTENT__MEDIA_EMPTY_FILE_NAME', $responseData['errors'][0]['code']);
+        static::assertSame(400, $response->getStatusCode());
+        static::assertSame('CONTENT__MEDIA_EMPTY_FILE_NAME', $responseData['errors'][0]['code']);
 
         static::assertNull($this->thrownMediaEvent);
     }
@@ -254,12 +254,12 @@ class MediaUploadControllerTest extends TestCase
         );
 
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(204, $response->getStatusCode());
+        static::assertSame(204, $response->getStatusCode());
 
         $updated = $this->mediaRepository->search(new Criteria([$id]), $context)->get($id);
 
         static::assertInstanceOf(MediaEntity::class, $updated);
-        static::assertNotEquals($media->getFileName(), $updated->getFileName());
+        static::assertNotSame($media->getFileName(), $updated->getFileName());
 
         static::assertTrue($this->getPublicFilesystem()->has($updated->getPath()));
         static::assertFalse($this->getPublicFilesystem()->has($media->getPath()));
@@ -282,10 +282,10 @@ class MediaUploadControllerTest extends TestCase
         );
 
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $result = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals($media->getFileName() . '_(1)', $result['fileName']);
+        static::assertSame($media->getFileName() . '_(1)', $result['fileName']);
     }
 
     public function testProvideNameProvidesOwnName(): void
@@ -306,10 +306,10 @@ class MediaUploadControllerTest extends TestCase
         );
 
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $result = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals($media->getFileName(), $result['fileName']);
+        static::assertSame($media->getFileName(), $result['fileName']);
     }
 
     private function getMediaEntity(): MediaEntity
@@ -374,6 +374,6 @@ class MediaUploadControllerTest extends TestCase
     private function assertMediaEventThrown(): void
     {
         static::assertNotNull($this->thrownMediaEvent);
-        static::assertEquals($this->mediaId, $this->thrownMediaEvent->getMediaId());
+        static::assertSame($this->mediaId, $this->thrownMediaEvent->getMediaId());
     }
 }

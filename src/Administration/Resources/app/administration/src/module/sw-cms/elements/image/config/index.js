@@ -10,8 +10,6 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     emits: ['element-update'],
@@ -42,6 +40,66 @@ export default {
             }
 
             return this.element.config.media.value;
+        },
+
+        displayModeOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'standard',
+                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStandard'),
+                },
+                {
+                    id: 2,
+                    value: 'stretch',
+                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStretch'),
+                },
+                {
+                    id: 3,
+                    value: 'cover',
+                    label: this.$tc('sw-cms.elements.general.config.label.displayModeCover'),
+                },
+            ];
+        },
+
+        verticalAlignOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'flex-start',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignTop'),
+                },
+                {
+                    id: 2,
+                    value: 'center',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignCenter'),
+                },
+                {
+                    id: 3,
+                    value: 'flex-end',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignBottom'),
+                },
+            ];
+        },
+
+        horizontalAlignOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'flex-start',
+                    label: this.$tc('sw-cms.elements.general.config.label.horizontalAlignLeft'),
+                },
+                {
+                    id: 2,
+                    value: 'center',
+                    label: this.$tc('sw-cms.elements.general.config.label.horizontalAlignCenter'),
+                },
+                {
+                    id: 3,
+                    value: 'flex-end',
+                    label: this.$tc('sw-cms.elements.general.config.label.horizontalAlignRight'),
+                },
+            ];
         },
     },
 
@@ -90,22 +148,13 @@ export default {
         updateElementData(media = null) {
             const mediaId = media === null ? null : media.id;
             if (!this.element.data) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.element, 'data', { mediaId, media });
-                } else {
-                    this.element.data = { mediaId, media };
-                }
+                this.element.data = { mediaId, media };
 
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.element.data, 'mediaId', mediaId);
-                this.$set(this.element.data, 'media', media);
-            } else {
-                this.element.data.mediaId = mediaId;
-                this.element.data.media = media;
-            }
+            this.element.data.mediaId = mediaId;
+            this.element.data.media = media;
         },
 
         onOpenMediaModal() {

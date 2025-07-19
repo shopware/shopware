@@ -10,28 +10,22 @@
         gap="20px"
     >
         {% block sw_custom_field_detail_modal_type %}
-        <sw-select-field
-            v-model:value="currentCustomField.config.customFieldType"
+        <mt-select
+            v-model="currentCustomField.config.customFieldType"
             :label="$tc('sw-settings-custom-field.customField.detail.labelCustomFieldType')"
             :placeholder="$tc('sw-settings-custom-field.customField.detail.placeholderCustomFieldType')"
             class="sw-custom-field-detail__modal-type"
             type="select"
             :help-text="$tc('sw-settings-custom-field.general.tooltipType')"
             :disabled="!currentCustomField._isNew || !acl.can('custom_field.editor') || undefined"
-        >
-            <option
-                v-for="(option, key) in fieldTypes"
-                :key="key"
-                :value="key"
-            >
-                {{ $tc(`sw-settings-custom-field.types.${key}`) }}
-            </option>
-        </sw-select-field>
+            :options="customFieldTypeOptions"
+        />
         {% endblock %}
 
         {% block sw_custom_field_detail_modal_technical_name %}
-        <sw-text-field
-            v-model:value="currentCustomField.name"
+
+        <mt-text-field
+            v-model="currentCustomField.name"
             class="sw-custom-field-detail__technical-name"
             :label="$tc('sw-settings-custom-field.customField.detail.labelTechnicalName')"
             :help-text="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
@@ -40,8 +34,8 @@
         {% endblock %}
 
         {% block sw_custom_field_detail_modal_position %}
-        <sw-number-field
-            v-model:value="currentCustomField.config.customFieldPosition"
+        <mt-number-field
+            v-model="currentCustomField.config.customFieldPosition"
             class="sw-custom-field-detail__modal-position"
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipCustomFieldPosition')"
             number-type="int"
@@ -50,12 +44,25 @@
         />
         {% endblock %}
 
-        {# @deprecated tag:v6.7.0 - Block will be removed without replacement #}
-        {% block sw_custom_field_detail_modal_required %}{% endblock %}
+        {% block sw_custom_field_detail_modal_allow_cart_expose %}
+
+        <mt-switch
+            v-if="isProductCustomField"
+            v-model="currentCustomField.allowCartExpose"
+            v-tooltip="getCartExposeTooltipConfig()"
+            bordered
+            :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCartExpose')"
+            class="sw-custom-field-detail__allow-cart-expose"
+            :label="$tc('sw-settings-custom-field.customField.detail.labelAllowCartExpose')"
+            :disabled="!acl.can('custom_field.editor') || disableCartExpose || undefined"
+        />
+        <div v-else></div>
+        {% endblock %}
 
         {% block sw_custom_field_detail_modal_allow_customer_write %}
-        <sw-switch-field
-            v-model:value="currentCustomField.allowCustomerWrite"
+
+        <mt-switch
+            v-model="currentCustomField.allowCustomerWrite"
             bordered
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCustomerWrite')"
             class="sw-custom-field-detail__allow-customer-write"
@@ -64,21 +71,22 @@
         />
         {% endblock %}
 
-        <sw-switch-field
-            v-if="isProductCustomField"
-            v-model:value="currentCustomField.allowCartExpose"
-            v-tooltip="getCartExposeTooltipConfig()"
+        {% block sw_custom_field_detail_modal_store_api_aware %}
+
+        <mt-switch
+            v-model="currentCustomField.storeApiAware"
             bordered
-            :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCartExpose')"
-            class="sw-custom-field-detail__allow-cart-expose"
-            :label="$tc('sw-settings-custom-field.customField.detail.labelAllowCartExpose')"
-            :disabled="!acl.can('custom_field.editor') || disableCartExpose || undefined"
+            :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipStoreApiAware')"
+            class="sw-custom-field-detail__store-api-aware"
+            :label="$tc('sw-settings-custom-field.customField.detail.labelStoreApiAware')"
+            :disabled="!acl.can('custom_field.editor') || undefined"
         />
+        {% endblock %}
 
         {% block sw_custom_field_detail_modal_snippet_info  %}
-        <sw-alert class="sw-custom-field-detail__info">
-            {{ $tc('sw-settings-custom-field.customField.detail.infoText', 0, { name: currentCustomField.name }) }}
-        </sw-alert>
+        <mt-banner class="sw-custom-field-detail__info">
+            {{ $tc('sw-settings-custom-field.customField.detail.infoText', { name: currentCustomField.name }, 0) }}
+        </mt-banner>
         {% endblock %}
     </sw-container>
 
@@ -95,16 +103,17 @@
     {% block sw_custom_field_detail_modal_footer %}
     <template #modal-footer>
         {% block sw_custom_field_detail_modal_footer_cancel %}
-        <sw-button
+        <mt-button
             size="small"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_custom_field_detail_modal_footer_save %}
-        <sw-button
+        <mt-button
             class="sw-custom-field-detail__footer-save"
             variant="primary"
             size="small"
@@ -112,7 +121,7 @@
             @click="onSave"
         >
             {{ labelSaveButton }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

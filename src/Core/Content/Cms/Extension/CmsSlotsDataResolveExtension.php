@@ -14,8 +14,6 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @description This event enables interception of the resolution process, allowing the collection of CMS slot data and enrichment of slots by their respective CMS resolvers
  *
- * @experimental stableVersion:v6.7.0 feature:EXTENSION_SYSTEM
- *
  * @codeCoverageIgnore
  *
  * @extends Extension<CmsSlotCollection>

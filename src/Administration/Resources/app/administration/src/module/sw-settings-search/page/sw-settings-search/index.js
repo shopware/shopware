@@ -10,8 +10,6 @@ const { EntityCollection, Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -109,6 +107,18 @@ export default {
         createdComponent() {
             this.getDefaultSearchConfig();
             this.getProductSearchConfigs();
+
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-settings-search__defaultConfig',
+                path: 'defaultConfig',
+                scope: this,
+            });
+
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-settings-search__productSearchConfigs',
+                path: 'productSearchConfigs',
+                scope: this,
+            });
         },
 
         getProductSearchConfigs() {

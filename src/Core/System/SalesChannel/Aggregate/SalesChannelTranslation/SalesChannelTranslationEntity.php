@@ -12,68 +12,26 @@ class SalesChannelTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelId;
+    protected string $salesChannelId;
+
+    protected ?string $name = null;
 
     /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var array<string, mixed>|null
      */
-    protected $name;
+    protected ?array $homeSlotConfig = null;
 
-    /**
-     * @var array|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $homeSlotConfig;
+    protected bool $homeEnabled;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $homeEnabled;
+    protected ?string $homeName = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $homeName;
+    protected ?string $homeMetaTitle = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $homeMetaTitle;
+    protected ?string $homeMetaDescription = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $homeMetaDescription;
+    protected ?string $homeKeywords = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $homeKeywords;
-
-    /**
-     * @var SalesChannelEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
     public function getSalesChannelId(): string
     {
@@ -95,11 +53,17 @@ class SalesChannelTranslationEntity extends TranslationEntity
         $this->name = $name;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getHomeSlotConfig(): ?array
     {
         return $this->homeSlotConfig;
     }
 
+    /**
+     * @param array<string, mixed>|null $homeSlotConfig
+     */
     public function setHomeSlotConfig(?array $homeSlotConfig): void
     {
         $this->homeSlotConfig = $homeSlotConfig;

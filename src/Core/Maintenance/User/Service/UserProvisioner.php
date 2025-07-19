@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\MaintenanceException;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal
+ * @internal
  */
 #[Package('framework')]
 class UserProvisioner

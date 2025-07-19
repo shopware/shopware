@@ -3,8 +3,6 @@
  * @sw-package discovery
  */
 export default {
-    compatConfig: Shopware.compatConfig,
-
     computed: {
         isProductPage() {
             return this.cmsPageState?.currentPage?.type ?? '' === 'product_detail';

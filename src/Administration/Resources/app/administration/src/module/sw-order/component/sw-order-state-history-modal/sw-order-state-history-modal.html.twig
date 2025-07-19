@@ -17,7 +17,10 @@
 
         {% block sw_order_state_history_modal_content_columns_created_at %}
         <template #column-createdAt="{ item }">
-            <sw-time-ago :date="item.createdAt" />
+            <sw-time-ago
+                :date="item.createdAt"
+                :date-time-format="{ month: '2-digit', day: '2-digit' }"
+            />
         </template>
         {% endblock %}
 
@@ -29,7 +32,7 @@
 
         {% block sw_order_state_history_modal_content_columns_user %}
         <template #column-user="{ item }">
-            {{ item.user?.username ?? $tc('sw-order.stateHistoryModal.labelSystemUser') }}
+            {{ getStateChangeAuthor(item) }}
         </template>
         {% endblock %}
 
@@ -59,6 +62,7 @@
         {% block sw_order_state_history_modal_content_columns_transaction_state %}
         <template #column-transaction="{ item }">
             <sw-label
+                v-if="item.transaction"
                 :variant="getVariantState('order_transaction', item.transaction)"
                 appearance="badged"
             >
@@ -82,12 +86,13 @@
     {% block sw_order_state_history_modal_actions %}
     <template #modal-footer>
         {% block sw_order_state_history_modal_action_close %}
-        <sw-button
+        <mt-button
             size="small"
+            variant="secondary"
             @click="onClose"
         >
             {{ $tc('global.default.close') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

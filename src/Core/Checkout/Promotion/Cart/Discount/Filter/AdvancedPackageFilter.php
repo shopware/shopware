@@ -104,6 +104,9 @@ class AdvancedPackageFilter extends PackageFilter
         return true;
     }
 
+    /**
+     * @param list<int> $applierIndexes
+     */
     private function collectPackageItems(DiscountPackage $package, array $applierIndexes): LineItemQuantityCollection
     {
         $items = new LineItemQuantityCollection();

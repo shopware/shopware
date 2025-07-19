@@ -10,9 +10,29 @@ const { hasOwnProperty } = Shopware.Utils.object;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
+    inject: [
+        'acl',
+        'feature',
+        'userConfigService',
+    ],
 
-    inject: ['acl'],
+    data() {
+        return {
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed without replacement
+             */
+            hideSettingRenameBanner: true,
+        };
+    },
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
+    created() {
+        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+            this.getUserConfig();
+        }
+    },
 
     metaInfo() {
         return {
@@ -22,7 +42,7 @@ export default {
 
     computed: {
         settingsGroups() {
-            const settingsGroups = Object.entries(Shopware.State.get('settingsItems').settingsGroups);
+            const settingsGroups = Object.entries(Shopware.Store.get('settingsItems').settingsGroups);
             return settingsGroups.reduce(
                 (
                     acc,
@@ -58,6 +78,27 @@ export default {
     },
 
     methods: {
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
+        async getUserConfig() {
+            const response = await this.userConfigService.search(['settings.hideRenameBanner']);
+            this.hideSettingRenameBanner = !!response.data['settings.hideRenameBanner']?.value;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
+        async onCloseSettingRenameBanner() {
+            this.hideSettingRenameBanner = true;
+
+            await this.userConfigService.upsert({
+                'settings.hideRenameBanner': {
+                    value: true,
+                },
+            });
+        },
+
         hasPluginConfig() {
             return hasOwnProperty(this.settingsGroups, 'plugins') && this.settingsGroups.plugins.length > 0;
         },
@@ -104,6 +145,11 @@ export default {
             }
 
             return this.$tc(settingsItem.label.label);
+        },
+
+        getGroupLabel(settingsGroup) {
+            const upper = settingsGroup.charAt(0).toUpperCase() + settingsGroup.slice(1);
+            return this.$tc(`sw-settings.index.tab${upper}`);
         },
     },
 };

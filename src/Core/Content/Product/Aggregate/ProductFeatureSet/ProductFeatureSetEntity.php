@@ -13,40 +13,18 @@ class ProductFeatureSetEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name = null;
+
+    protected ?string $description = null;
 
     /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var array<int, array{name: string, id: string, type: string, position: int}>|null
      */
-    protected $description;
+    protected ?array $features = null;
 
-    /**
-     * @var array|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $features;
+    protected ?ProductFeatureSetTranslationCollection $translations = null;
 
-    /**
-     * @var ProductFeatureSetTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
-
-    /**
-     * @var ProductCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $products;
+    protected ?ProductCollection $products = null;
 
     public function getName(): ?string
     {
@@ -68,11 +46,17 @@ class ProductFeatureSetEntity extends Entity
         $this->description = $description;
     }
 
+    /**
+     * @return array<int, array{name: string, id: string, type: string, position: int}>|null
+     */
     public function getFeatures(): ?array
     {
         return $this->features;
     }
 
+    /**
+     * @param array<int, array{name: string, id: string, type: string, position: int}> $features
+     */
     public function setFeatures(array $features): void
     {
         $this->features = $features;

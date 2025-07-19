@@ -9,8 +9,6 @@ import './sw-product-restriction-selection.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['restriction-delete'],
 
     props: {
@@ -39,6 +37,16 @@ export default {
     computed: {
         availableGroups() {
             return this.groupsWithOptions;
+        },
+
+        availableGroupsOptions() {
+            return this.groupsWithOptions.map((groupWithOption) => {
+                return {
+                    id: groupWithOption.group.id,
+                    value: groupWithOption.group.id,
+                    label: groupWithOption.group.translated.name,
+                };
+            });
         },
     },
 

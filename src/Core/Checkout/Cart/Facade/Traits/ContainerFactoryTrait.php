@@ -39,9 +39,4 @@ trait ContainerFactoryTrait
 
         return new ContainerFacade($item, $this->priceStubs, $this->helper, $this->context);
     }
-
-    private function getItems(): LineItemCollection
-    {
-        return $this->items;
-    }
 }

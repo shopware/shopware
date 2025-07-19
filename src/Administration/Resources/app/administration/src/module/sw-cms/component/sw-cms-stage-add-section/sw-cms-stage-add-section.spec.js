@@ -13,7 +13,6 @@ async function createWrapper() {
             props: {},
             global: {
                 stubs: {
-                    'sw-icon': true,
                     'sw-cms-stage-section-selection': true,
                 },
                 provide: {

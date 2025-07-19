@@ -83,7 +83,7 @@ class ImportExportActionController extends AbstractController
                 $request->request->has('dryRun')
             );
 
-            unlink($file->getPathname());
+            unlink($file->getRealPath());
         } else {
             $this->checkAllowedReadPrivileges($profile, $context);
 

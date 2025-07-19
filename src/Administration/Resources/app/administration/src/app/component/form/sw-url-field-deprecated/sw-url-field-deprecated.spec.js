@@ -8,10 +8,9 @@ import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/base/sw-icon';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/filter/unicode-uri';
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 
 async function createWrapper({ provide, ...additionalOptions } = {}) {
     return mount(await wrapTestComponent('sw-url-field-deprecated', { sync: true }), {
@@ -23,16 +22,10 @@ async function createWrapper({ provide, ...additionalOptions } = {}) {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
-                'sw-icon': await wrapTestComponent('sw-icon'),
-                'icons-regular-lock': true,
-                'icons-regular-lock-open': true,
-                'icons-solid-exclamation-circle': true,
                 'sw-field-copyable': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
-                'mt-icon': true,
-                'sw-icon-deprecated': true,
             },
             provide: {
                 validationService: {},
@@ -283,5 +276,26 @@ describe('components/form/sw-url-field', () => {
         await flushPromises();
 
         expect(wrapper.find('input').attributes('aria-label')).toBe('Aria Label');
+    });
+
+    it('adds the trailing slash if the prop is set', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                value: 'https://shopware.com',
+                addTrailingSlash: true,
+            },
+        });
+        await flushPromises();
+
+        const input = wrapper.find('input');
+        expect(input.element.value).toBe('shopware.com/');
+
+        await input.setValue('shopware.com');
+        await input.trigger('blur');
+        await nextTick();
+        expect(wrapper.vm.currentUrlValue).toBe('shopware.com/');
+        expect(wrapper.emitted('update:value')).toStrictEqual([
+            ['https://shopware.com/'],
+        ]);
     });
 });

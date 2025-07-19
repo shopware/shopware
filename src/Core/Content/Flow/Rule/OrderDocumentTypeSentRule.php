@@ -11,15 +11,18 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('after-sales')]
+/**
+ * @final
+ */
+#[Package('fundamentals@after-sales')]
 class OrderDocumentTypeSentRule extends FlowRule
 {
     public const RULE_NAME = 'orderDocumentTypeSent';
 
     /**
-     * @internal
-     *
      * @param list<string> $documentIds
+     *
+     * @internal
      */
     public function __construct(
         public string $operator = Rule::OPERATOR_EQ,

@@ -1,7 +1,6 @@
 import template from './sw-image-preview-modal.html.twig';
 import './sw-image-preview-modal.scss';
 
-const { Component } = Shopware;
 /**
  * @sw-package framework
  *
@@ -16,10 +15,8 @@ const { Component } = Shopware;
  *     @modal-close="onCloseModal">
  * </sw-image-preview-modal>
  */
-Component.register('sw-image-preview-modal', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['modal-close'],
 
@@ -247,4 +244,4 @@ Component.register('sw-image-preview-modal', {
             this.updateTransform();
         },
     },
-});
+};

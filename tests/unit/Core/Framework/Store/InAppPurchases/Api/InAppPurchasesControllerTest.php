@@ -60,7 +60,10 @@ class InAppPurchasesControllerTest extends TestCase
         $content = $response->getContent();
         static::assertIsString($content);
         static::assertSame(
-            ['inAppPurchases' => []],
+            [
+                'inAppPurchases' => [],
+                'encodedInAppPurchases' => [],
+            ],
             json_decode($content, true, 512, \JSON_THROW_ON_ERROR)
         );
     }
@@ -75,7 +78,10 @@ class InAppPurchasesControllerTest extends TestCase
         $content = $response->getContent();
         static::assertIsString($content);
         static::assertSame(
-            ['inAppPurchases' => ['purchase1', 'purchase2']],
+            [
+                'inAppPurchases' => ['purchase1', 'purchase2'],
+                'encodedInAppPurchases' => 'e7a7224d2f86ddc19057b9851032ceb0',
+            ],
             json_decode($content, true, 512, \JSON_THROW_ON_ERROR)
         );
 
@@ -87,7 +93,10 @@ class InAppPurchasesControllerTest extends TestCase
         $content = $response->getContent();
         static::assertIsString($content);
         static::assertSame(
-            ['inAppPurchases' => ['purchase1']],
+            [
+                'inAppPurchases' => ['purchase1'],
+                'encodedInAppPurchases' => '63589da1885d77a78fec9363d16d72da',
+            ],
             json_decode($content, true, 512, \JSON_THROW_ON_ERROR)
         );
     }

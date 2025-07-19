@@ -24,11 +24,7 @@ export default {
             this.set = await this.customFieldSetRepository.create(Shopware.Context.api, this.$route.params.id);
             this.set.name = 'custom_';
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.set, 'config', {});
-            } else {
-                this.set.config = {};
-            }
+            this.set.config = {};
 
             this.setId = this.set.id;
             this.isLoading = false;

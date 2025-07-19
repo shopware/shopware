@@ -12,10 +12,8 @@ class MultiFilterStruct extends FilterStruct
 {
     /**
      * @var FilterStruct[]
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $queries;
+    protected array $queries;
 
     protected string $operator;
 

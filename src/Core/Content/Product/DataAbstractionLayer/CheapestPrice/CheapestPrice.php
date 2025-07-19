@@ -10,61 +10,21 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class CheapestPrice extends Struct
 {
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $hasRange;
+    protected bool $hasRange;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $variantId;
+    protected string $variantId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $parentId;
+    protected string $parentId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $ruleId;
+    protected ?string $ruleId = null;
 
-    /**
-     * @var float|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $purchase;
+    protected ?float $purchase = null;
 
-    /**
-     * @var float|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $reference;
+    protected ?float $reference = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $unitId;
+    protected ?string $unitId = null;
 
-    /**
-     * @var PriceCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $price;
+    protected PriceCollection $price;
 
     public function getCurrencyPrice(string $currencyId): ?Price
     {

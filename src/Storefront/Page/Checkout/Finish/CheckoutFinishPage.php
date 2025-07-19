@@ -9,26 +9,11 @@ use Shopware\Storefront\Page\Page;
 #[Package('framework')]
 class CheckoutFinishPage extends Page
 {
-    /**
-     * @var OrderEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $order;
+    protected OrderEntity $order;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $changedPayment = false;
+    protected bool $changedPayment = false;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentFailed = false;
+    protected bool $paymentFailed = false;
 
     public function getOrder(): OrderEntity
     {

@@ -7,6 +7,4 @@ import './sw-cms-block-center-text.scss';
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

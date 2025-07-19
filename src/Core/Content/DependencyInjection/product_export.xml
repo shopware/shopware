@@ -15,7 +15,6 @@
         <service id="Shopware\Core\Content\ProductExport\Service\ProductExportRenderer">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\Service\ProductExporter" public="true">

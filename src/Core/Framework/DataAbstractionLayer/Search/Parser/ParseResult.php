@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Parser;
 
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -15,8 +17,14 @@ class ParseResult
      */
     protected array $wheres = [];
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $parameters = [];
 
+    /**
+     * @var array<string, ParameterType|ArrayParameterType>
+     */
     protected array $types = [];
 
     public function addWhere(string $queryString): void
@@ -24,20 +32,26 @@ class ParseResult
         $this->wheres[] = $queryString;
     }
 
-    public function addParameter(string $key, $value, $type = null): void
+    public function addParameter(string $key, mixed $value, ParameterType|ArrayParameterType $type = ParameterType::STRING): void
     {
         $this->parameters[$key] = $value;
         $this->types[$key] = $type;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getParameters(): array
     {
         return $this->parameters;
     }
 
+    /**
+     * @return array<string, ParameterType|ArrayParameterType>
+     */
     public function getTypes(): array
     {
-        return array_filter($this->types);
+        return $this->types;
     }
 
     /**
@@ -48,9 +62,9 @@ class ParseResult
         return array_values(array_filter($this->wheres));
     }
 
-    public function getType(string $key)
+    public function getType(string $key): ParameterType|ArrayParameterType
     {
-        return $this->types[$key] ?: null;
+        return $this->types[$key] ?? ParameterType::STRING;
     }
 
     public function merge(self $toMerge): ParseResult

@@ -1,7 +1,7 @@
 import template from './sw-condition-and-container.html.twig';
 import './sw-condition-and-container.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 /**
  * @private
@@ -13,10 +13,8 @@ const { Component, Mixin } = Shopware;
  * @component-example
  * <sw-condition-and-container :condition="condition" :level="0"></sw-condition-and-container>
  */
-Component.register('sw-condition-and-container', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['acl'],
 
@@ -78,4 +76,4 @@ Component.register('sw-condition-and-container', {
             };
         },
     },
-});
+};

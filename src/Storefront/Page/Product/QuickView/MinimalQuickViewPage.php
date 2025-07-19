@@ -10,18 +10,11 @@ use Shopware\Core\Framework\Struct\Struct;
 class MinimalQuickViewPage extends Struct
 {
     /**
-     * @var ProductEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $product;
-
-    /**
      * @internal
      */
-    public function __construct(ProductEntity $product)
-    {
-        $this->product = $product;
+    public function __construct(
+        protected ProductEntity $product,
+    ) {
     }
 
     public function getProduct(): ProductEntity

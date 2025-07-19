@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCol
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
@@ -27,28 +26,6 @@ class CustomerCollection extends EntityCollection
     public function filterByGroupId(string $id): self
     {
         return $this->filter(fn (CustomerEntity $customer) => $customer->getGroupId() === $id);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     *
-     * @return array<string>
-     */
-    public function getDefaultPaymentMethodIds(): array
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The default payment method of a customer will be removed.');
-
-        return $this->fmap(fn (CustomerEntity $customer) => $customer->getDefaultPaymentMethodId());
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function filterByDefaultPaymentMethodId(string $id): self
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The default payment method of a customer will be removed.');
-
-        return $this->filter(fn (CustomerEntity $customer) => $customer->getDefaultPaymentMethodId() === $id);
     }
 
     /**
@@ -107,18 +84,6 @@ class CustomerCollection extends EntityCollection
     {
         return new CustomerGroupCollection(
             $this->fmap(fn (CustomerEntity $customer) => $customer->getGroup())
-        );
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function getDefaultPaymentMethods(): PaymentMethodCollection
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The default payment method of a customer will be removed.');
-
-        return new PaymentMethodCollection(
-            $this->fmap(fn (CustomerEntity $customer) => $customer->getDefaultPaymentMethod())
         );
     }
 

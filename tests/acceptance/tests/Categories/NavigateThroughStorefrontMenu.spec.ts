@@ -3,9 +3,8 @@ import { test } from '@fixtures/AcceptanceTest';
 test(
     'As a customer, I want breadcrumb to update when I select a category to understand my location on the site.',
     { tag: '@Categories' },
-    async ({ ShopCustomer, StorefrontHome, TestDataService, InstanceMeta }) => {
-        test.skip(InstanceMeta.features['V6_7_0_0'], 'Blocked by https://shopware.atlassian.net/browse/NEXT-40154');
-
+    async ({ ShopCustomer, StorefrontHome, TestDataService }) => {
+        
         const category1 = await TestDataService.createCategory({ type: 'folder' });
         const category2 = await TestDataService.createCategory({ type: 'page' });
         const category3 = await TestDataService.createCategory({ type: 'link' });
@@ -14,12 +13,12 @@ test(
         const subCategory3 = await TestDataService.createCategory({ parentId: category3.id });
 
         await test.step('Verify if folder category has a sub category and the folder category in breadcrumb is a div element.', async () => {
+            
             const mainCategoryLocators = await StorefrontHome.getMenuItemByCategoryName(category1.name);
             const subCategoryLocators = await StorefrontHome.getMenuItemByCategoryName(subCategory1.name);
 
             await ShopCustomer.goesTo(StorefrontHome.url());
             await ShopCustomer.expects(mainCategoryLocators.menuNavigationItem).toHaveText(category1.name);
-            await ShopCustomer.expects(mainCategoryLocators.offcanvasNavigationItem).toHaveText(category1.name);
 
             await mainCategoryLocators.menuNavigationItem.hover();
             await ShopCustomer.expects(mainCategoryLocators.flyoutCategoryLink).not.toBeVisible();
@@ -41,7 +40,6 @@ test(
             await ShopCustomer.goesTo(StorefrontHome.url());
 
             await ShopCustomer.expects(mainCategoryLocators.menuNavigationItem).toHaveText(category2.name);
-            await ShopCustomer.expects(mainCategoryLocators.offcanvasNavigationItem).toHaveText(category2.name);
 
             await mainCategoryLocators.menuNavigationItem.hover();
             await ShopCustomer.expects(mainCategoryLocators.flyoutCategoryLink).toBeVisible();
@@ -63,7 +61,6 @@ test(
             await ShopCustomer.goesTo(StorefrontHome.url());
 
             await ShopCustomer.expects(mainCategoryLocators.menuNavigationItem).toHaveText(category3.name);
-            await ShopCustomer.expects(mainCategoryLocators.offcanvasNavigationItem).toHaveText(category3.name);
 
             await mainCategoryLocators.menuNavigationItem.hover();
             await ShopCustomer.expects(mainCategoryLocators.flyoutCategoryLink).not.toBeVisible();

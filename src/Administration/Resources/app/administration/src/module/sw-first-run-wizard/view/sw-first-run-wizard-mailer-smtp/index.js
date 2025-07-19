@@ -8,8 +8,6 @@ import template from './sw-first-run-wizard-mailer-smtp.html.twig';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['systemConfigApiService'],
 
     emits: [
@@ -37,7 +35,7 @@ export default {
 
     computed: {
         nextAction() {
-            if (Shopware.State.get('context').app.config.settings.disableExtensionManagement) {
+            if (Shopware.Store.get('context').app.config.settings.disableExtensionManagement) {
                 return 'sw.first.run.wizard.index.shopware.account';
             }
 
@@ -50,7 +48,7 @@ export default {
                     key: 'back',
                     label: this.$tc('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
-                    variant: null,
+                    variant: 'secondary',
                     action: 'sw.first.run.wizard.index.mailer.selection',
                     disabled: false,
                 },
@@ -58,7 +56,7 @@ export default {
                     key: 'configure-later',
                     label: this.$tc('sw-first-run-wizard.general.buttonConfigureLater'),
                     position: 'right',
-                    variant: null,
+                    variant: 'secondary',
                     action: this.nextAction,
                     disabled: false,
                 },

@@ -19,36 +19,39 @@ describe('Form CMS Handler tests', () => {
         formCmsHandlerPlugin = new FormCmsHandlerPlugin(formElement);
     });
 
-    function setupMockHttpClient(responseContent) {
-        const mockHttpClient = {post: jest.fn((url, data, callback) => callback(responseContent))};
-        formCmsHandlerPlugin._client = mockHttpClient;
-
-        return mockHttpClient;
-    }
-
     test('form cms handler plugin exists', () => {
         expect(typeof formCmsHandlerPlugin).toBe('object');
     });
 
-    test('form cms handler resets form after successful ajax submission', () => {
+    test('form cms handler resets form after successful ajax submission', async () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve('[{"type":"success","alert":""}]'),
+            })
+        );
+
         const resetSpy = jest.spyOn(formElement, 'reset');
 
-        const mockHttpClient = setupMockHttpClient('[{"type":"success","alert":""}]');
-
         formElement.dispatchEvent(new Event('submit'));
+        await new Promise(process.nextTick);
 
-        expect(mockHttpClient.post).toHaveBeenCalled();
+        expect(global.fetch).toHaveBeenCalled();
         expect(resetSpy).toHaveBeenCalled();
     });
 
-    test('form cms handler does not reset after unsuccessful ajax submission', () => {
+    test('form cms handler does not reset after unsuccessful ajax submission', async () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve('[{"type":"danger","alert":""}]'),
+            })
+        );
+
         const resetSpy = jest.spyOn(formElement, 'reset');
 
-        const mockHttpClient = setupMockHttpClient('[{"type":"danger","alert":""}]');
-
         formElement.dispatchEvent(new Event('submit'));
+        await new Promise(process.nextTick);
 
-        expect(mockHttpClient.post).toHaveBeenCalled();
+        expect(global.fetch).toHaveBeenCalled();
         expect(resetSpy).not.toHaveBeenCalled();
     });
 });

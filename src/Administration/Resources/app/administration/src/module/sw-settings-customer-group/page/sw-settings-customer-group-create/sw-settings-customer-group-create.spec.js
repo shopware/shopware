@@ -4,10 +4,32 @@ import settingCustomerGroupDetailCreateOverride from 'src/module/sw-settings-cus
 
 Shopware.Component.override('sw-settings-customer-group-detail', settingCustomerGroupDetailCreateOverride);
 
+let repositoryFactoryMock;
+
 /**
  * @sw-package discovery
  */
 async function createWrapper() {
+    repositoryFactoryMock = {
+        create: () => {
+            return {
+                id: 'aNiceId',
+                name: '',
+                displayGross: true,
+                registrationSalesChannels: [],
+                isNew: () => true,
+            };
+        },
+
+        save: () => {
+            return Promise.resolve();
+        },
+
+        get: () => {
+            return Promise.resolve();
+        },
+    };
+
     return mount(
         await wrapTestComponent('sw-settings-customer-group-detail', {
             sync: true,
@@ -32,8 +54,6 @@ async function createWrapper() {
                 stubs: {
                     'sw-popover': await wrapTestComponent('sw-popover'),
                     'sw-page': await wrapTestComponent('sw-page'),
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-card-view': await wrapTestComponent('sw-card-view'),
                     'sw-boolean-radio-group': await wrapTestComponent('sw-boolean-radio-group'),
                     'sw-container': await wrapTestComponent('sw-container'),
@@ -45,12 +65,9 @@ async function createWrapper() {
                     'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-language-info': await wrapTestComponent('sw-language-info'),
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                     'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-label': await wrapTestComponent('sw-label'),
@@ -67,11 +84,10 @@ async function createWrapper() {
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                     'sw-radio-field': await wrapTestComponent('sw-radio-field'),
-                    'sw-text-editor': true,
+                    'mt-text-editor': true,
                     'sw-search-bar': true,
                     'sw-highlight-text': true,
                     'sw-skeleton': true,
-                    'sw-icon': true,
                     'sw-app-topbar-button': true,
                     'router-link': true,
                     'sw-context-menu-item': true,
@@ -86,7 +102,7 @@ async function createWrapper() {
                     'sw-product-variant-info': true,
                     'sw-app-action-button': true,
                     'sw-checkbox-field': true,
-                    'sw-alert': true,
+
                     'sw-field-copyable': true,
                     'sw-help-text': true,
                     'sw-inheritance-switch': true,
@@ -96,25 +112,7 @@ async function createWrapper() {
 
                 provide: {
                     repositoryFactory: {
-                        create: () => ({
-                            create: () => {
-                                return {
-                                    id: 'aNiceId',
-                                    name: '',
-                                    displayGross: true,
-                                    registrationSalesChannels: [],
-                                    isNew: () => true,
-                                };
-                            },
-
-                            save: () => {
-                                return Promise.resolve();
-                            },
-
-                            get: () => {
-                                return Promise.resolve();
-                            },
-                        }),
+                        create: () => repositoryFactoryMock,
                     },
                     acl: {
                         can: () => {
@@ -208,7 +206,9 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         await saveButton.trigger('click');
         await flushPromises();
 
-        const titleInputWrapper = wrapper.find('div[label="sw-settings-customer-group.registration.title"]');
+        const titleInputWrapper = wrapper.find(
+            '.sw-settings-customer-group-detail-content-registration-card__info-text ~ .mt-text-field',
+        );
         expect(titleInputWrapper.classes()).toContain('has--error');
     });
 });

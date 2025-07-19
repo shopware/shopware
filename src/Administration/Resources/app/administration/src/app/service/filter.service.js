@@ -29,7 +29,7 @@ export default class FilterService {
             if (response.length) {
                 this._filterEntity = response.first();
             } else {
-                const currentUser = Shopware.State.get('session').currentUser;
+                const currentUser = Shopware.Store.get('session').currentUser;
 
                 this._filterEntity = this._userConfigRepository.create(Shopware.Context.api);
                 this._filterEntity.key = storeKey;
@@ -40,10 +40,9 @@ export default class FilterService {
             const queryFilterValue = this._getQueryFilterValue(storeKey);
 
             if (queryFilterValue) {
-                this._filterEntity.value = JSON.parse(decodeURIComponent(queryFilterValue));
-                this._filterEntity.value = this._filterEntity.value || {};
+                this._filterEntity.value = JSON.parse(decodeURIComponent(queryFilterValue)) || {};
             } else {
-                this._pushFiltersToUrl();
+                this._pushFiltersToUrl(true);
             }
 
             return Promise.resolve(this._filterEntity.value);
@@ -110,8 +109,8 @@ export default class FilterService {
     }
 
     _getUserConfigCriteria(storeKey) {
-        const currentUser = Shopware.State.get('session').currentUser;
-        const criteria = new Criteria(1, 25);
+        const currentUser = Shopware.Store.get('session').currentUser;
+        const criteria = new Criteria(1, 1);
 
         criteria.addFilter(Criteria.equals('key', storeKey));
         criteria.addFilter(Criteria.equals('userId', currentUser?.id));
@@ -119,7 +118,7 @@ export default class FilterService {
         return criteria;
     }
 
-    async _pushFiltersToUrl() {
+    async _pushFiltersToUrl(replaceRoute = false) {
         const urlFilterValue = types.isEmpty(this._filterEntity.value) ? null : this._filterEntity.value;
         const urlEncodedValue = encodeURIComponent(JSON.stringify(urlFilterValue));
 
@@ -143,8 +142,11 @@ export default class FilterService {
         }
 
         try {
-            await router.push(newRoute);
-            return Promise.resolve();
+            if (replaceRoute) {
+                return await router.replace(newRoute);
+            }
+
+            return await router.push(newRoute);
         } catch (error) {
             if (error?.name === 'NavigationDuplicated') {
                 return error;

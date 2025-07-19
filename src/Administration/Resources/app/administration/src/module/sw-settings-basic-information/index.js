@@ -39,7 +39,7 @@ Module.register('sw-settings-basic-information', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'general',
         to: 'sw.settings.basic.information.index',
         icon: 'regular-bars',
         privilege: 'system.system_config',

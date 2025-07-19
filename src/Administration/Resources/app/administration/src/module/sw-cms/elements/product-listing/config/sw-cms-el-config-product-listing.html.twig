@@ -35,47 +35,48 @@
             #content="{ active }"
         >
             <template v-if="active === 'content'">
-
                 {% block sw_cms_element_product_listing_config_layout_select %}
-                <sw-select-field
-                    v-model:value="element.config.boxLayout.value"
+                <mt-select
+                    v-model="element.config.boxLayout.value"
                     :label="$tc('sw-cms.elements.productBox.config.label.layoutType')"
-                >
-                    {% block sw_cms_element_product_listing_config_layout_select_options %}
-                    <option value="standard">
-                        {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeStandard') }}
-                    </option>
-                    <option value="image">
-                        {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeImage') }}
-                    </option>
-                    <option value="minimal">
-                        {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeMinimal') }}
-                    </option>
-                    {% endblock %}
-                </sw-select-field>
+                    :options="boxLayoutOptions"
+                />
                 {% endblock %}
 
+                <mt-select
+                    v-model="element.config.boxHeadlineLevel.value"
+                    :label="$tc('sw-cms.elements.productBox.config.label.headlineLevel')"
+                    :help-text="$tc('sw-cms.elements.productBox.config.label.headlineLevelHelp')"
+                    :options="boxHeadlineLevel"
+                    :hide-clearable-button="true"
+                />
+
                 {% block sw_cms_element_product_listing_config_info %}
-                <sw-alert variant="info">
+                <mt-banner
+                    class="sw-cms-el-config-product-listing__content-info"
+                    variant="info"
+                >
                     {{ $tc('sw-cms.elements.general.config.infoText.listingElement') }}
-                </sw-alert>
+                </mt-banner>
                 {% endblock %}
             </template>
 
             <template v-if="active === 'sorting'">
                 {% block sw_cms_element_product_listing_config_show_sorting %}
-                <sw-switch-field
-                    v-model:value="element.config.showSorting.value"
+                <mt-switch
+                    v-model="element.config.showSorting.value"
                     :label="$tc('sw-cms.elements.productListing.config.sorting.labelShowSorting')"
+                    bordered
                 />
                 {% endblock %}
 
                 {% block sw_cms_element_product_listing_config_use_default_sorting %}
-                <sw-switch-field
-                    v-model:value="element.config.useCustomSorting.value"
+                <mt-switch
+                    v-model="element.config.useCustomSorting.value"
+                    class="sw-cms-el-config-product-listing-custom-sortings"
                     :label="$tc('sw-cms.elements.productListing.config.sorting.labelUseCustomSortings')"
                     :help-text="$tc('sw-cms.elements.productListing.config.sorting.helpTextUseCustomSortings')"
-                    class="sw-cms-el-config-product-listing-custom-sortings"
+                    bordered
                 />
                 {% endblock %}
 
@@ -154,41 +155,46 @@
 
             <template v-if="active === 'filter'">
                 {% block sw_cms_element_product_listing_config_filter_info %}
-                <sw-alert variant="info">
+                <mt-banner variant="info">
                     {{ $tc('sw-cms.elements.productListing.config.filter.infoText') }}
-                </sw-alert>
+                </mt-banner>
                 {% endblock %}
 
                 {% block sw_cms_element_product_listing_config_filter_by_wrapper %}
                 <sw-container
+                    class="sw-cms-el-config-product-listing__config-filter-switch-container"
                     columns="1fr 1fr"
                     gap="0px 30px"
                 >
                     {% block sw_cms_element_product_listing_config_filter_by_manufacturer %}
-                    <sw-switch-field
-                        v-model:value="filterByManufacturer"
+                    <mt-switch
+                        v-model="filterByManufacturer"
                         :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterByManufacturer')"
+                        bordered
                     />
                     {% endblock %}
 
                     {% block sw_cms_element_product_listing_config_filter_by_rating %}
-                    <sw-switch-field
-                        v-model:value="filterByRating"
+                    <mt-switch
+                        v-model="filterByRating"
                         :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterByRating')"
+                        bordered
                     />
                     {% endblock %}
 
                     {% block sw_cms_element_product_listing_config_filter_by_price %}
-                    <sw-switch-field
-                        v-model:value="filterByPrice"
+                    <mt-switch
+                        v-model="filterByPrice"
                         :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterByPrice')"
+                        bordered
                     />
                     {% endblock %}
 
                     {% block sw_cms_element_product_listing_config_filter_for_free_shipping %}
-                    <sw-switch-field
-                        v-model:value="filterByFreeShipping"
+                    <mt-switch
+                        v-model="filterByFreeShipping"
                         :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterForFreeShipping')"
+                        bordered
                     />
                     {% endblock %}
                 </sw-container>
@@ -196,17 +202,17 @@
 
                 {% block sw_cms_element_product_listing_config_filter_properties_wrapper %}
                 <div>
-
                     {% block sw_cms_element_product_listing_config_filter_spacer %}
                     <hr class="spacer">
                     {% endblock %}
 
                     {% block sw_cms_element_product_listing_config_filter_properties_as_filter %}
                     {% block sw_cms_element_product_listing_config_filter_properties_as_filter_switch %}
-                    <sw-switch-field
-                        v-model:value="filterByProperties"
+                    <mt-switch
+                        v-model="filterByProperties"
                         :label="$tc('sw-cms.elements.productListing.config.filter.labelUseFilterByProperties')"
                         :help-text="$tc('sw-cms.elements.productListing.config.filter.helpTextUseFilterByProperties')"
+                        bordered
                     />
                     {% endblock %}
 
@@ -231,7 +237,7 @@
                     {% block sw_cms_element_product_listing_config_filter_property_grid %}
                     <div
                         v-if="showPropertySelection"
-                        class="sw-cms-el-config-product-listing-property-grid"
+                        class="sw-cms-el-config-product-listing__property-grid"
                         :class="gridClasses"
                     >
                         <sw-data-grid
@@ -243,16 +249,19 @@
                             :show-selection="false"
                             plain-appearance
                         >
-
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_cms_element_product_listing_config_filter_property_grid_columns %}
                             <template #column-status="{ item, column }">
                                 {% block sw_cms_element_product_listing_config_filter_property_grid_column_status %}
-                                <sw-switch-field
+                                <mt-switch
+                                    class="sw-cms-el-config-product-listing__property-grid-switch"
                                     :disabled="column.disabled"
-                                    :value="item.active"
-                                    @update:value="propertyStatusChanged($event, item.id)"
+                                    :model-value="item.active"
+                                    @update:model-value="propertyStatusChanged($event, item.id)"
                                 />
-                            {% endblock %}
+                                {% endblock %}
                             </template>
+                            {% endblock %}
 
                             <template #pagination>
                                 {% block sw_cms_element_product_listing_config_filter_property_grid_pagination %}
@@ -265,7 +274,7 @@
                                     :steps="[]"
                                     @page-change="onPropertiesPageChange"
                                 />
-                            {% endblock %}
+                                {% endblock %}
                             </template>
                         </sw-data-grid>
                     </div>
@@ -280,7 +289,7 @@
                     >
                         <template #icon>
                             <img
-                                :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
+                                :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
                                 alt="$tc('sw-cms.elements.productListing.config.filter.gridEmptyStateLabel')"
                             >
                         </template>

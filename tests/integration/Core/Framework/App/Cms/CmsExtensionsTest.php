@@ -5,8 +5,6 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Cms;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Cms\CmsExtensions;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 
 /**
  * @internal
@@ -40,11 +38,7 @@ class CmsExtensionsTest extends TestCase
 
     public function testThrowsXmlParsingExceptionIfDuplicateCategory(): void
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->expectException(AppException::class);
-        } else {
-            $this->expectException(XmlParsingException::class);
-        }
+        $this->expectException(AppException::class);
 
         $this->expectExceptionMessage('Element \'category\': This element is not expected. Expected is ( label )');
 
@@ -53,11 +47,7 @@ class CmsExtensionsTest extends TestCase
 
     public function testThrowsXmlParsingExceptionIfDuplicateSlotName(): void
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->expectException(AppException::class);
-        } else {
-            $this->expectException(XmlParsingException::class);
-        }
+        $this->expectException(AppException::class);
 
         $this->expectExceptionMessage('Element \'slot\': Duplicate key-sequence [\'left\'] in unique identity-constraint \'uniqueSlotName\'');
 

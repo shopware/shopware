@@ -95,10 +95,9 @@ export default class SpatialProductSliderRenderUtil {
 
     /**
      * rebuild event listener
-     * @param t
      * @private
      */
-    private rebuildEvent(t: { target: HTMLElement }) {
+    private rebuildEvent() {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
         window.PluginManager.initializePlugin('SpatialGallerySliderViewer', '[data-spatial-gallery-slider-viewer]');
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call

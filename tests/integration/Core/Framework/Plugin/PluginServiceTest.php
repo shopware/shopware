@@ -29,7 +29,6 @@ use SwagTestPlugin\SwagTestPlugin;
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class PluginServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

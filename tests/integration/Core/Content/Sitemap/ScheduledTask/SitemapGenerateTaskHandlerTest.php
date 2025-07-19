@@ -98,7 +98,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
             true
         );
 
-        $this->messageBusMock->expects(static::once())
+        $this->messageBusMock->expects($this->once())
             ->method('dispatch')
             ->willReturn(new Envelope($message));
 
@@ -167,7 +167,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
             true
         );
 
-        $this->messageBusMock->expects(static::once())
+        $this->messageBusMock->expects($this->once())
             ->method('dispatch')
             ->willReturn(new Envelope($message));
 
@@ -220,7 +220,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
             false
         );
 
-        $this->messageBusMock->expects(static::once())
+        $this->messageBusMock->expects($this->once())
             ->method('dispatch')
             ->with($message)
             ->willReturn(new Envelope($message));

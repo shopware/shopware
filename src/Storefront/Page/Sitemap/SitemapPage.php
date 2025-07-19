@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Sitemap;
 
+use Shopware\Core\Content\Sitemap\Struct\Sitemap;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -9,17 +10,21 @@ use Shopware\Core\Framework\Struct\Struct;
 class SitemapPage extends Struct
 {
     /**
-     * @var array
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var array<Sitemap>
      */
-    protected $sitemaps;
+    protected array $sitemaps;
 
+    /**
+     * @return array<Sitemap>
+     */
     public function getSitemaps(): array
     {
         return $this->sitemaps;
     }
 
+    /**
+     * @param array<Sitemap> $sitemaps
+     */
     public function setSitemaps(array $sitemaps): void
     {
         $this->sitemaps = $sitemaps;

@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Error\AutoPromotionNotFoundError;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionsOnCartPriceZeroError;
-use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -36,7 +36,7 @@ class PromotionProcessor implements CartProcessorInterface
 
     /**
      * @throws CartException
-     * @throws InvalidPriceDefinitionException
+     * @throws PromotionException
      */
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
     {

@@ -52,6 +52,10 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCompressor"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\CartLocker">
+            <argument type="service" id="lock.factory"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\CartSerializationCleaner">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
@@ -86,6 +90,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartLocker"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute" public="true">
@@ -98,12 +103,14 @@
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartDeleteRoute" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartLocker"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartItemRemoveRoute" public="true">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartLocker"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute" public="true">
@@ -112,6 +119,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
             <argument type="service" id="shopware.rate_limiter"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartLocker"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute" public="true">
@@ -120,11 +128,12 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\PreparedPaymentService"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentProcessor"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor"/>
             <argument type="service" id="Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartContextHasher"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartLocker"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator">
@@ -206,7 +215,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
             <argument type="service" id="Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway"/>
-            <argument type="service" id="Shopware\Core\Framework\Rule\RuleIdMatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Gateway\Command\Registry\CheckoutGatewayCommandRegistry">
@@ -365,6 +373,7 @@
             <argument type="service" id="order_address.repository"/>
             <argument type="service" id="customer_address.repository"/>
             <argument type="service" id="order_line_item.repository"/>
+            <argument type="service" id="order_delivery.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
@@ -521,11 +530,8 @@
         </service>
 
         <service id="shopware.cart.redis" class="Redis">
-            <!-- @deprecated tag:v6.7.0 - Replace factory method with getConnection on the next line -->
-            <factory service="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider" method="getOrCreateFromDsn"/>
+            <factory service="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider" method="getConnection"/>
             <argument>%shopware.cart.storage.config.connection%</argument>
-            <!-- @deprecated tag:v6.7.0 - remove next line (dsn argument) -->
-            <argument>%shopware.cart.storage.config.dsn%</argument>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Command\CartMigrateCommand">

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -16,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
@@ -39,12 +39,14 @@ use Symfony\Component\HttpFoundation\Response;
 class UpsertAddressRouteTest extends TestCase
 {
     use CustomerTestTrait;
-    use IntegrationTestBehaviour;
 
     private KernelBrowser $browser;
 
     private IdsCollection $ids;
 
+    /**
+     * @var EntityRepository<CustomerAddressCollection>
+     */
     private EntityRepository $addressRepository;
 
     protected function setUp(): void
@@ -107,7 +109,7 @@ class UpsertAddressRouteTest extends TestCase
         $response = $this->browser->getResponse();
         $content = \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertArrayHasKey('id', $content);
 
         foreach ($data as $key => $val) {
@@ -115,8 +117,8 @@ class UpsertAddressRouteTest extends TestCase
         }
 
         // Check existence
-        /** @var CustomerAddressEntity $address */
         $address = $this->addressRepository->search(new Criteria([$content['id']]), Context::createDefaultContext())->first();
+        static::assertInstanceOf(CustomerAddressEntity::class, $address);
         $serializedAddress = $address->jsonSerialize();
 
         foreach ($data as $key => $val) {
@@ -150,6 +152,13 @@ class UpsertAddressRouteTest extends TestCase
         $response = \json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $addressId = $response['defaultBillingAddressId'];
 
+        static::getContainer()->get('customer_address.repository')->update([
+            [
+                'id' => $addressId,
+                'customFields' => ['initialCustomField' => 'initialValueShouldStay'],
+            ],
+        ], Context::createDefaultContext());
+
         $this->browser
             ->request(
                 'POST',
@@ -158,6 +167,7 @@ class UpsertAddressRouteTest extends TestCase
 
         $address = \json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['elements'][0];
         $address['firstName'] = __FUNCTION__;
+        $address['customFields'] = ['randomCustomField' => 'randomValue'];
 
         // Update
         $this->browser
@@ -180,8 +190,13 @@ class UpsertAddressRouteTest extends TestCase
             );
 
         $updatedAddress = \json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['elements'][0];
-        unset($address['updatedAt'], $updatedAddress['updatedAt']);
 
+        static::assertSame('initialValueShouldStay', $updatedAddress['customFields']['initialCustomField']);
+
+        unset(
+            $address['updatedAt'], $address['hash'], $address['customFields'],
+            $updatedAddress['updatedAt'], $updatedAddress['hash'], $updatedAddress['customFields']
+        );
         static::assertSame($address, $updatedAddress);
     }
 
@@ -220,8 +235,8 @@ class UpsertAddressRouteTest extends TestCase
         }
 
         // Check existence
-        /** @var CustomerAddressEntity $address */
         $address = $this->addressRepository->search(new Criteria([$response['id']]), Context::createDefaultContext())->first();
+        static::assertInstanceOf(CustomerAddressEntity::class, $address);
 
         foreach ($data as $key => $val) {
             static::assertSame($val, $address->jsonSerialize()[$key]);
@@ -235,9 +250,12 @@ class UpsertAddressRouteTest extends TestCase
             ->method('searchIds')
             ->willReturn(new IdSearchResult(1, [['data' => ['address-1'], 'primaryKey' => 'address-1']], new Criteria(), Context::createDefaultContext()));
 
+        $customerAddress = new CustomerAddressEntity();
+        $customerAddress->setId('test');
+
         $result = $this->createMock(EntitySearchResult::class);
-        $result->method('first')
-            ->willReturn(new CustomerAddressEntity());
+        $result->method('getEntities')
+            ->willReturn(new CustomerAddressCollection([$customerAddress]));
 
         $addressRepository
             ->method('search')

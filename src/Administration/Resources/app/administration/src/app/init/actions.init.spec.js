@@ -4,7 +4,6 @@
 import initActions from 'src/app/init/actions.init';
 import { actionExecute } from '@shopware-ag/meteor-admin-sdk/es/app/action';
 import ExtensionSdkService from '../../core/service/api/extension-sdk.service';
-import extensionsStore from '../state/extensions.store';
 
 describe('src/app/init/actions.init.ts', () => {
     beforeAll(() => {
@@ -14,22 +13,14 @@ describe('src/app/init/actions.init.ts', () => {
     });
 
     beforeEach(() => {
-        if (Shopware.State.get('extensions')) {
-            Shopware.State.unregisterModule('extensions');
-        }
-
-        Shopware.State.registerModule('extensions', extensionsStore);
-    });
-
-    afterEach(() => {
-        Shopware.State.unregisterModule('extensions');
+        Shopware.Store.get('extensions').extensionsState = {};
     });
 
     it('should handle actionExecute', async () => {
         const appName = 'jestapp';
         const mock = jest.fn();
 
-        Shopware.State.commit('extensions/addExtension', {
+        Shopware.Store.get('extensions').addExtension({
             name: appName,
             baseUrl: '',
             permissions: [],

@@ -5,16 +5,13 @@
 import template from './sw-date-filter.html.twig';
 import './sw-date-filter.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.register('sw-date-filter', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -206,4 +203,4 @@ Component.register('sw-date-filter', {
             };
         },
     },
-});
+};

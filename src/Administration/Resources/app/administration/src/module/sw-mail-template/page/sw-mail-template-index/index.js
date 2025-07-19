@@ -8,8 +8,6 @@ import './sw-mail-template-index.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['acl'],
 
     data() {
@@ -26,7 +24,7 @@ export default {
 
     methods: {
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
             this.$refs.mailHeaderFooterList.getList();
             this.$refs.mailTemplateList.getList();
         },

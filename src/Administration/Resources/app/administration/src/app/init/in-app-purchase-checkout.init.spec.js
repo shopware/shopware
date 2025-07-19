@@ -11,8 +11,8 @@ describe('src/app/init/in-app-purchase.init.ts', () => {
     });
 
     beforeEach(() => {
-        Shopware.State._store.state.extensions = {};
-        Shopware.State.commit('extensions/addExtension', {
+        Shopware.Store.get('extensions').extensionsState = {};
+        Shopware.Store.get('extensions').addExtension({
             name: 'jestapp',
             baseUrl: '',
             permissions: [],

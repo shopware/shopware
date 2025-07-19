@@ -67,12 +67,12 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             });
         }
 
-        Shopware.State.get('system').locales = [
+        Shopware.Store.get('system').locales = [
             'en-GB',
             'de-DE',
         ];
 
-        Shopware.State.commit('setAdminLocale', {
+        Shopware.Store.get('session').setAdminLocaleState({
             locales: [
                 'en-GB',
                 'de-DE',
@@ -113,37 +113,31 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         // Mock function
         vueAdapter.setLocaleFromUser = jest.fn();
 
-        vueAdapter.initLocales({
-            subscribe: () => {},
-            dispatch: () => {},
-            state: { session: { currentLocale: 'en-GB' } },
-        });
+        vueAdapter.initLocales();
+        Shopware.Store.get('session').currentLocale = 'en-GB';
 
         expect(vueAdapter.setLocaleFromUser).toHaveBeenCalled();
     });
 
     it('setLocaleFromUser should not set the user when user does not exist', async () => {
-        vueAdapter.setLocaleFromUser({
-            state: { session: { currentUser: null } },
-        });
+        vueAdapter.setLocaleFromUser();
+        Shopware.Store.get('session').removeCurrentUser();
 
         expect(Shopware.Service('localeHelper').setLocaleWithId).not.toHaveBeenCalled();
     });
 
     it('setLocaleFromUser should set the user when user does not exist', async () => {
-        vueAdapter.setLocaleFromUser({
-            state: { session: { currentUser: { localeId: '12345' } } },
-        });
+        Shopware.Store.get('session').setCurrentUser({ localeId: '12345' });
+        vueAdapter.setLocaleFromUser();
 
         expect(Shopware.Service('localeHelper').setLocaleWithId).toHaveBeenCalled();
     });
 
     it('setLocaleFromUser should call the service with the user id from the store', async () => {
         const expectedId = '12345678';
+        Shopware.Store.get('session').setCurrentUser({ localeId: expectedId });
 
-        vueAdapter.setLocaleFromUser({
-            state: { session: { currentUser: { localeId: expectedId } } },
-        });
+        vueAdapter.setLocaleFromUser();
 
         expect(Shopware.Service('localeHelper').setLocaleWithId).toHaveBeenCalledWith(expectedId);
     });
@@ -154,23 +148,19 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         });
 
         // Mock current user in state
-        Shopware.State.get('session').currentUser = {
+        Shopware.Store.get('session').setCurrentUser({
             localeId: 'english-id',
-        };
+        });
 
         // create vueAdapter with custom application
         vueAdapter = new VueAdapter(application);
 
-        vueAdapter.initLocales({
-            subscribe: () => {},
-            dispatch: () => {},
-            state: { session: { currentLocale: 'en-GB' } },
-        });
+        vueAdapter.initLocales();
 
         // Change the user
-        Shopware.State.get('session').currentUser = {
+        Shopware.Store.get('session').setCurrentUser({
             localeId: 'german-id',
-        };
+        });
 
         await flushPromises();
 
@@ -549,6 +539,17 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                     return msg.includes('plugin is already installed');
                 },
             });
+
+            global.allowedErrors.push({
+                method: 'warn',
+                msgCheck: (msg) => {
+                    if (typeof msg !== 'string') {
+                        return false;
+                    }
+
+                    return msg.includes('plugin must either be a function');
+                },
+            });
         });
 
         beforeEach(async () => {
@@ -698,16 +699,13 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 'mt-button',
                 'mt-checkbox',
                 'mt-colorpicker',
-                'mt-datepicker',
                 'mt-email-field',
-                'mt-external-link',
                 'mt-number-field',
                 'mt-password-field',
                 'mt-select',
                 'mt-switch',
                 'mt-text-field',
                 'mt-textarea',
-                'mt-url-field',
                 'mt-icon',
                 'mt-data-table',
                 'mt-pagination',
@@ -743,7 +741,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         it('should update the i18n global locale to update the locale in UI when the locale in the session store changes', async () => {
             const expectedLocale = 'de-DE';
 
-            Shopware.State.commit('setAdminLocale', {
+            Shopware.Store.get('session').setAdminLocaleState({
                 locales: [
                     'en-GB',
                     'de-DE',
@@ -752,7 +750,9 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 languageId: '12345678',
             });
 
-            expect(vueAdapter.i18n.global.locale).toEqual(expectedLocale);
+            await flushPromises();
+
+            expect(vueAdapter.i18n.global.locale.value).toEqual(expectedLocale);
         });
     });
 });

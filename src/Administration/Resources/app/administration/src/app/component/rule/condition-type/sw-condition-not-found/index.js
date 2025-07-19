@@ -1,7 +1,6 @@
 import template from './sw-condition-not-found.html.twig';
 import './sw-condition-not-found.scss';
 
-const { Component } = Shopware;
 const { debounce } = Shopware.Utils;
 
 /**
@@ -14,7 +13,8 @@ const { debounce } = Shopware.Utils;
  * @component-example
  * <sw-condition-not-found :condition="condition" :level="0"></sw-condition-not-found>
  */
-Component.extend('sw-condition-not-found', 'sw-condition-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     computed: {
@@ -42,4 +42,4 @@ Component.extend('sw-condition-not-found', 'sw-condition-base', {
             }, 300),
         },
     },
-});
+};

@@ -22,7 +22,7 @@ export default {
 
     methods: {
         createdComponent() {
-            if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
+            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
                 Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
             }
 

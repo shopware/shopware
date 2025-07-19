@@ -81,14 +81,14 @@ class SetOrderCustomFieldActionTest extends TestCase
             $context
         );
 
-        $this->repository->expects(static::once())
+        $this->repository->expects($this->once())
             ->method('search')
             ->willReturn($entitySearchResult);
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('fetchOne')
             ->willReturn('custom_field_test');
 
-        $this->repository->expects(static::once())
+        $this->repository->expects($this->once())
             ->method('update')
             ->with([['id' => $orderId, 'customFields' => $expected['custom_field_test'] ? $expected : null]]);
 
@@ -98,7 +98,7 @@ class SetOrderCustomFieldActionTest extends TestCase
     public function testActionWithNotAware(): void
     {
         $flow = new StorableFlow('', Context::createDefaultContext(), [], []);
-        $this->repository->expects(static::never())->method('update');
+        $this->repository->expects($this->never())->method('update');
 
         $this->action->handleFlow($flow);
     }

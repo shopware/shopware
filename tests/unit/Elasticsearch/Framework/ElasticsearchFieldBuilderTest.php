@@ -134,7 +134,7 @@ class ElasticsearchFieldBuilderTest extends TestCase
         ]]);
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())->method('fetchAllKeyValue')->willReturn([
+        $connection->expects($this->once())->method('fetchAllKeyValue')->willReturn([
             'cf_bool' => 'bool',
         ]);
 
@@ -210,7 +210,7 @@ class ElasticsearchFieldBuilderTest extends TestCase
             ],
         ]]);
 
-        static::assertEquals([
+        static::assertSame([
             'type' => 'date',
             'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
             'ignore_malformed' => true,
@@ -226,7 +226,7 @@ class ElasticsearchFieldBuilderTest extends TestCase
     {
         $nestedFields = ElasticsearchFieldBuilder::nested(['name' => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD]);
 
-        static::assertEquals([
+        static::assertSame([
             'type' => 'nested',
             'properties' => [
                 'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,

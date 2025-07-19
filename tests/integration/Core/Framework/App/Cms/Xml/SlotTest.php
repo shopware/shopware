@@ -32,12 +32,12 @@ class SlotTest extends TestCase
      * @param array<string, mixed> $config
      */
     #[DataProvider('provideSlots')]
-    public function testSlotsFromXml(int $i, string $name, string $type, array $config, int $position): void
+    public function testSlotsFromXml(int $blockIndex, string $name, string $type, array $config, int $position): void
     {
         $cmsExtensions = CmsExtensions::createFromXmlFile(__DIR__ . '/../_fixtures/valid/cmsExtensionsWithBlocks.xml');
         static::assertNotNull($cmsExtensions->getBlocks());
 
-        $slot = $cmsExtensions->getBlocks()->getBlocks()[0]->getSlots()[$i];
+        $slot = $cmsExtensions->getBlocks()->getBlocks()[0]->getSlots()[$blockIndex];
 
         static::assertSame($name, $slot->getName());
         static::assertSame($type, $slot->getType());
@@ -49,12 +49,12 @@ class SlotTest extends TestCase
      * @param array<string, mixed> $config
      */
     #[DataProvider('provideSlots')]
-    public function testToArray(int $i, string $name, string $type, array $config, int $position): void
+    public function testToArray(int $blockIndex, string $name, string $type, array $config, int $position): void
     {
         $cmsExtensions = CmsExtensions::createFromXmlFile(__DIR__ . '/../_fixtures/valid/cmsExtensionsWithBlocks.xml');
         static::assertNotNull($cmsExtensions->getBlocks());
 
-        $slot = $cmsExtensions->getBlocks()->getBlocks()[0]->getSlots()[$i];
+        $slot = $cmsExtensions->getBlocks()->getBlocks()[0]->getSlots()[$blockIndex];
 
         static::assertEquals(
             [
@@ -74,7 +74,7 @@ class SlotTest extends TestCase
     {
         return [
             [
-                0,
+                'blockIndex' => 0,
                 'name' => 'left',
                 'type' => 'manufacturer-logo',
                 'config' => [
@@ -86,7 +86,7 @@ class SlotTest extends TestCase
                 'position' => 0,
             ],
             [
-                1,
+                'blockIndex' => 1,
                 'name' => 'middle',
                 'type' => 'product-slider',
                 'config' => [
@@ -102,7 +102,7 @@ class SlotTest extends TestCase
                 'position' => 0,
             ],
             [
-                2,
+                'blockIndex' => 2,
                 'name' => 'right',
                 'type' => 'buy-box',
                 'config' => [

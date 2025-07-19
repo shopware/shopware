@@ -13,63 +13,28 @@ class CustomFieldEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $type;
+    protected string $type;
 
     /**
      * @var array<string, mixed>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $config;
+    protected ?array $config = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customFieldSetId;
+    protected ?string $customFieldSetId = null;
 
-    /**
-     * @var CustomFieldSetEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customFieldSet;
+    protected ?CustomFieldSetEntity $customFieldSet = null;
 
-    /**
-     * @var ProductSearchConfigFieldCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productSearchConfigFields;
+    protected ?ProductSearchConfigFieldCollection $productSearchConfigFields = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $allowCustomerWrite = false;
+    protected bool $allowCustomerWrite = false;
 
     protected bool $allowCartExpose = false;
+
+    protected bool $storeApiAware = true;
 
     public function getName(): string
     {
@@ -165,5 +130,15 @@ class CustomFieldEntity extends Entity
     public function setAllowCartExpose(bool $allowCartExpose): void
     {
         $this->allowCartExpose = $allowCartExpose;
+    }
+
+    public function isStoreApiAware(): bool
+    {
+        return $this->storeApiAware;
+    }
+
+    public function setStoreApiAware(bool $storeApiAware): void
+    {
+        $this->storeApiAware = $storeApiAware;
     }
 }

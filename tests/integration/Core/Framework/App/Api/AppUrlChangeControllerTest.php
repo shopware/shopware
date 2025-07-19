@@ -32,7 +32,7 @@ class AppUrlChangeControllerTest extends TestCase
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         $appUrlChangeResolver = static::getContainer()->get(Resolver::class);
-        static::assertEquals($appUrlChangeResolver->getAvailableStrategies(), $response);
+        static::assertSame($appUrlChangeResolver->getAvailableStrategies(), $response);
     }
 
     public function testResolveWithExistingStrategy(): void
@@ -120,7 +120,7 @@ class AppUrlChangeControllerTest extends TestCase
         $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
-        static::assertEquals(['oldUrl' => $oldUrl, 'newUrl' => $_SERVER['APP_URL']], $response);
+        static::assertSame(['oldUrl' => $oldUrl, 'newUrl' => $_SERVER['APP_URL']], $response);
     }
 
     public function testGetUrlDiffWithoutApps(): void

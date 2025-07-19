@@ -4,14 +4,11 @@ namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\AbstractPaymentTransactionStructFactory;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -43,76 +40,6 @@ class PaymentTransactionStructFactoryTest extends TestCase
 
         static::assertSame('transaction-id', $struct->getOrderTransactionId());
         static::assertSame('https://return.url', $struct->getReturnUrl());
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed, use `build` instead
-     */
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testSync(): void
-    {
-        $factory = new PaymentTransactionStructFactory();
-
-        $transaction = new OrderTransactionEntity();
-        $order = new OrderEntity();
-
-        $struct = $factory->sync($transaction, $order);
-
-        static::assertSame($transaction, $struct->getOrderTransaction());
-        static::assertSame($order, $struct->getOrder());
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed, use `build` instead
-     */
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testAsync(): void
-    {
-        $factory = new PaymentTransactionStructFactory();
-
-        $transaction = new OrderTransactionEntity();
-        $order = new OrderEntity();
-        $returnUrl = 'https://return.url';
-
-        $struct = $factory->async($transaction, $order, $returnUrl);
-
-        static::assertSame($transaction, $struct->getOrderTransaction());
-        static::assertSame($order, $struct->getOrder());
-        static::assertSame($returnUrl, $struct->getReturnUrl());
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed, use `build` instead
-     */
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testPrepared(): void
-    {
-        $factory = new PaymentTransactionStructFactory();
-
-        $transaction = new OrderTransactionEntity();
-        $order = new OrderEntity();
-
-        $struct = $factory->prepared($transaction, $order);
-
-        static::assertSame($transaction, $struct->getOrderTransaction());
-        static::assertSame($order, $struct->getOrder());
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed, use `build` instead
-     */
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testRecurring(): void
-    {
-        $factory = new PaymentTransactionStructFactory();
-
-        $transaction = new OrderTransactionEntity();
-        $order = new OrderEntity();
-
-        $struct = $factory->recurring($transaction, $order);
-
-        static::assertSame($transaction, $struct->getOrderTransaction());
-        static::assertSame($order, $struct->getOrder());
     }
 
     public function testBuild(): void

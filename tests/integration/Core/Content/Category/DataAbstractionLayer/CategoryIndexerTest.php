@@ -50,7 +50,7 @@ class CategoryIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->connectionMock = $this->createMock(Connection::class);
-        $this->messageBus = self::getContainer()->get('messenger.bus.shopware');
+        $this->messageBus = self::getContainer()->get('messenger.default_bus');
 
         $this->indexer = new CategoryIndexer(
             $this->connectionMock,

@@ -7,6 +7,4 @@ import './sw-cms-preview-form.scss';
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

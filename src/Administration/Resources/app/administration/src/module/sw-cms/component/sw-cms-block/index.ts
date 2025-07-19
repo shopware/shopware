@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-block.html.twig';
 import './sw-cms-block.scss';
 import type CmsVisibility from '../../shared/CmsVisibility';
@@ -6,13 +5,11 @@ import type CmsVisibility from '../../shared/CmsVisibility';
 const { Filter, Store } = Shopware;
 
 /**
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['block-overlay-click'],
 
@@ -146,9 +143,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         createdComponent() {
-            if (!this.block.backgroundMediaMode) {
-                this.block.backgroundMediaMode = 'cover';
-            }
+            this.block.backgroundMediaMode ??= 'cover';
+            this.block.backgroundColor ??= '';
         },
 
         onBlockOverlayClick() {

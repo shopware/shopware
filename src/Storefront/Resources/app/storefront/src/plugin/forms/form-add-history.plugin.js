@@ -1,7 +1,7 @@
 import Plugin from 'src/plugin-system/plugin.class';
 
 /**
- * @package content
+ * @package framework
  */
 export default class FormAddHistoryPlugin extends Plugin {
 

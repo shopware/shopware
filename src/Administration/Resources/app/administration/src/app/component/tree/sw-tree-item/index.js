@@ -1,14 +1,12 @@
 import template from './sw-tree-item.html.twig';
 import './sw-tree-item.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  */
-Component.register('sw-tree-item', {
+export default {
     template,
 
     inject: {
@@ -57,8 +55,6 @@ Component.register('sw-tree-item', {
             default: null,
         },
     },
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['check-item'],
 
@@ -309,21 +305,6 @@ Component.register('sw-tree-item', {
         },
 
         parentScope() {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                let parentNode = this.$parent;
-
-                // eslint-disable-next-line
-                while (parentNode.$options._componentTag !== 'sw-tree') {
-                    if (parentNode.$parent) {
-                        parentNode = parentNode.$parent;
-                    }
-
-                    break;
-                }
-
-                return parentNode;
-            }
-
             return {
                 addSubElement: this.treeAddSubElement,
                 addElement: this.treeAddElement,
@@ -360,18 +341,12 @@ Component.register('sw-tree-item', {
 
         contentSlot() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return this.$scopedSlots.content;
-            }
 
             return this.$slots.content;
         },
 
         actionsSlot() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return this.$scopedSlots.actions;
-            }
 
             return this.$slots.actions;
         },
@@ -517,19 +492,11 @@ Component.register('sw-tree-item', {
 
             this.dragEl = dragElement;
 
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                this.$parent.$parent.startDrag(this);
-            } else {
-                this.treeStartDrag(this);
-            }
+            this.treeStartDrag(this);
         },
 
         dragEnd() {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                this.$parent.$parent.endDrag();
-            } else {
-                this.treeEndDrag();
-            }
+            this.treeEndDrag();
         },
 
         onMouseEnter(dragData, dropData) {
@@ -537,33 +504,18 @@ Component.register('sw-tree-item', {
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                this.$parent.$parent.moveDrag(dragData, dropData);
-            } else {
-                this.treeMoveDrag(dragData, dropData);
-            }
+            this.treeMoveDrag(dragData, dropData);
         },
 
         startDrag(draggedComponent) {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                return this.$parent.$parent.startDrag(draggedComponent);
-            }
-
             return this.treeStartDrag(draggedComponent);
         },
 
         endDrag() {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                this.$parent.$parent.endDrag();
-            } else {
-                this.treeEndDrag();
-            }
+            this.treeEndDrag();
         },
 
         moveDrag(draggedComponent, droppedComponent) {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                return this.$parent.$parent.moveDrag(draggedComponent, droppedComponent);
-            }
             return this.treeMoveDrag(draggedComponent, droppedComponent);
         },
 
@@ -661,24 +613,14 @@ Component.register('sw-tree-item', {
 
         renderContentSlotNode({ item, openTreeItem, getName }) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return this.$scopedSlots.content({
-                    item,
-                    openTreeItem,
-                    getName,
-                });
-            }
 
             return this.$slots.content({ item, openTreeItem, getName });
         },
 
         renderActionsSlotNode({ item, openTreeItem }) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return this.$scopedSlots.actions({ item, openTreeItem });
-            }
 
             return this.$slots.actions({ item, openTreeItem });
         },
     },
-});
+};

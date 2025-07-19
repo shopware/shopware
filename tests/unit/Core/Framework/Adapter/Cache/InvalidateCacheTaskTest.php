@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTask;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 /**
@@ -29,16 +28,9 @@ class InvalidateCacheTaskTest extends TestCase
         static::assertSame(300, InvalidateCacheTask::getDefaultInterval());
     }
 
-    #[DisabledFeatures(['cache_rework'])]
-    public function testShouldRunBasedOnDeprecatedConfig(): void
+    public function testDeduplicationId(): void
     {
-        static::assertTrue(InvalidateCacheTask::shouldRun(new ParameterBag(['shopware.cache.invalidation.delay' => 20])));
-        static::assertFalse(InvalidateCacheTask::shouldRun(new ParameterBag(['shopware.cache.invalidation.delay' => 0])));
-    }
-
-    #[DisabledFeatures(['cache_rework'])]
-    public function testGetDefaultIntervalDeprecated(): void
-    {
-        static::assertSame(20, InvalidateCacheTask::getDefaultInterval());
+        $task = new InvalidateCacheTask();
+        static::assertSame('invalidate-cache-task', $task->deduplicationId());
     }
 }

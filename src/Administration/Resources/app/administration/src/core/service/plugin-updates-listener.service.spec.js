@@ -48,7 +48,7 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
                 'app.all',
             ]),
         );
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             firstName: 'userFirstName',
         });
 
@@ -71,7 +71,7 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
             ]),
         );
 
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             firstName: 'userFirstName',
         });
 
@@ -80,7 +80,7 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
         const expectedDate = currentTime.toString();
         expect(localStorage.getItem(localStorageKey)).toBe(expectedDate);
 
-        const notifications = Shopware.State.get('notification');
+        const notifications = Shopware.Store.get('notification');
         expect(notifications.notifications.jest.message).toBe(
             'global.notification-center.plugin-updates-listener.updatesAvailableMessage',
         );
@@ -96,7 +96,7 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
         localStorage.setItem(localStorageKey, lastCheckDate);
 
         addPluginUpdatesListener(null, null);
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             firstName: 'userFirstName',
         });
 
@@ -111,13 +111,13 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
         const lastCheckDate = (currentTime - oneDay - 1).toString();
         localStorage.setItem(localStorageKey, lastCheckDate);
 
-        Shopware.State.commit('setCurrentUser', null);
+        Shopware.Store.get('session').setCurrentUser(null);
         await flushPromises();
 
         addPluginUpdatesListener(null, null);
 
         // should not trigger the check because the user was not changed
-        Shopware.State.commit('setCurrentUser', null);
+        Shopware.Store.get('session').setCurrentUser(null);
         await flushPromises();
 
         const expectedDate = (currentTime - oneDay - 1).toString();

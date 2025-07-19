@@ -1,7 +1,7 @@
 import template from './sw-category-detail-base.html.twig';
 import './sw-category-detail-base.scss';
 
-const { mapState, mapPropertyErrors } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
  * @sw-package discovery
@@ -10,15 +10,13 @@ const { mapState, mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
     ],
 
     mixins: [
-        'placeholder',
+        Shopware.Mixin.getByName('placeholder'),
     ],
 
     props: {
@@ -29,15 +27,9 @@ export default {
     },
 
     computed: {
-        ...mapState('swCategoryDetail', {
-            customFieldSetsArray: (state) => {
-                if (!state.customFieldSets) {
-                    return [];
-                }
-
-                return state.customFieldSets;
-            },
-        }),
+        customFieldSetsArray() {
+            return Shopware.Store.get('swCategoryDetail').customFieldSets ?? [];
+        },
 
         ...mapPropertyErrors('category', [
             'name',
@@ -99,7 +91,11 @@ export default {
         },
 
         category() {
-            return Shopware.State.get('swCategoryDetail').category;
+            return Shopware.Store.get('swCategoryDetail').category;
+        },
+
+        isCategoryColumn() {
+            return Shopware.Store.get('swCategoryDetail').isCategoryColumn;
         },
     },
 };

@@ -4,11 +4,9 @@ namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('checkout')]
@@ -24,6 +22,8 @@ class PromotionExclusionUpdater
     /**
      * function is called when a promotion is saved.
      * the exclusions of promotions will be checked and are written/deleted if necessary
+     *
+     * @param array<string> $ids
      */
     public function update(array $ids): void
     {
@@ -97,8 +97,6 @@ class PromotionExclusionUpdater
      *
      * @param array<string> $excludeThisIds
      *
-     * @throws Exception
-     *
      * @return array<string>
      */
     private function deleteFromJSON(string $deleteId, array $excludeThisIds): array
@@ -145,7 +143,7 @@ class PromotionExclusionUpdater
     /**
      * appends addId in all promotions that id is in ids
      *
-     * @throws Exception
+     * @param array<string> $ids
      */
     private function addToJSON(string $addId, array $ids): void
     {
@@ -174,9 +172,6 @@ class PromotionExclusionUpdater
      * sets all ids in onlyAddThisExistingIds as exclusion in promotion with id
      *
      * @param array<string> $onlyAddThisExistingIds
-     *
-     * @throws Exception
-     * @throws InvalidUuidException
      */
     private function updateJSON(string $id, array $onlyAddThisExistingIds): void
     {
@@ -197,7 +192,9 @@ class PromotionExclusionUpdater
     }
 
     /**
-     * function returns all promotion id hex values that are in given array ids
+     * @param array<string> $ids
+     *
+     * @return array<string>
      */
     private function getExistingIds(array $ids): array
     {
@@ -222,9 +219,7 @@ class PromotionExclusionUpdater
     }
 
     /**
-     * returns exclusions of promotion with id id
-     *
-     * @throws InvalidUuidException
+     * @return list<array<string,mixed>>
      */
     private function getExclusionIds(string $id): array
     {
@@ -243,9 +238,9 @@ class PromotionExclusionUpdater
     }
 
     /**
-     * helper function to convert hex array values to a binary array
-     *
      * @param array<string> $hexIds
+     *
+     * @return array<string>
      */
     private function convertHexArrayToByteArray(array $hexIds): array
     {

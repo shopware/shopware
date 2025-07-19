@@ -10,8 +10,6 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
     mixins: [
@@ -41,13 +39,6 @@ export default {
             };
         },
 
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed, use the specific navigation setting `hasNavigationArrows` instead
-         */
-        hasNavigation() {
-            return this.hasNavigationArrows;
-        },
-
         hasNavigationArrows() {
             return [
                 'inside',
@@ -57,11 +48,14 @@ export default {
 
         classes() {
             return {
-                'has--navigation-indent': this.element.config.navigationArrows.value === 'outside',
+                [`has--navigation-${this.element.config.navigationArrows.value}`]: this.hasNavigationArrows,
                 'has--border': !!this.element.config.border.value,
             };
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, is not used anymore
+         */
         navArrowsClasses() {
             if (this.hasNavigationArrows) {
                 return [`has--arrow-${this.element.config.navigationArrows.value}`];

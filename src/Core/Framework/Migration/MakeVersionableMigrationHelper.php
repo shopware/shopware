@@ -8,6 +8,10 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @phpstan-type RelationData array{TABLE_NAME: string, COLUMN_NAME: string, CONSTRAINT_NAME: string, REFERENCED_TABLE_NAME: string, REFERENCED_COLUMN_NAME: string}
+ * @phpstan-type ForeignKeyData array{TABLE_NAME: string, COLUMN_NAME: list<string>, REFERENCED_TABLE_NAME: string, REFERENCED_COLUMN_NAME: list<string>}
+ */
 #[Package('framework')]
 class MakeVersionableMigrationHelper
 {
@@ -44,6 +48,9 @@ EOD;
         $this->schemaManager = $connection->createSchemaManager();
     }
 
+    /**
+     * @return array<string, ForeignKeyData>
+     */
     public function getRelationData(string $tableName, string $keyColumn): array
     {
         $data = $this->fetchRelationData($tableName);
@@ -51,6 +58,11 @@ EOD;
         return $this->hydrateForeignKeyData($data, $keyColumn);
     }
 
+    /**
+     * @param array<string, ForeignKeyData> $keyStructures
+     *
+     * @return array<string>
+     */
     public function createSql(array $keyStructures, string $tableName, string $newColumnName, string $defaultValue): array
     {
         return array_filter(array_merge(
@@ -61,6 +73,11 @@ EOD;
         ));
     }
 
+    /**
+     * @param array<string, ForeignKeyData> $keyStructures
+     *
+     * @return list<string>
+     */
     private function createDropKeysPlaybookEntries(array $keyStructures): array
     {
         $playbook = [];
@@ -79,6 +96,11 @@ EOD;
         return $playbook;
     }
 
+    /**
+     * @param array<string, ForeignKeyData> $keyStructures
+     *
+     * @return list<string|null>
+     */
     private function createAddColumnsAndKeysPlaybookEntries(string $newColumnName, array $keyStructures, string $default): array
     {
         $playbook = [];
@@ -107,6 +129,11 @@ EOD;
         return $playbook;
     }
 
+    /**
+     * @param array<string, ForeignKeyData> $keyStructures
+     *
+     * @return list<string>
+     */
     private function createAddKeysPlaybookEntries(array $keyStructures, string $newColumnName, string $tableName): array
     {
         $playbook = [];
@@ -125,11 +152,17 @@ EOD;
         return array_values($playbook);
     }
 
+    /**
+     * @param array<string> $columns
+     */
     private function implodeColumns(array $columns): string
     {
         return implode(',', array_map(fn (string $column): string => '`' . $column . '`', $columns));
     }
 
+    /**
+     * @param list<string> $foreignFieldNames
+     */
     private function isEqualForeignKey(ForeignKeyConstraint $constraint, string $foreignTable, array $foreignFieldNames): bool
     {
         if ($constraint->getForeignTableName() !== $foreignTable) {
@@ -139,6 +172,11 @@ EOD;
         return \count(array_diff($constraint->getForeignColumns(), $foreignFieldNames)) === 0;
     }
 
+    /**
+     * @param list<RelationData> $data
+     *
+     * @return array<string, ForeignKeyData>
+     */
     private function hydrateForeignKeyData(array $data, string $keyColumnName): array
     {
         $hydratedData = $this->mapHydrateForeignKeyData($data);
@@ -146,6 +184,11 @@ EOD;
         return $this->filterHydrateForeignKeyData($hydratedData, $keyColumnName);
     }
 
+    /**
+     * @param list<RelationData> $data
+     *
+     * @return array<string, ForeignKeyData>
+     */
     private function mapHydrateForeignKeyData(array $data): array
     {
         $hydratedData = [];
@@ -171,19 +214,26 @@ EOD;
         return $hydratedData;
     }
 
+    /**
+     * @param array<string, ForeignKeyData> $hydratedData
+     *
+     * @return array<string, ForeignKeyData>
+     */
     private function filterHydrateForeignKeyData(array $hydratedData, string $keyColumnName): array
     {
-        $hydratedData = array_filter($hydratedData, fn (array $entry): bool => \in_array($keyColumnName, $entry['REFERENCED_COLUMN_NAME'], true));
-
-        return $hydratedData;
+        return array_filter($hydratedData, fn (array $entry): bool => \in_array($keyColumnName, $entry['REFERENCED_COLUMN_NAME'], true));
     }
 
+    /**
+     * @return list<RelationData>
+     */
     private function fetchRelationData(string $tableName): array
     {
         $databaseName = $this->connection->fetchOne('SELECT DATABASE()');
         \assert(\is_string($databaseName));
         $query = \sprintf(self::FIND_RELATIONSHIPS_QUERY, $databaseName, $tableName);
 
+        /* @phpstan-ignore return.type (PHPStan cannot properly determine the array type from the DB) */
         return $this->connection->fetchAllAssociative($query);
     }
 
@@ -192,15 +242,16 @@ EOD;
         $pk = $this->schemaManager->listTableIndexes($tableName)['primary'];
 
         if (\count($pk->getColumns()) !== 1) {
-            throw new \RuntimeException(
-                'Tables with multi column primary keys not supported. Maybe this migration did already run.'
-            );
+            throw MigrationException::multiColumnPrimaryKey();
         }
         $pkName = current($pk->getColumns());
 
         return \sprintf(self::MODIFY_PRIMARY_KEY_IN_MAIN, $tableName, $newColumnName, $defaultValue, $pkName, $pkName, $newColumnName);
     }
 
+    /**
+     * @param ForeignKeyData $keyStructure
+     */
     private function findForeignKeyDefinition(array $keyStructure): ForeignKeyConstraint
     {
         $fks = $this->schemaManager->listTableForeignKeys($keyStructure['TABLE_NAME']);
@@ -213,12 +264,15 @@ EOD;
         }
 
         if ($fk === null) {
-            throw new \LogicException('Unable to find a foreign key that was previously selected');
+            throw MigrationException::logicError('Unable to find a foreign key that was previously selected');
         }
 
         return $fk;
     }
 
+    /**
+     * @param ForeignKeyData $keyStructure
+     */
     private function determineAddColumnSql(ForeignKeyConstraint $fk, array $keyStructure, string $foreignKeyColumnName, string $default): string
     {
         \assert(\is_string($keyStructure['TABLE_NAME']));
@@ -246,8 +300,16 @@ EOD;
         return $addColumnSql;
     }
 
-    private function getAddForeignKeySql(array $keyStructure, string $constraintName, string $foreignKeyColumnName, string $newColumnName, ForeignKeyConstraint $fk): string
-    {
+    /**
+     * @param ForeignKeyData $keyStructure
+     */
+    private function getAddForeignKeySql(
+        array $keyStructure,
+        string $constraintName,
+        string $foreignKeyColumnName,
+        string $newColumnName,
+        ForeignKeyConstraint $fk
+    ): string {
         \assert(\is_string($keyStructure['TABLE_NAME']));
         \assert(\is_string($keyStructure['REFERENCED_TABLE_NAME']));
 
@@ -264,6 +326,9 @@ EOD;
         );
     }
 
+    /**
+     * @param ForeignKeyData $keyStructure
+     */
     private function determineModifyPrimaryKeySql(array $keyStructure, string $foreignKeyColumnName): ?string
     {
         \assert(\is_string($keyStructure['TABLE_NAME']));

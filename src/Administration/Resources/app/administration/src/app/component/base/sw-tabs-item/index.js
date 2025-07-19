@@ -4,7 +4,6 @@
 import template from './sw-tabs-item.html.twig';
 import './sw-tabs-item.scss';
 
-const { Component } = Shopware;
 const types = Shopware.Utils.types;
 
 /**
@@ -25,10 +24,8 @@ const types = Shopware.Utils.types;
  *
  * </sw-tabs>
  */
-Component.register('sw-tabs-item', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inheritAttrs: false,
 
@@ -152,21 +149,13 @@ Component.register('sw-tabs-item', {
     },
 
     beforeUnmount() {
-        if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-            this.$parent.$off('new-item-active', this.checkIfActive);
-        } else {
-            this.unregisterNewTabItem?.(this);
-        }
+        this.unregisterNewTabItem?.(this);
     },
 
     methods: {
         createdComponent() {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                this.$parent.$on('new-item-active', this.checkIfActive);
-            } else {
-                this.onNewItemActive?.(this.checkIfActive);
-                this.registerNewTabItem?.(this);
-            }
+            this.onNewItemActive?.(this.checkIfActive);
+            this.registerNewTabItem?.(this);
 
             if (this.active) {
                 this.isActive = true;
@@ -182,6 +171,7 @@ Component.register('sw-tabs-item', {
         },
         updateActiveState() {
             this.checkIfRouteMatchesLink();
+
             if (this.activeTab && this.activeTab === this.name) {
                 this.isActive = true;
             }
@@ -192,15 +182,11 @@ Component.register('sw-tabs-item', {
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                this.$parent.setActiveItem(this);
-            } else {
-                this.swTabsSetActiveItem(this);
-            }
+            this.swTabsSetActiveItem(this);
             this.$emit('click');
         },
         checkIfActive(item) {
-            this.isActive = item.$vnode === this.$vnode;
+            this.isActive = item?.$?.vnode === this.$.vnode;
         },
         checkIfRouteMatchesLink() {
             this.$nextTick().then(() => {
@@ -229,13 +215,9 @@ Component.register('sw-tabs-item', {
 
                 const routeIsActive = this.$el.classList.contains('router-link-active');
                 if (routeIsActive) {
-                    if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                        this.$parent.setActiveItem(this);
-                    } else {
-                        this.swTabsSetActiveItem(this);
-                    }
+                    this.swTabsSetActiveItem(this);
                 }
             });
         },
     },
-});
+};

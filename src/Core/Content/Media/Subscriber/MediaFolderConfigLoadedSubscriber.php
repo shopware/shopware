@@ -14,21 +14,18 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 #[Package('discovery')]
 class MediaFolderConfigLoadedSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
-     */
     public static function getSubscribedEvents(): array
     {
         return [
-            'media_folder_configuration.loaded' => [
-                ['unserialize', 10],
-            ],
+            'media_folder_configuration.loaded' => ['unserialize', 10],
         ];
     }
 
+    /**
+     * @param EntityLoadedEvent<MediaFolderConfigurationEntity> $event
+     */
     public function unserialize(EntityLoadedEvent $event): void
     {
-        /** @var MediaFolderConfigurationEntity $media */
         foreach ($event->getEntities() as $media) {
             if ($media->getMediaThumbnailSizes() === null) {
                 if ($media->getMediaThumbnailSizesRo()) {

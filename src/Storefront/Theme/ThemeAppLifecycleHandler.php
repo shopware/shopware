@@ -20,7 +20,7 @@ class ThemeAppLifecycleHandler implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
-        private readonly StorefrontPluginRegistryInterface $themeRegistry,
+        private readonly StorefrontPluginRegistry $themeRegistry,
         private readonly AbstractStorefrontPluginConfigurationFactory $themeConfigFactory,
         private readonly ThemeLifecycleHandler $themeLifecycleHandler
     ) {

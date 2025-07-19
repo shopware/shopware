@@ -21,103 +21,39 @@ class CmsPageEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $type;
+    protected string $type;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $entity;
+    protected ?string $entity = null;
 
-    /**
-     * @var CmsSectionCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $sections;
+    protected ?CmsSectionCollection $sections = null;
 
     /**
      * @var EntityCollection<CmsPageTranslationEntity>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $translations;
+    protected ?EntityCollection $translations = null;
 
-    /**
-     * @var CategoryCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $categories;
+    protected ?CategoryCollection $categories = null;
 
-    /**
-     * @var ProductCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $products;
+    protected ?ProductCollection $products = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $cssClass;
+    protected ?string $cssClass = null;
 
     /**
      * @var array<string, array<string, mixed>>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $config;
+    protected ?array $config = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $previewMediaId;
+    protected ?string $previewMediaId = null;
 
-    /**
-     * @var MediaEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $previewMedia;
+    protected ?MediaEntity $previewMedia = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $locked;
+    protected bool $locked;
 
-    /**
-     * @var LandingPageCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $landingPages;
+    protected ?LandingPageCollection $landingPages = null;
 
-    /**
-     * @var CmsPageCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $homeSalesChannels;
+    protected ?CmsPageCollection $homeSalesChannels = null;
 
     public function getName(): ?string
     {

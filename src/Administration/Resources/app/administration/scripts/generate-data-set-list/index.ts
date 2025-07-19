@@ -7,7 +7,7 @@ import fs from 'fs';
 import path from 'path';
 // @ts-expect-error - There are no types for this package
 import cliProgress from 'cli-progress';
-import chalk from 'chalk';
+import colors from 'picocolors';
 
 /**
  * Recursively get all files from a directory
@@ -35,7 +35,7 @@ const srcFiles = getAllFiles(path.join(__dirname, '../../src')).filter(file => {
     return file.match(/^.*(?<!\.spec|vue2)(?<!\/acl\/index)(?<!\.d)\.(js|ts)$/);
 });
 
-console.log(chalk.blue('Gathering data sets...\n'));
+console.log(colors.blue('Gathering data sets...\n'));
 
 // Create and start a progress bar
 const pb = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
@@ -64,7 +64,7 @@ pb.stop();
 // Define the output file path for the result
 const outputFile = path.join(__dirname, '../../src/meta/data-sets.json');
 
-console.log(chalk.blueBright(`\nWriting to ${outputFile}`));
+console.log(colors.blueBright(`\nWriting to ${outputFile}`));
 fs.writeFileSync(outputFile, JSON.stringify(result));
 
-console.log(chalk.green('\nAll done!'));
+console.log(colors.green('\nAll done!'));

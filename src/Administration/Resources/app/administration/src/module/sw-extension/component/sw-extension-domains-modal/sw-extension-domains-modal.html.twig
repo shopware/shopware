@@ -3,7 +3,6 @@
     class="sw-extension-domains-modal"
     :title="modalTitle"
     variant="small"
-    v-on="listeners"
 >
 
     {% block sw_extension_domains_modal_description %}
@@ -35,13 +34,13 @@
     {% block sw_extension_domains_modal_footer %}
     <template #modal-footer>
         {% block sw_extension_domains_modal_footer_inner %}
-        <sw-button
+        <mt-button
             variant="primary"
             size="small"
             @click="close"
         >
             {{ $tc('global.sw-modal.labelClose') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

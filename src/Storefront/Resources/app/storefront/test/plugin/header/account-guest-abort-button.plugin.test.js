@@ -1,8 +1,8 @@
 import AccountGuestAbortButtonPlugin from 'src/plugin/header/account-guest-abort-button.plugin';
 
 describe('AccountGuestAbortButtonPlugin tests', () => {
-    let accouctGuestAbortButton = undefined;
-    let spyInitializePlugins = jest.fn();
+    let accountGuestAbortButton = undefined;
+    const spyInitializePlugins = jest.fn();
 
     beforeEach(() => {
         // mock search plugin
@@ -13,34 +13,37 @@ describe('AccountGuestAbortButtonPlugin tests', () => {
             return new AccountGuestAbortButtonPlugin(mockElement);
         };
 
-        accouctGuestAbortButton = new AccountGuestAbortButtonPlugin(mockElement);
+        accountGuestAbortButton = new AccountGuestAbortButtonPlugin(mockElement);
     });
 
     afterEach(() => {
-        accouctGuestAbortButton = undefined;
+        accountGuestAbortButton = undefined;
         spyInitializePlugins.mockClear();
     });
 
     test('AccountGuestAbortButtonPlugin plugin exists', () => {
-        expect(typeof accouctGuestAbortButton).toBe('object');
+        expect(typeof accountGuestAbortButton).toBe('object');
     });
 
     test('AccountGuestAbortButtonPlugin should emitter guest-logout event when clicked', () => {
-        accouctGuestAbortButton._onButtonClicked = jest.fn();
+        accountGuestAbortButton._onButtonClicked = jest.fn();
 
-        let logoutEventPublished = false
-        accouctGuestAbortButton.$emitter.subscribe('guest-logout', () => {
+        let logoutEventPublished = false;
+        accountGuestAbortButton.$emitter.subscribe('guest-logout', () => {
             logoutEventPublished = true;
         });
 
-        window.location.assign = jest.fn();
-        accouctGuestAbortButton.el.click();
+        // Mock window.location
+        const originalLocation = window.location;
+        delete window.location;
+        window.location = { assign: jest.fn() };
+
+        accountGuestAbortButton.el.click();
 
         expect(logoutEventPublished).toEqual(true);
+        expect(window.location.assign).toBeCalledWith(accountGuestAbortButton.el.getAttribute('href'));
 
-        expect(window.location.assign).toBeCalledWith(accouctGuestAbortButton.el.getAttribute('href'));
-        window.location.assign.mockClear();
+        // Restore original window.location
+        window.location = originalLocation;
     });
 });
-
-

@@ -115,13 +115,13 @@ class ProductCartProcessorTest extends TestCase
         ];
 
         $calculator = $this->createMock(ProductPriceCalculator::class);
-        $calculator->expects(static::once())
+        $calculator->expects($this->once())
             ->method('calculate')
             ->with($products);
 
         $gateway = $this->createMock(ProductGateway::class);
         $gateway
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('get')
             ->with(['C', 'D', 'E', 'F'])
             ->willReturn(new ProductCollection([$c, $d, $e, $f]));
@@ -190,7 +190,7 @@ class ProductCartProcessorTest extends TestCase
         ]);
 
         $calculator = $this->createMock(ProductPriceCalculator::class);
-        $calculator->expects(static::exactly(2))
+        $calculator->expects($this->exactly(2))
             ->method('calculate')
             ->with([$product]);
 
@@ -280,7 +280,7 @@ class ProductCartProcessorTest extends TestCase
             1
         );
 
-        $calculator->expects(static::exactly(2))->method('calculate')->willReturn($calculatedPrice);
+        $calculator->expects($this->exactly(2))->method('calculate')->willReturn($calculatedPrice);
 
         $cartProcessor = new ProductCartProcessor(
             $this->createMock(ProductGateway::class),
@@ -308,8 +308,8 @@ class ProductCartProcessorTest extends TestCase
         static::assertCount(2, $toCalculateCart->getLineItems());
         static::assertNotNull($toCalculateCart->get('A'));
         static::assertNotNull($toCalculateCart->get('B'));
-        static::assertEquals(200, $toCalculateCart->get('A')->getPrice()?->getTotalPrice());
-        static::assertEquals(200, $toCalculateCart->get('B')->getPrice()?->getTotalPrice());
+        static::assertSame(200.0, $toCalculateCart->get('A')->getPrice()?->getTotalPrice());
+        static::assertSame(200.0, $toCalculateCart->get('B')->getPrice()?->getTotalPrice());
 
         static::assertTrue($toCalculateCart->get('A')->isShippingCostAware());
         static::assertFalse($toCalculateCart->get('B')->isShippingCostAware());

@@ -5,18 +5,14 @@ body:
     attributes:
       label: Change description
       description: |
-        Please describe your proposes change in detail.
+        Please describe your proposed change in detail.
       value: |
-        <!-- How much effort to you expect is required to make the change? -->
-        # Effort
+        # Benefit <!-- What is the benefit of the change? -->
+        
+        # Description  <!-- Please describe your proposed change in detail. -->
+        
+        # Effort <!-- How much effort do you expect is required to make the change? -->
 
-        <!-- Please describe your proposes change in detail. -->
-        # Description
-
-        <!-- What is the benefit of the change? -->
-        # Benefit
-
-        <!-- Can this change lead to any breaks? If so how should they be handled -->
-        # Break strategy
+        # Break strategy <!-- Can this change lead to any breaks? If so, how should they be handled -->
     validations:
       required: true

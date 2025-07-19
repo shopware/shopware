@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFact
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Facade\RequestFacadeFactory;
+use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
@@ -17,7 +18,7 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 abstract class PageLoadedHook extends Hook implements SalesChannelContextAware
 {
     /**
-     * @return string[]
+     * @return list<class-string<HookServiceFactory>>
      */
     public static function getServiceIds(): array
     {

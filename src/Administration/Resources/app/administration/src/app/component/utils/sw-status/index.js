@@ -5,8 +5,6 @@
 import template from './sw-status.html.twig';
 import './sw-status.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  * @description
@@ -20,10 +18,8 @@ const { Component } = Shopware;
  *     <sw-status color="red"></sw-status>
  * </div>
  */
-Component.register('sw-status', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         color: {
@@ -49,4 +45,4 @@ Component.register('sw-status', {
             };
         },
     },
-});
+};

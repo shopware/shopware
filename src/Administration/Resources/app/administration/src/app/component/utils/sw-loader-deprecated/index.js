@@ -1,8 +1,6 @@
 import './sw-loader.scss';
 import template from './sw-loader.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -14,10 +12,8 @@ const { Component } = Shopware;
  * <sw-loader />
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-loader-deprecated', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         size: {
@@ -56,4 +52,4 @@ Component.register('sw-loader-deprecated', {
             return `${Math.floor(this.numericSize / 12)}px`;
         },
     },
-});
+};

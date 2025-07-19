@@ -53,7 +53,7 @@ class ChangeCustomerGroupActionTest extends TestCase
         ]);
         $flow->setConfig(['customerGroupId' => $groupId]);
 
-        $this->repository->expects(static::once())
+        $this->repository->expects($this->once())
             ->method('update')
             ->with([['id' => $customerId, 'groupId' => $groupId]]);
 
@@ -64,7 +64,7 @@ class ChangeCustomerGroupActionTest extends TestCase
     {
         $flow = new StorableFlow('foo', Context::createDefaultContext());
 
-        $this->repository->expects(static::never())->method('update');
+        $this->repository->expects($this->never())->method('update');
 
         $this->action->handleFlow($flow);
     }
@@ -75,7 +75,7 @@ class ChangeCustomerGroupActionTest extends TestCase
             CustomerAware::CUSTOMER_ID => Uuid::randomHex(),
         ]);
 
-        $this->repository->expects(static::never())->method('update');
+        $this->repository->expects($this->never())->method('update');
 
         $this->action->handleFlow($flow);
     }

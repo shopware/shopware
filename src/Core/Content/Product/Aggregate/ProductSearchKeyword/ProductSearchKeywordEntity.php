@@ -13,47 +13,17 @@ class ProductSearchKeywordEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $languageId;
+    protected string $languageId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productId;
+    protected string $productId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $keyword;
+    protected string $keyword;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $ranking;
+    protected float $ranking;
 
-    /**
-     * @var ProductEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $product;
+    protected ?ProductEntity $product = null;
 
-    /**
-     * @var LanguageEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $language;
+    protected ?LanguageEntity $language = null;
 
     public function getLanguageId(): string
     {

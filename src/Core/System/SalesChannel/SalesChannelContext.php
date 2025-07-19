@@ -9,10 +9,11 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnitTypeEnum;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
@@ -26,137 +27,46 @@ class SalesChannelContext extends Struct
     use StateAwareTrait;
 
     /**
-     * Unique token for context, e.g. stored in session or provided in request headers
-     *
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $token;
-
-    /**
-     * @var CustomerGroupEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currentCustomerGroup;
-
-    /**
-     * @var CurrencyEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currency;
-
-    /**
-     * @var SalesChannelEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannel;
-
-    /**
-     * @var TaxCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxRules;
-
-    /**
-     * @var CustomerEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customer;
-
-    /**
-     * @var PaymentMethodEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $paymentMethod;
-
-    /**
-     * @var ShippingMethodEntity
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingMethod;
-
-    /**
-     * @var ShippingLocation
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingLocation;
-
-    /**
      * @var array<string, bool>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $permissions = [];
+    protected array $permissions = [];
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $permisionsLocked = false;
+    protected bool $permisionsLocked = false;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $imitatingUserId;
+    protected ?string $imitatingUserId = null;
 
-    /**
-     * @var Context
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $context;
+    protected MeasurementUnits $measurementSystem;
 
     /**
      * @internal
      *
      * @param array<string, array<string>> $areaRuleIds
-     *
-     * @deprecated tag:v6.7.0 - Parameter 'languageInfo' will be required and not nullable. It will also be the second last parameter
      */
     public function __construct(
-        Context $baseContext,
-        string $token,
+        protected Context $context,
+        protected string $token,
         private ?string $domainId,
-        SalesChannelEntity $salesChannel,
-        CurrencyEntity $currency,
-        CustomerGroupEntity $currentCustomerGroup,
-        TaxCollection $taxRules,
-        PaymentMethodEntity $paymentMethod,
-        ShippingMethodEntity $shippingMethod,
-        ShippingLocation $shippingLocation,
-        ?CustomerEntity $customer,
+        protected SalesChannelEntity $salesChannel,
+        protected CurrencyEntity $currency,
+        protected CustomerGroupEntity $currentCustomerGroup,
+        protected TaxCollection $taxRules,
+        protected PaymentMethodEntity $paymentMethod,
+        protected ShippingMethodEntity $shippingMethod,
+        protected ShippingLocation $shippingLocation,
+        protected ?CustomerEntity $customer,
         protected CashRoundingConfig $itemRounding,
         protected CashRoundingConfig $totalRounding,
+        protected LanguageInfo $languageInfo,
         protected array $areaRuleIds = [],
-        protected ?LanguageInfo $languageInfo = null,
+        ?MeasurementUnits $measurementSystem = null,
     ) {
-        $this->currentCustomerGroup = $currentCustomerGroup;
-        $this->currency = $currency;
-        $this->salesChannel = $salesChannel;
-        $this->taxRules = $taxRules;
-        $this->customer = $customer;
-        $this->paymentMethod = $paymentMethod;
-        $this->shippingMethod = $shippingMethod;
-        $this->shippingLocation = $shippingLocation;
-        $this->token = $token;
-        $this->context = $baseContext;
-        $this->imitatingUserId = null;
-
-        if ($this->languageInfo === null) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter "languageInfo" will be required and not nullable in the next major');
-        }
+        $this->measurementSystem = $measurementSystem ?? new MeasurementUnits(
+            MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM,
+            [
+                MeasurementUnitTypeEnum::LENGTH->value => MeasurementUnits::DEFAULT_LENGTH_UNIT,
+                MeasurementUnitTypeEnum::WEIGHT->value => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
+            ]
+        );
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupEntity
@@ -194,8 +104,7 @@ class SalesChannelContext extends Struct
         $firstTaxRule = $tax->getRules()->first();
 
         if ($firstTaxRule) {
-            // NEXT-21735 - This is covered randomly
-            // @codeCoverageIgnoreStart
+            // @codeCoverageIgnoreStart - This is covered randomly
             return new TaxRuleCollection([
                 new TaxRule($firstTaxRule->getTaxRate(), 100),
             ]);
@@ -482,6 +391,35 @@ class SalesChannelContext extends Struct
         return $result;
     }
 
+    /**
+     * Executed the callback function with the given permissions set in the SalesChannelContext. If the
+     * permissions are locked, the callback is called with the original permissions of the SalesChannelContext.
+     *
+     * @template TReturn of mixed
+     *
+     * @param array<string, bool> $permissions
+     * @param callable(SalesChannelContext): TReturn $callback
+     *
+     * @return TReturn the return value of the provided callback function
+     */
+    public function withPermissions(array $permissions, callable $callback): mixed
+    {
+        if ($this->permisionsLocked) {
+            return $callback($this);
+        }
+
+        $originalPermissions = $this->getPermissions();
+        $permissions = array_merge($originalPermissions, $permissions);
+
+        $this->setPermissions($permissions);
+
+        $result = $callback($this);
+
+        $this->setPermissions($originalPermissions);
+
+        return $result;
+    }
+
     public function getCountryId(): string
     {
         return $this->shippingLocation->getCountry()->getId();
@@ -492,20 +430,23 @@ class SalesChannelContext extends Struct
         return $this->currentCustomerGroup->getId();
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'LanguageInfo' as it is required in the next major
-     */
-    public function getLanguageInfo(): ?LanguageInfo
+    public function getLanguageInfo(): LanguageInfo
     {
-        if ($this->languageInfo === null) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property "languageInfo" will be required in the next major');
-        }
-
         return $this->languageInfo;
     }
 
     public function setLanguageInfo(LanguageInfo $languageInfo): void
     {
         $this->languageInfo = $languageInfo;
+    }
+
+    public function getMeasurementSystem(): MeasurementUnits
+    {
+        return $this->measurementSystem;
+    }
+
+    public function setMeasurementSystem(MeasurementUnits $measurementSystem): void
+    {
+        $this->measurementSystem = $measurementSystem;
     }
 }

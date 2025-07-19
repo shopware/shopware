@@ -317,6 +317,28 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 id: '23456787654321234567876577',
                 translations: [],
             },
+            {
+                locked: false,
+                key: 'creation-date',
+                value: 'creation-date',
+                position: 1,
+                active: true,
+                fields: [
+                    {
+                        field: 'product.createdAt',
+                        order: 'asc',
+                        position: 1,
+                        naturalSorting: 0,
+                    },
+                ],
+                label: 'Creation Date',
+                createdAt: '2020-08-10T06:19:53.126+00:00',
+                updatedAt: null,
+                translated: { label: 'Creation Date' },
+                apiAlias: null,
+                id: '23456787654321234567876566',
+                translations: [],
+            },
         ];
 
         entities.total = entities.length;
@@ -360,6 +382,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.number': 'Number',
         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.ratingAverage': 'Rating Average',
         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.clearanceSale': 'Clearance sale',
+        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.createdAt': 'Creation date',
     };
 
     async function createWrapper() {
@@ -449,7 +472,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         'sw-card-view': {
                             template: '<div class=""><slot></slot></div>',
                         },
-                        'sw-card': {
+                        'mt-card': {
                             template: '<div><slot></slot></div>',
                         },
                         'sw-context-button': true,
@@ -461,7 +484,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         },
                         'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                         'sw-empty-state': true,
-                        'sw-icon': true,
                         'sw-pagination': await wrapTestComponent('sw-pagination'),
                         'sw-single-select': await wrapTestComponent('sw-single-select'),
                         'sw-select-base': await wrapTestComponent('sw-select-base'),
@@ -528,7 +550,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         'sw-field-error': true,
                         'sw-language-switch': true,
                         'sw-simple-search-field': true,
-                        'sw-button': true,
                         'sw-container': true,
                         'sw-help-text': true,
                         'sw-highlight-text': true,

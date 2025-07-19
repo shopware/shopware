@@ -4,13 +4,12 @@ namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
-use Shopware\Core\System\SalesChannel\Exception\ContextPermissionsLockedException;
-use Shopware\Core\System\Tax\Exception\TaxNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -34,9 +33,12 @@ class SalesChannelException extends HttpException
     public const INVALID_TYPE = 'FRAMEWORK__INVALID_TYPE';
     final public const CURRENCY_INVALID_EXCEPTION = 'SYSTEM__CURRENCY_INVALID_EXCEPTION';
     final public const COUNTRY_INVALID_EXCEPTION = 'SYSTEM__COUNTRY_INVALID_EXCEPTION';
-
     final public const COUNTRY_STATE_INVALID_EXCEPTION = 'SYSTEM__COUNTRY_STATE_INVALID_EXCEPTION';
     final public const SALES_CHANNEL_CONTEXT_PERMISSIONS_LOCKED = 'SYSTEM__SALES_CHANNEL_CONTEXT_PERMISSIONS_LOCKED';
+    final public const ENCODING_INVALID_STRUCT_EXCEPTION = 'SYSTEM__ENCODING_INVALID_STRUCT_EXCEPTION';
+    final public const ENCODING_MISSING_AGGREGATION_EXCEPTION = 'SYSTEM__ENCODING_MISSING_AGGREGATION_EXCEPTION';
+    final public const ORDER_NOT_FOUND_CODE = 'SYSTEM__ORDER_NOT_FOUND_CODE';
+    final public const MISSING_ORDER_ASSOCIATION_CODE = 'SYSTEM__MISSING_ORDER_ASSOCIATION_CODE';
     private const INVALID_UUID_MESSAGE_TEMPLATE = 'Provided %s is not a valid UUID';
 
     public static function salesChannelNotFound(string $salesChannelId): self
@@ -81,6 +83,23 @@ class SalesChannelException extends HttpException
             self::COUNTRY_DOES_NOT_EXISTS_EXCEPTION,
             self::$couldNotFindMessage,
             ['entity' => 'country', 'field' => 'id', 'value' => $countryId]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function orderNotFound(string $orderId): self|OrderException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return OrderException::orderNotFound($orderId);
+        }
+
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ORDER_NOT_FOUND_CODE,
+            self::$couldNotFindMessage,
+            ['entity' => 'order', 'field' => 'id', 'value' => $orderId]
         );
     }
 
@@ -182,15 +201,8 @@ class SalesChannelException extends HttpException
         return CartException::customerNotLoggedIn();
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
-     */
-    public static function contextPermissionsLocked(): self|ContextPermissionsLockedException
+    public static function contextPermissionsLocked(): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new ContextPermissionsLockedException();
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SALES_CHANNEL_CONTEXT_PERMISSIONS_LOCKED,
@@ -198,15 +210,8 @@ class SalesChannelException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
-     */
-    public static function taxNotFound(string $taxId): self|TaxNotFoundException
+    public static function taxNotFound(string $taxId): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new TaxNotFoundException($taxId);
-        }
-
         return new self(
             Response::HTTP_PRECONDITION_FAILED,
             self::TAX_DOES_NOT_EXISTS_EXCEPTION,
@@ -232,6 +237,43 @@ class SalesChannelException extends HttpException
             self::SHIPPING_METHOD_DOES_NOT_EXISTS_EXCEPTION,
             self::$couldNotFindMessage,
             ['entity' => 'shipping method', 'field' => 'id', 'value' => $shippingMethodId]
+        );
+    }
+
+    public static function encodingInvalidStructException(string $context): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ENCODING_INVALID_STRUCT_EXCEPTION,
+            'Invalid struct: "{{ context }}"',
+            ['context' => $context]
+        );
+    }
+
+    public static function encodingMissingAggregationException(int|string $key, int $index): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ENCODING_MISSING_AGGREGATION_EXCEPTION,
+            'Can not find encoded aggregation "{{ key }}" for data index "{{ index }}"',
+            ['key' => $key, 'index' => $index]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function missingAssociation(string $association): self|OrderException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return OrderException::missingAssociation($association);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_ORDER_ASSOCIATION_CODE,
+            'The required association "{{ association }}" is missing .',
+            ['association' => $association]
         );
     }
 }

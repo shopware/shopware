@@ -5,10 +5,7 @@
     :class="classes"
 >
     {% block sw_settings_item_icon %}
-    <div
-        class="sw-settings-item__icon"
-        :class="{ 'background--enabled': backgroundEnabled === true }"
-    >
+    <div class="sw-settings-item__icon">
         <slot name="icon"></slot>
     </div>
     {% endblock %}

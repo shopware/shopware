@@ -9,10 +9,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\DaysSinceLastLoginRule;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\DaysSinceRule;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -38,7 +40,11 @@ class DaysSinceLastLoginRuleTest extends TestCase
 
     public function testInvalidCombinationOfValueAndOperator(): void
     {
-        $this->expectException(UnsupportedValueException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(UnsupportedValueException::class);
+        } else {
+            $this->expectException(RuleException::class);
+        }
         $this->rule->assign([
             'operator' => Rule::OPERATOR_EQ,
             'daysPassed' => null,

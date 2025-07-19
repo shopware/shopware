@@ -129,7 +129,7 @@ class ManyToManyAssociationFieldTest extends TestCase
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertInstanceOf(PartialEntity::class, $product);
-        static::assertEquals('test', $product->get('name'));
+        static::assertSame('test', $product->get('name'));
         static::assertNull($product->get('properties'));
     }
 
@@ -191,18 +191,18 @@ class ManyToManyAssociationFieldTest extends TestCase
         $media = $cover->get('media');
         static::assertInstanceOf(PartialEntity::class, $media);
 
-        static::assertEquals($id, $product->get('productNumber'));
+        static::assertSame($id, $product->get('productNumber'));
         static::assertFalse($product->has('name'));
         static::assertFalse($product->has('customFields'));
 
-        static::assertEquals($propertyId, $property->getId());
-        static::assertEquals('Propertyname', $property->get('name'));
+        static::assertSame($propertyId, $property->getId());
+        static::assertSame('Propertyname', $property->get('name'));
         static::assertFalse($property->has('customFields'));
 
-        static::assertEquals($groupId, $group->getId());
+        static::assertSame($groupId, $group->getId());
         static::assertFalse($group->has('name'));
-        static::assertEquals('value', $group->get('customFields')['key']);
+        static::assertSame('value', $group->get('customFields')['key']);
 
-        static::assertEquals('myFile', $media->get('fileName'));
+        static::assertSame('myFile', $media->get('fileName'));
     }
 }

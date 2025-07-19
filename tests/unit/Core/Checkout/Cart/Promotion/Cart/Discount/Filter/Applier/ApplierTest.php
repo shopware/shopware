@@ -6,11 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Applier\Applier;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(Applier::class)]
+#[Package('checkout')]
 class ApplierTest extends TestCase
 {
     /**
@@ -32,7 +34,7 @@ class ApplierTest extends TestCase
 
         $expected = [];
 
-        static::assertEquals($expected, $indexes);
+        static::assertSame($expected, $indexes);
     }
 
     /**
@@ -57,7 +59,7 @@ class ApplierTest extends TestCase
             1,
         ];
 
-        static::assertEquals($expected, $indexes);
+        static::assertSame($expected, $indexes);
     }
 
     /**
@@ -87,7 +89,7 @@ class ApplierTest extends TestCase
             5,
         ];
 
-        static::assertEquals($expected, $indexes);
+        static::assertSame($expected, $indexes);
     }
 
     /**
@@ -114,6 +116,6 @@ class ApplierTest extends TestCase
             4,
         ];
 
-        static::assertEquals($expected, $indexes);
+        static::assertSame($expected, $indexes);
     }
 }

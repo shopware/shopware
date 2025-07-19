@@ -5,7 +5,7 @@
 import template from './sw-app-actions.html.twig';
 import './sw-app-actions.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { hasOwnProperty } = Shopware.Utils.object;
 
@@ -28,10 +28,8 @@ const IFRAME_KEY = 'app.action_button.iframe';
 /**
  * @private
  */
-Component.register('sw-app-actions', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     extensionApiDevtoolInformation: {
         property: 'ui.actionButton',
@@ -84,7 +82,7 @@ Component.register('sw-app-actions', {
         },
 
         params() {
-            return Shopware.State.get('shopwareApps').selectedIds;
+            return Shopware.Store.get('shopwareApps').selectedIds;
         },
 
         userConfigRepository() {
@@ -92,7 +90,7 @@ Component.register('sw-app-actions', {
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         userConfigCriteria() {
@@ -105,7 +103,7 @@ Component.register('sw-app-actions', {
         },
 
         extensionSdkButtons() {
-            return Shopware.State.get('actionButtons').buttons.filter((button) => {
+            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
                 return button.entity === this.entity && button.view === this.view;
             });
         },
@@ -124,15 +122,6 @@ Component.register('sw-app-actions', {
             // If the matching entity and view is already open and the iframe call comes in late reload
             this.loadActions();
         },
-    },
-
-    created() {
-        // Reset the selectedIds when the component is created to avoid
-        // that the actions are executed on the wrong entities.
-        // Only reset when a entity exists
-        if (this.entity) {
-            Shopware.State.commit('shopwareApps/setSelectedIds', []);
-        }
     },
 
     methods: {
@@ -253,4 +242,4 @@ Component.register('sw-app-actions', {
             });
         },
     },
-});
+};

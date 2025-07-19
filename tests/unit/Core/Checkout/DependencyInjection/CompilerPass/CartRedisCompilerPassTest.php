@@ -6,10 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
-use Shopware\Core\Checkout\DependencyInjection\CompilerPass\CartRedisCompilerPass;
+use Shopware\Core\Checkout\DependencyInjection\CompilerPass\CartStorageCompilerPass;
 use Shopware\Core\Checkout\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
@@ -17,7 +16,7 @@ use Symfony\Component\DependencyInjection\Definition;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(CartRedisCompilerPass::class)]
+#[CoversClass(CartStorageCompilerPass::class)]
 class CartRedisCompilerPassTest extends TestCase
 {
     private ContainerBuilder $container;
@@ -36,7 +35,7 @@ class CartRedisCompilerPassTest extends TestCase
     {
         $this->container->setParameter('shopware.cart.storage.type', 'mysql');
 
-        $compilerPass = new CartRedisCompilerPass();
+        $compilerPass = new CartStorageCompilerPass();
         $compilerPass->process($this->container);
 
         static::assertTrue($this->container->hasDefinition(CartPersister::class));
@@ -44,45 +43,14 @@ class CartRedisCompilerPassTest extends TestCase
         static::assertFalse($this->container->hasDefinition(RedisCartPersister::class));
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - Remove in 6.7
-     */
-    public function testCompilerPassRedisStorageDsn(): void
-    {
-        $this->container->setParameter('shopware.cart.storage.type', 'redis');
-        $this->container->setParameter('shopware.cart.storage.config.dsn', 'redis://localhost:6379');
-
-        $compilerPass = new CartRedisCompilerPass();
-        $compilerPass->process($this->container);
-
-        static::assertTrue($this->container->hasDefinition(RedisCartPersister::class));
-        static::assertFalse($this->container->hasDefinition(CartPersister::class));
-    }
-
     public function testCompilerPassRedisStorageConnectionName(): void
     {
         $this->container->setParameter('shopware.cart.storage.type', 'redis');
         $this->container->setParameter('shopware.cart.storage.config.connection', 'persistent');
 
-        $compilerPass = new CartRedisCompilerPass();
+        $compilerPass = new CartStorageCompilerPass();
         $compilerPass->process($this->container);
 
-        static::assertTrue($this->container->hasDefinition(RedisCartPersister::class));
-        static::assertFalse($this->container->hasDefinition(CartPersister::class));
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Remove in 6.7
-     */
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testCompilerPassRedisUrl(): void
-    {
-        $this->container->setParameter('shopware.cart.redis_url', 'redis://localhost:6379');
-
-        $compilerPass = new CartRedisCompilerPass();
-        $compilerPass->process($this->container);
-
-        static::assertTrue($this->container->hasParameter('shopware.cart.storage.config.connection'));
         static::assertTrue($this->container->hasDefinition(RedisCartPersister::class));
         static::assertFalse($this->container->hasDefinition(CartPersister::class));
     }
@@ -93,10 +61,9 @@ class CartRedisCompilerPassTest extends TestCase
         $this->container->setParameter('shopware.cart.storage.type', 'redis');
         $this->container->getParameterBag()->remove('shopware.cart.storage.config.dsn');
 
-        $compilerPass = new CartRedisCompilerPass();
+        $compilerPass = new CartStorageCompilerPass();
 
-        // @deprecated tag:v6.7.0 - update exception message to reflect removed shopware.cart.storage.config.dsn parameter
-        $this->expectExceptionMessage('Parameter "shopware.cart.storage.config.dsn" or "shopware.cart.storage.config.connection" is required for redis storage');
+        $this->expectExceptionMessage('Parameter "shopware.cart.storage.config.connection" is required for redis storage');
         $this->expectException(DependencyInjectionException::class);
 
         $compilerPass->process($this->container);

@@ -22,7 +22,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  */
 #[AsMessageHandler]
 #[Package('framework')]
-final class WebhookEventMessageHandler
+final readonly class WebhookEventMessageHandler
 {
     private const TIMEOUT = 20;
     private const CONNECT_TIMEOUT = 10;
@@ -31,9 +31,9 @@ final class WebhookEventMessageHandler
      * @internal
      */
     public function __construct(
-        private readonly Client $client,
-        private readonly EntityRepository $webhookEventLogRepository,
-        private readonly RelatedWebhooks $relatedWebhooks,
+        private Client $client,
+        private EntityRepository $webhookEventLogRepository,
+        private RelatedWebhooks $relatedWebhooks,
     ) {
     }
 

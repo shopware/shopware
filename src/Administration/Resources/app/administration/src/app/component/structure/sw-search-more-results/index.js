@@ -1,7 +1,7 @@
 import template from './sw-search-more-results.html.twig';
 import './sw-search-more-results.scss';
 
-const { Component, Application } = Shopware;
+const { Application } = Shopware;
 
 /**
  * @sw-package framework
@@ -16,10 +16,8 @@ const { Component, Application } = Shopware;
  * </sw-search-more-results>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-search-more-results', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'searchTypeService',
@@ -71,10 +69,14 @@ Component.register('sw-search-more-results', {
         searchContent() {
             const entityName = this.$tc(`global.entities.${this.entity}`, 0);
 
-            return this.$tc('global.sw-search-more-results.labelShowResultsInModuleV2', 0, {
-                entityName: entityName,
-                entityNameLower: entityName.toLowerCase(),
-            });
+            return this.$tc(
+                'global.sw-search-more-results.labelShowResultsInModuleV2',
+                {
+                    entityName: entityName,
+                    entityNameLower: entityName.toLowerCase(),
+                },
+                0,
+            );
         },
     },
-});
+};

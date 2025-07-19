@@ -1,7 +1,6 @@
 import template from './sw-avatar.html.twig';
 import './sw-avatar.scss';
 
-const { Component } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
 
 const colors = [
@@ -43,10 +42,8 @@ const colors = [
  *            :sourceContext="user"></sw-avatar>
  * </div>
  */
-Component.register('sw-avatar', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         color: {
@@ -199,4 +196,4 @@ Component.register('sw-avatar', {
             this.lineHeight = Math.round(avatarSize * 0.98);
         },
     },
-});
+};

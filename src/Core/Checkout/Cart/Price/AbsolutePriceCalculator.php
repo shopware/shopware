@@ -23,7 +23,7 @@ class AbsolutePriceCalculator
 
     public function calculate(float $price, PriceCollection $prices, SalesChannelContext $context, int $quantity = 1): CalculatedPrice
     {
-        $taxRules = $this->percentageTaxRuleBuilder->buildRules($prices->sum());
+        $taxRules = $this->percentageTaxRuleBuilder->buildCollectionRules($prices->getCalculatedTaxes(), $prices->getTotalPriceAmount());
 
         $definition = new QuantityPriceDefinition($price, $taxRules, $quantity);
 

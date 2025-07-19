@@ -19,10 +19,6 @@
 
 		{% set totalReviewsInCurrentLanguage = reviews.totalReviewsInCurrentLanguage ?: productReviewCount %}
 		{% set numberOfReviewsNotInCurrentLanguage = productReviewCount - totalReviewsInCurrentLanguage %}
-        {# @deprecated tag:v6.7.0 - Unused variable foreignReviewsCount will be removed. Use numberOfReviewsNotInCurrentLanguage instead #}
-        {% if not feature('v6.7.0.0') %}
-		    {% set foreignReviewsCount = numberOfReviewsNotInCurrentLanguage %}
-        {% endif %}
 
 		<div class="product-detail-review tab-pane-container">
 			{% block component_review_tab_pane %}
@@ -172,12 +168,6 @@
 
                                             {% block component_review_list_counter %}
                                                 <hr/>
-
-                                                {# @deprecated tag:v6.7.0 - Unused variable `listReviewsCount` will be removed, use `productReviewCount` instead #}
-                                                {% if not feature('v6.7.0.0') %}
-                                                    {% set listReviewsCount = reviews.total %}
-                                                {% endif %}
-
                                                 <p class="text-right product-detail-review-counter">
                                                     {% if (productReviewCount > 1 and productReviewCount > reviewsPerListPage) %}
                                                         <small><strong>{{ currentListPage }}</strong> - <strong>{{ reviewsPerListPage }}</strong> {{ 'detail.reviewCountBefore'|trans|sw_sanitize }} <strong>{{ productReviewCount }}</strong> {{ 'detail.reviewCountAfter'|trans({'%count%': productReviewCount })|sw_sanitize }}</small>
@@ -197,10 +187,6 @@
                                         {% endblock %}
 
                                         {% block component_review_list_paging %}
-                                            {# @deprecated tag:v6.7.0 - unused variable `criteria` will be removed, use reviews.criteria instead #}
-                                            {% if not feature('v6.7.0.0') %}
-                                                {% set criteria = reviews.criteria %}
-                                            {% endif %}
 
                                             {% set totalPages = (productReviewCount/reviewsPerListPage)|round(0,'ceil') %}
 
@@ -212,12 +198,9 @@
                                                               method="post"
                                                               data-form-ajax-submit="true"
                                                               data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}"
-                                                              {% if feature('ACCESSIBILITY_TWEAKS') %}data-form-ajax-pagination="true"{% endif %}>
+                                                              data-form-ajax-pagination="true">
 
-                                                            {# @deprecated tag:v6.7.0 - Form input for page information will be a single input instead of multiple radio inputs within `pagination.html.twig`. #}
-                                                            {% if feature('ACCESSIBILITY_TWEAKS') %}
-                                                                <input type="hidden" name="p" value="1">
-                                                            {% endif %}
+                                                            <input type="hidden" name="p" value="1">
 
                                                             {% if app.request.get('language') %}
                                                                 <input type="hidden" name="language" value="{{ app.request.get('language') }}">
@@ -233,16 +216,7 @@
                                                                 {% endfor %}
                                                             {% endif %}
 
-                                                            {# @deprecated tag:v6.7.0 - variable `productReviewCount` will not be considered anymore, change `totalPages` if needed #}
-                                                            {% if feature('v6.7.0.0') %}
-                                                                {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {entities: reviews}  %}
-                                                            {% else %}
-                                                                {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
-                                                                    entities: reviews,
-                                                                    criteria: criteria,
-                                                                    total: productReviewCount,
-                                                                }  %}
-                                                            {% endif %}
+                                                            {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {entities: reviews}  %}
                                                         </form>
                                                     </div>
                                                 {% endblock %}

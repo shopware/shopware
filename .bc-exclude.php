@@ -3,7 +3,7 @@
 return [
     'filePatterns' => [
         '**/Test/**', // Testing
-        '**/src/WebInstaller/**', // WebInstaller
+        '**/src/WebInstaller/**', // WebInstaller TODO: remove after first 6.7 release
         '**/src/Core/Framework/Update/**', // Updater
         '**/src/Core/TestBootstrapper.php', // Testing
         '**/src/Core/Framework/Demodata/Faker/Commerce.php', // dev dependency
@@ -11,56 +11,48 @@ return [
         '**/src/Core/Profiling/Doctrine/BacktraceDebugDataHolder.php', // dev dependency
         '**/src/Core/Migration/Traits/MigrationUntouchedDbTestTrait.php', // Test code in prod
         '**src/Core/Framework/Script/ServiceStubs.php', // never intended to be extended
-        '**/src/Core/Framework/App/Source/AbstractTemporaryDirectoryFactory.php', // dropped (not released yet)
-        '**/src/Core/Framework/App/Source/TemporaryDirectoryFactory.php', // dropped decorator (not released yet)
-        '**/src/Storefront/Framework/Twig/NavigationInfo.php', // new class (not released yet)
     ],
     'errors' => [
-        // ProductReviewLoader moved to core, the entire classes is deprecated, can be removed after 6.7.0.0 release
-        'Type of property Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ReviewLoaderResult#\\$.+ changed from .+ to having no type',
-        'The return type of Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ReviewLoaderResult#.+ changed from .+ to .+',
-        'Type of property Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ProductReviewsLoadedEvent#\\$.+ changed from .+ to having no type',
-        'The return type of Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ProductReviewsLoadedEvent#.+ changed from .+ to .+',
-        'The parameter .+ of Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ProductReviewsLoadedEvent#.+ changed from .+ to .+',
-
         // Will be typed in Symfony 8 (maybe)
         'Symfony\\\\Component\\\\Console\\\\Command\\\\Command#configure\(\) changed from no type to void',
 
         'An enum expression .* is not supported in .*', // Can not be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
+        // major
+        'Value of constant Shopware\\\\Core\\\\Kernel::SHOPWARE_FALLBACK_VERSION changed from \'6.6.9999999-dev\' to \'6.7.9999999-dev\'',
 
-        // Criteria is @final so changing from void should be fine
-        'The return type of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Criteria#setTitle\(\) changed from void',
+        // Can be removed before RC release
+        'Shopware\\\\Core\\\\Framework\\\\Log\\\\LogEntryEntity.* array|null',
 
-        // Added new optional parameter to those classes
-        'Parameter session was added to Method __construct\(\) of class Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Event\\\\SalesChannelContextCreatedEvent',
-        'Parameter collectionClass was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Entity',
-        'Parameter cacheDir was added to Method createTwigEnvironment\(\) of class Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlTwigFactory',
-        'Parameter serviceMenu was added to Method __construct\(\) of class Shopware\\\\Storefront\\\\Pagelet\\\\NavigationPagelet',
-        'Parameter paymentMethods was added to Method __construct\(\) of class Shopware\\\\Storefront\\\\Pagelet\\\\NavigationPagelet',
-        'Parameter shippingMethods was added to Method __construct\(\) of class Shopware\\\\Storefront\\\\Pagelet\\\\NavigationPagelet',
+        // Incorrectly deprecated
+        'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentException.* changed from self',
 
-        // Changed $languageIdChain parameter to $context in TokenQueryBuilder
-        'The parameter $languageIdChain of \\\\Shopware\\\\Elasticsearch\\\\TokenQueryBuilder#build\(\) changed from array to array|Shopware\\\\Core\\\\Framework\\\\Context',
-        'Parameter 3 of Shopware\\\\Elasticsearch\\\\TokenQueryBuilder#build\(\) changed name from languageIdChain to context',
-        'Parameter context was added to Method build\(\) of class Shopware\\\\Elasticsearch\\\\TokenQueryBuilder',
+        // Expected to be appended when new event is added
+        'Value of constant Shopware\\\\Core\\\\Framework\\\\Webhook\\\\Hookable',
 
-        // Changed SHOPWARE_FALLBACK_VERSION to comply with latest composer changes, see: https://github.com/composer/composer/commit/1b5b56f234ab52a9dcfc935228d49e2a5e262e39
-        'Value of constant Shopware\\\\Core\\\\Kernel::SHOPWARE_FALLBACK_VERSION changed from \'6.6.9999999.9999999-dev\' to \'6.6.9999999-dev\'',
+        // Adding optional parameters to a constructor is not a BC
+        'ADDED: Parameter prefixMatch was added to Method __construct\(\) of class Shopware\\\\Elasticsearch\\\\Product\\\\SearchFieldConfig',
+        'ADDED: Parameter label was added to Method __construct\(\) of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\CalculatedTax',
+        'ADDED: Parameter senderName was added to Method __construct\(\) of class Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\SendMailTemplateParams',
+        'ADDED: Parameter response was added to Method __construct\(\) of class Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\ElasticsearchEntitySearcherSearchedEvent',
 
-        // The return type was incorrect and led to an error. It is not a breaking change if it's already breaking.
-        'The return type of Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderCollection#getOrderCustomers\(\) changed from Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerCollection to the non-covariant Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderCustomer\\\\OrderCustomerCollection',
-        'The return type of Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderCollection#getOrderCustomers\(\) changed from Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerCollection to Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderCustomer\\\\OrderCustomerCollection',
+        // Fix to make promotions work with order recalculation
+        'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*skipPromotion.*(\n.*)*to array \((\n.*)*pinAutomaticPromotions',
 
-        // Version related const values changed for 7.2 update
-        'Value of constant Symfony\\\\Component\\\\HttpKernel\\\\Kernel',
+        // No break as mixed is the top type and every other type is a subtype of mixed
+        'The parameter \$value of Shopware\\\\Storefront\\\\Event\\\\StorefrontRenderEvent#setParameter\(\) changed from no type to mixed',
 
-        // Class is marked as @final
-        'Parameter clearHttp was added to Method clear\(\) of class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheClearer',
+        // No break as the `{get,set}SeoLink()` changes have not been released
+        'REMOVED: Property Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\SalesChannelCategoryEntity#\$seoLink was removed',
+        'REMOVED: Method Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\SalesChannelCategoryEntity#(get|set)SeoLink\(\) was removed',
 
-        // Was not intended to be extended, declared as final
-        'Class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Entity became final',
-        'Parameter hydratorClass was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Entity',
+        'ADDED: Parameter visibility was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Plugin\\\\CopyBatchInput',
 
-        'Parameter a11yMediaId was added to Method __construct\(\) of class Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentIdStruct',
+        // The type has been extended and the old type is still accepted
+        'CHANGED: The parameter \$context of Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Extension\\\\BuildBreadcrumbExtension#(getFullBreadcrumb|getFullBreadcrumbById)\(\) changed from Shopware\\\\Core\\\\Framework\\\\Context to Shopware\\\\Core\\\\Framework\\\\Context\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext',
+
+        // The parameters are optional, so this is not a BC break
+        'ADDED: Parameter .* was added to Method accessDeniedForXmlHttpRequest\(\) of class Shopware\\\\Core\\\\Framework\\\\Routing\\\\RoutingException',
+
+        'ADDED: Parameter clock was added to Method __construct\(\) of class Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Gateway\\\\Template\\\\ActiveDateRange'
     ],
 ];

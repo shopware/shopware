@@ -5,8 +5,6 @@
 import template from './sw-progress-bar.html.twig';
 import './sw-progress-bar.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  * @description Renders a progressbar to indicate progress
@@ -16,10 +14,8 @@ const { Component } = Shopware;
  * <sw-progress-bar :value="0" :maxValue="480"></sw-progress-bar>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-progress-bar', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['userActivityService'],
 
@@ -61,4 +57,4 @@ Component.register('sw-progress-bar', {
             this.userActivityService.updateLastUserActivity();
         },
     },
-});
+};

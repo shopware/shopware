@@ -14,47 +14,17 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentBaseConfigId;
+    protected string $documentBaseConfigId;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelId;
+    protected ?string $salesChannelId = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentTypeId;
+    protected string $documentTypeId;
 
-    /**
-     * @var DocumentTypeEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentType;
+    protected ?DocumentTypeEntity $documentType = null;
 
-    /**
-     * @var DocumentBaseConfigEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentBaseConfig;
+    protected ?DocumentBaseConfigEntity $documentBaseConfig = null;
 
-    /**
-     * @var SalesChannelEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
     public function getDocumentBaseConfigId(): string
     {

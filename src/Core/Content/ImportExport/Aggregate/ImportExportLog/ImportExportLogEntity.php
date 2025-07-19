@@ -21,117 +21,37 @@ class ImportExportLogEntity extends Entity
 
     final public const ACTIVITY_TEMPLATE = 'template';
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $activity;
+    protected string $activity;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $state;
+    protected string $state;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $records = 0;
+    protected int $records = 0;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $username;
+    protected ?string $username = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $profileName;
+    protected ?string $profileName = null;
 
-    /**
-     * @var UserEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $user;
+    protected ?UserEntity $user = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $userId;
+    protected ?string $userId = null;
 
-    /**
-     * @var ImportExportProfileEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $profile;
+    protected ?ImportExportProfileEntity $profile = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $profileId;
+    protected ?string $profileId = null;
 
-    /**
-     * @var ImportExportFileEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $file;
+    protected ?ImportExportFileEntity $file = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $fileId;
+    protected ?string $fileId = null;
 
-    /**
-     * @var array
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $config = [];
+    protected array $config = [];
 
-    /**
-     * @var array
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $result = [];
+    protected array $result = [];
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $invalidRecordsLogId;
+    protected ?string $invalidRecordsLogId = null;
 
-    /**
-     * @var self|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $invalidRecordsLog;
+    protected ?self $invalidRecordsLog = null;
 
-    /**
-     * @var self|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $failedImportLog;
+    protected ?self $failedImportLog = null;
 
     public function getActivity(): string
     {

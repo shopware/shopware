@@ -18,6 +18,6 @@ class ManifestFactoryTest extends TestCase
 
         $manifest = $factory->createFromXmlFile(__DIR__ . '/_fixtures/test/manifest.xml');
 
-        static::assertEquals(__DIR__ . '/_fixtures/test', $manifest->getPath());
+        static::assertSame(__DIR__ . '/_fixtures/test', $manifest->getPath());
     }
 }

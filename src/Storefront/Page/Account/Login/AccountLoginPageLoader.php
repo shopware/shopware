@@ -6,7 +6,7 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\Country\CountryCollection;
@@ -28,8 +28,6 @@ class AccountLoginPageLoader
 {
     /**
      * @internal
-     *
-     * @deprecated tag:v6.7.0 - translator will be mandatory from 6.7
      */
     public function __construct(
         private readonly GenericPageLoaderInterface $genericLoader,
@@ -37,7 +35,7 @@ class AccountLoginPageLoader
         private readonly AbstractCountryRoute $countryRoute,
         private readonly AbstractSalutationRoute $salutationRoute,
         private readonly AbstractSalutationsSorter $salutationsSorter,
-        private readonly ?AbstractTranslator $translator = null
+        private readonly AbstractTranslator $translator
     ) {
     }
 
@@ -68,15 +66,13 @@ class AccountLoginPageLoader
     {
         $page->getMetaInformation()?->setRobots('noindex,follow');
 
-        if ($this->translator !== null && $page->getMetaInformation() === null) {
+        if ($page->getMetaInformation() === null) {
             $page->setMetaInformation(new MetaInformation());
         }
 
-        if ($this->translator !== null) {
-            $page->getMetaInformation()?->setMetaTitle(
-                $this->translator->trans('account.registerMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
-            );
-        }
+        $page->getMetaInformation()?->setMetaTitle(
+            $this->translator->trans('account.registerMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
+        );
     }
 
     /**
@@ -92,13 +88,13 @@ class AccountLoginPageLoader
     private function getCountries(SalesChannelContext $salesChannelContext): CountryCollection
     {
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('active', true))
-            ->addAssociation('states');
+            ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING))
+            ->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
 
-        $countries = $this->countryRoute->load(new Request(), $criteria, $salesChannelContext)->getCountries();
+        $criteria->getAssociation('states')
+            ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING))
+            ->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
 
-        $countries->sortCountryAndStates();
-
-        return $countries;
+        return $this->countryRoute->load(new Request(), $criteria, $salesChannelContext)->getCountries();
     }
 }

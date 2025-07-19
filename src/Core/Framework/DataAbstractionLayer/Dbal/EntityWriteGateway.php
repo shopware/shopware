@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder as DbalQueryBuilderAlias;
-use Doctrine\DBAL\Types\Types;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
@@ -215,7 +215,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
                     $innerException = $this->exceptionHandlerRegistry->matchException($e);
 
-                    if ($innerException instanceof \Exception) {
+                    if ($innerException !== null) {
                         $e = $innerException;
                     }
                     $context->getExceptions()->add($e);
@@ -228,9 +228,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             $inserts->execute();
             $entityDeleteEvent->success();
         } catch (Exception $e) {
-            // Match exception without passing a specific command when feature-flag 16640 is active
             $innerException = $this->exceptionHandlerRegistry->matchException($e);
-            if ($innerException instanceof \Exception) {
+            if ($innerException !== null) {
                 $e = $innerException;
             }
             $context->getExceptions()->add($e);
@@ -411,9 +410,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         foreach ($command->getPayload() as $attribute => $value) {
             // add path and value for each attribute value pair
             $values[] = '$."' . $attribute . '"';
-            $types[] = Types::STRING;
+            $types[] = ParameterType::STRING;
             if (\is_array($value) || \is_object($value)) {
-                $types[] = Types::STRING;
+                $types[] = ParameterType::STRING;
                 $values[] = json_encode($value, \JSON_THROW_ON_ERROR | \JSON_PRESERVE_ZERO_FRACTION | \JSON_UNESCAPED_UNICODE);
                 // does the same thing as CAST(?, json) but works on mariadb
                 $identityValue = \is_object($value) || self::isAssociative($value) ? '{}' : '[]';
@@ -426,14 +425,14 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 $set = '?, ?';
 
                 if (\is_float($value)) {
-                    $types[] = \PDO::PARAM_STR;
+                    $types[] = ParameterType::STRING;
                     $set = '?, ? + 0.0';
                 } elseif (\is_int($value)) {
-                    $types[] = \PDO::PARAM_INT;
+                    $types[] = ParameterType::INTEGER;
                 } elseif (\is_bool($value)) {
                     $set = '?, ' . ($value ? 'true' : 'false');
                 } else {
-                    $types[] = \PDO::PARAM_STR;
+                    $types[] = ParameterType::STRING;
                 }
 
                 $sets[] = $set;

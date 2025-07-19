@@ -11,80 +11,18 @@ use Shopware\Core\Framework\Util\FloatComparator;
 #[Package('checkout')]
 class CalculatedPrice extends Struct
 {
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $unitPrice;
-
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $quantity;
-
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $totalPrice;
-
-    /**
-     * @var CalculatedTaxCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $calculatedTaxes;
-
-    /**
-     * @var TaxRuleCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxRules;
-
-    /**
-     * @var ReferencePrice|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $referencePrice;
-
-    /**
-     * @var ListPrice|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $listPrice;
-
-    /**
-     * @var RegulationPrice|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $regulationPrice;
-
     public function __construct(
-        float $unitPrice,
-        float $totalPrice,
-        CalculatedTaxCollection $calculatedTaxes,
-        TaxRuleCollection $taxRules,
-        int $quantity = 1,
-        ?ReferencePrice $referencePrice = null,
-        ?ListPrice $listPrice = null,
-        ?RegulationPrice $regulationPrice = null
+        protected float $unitPrice,
+        protected float $totalPrice,
+        protected CalculatedTaxCollection $calculatedTaxes,
+        protected TaxRuleCollection $taxRules,
+        protected int $quantity = 1,
+        protected ?ReferencePrice $referencePrice = null,
+        protected ?ListPrice $listPrice = null,
+        protected ?RegulationPrice $regulationPrice = null
     ) {
         $this->unitPrice = FloatComparator::cast($unitPrice);
         $this->totalPrice = FloatComparator::cast($totalPrice);
-        $this->calculatedTaxes = $calculatedTaxes;
-        $this->taxRules = $taxRules;
-        $this->quantity = $quantity;
-        $this->referencePrice = $referencePrice;
-        $this->listPrice = $listPrice;
-        $this->regulationPrice = $regulationPrice;
     }
 
     public function getTotalPrice(): float

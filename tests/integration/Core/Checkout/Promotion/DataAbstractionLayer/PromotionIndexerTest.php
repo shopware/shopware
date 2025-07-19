@@ -3,8 +3,10 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Promotion\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionIndexer;
 use Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionIndexingMessage;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -42,10 +44,10 @@ class PromotionIndexerTest extends TestCase
 
         $salesChannelContext = $this->createSalesChannelContext();
 
-        /** @var EntityRepository $promotionRepository */
+        /** @var EntityRepository<PromotionCollection> $promotionRepository */
         $promotionRepository = static::getContainer()->get('promotion.repository');
 
-        /** @var EntityRepository $promotionIndividualRepository */
+        /** @var EntityRepository<PromotionIndividualCodeCollection> $promotionIndividualRepository */
         $promotionIndividualRepository = static::getContainer()->get('promotion_individual_code.repository');
 
         $voucherA = $this->ids->create('voucherA');
@@ -75,7 +77,7 @@ class PromotionIndexerTest extends TestCase
 
         $salesChannelContext = $this->createSalesChannelContext();
 
-        /** @var EntityRepository $promotionRepository */
+        /** @var EntityRepository<PromotionCollection> $promotionRepository */
         $promotionRepository = static::getContainer()->get('promotion.repository');
 
         $voucherA = $this->ids->create('voucherA');

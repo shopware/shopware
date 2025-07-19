@@ -8,9 +8,9 @@ use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Rule\RuleIdMatcher;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -32,7 +32,8 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
     public function __construct(
         private readonly SalesChannelRepository $shippingMethodRepository,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly ScriptExecutor $scriptExecutor
+        private readonly ScriptExecutor $scriptExecutor,
+        private readonly RuleIdMatcher $ruleIdMatcher,
     ) {
     }
 
@@ -46,7 +47,12 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
         return 'shipping-method-route-' . $salesChannelId;
     }
 
-    #[Route(path: '/store-api/shipping-method', name: 'store-api.shipping.method', methods: ['GET', 'POST'], defaults: ['_entity' => 'shipping_method'])]
+    #[Route(
+        path: '/store-api/shipping-method',
+        name: 'store-api.shipping.method',
+        defaults: ['_entity' => 'shipping_method'],
+        methods: ['GET', 'POST']
+    )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse
     {
         $this->dispatcher->dispatch(new AddCacheTagEvent(
@@ -64,27 +70,19 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
         $result = $this->shippingMethodRepository->search($criteria, $context);
 
         $shippingMethods = $result->getEntities();
+        $shippingMethods->sortShippingMethodsByPreference($context);
 
-        if (Feature::isActive('cache_rework')) {
-            $shippingMethods->sortShippingMethodsByPreference($context);
-        }
-
-        /**
-         * @deprecated tag:v6.7.0 - onlyAvailable flag will be removed, use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute  instead
-         */
         if ($request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable')) {
-            $shippingMethods = $shippingMethods->filterByActiveRules($context);
+            $shippingMethods = $this->ruleIdMatcher->filterCollection($shippingMethods, $context->getRuleIds());
         }
 
-        $result->assign(['entities' => $shippingMethods, 'elements' => $shippingMethods, 'total' => $shippingMethods->count()]);
+        $result->assign(['entities' => $shippingMethods, 'elements' => $shippingMethods->getElements(), 'total' => $shippingMethods->count()]);
 
-        if (Feature::isActive('cache_rework')) {
-            $this->scriptExecutor->execute(new ShippingMethodRouteHook(
-                $shippingMethods,
-                $request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable'),
-                $context
-            ));
-        }
+        $this->scriptExecutor->execute(new ShippingMethodRouteHook(
+            $shippingMethods,
+            $request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable'),
+            $context,
+        ));
 
         return new ShippingMethodRouteResponse($result);
     }

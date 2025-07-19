@@ -3,14 +3,13 @@
  */
 import template from './sw-bulk-edit-save-modal-success.html.twig';
 import './sw-bulk-edit-save-modal-success.scss';
+import fileReaderUtils from '../../../../core/service/utils/file-reader.utils';
 
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -52,11 +51,11 @@ export default {
         },
 
         selectedIds() {
-            return Shopware.State.get('shopwareApps').selectedIds;
+            return Shopware.Store.get('swBulkEdit').selectedIds;
         },
 
         downloadOrderDocuments() {
-            return Shopware.State.get('swBulkEdit')?.orderDocuments?.download;
+            return Shopware.Store.get('swBulkEdit')?.orderDocuments?.download;
         },
 
         latestDocumentsCriteria() {
@@ -172,11 +171,7 @@ export default {
                 return Promise.resolve();
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.document[documentType], 'isDownloading', true);
-            } else {
-                this.document[documentType].isDownloading = true;
-            }
+            this.document[documentType].isDownloading = true;
             return this.orderDocumentApiService
                 .download(documentIds)
                 .then((response) => {
@@ -184,7 +179,7 @@ export default {
                         return;
                     }
 
-                    const filename = response.headers['content-disposition'].split('filename=')[1];
+                    const filename = fileReaderUtils.getFilenameFromResponse(response);
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(response.data);
                     link.download = filename;
@@ -197,11 +192,7 @@ export default {
                     });
                 })
                 .finally(() => {
-                    if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(this.document[documentType], 'isDownloading', false);
-                    } else {
-                        this.document[documentType].isDownloading = false;
-                    }
+                    this.document[documentType].isDownloading = false;
                 });
         },
     },

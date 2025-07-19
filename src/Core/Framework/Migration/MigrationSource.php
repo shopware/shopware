@@ -46,7 +46,7 @@ class MigrationSource
         $sources = [];
 
         foreach ($this->sources as $directory => $namespace) {
-            if ($namespace instanceof MigrationSource) {
+            if ($namespace instanceof self) {
                 $sources = array_merge($sources, $namespace->getSourceDirectories());
             } else {
                 $sources[$directory] = $namespace;

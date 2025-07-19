@@ -33,11 +33,10 @@ async function createWrapper(privileges = []) {
                     'sw-card-view': {
                         template: '<div><slot></slot></div>',
                     },
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot name="grid"></slot></div>',
                     },
                     'sw-context-menu-item': true,
-                    'sw-button': true,
                     'sw-entity-listing': {
                         props: [
                             'items',
@@ -66,7 +65,6 @@ async function createWrapper(privileges = []) {
                     'sw-empty-state': true,
                     'router-link': true,
                     'sw-search-bar': true,
-                    'sw-icon': true,
                     'sw-language-info': true,
                     'sw-language-switch': true,
                 },
@@ -153,7 +151,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
         const createButton = wrapper.find('.sw-settings-customer-group-list__create');
 
-        expect(createButton.attributes().disabled).toBeTruthy();
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to create with create permission', async () => {

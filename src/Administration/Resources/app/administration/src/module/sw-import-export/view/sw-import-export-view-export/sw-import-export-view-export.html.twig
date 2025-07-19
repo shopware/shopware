@@ -1,18 +1,18 @@
 {% block sw_import_export_view_export %}
 <div class="sw-import-export-view-export">
     {% block sw_import_export_view_export_exporter %}
-    <sw-card
+    <mt-card
         :title="$tc('sw-import-export.exporter.exportLabel')"
         position-identifier="sw-import-export-view-export"
     >
         <sw-import-export-exporter
             @export-started="reloadContent"
         />
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_import_export_view_export_activity %}
-    <sw-card
+    <mt-card
         class="sw-import-export-view-export__activity"
         position-identifier="sw-import-export-view-export-activity"
     >
@@ -35,7 +35,7 @@
             />
         </template>
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

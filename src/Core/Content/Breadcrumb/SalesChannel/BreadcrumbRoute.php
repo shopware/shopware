@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Breadcrumb\SalesChannel;
 
-use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
 use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
@@ -12,9 +11,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-/**
- * @experimental stableVersion:v6.7.0 feature:BREADCRUMB_STORE_API
- */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('inventory')]
 class BreadcrumbRoute extends AbstractBreadcrumbRoute

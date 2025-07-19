@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\Recurring\RecurringDataStruct;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\PaymentPayload;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
@@ -40,9 +39,5 @@ class PaymentPayloadTest extends TestCase
         static::assertSame($validateStruct, $payload->getValidateStruct());
         static::assertSame($recurring, $payload->getRecurring());
         static::assertSame($source, $payload->getSource());
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            static::assertSame($requestData, $payload->jsonSerialize()['queryParameters']);
-        }
     }
 }

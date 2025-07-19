@@ -9,8 +9,10 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -29,294 +31,108 @@ class OrderEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderNumber;
+    protected ?string $orderNumber = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currencyId;
+    protected string $currencyId;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currencyFactor;
+    protected float $currencyFactor;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelId;
+    protected string $salesChannelId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $billingAddressId;
+    protected string $billingAddressId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $billingAddressVersionId;
+    protected string $billingAddressVersionId;
 
-    /**
-     * @var \DateTimeInterface
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderDateTime;
+    protected \DateTimeInterface $orderDateTime;
 
-    /**
-     * @var \DateTimeInterface
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderDate;
+    protected \DateTimeInterface $orderDate;
 
-    /**
-     * @var CartPrice
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $price;
+    protected CartPrice $price;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $amountTotal;
+    protected float $amountTotal;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $amountNet;
+    protected float $amountNet;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $positionPrice;
+    protected float $positionPrice;
 
-    /**
-     * @deprecated tag:v6.7.0 - Type will be nullable. Also, it will be natively typed to enforce strict data type checking.
-     *
-     * @var string|null
-     */
-    protected $taxStatus;
+    protected ?string $taxStatus = null;
 
-    /**
-     * @var CalculatedPrice
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingCosts;
+    protected CalculatedPrice $shippingCosts;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingTotal;
+    protected float $shippingTotal;
 
-    /**
-     * @var OrderCustomerEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderCustomer;
+    protected ?OrderCustomerEntity $orderCustomer = null;
 
-    /**
-     * @var CurrencyEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $currency;
+    protected ?CurrencyEntity $currency = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $languageId;
+    protected string $languageId;
 
-    /**
-     * @var LanguageEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $language;
+    protected ?LanguageEntity $language = null;
 
-    /**
-     * @var SalesChannelEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
-    /**
-     * @var OrderAddressCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $addresses;
+    protected ?OrderAddressCollection $addresses = null;
 
-    /**
-     * @var OrderAddressEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $billingAddress;
+    protected ?OrderAddressEntity $billingAddress = null;
 
-    /**
-     * @var OrderDeliveryCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $deliveries;
+    protected ?OrderDeliveryCollection $deliveries = null;
 
-    /**
-     * @var OrderLineItemCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $lineItems;
+    protected ?OrderLineItemCollection $lineItems = null;
 
-    /**
-     * @var OrderTransactionCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $transactions;
+    protected ?OrderTransactionCollection $transactions = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $deepLinkCode;
+    protected ?string $deepLinkCode = null;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $autoIncrement;
+    protected int $autoIncrement;
 
-    /**
-     * @var StateMachineStateEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $stateMachineState;
+    protected ?StateMachineStateEntity $stateMachineState = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $stateId;
+    protected string $stateId;
 
-    /**
-     * @var DocumentCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documents;
+    protected ?OrderDeliveryEntity $primaryOrderDelivery = null;
 
-    /**
-     * @var TagCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $tags;
+    protected ?string $primaryOrderDeliveryId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $affiliateCode;
+    protected ?string $primaryOrderDeliveryVersionId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $campaignCode;
+    protected ?OrderTransactionEntity $primaryOrderTransaction = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customerComment;
+    protected ?string $primaryOrderTransactionId = null;
+
+    protected ?string $primaryOrderTransactionVersionId = null;
+
+    protected ?DocumentCollection $documents = null;
+
+    protected ?TagCollection $tags = null;
+
+    protected ?string $affiliateCode = null;
+
+    protected ?string $campaignCode = null;
+
+    protected ?string $customerComment = null;
+
+    protected ?string $internalComment = null;
 
     /**
      * @var array<string>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $ruleIds = [];
+    protected ?array $ruleIds = [];
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $createdById;
+    protected ?string $createdById = null;
 
-    /**
-     * @var UserEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $createdBy;
+    protected ?UserEntity $createdBy = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $updatedById;
+    protected ?string $updatedById = null;
 
-    /**
-     * @var UserEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $updatedBy;
+    protected ?UserEntity $updatedBy = null;
 
-    /**
-     * @var CashRoundingConfig|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $itemRounding;
+    protected ?CashRoundingConfig $itemRounding = null;
 
-    /**
-     * @var CashRoundingConfig|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $totalRounding;
+    protected ?CashRoundingConfig $totalRounding = null;
 
     protected ?string $source = null;
+
+    protected ?string $taxCalculationType = null;
 
     public function getCurrencyId(): string
     {
@@ -403,18 +219,9 @@ class OrderEntity extends Entity
         return $this->positionPrice;
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will also return null
-     * return type will be ?string in v6.7.0.0
-     */
-    public function getTaxStatus(): string
+    public function getTaxStatus(): ?string
     {
-        /**
-         * @deprecated tag:v6.7.0
-         * remove the null-check
-         * return $this->taxStatus;
-         */
-        return $this->taxStatus ?? '';
+        return $this->taxStatus;
     }
 
     public function getShippingCosts(): CalculatedPrice
@@ -587,6 +394,46 @@ class OrderEntity extends Entity
         $this->shippingTotal = $shippingTotal;
     }
 
+    public function getPrimaryOrderDelivery(): ?OrderDeliveryEntity
+    {
+        return $this->primaryOrderDelivery;
+    }
+
+    public function setPrimaryOrderDelivery(?OrderDeliveryEntity $primaryOrderDelivery): void
+    {
+        $this->primaryOrderDelivery = $primaryOrderDelivery;
+    }
+
+    public function getPrimaryOrderDeliveryId(): ?string
+    {
+        return $this->primaryOrderDeliveryId;
+    }
+
+    public function setPrimaryOrderDeliveryId(?string $primaryOrderDeliveryId): void
+    {
+        $this->primaryOrderDeliveryId = $primaryOrderDeliveryId;
+    }
+
+    public function getPrimaryOrderTransaction(): ?OrderTransactionEntity
+    {
+        return $this->primaryOrderTransaction;
+    }
+
+    public function setPrimaryOrderTransaction(?OrderTransactionEntity $primaryOrderTransaction): void
+    {
+        $this->primaryOrderTransaction = $primaryOrderTransaction;
+    }
+
+    public function getPrimaryOrderTransactionId(): ?string
+    {
+        return $this->primaryOrderTransactionId;
+    }
+
+    public function setPrimaryOrderTransactionId(?string $primaryOrderTransactionId): void
+    {
+        $this->primaryOrderTransactionId = $primaryOrderTransactionId;
+    }
+
     public function getDocuments(): ?DocumentCollection
     {
         return $this->documents;
@@ -663,6 +510,16 @@ class OrderEntity extends Entity
         $this->customerComment = $customerComment;
     }
 
+    public function getInternalComment(): ?string
+    {
+        return $this->internalComment;
+    }
+
+    public function setInternalComment(?string $internalComment): void
+    {
+        $this->internalComment = $internalComment;
+    }
+
     public function getSource(): ?string
     {
         return $this->source;
@@ -671,6 +528,16 @@ class OrderEntity extends Entity
     public function setSource(?string $source): void
     {
         $this->source = $source;
+    }
+
+    public function getTaxCalculationType(): ?string
+    {
+        return $this->taxCalculationType;
+    }
+
+    public function setTaxCalculationType(?string $taxCalculationType): void
+    {
+        $this->taxCalculationType = $taxCalculationType;
     }
 
     /**
@@ -767,6 +634,26 @@ class OrderEntity extends Entity
     public function setBillingAddressVersionId(string $billingAddressVersionId): void
     {
         $this->billingAddressVersionId = $billingAddressVersionId;
+    }
+
+    public function getPrimaryOrderDeliveryVersionId(): ?string
+    {
+        return $this->primaryOrderDeliveryVersionId;
+    }
+
+    public function setPrimaryOrderDeliveryVersionId(?string $primaryOrderDeliveryVersionId): void
+    {
+        $this->primaryOrderDeliveryVersionId = $primaryOrderDeliveryVersionId;
+    }
+
+    public function getPrimaryOrderTransactionVersionId(): ?string
+    {
+        return $this->primaryOrderTransactionVersionId;
+    }
+
+    public function setPrimaryOrderTransactionVersionId(?string $primaryOrderTransactionVersionId): void
+    {
+        $this->primaryOrderTransactionVersionId = $primaryOrderTransactionVersionId;
     }
 
     private function addChildren(OrderLineItemCollection $lineItems, OrderLineItemCollection $parents): void

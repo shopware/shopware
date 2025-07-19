@@ -2,13 +2,12 @@ import { reactive } from 'vue';
 import template from './sw-text-editor.html.twig';
 import './sw-text-editor.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  * @status ready
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-text-editor instead.
  * @example-type static
  * @description <p>A simple text editor which uses the browsers api.
  *              Pass a buttonConfig array to configure the buttons you desire.
@@ -35,10 +34,8 @@ const { Component } = Shopware;
  *      :is-inline-edit="true"
  *  />
  */
-Component.register('sw-text-editor', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -1097,4 +1094,4 @@ Component.register('sw-text-editor', {
             return !!this.label || !!this.$slots.label || !!this.$scopedSlots?.label?.();
         },
     },
-});
+};

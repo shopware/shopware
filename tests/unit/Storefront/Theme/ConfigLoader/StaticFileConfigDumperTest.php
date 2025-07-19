@@ -44,10 +44,10 @@ class StaticFileConfigDumperTest extends TestCase
         $location = StaticFileAvailableThemeProvider::THEME_INDEX;
 
         $dumper->dumpConfig(Context::createDefaultContext());
-        static::assertEquals('{"test":"test"}', $privateFileSystem->read($location));
+        static::assertSame('{"test":"test"}', $privateFileSystem->read($location));
 
         $dumper->dumpConfigFromEvent();
-        static::assertEquals('{"test":"test"}', $privateFileSystem->read($location));
+        static::assertSame('{"test":"test"}', $privateFileSystem->read($location));
     }
 
     public function testDumpConfigInVar(): void
@@ -70,7 +70,7 @@ class StaticFileConfigDumperTest extends TestCase
 
     public function testgetSubscribedEvents(): void
     {
-        static::assertEquals(
+        static::assertSame(
             [
                 ThemeConfigChangedEvent::class => 'dumpConfigFromEvent',
                 ThemeAssignedEvent::class => 'dumpConfigFromEvent',

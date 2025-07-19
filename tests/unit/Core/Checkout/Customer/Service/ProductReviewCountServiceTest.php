@@ -28,16 +28,16 @@ class ProductReviewCountServiceTest extends TestCase
 
     public function testUpdateReviewCountWithInvalidReviewIds(): void
     {
-        $this->connection->expects(static::once())->method('fetchFirstColumn')->willReturn([]);
-        $this->connection->expects(static::never())->method('executeStatement');
+        $this->connection->expects($this->once())->method('fetchFirstColumn')->willReturn([]);
+        $this->connection->expects($this->never())->method('executeStatement');
 
         $this->productReviewCountService->updateReviewCount([]);
     }
 
     public function testUpdateReviewCount(): void
     {
-        $this->connection->expects(static::once())->method('fetchFirstColumn')->willReturn(['foobar', 'barfoo']);
-        $this->connection->expects(static::exactly(2))->method('executeStatement');
+        $this->connection->expects($this->once())->method('fetchFirstColumn')->willReturn(['foobar', 'barfoo']);
+        $this->connection->expects($this->exactly(2))->method('executeStatement');
 
         $this->productReviewCountService->updateReviewCount([]);
     }

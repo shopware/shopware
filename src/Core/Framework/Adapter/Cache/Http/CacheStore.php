@@ -2,19 +2,19 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
-use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheHitEvent;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheStoreEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
-use Shopware\Core\System\SalesChannel\StoreApiResponse;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\Lock\LockFactory;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -35,21 +35,21 @@ class CacheStore implements StoreInterface
     /**
      * @internal
      *
-     * @param AbstractCacheTracer<StoreApiResponse> $tracer
      * @param array<string, mixed> $sessionOptions
      */
     public function __construct(
         private readonly TagAwareAdapterInterface $cache,
         private readonly CacheStateValidator $stateValidator,
         private readonly EventDispatcherInterface $eventDispatcher,
-        // @deprecated tag:v6.7.0 - remove
-        private readonly AbstractCacheTracer $tracer,
         private readonly HttpCacheKeyGenerator $cacheKeyGenerator,
         private readonly MaintenanceModeResolver $maintenanceResolver,
         array $sessionOptions,
-        private readonly CacheTagCollector $collector
+        private readonly CacheTagCollector $collector,
+        private readonly HttpKernelInterface $kernel,
+        private bool $softPurge,
+        private readonly LockFactory $lockFactory,
     ) {
-        $this->sessionName = $sessionOptions['name'] ?? 'session-';
+        $this->sessionName = $sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME;
     }
 
     public function lookup(Request $request): ?Response
@@ -67,8 +67,37 @@ class CacheStore implements StoreInterface
             return null;
         }
 
-        /** @var Response $response */
-        $response = CacheCompressor::uncompress($item);
+        /** @var Response|array{response: Response, tags: array<string>} $hitData */
+        $hitData = CacheCompressor::uncompress($item);
+        $tags = [];
+
+        $response = \is_array($hitData) ? $hitData['response'] : $hitData;
+        if (\is_array($hitData)) {
+            $tags = $hitData['tags'] ?? [];
+        }
+
+        if ($this->softPurge) {
+            $minInvalidation = $this->getMinInvalidation($tags);
+            $responseGeneratedAt = new \DateTime((string) $response->headers->get('date'));
+            $staleWhileRevalidate = $response->headers->getCacheControlDirective('stale-while-revalidate');
+
+            if ($minInvalidation >= $responseGeneratedAt->getTimestamp()) {
+                // The cache is too old, we need to revalidate it
+                if ($staleWhileRevalidate && $responseGeneratedAt->diff(new \DateTime())->s >= (int) $staleWhileRevalidate) {
+                    return null;
+                }
+
+                $lock = $this->lockFactory->createLock($key, 3);
+                if ($lock->acquire()) {
+                    register_shutdown_function(function () use ($request, $lock): void {
+                        $response = $this->kernel->handle($request, HttpKernelInterface::MAIN_REQUEST, false);
+                        $this->write($request, $response);
+
+                        $lock->release();
+                    });
+                }
+            }
+        }
 
         if (!$this->stateValidator->isValid($request, $response)) {
             return null;
@@ -94,7 +123,7 @@ class CacheStore implements StoreInterface
             return $key;
         }
 
-        $tags = $this->getTags($request);
+        $tags = $this->collector->get($request);
 
         if ($response->headers->has(self::TAG_HEADER)) {
             /** @var string $tagHeader */
@@ -120,23 +149,23 @@ class CacheStore implements StoreInterface
             }
         }
 
-        $item = CacheCompressor::compress($item, $cacheResponse);
-        $item->expiresAt($cacheResponse->getExpires());
-        $item->tag($tags);
-
-        if (Feature::isActive('cache_rework')) {
-            $this->eventDispatcher->dispatch(
-                new HttpCacheStoreEvent($item, $tags, $request, $response)
-            );
-
-            $this->cache->save($item);
+        if ($this->softPurge) {
+            $item = CacheCompressor::compress($item, [
+                'response' => $cacheResponse,
+                'tags' => $tags,
+            ]);
         } else {
-            $this->cache->save($item);
-
-            $this->eventDispatcher->dispatch(
-                new HttpCacheStoreEvent($item, $tags, $request, $response)
-            );
+            $item = CacheCompressor::compress($item, $cacheResponse);
+            $item->tag($tags);
         }
+
+        $item->expiresAt($cacheResponse->getExpires());
+
+        $this->eventDispatcher->dispatch(
+            new HttpCacheStoreEvent($item, $tags, $request, $response)
+        );
+
+        $this->cache->save($item);
 
         return $key;
     }
@@ -191,7 +220,7 @@ class CacheStore implements StoreInterface
     }
 
     /**
-     * Returns whether or not a lock exists.
+     * Returns whether a lock exists.
      */
     public function isLocked(Request $request): bool
     {
@@ -224,33 +253,28 @@ class CacheStore implements StoreInterface
     }
 
     /**
-     * @return array<string>
+     * @param array<string> $tags
      */
-    private function getTags(Request $request): array
+    private function getMinInvalidation(array $tags): int
     {
-        if (Feature::isActive('cache_rework')) {
-            return $this->collector->get($request);
+        $lastInvalidation = 0;
+
+        $invalidations = $this->cache->getItems(
+            array_map(
+                static fn (string $tag): string => 'http_invalidation_' . $tag . '_timestamp',
+                $tags
+            )
+        );
+
+        foreach ($invalidations as $invalidation) {
+            if ($invalidation->isHit()) {
+                $timestamp = $invalidation->get();
+                if ($timestamp > $lastInvalidation) {
+                    $lastInvalidation = $timestamp;
+                }
+            }
         }
 
-        $tags = array_merge($this->tracer->get('all'), $this->collector->get($request));
-
-        return array_filter($tags, static function (string $tag): bool {
-            // remove tag for global theme cache, http cache will be invalidated for each key which gets accessed in the request
-            if (str_contains($tag, 'theme-config')) {
-                return false;
-            }
-
-            // remove tag for global config cache, http cache will be invalidated for each key which gets accessed in the request
-            if (str_contains($tag, 'system-config')) {
-                return false;
-            }
-
-            // remove tag for global translation cache, http cache will be invalidated for each key which gets accessed in the request
-            if (str_contains($tag, 'translation.catalog.')) {
-                return false;
-            }
-
-            return true;
-        });
+        return $lastInvalidation;
     }
 }

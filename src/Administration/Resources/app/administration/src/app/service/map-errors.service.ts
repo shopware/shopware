@@ -26,7 +26,7 @@ export function mapPropertyErrors<T extends string, K extends string>(
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-            return Shopware.State.getters['error/getApiError'](entity, property);
+            return Shopware.Store.get('error').getApiError(entity, property);
         };
     });
 
@@ -36,7 +36,7 @@ export function mapPropertyErrors<T extends string, K extends string>(
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function mapSystemConfigErrors(entityName: string, saleChannelId: string | null, key: string = ''): $TSFixMe {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    return Shopware.State.getters['error/getSystemConfigApiError'](entityName, saleChannelId, key);
+    return Shopware.Store.get('error').getSystemConfigApiError(entityName, saleChannelId!, key);
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations, max-len
@@ -57,8 +57,8 @@ export function mapCollectionPropertyErrors<T extends string, K extends string>(
             }
 
             // eslint-disable-next-line max-len
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-            return entityCollection.map((entity) => Shopware.State.getters['error/getApiError'](entity, property));
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-argument
+            return entityCollection.map((entity) => Shopware.Store.get('error').getApiError(entity, property));
         };
     });
 
@@ -75,7 +75,7 @@ export function mapPageErrors<T extends string>(
         map[`${Shopware.Utils.string.camelCase(routeName)}Error`] = function getterPropertyError() {
             return Object.keys(subjects).some((entityName) => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-                return Shopware.State.getters['error/existsErrorInProperty'](entityName, subjects[entityName]);
+                return Shopware.Store.get('error').existsErrorInProperty(entityName, subjects[entityName]);
             });
         };
     });

@@ -8,8 +8,6 @@ import './sw-import-export-edit-profile-import-settings.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         profile: {
             type: Object,
@@ -24,8 +22,14 @@ export default {
          * @param {string} property
          */
         onChange(newValue, property) {
-            if (newValue === false) {
-                this.profile.config[property] = true;
+            if (property === 'createEntities') {
+                this.profile.config.createEntities = newValue;
+                this.profile.config.updateEntities = !newValue;
+            }
+
+            if (property === 'updateEntities') {
+                this.profile.config.createEntities = !newValue;
+                this.profile.config.updateEntities = newValue;
             }
         },
     },

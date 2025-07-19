@@ -17,7 +17,6 @@ async function createWrapper() {
                 stubs: {
                     'sw-sidebar-item': await wrapTestComponent('sw-sidebar-item', { sync: true }),
                     'sw-sidebar-navigation-item': await wrapTestComponent('sw-sidebar-navigation-item', { sync: true }),
-                    'sw-icon': true,
                 },
                 provide: {
                     setSwPageSidebarOffset: () => {},

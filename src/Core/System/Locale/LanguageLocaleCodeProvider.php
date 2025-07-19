@@ -13,9 +13,9 @@ use Symfony\Contracts\Service\ResetInterface;
 class LanguageLocaleCodeProvider implements ResetInterface
 {
     /**
-     * @var LanguageData
+     * @var ?LanguageData
      */
-    private array $languages = [];
+    private ?array $languages = null;
 
     /**
      * @internal
@@ -51,7 +51,7 @@ class LanguageLocaleCodeProvider implements ResetInterface
 
     public function reset(): void
     {
-        $this->languages = [];
+        $this->languages = null;
     }
 
     /**
@@ -59,13 +59,11 @@ class LanguageLocaleCodeProvider implements ResetInterface
      */
     private function getLanguages(): array
     {
-        if (\count($this->languages) === 0) {
-            $this->languages = $this->resolveParentLanguages(
-                $this->languageLoader->loadLanguages()
-            );
+        if ($this->languages !== null) {
+            return $this->languages;
         }
 
-        return $this->languages;
+        return $this->languages = $this->resolveParentLanguages($this->languageLoader->loadLanguages());
     }
 
     /**

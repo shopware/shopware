@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Customer\Api;
 
 use Doctrine\DBAL\Exception;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
@@ -22,7 +24,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class CustomerGroupRegistrationActionController
 {
     /**
+     * @param EntityRepository<CustomerCollection> $customerRepository
+     * @param EntityRepository<CustomerGroupCollection> $customerGroupRepository
+     *
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
+     * @param EntityRepository<CustomerGroupCollection> $customerGroupRepository
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,
@@ -61,13 +69,14 @@ class CustomerGroupRegistrationActionController
 
             /** @var CustomerEntity $customer */
             $customer = $salesChannelContext->getCustomer();
+            $customerGroupId = $customer->getGroupId();
 
-            $criteria = new Criteria([$customer->getGroupId()]);
-            $criteria->setLimit(1);
-            $customerRequestedGroup = $this->customerGroupRepository->search($criteria, $salesChannelContext->getContext())->first();
+            $criteria = (new Criteria([$customerGroupId]))
+                ->setLimit(1);
 
-            if ($customerRequestedGroup === null) {
-                throw CustomerException::customerGroupNotFound($customer->getGroupId());
+            $customerRequestedGroup = $this->customerGroupRepository->search($criteria, $salesChannelContext->getContext())->getEntities()->first();
+            if (!$customerRequestedGroup) {
+                throw CustomerException::customerGroupNotFound($customerGroupId);
             }
 
             $this->eventDispatcher->dispatch(new CustomerGroupRegistrationAccepted(
@@ -104,17 +113,21 @@ class CustomerGroupRegistrationActionController
         $this->customerRepository->update($updateData, $context);
 
         foreach ($customers as $customer) {
-            $salesChannelContext = $this->restorer->restoreByCustomer($customer->getId(), $context);
+            $customerId = $customer->getId();
+            $salesChannelContext = $this->restorer->restoreByCustomer($customerId, $context);
 
-            /** @var CustomerEntity $customer */
             $customer = $salesChannelContext->getCustomer();
+            if (!$customer) {
+                throw CustomerException::customersNotFound([$customerId]);
+            }
+            $customerGroupId = $customer->getGroupId();
 
-            $criteria = new Criteria([$customer->getGroupId()]);
-            $criteria->setLimit(1);
-            $customerRequestedGroup = $this->customerGroupRepository->search($criteria, $salesChannelContext->getContext())->first();
+            $criteria = (new Criteria([$customerGroupId]))
+                ->setLimit(1);
 
-            if ($customerRequestedGroup === null) {
-                throw CustomerException::customerGroupNotFound($customer->getGroupId());
+            $customerRequestedGroup = $this->customerGroupRepository->search($criteria, $salesChannelContext->getContext())->getEntities()->first();
+            if (!$customerRequestedGroup) {
+                throw CustomerException::customerGroupNotFound($customerGroupId);
             }
 
             $this->eventDispatcher->dispatch(new CustomerGroupRegistrationDeclined(
@@ -154,26 +167,24 @@ class CustomerGroupRegistrationActionController
     {
         $criteria = new Criteria($customerIds);
         $result = $this->customerRepository->search($criteria, $context);
+        if ($result->getTotal() === 0) {
+            throw CustomerException::customersNotFound($customerIds);
+        }
 
         $customers = [];
 
-        if ($result->getTotal()) {
-            /** @var CustomerEntity $customer */
-            foreach ($result->getElements() as $customer) {
-                if ($customer->getRequestedGroupId() === null) {
-                    if ($silentError === false) {
-                        throw CustomerException::groupRequestNotFound($customer->getId());
-                    }
-
-                    continue;
+        foreach ($result->getEntities() as $customer) {
+            if (!$customer->getRequestedGroupId()) {
+                if ($silentError === false) {
+                    throw CustomerException::groupRequestNotFound($customer->getId());
                 }
 
-                $customers[] = $customer;
+                continue;
             }
 
-            return $customers;
+            $customers[] = $customer;
         }
 
-        throw CustomerException::customersNotFound($customerIds);
+        return $customers;
     }
 }

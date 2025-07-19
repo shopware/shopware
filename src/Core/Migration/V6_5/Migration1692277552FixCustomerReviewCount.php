@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
@@ -33,7 +34,7 @@ class Migration1692277552FixCustomerReviewCount extends MigrationStep
                     OFFSET :offset
                 ) AS meta_data ON `meta_data`.customer_id = `customer`.id
                 SET `customer`.review_count = `meta_data`.review_count
-            ', ['offset' => $offset], ['offset' => \PDO::PARAM_INT]);
+            ', ['offset' => $offset], ['offset' => ParameterType::INTEGER]);
             $offset += 1000;
         } while ($result > 0);
     }

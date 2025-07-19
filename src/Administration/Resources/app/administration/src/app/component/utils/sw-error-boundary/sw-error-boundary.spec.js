@@ -11,7 +11,7 @@ describe('src/app/component/utils/sw-error-boundary', () => {
     let swErrorBoundary;
 
     beforeAll(async () => {
-        swErrorBoundary = await Shopware.Component.build('sw-error-boundary');
+        swErrorBoundary = await wrapTestComponent('sw-error-boundary');
     });
 
     beforeEach(async () => {

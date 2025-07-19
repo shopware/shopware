@@ -22,14 +22,14 @@
     <template #modal-footer>
         {% block sw_extension_permissions_modal_footer_inner %}
         {% block sw_extension_permissions_modal_footer_close %}
-        <sw-button
+        <mt-button
             class="sw-extension-privacy-policy-extensions-modal__close-button"
             variant="primary"
             size="small"
             @click="close"
         >
             {{ $tc('global.default.confirm') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
         {% endblock %}
     </template>

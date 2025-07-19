@@ -5,17 +5,14 @@
 import template from './sw-property-search.html.twig';
 import './sw-property-search.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
 /**
  * @private
  */
-Component.register('sw-property-search', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -40,14 +37,6 @@ Component.register('sw-property-search', {
             default() {
                 return [];
             },
-        },
-        /**
-         * @deprecated tag:v6.7.0 - disabled will be removed. Use `isAddOnly` instead.
-         */
-        disabled: {
-            type: Boolean,
-            required: false,
-            default: false,
         },
         isAddOnly: {
             type: Boolean,
@@ -150,9 +139,6 @@ Component.register('sw-property-search', {
             }
 
             // Info: there is no component available with this event so it can be removed safely
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                this.$parent.$on('options-load', this.addOptionCount);
-            }
         },
 
         destroyedComponent() {
@@ -321,12 +307,8 @@ Component.register('sw-property-search', {
                     return option.groupId === group.id && !option.isDeleted;
                 });
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(group, 'optionCount', optionCount.length);
-                } else {
-                    group.optionCount = optionCount.length;
-                }
+                group.optionCount = optionCount.length;
             });
         },
     },
-});
+};

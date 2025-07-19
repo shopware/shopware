@@ -9,13 +9,18 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @template TEntity of Entity
+ *
+ * @extends EntityLoadedEvent<TEntity>
+ */
 #[Package('discovery')]
 class SalesChannelEntityLoadedEvent extends EntityLoadedEvent implements ShopwareSalesChannelEvent
 {
     private readonly SalesChannelContext $salesChannelContext;
 
     /**
-     * @param Entity[] $entities
+     * @param TEntity[] $entities
      */
     public function __construct(
         EntityDefinition $definition,

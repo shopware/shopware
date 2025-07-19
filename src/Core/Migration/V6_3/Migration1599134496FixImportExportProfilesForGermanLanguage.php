@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
@@ -66,7 +67,7 @@ SQL;
                 continue;
             }
 
-            $stmt->executeStatement([
+            StatementHelper::executeStatement($stmt, [
                 'import_export_profile_id' => $data['import_export_profile_id'],
                 'language_id' => $germanLanguageId,
                 'label' => $germanTranslations[$data['label']],

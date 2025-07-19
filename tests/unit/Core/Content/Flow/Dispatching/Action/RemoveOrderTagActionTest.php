@@ -58,7 +58,7 @@ class RemoveOrderTagActionTest extends TestCase
         ]);
         $flow->setConfig($config);
 
-        $this->repository->expects(static::once())
+        $this->repository->expects($this->once())
             ->method('delete')
             ->with(array_map(fn ($id) => [
                 'orderId' => $orderId,
@@ -72,7 +72,7 @@ class RemoveOrderTagActionTest extends TestCase
     {
         $flow = new StorableFlow('foo', Context::createDefaultContext());
 
-        $this->repository->expects(static::never())->method('update');
+        $this->repository->expects($this->never())->method('update');
 
         $this->action->handleFlow($flow);
     }
@@ -83,7 +83,7 @@ class RemoveOrderTagActionTest extends TestCase
             OrderAware::ORDER_ID => Uuid::randomHex(),
         ]);
 
-        $this->repository->expects(static::never())->method('update');
+        $this->repository->expects($this->never())->method('update');
 
         $this->action->handleFlow($flow);
     }

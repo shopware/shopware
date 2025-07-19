@@ -4,6 +4,10 @@ $sw-seo-url-template-card-color-preview: $color-darkgray-200;
 $sw-seo-url-template-card-font-size-preview: $font-size-xs;
 
 .sw-seo-url-template-card {
+    .sw-sales-channel-switch {
+        width: 100%;
+    }
+
     .sw-loader {
         position: relative;
     }
@@ -33,7 +37,7 @@ $sw-seo-url-template-card-font-size-preview: $font-size-xs;
         margin-bottom: 0;
     }
 
-    .sw-field__addition .sw-icon {
+    .sw-field__addition .mt-icon {
         width: $font-size-s;
         height: $font-size-s;
         line-height: $font-size-s;

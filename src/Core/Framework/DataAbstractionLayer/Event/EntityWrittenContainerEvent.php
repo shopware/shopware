@@ -11,21 +11,13 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class EntityWrittenContainerEvent extends NestedEvent
 {
-    /**
-     * @var Context
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $context;
-
     protected bool $cloned = false;
 
     public function __construct(
-        Context $context,
+        protected Context $context,
         private readonly NestedEventCollection $events,
         private readonly array $errors
     ) {
-        $this->context = $context;
     }
 
     public function getContext(): Context

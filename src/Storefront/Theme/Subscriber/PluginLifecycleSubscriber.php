@@ -18,7 +18,7 @@ use Shopware\Storefront\Theme\Exception\InvalidThemeBundleException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
+use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeLifecycleHandler;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -33,7 +33,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
-        private readonly StorefrontPluginRegistryInterface $storefrontPluginRegistry,
+        private readonly StorefrontPluginRegistry $storefrontPluginRegistry,
         private readonly string $projectDirectory,
         private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
         private readonly ThemeLifecycleHandler $themeLifecycleHandler,

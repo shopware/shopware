@@ -8,7 +8,7 @@ $sw-property-list-color-success: $color-emerald-500;
         .is--inactive {
             color: $sw-property-list-color-error;
 
-            &.sw-icon {
+            &.mt-icon {
                 width: 16px;
                 height: 16px;
                 padding: 3px;
@@ -18,7 +18,7 @@ $sw-property-list-color-success: $color-emerald-500;
         .is--active {
             color: $sw-property-list-color-success;
 
-            &.sw-icon {
+            &.mt-icon {
                 width: 16px;
                 height: 16px;
                 padding-top: 4px;

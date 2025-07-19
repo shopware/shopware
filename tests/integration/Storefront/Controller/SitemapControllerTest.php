@@ -19,7 +19,7 @@ class SitemapControllerTest extends TestCase
     public function testSitemapPageLoadedHookScriptsAreExecuted(): void
     {
         $response = $this->request('GET', '/sitemap.xml', []);
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 

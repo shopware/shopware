@@ -123,11 +123,11 @@ class SourceResolverTest extends TestCase
 
         $fs = new Filesystem('/');
         $sourceMock = $this->createMock(Source::class);
-        $sourceMock->expects(static::once())
+        $sourceMock->expects($this->once())
             ->method('filesystem')
             ->with($app)
             ->willReturn($fs);
-        $sourceMock->expects(static::once())
+        $sourceMock->expects($this->once())
             ->method('supports')
             ->with($app)
             ->willReturn(true);
@@ -158,10 +158,10 @@ class SourceResolverTest extends TestCase
         $secondFs = new Filesystem('/two/');
 
         $sourceMock = $this->createMock(Source::class);
-        $sourceMock->expects(static::exactly(2))
+        $sourceMock->expects($this->exactly(2))
             ->method('filesystem')
             ->willReturnOnConsecutiveCalls($firstFs, $secondFs);
-        $sourceMock->expects(static::exactly(2))
+        $sourceMock->expects($this->exactly(2))
             ->method('supports')
             ->willReturn(true);
 
@@ -183,15 +183,15 @@ class SourceResolverTest extends TestCase
 
         $fs = new Filesystem('/');
         $sourceMock = $this->createMock(Source::class);
-        $sourceMock->expects(static::exactly(2))
+        $sourceMock->expects($this->exactly(2))
             ->method('filesystem')
             ->with($app)
             ->willReturn($fs);
-        $sourceMock->expects(static::exactly(2))
+        $sourceMock->expects($this->exactly(2))
             ->method('supports')
             ->with($app)
             ->willReturn(true);
-        $sourceMock->expects(static::once())
+        $sourceMock->expects($this->once())
             ->method('reset')
             ->with([$fs]);
 
@@ -249,13 +249,13 @@ class SourceResolverTest extends TestCase
     public function testFilesystemForAppNameUsesActiveAppLoaderWhenNoDatabaseIsPresent(): void
     {
         $repo = $this->createMock(EntityRepository::class);
-        $repo->expects(static::once())
+        $repo->expects($this->once())
             ->method('search')
             ->willThrowException(new ConnectionException($this->createMock(DriverException::class), null));
 
         $fs = new StaticFilesystem();
         $noDbResolver = $this->createMock(NoDatabaseSourceResolver::class);
-        $noDbResolver->expects(static::once())
+        $noDbResolver->expects($this->once())
             ->method('filesystem')
             ->with('TestApp')
             ->willReturn($fs);

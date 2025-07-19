@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -69,10 +70,10 @@ class RateLimiterTest extends TestCase
 
             if ($i >= 10) {
                 static::assertArrayHasKey('errors', $response);
-                static::assertEquals(429, $response['errors'][0]['status']);
-                static::assertEquals('FRAMEWORK__NOTIFICATION_THROTTLED', $response['errors'][0]['code']);
+                static::assertSame(Response::HTTP_TOO_MANY_REQUESTS, (int) $response['errors'][0]['status']);
+                static::assertSame('FRAMEWORK__NOTIFICATION_THROTTLED', $response['errors'][0]['code']);
             } else {
-                static::assertEquals(200, $client->getResponse()->getStatusCode());
+                static::assertSame(200, $client->getResponse()->getStatusCode());
             }
         }
     }

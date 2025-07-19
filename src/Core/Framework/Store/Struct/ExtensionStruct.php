@@ -97,6 +97,8 @@ class ExtensionStruct extends Struct
 
     protected ?PermissionCollection $permissions = null;
 
+    protected ?PermissionCollection $requestedPermissions = null;
+
     protected bool $active = false;
 
     /**
@@ -141,6 +143,8 @@ class ExtensionStruct extends Struct
 
     protected bool $allowDisable = true;
 
+    protected bool $allowUpdate = true;
+
     /**
      * @var array<string>
      */
@@ -155,6 +159,11 @@ class ExtensionStruct extends Struct
     protected bool $managedByComposer = false;
 
     protected bool $inAppFeaturesAvailable = false;
+
+    /**
+     * @var list<string>
+     */
+    protected array $inAppPurchases = [];
 
     /**
      * @param array<string, mixed> $data
@@ -560,6 +569,16 @@ class ExtensionStruct extends Struct
         $this->allowDisable = $allowDisable;
     }
 
+    public function isAllowUpdate(): bool
+    {
+        return $this->allowUpdate;
+    }
+
+    public function setAllowUpdate(bool $allowUpdate): void
+    {
+        $this->allowUpdate = $allowUpdate;
+    }
+
     /**
      * @return array<string>
      */
@@ -614,5 +633,21 @@ class ExtensionStruct extends Struct
     public function setInAppFeaturesAvailable(bool $inAppFeaturesAvailable): void
     {
         $this->inAppFeaturesAvailable = $inAppFeaturesAvailable;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getInAppPurchases(): array
+    {
+        return $this->inAppPurchases;
+    }
+
+    /**
+     * @param list<string> $inAppPurchases
+     */
+    public function setInAppPurchases(array $inAppPurchases): void
+    {
+        $this->inAppPurchases = $inAppPurchases;
     }
 }

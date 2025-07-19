@@ -9,33 +9,13 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class ImageStruct extends Struct
 {
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $mediaId;
+    protected ?string $mediaId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $url;
+    protected ?string $url = null;
 
-    /**
-     * @var bool|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $newTab;
+    protected ?bool $newTab = null;
 
-    /**
-     * @var MediaEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $media;
+    protected ?MediaEntity $media = null;
 
     public function getMedia(): ?MediaEntity
     {

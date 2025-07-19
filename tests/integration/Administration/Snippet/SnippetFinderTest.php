@@ -70,7 +70,7 @@ class SnippetFinderTest extends TestCase
             ],
         ];
 
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
     }
 
     public function testValidSnippetMergeWithMultipleLanguageFiles(): void

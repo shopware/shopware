@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
@@ -23,6 +22,7 @@ use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
+use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Attribute\Route;
@@ -39,6 +39,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
      * @internal
      *
      * @param EntityRepository<CustomerAddressCollection> $addressRepository
+     * @param EntityRepository<SalutationCollection> $salutationRepository
      */
     public function __construct(
         private readonly EntityRepository $addressRepository,
@@ -68,8 +69,12 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true],
         methods: ['PATCH']
     )]
-    public function upsert(?string $addressId, RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): UpsertAddressRouteResponse
-    {
+    public function upsert(
+        ?string $addressId,
+        RequestDataBag $data,
+        SalesChannelContext $context,
+        CustomerEntity $customer
+    ): UpsertAddressRouteResponse {
         if (!$addressId) {
             $isCreate = true;
             $addressId = Uuid::randomHex();
@@ -108,6 +113,9 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
                 CustomerAddressDefinition::ENTITY_NAME,
                 $data->get('customFields')
             );
+            if ($addressData['customFields'] === []) {
+                unset($addressData['customFields']);
+            }
         }
 
         $mappingEvent = new DataMappingEvent($data, $addressData, $context->getContext());
@@ -119,23 +127,27 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
         $this->addressRepository->upsert([$addressData], $context->getContext());
 
-        $criteria = new Criteria([$addressId]);
-
-        /** @var CustomerAddressEntity $address */
-        $address = $this->addressRepository->search($criteria, $context->getContext())->first();
+        $address = $this->addressRepository->search(new Criteria([$addressId]), $context->getContext())->getEntities()->first();
+        \assert($address !== null);
 
         return new UpsertAddressRouteResponse($address);
     }
 
-    private function getValidationDefinition(DataBag $data, string $accountType, bool $isCreate, SalesChannelContext $context): DataValidationDefinition
-    {
+    private function getValidationDefinition(
+        DataBag $data,
+        string $accountType,
+        bool $isCreate,
+        SalesChannelContext $context
+    ): DataValidationDefinition {
         if ($isCreate) {
             $validation = $this->addressValidationFactory->create($context);
         } else {
             $validation = $this->addressValidationFactory->update($context);
         }
 
-        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection')) {
+        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection')
+        ) {
             $validation->add('company', new NotBlank());
         }
 
@@ -149,15 +161,10 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
     private function getDefaultSalutationId(SalesChannelContext $context): ?string
     {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(
-            new EqualsFilter('salutationKey', SalutationDefinition::NOT_SPECIFIED)
-        );
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('salutationKey', SalutationDefinition::NOT_SPECIFIED));
 
-        /** @var array<string> $ids */
-        $ids = $this->salutationRepository->searchIds($criteria, $context->getContext())->getIds();
-
-        return $ids[0] ?? null;
+        return $this->salutationRepository->searchIds($criteria, $context->getContext())->firstId();
     }
 }

@@ -2,6 +2,7 @@ import DomAccess from 'src/helper/dom-access.helper';
 import template from './dom-access.helper.template.html';
 
 /**
+ * @deprecated tag:v6.8.0 - DomAccess Helper will be removed.
  * @package storefront
  */
 describe('dom-access.helper', () => {

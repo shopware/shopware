@@ -7,8 +7,6 @@ import template from './sw-extension-my-extensions-index.html.twig';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['acl'],
 
     computed: {
@@ -31,7 +29,7 @@ export default {
         },
 
         extensionManagementDisabled() {
-            return Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            return Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
         },
     },
 

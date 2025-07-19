@@ -11,47 +11,17 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class CartStruct extends Struct
 {
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $netPrice;
+    protected float $netPrice;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxValue;
+    protected float $taxValue;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxRate;
+    protected float $taxRate;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $grossPrice;
+    protected float $grossPrice;
 
-    /**
-     * @var CartPositionCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $positions;
+    protected CartPositionCollection $positions;
 
-    /**
-     * @var array
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shop;
+    protected array $shop;
 
     public static function fromArray(array $data): CartStruct
     {

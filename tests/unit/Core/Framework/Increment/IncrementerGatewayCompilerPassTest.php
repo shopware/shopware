@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Increment\ArrayIncrementer;
 use Shopware\Core\Framework\Increment\IncrementerGatewayCompilerPass;
 use Shopware\Core\Framework\Increment\MySQLIncrementer;
 use Shopware\Core\Framework\Increment\RedisIncrementer;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
@@ -49,20 +48,20 @@ class IncrementerGatewayCompilerPassTest extends TestCase
         // user_activity pool is registered
         static::assertTrue($container->hasDefinition('shopware.increment.user_activity.gateway.mysql'));
         $definition = $container->getDefinition('shopware.increment.user_activity.gateway.mysql');
-        static::assertEquals(MySQLIncrementer::class, $definition->getClass());
+        static::assertSame(MySQLIncrementer::class, $definition->getClass());
         static::assertTrue($definition->hasTag('shopware.increment.gateway'));
 
         // message_queue pool is registered
         static::assertTrue($container->hasDefinition('shopware.increment.message_queue.redis_adapter'));
         static::assertTrue($container->hasDefinition('shopware.increment.message_queue.gateway.redis'));
         $definition = $container->getDefinition('shopware.increment.message_queue.gateway.redis');
-        static::assertEquals(RedisIncrementer::class, $definition->getClass());
+        static::assertSame(RedisIncrementer::class, $definition->getClass());
         static::assertTrue($definition->hasTag('shopware.increment.gateway'));
 
         // another_pool is registered
         static::assertNotNull($container->hasDefinition('shopware.increment.message_queue.gateway.redis'));
         $definition = $container->getDefinition('shopware.increment.message_queue.gateway.redis');
-        static::assertEquals(RedisIncrementer::class, $definition->getClass());
+        static::assertSame(RedisIncrementer::class, $definition->getClass());
         static::assertTrue($definition->hasTag('shopware.increment.gateway'));
     }
 
@@ -106,7 +105,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
         // custom_pool pool is registered
         static::assertTrue($container->hasDefinition('shopware.increment.custom_pool.gateway.custom_type'));
         $definition = $container->getDefinition('shopware.increment.custom_pool.gateway.custom_type');
-        static::assertEquals($customGateway::class, $definition->getClass());
+        static::assertSame($customGateway::class, $definition->getClass());
         static::assertTrue($definition->hasTag('shopware.increment.gateway'));
     }
 
@@ -132,7 +131,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
         // custom_pool pool is registered
         static::assertTrue($container->hasDefinition('shopware.increment.custom_pool.gateway.custom_type'));
         $definition = $container->getDefinition('shopware.increment.custom_pool.gateway.custom_type');
-        static::assertEquals($customGateway::class, $definition->getClass());
+        static::assertSame($customGateway::class, $definition->getClass());
         static::assertTrue($definition->hasTag('shopware.increment.gateway'));
     }
 
@@ -174,30 +173,5 @@ class IncrementerGatewayCompilerPassTest extends TestCase
 
         $entityCompilerPass = new IncrementerGatewayCompilerPass();
         $entityCompilerPass->process($container);
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Remove in 6.7
-     */
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testRedisGatewayWithUrl(): void
-    {
-        $container = new ContainerBuilder();
-        $container->setParameter('shopware.increment', [
-            'my_pool' => [
-                'type' => 'redis',
-                'config' => ['url' => 'redis://test'],
-            ],
-        ]);
-
-        $entityCompilerPass = new IncrementerGatewayCompilerPass();
-        $entityCompilerPass->process($container);
-
-        // my_pool is registered
-        static::assertTrue($container->hasDefinition('shopware.increment.my_pool.redis_adapter'));
-        static::assertTrue($container->hasDefinition('shopware.increment.my_pool.gateway.redis'));
-        $definition = $container->getDefinition('shopware.increment.my_pool.gateway.redis');
-        static::assertEquals(RedisIncrementer::class, $definition->getClass());
-        static::assertTrue($definition->hasTag('shopware.increment.gateway'));
     }
 }

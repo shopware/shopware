@@ -55,26 +55,26 @@ class DatabaseMigratorTest extends TestCase
 
     public function testInitialMigrate(): void
     {
-        $this->setupAdapter->expects(static::once())
+        $this->setupAdapter->expects($this->once())
             ->method('initializeShopwareDb')
             ->with($this->connection);
 
-        $this->migrationCollection->expects(static::once())
+        $this->migrationCollection->expects($this->once())
             ->method('sync');
 
-        $this->migrationCollection->expects(static::once())
+        $this->migrationCollection->expects($this->once())
             ->method('migrateInSteps')
             ->with(null, 1)
             ->willReturnCallback(fn () => yield 'migration');
 
-        $this->migrationCollection->expects(static::never())
+        $this->migrationCollection->expects($this->never())
             ->method('migrateDestructiveInSteps');
 
-        $this->migrationCollection->expects(static::once())
+        $this->migrationCollection->expects($this->once())
             ->method('getTotalMigrationCount')
             ->willReturn(5);
 
-        $this->migrationCollection->expects(static::once())
+        $this->migrationCollection->expects($this->once())
             ->method('getExecutableDestructiveMigrations')
             ->willReturn(['migration']);
 
@@ -93,14 +93,14 @@ class DatabaseMigratorTest extends TestCase
 
     public function testUnfinishedMigration(): void
     {
-        $this->setupAdapter->expects(static::never())
+        $this->setupAdapter->expects($this->never())
             ->method('initializeShopwareDb')
             ->with($this->connection);
 
-        $this->migrationCollection->expects(static::never())
+        $this->migrationCollection->expects($this->never())
             ->method('sync');
 
-        $this->migrationCollection->expects(static::exactly(2))
+        $this->migrationCollection->expects($this->exactly(2))
             ->method('migrateInSteps')
             ->with(null, 1)
             ->willReturnOnConsecutiveCalls(
@@ -108,7 +108,7 @@ class DatabaseMigratorTest extends TestCase
                 $this->emptyGenerator(),
             );
 
-        $this->migrationCollection->expects(static::exactly(2))
+        $this->migrationCollection->expects($this->exactly(2))
             ->method('migrateDestructiveInSteps')
             ->with(null, 1)
             ->willReturnOnConsecutiveCalls(
@@ -116,11 +116,11 @@ class DatabaseMigratorTest extends TestCase
                 $this->emptyGenerator(),
             );
 
-        $this->migrationCollection->expects(static::once())
+        $this->migrationCollection->expects($this->once())
             ->method('getTotalMigrationCount')
             ->willReturn(5);
 
-        $this->migrationCollection->expects(static::once())
+        $this->migrationCollection->expects($this->once())
             ->method('getExecutableDestructiveMigrations')
             ->willReturn(['migration']);
 
@@ -139,14 +139,14 @@ class DatabaseMigratorTest extends TestCase
 
     public function testFinishedMigration(): void
     {
-        $this->setupAdapter->expects(static::never())
+        $this->setupAdapter->expects($this->never())
             ->method('initializeShopwareDb')
             ->with($this->connection);
 
-        $this->migrationCollection->expects(static::never())
+        $this->migrationCollection->expects($this->never())
             ->method('sync');
 
-        $this->migrationCollection->expects(static::exactly(3))
+        $this->migrationCollection->expects($this->exactly(3))
             ->method('migrateInSteps')
             ->with(null, 1)
             ->willReturnOnConsecutiveCalls(
@@ -155,7 +155,7 @@ class DatabaseMigratorTest extends TestCase
                 $this->emptyGenerator(),
             );
 
-        $this->migrationCollection->expects(static::exactly(3))
+        $this->migrationCollection->expects($this->exactly(3))
             ->method('migrateDestructiveInSteps')
             ->with(null, 1)
             ->willReturnOnConsecutiveCalls(
@@ -164,11 +164,11 @@ class DatabaseMigratorTest extends TestCase
                 $this->emptyGenerator(),
             );
 
-        $this->migrationCollection->expects(static::once())
+        $this->migrationCollection->expects($this->once())
             ->method('getTotalMigrationCount')
             ->willReturn(5);
 
-        $this->migrationCollection->expects(static::once())
+        $this->migrationCollection->expects($this->once())
             ->method('getExecutableDestructiveMigrations')
             ->willReturn([]);
 

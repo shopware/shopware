@@ -106,7 +106,7 @@ class CustomSnippetFormatControllerTest extends TestCase
         $content = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('rendered', $content);
-        static::assertEquals($expectedHtml, $content['rendered']);
+        static::assertSame($expectedHtml, $content['rendered']);
     }
 
     /**

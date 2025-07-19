@@ -13,7 +13,7 @@ use Symfony\Component\Config\Util\XmlUtils;
 #[CoversClass(DeliveryTime::class)]
 class DeliveryTimeTest extends TestCase
 {
-    public const XSD_FILE = __DIR__ . '/../../../../../../../src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd';
+    public const XSD_FILE = __DIR__ . '/../../../../../../../src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd';
     public const VALID_MANIFEST = __DIR__ . '/_fixtures/DeliveryTime/valid_manifest.xml';
 
     public function testFromXml(): void

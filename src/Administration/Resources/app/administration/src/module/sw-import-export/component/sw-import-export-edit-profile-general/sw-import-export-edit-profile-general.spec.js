@@ -46,7 +46,6 @@ async function createWrapper(profile) {
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
-                    'sw-icon': true,
                     'sw-field-copyable': true,
                     'sw-loader': true,
                     'sw-inheritance-switch': true,

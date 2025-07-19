@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/prefer-promise-reject-errors */
 import EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import { difference } from 'lodash';
-import { type PropType } from 'vue';
 import template from './sw-cms-layout-assignment-modal.html.twig';
 import './sw-cms-layout-assignment-modal.scss';
 
@@ -9,12 +9,10 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -247,16 +245,8 @@ export default Shopware.Component.wrapComponentConfig({
                     });
 
                     if (pages.length > 0) {
-                        if (this.isCompatEnabled('INSTANCE_SET')) {
-                            this.$set(this.selectedShopPages, this.shopPageSalesChannelId!, pages);
-                        } else {
-                            this.selectedShopPages[this.shopPageSalesChannelId!] = pages;
-                        }
-                    } else if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(this.selectedShopPages, this.shopPageSalesChannelId!, null);
-                    } else {
-                        this.selectedShopPages[this.shopPageSalesChannelId!] = null;
-                    }
+                        this.selectedShopPages[this.shopPageSalesChannelId!] = pages;
+                    } else this.selectedShopPages[this.shopPageSalesChannelId!] = null;
 
                     this.previousShopPages = cloneDeep(this.selectedShopPages);
                 })

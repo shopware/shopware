@@ -10,11 +10,9 @@ trait ExtendableTrait
     /**
      * Contains an array of extension structs.
      *
-     * @var Struct[]
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var array<string, Struct>
      */
-    protected $extensions = [];
+    protected array $extensions = [];
 
     /**
      * Adds a new extension struct into the class storage.

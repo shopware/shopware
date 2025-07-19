@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import type { ExtensionType } from 'src/module/sw-extension/service/extension-store-action.service';
 import template from './sw-plugin-card.html.twig';
 import './sw-plugin-card.scss';
@@ -25,8 +24,6 @@ type RecommendedPlugin = {
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'cacheApiService',

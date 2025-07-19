@@ -11,54 +11,34 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class Record implements \JsonSerializable
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $id;
+    protected string $id;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $type;
+    protected string $type;
 
     /**
      * @var array<string, mixed|null>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $attributes = [];
+    protected array $attributes = [];
 
     /**
      * @var array<string, mixed|null>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $extensions = [];
+    protected array $extensions = [];
 
     /**
      * @var array<string, mixed|null>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $links = [];
+    protected array $links = [];
 
     /**
      * @var array<string, mixed|null>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $relationships = [];
+    protected array $relationships = [];
 
     /**
      * @var array<string, mixed|null>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $meta;
+    protected array $meta = [];
 
     public function __construct(
         string $id = '',

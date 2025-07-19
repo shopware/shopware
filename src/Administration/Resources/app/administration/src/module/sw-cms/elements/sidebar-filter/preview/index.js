@@ -7,6 +7,4 @@ import './sw-cms-el-preview-sidebar-filter.scss';
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

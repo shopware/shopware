@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 
 /**
  * @internal
@@ -48,7 +49,8 @@ class ProductPageSeoUrlRouteTest extends TestCase
     {
         $route = new ProductPageSeoUrlRoute($this->createMock(ProductDefinition::class));
 
-        static::expectException(\InvalidArgumentException::class);
+        static::expectException(StorefrontFrameworkException::class);
+        static::expectExceptionMessage('SEO URL Mapping expects argument to be a ProductEntity');
         $route->getMapping(new ArrayEntity(), new SalesChannelEntity());
     }
 

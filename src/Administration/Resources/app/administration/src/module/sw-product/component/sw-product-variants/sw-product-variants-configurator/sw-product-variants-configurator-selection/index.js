@@ -11,8 +11,6 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     emits: ['option-select'],
@@ -26,18 +24,10 @@ export default {
             type: Object,
             required: true,
         },
-        /**
-         * @deprecated tag:v6.7.0 - The disabled props will be removed.
-         */
-        disabled: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
     },
 
     watch: {
-        disabled() {
+        isAddOnly() {
             this.selectOptions(this.$refs.optionGrid);
         },
     },
@@ -69,7 +59,7 @@ export default {
                 });
 
                 // set reactive
-                this.$set(group, 'optionCount', optionCount.length);
+                group.optionCount = optionCount.length;
             });
 
             this.$emit('option-select');

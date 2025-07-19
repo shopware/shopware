@@ -43,7 +43,7 @@ class CustomFieldsetGeneratorTest extends TestCase
         (new CustomFieldsetGenerator())
             ->addScaffoldConfig($configuration, $input, $io);
 
-        static::assertEquals($expectedHasOption, $configuration->hasOption(CustomFieldsetGenerator::OPTION_NAME));
+        static::assertSame($expectedHasOption, $configuration->hasOption(CustomFieldsetGenerator::OPTION_NAME));
     }
 
     public static function addScaffoldConfigProvider(): \Generator

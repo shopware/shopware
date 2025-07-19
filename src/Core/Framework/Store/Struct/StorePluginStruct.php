@@ -11,117 +11,37 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class StorePluginStruct extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $label;
+    protected string $label;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shortDescription;
+    protected string $shortDescription;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $iconPath;
+    protected ?string $iconPath = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $version;
+    protected ?string $version = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $changelog;
+    protected ?string $changelog = null;
 
-    /**
-     * @var \DateTimeInterface|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $releaseDate;
+    protected ?\DateTimeInterface $releaseDate = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $installed = false;
+    protected bool $installed = false;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $active = false;
+    protected bool $active = false;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $language;
+    protected ?string $language = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $region;
+    protected ?string $region = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $category;
+    protected ?string $category = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $manufacturer;
+    protected ?string $manufacturer = null;
 
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $position;
+    protected ?int $position = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $isCategoryLead;
+    protected bool $isCategoryLead;
 
     /**
      * @var 'plugin'|'app'

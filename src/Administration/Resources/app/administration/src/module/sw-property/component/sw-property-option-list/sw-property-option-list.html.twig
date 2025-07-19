@@ -1,5 +1,5 @@
 {% block sw_property_option_list %}
-<sw-card
+<mt-card
     :is-loading="isLoading"
     class="sw-property-option-list"
     position-identifier="sw-property-option-list"
@@ -25,7 +25,7 @@
             {% endblock %}
 
             {% block sw_property_option_list_toolbar_delete %}
-            <sw-button
+            <mt-button
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: acl.can('property.editor'),
@@ -35,18 +35,19 @@
                 square
                 size="small"
                 class="sw-property-option-list__delete-button"
+                variant="secondary"
                 @click="onDeleteOptions"
             >
-                <sw-icon
+                <mt-icon
                     name="regular-trash"
-                    small
+                    size="16px"
                 />
-            </sw-button>
+            </mt-button>
             {% endblock %}
 
             {% block sw_property_option_list_toolbar_add %}
             <sw-container v-tooltip="tooltipAdd">
-                <sw-button
+                <mt-button
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
                         disabled: acl.can('property.editor'),
@@ -55,10 +56,11 @@
                     :disabled="disableAddButton"
                     size="small"
                     class="sw-property-option-list__add-button"
+                    variant="secondary"
                     @click="onAddOption(propertyGroup)"
                 >
                     {{ $tc('sw-property.detail.addOption') }}
-                </sw-button>
+                </mt-button>
             </sw-container>
             {% endblock %}
         </sw-container>
@@ -72,20 +74,19 @@
             ref="grid"
             :is-loading="isLoading"
             :collection="propertyGroup.options"
-            :data-source="dataSource"
             :columns="getGroupColumns()"
             :full-page="false"
-            :local-mode="propertyGroup.isNew()"
+            :local-mode="false"
             :allow-inline-edit="allowInlineEdit"
             :sort-by="sortBy"
             :sort-direction="sortDirection"
+            @load-finish="checkEmptyState"
             @selection-change="onGridSelectionChanged"
         >
-
             <template #column-name="{ item, isInlineEdit }">
                 <template v-if="isInlineEdit">
-                    <sw-text-field
-                        v-model:value="item.name"
+                    <mt-text-field
+                        v-model="item.name"
                         size="small"
                     />
                 </template>
@@ -128,8 +129,19 @@
             </template>
             {% endblock %}
         </sw-one-to-many-grid>
+
+        {% block sw_settings_country_state_list_empty %}
+        <sw-empty-state
+            v-if="showEmptyState"
+            :absolute="false"
+            :title="$tc('sw-property.detail.messageOptionsEmpty')"
+            :subline="$tc('sw-property.detail.messageOptionsEmptySubline')"
+            auto-height
+        />
         {% endblock %}
     </template>
+    {% endblock %}
+
     {% block sw_property_option_list_detail %}
     <sw-property-option-detail
         v-if="currentOption"
@@ -143,5 +155,5 @@
     {% block sw_property_option_list_loader %}
     <sw-loader v-if="isLoading" />
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

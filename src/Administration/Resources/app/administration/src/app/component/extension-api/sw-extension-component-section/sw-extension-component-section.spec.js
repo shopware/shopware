@@ -27,8 +27,6 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
 
     beforeAll(async () => {
         stubs = {
-            'sw-card': await wrapTestComponent('sw-card'),
-            'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
             'sw-tabs': await wrapTestComponent('sw-tabs'),
             'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
             'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
@@ -40,13 +38,12 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
             'sw-ai-copilot-badge': await wrapTestComponent('sw-ai-copilot-badge'),
             'sw-context-button': await wrapTestComponent('sw-context-button'),
             'sw-loader': await wrapTestComponent('sw-loader'),
-            'sw-icon': await wrapTestComponent('sw-icon'),
             'router-link': true,
         };
     });
 
     beforeEach(async () => {
-        Shopware.State.get('extensionComponentSections').identifier = {};
+        Shopware.Store.get('extensionComponentSections').identifier = {};
     });
 
     it('should be a Vue.js component', async () => {
@@ -55,7 +52,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
     });
 
     it('should not render tabs in card section', async () => {
-        Shopware.State.commit('extensionComponentSections/addSection', {
+        Shopware.Store.get('extensionComponentSections').addSection({
             component: 'card',
             positionId: 'test-position',
             props: {
@@ -72,7 +69,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
     });
 
     it('should render tabs in card section', async () => {
-        Shopware.State.commit('extensionComponentSections/addSection', {
+        Shopware.Store.get('extensionComponentSections').addSection({
             component: 'card',
             positionId: 'test-position',
             props: {
@@ -107,7 +104,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
     });
 
     it('should switch tab when clicking', async () => {
-        Shopware.State.commit('extensionComponentSections/addSection', {
+        Shopware.Store.get('extensionComponentSections').addSection({
             component: 'card',
             positionId: 'test-position',
             props: {
@@ -148,7 +145,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         'dev',
         'prod',
     ])('should be deprecated in %s env', async (env) => {
-        Shopware.State.commit('extensionComponentSections/addSection', {
+        Shopware.Store.get('extensionComponentSections').addSection({
             component: 'card',
             positionId: 'test-position',
             props: {

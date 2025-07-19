@@ -9,8 +9,6 @@ import './sw-product-variants-configurator-restrictions.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         product: {
             type: Object,

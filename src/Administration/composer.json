@@ -23,14 +23,14 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "6.6.x-dev",
-            "dev-trunk": "6.6.x-dev"
+            "dev-master": "6.7.x-dev",
+            "dev-trunk": "6.7.x-dev"
         }
     },
     "require": {
         "php": "~8.2.0 || ~8.3.0 || ~8.4.0",
-        "doctrine/dbal": "^3.9",
-        "pentatrion/vite-bundle": "^7.0",
+        "doctrine/dbal": "^4.2",
+        "pentatrion/vite-bundle": "^8.1",
         "shopware/core": "*",
         "symfony/framework-bundle": "~7.2.0",
         "symfony/http-foundation": "~7.2.0",

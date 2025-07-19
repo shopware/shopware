@@ -13,12 +13,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
 #[CoversClass(LineItemDownloadLoader::class)]
+#[Package('checkout')]
 class LineItemDownloadLoaderTest extends TestCase
 {
     private MockObject&EntityRepository $productDownloadRepository;
@@ -36,7 +38,7 @@ class LineItemDownloadLoaderTest extends TestCase
     {
         $payload = $this->loader->load([], Context::createDefaultContext());
 
-        static::assertEquals([], $payload);
+        static::assertSame([], $payload);
     }
 
     public function testLineItemWithoutPayload(): void
@@ -49,7 +51,7 @@ class LineItemDownloadLoaderTest extends TestCase
 
         $payload = $this->loader->load($lineItems, Context::createDefaultContext());
 
-        static::assertEquals([], $payload);
+        static::assertSame([], $payload);
     }
 
     public function testNoPayloadContinue(): void
@@ -61,7 +63,7 @@ class LineItemDownloadLoaderTest extends TestCase
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
         $entitySearchResult->method('getEntities')->willReturn(new EntityCollection([$productDownload]));
         $this->productDownloadRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn($entitySearchResult);
 
@@ -75,7 +77,7 @@ class LineItemDownloadLoaderTest extends TestCase
 
         $payload = $this->loader->load($lineItems, Context::createDefaultContext());
 
-        static::assertEquals([], $payload);
+        static::assertSame([], $payload);
     }
 
     public function testLoadDownloadsPayload(): void
@@ -92,7 +94,7 @@ class LineItemDownloadLoaderTest extends TestCase
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
         $entitySearchResult->method('getEntities')->willReturn(new EntityCollection([$productDownload]));
         $this->productDownloadRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn($entitySearchResult);
 
@@ -106,7 +108,7 @@ class LineItemDownloadLoaderTest extends TestCase
 
         $payload = $this->loader->load($lineItems, Context::createDefaultContext());
 
-        static::assertEquals([
+        static::assertSame([
             [
                 [
                     'position' => 0,

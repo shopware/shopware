@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -54,10 +53,7 @@ class AdminExtensionApiController extends AbstractController
         }
 
         if (!$app->getAppSecret()) {
-            if (Feature::isActive('v6.7.0.0')) {
-                throw AppException::appSecretMissing($app->getName());
-            }
-            throw AppException::secretMissing();
+            throw AppException::appSecretMissing($app->getName());
         }
 
         $targetUrl = $requestDataBag->getString('url');

@@ -23,7 +23,7 @@
         >
             {% block sw_settings_snippet_list_smart_bar_header_title_text %}
             <span class="sw-settings_snippet_list__smart-bar-title-text">
-                {{ $tc('sw-settings-snippet.list.textSnippetList', snippetSets.length, { setName: metaName }) }}
+                {{ $tc('sw-settings-snippet.list.textSnippetList', { setName: metaName }, snippetSets.length) }}
             </span>
             {% endblock %}
 
@@ -40,14 +40,15 @@
     {% block sw_settings_snippet_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_snippet_list_smart_bar_actions_add %}
-        <sw-button
+        <mt-button
             v-tooltip.bottom="getNoPermissionsTooltip('snippet.creator')"
-            :router-link="{ name: 'sw.settings.snippet.create', query: { ids: queryIds, limit, page } }"
             :disabled="isLoading || !acl.can('snippet.creator') || undefined"
             variant="primary"
+            size="default"
+            @click="$router.push({ name: 'sw.settings.snippet.create', query: { ids: queryIds, limit, page } })"
         >
             {{ $tc('sw-settings-snippet.list.buttonAdd') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}
@@ -111,8 +112,9 @@
                 >
                     {% block sw_settings_snippet_list_column_value_inline_edit %}
                     <template v-if="isInlineEdit">
-                        <sw-text-field
-                            v-model:value="item[set.id].value"
+
+                        <mt-text-field
+                            v-model="item[set.id].value"
                             :placeholder="item[set.id].origin || $tc('sw-settings-snippet.general.placeholderValue')"
                             :size="compact ? 'small' : 'default'"
                         />
@@ -150,7 +152,7 @@
                         :disabled="!acl.can('snippet.deleter') || undefined"
                         @click="onReset(item)"
                     >
-                        {{ $tc('sw-settings-snippet.list.contextMenuDelete', item.isCustomSnippet) }}
+                        {{ $tc('sw-settings-snippet.list.contextMenuDelete', {}, item.isCustomSnippet) }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -174,7 +176,7 @@
                             v-if="!item.isCustomSnippet"
                             class="sw-settings-snippet-list__delete-modal-confirm-reset-text"
                         >
-                            {{ $tc('sw-settings-snippet.list.textResetConfirm', queryIdCount, { key: item[metaId].translationKey }) }}
+                            {{ $tc('sw-settings-snippet.list.textResetConfirm', { key: item[metaId].translationKey }, queryIdCount) }}
                         </span>
                         {% endblock %}
 
@@ -183,7 +185,7 @@
                             v-else
                             class="sw-settings-snippet-list__delete-modal-confirm-delete-text"
                         >
-                            {{ $tc('sw-settings-snippet.list.textDeleteConfirm', 0, { key: item[metaId].translationKey }) }}
+                            {{ $tc('sw-settings-snippet.list.textDeleteConfirm', { key: item[metaId].translationKey }, 0) }}
                         </span>
                         {% endblock %}
 
@@ -235,23 +237,24 @@
                         {% block sw_settings_snippet_list_delete_modal_footer %}
                         <template #modal-footer>
                             {% block sw_settings_snippet_list_delete_modal_cancel %}
-                            <sw-button
+                            <mt-button
                                 size="small"
+                                variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
 
                             {% block sw_settings_snippet_list_delete_modal_confirm %}
-                            <sw-button
+                            <mt-button
                                 :disabled="hasResetableItems && !item.isCustomSnippet && resetItems.length !== 1 || undefined"
-                                variant="danger"
+                                variant="critical"
                                 size="small"
                                 @click="onConfirmReset(item)"
                             >
-                                {{ $tc('sw-settings-snippet.list.contextMenuDelete', item.isCustomSnippet) }}
-                            </sw-button>
+                                {{ $tc('sw-settings-snippet.list.contextMenuDelete', {}, item.isCustomSnippet) }}
+                            </mt-button>
                             {% endblock %}
                         </template>
                         {% endblock %}

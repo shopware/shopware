@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Framework\App;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\BackupGlobals;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
@@ -20,7 +19,7 @@ class ActiveAppsLoaderTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('fetchAllAssociative')
             ->willReturn([
                 [
@@ -47,21 +46,21 @@ class ActiveAppsLoaderTest extends TestCase
         ];
 
         // call twice to test it gets cached
-        static::assertEquals($expected, $activeAppsLoader->getActiveApps());
-        static::assertEquals($expected, $activeAppsLoader->getActiveApps());
+        static::assertSame($expected, $activeAppsLoader->getActiveApps());
+        static::assertSame($expected, $activeAppsLoader->getActiveApps());
 
         // reset cache
 
         $activeAppsLoader->reset();
 
-        static::assertEquals($expected, $activeAppsLoader->getActiveApps());
+        static::assertSame($expected, $activeAppsLoader->getActiveApps());
     }
 
     public function testLoadAppsFromLocal(): void
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')
             ->willThrowException(new \Exception('test'));
 
@@ -90,30 +89,6 @@ class ActiveAppsLoaderTest extends TestCase
             ],
         ];
 
-        static::assertEquals($expected, $activeAppsLoader->getActiveApps());
-    }
-
-    #[BackupGlobals(true)]
-    public function testDisabled(): void
-    {
-        $_SERVER['DISABLE_EXTENSIONS'] = '1';
-
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->expects(static::never())
-            ->method('fetchAllAssociative');
-
-        $appLoader = $this->createMock(AppLoader::class);
-        $appLoader
-            ->expects(static::never())
-            ->method('load');
-
-        $activeAppsLoader = new ActiveAppsLoader(
-            $connection,
-            $appLoader,
-            '/'
-        );
-
-        static::assertEquals([], $activeAppsLoader->getActiveApps());
+        static::assertSame($expected, $activeAppsLoader->getActiveApps());
     }
 }

@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import chalk from 'chalk';
+import colors from 'picocolors';
 import readline from 'readline';
 import fs from 'fs';
 import path from 'path';
@@ -40,9 +40,9 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-console.log(chalk.green('Administration test file generator'));
+console.log(colors.green('Administration test file generator'));
 
-rl.question(chalk.blueBright('Enter the component name/path you want to test: '), (name) => {
+rl.question(colors.blueBright('Enter the component name/path you want to test: '), (name) => {
     const files = findFile(name);
 
     if (files.length === 0) {
@@ -67,11 +67,11 @@ rl.question(chalk.blueBright('Enter the component name/path you want to test: ')
         }
 
         if (fs.existsSync(specFileName)) {
-            console.log(chalk.red(`Spec file with name "${specFileName}" already exists. Aborting!`));
+            console.log(colors.red(`Spec file with name "${specFileName}" already exists. Aborting!`));
             return process.exit(1);
         }
 
-        return rl.question(chalk.blueBright(`Do you want to create a test file for ${fileName}? (Y/n) `), (answer) => {
+        return rl.question(colors.blueBright(`Do you want to create a test file for ${fileName}? (Y/n) `), (answer) => {
             answer = answer.toUpperCase();
 
             if (answer === 'Y' || answer === '') {
@@ -91,11 +91,11 @@ rl.question(chalk.blueBright('Enter the component name/path you want to test: ')
 });
 
 rl.on('close', function () {
-    console.log(chalk.green('\nThank you for testing with us!'));
+    console.log(colors.green('\nThank you for testing with us!'));
     process.exit(0);
 });
 
 rl.on('error', function (err) {
-    console.log(chalk.red(err.message));
+    console.log(colors.red(err.message));
     process.exit(1);
 });

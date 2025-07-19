@@ -113,7 +113,7 @@ class SystemConfigLimiterTest extends TestCase
 
         $systemConfig = $this->createMock(SystemConfigService::class);
         $systemConfig
-            ->expects(static::exactly(\array_key_exists('limit', $this->config['limits'][0]) ? 0 : 1))
+            ->expects($this->exactly(\array_key_exists('limit', $this->config['limits'][0]) ? 0 : 1))
             ->method('get')
             ->willReturnCallback(
                 fn (string $domain) => $domainLimits[$domain] ?? null
@@ -121,13 +121,13 @@ class SystemConfigLimiterTest extends TestCase
 
         $cacheStorage = $this->createMock(CacheStorage::class);
         $cacheStorage
-            ->expects(static::atLeast(1))
+            ->expects($this->atLeast(1))
             ->method('fetch')
             ->willReturnCallback(
                 fn (string $id) => $this->cache[$id] ?? null
             );
         $cacheStorage
-            ->expects(static::atLeast(1))
+            ->expects($this->atLeast(1))
             ->method('save')
             ->willReturnCallback(
                 fn (TimeBackoff $timeBackoff) => $this->cache[$timeBackoff->getId()] = $timeBackoff

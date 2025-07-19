@@ -9,8 +9,6 @@ import './sw-import-export-edit-profile-field-indicators.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         profile: {
             type: Object,

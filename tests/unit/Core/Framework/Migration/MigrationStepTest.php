@@ -10,7 +10,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -26,17 +25,6 @@ class MigrationStepTest extends TestCase
         $this->expectExceptionObject(MigrationException::implausibleCreationTimestamp($timestamp, $step));
 
         $step->getPlausibleCreationTimestamp();
-    }
-
-    #[DataProvider('throwingMigrationTimestamps')]
-    #[DisabledFeatures(['v6.7.0.0'])]
-    /**
-     * @deprecated tag:v6.7.0 - This test is only relevant to ensure backwards compatibility in 6.6
-     */
-    public function testImplausibleMigrationTimestampSucceedsIn66(int $timestamp): void
-    {
-        $step = new TimestampMigrationStep($timestamp);
-        static::assertSame($timestamp, $step->getPlausibleCreationTimestamp());
     }
 
     public static function throwingMigrationTimestamps(): \Generator

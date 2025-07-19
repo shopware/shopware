@@ -28,7 +28,7 @@ class ChainPipeTest extends TestCase
         ];
         $config = new Config([], [], []);
 
-        $outerPipe->expects(static::once())->method('in')
+        $outerPipe->expects($this->once())->method('in')
             ->willReturnCallback(
                 function (Config $c, $record) use ($config, $data) {
                     $this->assertSame($config, $c);
@@ -40,7 +40,7 @@ class ChainPipeTest extends TestCase
                 }
             );
 
-        $innerPipe->expects(static::once())->method('in')
+        $innerPipe->expects($this->once())->method('in')
             ->willReturnCallback(
                 function (Config $c, $record) use ($config, $data) {
                     $this->assertSame($config, $c);
@@ -55,7 +55,7 @@ class ChainPipeTest extends TestCase
         $result = iterator_to_array($chainPipe->in($config, $data));
         static::assertSame($data, $result);
 
-        $outerPipe->expects(static::once())->method('out')
+        $outerPipe->expects($this->once())->method('out')
             ->willReturnCallback(
                 function (Config $c, $record) use ($config, $data) {
                     $this->assertSame($config, $c);
@@ -67,7 +67,7 @@ class ChainPipeTest extends TestCase
                 }
             );
 
-        $innerPipe->expects(static::once())->method('out')
+        $innerPipe->expects($this->once())->method('out')
             ->willReturnCallback(
                 function (Config $c, $record) use ($config, $data) {
                     $this->assertSame($config, $c);

@@ -9,13 +9,6 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars
             await wrapTestComponent('sw-extension-rating-stars', {
                 sync: true,
             }),
-            {
-                global: {
-                    stubs: {
-                        'sw-icon': true,
-                    },
-                },
-            },
         );
     }
 

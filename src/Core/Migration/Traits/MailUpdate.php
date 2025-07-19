@@ -7,53 +7,13 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class MailUpdate
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $type;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $enPlain;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $enHtml;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $dePlain;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $deHtml;
-
     public function __construct(
-        string $type,
-        ?string $enPlain = null,
-        ?string $enHtml = null,
-        ?string $dePlain = null,
-        ?string $deHtml = null
+        protected string $type,
+        protected ?string $enPlain = null,
+        protected ?string $enHtml = null,
+        protected ?string $dePlain = null,
+        protected ?string $deHtml = null
     ) {
-        $this->type = $type;
-        $this->enPlain = $enPlain;
-        $this->enHtml = $enHtml;
-        $this->dePlain = $dePlain;
-        $this->deHtml = $deHtml;
     }
 
     public function getEnPlain(): ?string

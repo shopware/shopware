@@ -59,12 +59,12 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $shopId = $this->changeAppUrl();
 
         $registrationsService = $this->createMock(AppRegistrationService::class);
-        $registrationsService->expects(static::once())
+        $registrationsService->expects($this->once())
             ->method('registerApp')
             ->with(
                 static::callback(static fn (Manifest $manifest): bool => $manifest->getPath() === $appDir),
                 $app->getId(),
-                static::isType('string'),
+                static::isString(),
                 static::isInstanceOf(Context::class)
             );
 
@@ -84,7 +84,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         static::assertNotNull($app->getIntegration());
         static::assertNotNull($updatedApp->getIntegration());
 
-        static::assertNotEquals(
+        static::assertNotSame(
             $app->getIntegration()->getSecretAccessKey(),
             $updatedApp->getIntegration()->getSecretAccessKey()
         );
@@ -98,7 +98,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $shopId = $this->changeAppUrl();
 
         $registrationsService = $this->createMock(AppRegistrationService::class);
-        $registrationsService->expects(static::never())
+        $registrationsService->expects($this->never())
             ->method('registerApp');
 
         $moveShopPermanentlyResolver = new MoveShopPermanentlyStrategy(

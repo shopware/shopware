@@ -196,7 +196,7 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
-            // many to one associations can be directly fetched in same query
+            // many-to-one associations can be directly fetched in same query
             if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
                 $reference = $field->getReferenceDefinition();
 
@@ -204,12 +204,19 @@ class EntityReader implements EntityReaderInterface
 
                 $this->queryHelper->resolveField($field, $definition, $root, $query, $context);
 
-                $alias = $root . '.' . $field->getPropertyName();
+                $fieldPropertyName = $field->getPropertyName();
+                $alias = $root . '.' . $fieldPropertyName;
 
                 $joinCriteria = null;
-                if ($criteria && $criteria->hasAssociation($field->getPropertyName())) {
-                    $joinCriteria = $criteria->getAssociation($field->getPropertyName());
+                if ($criteria && $criteria->hasAssociation($fieldPropertyName)) {
+                    $joinCriteria = $criteria->getAssociation($fieldPropertyName);
                     $basics = $this->addAssociationFieldsToCriteria($joinCriteria, $reference, $basics);
+                }
+
+                $referenceField = $reference->getFields()->getByStorageName($field->getReferenceField());
+                if ($isPartial && $referenceField && !isset($partial[$fieldPropertyName][$referenceField->getPropertyName()])) {
+                    $partial[$fieldPropertyName] = $partial[$fieldPropertyName] ?? [];
+                    $partial[$fieldPropertyName][$referenceField->getPropertyName()] = [];
                 }
 
                 $this->joinBasic($reference, $context, $alias, $query, $basics, $joinCriteria, $partial[$field->getPropertyName()] ?? []);
@@ -219,7 +226,7 @@ class EntityReader implements EntityReaderInterface
 
             // add sub select for many to many field
             if ($field instanceof ManyToManyAssociationField) {
-                if ($this->isAssociationRestricted($criteria, $field->getPropertyName())) {
+                if ($this->isAssociationRestricted($criteria, $field->getPropertyName()) && !$field->is(Inherited::class)) {
                     continue;
                 }
 
@@ -457,7 +464,12 @@ class EntityReader implements EntityReaderInterface
             $association->getReferenceField()
         );
 
-        \assert($ref instanceof Field);
+        if (!$ref instanceof Field) {
+            throw DataAbstractionLayerException::referenceFieldByStorageNameNotFound(
+                $association->getReferenceDefinition()->getEntityName(),
+                $association->getReferenceField()
+            );
+        }
 
         $propertyName = $ref->getPropertyName();
         if ($association instanceof ChildrenAssociationField) {
@@ -794,11 +806,16 @@ class EntityReader implements EntityReaderInterface
                 $condition
             );
 
-        $query->andWhere($root . '.' . $localColumn . ' IN (:localIds)');
-        $query->setParameter('localIds', Uuid::fromHexToBytesList($collection->getIds()), ArrayParameterType::BINARY);
+        if (!$association->is(Inherited::class)) {
+            $query->andWhere($root . '.' . $localColumn . ' IN (:localIds)');
+            $query->setParameter('localIds', Uuid::fromHexToBytesList($collection->getIds()), ArrayParameterType::BINARY);
+        } else {
+            $query->andWhere($root . '.' . $referenceColumn . ' IN (:mappingIds)');
+            $query->setParameter('mappingIds', Uuid::fromHexToBytesList($this->collectManyToManyIds($collection, $association)), ArrayParameterType::BINARY);
+        }
 
         $orderBy = '';
-        $parts = $query->getQueryPart('orderBy');
+        $parts = $query->getOrderByParts();
         if (!empty($parts)) {
             $orderBy = ' ORDER BY ' . implode(', ', $parts);
             $query->resetOrderBy();
@@ -806,10 +823,10 @@ class EntityReader implements EntityReaderInterface
         // order by is handled in group_concat
         $fieldCriteria->resetSorting();
 
-        $query->select([
+        $query->select(
             'LOWER(HEX(' . $root . '.' . $localColumn . ')) as `key`',
             'GROUP_CONCAT(LOWER(HEX(' . $root . '.' . $referenceColumn . ')) ' . $orderBy . ') as `value`',
-        ]);
+        );
 
         $query->addGroupBy($root . '.' . $localColumn);
 
@@ -939,19 +956,17 @@ class EntityReader implements EntityReaderInterface
             . EntityDefinitionQueryHelper::escape($foreignKey);
 
         $query->select(
-            [
-                // build select with an internal counter loop, the counter loop will be reset if the foreign key changed (this is the reason for the sorting inject above)
-                '@n:=IF(@c=' . $sqlAccessor . ', @n+1, IF(@c:=' . $sqlAccessor . ',1,1)) as id_count',
+            // build select with an internal counter loop, the counter loop will be reset if the foreign key changed (this is the reason for the sorting inject above)
+            '@n:=IF(@c=' . $sqlAccessor . ', @n+1, IF(@c:=' . $sqlAccessor . ',1,1)) as id_count',
 
-                // add select for foreign key for join condition
-                $sqlAccessor,
+            // add select for foreign key for join condition
+            $sqlAccessor,
 
-                // add primary key select to group concat them
-                EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()->getEntityName()) . '.id',
-            ]
+            // add primary key select to group concat them
+            EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()->getEntityName()) . '.id',
         );
 
-        foreach ($query->getQueryPart('orderBy') as $i => $sorting) {
+        foreach ($query->getOrderByParts() as $i => $sorting) {
             // The first order is the primary key
             if ($i === 0) {
                 continue;
@@ -1049,7 +1064,7 @@ class EntityReader implements EntityReaderInterface
         ];
 
         $query = new QueryBuilder($this->connection);
-        $query->select([
+        $query->select(
             str_replace(
                 array_keys($params),
                 array_values($params),
@@ -1057,7 +1072,7 @@ class EntityReader implements EntityReaderInterface
             ),
             $table . '.' . $referenceColumn,
             $table . '.' . $sourceColumn,
-        ]);
+        );
         $query->from($table, $table);
         $query->orderBy($table . '.' . $sourceColumn);
 

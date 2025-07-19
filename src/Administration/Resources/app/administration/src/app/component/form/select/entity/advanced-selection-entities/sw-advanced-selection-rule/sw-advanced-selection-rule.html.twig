@@ -1,6 +1,6 @@
 {% block sw_advanced_selection_rule %}
-{# TODO - NEXT-20791 : remove store-key property. Filters should not be stored somewhere #}
 <sw-entity-advanced-selection-modal
+    class="sw-advanced-selection-rule"
     entity-name="rule"
     :entity-display-text="$tc('global.sw-entity-advanced-selection-modal.entity.rule')"
     store-key="advancedSelection.rule"
@@ -66,10 +66,16 @@
         {% block sw_advanced_selection_rule_list_grid_columns_create_date_content %}
         <span :class="getColumnClass(item)">
             <template v-if="item.updatedAt">
-                {{ dateFilter(item.updatedAt) }}
+                <sw-time-ago
+                    :date="item.updatedAt"
+                    :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                />
             </template>
             <template v-else>
-                {{ dateFilter(item.createdAt) }}
+                <sw-time-ago
+                    :date="item.createdAt"
+                    :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                />
             </template>
         </span>
         {% endblock %}

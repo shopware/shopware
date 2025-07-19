@@ -61,8 +61,8 @@ class FilterTagIdsService
         $query = $this->criteriaQueryBuilder->build($query, $this->tagDefinition, $criteria, $context);
 
         /** @var array<string> $select */
-        $select = array_merge(['LOWER(HEX(`tag`.`id`))'], $query->getQueryPart('select'));
-        $query->select($select);
+        $select = array_merge(['LOWER(HEX(`tag`.`id`))'], $query->getSelectParts());
+        $query->select(...$select);
         $query->addGroupBy('`tag`.`id`');
         $query->setMaxResults($criteria->getLimit());
         $query->setFirstResult($criteria->getOffset() ?? 0);
@@ -76,7 +76,7 @@ class FilterTagIdsService
         $query->setFirstResult(0);
 
         $total = (new QueryBuilder($this->connection))
-            ->select(['COUNT(*)'])
+            ->select('COUNT(*)')
             ->from(\sprintf('(%s) total', $query->getSQL()))
             ->setParameters($query->getParameters(), $query->getParameterTypes());
 
@@ -93,7 +93,7 @@ class FilterTagIdsService
             $mappingLocalColumn = EntityDefinitionQueryHelper::escape($manyToManyField->getMappingLocalColumn());
 
             $subQuery = (new QueryBuilder($this->connection))
-                ->select([$mappingLocalColumn])
+                ->select($mappingLocalColumn)
                 ->from($mappingTable);
 
             $query->andWhere($query->expr()->notIn('`tag`.`id`', \sprintf('(%s)', $subQuery->getSQL())));
@@ -103,7 +103,7 @@ class FilterTagIdsService
     private function addDuplicateFilter(QueryBuilder $query): void
     {
         $subQuery = (new QueryBuilder($this->connection))
-            ->select(['name'])
+            ->select('name')
             ->from('tag')
             ->groupBy('name')
             ->having('COUNT(`name`) > 1');
@@ -128,19 +128,18 @@ class FilterTagIdsService
             return;
         }
 
-        $expressions = new CompositeExpression(CompositeExpression::TYPE_OR);
-
+        $parts = [];
         foreach ($manyToManyFields as $manyToManyField) {
             $mappingTable = EntityDefinitionQueryHelper::escape($manyToManyField->getMappingDefinition()->getEntityName());
             $mappingLocalColumn = EntityDefinitionQueryHelper::escape($manyToManyField->getMappingLocalColumn());
 
             $subQuery = (new QueryBuilder($this->connection))
-                ->select([$mappingLocalColumn])
+                ->select($mappingLocalColumn)
                 ->from($mappingTable);
 
-            $expressions = $expressions->with($query->expr()->in('`tag`.`id`', \sprintf('(%s)', $subQuery->getSQL())));
+            $parts[] = $query->expr()->in('`tag`.`id`', \sprintf('(%s)', $subQuery->getSQL()));
         }
 
-        $query->andWhere($expressions);
+        $query->andWhere(CompositeExpression::or(...$parts));
     }
 }

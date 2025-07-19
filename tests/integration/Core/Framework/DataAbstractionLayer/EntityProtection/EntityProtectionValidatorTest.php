@@ -49,7 +49,7 @@ class EntityProtectionValidatorTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertIsString($response->getContent());
-        static::assertEquals(403, $response->getStatusCode(), $response->getContent());
+        static::assertSame(403, $response->getStatusCode(), $response->getContent());
     }
 
     /**
@@ -83,7 +83,7 @@ class EntityProtectionValidatorTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertIsString($response->getContent());
-        static::assertNotEquals(403, $response->getStatusCode(), $response->getContent());
+        static::assertNotSame(403, $response->getStatusCode(), $response->getContent());
 
         $this->getBrowser()
             ->request(
@@ -94,7 +94,7 @@ class EntityProtectionValidatorTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertIsString($response->getContent());
-        static::assertNotEquals(403, $response->getStatusCode(), $response->getContent());
+        static::assertNotSame(403, $response->getStatusCode(), $response->getContent());
 
         $this->getBrowser()
             ->request(
@@ -105,7 +105,7 @@ class EntityProtectionValidatorTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertIsString($response->getContent());
-        static::assertEquals(403, $response->getStatusCode(), $response->getContent());
+        static::assertSame(403, $response->getStatusCode(), $response->getContent());
     }
 
     public function testItBlocksReadsOnForbiddenAssociations(): void
@@ -124,7 +124,7 @@ class EntityProtectionValidatorTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertIsString($response->getContent());
-        static::assertEquals(403, $response->getStatusCode(), $response->getContent());
+        static::assertSame(403, $response->getStatusCode(), $response->getContent());
 
         $this->getBrowser()
             ->request(
@@ -140,7 +140,7 @@ class EntityProtectionValidatorTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertIsString($response->getContent());
-        static::assertNotEquals(403, $response->getStatusCode(), $response->getContent());
+        static::assertNotSame(403, $response->getStatusCode(), $response->getContent());
     }
 
     public function testItBlocksReadsOnForbiddenNestedAssociations(): void
@@ -163,7 +163,7 @@ class EntityProtectionValidatorTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertIsString($response->getContent());
-        static::assertEquals(403, $response->getStatusCode(), $response->getContent());
+        static::assertSame(403, $response->getStatusCode(), $response->getContent());
 
         $this->getBrowser()
             ->request(
@@ -183,7 +183,7 @@ class EntityProtectionValidatorTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertIsString($response->getContent());
-        static::assertNotEquals(403, $response->getStatusCode(), $response->getContent());
+        static::assertNotSame(403, $response->getStatusCode(), $response->getContent());
     }
 
     public function testItDoesNotValidateCascadeDeletes(): void
@@ -202,9 +202,9 @@ class EntityProtectionValidatorTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertIsString($response->getContent());
-        static::assertEquals(204, $response->getStatusCode(), $response->getContent());
+        static::assertSame(204, $response->getStatusCode(), $response->getContent());
 
-        static::assertEquals(
+        static::assertSame(
             $countBefore - 1,
             $salesChannelRepository->search(new Criteria(), Context::createDefaultContext())->getTotal()
         );

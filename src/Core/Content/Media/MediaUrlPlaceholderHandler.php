@@ -62,7 +62,7 @@ class MediaUrlPlaceholderHandler implements MediaUrlPlaceholderHandlerInterface
         }
         $query = new QueryBuilder($this->connection);
         $query->setTitle('media_url::replacement');
-        $query->addSelect(['id', 'path', 'updated_at', 'created_at']);
+        $query->addSelect('id', 'path', 'updated_at', 'created_at');
         $query->from('media');
         $query->andWhere('id IN (:mediaIds)');
         $query->setParameter('mediaIds', $mediaIds, ArrayParameterType::BINARY);

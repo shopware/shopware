@@ -4,17 +4,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
+use Shopware\Core\Framework\MessageQueue\DeduplicatableMessageInterface;
+use Shopware\Core\Framework\Util\Hasher;
 
 #[Package('framework')]
-class IterateEntityIndexerMessage implements AsyncMessageInterface
+class IterateEntityIndexerMessage implements AsyncMessageInterface, DeduplicatableMessageInterface
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $indexer;
-
     /**
      * @internal
      *
@@ -22,11 +17,10 @@ class IterateEntityIndexerMessage implements AsyncMessageInterface
      * @param array<string> $skip
      */
     public function __construct(
-        string $indexer,
+        protected string $indexer,
         protected ?array $offset,
         protected array $skip = []
     ) {
-        $this->indexer = $indexer;
     }
 
     public function getIndexer(): string
@@ -56,5 +50,31 @@ class IterateEntityIndexerMessage implements AsyncMessageInterface
     public function getSkip(): array
     {
         return $this->skip;
+    }
+
+    /**
+     * @experimental stableVersion:v6.8.0 feature:DEDUPLICATABLE_MESSAGES
+     */
+    public function deduplicationId(): ?string
+    {
+        $sortedSkip = $this->skip;
+        sort($sortedSkip);
+
+        $sortedOffset = $this->offset;
+        if (\is_array($sortedOffset)) {
+            ksort($sortedOffset);
+        }
+
+        $data = json_encode([
+            $this->indexer,
+            $sortedOffset,
+            $sortedSkip,
+        ]);
+
+        if ($data === false) {
+            return null;
+        }
+
+        return Hasher::hash($data);
     }
 }

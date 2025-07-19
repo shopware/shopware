@@ -8,7 +8,6 @@ async function createWrapper(customOptions = {}) {
     return mount(await wrapTestComponent('sw-context-button', { sync: true }), {
         global: {
             stubs: {
-                'sw-icon': true,
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-popover': {
                     template: `

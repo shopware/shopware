@@ -5,13 +5,11 @@ namespace Shopware\Core\Content\Mail\Service;
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\Mail\Message\SendMailMessage;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueSizeRestrictListener;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Mime\Email;
@@ -46,12 +44,8 @@ class MailSender extends AbstractMailSender
         throw new DecorationPatternException(self::class);
     }
 
-    public function send(Email $email, ?Envelope $envelope = null): void
+    public function send(Email $email): void
     {
-        if ($envelope) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The parameter $envelope is deprecated and will be removed.');
-        }
-
         $disabled = $this->configService->get(self::DISABLE_MAIL_DELIVERY);
 
         if ($disabled) {

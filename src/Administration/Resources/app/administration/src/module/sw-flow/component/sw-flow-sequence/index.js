@@ -8,8 +8,6 @@ import './sw-flow-sequence.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         sequence: {
             type: Object,

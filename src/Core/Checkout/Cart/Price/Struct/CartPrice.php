@@ -15,70 +15,20 @@ class CartPrice extends Struct
     final public const TAX_STATE_NET = 'net';
     final public const TAX_STATE_FREE = 'tax-free';
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $netPrice;
-
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $totalPrice;
-
-    /**
-     * @var CalculatedTaxCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $calculatedTaxes;
-
-    /**
-     * @var TaxRuleCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxRules;
-
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $positionPrice;
-
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $taxStatus;
-
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $rawTotal;
+    protected float $rawTotal;
 
     public function __construct(
-        float $netPrice,
-        float $totalPrice,
-        float $positionPrice,
-        CalculatedTaxCollection $calculatedTaxes,
-        TaxRuleCollection $taxRules,
-        string $taxStatus,
+        protected float $netPrice,
+        protected float $totalPrice,
+        protected float $positionPrice,
+        protected CalculatedTaxCollection $calculatedTaxes,
+        protected TaxRuleCollection $taxRules,
+        protected string $taxStatus,
         ?float $rawTotal = null
     ) {
         $this->netPrice = FloatComparator::cast($netPrice);
         $this->totalPrice = FloatComparator::cast($totalPrice);
-        $this->calculatedTaxes = $calculatedTaxes;
-        $this->taxRules = $taxRules;
         $this->positionPrice = FloatComparator::cast($positionPrice);
-        $this->taxStatus = $taxStatus;
         $rawTotal ??= $totalPrice;
         $this->rawTotal = FloatComparator::cast($rawTotal);
     }

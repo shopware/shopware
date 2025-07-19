@@ -94,7 +94,7 @@ Module.register('sw-settings-search', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'general',
         to: 'sw.settings.search.index',
         icon: 'regular-search',
         privilege: 'product_search_config.viewer',

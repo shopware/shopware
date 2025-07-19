@@ -2,7 +2,11 @@
 
 namespace Shopware\Core\System\SalesChannel\Api;
 
+use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,7 +25,9 @@ class StoreApiResponseListener implements EventSubscriberInterface
      */
     public function __construct(
         private readonly StructEncoder $encoder,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
+        private readonly MediaUrlPlaceholderHandlerInterface $mediaUrlPlaceholderHandler,
     ) {
     }
 
@@ -52,7 +58,20 @@ class StoreApiResponseListener implements EventSubscriberInterface
 
         $encoded = $this->encoder->encode($response->getObject(), $fields);
 
-        $event->setResponse(new JsonResponse($encoded, $response->getStatusCode(), $response->headers->all()));
+        $jsonResponse = new JsonResponse(null, $response->getStatusCode(), $response->headers->all());
+        $jsonResponse->setEncodingOptions(\JSON_HEX_TAG | \JSON_HEX_APOS | \JSON_HEX_AMP | \JSON_HEX_QUOT | \JSON_UNESCAPED_SLASHES);
+        $jsonResponse->setData($encoded);
+
+        $content = $this->mediaUrlPlaceholderHandler->replace((string) $jsonResponse->getContent());
+
+        $salesChannelContext = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+        if ($salesChannelContext instanceof SalesChannelContext) {
+            $content = $this->seoUrlPlaceholderHandler->replace($content, '', $salesChannelContext);
+        }
+
+        $jsonResponse->setContent($content);
+
+        $event->setResponse($jsonResponse);
     }
 
     /**

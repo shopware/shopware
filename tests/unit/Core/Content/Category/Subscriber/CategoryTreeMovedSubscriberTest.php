@@ -31,7 +31,7 @@ class CategoryTreeMovedSubscriberTest extends TestCase
     public function testNotRootChange(): void
     {
         $registry = $this->createMock(EntityIndexerRegistry::class);
-        $registry->expects(static::never())->method('sendIndexingMessage');
+        $registry->expects($this->never())->method('sendIndexingMessage');
         $subscriber = new CategoryTreeMovedSubscriber($registry);
 
         $event = new EntityWrittenContainerEvent(Context::createCLIContext(), new NestedEventCollection(), []);
@@ -41,7 +41,7 @@ class CategoryTreeMovedSubscriberTest extends TestCase
     public function testDetectSalesChannelEntryPoints(): void
     {
         $registry = $this->createMock(EntityIndexerRegistry::class);
-        $registry->expects(static::once())->method('sendIndexingMessage')->with(['category.indexer', 'product.indexer']);
+        $registry->expects($this->once())->method('sendIndexingMessage')->with(['category.indexer', 'product.indexer']);
         $subscriber = new CategoryTreeMovedSubscriber($registry);
 
         $event = new EntityWrittenEvent(

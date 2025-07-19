@@ -23,20 +23,18 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-sales-channel-detail-base', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+                'mt-card': {
+                    template: '<div class="mt-card"><slot></slot></div>',
                 },
-                'sw-switch-field': true,
+
                 'sw-text-field': true,
-                'sw-number-field': true,
+                'mt-number-field': true,
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
                 'sw-entity-single-select': true,
                 'sw-sales-channel-defaults-select': true,
                 'router-link': true,
-                'sw-icon': true,
-                'sw-button': true,
                 'sw-radio-field': true,
                 'sw-multi-tag-ip-select': true,
                 'sw-select-number-field': true,
@@ -46,8 +44,10 @@ async function createWrapper() {
                 'sw-sales-channel-detail-domains': true,
                 'sw-category-tree-field': true,
                 'mt-select': true,
-                'sw-alert': true,
                 'sw-custom-field-set-renderer': true,
+                'mt-banner': true,
+                'sw-sales-channel-measurement': true,
+                'sw-time-ago': true,
             },
             provide: {
                 salesChannelService: {},
@@ -69,6 +69,10 @@ async function createWrapper() {
                     }),
                 },
             },
+            mocks: {
+                $t: jest.fn().mockImplementation((snippet) => snippet),
+                $router: { resolve: () => ({ href: '/sw/settings/payment/overview' }) },
+            },
         },
         props: {
             salesChannel: {},
@@ -80,9 +84,9 @@ async function createWrapper() {
 
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => {
     beforeEach(async () => {
-        Shopware.State.get('session').currentUser = {
+        Shopware.Store.get('session').setCurrentUser({
             id: '8fe88c269c214ea68badf7ebe678ab96',
-        };
+        });
         global.repositoryFactoryMock.showError = false;
         global.activeAclRoles = [];
     });
@@ -96,7 +100,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const selectField = wrapper.get(
-            'sw-select-field-stub[placeholder="sw-sales-channel.detail.productComparison.templates.placeholderSelectTemplate"]',
+            'mt-select-stub[placeholder="sw-sales-channel.detail.productComparison.templates.placeholderSelectTemplate"]',
         );
 
         expect(selectField.attributes().disabled).toBe('true');
@@ -114,7 +118,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const selectField = wrapper.get(
-            'sw-select-field-stub[placeholder="sw-sales-channel.detail.productComparison.templates.placeholderSelectTemplate"]',
+            'mt-select-stub[placeholder="sw-sales-channel.detail.productComparison.templates.placeholderSelectTemplate"]',
         );
 
         expect(selectField.attributes().disabled).toBeUndefined();
@@ -128,9 +132,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             },
         });
 
-        const field = wrapper.get('sw-text-field-stub[placeholder="sw-sales-channel.detail.placeholderName"]');
+        const field = wrapper.getComponent('.sw-field--salesChannel-name');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.props().disabled).toBe(true);
     });
 
     it('should have the name field enabled', async () => {
@@ -144,9 +148,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             },
         });
 
-        const field = wrapper.get('sw-text-field-stub[placeholder="sw-sales-channel.detail.placeholderName"]');
+        const field = wrapper.getComponent('.sw-field--salesChannel-name');
 
-        expect(field.attributes().disabled).toBeUndefined();
+        expect(field.props().disabled).toBe(false);
     });
 
     it('should have the navigation category id field disabled', async () => {
@@ -170,7 +174,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     it('should have the navigation category depth field disabled', async () => {
         const wrapper = await createWrapper();
 
-        const field = wrapper.get('sw-number-field-stub[label="sw-sales-channel.detail.navigationCategoryDepth"]');
+        const field = wrapper.get('mt-number-field-stub[label="sw-sales-channel.detail.navigationCategoryDepth"]');
 
         expect(field.attributes().disabled).toBe('true');
     });
@@ -180,7 +184,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         const wrapper = await createWrapper();
 
-        const field = wrapper.get('sw-number-field-stub[label="sw-sales-channel.detail.navigationCategoryDepth"]');
+        const field = wrapper.get('mt-number-field-stub[label="sw-sales-channel.detail.navigationCategoryDepth"]');
 
         expect(field.attributes().disabled).toBeUndefined();
     });
@@ -575,10 +579,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.get(
-            'sw-text-field-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderFileName"]',
+            '.mt-text-field input[placeholder="sw-sales-channel.detail.productComparison.placeholderFileName"]',
         );
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     it('should have the field for product export file name enabled', async () => {
@@ -593,7 +597,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.get(
-            'sw-text-field-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderFileName"]',
+            '.mt-text-field input[placeholder="sw-sales-channel.detail.productComparison.placeholderFileName"]',
         );
 
         expect(field.attributes().disabled).toBeUndefined();
@@ -609,7 +613,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.get(
-            'sw-select-field-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectEncoding"]',
+            'mt-select-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectEncoding"]',
         );
 
         expect(field.attributes().disabled).toBe('true');
@@ -626,7 +630,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.get(
-            'sw-select-field-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectEncoding"]',
+            'mt-select-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectEncoding"]',
         );
 
         expect(field.attributes().disabled).toBeUndefined();
@@ -642,7 +646,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.get(
-            'sw-select-field-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectFileFormat"]',
+            'mt-select-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectFileFormat"]',
         );
 
         expect(field.attributes().disabled).toBe('true');
@@ -660,7 +664,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.get(
-            'sw-select-field-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectFileFormat"]',
+            'mt-select-stub[placeholder="sw-sales-channel.detail.productComparison.placeholderSelectFileFormat"]',
         );
 
         expect(field.attributes().disabled).toBeUndefined();
@@ -675,9 +679,11 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             },
         });
 
-        const field = wrapper.get('sw-switch-field-stub[label="sw-sales-channel.detail.productComparison.includeVariants"]');
+        const field = wrapper.get(
+            '.mt-switch input[aria-label="sw-sales-channel.detail.productComparison.includeVariants"]',
+        );
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     it('should have the field for product export includeVariants enabled', async () => {
@@ -691,7 +697,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             },
         });
 
-        const field = wrapper.get('sw-switch-field-stub[label="sw-sales-channel.detail.productComparison.includeVariants"]');
+        const field = wrapper.get(
+            '.mt-switch input[aria-label="sw-sales-channel.detail.productComparison.includeVariants"]',
+        );
 
         expect(field.attributes().disabled).toBeUndefined();
     });
@@ -736,10 +744,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.get(
-            'sw-switch-field-stub[label="sw-sales-channel.detail.productComparison.generateByCronjob"]',
+            '.mt-switch input[aria-label="sw-sales-channel.detail.productComparison.generateByCronjob"]',
         );
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     it('should have the switch field for product export generateByCronjob enabled', async () => {
@@ -754,7 +762,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.get(
-            'sw-switch-field-stub[label="sw-sales-channel.detail.productComparison.generateByCronjob"]',
+            '.mt-switch input[aria-label="sw-sales-channel.detail.productComparison.generateByCronjob"]',
         );
 
         expect(field.attributes().disabled).toBeUndefined();
@@ -797,9 +805,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             salesChannel: {},
         });
 
-        const field = wrapper.get('sw-text-field-stub[label="sw-sales-channel.detail.labelAccessKeyField"]');
+        const field = wrapper.get('.mt-text-field input[aria-label="sw-sales-channel.detail.labelAccessKeyField"]');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     it('should have the field for salesChannel accessKey not disabled', async () => {
@@ -811,9 +819,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             salesChannel: {},
         });
 
-        const field = wrapper.get('sw-text-field-stub[label="sw-sales-channel.detail.labelAccessKeyField"]');
+        const field = wrapper.get('.mt-text-field input[aria-label="sw-sales-channel.detail.labelAccessKeyField"]');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     it('should have the button for generate keys disabled', async () => {
@@ -825,7 +833,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         const field = wrapper.get('.sw-sales-channel-detail-base__button-generate-keys');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes('disabled')).toBeDefined();
     });
 
     it('should have the button for generate keys enabled', async () => {
@@ -851,9 +859,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             },
         });
 
-        const field = wrapper.get('sw-text-field-stub[label="sw-sales-channel.detail.productComparison.accessKey"]');
+        const field = wrapper.get('.mt-text-field input[aria-label="sw-sales-channel.detail.productComparison.accessKey"]');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     it('should have the field for productExport accessKey not disabled', async () => {
@@ -867,9 +875,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             },
         });
 
-        const field = wrapper.get('sw-text-field-stub[label="sw-sales-channel.detail.productComparison.accessKey"]');
+        const field = wrapper.get('.mt-text-field input[aria-label="sw-sales-channel.detail.productComparison.accessKey"]');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     // eslint-disable-next-line jest/no-identical-title
@@ -885,9 +893,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             },
         });
 
-        const field = wrapper.get('sw-text-field-stub[label="sw-sales-channel.detail.productComparison.accessUrl"]');
+        const field = wrapper.get('.mt-text-field input[aria-label="sw-sales-channel.detail.productComparison.accessUrl"]');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     // eslint-disable-next-line jest/no-identical-title
@@ -905,9 +913,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             },
         });
 
-        const field = wrapper.get('sw-text-field-stub[label="sw-sales-channel.detail.productComparison.accessUrl"]');
+        const field = wrapper.get('.mt-text-field input[aria-label="sw-sales-channel.detail.productComparison.accessUrl"]');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     it('should have the button for generating the keys disabled', async () => {
@@ -915,7 +923,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         const field = wrapper.get('.sw-sales-channel-detail-base__button-generate-keys');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes('disabled')).toBeDefined();
     });
 
     it('should have the button for generating the keys enabled', async () => {
@@ -931,9 +939,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     it('should have the switch field for salesChannel active disabled', async () => {
         const wrapper = await createWrapper();
 
-        const field = wrapper.get('sw-switch-field-stub[label="sw-sales-channel.detail.labelInputActive"]');
+        const field = wrapper.get('.mt-switch input[aria-label="sw-sales-channel.detail.labelInputActive"]');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     it('should have the switch field for salesChannel active enabled', async () => {
@@ -941,7 +949,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         const wrapper = await createWrapper();
 
-        const field = wrapper.get('sw-switch-field-stub[label="sw-sales-channel.detail.labelInputActive"]');
+        const field = wrapper.get('.mt-switch input[aria-label="sw-sales-channel.detail.labelInputActive"]');
 
         expect(field.attributes().disabled).toBeUndefined();
     });
@@ -949,9 +957,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     it('should have the switch field for salesChannel maintenance disabled', async () => {
         const wrapper = await createWrapper();
 
-        const field = wrapper.get('sw-switch-field-stub[label="sw-sales-channel.detail.labelMaintenanceActive"]');
+        const field = wrapper.get('.mt-switch input[aria-label="sw-sales-channel.detail.labelMaintenanceActive"]');
 
-        expect(field.attributes().disabled).toBe('true');
+        expect(field.attributes().disabled).toBeDefined();
     });
 
     it('should have the switch field for salesChannel maintenance enabled', async () => {
@@ -959,7 +967,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         const wrapper = await createWrapper();
 
-        const field = wrapper.get('sw-switch-field-stub[label="sw-sales-channel.detail.labelMaintenanceActive"]');
+        const field = wrapper.get('.mt-switch input[aria-label="sw-sales-channel.detail.labelMaintenanceActive"]');
 
         expect(field.attributes().disabled).toBeUndefined();
     });
@@ -999,7 +1007,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     it('should return filters from filter registry', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        }
     });
 
     it('"changeInterval" also updates cronjob config', async () => {
@@ -1044,5 +1055,262 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         expect(wrapper.vm.cliCommand).toBe('php bin/console product-export:generate sc-id export-id');
+    });
+
+    it('should build unserved languages alert with correct pluralization for single item', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            {
+                name: 'English',
+            },
+        ];
+
+        const snippet = 'sw-sales-channel.detail.warningUnservedLanguage';
+        const result = wrapper.vm.buildUnservedLanguagesAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                list: 'English',
+            },
+            1,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should build unserved languages alert with correct pluralization for multiple items', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            {
+                name: 'English',
+            },
+            {
+                name: 'German',
+            },
+        ];
+
+        const snippet = 'sw-sales-channel.detail.warningUnservedLanguage';
+        const result = wrapper.vm.buildUnservedLanguagesAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                list: 'English, German',
+            },
+            2,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should build payment alert with correct pluralization for single item', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            { translated: { name: 'PayPal|Invoice' } },
+        ];
+
+        const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
+
+        const result = wrapper.vm.buildDisabledPaymentAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                separatedList: '<span>PayPal&vert;Invoice</span>',
+                paymentSettingsLink: '/sw/settings/payment/overview',
+            },
+            1,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should build payment alert with correct pluralization for multiple items', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            { translated: { name: 'PayPal|Invoice' } },
+            { translated: { name: 'Cash on delivery' } },
+        ];
+
+        const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
+
+        const result = wrapper.vm.buildDisabledPaymentAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                separatedList: '<span>PayPal&vert;Invoice</span>, <span>Cash on delivery</span>',
+                paymentSettingsLink: '/sw/settings/payment/overview',
+            },
+            2,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should build shipping alert with correct pluralization for single item', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            { translated: { name: 'Standard' } },
+        ];
+        collection.first = () => collection[0];
+        collection.last = () => collection[0];
+
+        const snippet = 'sw-sales-channel.detail.warningDisabledShippingMethod';
+        const result = wrapper.vm.buildDisabledShippingAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                name: 'Standard',
+                addition: 'Standard',
+            },
+            1,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should build shipping alert with correct pluralization for multiple items', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            { translated: { name: 'Standard' } },
+            { translated: { name: 'Express' } },
+        ];
+        collection.first = () => collection[0];
+        collection.last = () => collection[1];
+
+        const snippet = 'sw-sales-channel.detail.warningDisabledShippingMethod';
+        const result = wrapper.vm.buildDisabledShippingAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                name: 'Standard',
+                addition: 'Express',
+            },
+            2,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should return disabledCountryVariant "attention" if the sales channel country is in the disabled countries list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                countryId: 'DE',
+                countries: [{ id: 'DE', active: false }],
+            },
+        });
+
+        expect(wrapper.vm.disabledCountryVariant).toBe('attention');
+
+        const banner = wrapper.get('mt-banner-stub');
+        expect(banner.attributes('variant')).toBe('attention');
+    });
+
+    it('should return disabledCountryVariant "info" if the sales channel country is NOT in the disabled countries list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                countryId: 'DE',
+                countries: [{ id: 'DE', active: true }],
+            },
+        });
+
+        expect(wrapper.vm.disabledCountryVariant).toBe('info');
+    });
+
+    it('should return disabledPaymentMethodVariant "attention" if the sales channel payment method is in the disabled payment methods list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                paymentMethodId: 'pm-1',
+                paymentMethods: [{ id: 'pm-1', active: false }],
+            },
+        });
+
+        expect(wrapper.vm.disabledPaymentMethodVariant).toBe('attention');
+
+        const banner = wrapper.get('mt-banner-stub');
+        expect(banner.attributes('variant')).toBe('attention');
+    });
+
+    it('should return disabledPaymentMethodVariant "info" if the sales channel payment method is NOT in the disabled payment methods list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                paymentMethodId: 'pm-1',
+                paymentMethods: [{ id: 'pm-1', active: true }],
+            },
+        });
+
+        expect(wrapper.vm.disabledPaymentMethodVariant).toBe('info');
+    });
+
+    it('should return disabledShippingMethodVariant "attention" if the sales channel shipping method is in the disabled shipping methods list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                shippingMethodId: 'sm-1',
+                shippingMethods: [{ id: 'sm-1', active: false }],
+            },
+        });
+
+        expect(wrapper.vm.disabledShippingMethodVariant).toBe('attention');
+
+        const banner = wrapper.get('mt-banner-stub');
+        expect(banner.attributes('variant')).toBe('attention');
+    });
+
+    it('should return disabledShippingMethodVariant "info" if the sales channel shipping method is NOT in the disabled shipping methods list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                shippingMethodId: 'sm-1',
+                shippingMethods: [{ id: 'sm-1', active: true }],
+            },
+        });
+
+        expect(wrapper.vm.disabledShippingMethodVariant).toBe('info');
+    });
+
+    it('should return unservedLanguageVariant "attention" if the sales channel language is NOT served by any domain', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                languageId: 'language-1',
+                languages: [{ id: 'language-1' }],
+                domains: [], // no domain serves the language
+            },
+        });
+
+        expect(wrapper.vm.unservedLanguageVariant).toBe('attention');
+
+        const banner = wrapper.get('mt-banner-stub');
+        expect(banner.attributes('variant')).toBe('attention');
+    });
+
+    it('should return unservedLanguageVariant "info" if the sales channel language IS served by a domain', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                languageId: 'language-1',
+                languages: [{ id: 'language-1' }],
+                domains: [{ languageId: 'language-1' }],
+            },
+        });
+
+        expect(wrapper.vm.unservedLanguageVariant).toBe('info');
     });
 });

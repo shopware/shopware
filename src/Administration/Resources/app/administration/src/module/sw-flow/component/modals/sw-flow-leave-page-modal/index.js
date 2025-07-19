@@ -12,8 +12,6 @@ export default {
         'page-leave-cancel',
     ],
 
-    compatConfig: Shopware.compatConfig,
-
     methods: {
         onConfirm() {
             this.$emit('page-leave-confirm');

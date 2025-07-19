@@ -26,14 +26,14 @@ class SingleEntitySelectFieldTest extends TestCase
 
         $singleEntitySelectField = $customFieldSet->getFields()[0];
         static::assertInstanceOf(SingleEntitySelectField::class, $singleEntitySelectField);
-        static::assertEquals('test_single_entity_select_field', $singleEntitySelectField->getName());
-        static::assertEquals([
+        static::assertSame('test_single_entity_select_field', $singleEntitySelectField->getName());
+        static::assertSame([
             'en-GB' => 'Test single-entity-select field',
         ], $singleEntitySelectField->getLabel());
-        static::assertEquals([], $singleEntitySelectField->getHelpText());
-        static::assertEquals(1, $singleEntitySelectField->getPosition());
-        static::assertEquals(['en-GB' => 'Choose an entity...'], $singleEntitySelectField->getPlaceholder());
+        static::assertSame([], $singleEntitySelectField->getHelpText());
+        static::assertSame(1, $singleEntitySelectField->getPosition());
+        static::assertSame(['en-GB' => 'Choose an entity...'], $singleEntitySelectField->getPlaceholder());
         static::assertFalse($singleEntitySelectField->getRequired());
-        static::assertEquals('product', $singleEntitySelectField->getEntity());
+        static::assertSame('product', $singleEntitySelectField->getEntity());
     }
 }

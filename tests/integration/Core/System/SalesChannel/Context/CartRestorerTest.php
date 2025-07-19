@@ -18,7 +18,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -435,14 +434,14 @@ class CartRestorerTest extends TestCase
         $cartMergedEvent = $this->events[CartMergedEvent::class];
         static::assertInstanceOf(CartMergedEvent::class, $cartMergedEvent);
 
-        static::assertEquals(1, $cartMergedEvent->getPreviousCart()->getLineItems()->count());
-        static::assertEquals($cartMergedEvent->getCart()->getToken(), $cartMergedEvent->getPreviousCart()->getToken());
+        static::assertCount(1, $cartMergedEvent->getPreviousCart()->getLineItems());
+        static::assertSame($cartMergedEvent->getCart()->getToken(), $cartMergedEvent->getPreviousCart()->getToken());
 
         static::assertIsString($productLineItem1->getReferencedId());
         static::assertNotNull($p1 = $restoreCart->getLineItems()->get($productLineItem1->getReferencedId()));
-        static::assertEquals(1, $p1->getQuantity());
+        static::assertSame(1, $p1->getQuantity());
         static::assertNotNull($savedItem = $restoreCart->getLineItems()->get($savedLineItem->getId()));
-        static::assertEquals($savedLineItemQuantity + $guestProductQuantity, $savedItem->getQuantity());
+        static::assertSame($savedLineItemQuantity + $guestProductQuantity, $savedItem->getQuantity());
     }
 
     public function testCartMergedEventIsFiredWithCustomerCart(): void
@@ -485,8 +484,8 @@ class CartRestorerTest extends TestCase
         $event = $this->events[CartMergedEvent::class];
 
         static::assertNotNull($event->getPreviousCart());
-        static::assertEquals(0, $event->getPreviousCart()->getLineItems()->count());
-        static::assertEquals($event->getCart()->getToken(), $event->getPreviousCart()->getToken());
+        static::assertCount(0, $event->getPreviousCart()->getLineItems());
+        static::assertSame($event->getCart()->getToken(), $event->getPreviousCart()->getToken());
 
         static::assertIsString($productLineItem1->getReferencedId());
         static::assertNotNull($p1 = $restoreCart->getLineItems()->get($productLineItem1->getReferencedId()));
@@ -605,10 +604,6 @@ class CartRestorerTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'customerNumber' => '12345',
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         $repo = static::getContainer()->get('customer.repository');
 

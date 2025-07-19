@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentificat
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
 use Shopware\Core\System\Country\CountryEntity;
@@ -23,6 +24,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  * @internal
  */
 #[CoversClass(CustomerVatIdentificationValidator::class)]
+#[Package('checkout')]
 class CustomerVatIdentificationValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -91,14 +93,14 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         /** @var ConstraintViolationList $violations */
         $violations = $this->executionContext->getViolations();
 
-        static::assertSame($violations->count(), $count);
+        static::assertCount($count, $violations);
 
         static::assertNotNull($violation = $violations->get(0));
         static::assertInstanceOf(ConstraintViolation::class, $violation);
 
-        static::assertEquals('Invalid VAT ID', $violation->getMessage());
-        static::assertEquals($violation->getParameters(), ['{{ vatId }}' => '"' . $vatIds[0] . '"']);
-        static::assertEquals(CustomerVatIdentification::VAT_ID_FORMAT_NOT_CORRECT, $violation->getCode());
+        static::assertSame('Invalid VAT ID', $violation->getMessage());
+        static::assertSame($violation->getParameters(), ['{{ vatId }}' => '"' . $vatIds[0] . '"']);
+        static::assertSame(CustomerVatIdentification::VAT_ID_FORMAT_NOT_CORRECT, $violation->getCode());
     }
 
     public function testDoesNotValidateWhenVatIdsIsNull(): void
@@ -156,11 +158,11 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
         yield 'valid vat with Hungary' => ['HU', ['HU12345678']];
 
-        yield 'valid vat with Ireland' => ['IE', ['IE1234567T', 'IE1234567FA']];
+        yield 'valid vat with Ireland' => ['IE', ['IE1234567T', 'IE1234567FA', 'IE1B12345D']];
 
         yield 'valid vat with Italy' => ['IT', ['IT12345678901', 'IT09876543210']];
 
-        yield 'valid vat with Lithuania' => ['LT', ['LT123456789', 'LT9876543210', 'LT123456789012']];
+        yield 'valid vat with Lithuania' => ['LT', ['LT123456789', 'LT123456789012']];
 
         yield 'valid vat with Luxembourg' => ['LU', ['LU12345678', 'LU87654321']];
 
@@ -174,7 +176,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
         yield 'valid vat with Portugal' => ['PT', ['PT123456789', 'PT987654321']];
 
-        yield 'valid vat with Romania' => ['RO', ['RO1234567890', 'RO123456', 'RO12']];
+        yield 'valid vat with Romania' => ['RO', ['RO1234567890', 'RO123456', 'RO12', 'RO1']];
 
         yield 'valid vat with Sweden' => ['SE', ['SE123456789901', 'SE987654321902', 'SE345678912303']];
 
@@ -274,8 +276,8 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
         yield 'invalid vat with Lithuania' => [
             'LT',
-            3,
-            ['12345678', '1234567890', '1234567890123'],
+            4,
+            ['12345678', '1234567890', '1234567890123', 'LT9876543210'],
         ];
 
         yield 'invalid vat with Luxembourg' => [
@@ -316,8 +318,8 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
         yield 'invalid vat with Romania' => [
             'RO',
-            3,
-            ['RO1', 'RO12345678901', 'ROXY12345678'],
+            2,
+            ['RO12345678901', 'ROXY12345678'],
         ];
 
         yield 'invalid vat with Sweden' => [

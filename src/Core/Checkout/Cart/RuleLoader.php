@@ -34,12 +34,12 @@ class RuleLoader extends AbstractRuleLoader
 
     public function load(Context $context): RuleCollection
     {
-        $criteria = new Criteria();
-        $criteria->addSorting(new FieldSorting('priority', FieldSorting::DESCENDING));
-        $criteria->addSorting(new FieldSorting('id'));
-        $criteria->addFilter(new EqualsFilter('invalid', false));
-        $criteria->setLimit(500);
-        $criteria->setTitle('cart-rule-loader::load-rules');
+        $criteria = (new Criteria())
+            ->addSorting(new FieldSorting('priority', FieldSorting::DESCENDING))
+            ->addSorting(new FieldSorting('id'))
+            ->addFilter(new EqualsFilter('invalid', false))
+            ->setLimit(500)
+            ->setTitle('cart-rule-loader::load-rules');
 
         $repositoryIterator = new RepositoryIterator($this->repository, $context, $criteria);
         $rules = new RuleCollection();

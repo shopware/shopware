@@ -55,6 +55,8 @@ class CustomerAddressEntity extends Entity
 
     protected ?CustomerEntity $customer = null;
 
+    protected ?string $hash = null;
+
     public function getCustomerId(): string
     {
         return $this->customerId;
@@ -243,5 +245,15 @@ class CustomerAddressEntity extends Entity
     public function setCustomer(CustomerEntity $customer): void
     {
         $this->customer = $customer;
+    }
+
+    public function getHash(): ?string
+    {
+        return $this->hash;
+    }
+
+    public function setHash(string $hash): void
+    {
+        $this->hash = $hash;
     }
 }

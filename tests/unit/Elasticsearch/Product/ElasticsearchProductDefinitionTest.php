@@ -525,7 +525,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
         $queries = $query->toArray();
 
-        static::assertEquals([
+        static::assertSame([
             'match' => [
                 'name' => [
                     'query' => 'test',

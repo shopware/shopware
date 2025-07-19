@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,6 +23,8 @@ class ElasticsearchException extends HttpException
     public const EMPTY_INDEXING_REQUEST = 'ELASTICSEARCH__EMPTY_INDEXING_REQUEST';
 
     public const AWS_CREDENTIALS_NOT_FOUND = 'ELASTICSEARCH__AWS_CREDENTIALS_NOT_FOUND';
+
+    public const OPERATOR_NOT_ALLOWED = 'ELASTICSEARCH__OPERATOR_NOT_ALLOWED';
 
     public static function definitionNotFound(string $definition): self
     {
@@ -146,6 +149,23 @@ class ElasticsearchException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::EMPTY_INDEXING_REQUEST,
             'Empty indexing request provided'
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function operatorNotAllowed(string $operator): self|\InvalidArgumentException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new \InvalidArgumentException('Operator ' . $operator . ' not allowed');
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::OPERATOR_NOT_ALLOWED,
+            'Operator {{ operator }} not allowed',
+            ['operator' => $operator]
         );
     }
 }

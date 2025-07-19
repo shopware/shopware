@@ -57,7 +57,7 @@
                 border-color: $color-shopware-brand-500;
             }
 
-            .sw-field--checkbox {
+            .mt-field--checkbox {
                 margin: 0;
                 width: 16px;
                 position: absolute;
@@ -84,6 +84,10 @@
             overflow: hidden;
             height: 520px;
         }
+    }
+
+    .mt-select-selection-list .mt-select-selection-list__input {
+        min-height: 0;
     }
 }
 

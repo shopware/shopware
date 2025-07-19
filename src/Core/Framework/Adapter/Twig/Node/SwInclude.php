@@ -8,6 +8,9 @@ use Twig\Attribute\YieldReady;
 use Twig\Compiler;
 use Twig\Node\IncludeNode;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 #[YieldReady]
 class SwInclude extends IncludeNode
@@ -21,9 +24,8 @@ class SwInclude extends IncludeNode
                 ->write('$includeTemplate = $finder->find(')
                         ->subcompile($this->getNode('expr'))
                 ->raw(");\n\n")
-                ->write('return $this->loadTemplate(')
+                ->write('return $this->load(')
                     ->raw('$includeTemplate ?? null, ')
-                    ->repr($this->getTemplateName())->raw(', ')
                     ->repr($this->getTemplateLine())
                 ->raw(");\n")
             ->outdent()

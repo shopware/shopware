@@ -15,9 +15,6 @@ const createWrapper = async (options) => {
                     return key + JSON.stringify(value);
                 },
             },
-            stubs: {
-                'sw-icon': true,
-            },
         },
         ...options,
     });

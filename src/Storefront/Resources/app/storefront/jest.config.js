@@ -10,7 +10,7 @@ const { join } = require('path');
 
 process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || process.env.INIT_CWD;
 
-const artifactsPath = join(process.env.PROJECT_ROOT, '/build/artifacts/jest');
+const artifactsPath = process.env.PROJECT_ROOT !== 'undefined' ? join(process.env.PROJECT_ROOT, '/build/artifacts/jest') : '<rootDir>.jest/artifacts';
 
 module.exports = {
 
@@ -29,7 +29,7 @@ module.exports = {
     // The directory where Jest should output its coverage files
     collectCoverage: true,
 
-    coverageDirectory: artifactsPath,
+    coverageDirectory: process.env.COVERAGE_DIRECTORY || artifactsPath,
 
     coverageReporters: [
         'lcov',
@@ -64,6 +64,12 @@ module.exports = {
     // The root directory that Jest should scan for tests and modules within
     rootDir: path.resolve(__dirname),
 
+    moduleFileExtensions: [
+        'js',
+        'ts',
+        'html',
+    ],
+
     // This option allows the use of a custom resolver.
     moduleNameMapper: {
         '^src/(.*)$': '<rootDir>/src/$1',
@@ -87,7 +93,7 @@ module.exports = {
 
     transform: {
         '^.+\\.(t|j)s$': 'babel-jest',
-        '^.+\\.html$': 'html-loader-jest',
+        '^.+\\.html$': '<rootDir>/text.loader.js',
     },
 
     setupFilesAfterEnv: [

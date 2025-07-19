@@ -18,7 +18,6 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -122,9 +121,9 @@ class DocumentControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertEquals(200, $response->getStatusCode());
-        static::assertEquals($expectedFileContent, $response->getContent());
-        static::assertEquals($expectedContentType, $response->headers->get('content-type'));
+        static::assertSame(200, $response->getStatusCode());
+        static::assertSame($expectedFileContent, $response->getContent());
+        static::assertSame($expectedContentType, $response->headers->get('content-type'));
 
         // Customer are unable to view the document without valid deepLinkCode
         $browser->request(
@@ -133,7 +132,7 @@ class DocumentControllerTest extends TestCase
             $this->tokenize('frontend.account.order.single.document', [])
         );
 
-        static::assertEquals(404, $browser->getResponse()->getStatusCode());
+        static::assertSame(404, $browser->getResponse()->getStatusCode());
     }
 
     private function login(string $email): KernelBrowser
@@ -243,10 +242,6 @@ class DocumentControllerTest extends TestCase
                 ],
             ],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         static::getContainer()->get('customer.repository')->upsert([$customer], $this->context);
 

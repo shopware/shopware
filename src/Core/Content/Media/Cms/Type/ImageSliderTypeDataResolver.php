@@ -14,10 +14,8 @@ use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
@@ -107,20 +105,6 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
                 $imageSlider->addSliderItem($imageSliderItem);
             }
         }
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed without replacement
-     */
-    protected function sortItemsByPosition(ProductMediaCollection $sliderItems): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Unused method ImageSliderTypeDataResolver::sortItemsByPosition will be removed without replacement');
-
-        if (!$sliderItems->first() || !$sliderItems->first()->has('position')) {
-            return;
-        }
-
-        $sliderItems->sort(static fn (ProductMediaEntity $a, ProductMediaEntity $b) => $a->get('position') - $b->get('position'));
     }
 
     /**

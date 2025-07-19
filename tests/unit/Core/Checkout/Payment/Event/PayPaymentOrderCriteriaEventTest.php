@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Event\PayPaymentOrderCriteriaEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 
@@ -13,6 +14,7 @@ use Shopware\Core\Test\Generator;
  * @internal
  */
 #[CoversClass(PayPaymentOrderCriteriaEvent::class)]
+#[Package('checkout')]
 class PayPaymentOrderCriteriaEventTest extends TestCase
 {
     public function testEvent(): void

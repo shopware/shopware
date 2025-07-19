@@ -128,7 +128,7 @@ class StateMachineGraphvizDumper
             }
             $edges[$fromStateMachineState->getName()][] = [
                 'name' => $transition->getActionName(),
-                'to' => $toStateMachineState->getName(),
+                'to' => $toStateMachineState->getName() ?? $toStateMachineState->getTechnicalName(),
             ];
         }
 

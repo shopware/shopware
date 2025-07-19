@@ -18,7 +18,6 @@ async function createWrapper() {
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
-                'sw-icon': true,
                 'sw-field-error': true,
             },
         },

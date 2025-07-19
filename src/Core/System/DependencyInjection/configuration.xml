@@ -51,7 +51,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigLoader" />
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SymfonySystemConfigService"/>
-            <argument>%shopware.cache.tagging.each_config%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
             <tag name="kernel.reset" method="reset"/>
         </service>
 

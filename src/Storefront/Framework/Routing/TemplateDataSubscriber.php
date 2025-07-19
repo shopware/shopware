@@ -11,8 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -24,8 +23,8 @@ class TemplateDataSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly HreflangLoaderInterface $hreflangLoader,
         private readonly ShopIdProvider $shopIdProvider,
-        private readonly StorefrontPluginRegistryInterface $themeRegistry,
         private readonly ActiveAppsLoader $activeAppsLoader,
+        private readonly ThemeRuntimeConfigService $runtimeConfigService,
     ) {
     }
 
@@ -76,7 +75,6 @@ class TemplateDataSubscriber implements EventSubscriberInterface
 
         // get name if theme is not inherited
         $theme = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME);
-
         if (!$theme) {
             // get theme name from base theme because for inherited themes the name is always null
             $theme = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME);
@@ -86,25 +84,11 @@ class TemplateDataSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (\method_exists($this->themeRegistry, 'getByTechnicalName')) {
-            /** @var StorefrontPluginConfiguration|null $themeConfig */
-            $themeConfig = $this->themeRegistry->getByTechnicalName($theme);
-        } else {
-            $themeConfig = $this->themeRegistry->getConfigurations()->getByTechnicalName($theme);
-        }
-
-        if (!$themeConfig) {
+        $runtimeConfig = $this->runtimeConfigService->getRuntimeConfigByName($theme);
+        if (!$runtimeConfig) {
             return;
         }
 
-        $iconConfig = [];
-        foreach ($themeConfig->getIconSets() as $pack => $path) {
-            $iconConfig[$pack] = [
-                'path' => $path,
-                'namespace' => $theme,
-            ];
-        }
-
-        $event->setParameter('themeIconConfig', $iconConfig);
+        $event->setParameter('themeIconConfig', $runtimeConfig->iconSets);
     }
 }

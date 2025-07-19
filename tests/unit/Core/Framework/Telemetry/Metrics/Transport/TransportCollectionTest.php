@@ -27,7 +27,7 @@ class TransportCollectionTest extends TestCase
         );
 
         $configProvider = $this->createMock(TransportConfigProvider::class);
-        $configProvider->expects(static::once())
+        $configProvider->expects($this->once())
             ->method('getTransportConfig')
             ->willReturn($config);
 
@@ -35,13 +35,13 @@ class TransportCollectionTest extends TestCase
         $transport2 = $this->createMock(MetricTransportInterface::class);
 
         $factory1 = $this->createMock(MetricTransportFactoryInterface::class);
-        $factory1->expects(static::once())
+        $factory1->expects($this->once())
             ->method('create')
             ->with($config)
             ->willReturn($transport1);
 
         $factory2 = $this->createMock(MetricTransportFactoryInterface::class);
-        $factory2->expects(static::once())
+        $factory2->expects($this->once())
             ->method('create')
             ->with($config)
             ->willReturn($transport2);

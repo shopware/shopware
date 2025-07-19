@@ -34,7 +34,8 @@
         padding: 8px 32px;
         line-height: 0;
 
-        // Careful: last-child must go before first-child selector to make sure there is no extra space if an entity displays only one field.
+        // Careful: last-child must go before first-child selector to make sure there is no extra space
+        //          if an entity displays only one field.
         &:last-child {
             padding-bottom: 0;
         }

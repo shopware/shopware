@@ -24,17 +24,17 @@
         }
     }
 
-    .sw-card .sw-card__content {
+    .mt-card .mt-card__content {
         padding: 0;
 
-        .sw-card__quick-link {
+        .mt-card__quick-link {
             text-align: right;
             display: block;
             padding-top: 14px;
             cursor: pointer;
         }
 
-        .sw-card__quick-link.is--disabled {
+        .mt-card__quick-link.is--disabled {
             cursor: default;
             pointer-events: none;
             opacity: 0.5;
@@ -91,7 +91,7 @@
         }
     }
 
-    .sw-bulk-edit-product-advancing-prices .sw-button {
+    .sw-bulk-edit-product-advancing-prices .mt-button {
         width: 100%;
     }
 
@@ -115,49 +115,15 @@
         margin-top: 0;
     }
 
-    &__inheritance.sw-card {
-        filter: none;
-    }
-
-    &__inheritance.sw-card .sw-card__content {
-        border: 0;
-    }
-
-    &__inheritance .sw-alert {
-        display: grid;
-        grid-template-columns: 60px 1fr;
-        margin: 0 auto;
-        border: 1px solid $color-module-purple-900;
-        background: $color-module-purple-50;
-        font-size: $font-size-xs;
-
-        .sw-alert__actions:empty {
-            display: none;
+    &__inheritance {
+        &.mt-card {
+            border: none;
+            border-radius: 0;
         }
 
-        .sw-alert__icon {
-            position: unset;
-            margin-top: 28px;
-            margin-left: 26px;
+        .mt-banner {
+            margin-bottom: 0;
         }
-    }
-
-    &__inheritance .sw-alert__body {
-        padding-left: 0;
-    }
-
-    &__inheritance-icon {
-        position: relative;
-    }
-
-    &__inheritance-icon .sw-icon {
-        position: absolute;
-        top: 30px;
-        right: 10px;
-    }
-
-    &__restricted-fields .sw-alert {
-        margin: 0 auto;
     }
 }
 

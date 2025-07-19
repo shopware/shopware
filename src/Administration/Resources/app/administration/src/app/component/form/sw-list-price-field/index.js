@@ -5,15 +5,11 @@
 import template from './sw-list-price-field.html.twig';
 import './sw-list-price-field.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-list-price-field', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inheritAttrs: false,
 
@@ -175,12 +171,8 @@ Component.register('sw-list-price-field', {
                 const price = this.priceForCurrency;
 
                 if (price) {
-                    if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(price, 'listPrice', newValue);
-                    } else {
-                        // eslint-disable-next-line vue/no-mutating-props
-                        price.listPrice = newValue;
-                    }
+                    // eslint-disable-next-line vue/no-mutating-props
+                    price.listPrice = newValue;
                 }
             },
         },
@@ -207,7 +199,7 @@ Component.register('sw-list-price-field', {
                 const price = this.priceForCurrency;
 
                 if (price) {
-                    this.$set(price, 'regulationPrice', newValue);
+                    price.regulationPrice = newValue;
                 }
             },
         },
@@ -286,4 +278,4 @@ Component.register('sw-list-price-field', {
             return Number(priceRounded);
         },
     },
-});
+};

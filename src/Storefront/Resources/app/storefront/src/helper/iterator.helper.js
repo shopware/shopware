@@ -1,5 +1,6 @@
 /**
  * @sw-package framework
+ * @deprecated tag:v6.8.0 - Use native alternatives like forEach instead.
  */
 export default class Iterator {
 
@@ -15,6 +16,7 @@ export default class Iterator {
      *
      * @param {Array|Object} source
      * @param {ObjectIterateCallback} callback
+     * @deprecated tag:v6.8.0 - Use native alternatives like forEach instead.
      *
      * @returns {*}
      */

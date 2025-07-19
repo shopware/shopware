@@ -33,33 +33,6 @@ async function createWrapper({ provide, ...options } = {}) {
     return wrapper;
 }
 
-async function createWrappedComponent() {
-    const wrapper = mount(await Shopware.Component.build('sw-text-field-mock'), {
-        global: {
-            stubs: {
-                'sw-text-field': await wrapTestComponent('sw-text-field'),
-                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-field-error': true,
-                'sw-help-text': true,
-                'sw-ai-copilot-badge': true,
-                'mt-text-field': true,
-                'sw-field-copyable': true,
-                'sw-inheritance-switch': true,
-            },
-            provide: {
-                validationService: {},
-            },
-        },
-    });
-
-    await flushPromises();
-
-    return wrapper;
-}
-
 describe('src/app/component/form/sw-text-field', () => {
     beforeAll(() => {
         Shopware.Component.register('sw-text-field-mock', {
@@ -75,22 +48,6 @@ describe('src/app/component/form/sw-text-field', () => {
                 };
             },
         });
-    });
-
-    it('should render without idSuffix correctly', async () => {
-        const wrapper = await createWrappedComponent();
-        const noSuffix = wrapper.find('.no-suffix');
-
-        expect(noSuffix.exists()).toBeTruthy();
-        expect(noSuffix.find('#sw-field--mockVar').exists()).toBeTruthy();
-    });
-
-    it('should render with idSuffix correctly and generated a correct HTML-ID', async () => {
-        const wrapper = await createWrappedComponent();
-        const withSuffix = wrapper.find('.with-suffix');
-
-        expect(withSuffix.exists()).toBeTruthy();
-        expect(withSuffix.find('#sw-field--mockVar-iShallBeSuffix').exists()).toBeTruthy();
     });
 
     it('should render with custom html attributes like minlength and maxlength', async () => {

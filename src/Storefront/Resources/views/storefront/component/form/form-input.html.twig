@@ -43,21 +43,20 @@
     {% endif %}
 
     <div class="form-group{% if additionalClass is not empty %} {{ additionalClass }}{% endif %}">
-
         {% block component_form_input_label %}
             {% if label %}
                 <label class="form-label" for="{{ id }}">
                     {{ label|raw }}
 
                     {% if 'required' in validationRules %}
-                        <span class="form-required-label" aria-hidden="true">{{ "general.required"|trans|sw_sanitize }}</span>
+                        <span class="form-required-label" aria-hidden="true">{{ 'general.required'|trans|sw_sanitize }}</span>
                     {% endif %}
                 </label>
             {% endif %}
         {% endblock %}
 
         {% block component_form_input_input %}
-            {% set cssClass = "form-control" %}
+            {% set cssClass = 'form-control' %}
 
             {% if additionalInputClass is not empty %}
                 {% set cssClass = "#{cssClass} #{additionalInputClass}" %}
@@ -79,7 +78,7 @@
                    {% if maxlength is not empty %}maxlength="{{ maxlength }}"{% endif %}
                    {% if validationRules is not empty %}data-validation="{{ validationRules }}"{% endif %}
                    {% if 'required' in validationRules %}aria-required="true"{% endif %}
-                   {% if attributes is not empty %}{% for key, value in attributes %}{% if value is not empty %}{{ key ~ '=' ~ value ~ ' ' }}{% endif %}{% endfor %}{% endif %}
+                   {% if attributes is not empty %}{% for key, value in attributes %}{% if value is not empty %}{{ key }}="{{ value }}" {% else %}{{ key }} {% endif %}{% endfor %}{% endif %}
                    {% if disabled is not empty %}disabled{% endif %}>
         {% endblock %}
 
@@ -91,7 +90,6 @@
 
         {% block component_form_input_feedback %}
             <div id="{{ feedbackId }}" class="form-field-feedback">
-
                 {% block component_form_input_feedback_violations %}
                     {% if violationPath is not empty and formViolations.getViolations(violationPath) is not empty %}
                         {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}

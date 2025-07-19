@@ -6,9 +6,9 @@ use Doctrine\DBAL\Exception as DBALException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -22,15 +22,9 @@ use Shopware\Storefront\Theme\Subscriber\ThemeCompilerEnrichScssVarSubscriber;
 #[CoversClass(ThemeCompilerEnrichScssVarSubscriber::class)]
 class ThemeCompilerEnrichScssVarSubscriberTest extends TestCase
 {
-    /**
-     * @var ConfigurationService&MockObject
-     */
-    private ConfigurationService $configService;
+    private ConfigurationService&MockObject $configService;
 
-    /**
-     * @var StorefrontPluginRegistry&MockObject
-     */
-    private StorefrontPluginRegistry $storefrontPluginRegistry;
+    private StorefrontPluginRegistry&MockObject $storefrontPluginRegistry;
 
     protected function setUp(): void
     {
@@ -40,7 +34,7 @@ class ThemeCompilerEnrichScssVarSubscriberTest extends TestCase
 
     public function testEnrichExtensionVarsReturnsNothingWithNoStorefrontPlugin(): void
     {
-        $this->configService->expects(static::never())->method('getResolvedConfiguration');
+        $this->configService->expects($this->never())->method('getResolvedConfiguration');
 
         $subscriber = new ThemeCompilerEnrichScssVarSubscriber($this->configService, $this->storefrontPluginRegistry);
 
@@ -55,7 +49,7 @@ class ThemeCompilerEnrichScssVarSubscriberTest extends TestCase
 
     public function testOnlyDBExceptionIsSilenced(): void
     {
-        $exception = new InvalidArgumentException();
+        $exception = new \InvalidArgumentException();
         $this->configService->method('getResolvedConfiguration')->willThrowException($exception);
         $this->storefrontPluginRegistry->method('getConfigurations')->willReturn(
             new StorefrontPluginConfigurationCollection([
@@ -63,7 +57,7 @@ class ThemeCompilerEnrichScssVarSubscriberTest extends TestCase
             ])
         );
         $subscriber = new ThemeCompilerEnrichScssVarSubscriber($this->configService, $this->storefrontPluginRegistry);
-        static::expectExceptionObject($exception);
+        $this->expectExceptionObject($exception);
 
         $subscriber->enrichExtensionVars(
             new ThemeCompilerEnrichScssVariablesEvent(
@@ -76,7 +70,7 @@ class ThemeCompilerEnrichScssVarSubscriberTest extends TestCase
 
     public function testDBException(): void
     {
-        $this->configService->method('getResolvedConfiguration')->willThrowException(new DBALException('test'));
+        $this->configService->method('getResolvedConfiguration')->willThrowException(TestExceptionFactory::createException('test'));
         $this->storefrontPluginRegistry->method('getConfigurations')->willReturn(
             new StorefrontPluginConfigurationCollection([
                 new StorefrontPluginConfiguration('test'),
@@ -135,9 +129,9 @@ class ThemeCompilerEnrichScssVarSubscriberTest extends TestCase
         static::assertEquals($backupEvent, $event);
     }
 
-    public function testgetSubscribedEventsReturnsOnlyOneTypeOfEvent(): void
+    public function testGetSubscribedEventsReturnsOnlyOneTypeOfEvent(): void
     {
-        static::assertEquals(
+        static::assertSame(
             [
                 ThemeCompilerEnrichScssVariablesEvent::class => 'enrichExtensionVars',
             ],

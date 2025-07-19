@@ -30,8 +30,6 @@ interface PopoverConfig {
     targetSelector: string;
     resizeWidth: boolean;
     style: Record<string, string>;
-    /* @deprecated tag:v6.7.0 - Will be removed */
-    stopScrollPropagation?: boolean;
 }
 
 const defaultConfig: PopoverConfig = {
@@ -39,8 +37,6 @@ const defaultConfig: PopoverConfig = {
     targetSelector: '',
     resizeWidth: false,
     style: {},
-    /* @deprecated tag:v6.7.0 - Will be removed */
-    stopScrollPropagation: false,
 };
 
 const customStylingBlacklist = [

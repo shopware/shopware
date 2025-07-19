@@ -5,14 +5,14 @@
     max-width: 1330px;
     margin: 0 auto;
 
-    .sw-card.context-price {
+    .mt-card.context-price {
         width: 100%;
     }
 
     .context-prices__empty-state {
         width: 100%;
 
-        .sw-card__content {
+        .mt-card__content {
             min-height: 250px;
             position: relative;
         }
@@ -22,7 +22,7 @@
         }
     }
 
-    .sw-card .sw-card__content {
+    .mt-card .mt-card__content {
         padding: 0;
     }
 
@@ -30,15 +30,6 @@
         padding: 25px;
         background-color: $color-gray-100;
         border-bottom: 1px solid $color-gray-300;
-
-        .sw-single-select__inner {
-            min-height: auto;
-            padding-top: 0;
-        }
-
-        .sw-single-select .sw-single-select__indicators {
-            top: 5px;
-        }
     }
 
     .sw-product-detail-context-prices__toolbar-selection {
@@ -106,9 +97,8 @@
         }
 
         p {
-            font-size: $font-size-s;
             text-align: center;
-            margin: 20px 0;
+            margin-block: 10px;
         }
 
         &-select-rule {

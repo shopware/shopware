@@ -18,10 +18,10 @@ class AdminElasticsearchHelperTest extends TestCase
     {
         $searchHelper = new AdminElasticsearchHelper($adminEsEnabled, $refreshIndices, $adminIndexPrefix);
 
-        static::assertEquals($adminEsEnabled, $searchHelper->getEnabled());
-        static::assertEquals($refreshIndices, $searchHelper->getRefreshIndices());
-        static::assertEquals($adminIndexPrefix, $searchHelper->getPrefix());
-        static::assertEquals($adminIndexPrefix . '-promotion-listing', $searchHelper->getIndex('promotion-listing'));
+        static::assertSame($adminEsEnabled, $searchHelper->getEnabled());
+        static::assertSame($refreshIndices, $searchHelper->getRefreshIndices());
+        static::assertSame($adminIndexPrefix, $searchHelper->getPrefix());
+        static::assertSame($adminIndexPrefix . '-promotion-listing', $searchHelper->getIndex('promotion-listing'));
     }
 
     public function testSetEnable(): void
@@ -30,8 +30,8 @@ class AdminElasticsearchHelperTest extends TestCase
 
         static::assertFalse($searchHelper->getEnabled());
         static::assertFalse($searchHelper->getRefreshIndices());
-        static::assertEquals('sw-admin', $searchHelper->getPrefix());
-        static::assertEquals('sw-admin-promotion-listing', $searchHelper->getIndex('promotion-listing'));
+        static::assertSame('sw-admin', $searchHelper->getPrefix());
+        static::assertSame('sw-admin-promotion-listing', $searchHelper->getIndex('promotion-listing'));
 
         $searchHelper->setEnabled(true);
 

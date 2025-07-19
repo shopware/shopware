@@ -8,23 +8,10 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class Sitemap extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $filename;
+    protected string $filename;
 
-    /**
-     * @var \DateTimeInterface
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $created;
+    protected \DateTimeInterface $created;
 
-    /**
-     * @throws \Exception
-     */
     public function __construct(
         string $filename,
         private int $urlCount,

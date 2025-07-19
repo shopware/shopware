@@ -97,7 +97,7 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $tokenTerms = $this->interpreter->interpret($term, $context)->getTokenTerms();
 
-        static::assertEquals(\count($expected), \count($tokenTerms));
+        static::assertCount(\count($expected), $tokenTerms);
         foreach ($tokenTerms as $index => $tokenTerm) {
             static::assertEqualsCanonicalizing($expected[$index], $tokenTerm);
         }
@@ -116,7 +116,7 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $booleanClause = $matches->getBooleanClause();
 
-        static::assertEquals($expected, $booleanClause);
+        static::assertSame($expected, $booleanClause);
     }
 
     #[DataProvider('caseWithMatchingSearchPatternTermLength')]
@@ -154,7 +154,7 @@ class ProductSearchTermInterpreterTest extends TestCase
         $matches = $this->interpreter->interpret($term, $context);
         $terms = array_map(fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
 
-        static::assertEquals($expected, \array_slice($terms, 0, \count($expected)));
+        static::assertSame($expected, \array_slice($terms, 0, \count($expected)));
     }
 
     /**
@@ -178,6 +178,10 @@ class ProductSearchTermInterpreterTest extends TestCase
             [
                 '1000',
                 ['10000', '10001', '10002', '10007'],
+            ],
+            [
+                '9000',
+                ['SW-9000'],
             ],
             'test it uses only first 8 keywords' => [
                 '10',
@@ -447,6 +451,7 @@ class ProductSearchTermInterpreterTest extends TestCase
             'netzwerkspieler',
             'schwarzweiß',
             'netzwerkprotokolle',
+            'SW-9000',
             '10100',
             '10000',
             '10001',

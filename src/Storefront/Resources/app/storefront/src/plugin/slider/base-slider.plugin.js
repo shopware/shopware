@@ -115,7 +115,7 @@ export default class BaseSliderPlugin extends Plugin {
     getActiveSlideElement() {
         const info = this._slider.getInfo();
 
-        return info.slideItems[info.index];
+        return info.slideItems[info.displayIndex];
     }
 
     /**
@@ -131,9 +131,7 @@ export default class BaseSliderPlugin extends Plugin {
 
             this.$emitter.publish('initSlider');
 
-            if (window.Feature.isActive('ACCESSIBILITY_TWEAKS')) {
-                this._initAccessibilityTweaks(sliderInfo, this.el);
-            }
+            this._initAccessibilityTweaks(sliderInfo, this.el);
         };
 
         if (container) {

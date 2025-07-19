@@ -80,6 +80,11 @@ class SecurityExtensionTest extends TestCase
         static::assertSame('a-testb-testc-test', $this->runTwig('{{ ["a", "b", "c"]|map(v => (v ~ "-test"))|join }}'));
     }
 
+    public function testMapWithKeyValue(): void
+    {
+        static::assertSame('jon doe', $this->runTwig('{{ { "jon": "doe" }|map((value, key) => "#{key} #{value}")|join }}'));
+    }
+
     public function testReduceAllowedFunction(): void
     {
         static::assertSame('6', $this->runTwig('{{ [1 , 5]|reduce((a, b) => a + b)|json_encode|raw }}'));

@@ -42,9 +42,4 @@ trait ItemsGetTrait
             default => new ItemFacade($item, $this->priceStubs, $this->helper, $this->context),
         };
     }
-
-    private function getItems(): LineItemCollection
-    {
-        return $this->items;
-    }
 }

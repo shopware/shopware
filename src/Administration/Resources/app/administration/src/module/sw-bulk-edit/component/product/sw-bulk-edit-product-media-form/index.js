@@ -7,8 +7,6 @@ import template from './sw-bulk-edit-product-media-form.html.twig';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     data() {
         return {
             columnCount: 4,

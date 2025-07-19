@@ -89,7 +89,7 @@ class FkFieldPrimarySearcherTest extends TestCase
         $fkFieldPrimaryTupel = $fkFieldPrimaryRepository->search($criteria, Context::createDefaultContext())->getElements();
         static::assertArrayHasKey($this->productId, $fkFieldPrimaryTupel);
         static::assertTrue($fkFieldPrimaryTupel[$this->productId]->has('name'));
-        static::assertEquals('TestPrimary', $fkFieldPrimaryTupel[$this->productId]->get('name'));
+        static::assertSame('TestPrimary', $fkFieldPrimaryTupel[$this->productId]->get('name'));
     }
 
     public function testSearchByMultiPrimaryFkKey(): void
@@ -115,7 +115,7 @@ class FkFieldPrimarySearcherTest extends TestCase
         $multiFkFieldPrimaryTupel = $multiPrimaryRepository->search($criteria, Context::createDefaultContext());
         $key = $firstId . '-' . $secondId;
         static::assertArrayHasKey($key, $multiFkFieldPrimaryTupel->getElements());
-        static::assertEquals($firstId, $multiFkFieldPrimaryTupel->getElements()[$key]->get('firstId'));
+        static::assertSame($firstId, $multiFkFieldPrimaryTupel->getElements()[$key]->get('firstId'));
     }
 
     public function testSearchForTranslation(): void
@@ -145,7 +145,7 @@ class FkFieldPrimarySearcherTest extends TestCase
 
         $key = $this->productId . '-' . Defaults::LANGUAGE_SYSTEM;
         static::assertArrayHasKey($key, $productTranslation->getElements());
-        static::assertEquals('Test', $productTranslation->getElements()[$key]->getName());
+        static::assertSame('Test', $productTranslation->getElements()[$key]->getName());
     }
 
     private function addPrimaryFkField(): void

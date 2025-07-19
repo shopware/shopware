@@ -9,19 +9,9 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class ProductBoxStruct extends Struct
 {
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $productId;
+    protected ?string $productId = null;
 
-    /**
-     * @var SalesChannelProductEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $product;
+    protected ?SalesChannelProductEntity $product = null;
 
     public function getProduct(): ?SalesChannelProductEntity
     {

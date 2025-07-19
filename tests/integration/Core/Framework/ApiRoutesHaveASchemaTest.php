@@ -100,7 +100,6 @@ class ApiRoutesHaveASchemaTest extends TestCase
         // src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/paths
         static::assertSame([
             '/_info/open-api-schema.json',
-            '/_info/swagger.html',
             '/_info/stoplightio.html',
             '/context',
             '/account/customer',
@@ -122,10 +121,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
         $schemaRoutes = $schema['paths'];
         $missingRoutes = [];
 
-        foreach ($this->routes as $route) {
-            if (!$this->isCoreRoute($route)) {
-                continue;
-            }
+        foreach ($this->routes as $key => $route) {
             $path = $route->getPath();
             if (!$this->isAdminApi($path)) {
                 continue;
@@ -143,6 +139,11 @@ class ApiRoutesHaveASchemaTest extends TestCase
                 unset($schemaRoutes[$listPath]);
                 unset($schemaRoutes[$crudPath]);
 
+                continue;
+            }
+
+            // Don't enforce schema for non-core routes (test can run on custom installations)
+            if (!$this->isCoreRoute($route)) {
                 continue;
             }
 
@@ -234,6 +235,9 @@ class ApiRoutesHaveASchemaTest extends TestCase
         $whitelist = [
             '/store-api/shipping-method:onlyAvailable',
             '/store-api/checkout/cart/line-item:ids',
+            '/store-api/product-listing/{categoryId}:p',
+            '/store-api/search:p',
+            '/store-api/search-suggest:p',
         ];
 
         foreach ($schema as $operation) {

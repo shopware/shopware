@@ -7,8 +7,6 @@ import template from '../sw-extension-permissions-details-modal/sw-extension-per
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     mixins: ['sw-extension-error'],
 
     props: {

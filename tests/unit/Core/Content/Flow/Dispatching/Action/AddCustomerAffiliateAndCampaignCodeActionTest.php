@@ -56,7 +56,7 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
     #[DataProvider('actionExecuteProvider')]
     public function testActionWithExpectedUpdate(array $config, array $existedData, array $expected): void
     {
-        $this->connection->expects(static::once())->method('fetchAssociative')->willReturn($existedData);
+        $this->connection->expects($this->once())->method('fetchAssociative')->willReturn($existedData);
 
         $customerId = Uuid::randomHex();
         $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
@@ -65,7 +65,7 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
         $flow->setConfig($config);
 
         $expected['id'] = $customerId;
-        $this->repository->expects(static::once())->method('update')->with([$expected]);
+        $this->repository->expects($this->once())->method('update')->with([$expected]);
 
         $this->action->handleFlow($flow);
     }
@@ -74,7 +74,7 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
     {
         $flow = new StorableFlow('foo', Context::createDefaultContext());
 
-        $this->repository->expects(static::never())->method('update');
+        $this->repository->expects($this->never())->method('update');
 
         $this->action->handleFlow($flow);
     }
@@ -85,7 +85,7 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
             CustomerAware::CUSTOMER_ID => Uuid::randomHex(),
         ]);
 
-        $this->repository->expects(static::never())->method('update');
+        $this->repository->expects($this->never())->method('update');
 
         $this->action->handleFlow($flow);
     }

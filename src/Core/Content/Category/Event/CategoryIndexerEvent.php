@@ -11,17 +11,10 @@ class CategoryIndexerEvent extends NestedEvent
 {
     /**
      * @var list<string>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $ids;
+    protected array $ids;
 
-    /**
-     * @var Context
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $context;
+    protected Context $context;
 
     /**
      * @param list<string> $ids

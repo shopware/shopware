@@ -53,10 +53,10 @@ class AclValidPermissionsHelperTest extends TestCase
     }
 
     #[DataProvider('getInvalidSchemas')]
-    public function testConstructorWithWrongSchema(string $path): void
+    public function testCheckWithWrongSchema(string $path): void
     {
         // missing file
         static::expectException(\RuntimeException::class);
-        new AclValidPermissionsHelper($path);
+        (new AclValidPermissionsHelper($path))->aclKeyValid('acl_role:read');
     }
 }

@@ -5,6 +5,7 @@
       "edit": "Edit",
       "save": "Save",
       "delete": "Delete",
+      "close": "Close",
       "remove": "Remove",
       "rename": "Rename",
       "activate": "Activate",
@@ -42,7 +43,8 @@
     "requiredFields": "Fields marked with asterisks (*) are required.",
     "privacyTitle": "Privacy",
     "privacyNoticeText": "By selecting continue you confirm that you have read our <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a> and accepted our <a data-ajax-modal=\"true\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"general terms and conditions\">general terms and conditions</a>.",
-    "privacyNoticeTextPage": "By selecting continue you confirm that you have read our <a href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a> and accepted our <a href=\"%tosUrl%\" title=\"general terms and conditions\">general terms and conditions</a>.",
+    "privacyNoticeTextModal": "By selecting continue you confirm that you have read our %privacyModalTagOpen%data protection information%privacyModalTagClose% and accepted our %tosModalTagOpen%general terms and conditions%tosModalTagClose%.",
+    "privacyNoticeTextPage": "By selecting continue you confirm that you have read our <a href=\"%privacyUrl%\">data protection information</a> and accepted our <a href=\"%tosUrl%\">general terms and conditions</a>.",
     "privacyLink": "Privacy policy",
     "imprintLink": "Imprint",
     "404ErrorPageHeader": "Page not found",
@@ -82,6 +84,7 @@
     "indexLinkService": "Service/help",
     "searchNoResult": "No results found.",
     "wishlist": "Wishlist",
+    "wishlistAriaLiveTemplate": "You have %counter% wishlist items",
     "navigationAriaLabel": "Main navigation",
     "topBarAriaLabel": "Shop settings",
     "languageTrigger": "Change language (%lang% is the current language)",
@@ -114,6 +117,7 @@
     "VIOLATION::LAST_NAME_IS_TOO_LONG": "Input too long. Please enter a shorter form of your last name.",
     "VIOLATION::TITLE_IS_TOO_LONG": "Input too long. Please enter only your main title or use abbreviations.",
     "VIOLATION::ZIPCODE_IS_TOO_LONG": "Input too long. Please enter a valid zip code.",
+    "VIOLATION::PASSWORD_IS_TOO_LONG": "The chosen password is too long.",
     "message-default": "Unfortunately, something went wrong.",
     "message-404": "The requested page cannot be found.",
     "addToCartError": "An error occurred while trying to add items to the shopping cart.",
@@ -279,10 +283,16 @@
     "addressesSetAsDefaultBillingAction": "Use as default billing address",
     "addressesTitleCurrentShippingAddress": "Current shipping address",
     "addressesTitleCurrentBillingAddress": "Current billing address",
+    "addressesTitleShippingAddress": "Shipping address",
+    "addressesTitleBillingAddress": "Billing address",
+    "addressesChangeAddress": "Change Address",
     "addressesContentItemActionEdit": "Edit address",
     "addressesContentItemActionDelete": "Delete address",
+    "addressNotFound": "No address was found",
+    "noAvailableAddresses": "No available addresses",
     "availableAddresses": "Available addresses",
     "selectAddress": "Select address",
+    "addressOptionsBtn": "Address options",
     "addressCreateBtn": "Add new address",
     "addressEditBtn": "Edit address",
     "addressCreateWelcome": "New address",
@@ -375,7 +385,15 @@
     "orderDocumentsAriaLabel": "Documents of this order",
     "orderSummaryAriaLabel": "Summary of this order",
     "orderInfoAriaLabel": "Information about this order",
-    "orderTrackingNotAvailable": "Not available"
+    "orderTrackingNotAvailable": "Not available",
+    "addressDefault": "Default",
+    "addressModalTitle": "Addresses",
+    "addressModalFooterClose": "Close",
+    "addressNewShipping": "Add new shipping address",
+    "addressNewBilling": "Add new billing address",
+    "addressSaveAndUse": "Save and use",
+    "addressSuccessfulChange": "Address successful changed",
+    "addressSearchPlaceholder": "Search addresses..."
   },
   "address": {
     "streetLabel": "Street address",
@@ -430,6 +448,7 @@
     "lineItemShowMore": "more",
     "lineItemShowLess": "less",
     "lineItemUnitPriceDescriptor": "unit",
+    "lineItemLabelDescriptor": "Product information",
     "cartEmpty": "Your shopping cart is empty.",
     "cartHeaderInfo": "Product",
     "cartHeaderQuantity": "Quantity",
@@ -447,7 +466,9 @@
     "summaryTotalPrice": "Grand total",
     "summaryTotalPriceRounded": "Rounded total",
     "summaryNetPrice": "Net total",
-    "summaryTax": "plus %rate%% VAT",
+    "summaryTax": "plus %rate%% VAT:",
+    "summaryTaxLabeled": "plus %rate%% %label%:",
+    "summaryOffCanvasLabel": "Shopping cart summary",
     "proceedLink": "Go to checkout",
     "addressEqualText": "Same as shipping address",
     "billingAddressHeader": "Billing address",
@@ -469,10 +490,13 @@
     "confirmSubmit": "Submit order",
     "confirmTermsHeader": "Terms and conditions and cancellation policy",
     "confirmRevocationNotice": "Please note our <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Cancellation policy\">cancellation policy</a>.",
-    "confirmRevocationNoticePage": "Please note our <a href=\"%url%\" title=\"Cancellation policy\">cancellation policy</a>.",
-    "confirmTermsText": "I have read and accepted the <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"general terms and conditions\">general terms and conditions</a>.",
-    "confirmTermsTextPage": "I have read and accepted the <a href=\"%url%\" title=\"general terms and conditions\">general terms and conditions</a>.",
+    "confirmRevocationNoticeModal": "Please note our %revocationModalTagOpen%cancellation policy%revocationModalTagClose%.",
+    "confirmRevocationNoticePage": "Please note our <a href=\"%url%\">cancellation policy</a>.",
+    "confirmTermsText": "I have read and accepted the <a class=\"checkout-confirm-terms-modal\" data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\">general terms and conditions</a>.",
+    "confirmTermsTextModal": "I have read and accepted the %tosModalTagOpen%general terms and conditions%tosModalTagClose%.",
+    "confirmTermsTextPage": "I have read and accepted the <a href=\"%url%\">general terms and conditions</a>.",
     "confirmTermsReminderText": "You have already accepted the <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"general terms and conditions\">general terms and conditions</a>.",
+    "confirmTermsReminderTextModal": "You have already accepted the %tosModalTagOpen%general terms and conditions%tosModalTagClose%.",
     "confirmRevocationTerms": "I want immediate access to the digital content and I acknowledge that thereby I waive my right to cancel.",
     "confirmRevocationReminder": "You have already declared that you waive the right of withdrawal.",
     "finishInfoPayment": "Payment method:",
@@ -535,6 +559,7 @@
     "boxUnitLabel": "Content:",
     "boxLabelTopseller": "Tip",
     "boxLabelNew": "New",
+    "boxLabelDiscount": "Discount",
     "listingTextSite": "Page",
     "listingTextFrom": "From",
     "boxAddProduct": "Add to shopping cart",
@@ -576,6 +601,8 @@
     "beforeListPrice": "",
     "afterListPrice": "",
     "cheapestPriceLabel": "Variants from",
+    "regularPriceLabel": "Regular price:",
+    "listPriceLabel": "Sale price:",
     "addToWishlist": "Add to wishlist",
     "removeFromWishlist": "Remove from wishlist"
   },
@@ -607,6 +634,7 @@
     "commentLabel": "Comment",
     "commentPlaceholder": "Enter comment...",
     "privacyNoticeText": "By selecting continue you confirm that you have read and agree to our <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" data-prev-url=\"%prevUrl%\" href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a>.",
+    "privacyNoticeTextModal": "By selecting continue you confirm that you have read and agree to our %privacyModalTagOpen%data protection information%privacyModalTagClose%.",
     "privacyNoticeTextPage": "By selecting continue you confirm that you have read and agree to our <a href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a>.",
     "formSubmit": "Submit",
     "success": "We have received your contact request and will process it as soon as possible."
@@ -677,19 +705,45 @@
     "reviewRatingAltText": "Review with rating of %points% out of %maxPoints% stars",
     "reviewNotPublicYetAlert": "Your review has not been approved yet",
     "unavailable": "Unavailable",
-    "unavailableTooltip": "This option is currently unavailable."
+    "unavailableTooltip": "This option is currently unavailable.",
+    "reviewTitleMinLengthHint": "Please enter at least 5 characters.",
+    "reviewTextMinLengthHint": "Please enter at least 40 characters."
   },
   "spatial": {
-    "scanQrCode": "Scan QR-Code",
-    "pointToQrCode": "Point the mobile device at the QR code to display the product in \"Augmented Reality\" mode",
-    "arSupportInFollowingDevices": "The \"Augmented Reality experience\" is supported on the following devices:",
-    "arSupportDevices": "iOS11+, Android 8.0+ with ARCore 1.9 support",
-    "moveTheDeviceToStart": "Move the device to start",
-    "tapToPlaceTheObject": "Tap to place the object",
-    "openAugmentedRealityView": "Open Augmented Reality view",
-    "augmentedRealityView": "Augmented Reality view",
-    "openArView": "Open AR view",
-    "openArViewDescription": "Open Augmented Reality view"
+    "ar": {
+      "scanQrCode": "Scan QR-Code",
+      "pointToQrCode": "Point the camera of your mobile device at the QR code to display the product in Augmented Reality.",
+      "moveTheDeviceToStart": "Move the device to start",
+      "tapToPlaceTheObject": "Tap to place the object",
+      "openAugmentedRealityView": "Open Augmented Reality view",
+      "augmentedRealityView": "Augmented Reality view",
+      "openArView": "Open AR view",
+      "launchingArView": "Starting AR view...",
+      "openArViewDescription": "Open Augmented Reality view",
+      "whyDoISeeThis": "Why do I see this message?",
+      "errors": {
+        "desktopNotSupported": {
+          "reason": "Augmented Reality is not supported on desktop devices.",
+          "solution": "Please use a mobile device to start AR."
+        },
+        "notSafariOnIOS": {
+          "reason": "Augmented Reality is only supported in Safari on iOS.",
+          "solution": "Please use Safari on iOS to start AR."
+        },
+        "IOSVersionMismatch": {
+          "reason": "Augmented Reality is not supported on iOS versions below 12.0.",
+          "solution": "Please use a newer iOS version to start AR."
+        },
+        "unknownIOSError": {
+          "reason": "An unknown error occurred while starting AR on iOS.",
+          "solution": "Please try again or contact our support."
+        },
+        "unknownARError": {
+          "reason": "An unknown error occurred while starting AR.",
+          "solution": "Please try again or contact our support."
+        }
+      }
+    }
   },
   "wishlist": {
     "cartTitle": "Your wishlist",
@@ -719,16 +773,18 @@
     "newsletterInput": "Email address",
     "newsletter": "Subscribe to our regular newsletter now to stay tuned on the latest products and special offers.",
     "includeVatText": "%star%All prices incl. VAT plus <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
-    "includeVatTextPage": "%star%All prices incl. VAT plus <a href=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
+    "includeVatTextPage": "All prices incl. VAT plus <a href=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
     "excludeVatText": "%star%All prices excl. VAT plus <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
-    "excludeVatTextPage": "%star%All prices excl. VAT plus <a href=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
+    "excludeVatTextPage": "All prices excl. VAT plus <a href=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
     "copyrightInfo": "Realised with Shopware"
   },
   "captcha": {
     "googleReCaptcha": {
       "dataProtectionInformation": "This site is protected by reCAPTCHA and the Google <a href=\"https://policies.google.com/privacy\">Privacy Policy</a> and <a href=\"https://policies.google.com/terms\">Terms of Service</a> apply."
     },
-    "basicCaptchaLabel": "To continue, enter the characters shown above*"
+    "basicCaptchaLabel": "To continue, enter the characters shown above*",
+    "basicCaptchaRefreshButton": "Refresh captcha challenge",
+    "basicCaptchaChallengeAltText": "Captcha challenge"
   },
   "cookie": {
     "messageText": "This website uses cookies to ensure the best experience possible. <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"More information\">More information...</a>",
@@ -739,6 +795,7 @@
     "save": "Save",
     "acceptAll": "Accept all cookies",
     "headline": "Cookie preferences",
+    "close": "Close cookie preferences",
     "groupRequired": "Technically required",
     "groupRequiredDescription": "Cookies required for this shop to function:",
     "groupRequiredSession": "Session",
@@ -802,7 +859,10 @@
         "touchMove": "Touch and drag",
         "clickMove": "Click and move",
         "sliderDotLabel": "Show image %index% of %total%",
-        "skipImageGallery": "Skip image gallery"
+        "skipImageGallery": "Skip image gallery",
+        "zoomIn": "Zoom in",
+        "zoomOut": "Zoom out",
+        "zoomReset": "Reset zoom"
       },
       "productGallery": {
         "ariaLabel": "Product gallery containing %total% items",

@@ -6,16 +6,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @extends StoreApiResponse<ArrayStruct<array{isExpired: bool}>>
+ */
 #[Package('checkout')]
 class CustomerRecoveryIsExpiredResponse extends StoreApiResponse
 {
-    /**
-     * @var ArrayStruct<string, bool>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $object;
-
     public function __construct(bool $expired)
     {
         parent::__construct(new ArrayStruct(['isExpired' => $expired]));

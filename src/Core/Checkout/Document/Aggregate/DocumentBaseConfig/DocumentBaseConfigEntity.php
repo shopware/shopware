@@ -16,82 +16,30 @@ class DocumentBaseConfigEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $filenamePrefix;
+    protected ?string $filenamePrefix = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $filenameSuffix;
+    protected ?string $filenameSuffix = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentNumber;
+    protected string $documentNumber;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $global = false;
+    protected bool $global = false;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentTypeId;
+    protected ?string $documentTypeId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $logoId;
+    protected ?string $logoId = null;
 
     /**
      * @var array<string, string|bool|array<int, string>>|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $config;
+    protected ?array $config = null;
 
-    /**
-     * @var DocumentBaseConfigSalesChannelCollection
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannels;
+    protected ?DocumentBaseConfigSalesChannelCollection $salesChannels = null;
 
-    /**
-     * @var DocumentTypeEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentType;
+    protected ?DocumentTypeEntity $documentType = null;
 
-    /**
-     * @var MediaEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $logo;
+    protected ?MediaEntity $logo = null;
 
     public function getName(): string
     {
@@ -103,7 +51,7 @@ class DocumentBaseConfigEntity extends Entity
         $this->name = $name;
     }
 
-    public function getSalesChannels(): DocumentBaseConfigSalesChannelCollection
+    public function getSalesChannels(): ?DocumentBaseConfigSalesChannelCollection
     {
         return $this->salesChannels;
     }

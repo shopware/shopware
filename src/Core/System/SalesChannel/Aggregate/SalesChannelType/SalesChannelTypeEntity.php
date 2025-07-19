@@ -15,68 +15,26 @@ class SalesChannelTypeEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name = null;
+
+    protected ?string $manufacturer = null;
+
+    protected ?string $description = null;
+
+    protected ?string $descriptionLong = null;
+
+    protected ?string $coverUrl = null;
+
+    protected ?string $iconName = null;
 
     /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var list<string>|null
      */
-    protected $manufacturer;
+    protected ?array $screenshotUrls = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $description;
+    protected ?SalesChannelCollection $salesChannels = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $descriptionLong;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $coverUrl;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $iconName;
-
-    /**
-     * @var array|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $screenshotUrls;
-
-    /**
-     * @var SalesChannelCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannels;
-
-    /**
-     * @var SalesChannelTypeTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?SalesChannelTypeTranslationCollection $translations = null;
 
     public function getName(): ?string
     {
@@ -118,32 +76,58 @@ class SalesChannelTypeEntity extends Entity
         $this->descriptionLong = $descriptionLong;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
+     */
     public function getCoverUrl(): string
     {
+        if ($this->coverUrl === null) {
+            return '';
+        }
+
         return $this->coverUrl;
     }
 
-    public function setCoverUrl(string $coverUrl): void
+    public function setCoverUrl(?string $coverUrl): void
     {
         $this->coverUrl = $coverUrl;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
+     */
     public function getIconName(): string
     {
+        if ($this->iconName === null) {
+            return '';
+        }
+
         return $this->iconName;
     }
 
-    public function setIconName(string $iconName): void
+    public function setIconName(?string $iconName): void
     {
         $this->iconName = $iconName;
     }
 
+    /**
+     * @return list<string>
+     *
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
+     */
     public function getScreenshotUrls(): array
     {
+        if ($this->screenshotUrls === null) {
+            return [];
+        }
+
         return $this->screenshotUrls;
     }
 
-    public function setScreenshotUrls(array $screenshotUrls): void
+    /**
+     * @param list<string>|null $screenshotUrls
+     */
+    public function setScreenshotUrls(?array $screenshotUrls): void
     {
         $this->screenshotUrls = $screenshotUrls;
     }

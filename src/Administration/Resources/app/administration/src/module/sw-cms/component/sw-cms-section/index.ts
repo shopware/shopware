@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-section.html.twig';
 import './sw-cms-section.scss';
 import type CmsVisibility from '../../shared/CmsVisibility';
@@ -24,12 +23,10 @@ type SlotConfigErrorObject = {
 
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'cmsService',
@@ -218,9 +215,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         createdComponent() {
-            if (!this.section.backgroundMediaMode) {
-                this.section.backgroundMediaMode = 'cover';
-            }
+            this.section.backgroundMediaMode ??= 'cover';
+            this.section.backgroundColor ??= '';
         },
 
         openBlockBar() {

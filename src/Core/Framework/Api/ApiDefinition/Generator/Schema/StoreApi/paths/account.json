@@ -1,5 +1,5 @@
 {
-    "openapi": "3.0.0",
+    "openapi": "3.1.0",
     "info": [],
     "paths": {
         "/account/newsletter-recipient": {
@@ -58,11 +58,7 @@
                         "application/json": {
                             "schema": {
                                 "type": "object",
-                                "required": [
-                                    "salutationId",
-                                    "firstName",
-                                    "lastName"
-                                ],
+                                "required": ["firstName", "lastName"],
                                 "properties": {
                                     "salutationId": {
                                         "description": "Id of the salutation for the customer account. Fetch options using `salutation` endpoint.",
@@ -99,9 +95,7 @@
                                             "accountType": {
                                                 "description": "Type of the customer account. Default value is 'private'.",
                                                 "type": "string",
-                                                "enum": [
-                                                    "private"
-                                                ],
+                                                "enum": ["private"],
                                                 "default": "private"
                                             },
                                             "company": {
@@ -122,9 +116,7 @@
                                             "accountType": {
                                                 "description": "Type of the customer account. Can be `private` or `business`.",
                                                 "type": "string",
-                                                "enum": [
-                                                    "business"
-                                                ]
+                                                "enum": ["business"]
                                             },
                                             "company": {
                                                 "description": "Company of the customer. Only required when `accountType` is `business`.",
@@ -318,42 +310,50 @@
                 ]
             }
         },
-        "/account/change-payment-method/{paymentMethodId}": {
-            "post": {
-                "tags": ["Profile"],
-                "summary": "Change the customer's default payment method",
-                "description": "Changes a customer's default (preselected) payment method.",
-                "operationId": "changePaymentMethod",
-                "parameters": [
-                    {
-                        "name": "paymentMethodId",
-                        "in": "path",
-                        "description": "Identifier of the desired default payment method",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+        "/account/convert-guest": {
+          "post": {
+            "tags": ["Profile"],
+            "summary": "Convert a guest customer to a registered customer",
+            "description": "Takes a password to convert a guest customer to a registered customer. The customer can then log in with the provided password in the future.",
+            "operationId": "convertGuest",
+            "requestBody": {
+              "required": true,
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "required": [
+                      "password"
+                    ],
+                    "properties": {
+                      "password": {
+                        "description": "New Password for the customer",
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "responses": {
+              "200": {
+                "description": "Returns a success response indicating a successful update.",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/SuccessResponse"
                     }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Returns a success response indicating a successful update.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/SuccessResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "ApiKey": [],
-                        "ContextToken": []
-                    }
-                ]
-            }
+                  }
+                }
+              }
+            },
+            "security": [
+              {
+                "ApiKey": [],
+                "ContextToken": []
+              }
+            ]
+          }
         },
         "/account/customer-recovery-is-expired": {
             "post": {
@@ -399,9 +399,7 @@
                                             }
                                         },
                                         "apiAlias": {
-                                            "enum": [
-                                                "array_struct"
-                                            ],
+                                            "enum": ["array_struct"],
                                             "type": "string"
                                         }
                                     }
@@ -430,7 +428,7 @@
                             "schema": {
                                 "allOf": [
                                     {
-                                        "$ref": "#/components/schemas/Criteria"
+                                        "$ref": "#/components/schemas/NoneFieldsCriteria"
                                     }
                                 ]
                             }
@@ -584,10 +582,23 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/CustomerAddress"
-                                    }
+                                    "allOf": [
+                                        {
+                                            "type": "object",
+                                            "required": ["elements"],
+                                            "properties": {
+                                                "elements": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/CustomerAddress"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/EntitySearchResult"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -849,7 +860,6 @@
                                 "required": [
                                     "email",
                                     "password",
-                                    "salutationId",
                                     "firstName",
                                     "lastName",
                                     "acceptedDataProtection",
@@ -862,9 +872,7 @@
                                             "accountType": {
                                                 "description": "Type of the customer account. Default value is 'private'.",
                                                 "type": "string",
-                                                "enum": [
-                                                    "private"
-                                                ],
+                                                "enum": ["private"],
                                                 "default": "private"
                                             },
                                             "company": {
@@ -885,9 +893,7 @@
                                             "accountType": {
                                                 "description": "Type of the customer account. Can be `private` or `business`.",
                                                 "type": "string",
-                                                "enum": [
-                                                    "business"
-                                                ]
+                                                "enum": ["business"]
                                             },
                                             "company": {
                                                 "description": "Company of the customer. Only required when `accountType` is `business`.",
@@ -1098,7 +1104,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/CustomerAddress"
+                                "$ref": "#/components/schemas/CustomerAddressBody"
                             }
                         }
                     }

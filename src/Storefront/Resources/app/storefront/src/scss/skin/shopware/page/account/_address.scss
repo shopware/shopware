@@ -1,21 +1,14 @@
-@if feature('v6.7.0.0') {
-    .account-address {
-        .address-action-create {
-            font-size: 1.1em;
-            text-align: left;
+.account-address {
+    .address-action-create {
+        font-size: 1.1em;
+        text-align: left;
 
-            &:hover {
-                border: $border-width $border-style $border-color;
-            }
-        }
-
-        .address-card .card-body .address:first-line {
-            font-weight: $font-weight-bold;
+        &:hover {
+            border: $border-width $border-style $border-color;
         }
     }
-} @else {
-    .address-action-set-default {
-        padding-left: 0;
-        text-align: left;
+
+    .address-card .card-body .address:first-line {
+        font-weight: $font-weight-bold;
     }
 }

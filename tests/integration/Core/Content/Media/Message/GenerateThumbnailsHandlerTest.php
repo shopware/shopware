@@ -94,7 +94,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
         $mediaThumbnailCollection = $media->getThumbnails();
         static::assertNotNull($mediaThumbnailCollection);
-        static::assertEquals(2, $mediaThumbnailCollection->count());
+        static::assertCount(2, $mediaThumbnailCollection);
 
         foreach ($mediaThumbnailCollection as $thumbnail) {
             static::assertTrue(
@@ -151,7 +151,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
         $mediaThumbnailCollection = $media->getThumbnails();
         static::assertNotNull($mediaThumbnailCollection);
-        static::assertEquals(2, $mediaThumbnailCollection->count());
+        static::assertCount(2, $mediaThumbnailCollection);
 
         foreach ($mediaThumbnailCollection as $thumbnail) {
             static::assertTrue(
@@ -201,7 +201,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $updateMessage2->setStrict(false);
         $updateMessage2->setContext($this->context);
 
-        $thumbnailServiceMock->expects(static::once())
+        $thumbnailServiceMock->expects($this->once())
             ->method('generate')
             ->with($testEntities1, $this->context)
             ->willReturn($testEntities1->count());
@@ -215,7 +215,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         $parameters = [];
 
-        $thumbnailServiceMock->expects(static::exactly($testEntities2->count() + $testEntities3->count()))
+        $thumbnailServiceMock->expects($this->exactly($testEntities2->count() + $testEntities3->count()))
             ->method('updateThumbnails')
             ->willReturnCallback(function (...$params) use (&$parameters): void {
                 $parameters[] = $params;
@@ -225,6 +225,6 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $handler->__invoke($updateMessage1);
         $handler->__invoke($updateMessage2);
 
-        static::assertEquals($consecutiveUpdateMessageParams, $parameters);
+        static::assertSame($consecutiveUpdateMessageParams, $parameters);
     }
 }

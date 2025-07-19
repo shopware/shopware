@@ -74,8 +74,7 @@ class UpdateSubscriber implements EventSubscriberInterface
             $failedThemes = [];
 
             foreach ($themes as $theme) {
-                // NEXT-21735 - his is covered randomly
-                // @codeCoverageIgnoreStart
+                // @codeCoverageIgnoreStart -this is covered randomly
                 if (\in_array($theme->getId(), $alreadyCompiled, true) !== false) {
                     continue;
                 }
@@ -83,7 +82,7 @@ class UpdateSubscriber implements EventSubscriberInterface
 
                 try {
                     $alreadyCompiled += $this->themeService->compileThemeById($theme->getId(), $context);
-                } catch (ThemeCompileException $e) {
+                } catch (ThemeCompileException) {
                     $failedThemes[] = $theme->getName();
                     $alreadyCompiled[] = $theme->getId();
                 }

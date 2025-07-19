@@ -6,11 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Event\CartBeforeSerializationEvent;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(CartBeforeSerializationEvent::class)]
+#[Package('checkout')]
 class CartBeforeSerializationEventTest extends TestCase
 {
     public function testConstructor(): void

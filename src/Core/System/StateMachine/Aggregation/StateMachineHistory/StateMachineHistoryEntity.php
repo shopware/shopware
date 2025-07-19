@@ -5,6 +5,7 @@ namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 use Shopware\Core\System\User\UserEntity;
@@ -14,89 +15,33 @@ class StateMachineHistoryEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $stateMachineId;
+    protected string $stateMachineId;
 
-    /**
-     * @var StateMachineEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $stateMachine;
+    protected ?StateMachineEntity $stateMachine = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $entityName;
+    protected string $entityName;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $referencedId;
+    protected string $referencedId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $referencedVersionId;
+    protected string $referencedVersionId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $fromStateId;
+    protected string $fromStateId;
 
-    /**
-     * @var StateMachineStateEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $fromStateMachineState;
+    protected ?StateMachineStateEntity $fromStateMachineState = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $toStateId;
+    protected string $toStateId;
 
-    /**
-     * @var StateMachineStateEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $toStateMachineState;
+    protected ?StateMachineStateEntity $toStateMachineState = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $userId;
+    protected ?string $userId = null;
 
-    /**
-     * @var UserEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $user;
+    protected ?UserEntity $user = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $transitionActionName;
+    protected ?string $integrationId = null;
+
+    protected ?IntegrationEntity $integration = null;
+
+    protected string $transitionActionName;
 
     public function getTransitionActionName(): string
     {
@@ -193,12 +138,12 @@ class StateMachineHistoryEntity extends Entity
         $this->toStateMachineState = $toStateMachineState;
     }
 
-    public function getUserId(): string
+    public function getUserId(): ?string
     {
         return $this->userId;
     }
 
-    public function setUserId(string $userId): void
+    public function setUserId(?string $userId): void
     {
         $this->userId = $userId;
     }
@@ -216,5 +161,25 @@ class StateMachineHistoryEntity extends Entity
     public function setFromStateMachineState(StateMachineStateEntity $fromStateMachineState): void
     {
         $this->fromStateMachineState = $fromStateMachineState;
+    }
+
+    public function getIntegrationId(): ?string
+    {
+        return $this->integrationId;
+    }
+
+    public function setIntegrationId(?string $integrationId): void
+    {
+        $this->integrationId = $integrationId;
+    }
+
+    public function getIntegration(): ?IntegrationEntity
+    {
+        return $this->integration;
+    }
+
+    public function setIntegration(?IntegrationEntity $integration): void
+    {
+        $this->integration = $integration;
     }
 }

@@ -56,7 +56,7 @@ class ProductIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->connectionMock = $this->createMock(Connection::class);
-        $this->messageBus = self::getContainer()->get('messenger.bus.shopware');
+        $this->messageBus = self::getContainer()->get('messenger.default_bus');
 
         $this->indexer = new ProductIndexer(
             self::getContainer()->get(IteratorFactory::class),
@@ -85,9 +85,12 @@ class ProductIndexerTest extends TestCase
         $this->prepareGetChildrenIdsMethod($uuids);
         $context = Context::createDefaultContext();
         $nestedEvents = $this->prepareEvent($context, $uuids);
+        $writtenEvent = new EntityWrittenContainerEvent($context, $nestedEvents, []);
+        $writtenEvent->setCloned(true);
 
-        $message = $this->indexer->update(new EntityWrittenContainerEvent($context, $nestedEvents, []));
+        $message = $this->indexer->update($writtenEvent);
         static::assertNotNull($message);
+        static::assertContains(ProductIndexer::CHILD_COUNT_UPDATER, $message->getSkip());
         $this->messageBus->dispatch($message);
 
         $this->runWorker();

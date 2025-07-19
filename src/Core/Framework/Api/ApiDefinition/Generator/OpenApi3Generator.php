@@ -54,7 +54,9 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     {
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
 
-        $openApi = new OpenApi([]);
+        $openApi = new OpenApi([
+            'openapi' => '3.1.0',
+        ]);
         $this->openApiBuilder->enrich($openApi, $api);
 
         ksort($definitions);

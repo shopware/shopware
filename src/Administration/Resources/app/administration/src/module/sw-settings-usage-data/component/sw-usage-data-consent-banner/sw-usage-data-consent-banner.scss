@@ -3,7 +3,7 @@
 .sw-usage-data-consent-banner {
     background: $color-white;
     max-width: $content-width;
-    margin: 32px auto;
+    margin: 0 auto var(--scale-size-40);
     border-radius: $border-radius-lg;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 10%), 0 2px 1px 0 rgba(0, 0, 0, 6%), 0 1px 1px 0 rgba(0, 0, 0, 8%);
     position: relative;
@@ -60,7 +60,7 @@
         background-size: contain;
         background-position: bottom center;
         background-repeat: no-repeat;
-        background-image: url("../img/data-consent-background.png");
+        background-image: url("./assets/data-consent-background.png");
         container: consent-content / inline-size;
 
         &-headline {
@@ -143,7 +143,8 @@
                 font-weight: $font-weight-medium;
                 line-height: $line-height-md;
 
-                .sw-icon.icon--solid-check-circle {
+                /* stylelint-disable max-nesting-depth */
+                .mt-icon.icon--solid-check-circle {
                     flex-shrink: 0;
                     margin-top: 4px;
                 }
@@ -151,6 +152,7 @@
                 .sw-help-text {
                     cursor: help;
                 }
+                /* stylelint-enable max-nesting-depth */
             }
         }
 
@@ -182,7 +184,7 @@
             border: none;
             font-weight: $font-weight-medium;
 
-            &.sw-button:hover {
+            &.mt-button:hover {
                 background: none;
             }
         }
@@ -199,13 +201,13 @@
             align-items: center;
         }
 
-        &-reject-button.sw-button--context {
+        &-reject-button.mt-button--context {
             color: $color-crimson-500;
             text-decoration: underline;
             padding: 0;
             transition: color 0.1s ease;
 
-            &.sw-button:hover {
+            &.mt-button:hover {
                 color: $color-crimson-700;
                 background: none;
             }
@@ -235,7 +237,7 @@
     justify-content: space-between;
     align-items: center;
     max-width: $content-width;
-    margin: 32px auto;
+    margin: 0 auto var(--scale-size-40);
     border-radius: $border-radius-lg;
     border: 1px solid $color-gray-300;
     color: $color-darkgray-700;
@@ -248,7 +250,7 @@
         display: inline;
     }
 
-    .sw-icon {
+    .mt-icon {
         flex-shrink: 0;
     }
 

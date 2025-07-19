@@ -41,6 +41,7 @@
                 "total": "Gesamt"
             },
             "tax": "zzgl. %taxRate%% MwSt.:",
+            "taxLabeled": "zzgl. %taxRate%% %label%:",
             "total": "Gesamtsumme:",
             "roundedTotal": "Gesamtsumme gerundet:",
             "totalNet": "Gesamtsumme (Netto):",

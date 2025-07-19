@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\DaysSinceRule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @final
+ */
 #[Package('fundamentals@after-sales')]
 class DaysSinceFirstLoginRule extends DaysSinceRule
 {

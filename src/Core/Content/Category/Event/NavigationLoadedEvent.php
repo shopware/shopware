@@ -12,19 +12,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('discovery')]
 class NavigationLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var Tree
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $navigation;
+    protected Tree $navigation;
 
-    /**
-     * @var SalesChannelContext
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salesChannelContext;
+    protected SalesChannelContext $salesChannelContext;
 
     public function __construct(
         Tree $navigation,

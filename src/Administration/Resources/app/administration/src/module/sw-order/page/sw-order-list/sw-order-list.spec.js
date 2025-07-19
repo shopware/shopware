@@ -62,7 +62,6 @@ async function createWrapper() {
                         </div>
                     `,
                 },
-                'sw-button': true,
                 'sw-label': true,
                 'sw-data-grid': await wrapTestComponent('sw-data-grid', {
                     sync: true,
@@ -70,7 +69,6 @@ async function createWrapper() {
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
                 'sw-pagination': true,
-                'sw-icon': true,
                 'sw-data-grid-settings': true,
                 'sw-empty-state': true,
                 'router-link': {
@@ -140,7 +138,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         wrapper = await createWrapper();
         const addButton = wrapper.find('.sw-order-list__add-order');
 
-        expect(addButton.attributes().disabled).toBe('true');
+        expect(addButton.attributes('disabled')).toBeDefined();
     });
 
     it('should not have an disabled add button', async () => {
@@ -402,7 +400,6 @@ describe('src/module/sw-order/page/sw-order-list', () => {
                     placeholder: 'sw-order.filters.affiliateCodeFilter.placeholder',
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: expect.any(Array),
                 }),
                 'campaign-code-filter': expect.objectContaining({
                     property: 'campaignCode',
@@ -411,7 +408,6 @@ describe('src/module/sw-order/page/sw-order-list', () => {
                     placeholder: 'sw-order.filters.campaignCodeFilter.placeholder',
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: expect.any(Array),
                 }),
                 'promotion-code-filter': expect.objectContaining({
                     property: 'lineItems.payload.code',
@@ -420,7 +416,6 @@ describe('src/module/sw-order/page/sw-order-list', () => {
                     placeholder: 'sw-order.filters.promotionCodeFilter.placeholder',
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: expect.any(Array),
                 }),
             }),
         );

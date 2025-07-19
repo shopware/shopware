@@ -14,8 +14,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -48,6 +46,9 @@ export default {
             return this.repositoryFactory.create('product_stream');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -58,7 +59,7 @@ export default {
             return promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-product-stream.detail.messageSaveSuccess', 0, { name: productStream.name }),
+                        message: this.$tc('sw-product-stream.detail.messageSaveSuccess', { name: productStream.name }, 0),
                     });
                 })
                 .catch(() => {
@@ -189,7 +190,7 @@ export default {
             }
 
             this.createNotificationError({
-                message: this.$tc('sw-product-stream.general.errorCategory', count, { name, count }),
+                message: this.$tc('sw-product-stream.general.errorCategory', { name, count }, count),
             });
         },
 

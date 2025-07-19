@@ -10,14 +10,18 @@ $sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
         border-bottom: 1px solid $sw-products-variants-generated-variants-toolbar-border;
         padding: 25px;
 
-        .sw-button {
+        .mt-button {
             height: 32px;
             line-height: 16px;
 
-            .sw-icon {
+            .mt-icon {
                 width: 15px;
                 height: 15px;
             }
+        }
+
+        .sw-product-variants__generate-action {
+            width: 100%;
         }
     }
 
@@ -29,7 +33,7 @@ $sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
         a.sw-product-variants-overview__variation-link {
             cursor: pointer;
 
-            .sw-icon {
+            .mt-icon {
                 opacity: 0;
                 color: $color-shopware-brand-500;
                 width: 12px;
@@ -40,7 +44,7 @@ $sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
             &:hover {
                 text-decoration: none;
 
-                .sw-icon {
+                .mt-icon {
                     opacity: 1;
                 }
             }

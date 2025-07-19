@@ -3,13 +3,13 @@
 namespace Shopware\Core\Checkout\Order;
 
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -21,6 +21,11 @@ class OrderAddressService
 
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderCollection> $orderRepository
+     * @param EntityRepository<OrderAddressCollection> $orderAddressRepository
+     * @param EntityRepository<CustomerAddressCollection> $customerAddressRepository
+     * @param EntityRepository<OrderDeliveryCollection> $orderDeliveryRepository
      */
     public function __construct(
         protected EntityRepository $orderRepository,
@@ -42,9 +47,7 @@ class OrderAddressService
 
         $criteria = (new Criteria([$orderId]))->addAssociation('deliveries');
 
-        /** @var ?OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $context)->get($orderId);
-
+        $order = $this->orderRepository->search($criteria, $context)->getEntities()->first();
         if (!$order) {
             throw OrderException::orderNotFound($orderId);
         }
@@ -169,11 +172,8 @@ class OrderAddressService
         string $newOrderAddressId,
         Context $context
     ): void {
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('customer_address.id', $customerAddressId));
-
-        $customerAddress = $this->customerAddressRepository->search($criteria, $context)->get($customerAddressId);
-        if (!$customerAddress instanceof CustomerAddressEntity) {
+        $customerAddress = $this->customerAddressRepository->search(new Criteria([$customerAddressId]), $context)->getEntities()->first();
+        if (!$customerAddress) {
             throw OrderException::customerAddressNotFound($customerAddressId);
         }
 

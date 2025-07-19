@@ -35,6 +35,14 @@ class AuthTestSubscriber implements EventSubscriberInterface
 
     public function onRender(StorefrontRenderEvent $event): void
     {
+        $skippedViews = [
+            '@Storefront/storefront/layout/header.html.twig',
+            '@Storefront/storefront/layout/footer.html.twig',
+        ];
+        if (\in_array($event->getView(), $skippedViews, true)) {
+            return;
+        }
+
         self::$renderEvent = $event;
     }
 

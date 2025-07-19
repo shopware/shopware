@@ -5,21 +5,15 @@
 import template from './sw-property-option-list.html.twig';
 import './sw-property-option-list.scss';
 
-const { State, Mixin } = Shopware;
+const { Store } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
-    ],
-
-    mixins: [
-        Mixin.getByName('listing'),
     ],
 
     props: {
@@ -27,6 +21,7 @@ export default {
             type: Object,
             required: true,
         },
+
         optionRepository: {
             type: Object,
             required: true,
@@ -44,16 +39,17 @@ export default {
             sortBy: 'name',
             sortDirection: 'ASC',
             showDeleteModal: false,
+            showEmptyState: false,
         };
     },
 
     computed: {
         isSystemLanguage() {
-            return State.get('context').api.systemLanguageId === this.currentLanguage;
+            return Store.get('context').api.systemLanguageId === this.currentLanguage;
         },
 
         currentLanguage() {
-            return State.get('context').api.languageId;
+            return Store.get('context').api.languageId;
         },
 
         allowInlineEdit() {
@@ -71,6 +67,9 @@ export default {
             return this.propertyGroup.isLoading || !this.isSystemLanguage || !this.acl.can('property.editor');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed
+         */
         dataSource() {
             return this.propertyGroup.options && this.propertyGroup.options.slice(0, this.limit);
         },
@@ -195,6 +194,10 @@ export default {
                     inlineEdit: 'number',
                 },
             ];
+        },
+
+        checkEmptyState() {
+            this.showEmptyState = this.$refs.grid?.total === 0;
         },
     },
 };

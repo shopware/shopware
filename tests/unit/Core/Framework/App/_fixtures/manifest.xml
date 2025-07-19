@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
     <meta>
         <name>test</name>
         <label>Swag App Test</label>
@@ -14,18 +14,18 @@
         <license>MIT</license>
         <privacy>https://test.com/privacy</privacy>
         <privacyPolicyExtensions>
-Following personal information will be processed on shopware AG's servers:
+            Following personal information will be processed on shopware AG's servers:
 
-- Name
-- Billing address
-- Order value
+            - Name
+            - Billing address
+            - Order value
         </privacyPolicyExtensions>
         <privacyPolicyExtensions lang="de-DE">
-Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
+            Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
 
-- Name
-- Rechnungsadresse
-- Bestellwert
+            - Name
+            - Rechnungsadresse
+            - Bestellwert
         </privacyPolicyExtensions>
     </meta>
     <setup>
@@ -132,7 +132,6 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
             <pay-url>https://payment.app/payment/process</pay-url>
             <finalize-url>https://payment.app/payment/finalize</finalize-url>
             <validate-url>https://payment.app/payment/validate</validate-url>
-            <capture-url>https://payment.app/payment/capture</capture-url>
             <refund-url>https://payment.app/payment/refund</refund-url>
             <recurring-url>https://payment.app/payment/recurring</recurring-url>
             <icon>Resources/payment.png</icon>

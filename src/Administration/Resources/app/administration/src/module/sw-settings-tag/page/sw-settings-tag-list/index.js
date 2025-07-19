@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -287,15 +285,15 @@ export default {
                     property,
                 ]) => {
                     if (property.relation === 'many_to_many') {
-                        const countBucket = this.tags.aggregations[propertyName].buckets.filter((bucket) => {
+                        const countBucket = this.tags.aggregations[propertyName]?.buckets.filter((bucket) => {
                             return bucket.key === id;
                         })[0];
 
-                        if (!countBucket[propertyName] || !countBucket[propertyName].count) {
+                        if (!countBucket?.[propertyName] || !countBucket?.[propertyName].count) {
                             return;
                         }
 
-                        counts[propertyName] = countBucket[propertyName].count;
+                        counts[propertyName] = countBucket?.[propertyName].count;
                     }
                 },
             );

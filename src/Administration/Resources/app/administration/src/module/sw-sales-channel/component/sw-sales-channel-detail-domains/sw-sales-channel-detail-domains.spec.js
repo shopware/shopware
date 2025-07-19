@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { MtUrlField } from '@shopware-ag/meteor-component-library';
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
@@ -15,15 +16,13 @@ async function createWrapper(customProps = {}, domains = []) {
         {
             global: {
                 stubs: {
-                    'sw-card': {
+                    'mt-card': {
                         template: '<div><slot></slot><slot name="grid"></slot></div>',
                     },
-                    'sw-button': true,
                     'sw-data-grid': await wrapTestComponent('sw-data-grid', {
                         sync: true,
                     }),
                     'sw-context-menu-item': true,
-                    'sw-icon': true,
                     'sw-context-button': true,
                     'sw-modal': await wrapTestComponent('sw-modal', {
                         sync: true,
@@ -34,7 +33,6 @@ async function createWrapper(customProps = {}, domains = []) {
                     'sw-container': {
                         template: '<div class="sw-container"><slot></slot></div>',
                     },
-                    'sw-url-field': true,
                     'sw-select-base': true,
                     'sw-select-result-list': true,
                     'sw-checkbox-field': true,
@@ -47,6 +45,8 @@ async function createWrapper(customProps = {}, domains = []) {
                     'sw-highlight-text': true,
                     'sw-select-result': true,
                     'sw-provide': { template: `<slot/>`, inheritAttrs: false },
+                    'mt-url-field': MtUrlField,
+                    'sw-sales-channel-measurement': true,
                 },
                 provide: {
                     repositoryFactory: {
@@ -57,6 +57,24 @@ async function createWrapper(customProps = {}, domains = []) {
                                     isNew: () => true,
                                 };
                             },
+
+                            search: () =>
+                                Promise.resolve(
+                                    new EntityCollection(null, null, Context.api, null, [
+                                        {
+                                            id: 'metric',
+                                            name: 'Metric system',
+                                            translated: { name: 'Metric system' },
+                                            technicalName: 'metric',
+                                        },
+                                        {
+                                            id: 'imperial',
+                                            name: 'Imperial system',
+                                            translated: { name: 'Imperial system' },
+                                            technicalName: 'imperial',
+                                        },
+                                    ]),
+                                ),
                         }),
                     },
                     shortcutService: {
@@ -92,6 +110,9 @@ function getExampleDomains() {
             snippetSet: {
                 name: 'BASE de-DE',
             },
+            measurementUnits: {
+                system: 'metric',
+            },
             isNew: () => false,
         },
         {
@@ -108,6 +129,9 @@ function getExampleDomains() {
             },
             snippetSet: {
                 name: 'BASE de-DE',
+            },
+            measurementUnits: {
+                system: 'metric',
             },
             isNew: () => false,
         },
@@ -133,7 +157,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         });
 
         const button = wrapper.find('.sw-sales-channel-detail__button-domain-add');
-        expect(button.attributes().disabled).toBe('true');
+        expect(button.attributes('disabled')).toBeDefined();
 
         const contextMenuItems = wrapper.findAll('sw-context-menu-item-stub');
         contextMenuItems.forEach((item) => {
@@ -223,9 +247,9 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         expect(wrapper.getComponent('.sw-sales-channel-detail-domains__domain-language-select').vm.value).toBe(
             languages.first().id,
         );
-        expect(
-            wrapper.getComponent('.sw-sales-channel-detail-domains__domain-language-select').vm.$data.results,
-        ).toStrictEqual(languages);
+        expect([
+            ...wrapper.getComponent('.sw-sales-channel-detail-domains__domain-language-select').vm.$data.results,
+        ]).toStrictEqual([...languages]);
     });
 
     it('should only display available currencies', async () => {
@@ -253,9 +277,9 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         expect(wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select').vm.value).toBe(
             currencies.first().id,
         );
-        expect(
-            wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select').vm.$data.results,
-        ).toStrictEqual(currencies);
+        expect([
+            ...wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select').vm.$data.results,
+        ]).toStrictEqual([...currencies]);
     });
 
     it('verifyUrl › returns false, if the url exists either locally, or in the database', async () => {
@@ -347,6 +371,9 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
                         name: 'Euro',
                     },
                 },
+                measurementUnits: {
+                    system: 'metric',
+                },
                 snippetSet: {
                     name: 'BASE de-DE',
                 },
@@ -389,6 +416,9 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
                         name: 'Euro',
                     },
                 },
+                measurementUnits: {
+                    system: 'metric',
+                },
                 snippetSet: {
                     name: 'BASE de-DE',
                 },
@@ -414,5 +444,48 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         const domainExists = wrapper.vm.salesChannel.domains.some((domain) => domain.id === domainToDelete.id);
 
         expect(domainExists).toBe(true);
+    });
+
+    it('should display name measurement system with translate', async () => {
+        const domains = new EntityCollection('/sales-channel-domain', 'sales_channel_domain', Context.api, null, [
+            {
+                id: 'domain-1',
+                url: 'http://firstExample.com',
+                productExports: [{}],
+                language: {
+                    name: 'Deutsch',
+                },
+                currency: {
+                    name: 'Euro',
+                    translated: {
+                        name: 'Euro',
+                    },
+                },
+                measurementUnits: {
+                    system: 'metric',
+                },
+                snippetSet: {
+                    name: 'BASE de-DE',
+                },
+                isNew: () => false,
+            },
+        ]);
+
+        const wrapper = await createWrapper(
+            {
+                salesChannel: {
+                    languages: [],
+                    currencies: [],
+                    domains: domains,
+                },
+            },
+            [],
+        );
+
+        const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        const expectedRow = rows.at(0);
+        expect(expectedRow.find('.sw-data-grid__cell--measurementSystemName .sw-data-grid__cell-content').text()).toBe(
+            'Metric system',
+        );
     });
 });

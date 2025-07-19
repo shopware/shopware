@@ -21,8 +21,4 @@ class Migration1718658881AddValidationDataToOrderTransaction extends MigrationSt
     {
         $this->addColumn($connection, 'order_transaction', 'validation_data', 'JSON NULL');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

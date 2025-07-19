@@ -85,6 +85,9 @@ class OrderApiService extends ApiService {
         });
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use `applyAutomaticPromotions` instead
+     */
     toggleAutomaticPromotions(orderId, versionId, skipAutomaticPromotions, additionalParams = {}, additionalHeaders = {}) {
         const route = `_action/order/${orderId}/toggleAutomaticPromotions`;
         const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
@@ -93,6 +96,20 @@ class OrderApiService extends ApiService {
             additionalParams,
             headers,
         });
+    }
+
+    applyAutomaticPromotions(orderId, versionId, additionalParams = {}, additionalHeaders = {}) {
+        const route = `_action/order/${orderId}/applyAutomaticPromotions`;
+        const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
+
+        return this.httpClient.post(
+            route,
+            {},
+            {
+                additionalParams,
+                headers,
+            },
+        );
     }
 
     changeOrderAddress(orderAddressId, customerAddressId, additionalParams, additionalHeaders) {

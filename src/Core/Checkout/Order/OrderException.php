@@ -3,10 +3,10 @@
 namespace Shopware\Core\Checkout\Order;
 
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
-use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -33,6 +33,10 @@ class OrderException extends HttpException
     final public const ORDER_DELIVERY_WITHOUT_ADDRESS = 'CHECKOUT__DELIVERY_WITHOUT_ADDRESS';
     final public const CHECKOUT_GUEST_NOT_AUTHENTICATED = 'CHECKOUT__GUEST_NOT_AUTHENTICATED';
     final public const CHECKOUT_GUEST_WRONG_CREDENTIALS = 'CHECKOUT__GUEST_WRONG_CREDENTIALS';
+    final public const CHECKOUT_INVALID_UUID = 'CHECKOUT__INVALID_UUID';
+    final public const ASSOCIATION_NOT_FOUND = 'CHECKOUT__ORDER_ASSOCIATION_NOT_FOUND';
+    final public const INVALID_REQUEST_PARAMETER_CODE = 'FRAMEWORK__INVALID_REQUEST_PARAMETER';
+    final public const STATE_MACHINE_STATE_NOT_FOUND = 'SYSTEM__STATE_MACHINE_STATE_NOT_FOUND';
 
     public static function missingAssociation(string $association): self
     {
@@ -169,15 +173,8 @@ class OrderException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return 'self' in the future
-     */
-    public static function deliveryWithoutAddress(): self|ShopwareHttpException
+    public static function deliveryWithoutAddress(): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new DeliveryWithoutAddressException();
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::ORDER_DELIVERY_WITHOUT_ADDRESS,
@@ -203,29 +200,63 @@ class OrderException extends HttpException
         return new CustomerDeletedException($orderId);
     }
 
-    public static function guestNotAuthenticated(): self|GuestNotAuthenticatedException
+    public static function guestNotAuthenticated(): self
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            return new self(
-                Response::HTTP_FORBIDDEN,
-                self::CHECKOUT_GUEST_NOT_AUTHENTICATED,
-                'Guest not authenticated.'
-            );
-        }
-
         return new GuestNotAuthenticatedException();
     }
 
-    public static function wrongGuestCredentials(): self|WrongGuestCredentialsException
+    public static function wrongGuestCredentials(): self
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            return new self(
-                Response::HTTP_FORBIDDEN,
-                self::CHECKOUT_GUEST_WRONG_CREDENTIALS,
-                'Wrong credentials for guest authentication.'
-            );
+        return new WrongGuestCredentialsException();
+    }
+
+    public static function invalidUuid(string $uuid): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CHECKOUT_INVALID_UUID,
+            'Invalid UUID provided: {{ uuid }}',
+            ['uuid' => $uuid]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function associationNotFound(string $association): self|AssociationNotFoundException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new AssociationNotFoundException($association);
         }
 
-        return new WrongGuestCredentialsException();
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ASSOCIATION_NOT_FOUND,
+            'Can not find association by name {{ association }}',
+            ['association' => $association]
+        );
+    }
+
+    public static function invalidRequestParameter(string $name): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_REQUEST_PARAMETER_CODE,
+            'The parameter "{{ parameter }}" is invalid.',
+            ['parameter' => $name]
+        );
+    }
+
+    public static function stateMachineStateNotFound(string $stateMachineName, string $technicalPlaceName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::STATE_MACHINE_STATE_NOT_FOUND,
+            'The place "{{ place }}" for state machine named "{{ stateMachine }}" was not found.',
+            [
+                'place' => $technicalPlaceName,
+                'stateMachine' => $stateMachineName,
+            ]
+        );
     }
 }

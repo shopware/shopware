@@ -13,13 +13,6 @@ class StorefrontRouteScope extends AbstractRouteScope implements SalesChannelCon
 {
     final public const ID = 'storefront';
 
-    /**
-     * @var array<string>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $allowedPaths = [];
-
     public function isAllowed(Request $request): bool
     {
         return $request->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)

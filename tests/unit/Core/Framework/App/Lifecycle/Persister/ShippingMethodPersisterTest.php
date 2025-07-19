@@ -51,8 +51,8 @@ class ShippingMethodPersisterTest extends TestCase
         $appShippingMethodRepositoryMock = $this->createAppShippingMethodRepositoryMockWithExistingAppShippingMethods();
 
         $shippingMethodRepositoryMock = $this->createMock(EntityRepository::class);
-        $shippingMethodRepositoryMock->expects(static::once())->method('upsert');
-        $shippingMethodRepositoryMock->expects(static::once())->method('update');
+        $shippingMethodRepositoryMock->expects($this->once())->method('upsert');
+        $shippingMethodRepositoryMock->expects($this->once())->method('update');
 
         $shippingMethodPersister = $this->createShippingMethodPersister([
             'shippingMethodRepository' => $shippingMethodRepositoryMock,
@@ -122,7 +122,7 @@ class ShippingMethodPersisterTest extends TestCase
     private function createMediaServiceMock(): MediaService&MockObject
     {
         $mediaServiceMock = $this->createMock(MediaService::class);
-        $mediaServiceMock->expects(static::once())->method('saveFile')->willReturn(self::ICON_URL);
+        $mediaServiceMock->expects($this->once())->method('saveFile')->willReturn(self::ICON_URL);
 
         return $mediaServiceMock;
     }
@@ -162,10 +162,10 @@ class ShippingMethodPersisterTest extends TestCase
         ]);
 
         $entitySearchResultMock = $this->createMock(EntitySearchResult::class);
-        $entitySearchResultMock->expects(static::once())->method('getEntities')->willReturn($entityCollection);
+        $entitySearchResultMock->expects($this->once())->method('getEntities')->willReturn($entityCollection);
 
         $appShippingMethodRepositoryMock = $this->createMock(EntityRepository::class);
-        $appShippingMethodRepositoryMock->expects(static::once())->method('search')->willReturn($entitySearchResultMock);
+        $appShippingMethodRepositoryMock->expects($this->once())->method('search')->willReturn($entitySearchResultMock);
 
         return $appShippingMethodRepositoryMock;
     }

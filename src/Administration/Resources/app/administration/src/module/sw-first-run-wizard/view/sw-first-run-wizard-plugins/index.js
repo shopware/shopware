@@ -8,8 +8,6 @@ import './sw-first-run-wizard-plugins.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['recommendationsService'],
 
     emits: [
@@ -77,7 +75,7 @@ export default {
                     key: 'back',
                     label: this.$tc('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
-                    variant: null,
+                    variant: 'secondary',
                     action: 'sw.first.run.wizard.index.paypal.info',
                     disabled: false,
                 },

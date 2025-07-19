@@ -3,9 +3,6 @@
  */
 
 import './sw-generic-social-media-card.scss';
-
-import type { PropType } from 'vue';
-
 import type Repository from 'src/core/data/repository.data';
 import template from './sw-generic-social-media-card.html.twig';
 
@@ -16,8 +13,6 @@ const createId = Shopware.Utils.createId;
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',

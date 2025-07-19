@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-class Translations extends Field
+final class Translations extends Field
 {
     public const TYPE = 'translations';
 

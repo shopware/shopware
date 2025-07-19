@@ -6,6 +6,4 @@ import template from './sw-cms-block-sidebar-filter.html.twig';
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

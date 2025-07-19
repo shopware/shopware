@@ -16,17 +16,15 @@ use Twig\Loader\ArrayLoader;
 use Twig\Runtime\EscaperRuntime;
 
 /**
- * @deprecated tag:v6.7.0 - this class will be internal - reason:becomes-internal
+ * @internal
  */
 #[Package('inventory')]
 class SeoUrlTwigFactory
 {
     /**
      * @param ExtensionInterface[] $twigExtensions
-     *
-     * @deprecated tag:v6.7.0 - the parameter twigExtensions and cacheDir will be required - reason:becomes-internal
      */
-    public function createTwigEnvironment(SlugifyInterface $slugify, iterable $twigExtensions = [], ?string $cacheDir = null): Environment
+    public function createTwigEnvironment(SlugifyInterface $slugify, iterable $twigExtensions, string $cacheDir): Environment
     {
         $twig = new TwigEnvironment(new ArrayLoader());
 

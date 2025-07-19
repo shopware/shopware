@@ -162,7 +162,7 @@ class BannerServiceTest extends TestCase
             ];
         }
 
-        $userConfigRepository->expects(static::once())
+        $userConfigRepository->expects($this->once())
             ->method('upsert')
             ->with($updates, Context::createDefaultContext());
 
@@ -188,7 +188,7 @@ class BannerServiceTest extends TestCase
             ->with($criteria, $context)
             ->willReturn(new EntitySearchResult('user_config', 0, $emptyUserConfigCollection, null, $criteria, $context));
 
-        $userConfigRepository->expects(static::never())
+        $userConfigRepository->expects($this->never())
             ->method('upsert');
 
         $consentService = new BannerService(

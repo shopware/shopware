@@ -1,0 +1,35 @@
+<template
+    v-for="sidebar in sidebars"
+    :key="sidebar.locationId"
+>
+    <aside
+        class="sw-sidebar-renderer"
+        :class="{ 'is-active': activeSidebar && activeSidebar.locationId === sidebar.locationId }"
+        :style="{ display: (activeSidebar && activeSidebar.locationId === sidebar.locationId) ? 'flex' : 'none' }"
+    >
+        <header class="sw-sidebar-renderer__header">
+            <h3 class="sw-sidebar-renderer__title">
+                {{ $tc(sidebar.title) }}
+            </h3>
+
+            <button
+                class="sw-sidebar-renderer__button-close"
+                :aria-label="$tc('sidebar.ariaLabelButtonClose')"
+                @click="closeSidebar(sidebar.locationId)"
+            >
+                <mt-icon
+                    name="regular-times-xs"
+                    size="12px"
+                />
+            </button>
+        </header>
+
+        <section class="sw-sidebar-renderer__content">
+            <sw-iframe-renderer
+                :src="sidebar.baseUrl"
+                :location-id="sidebar.locationId"
+                :full-screen="false"
+            />
+        </section>
+    </aside>
+</template>

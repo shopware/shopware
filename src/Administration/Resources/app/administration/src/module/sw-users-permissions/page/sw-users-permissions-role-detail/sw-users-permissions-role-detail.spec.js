@@ -49,13 +49,10 @@ async function createWrapper(
 </div>
     `,
                     },
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
-                    'sw-icon': true,
                     'sw-card-view': {
                         template: '<div class="sw-card-view"><slot></slot></div>',
                     },
-                    'sw-card': true,
                     'sw-field': true,
                     'sw-users-permissions-permissions-grid': true,
                     'sw-users-permissions-additional-permissions': true,
@@ -65,10 +62,6 @@ async function createWrapper(
                     'router-view': true,
                     'sw-skeleton': true,
                     'sw-loader': true,
-                    'sw-button': {
-                        emits: ['click'],
-                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                    },
                 },
                 mocks: {
                     $route: $route,

@@ -9,8 +9,6 @@ import './sw-order-state-change-modal.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'page-leave',
         'page-leave-confirm',

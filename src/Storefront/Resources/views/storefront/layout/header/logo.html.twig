@@ -1,11 +1,11 @@
 {% block layout_header_logo_inner %}
-    <div class="header-logo-main">
+    <div class="header-logo-main text-center">
         {% block layout_header_logo_link %}
             <a class="header-logo-main-link"
                href="{{ path('frontend.home.page') }}"
                title="{{ 'header.logoLink'|trans|striptags }}">
                 {% block layout_header_logo_image %}
-                    <picture class="header-logo-picture">
+                    <picture class="header-logo-picture d-block m-auto">
                         {% block layout_header_logo_image_tablet %}
                             {% if theme_config('sw-logo-tablet') and theme_config('sw-logo-tablet') != theme_config('sw-logo-desktop') %}
                                 <source srcset="{{ theme_config('sw-logo-tablet')|sw_encode_url }}"

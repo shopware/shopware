@@ -70,7 +70,7 @@ class StoreControllerTest extends TestCase
         $context = new Context(new AdminApiSource($adminUser->getId()));
 
         $storeClientMock = $this->createMock(StoreClient::class);
-        $storeClientMock->expects(static::once())
+        $storeClientMock->expects($this->once())
             ->method('loginWithShopwareId')
             ->with('j.doe@shopware.com', 'v3rys3cr3t');
 
@@ -98,7 +98,7 @@ class StoreControllerTest extends TestCase
             ->willReturn(new Response());
 
         $storeClientMock = $this->createMock(StoreClient::class);
-        $storeClientMock->expects(static::once())
+        $storeClientMock->expects($this->once())
             ->method('loginWithShopwareId')
             ->willThrowException($clientExceptionMock);
 
@@ -121,7 +121,7 @@ class StoreControllerTest extends TestCase
         $context = new Context(new AdminApiSource($adminUser->getId()));
 
         $storeClientMock = $this->createMock(StoreClient::class);
-        $storeClientMock->expects(static::never())
+        $storeClientMock->expects($this->never())
             ->method('loginWithShopwareId');
 
         $storeController = $this->getStoreController($storeClientMock);
@@ -147,7 +147,7 @@ class StoreControllerTest extends TestCase
         static::assertIsString($response);
 
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals($response['userInfo'], [
+        static::assertSame($response['userInfo'], [
             'name' => 'John Doe',
             'email' => 'john.doe@shopware.com',
         ]);
@@ -182,7 +182,7 @@ class StoreControllerTest extends TestCase
         static::assertIsString($response);
 
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals($response['userInfo'], [
+        static::assertSame($response['userInfo'], [
             'name' => 'John Doe',
             'email' => 'john.doe@shopware.com',
         ]);

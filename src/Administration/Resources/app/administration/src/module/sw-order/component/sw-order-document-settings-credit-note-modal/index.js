@@ -9,8 +9,6 @@ import './sw-order-document-settings-credit-note-modal.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['loading-document'],
 
     data() {
@@ -41,6 +39,24 @@ export default {
         documentPreconditionsFulfilled() {
             return this.highlightedItems.length !== 0 && this.documentConfig.custom.invoiceNumber;
         },
+
+        documentNumber: {
+            get() {
+                return String(this.documentConfig.documentNumber);
+            },
+            set(value) {
+                this.documentConfig.documentNumber = value;
+            },
+        },
+
+        invoiceNumberOptions() {
+            return this.invoiceNumbers.map((item) => {
+                return {
+                    label: String(item),
+                    value: item,
+                };
+            });
+        },
     },
 
     created() {
@@ -53,7 +69,11 @@ export default {
 
             const invoiceNumbers = this.order.documents
                 .filter((document) => {
-                    return document.documentType.technicalName === 'invoice';
+                    return (
+                        document.documentType.technicalName === 'invoice' ||
+                        document.documentType.technicalName === 'zugferd_invoice' ||
+                        document.documentType.technicalName === 'zugferd_embedded_invoice'
+                    );
                 })
                 .map((item) => {
                     return item.config.custom.invoiceNumber;

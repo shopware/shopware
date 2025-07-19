@@ -1,8 +1,6 @@
 import template from './sw-button-process.html.twig';
 import './sw-button-process.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -16,10 +14,8 @@ const { Component } = Shopware;
  *     Button
  * </sw-button-process>
  */
-Component.register('sw-button-process', {
+export default {
     template,
-
-    compatConfig: Shopware.disableCompat,
 
     inheritAttrs: false,
 
@@ -46,14 +42,6 @@ Component.register('sw-button-process', {
                 'is--hidden': this.processSuccess,
             };
         },
-
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
     },
 
     watch: {
@@ -67,4 +55,4 @@ Component.register('sw-button-process', {
             }, this.animationTimeout);
         },
     },
-});
+};

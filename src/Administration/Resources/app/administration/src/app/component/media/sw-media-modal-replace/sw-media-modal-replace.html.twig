@@ -1,0 +1,55 @@
+{% block sw_media_modal_replace %}
+<sw-modal
+    class="sw-media-modal-replace"
+    size="420px"
+    :title="$tc('global.sw-media-modal-replace.titleModal')"
+    @modal-close="emitCloseReplaceModal"
+>
+
+    <sw-upload-listener
+        :upload-tag="itemToReplace.id"
+        @media-upload-add="onNewUpload"
+    />
+
+    <sw-media-replace
+        class="sw-media-modal-replace__upload"
+        :item-to-replace="itemToReplace"
+        :upload-tag="itemToReplace.id"
+        variant="regular"
+    />
+
+    <mt-banner
+        v-if="newFileExtension"
+        class="sw-media-modal-replace__file-extension-warning"
+        variant="attention"
+    >
+        {{ $tc('global.sw-media-modal-replace.warningFileExtension', { extension: newFileExtension }, 0) }}
+    </mt-banner>
+
+    {% block sw_media_modal_replace_modal_footer %}
+    <template #modal-footer>
+        {% block sw_media_modal_replace_cancel_button %}
+        <mt-button
+            size="small"
+            variant="secondary"
+            @click="emitCloseReplaceModal"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_media_modal_replace_replace_button %}
+        <mt-button
+            class="sw-media-replace__replace-media-action"
+            size="small"
+            variant="primary"
+            :disabled="!isUploadDataSet"
+            @click="replaceMediaItem"
+        >
+            {{ $tc('global.sw-media-modal-replace.buttonReplace') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

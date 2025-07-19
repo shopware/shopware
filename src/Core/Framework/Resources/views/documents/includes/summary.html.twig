@@ -30,7 +30,10 @@ All blocks of this template are available in the template which renders this tem
                             {% for calculatedTax in order.price.calculatedTaxes.sortByTax %}
                                 <tr>
                                     {% block document_sum_tax_label %}
-                                        <td class="align-right">{{ 'document.lineItems.tax'|trans({'%taxRate%': calculatedTax.taxRate})|sw_sanitize }}</td>
+                                        <td class="align-right">{{ (taxItem.label ? 'document.lineItems.taxLabeled' : 'document.lineItems.tax')|trans({
+                                                '%taxRate%': calculatedTax.taxRate,
+                                                '%label%': calculatedTax.label
+                                            })|sw_sanitize }}</td>
                                     {% endblock %}
                                     {% block document_sum_tax_rate %}
                                         <td class="align-right">{{ calculatedTax.tax|currency(currencyIsoCode, languageId) }}</td>

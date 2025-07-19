@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 final class ReturnNodeTokenParser extends AbstractTokenParser
 {
@@ -16,12 +19,12 @@ final class ReturnNodeTokenParser extends AbstractTokenParser
         $nodes = [];
 
         if (!$stream->test(Token::BLOCK_END_TYPE)) {
-            $nodes['expr'] = $this->parser->getExpressionParser()->parseExpression();
+            $nodes['expr'] = $this->parser->parseExpression();
         }
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        return new ReturnNode($nodes, [], $token->getLine(), $this->getTag());
+        return new ReturnNode($nodes, [], $token->getLine());
     }
 
     public function getTag(): string

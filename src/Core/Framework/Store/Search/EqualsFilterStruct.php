@@ -10,19 +10,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class EqualsFilterStruct extends FilterStruct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $field;
+    protected string $field;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $value;
+    protected string $value;
 
     public static function fromArray(array $data): FilterStruct
     {

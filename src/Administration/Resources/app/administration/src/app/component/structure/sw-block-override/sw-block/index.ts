@@ -2,7 +2,7 @@
  * @sw-package framework
  *
  */
-import { computed, onBeforeUnmount, provide, ref, type ComponentInternalInstance, type PropType, type Slot } from 'vue';
+import { computed, onBeforeUnmount, provide, ref, type ComponentInternalInstance, type Slot } from 'vue';
 import parentsInjectionKey from './parents-injection-key';
 import useBlockContext from '../../../../composables/use-block-context';
 
@@ -56,8 +56,7 @@ import useBlockContext from '../../../../composables/use-block-context';
  *     <div>Another block content extension</div>
  * </sw-block>
  */
-Shopware.Component.register('sw-block', {
-    compatConfig: Shopware.compatConfig,
+export default Shopware.Component.wrapComponentConfig({
     props: {
         name: {
             type: String,

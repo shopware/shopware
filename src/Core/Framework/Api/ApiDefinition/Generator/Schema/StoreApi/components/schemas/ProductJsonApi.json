@@ -1,0 +1,41 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ProductJsonApi": {
+                "allOf": [
+                    {
+                        "required": ["options"],
+                        "properties": {
+                            "options": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "group",
+                                        "option",
+                                        "translated"
+                                    ],
+                                    "properties": {
+                                        "group": { "type": "string" },
+                                        "option": { "type": "string" },
+                                        "translated": {
+                                            "type": "object",
+                                            "properties": {
+                                                "group": { "type": "string" },
+                                                "option": { "type": "string" }
+                                            },
+                                            "required": ["group", "option"]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

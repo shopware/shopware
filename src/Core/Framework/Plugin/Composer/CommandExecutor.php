@@ -5,11 +5,15 @@ namespace Shopware\Core\Framework\Plugin\Composer;
 use Composer\Console\Application;
 use Composer\InstalledVersions;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\PluginComposerRemoveException;
-use Shopware\Core\Framework\Plugin\Exception\PluginComposerRequireException;
+use Shopware\Core\Framework\Plugin\PluginException;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
+/**
+ * @codeCoverageIgnore
+ * Covered by PluginLifecycleService integration test. Due to the usage of composer, it is hard to properly unit test this class.
+ */
 #[Package('framework')]
 class CommandExecutor
 {
@@ -44,14 +48,14 @@ class CommandExecutor
 
         $this->unlockComposerPackage($lockState);
 
-        if ($exitCode === 0) {
+        if ($exitCode === Command::SUCCESS) {
             // Composer reverts the files, when the require command fails. We don't need a reset on an error case
             $this->resetOpcache();
 
             return;
         }
 
-        throw new PluginComposerRequireException($pluginName, $pluginComposerName, $output->fetch());
+        throw PluginException::pluginComposerRequire($pluginName, $pluginComposerName, $output->fetch());
     }
 
     public function remove(string $pluginComposerName, string $pluginName): void
@@ -69,14 +73,14 @@ class CommandExecutor
 
         $exitCode = $this->application->run($input, $output);
 
-        if ($exitCode === 0) {
+        if ($exitCode === Command::SUCCESS) {
             // Composer reverts the files, when the remove command fails. We don't need a reset on an error case
             $this->resetOpcache();
 
             return;
         }
 
-        throw new PluginComposerRemoveException($pluginName, $pluginComposerName, $output->fetch());
+        throw PluginException::pluginComposerRemove($pluginName, $pluginComposerName, $output->fetch());
     }
 
     /**
@@ -99,7 +103,23 @@ class CommandExecutor
 
         $before = $composerJson['require']['composer/composer'] ?? null;
 
-        $composerJson['require']['composer/composer'] = InstalledVersions::getVersion('composer/composer');
+        $installedComposerVersion = null;
+        $checkedComposerPaths = [];
+        // Make sure the correct composer.json is used to determine the version of `composer/composer`,
+        // as plugins could also ship composer autoloaders, which may interfere with the detection.
+        foreach (InstalledVersions::getAllRawData() as $composer) {
+            $checkedComposerPaths[$composer['root']['name']] = $composer['root']['install_path'];
+            if (str_starts_with($composer['root']['install_path'], $this->projectDir . '/vendor/composer')) {
+                $installedComposerVersion = $composer['versions']['composer/composer']['version'] ?? null;
+                break;
+            }
+        }
+
+        if ($installedComposerVersion === null) {
+            throw PluginException::couldNotDetectComposerVersion($checkedComposerPaths);
+        }
+
+        $composerJson['require']['composer/composer'] = $installedComposerVersion;
 
         file_put_contents($composerJsonPath, json_encode($composerJson, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES));
 

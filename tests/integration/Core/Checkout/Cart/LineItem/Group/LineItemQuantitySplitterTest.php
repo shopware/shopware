@@ -53,12 +53,12 @@ class LineItemQuantitySplitterTest extends TestCase
         if ($calcExpects <= 0) {
             static::assertEquals($lineItem, $newLineItem);
         } else {
-            $expectedPrice = 10 * $splitterQty;
+            $expectedPrice = 10.0 * $splitterQty;
 
-            static::assertNotEquals($lineItem, $newLineItem);
-            static::assertEquals($splitterQty, $newLineItem->getQuantity());
+            static::assertNotSame($lineItem, $newLineItem);
+            static::assertSame($splitterQty, $newLineItem->getQuantity());
             static::assertNotNull($newLineItem->getPrice());
-            static::assertEquals($expectedPrice, $newLineItem->getPrice()->getTotalPrice());
+            static::assertSame($expectedPrice, $newLineItem->getPrice()->getTotalPrice());
         }
     }
 
@@ -76,7 +76,7 @@ class LineItemQuantitySplitterTest extends TestCase
     {
         $qtyCalc = $this->createMock(QuantityPriceCalculator::class);
         $qtyCalc
-            ->expects(static::exactly($expects))
+            ->expects($this->exactly($expects))
             ->method('calculate')
             ->willReturnCallback(fn (QuantityPriceDefinition $definition, SalesChannelContext $context) => static::getContainer()->get(QuantityPriceCalculator::class)->calculate($definition, $context));
 

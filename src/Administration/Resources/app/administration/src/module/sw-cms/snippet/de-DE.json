@@ -9,7 +9,7 @@
       "deleteDisabledToolTip": "Das Layout ist noch mindestens einer Kategorie zugewiesen.",
       "deleteDisabledProductToolTip": "Das Layout ist noch mindestens einem Produkt zugewiesen.",
       "disabledAddingBlocksToolTip": "Blöcke können nur in der System-Standardsprache hinzugefügt werden.",
-      "buttonDelete": "Löschen"
+      "privacyNotice": "Ich habe die <a href=\"%privacyUrl%\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a href=\"%tosUrl%\">AGB</a> gelesen und bin mit ihnen einverstanden."
     },
     "sorting": {
       "labelSort": "Sortieren nach:",
@@ -216,10 +216,9 @@
             "horizontalAlignRight": "Rechts"
           },
           "helpText": {
-            "autoSlide": "Wegen mangelnder Barrierefreiheit temporär deaktiviert.",
             "autoplayTimeout": "Die Anzeigezeit eines einzelnen Bildes in Millisekunden.",
             "speed": "Die Dauer der Wechselanimation in Millisekunden.",
-            "displayMode": "<strong>Original:</strong> Das Bild wird in seiner ursprünglichen Auflösung erhalten oder auf die aktuelle Breite der CMS-Seite verkleinert.<br><br><strong>Skaliert:</strong> Das Bild wird ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert.<br><br><strong>Zugeschnitten:</strong> Das Bild wird auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte maximale Höhe zugeschnitten."
+            "displayMode": "<ul><li><strong>Original:</strong> Das Bild wird in seiner ursprünglichen Auflösung erhalten oder auf die aktuelle Breite der CMS-Seite verkleinert.</li><li><strong>Skaliert:</strong> Das Bild wird ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert.</li><li><strong>Zugeschnitten:</strong> Das Bild wird auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte maximale Höhe zugeschnitten.</li></ul>"
           },
           "caption": {
             "mediaUpload": "Lade ein Bild hoch"
@@ -230,6 +229,8 @@
             "options": "Optionen"
           },
           "infoText": {
+            "autoSlideTitle": "Bedenken hinsichtlich der Barrierefreiheit",
+            "autoSlide": "Das Aktivieren dieser Funktion kann dazu führen, dass Teile Deiner Storefront für Menschen mit Einschränkungen nicht zugänglich sind. Dies kann eine Nichteinhaltung der in Deiner Gerichtsbarkeit geltenden Barrierefreiheitsgesetze darstellen (z.B. des Europäischen Rechtsakts zur Barrierefreiheit). Mit dem Fortfahren erkennst Du dieses Risiko an und übernimmst die volle Verantwortung.",
             "listingElement": "Die Produktdaten für dieses Element werden automatisiert über die Kategoriezuweisung befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau."
           }
         },
@@ -246,7 +247,8 @@
           "label": {
             "minHeight": "Minimale Höhe",
             "minHeightHelpText": "Gib die Mindesthöhe in der gewünschten Einheit an. Zum Beispiel: 200px",
-            "isDecorative": "Bild als ausschließlich dekorativ kennzeichen",
+            "isDecorative": "Bilder als ausschließlich dekorativ kennzeichen",
+            "isDecorativeHelpText": "Wenn diese Option eingeschaltet wird, werden die Bildinformationen nicht von Screenreadern vorgelesen.",
             "linkNewTab": "Link in neuem Tab öffnen",
             "linkTo": "Linkziel"
           },
@@ -270,7 +272,7 @@
             "magnifierOverGalleryHelpText": "Zeige die Lupe über der Galerie, anstatt daneben an."
           },
           "helpText": {
-            "displayMode": "<strong>Original:</strong> Die Bilder werden in ihrer ursprünglichen Auflösung erhalten oder auf die Höhe des Sliders verkleinert.<br><br><strong>Feste Höhe:</strong> Die Bilder werden in ihrer ursprünglichen Auflösung erhalten oder auf die konfigurierte Höhe verkleinert.<br><br><strong>Zugeschnitten:</strong> Die Bilder werden auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte Höhe zugeschnitten."
+            "displayMode": "<ul><li><strong>Original:</strong> Die Bilder werden in ihrer ursprünglichen Auflösung erhalten oder auf die Höhe des Sliders verkleinert.</li><li><strong>Feste Höhe:</strong> Die Bilder werden in ihrer ursprünglichen Auflösung erhalten oder auf die konfigurierte Höhe verkleinert.</li><li><strong>Zugeschnitten:</strong> Die Bilder werden auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte Höhe zugeschnitten.</li></ul>"
           }
         }
       },
@@ -285,7 +287,7 @@
             "navigationDots": "Punkt-Navigation"
           },
           "helpText": {
-            "displayMode": "<strong>Original:</strong> Die Bilder werden ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert. Der Slider passt seine Höhe dynamisch an.<br><br><strong>Feste Höhe:</strong> Die Bilder werden ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert. Der Slider behält die Höhe des höchsten Bildes bei.<br><br><strong>Zugeschnitten:</strong> Die Bilder werden auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte Höhe zugeschnitten."
+            "displayMode": "<ul><li><strong>Original:</strong> Die Bilder werden ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert. Der Slider passt seine Höhe dynamisch an.</li><li><strong>Feste Höhe:</strong> Die Bilder werden ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert. Der Slider behält die Höhe des höchsten Bildes bei.</li><li><strong>Zugeschnitten:</strong> Die Bilder werden auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte Höhe zugeschnitten.</li></ul>"
           }
         }
       },
@@ -305,7 +307,12 @@
             "layoutType": "Layout-Typ",
             "layoutTypeStandard": "Standard",
             "layoutTypeImage": "Großes Bild",
-            "layoutTypeMinimal": "Minimaler Inhalt"
+            "layoutTypeMinimal": "Minimaler Inhalt",
+            "headlineLevel": "Überschrift-Ebene für Produkt-Boxen",
+            "headlineLevelHelp": "Wähle eine Überschrift-Ebene für die Produkt-Box Titel in diesem Produkt-Listing. Wenn \"Keine Überschrift\" ausgewählt wird, wird keine Überschrift-Ebene angewendet.",
+            "headlineLevelOption": "Überschrift {level}",
+            "headlineLevelDefaultOption": "Überschrift 2 (empfohlener Standard)",
+            "headlineLevelEmptyOption": "Keine Überschrift (nicht empfohlen)"
           },
           "placeholder": {
             "selection": "Wähle ein Produkt ..."
@@ -381,7 +388,7 @@
           },
           "helpText": {
             "minWidth": "Gib die minimale Breite in der gewünschten Einheit an. Zum Beispiel: 200px",
-            "displayMode": "<strong>Original:</strong> Die Bilder werden auf Höhe oder Breite der Produktbox skaliert, so dass die Bilder immer komplett in den für sie vorgesehenen Bereich passen. Die Bilder werden nie hochskaliert.<br><br><strong>Feste Höhe:</strong> Die Bilder werden auf Höhe oder Breite der Produktbox skaliert, so dass die Bilder immer komplett in den für sie vorgesehenen Bereich passen. Die Bilder können hochskaliert werden.<br><br><strong>Zugeschnitten:</strong> Die Bilder werden auf die Höhe oder Breite der Produktbox skaliert. Jeglicher Überlauf wird entsprechend zugeschnitten."
+            "displayMode": "<ul><li><strong>Original:</strong> Die Bilder werden auf Höhe oder Breite der Produktbox skaliert, so dass die Bilder immer komplett in den für sie vorgesehenen Bereich passen. Die Bilder werden nie hochskaliert.</li><li><strong>Feste Höhe:</strong> Die Bilder werden auf Höhe oder Breite der Produktbox skaliert, so dass die Bilder immer komplett in den für sie vorgesehenen Bereich passen. Die Bilder können hochskaliert werden.</li><li><strong>Zugeschnitten:</strong> Die Bilder werden auf die Höhe oder Breite der Produktbox skaliert. Jeglicher Überlauf wird entsprechend zugeschnitten.</li></ul>"
           },
           "productAssignmentTypeOptions": {
             "manual": "Manuelle Zuweisung",
@@ -390,8 +397,8 @@
           "productStreamSortingOptions": {
             "nameAsc": "Name aufsteigend",
             "nameDesc": "Name absteigend",
-            "priceAsc": "Price aufsteigend",
-            "priceDesc": "Price absteigend",
+            "priceAsc": "Preis aufsteigend",
+            "priceDesc": "Preis absteigend",
             "creationDateAsc": "Erstellungsdatum aufsteigend",
             "creationDateDesc": "Erstellungsdatum absteigend",
             "releaseDateAsc": "Erscheinungsdatum aufsteigend",
@@ -491,7 +498,6 @@
             "privacy": "Datenschutz*",
             "salutation": "Anrede*",
             "salutationUndisclosed": "Keine Angabe",
-            "send": "Senden",
             "subject": "Betreff*",
             "subscribeToNewsletter": "Newsletter abonnieren"
           },
@@ -504,8 +510,7 @@
             "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
           },
           "helpText": {
-            "privacy": "Ich habe die Datenschutzinformationen gelesen.",
-            "requiredFields": "Felder, die mit * markiert sind, werden benötigt"
+            "requiredFields": "Die mit einem Stern (*) markierten Felder sind Pflichtfelder."
           },
           "newsletter": {
             "label": {
@@ -806,6 +811,7 @@
         "rename": "Umbenennen",
         "delete": "Löschen",
         "duplicate": "Duplizieren",
+        "view": "Vorschau",
         "addPreviewImage": "Vorschau hinzufügen",
         "setAsDefaultProductList": "Als Standard für Kategorieseiten festlegen",
         "setAsDefaultProductDetail": "Als Standard für Produkseiten festlegen",

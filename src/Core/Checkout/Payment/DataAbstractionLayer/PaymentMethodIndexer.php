@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Payment\DataAbstractionLayer;
 
 use Shopware\Core\Checkout\Payment\Event\PaymentMethodIndexerEvent;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -20,6 +21,8 @@ class PaymentMethodIndexer extends EntityIndexer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,

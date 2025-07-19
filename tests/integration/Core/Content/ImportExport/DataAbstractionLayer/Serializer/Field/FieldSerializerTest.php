@@ -53,6 +53,13 @@ class FieldSerializerTest extends TestCase
         $delivery = new OrderDeliveryEntity();
         $deliveryId = Uuid::randomHex();
         $delivery->setId($deliveryId);
+        $delivery->setOrderId('order-id');
+        $delivery->setOrderVersionId('order-version-id');
+        $delivery->setShippingMethodId('shipping-method-id');
+        $delivery->setShippingOrderAddressId('shipping-order-address-id');
+        $delivery->setShippingOrderAddressVersionId('shipping-order-address-version-id');
+        $delivery->setTrackingCodes([]);
+        $delivery->setStateId('state-id');
 
         $result = \iterator_to_array($fieldSerializer->serialize($config, $field, new OrderDeliveryCollection([$delivery])));
         static::assertSame([
@@ -60,14 +67,13 @@ class FieldSerializerTest extends TestCase
                 '_uniqueIdentifier' => $deliveryId,
                 'versionId' => null,
                 'translated' => [],
-                'orderId' => null,
-                'orderVersionId' => null,
-                'shippingOrderAddressId' => null,
-                'shippingOrderAddressVersionId' => null,
-                'shippingMethodId' => null,
-                'trackingCodes' => null,
-                'shippingCosts' => null,
-                'stateId' => null,
+                'orderId' => 'order-id',
+                'orderVersionId' => 'order-version-id',
+                'shippingOrderAddressId' => 'shipping-order-address-id',
+                'shippingOrderAddressVersionId' => 'shipping-order-address-version-id',
+                'shippingMethodId' => 'shipping-method-id',
+                'trackingCodes' => '[]',
+                'stateId' => 'state-id',
                 'customFields' => null,
                 'id' => $deliveryId,
             ],

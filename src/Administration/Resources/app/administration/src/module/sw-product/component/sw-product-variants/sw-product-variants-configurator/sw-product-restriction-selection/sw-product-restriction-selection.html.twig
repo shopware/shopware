@@ -10,18 +10,11 @@
         {% block sw_product_restriction_selection_select_group_wrapper %}
         <div class="sw-product-restriction-selection__select-group-wrapper">
             {% block sw_product_restriction_selection_select_group %}
-            <sw-select-field
-                v-model:value="selectedGroup"
+            <mt-select
+                v-model="selectedGroup"
                 class="sw-product-restriction-selection__select-group"
-            >
-                <option
-                    v-for="item in availableGroups"
-                    :key="item.id"
-                    :value="item.group.id"
-                >
-                    {{ item.group.translated.name }}
-                </option>
-            </sw-select-field>
+                :options="availableGroupsOptions"
+            />
             {% endblock %}
 
             {% block sw_product_restriction_selection_is_from %}

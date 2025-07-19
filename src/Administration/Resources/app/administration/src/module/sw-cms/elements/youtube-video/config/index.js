@@ -10,8 +10,6 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     emits: ['element-update'],
@@ -60,6 +58,21 @@ export default {
             }
 
             return this.element.config.previewMedia.value;
+        },
+
+        displayModeOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'standard',
+                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStandard'),
+                },
+                {
+                    id: 2,
+                    value: 'streched',
+                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStretch'),
+                },
+            ];
         },
     },
 
@@ -135,17 +148,23 @@ export default {
              *
              * urlLink is the link of the YouTube video from the searchbar. e.g. https://www.youtube.com/watch?v=bG57TZPYsyw
              */
-            const url = new URL(link);
 
-            switch (url.hostname) {
-                case 'www.youtu.be':
-                case 'youtu.be':
-                    return url.pathname.substring(1);
-                case 'www.youtube.com':
-                case 'youtube.com':
-                    return url.searchParams.get('v');
-                default:
-                    return link;
+            try {
+                const url = new URL(link);
+
+                switch (url.hostname) {
+                    case 'www.youtu.be':
+                    case 'youtu.be':
+                        return url.pathname.substring(1);
+                    case 'www.youtube.com':
+                    case 'youtube.com':
+                        return url.searchParams.get('v');
+                    default:
+                        return link;
+                }
+            } catch (error) {
+                // If URL construction fails, assume it's already a video ID
+                return link;
             }
         },
 
@@ -181,13 +200,8 @@ export default {
         },
 
         updateElementData(media = null) {
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.element.data, 'previewMediaId', media === null ? null : media.id);
-                this.$set(this.element.data, 'previewMedia', media);
-            } else {
-                this.element.data.previewMediaId = media === null ? null : media.id;
-                this.element.data.previewMedia = media;
-            }
+            this.element.data.previewMediaId = media === null ? null : media.id;
+            this.element.data.previewMedia = media;
         },
 
         onOpenMediaModal() {

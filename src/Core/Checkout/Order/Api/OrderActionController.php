@@ -89,7 +89,7 @@ class OrderActionController extends AbstractController
         $mediaIds = $request->request->all('mediaIds');
 
         $context->addExtension(
-            MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION,
+            SendMailAction::MAIL_CONFIG_EXTENSION,
             new MailSendSubscriberConfig(
                 $request->request->get('sendMail', true) === false,
                 $documentIds,
@@ -125,7 +125,7 @@ class OrderActionController extends AbstractController
         $mediaIds = $request->request->all('mediaIds');
 
         $context->addExtension(
-            MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION,
+            SendMailAction::MAIL_CONFIG_EXTENSION,
             new MailSendSubscriberConfig(
                 $request->request->get('sendMail', true) === false,
                 $documentIds,

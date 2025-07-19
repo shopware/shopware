@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -35,7 +34,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 trait StorefrontPageTestBehaviour
 {
@@ -172,7 +171,12 @@ trait StorefrontPageTestBehaviour
             'shippingMethods' => [['id' => $shippingMethodId]],
             'countries' => [['id' => $countryId]],
             'domains' => [
-                ['url' => 'http://test.com/' . Uuid::randomHex(), 'currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM, 'snippetSetId' => $snippetSetId],
+                [
+                    'url' => 'http://test.com/' . Uuid::randomHex(),
+                    'currencyId' => Defaults::CURRENCY,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'snippetSetId' => $snippetSetId,
+                ],
             ],
         ];
 
@@ -206,7 +210,12 @@ trait StorefrontPageTestBehaviour
             'shippingMethods' => [['id' => $shippingMethodId]],
             'countries' => [['id' => $countryId]],
             'domains' => [
-                ['url' => 'http://test.com/' . Uuid::randomHex(), 'currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM, 'snippetSetId' => $snippetSetId],
+                [
+                    'url' => 'http://test.com/' . Uuid::randomHex(),
+                    'currencyId' => Defaults::CURRENCY,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'snippetSetId' => $snippetSetId,
+                ],
             ],
         ];
 
@@ -246,7 +255,12 @@ trait StorefrontPageTestBehaviour
             'shippingMethods' => [['id' => $shippingMethodId]],
             'countries' => [['id' => $countryId]],
             'domains' => [
-                ['url' => 'http://test.com/' . Uuid::randomHex(), 'currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM, 'snippetSetId' => $snippetSetId],
+                [
+                    'url' => 'http://test.com/' . Uuid::randomHex(),
+                    'currencyId' => Defaults::CURRENCY,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'snippetSetId' => $snippetSetId,
+                ],
             ],
         ];
 
@@ -299,10 +313,6 @@ trait StorefrontPageTestBehaviour
             'salutationId' => $this->getValidSalutationId(),
             'customerNumber' => '12345',
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         /** @var EntityRepository<CustomerCollection> $repo */
         $repo = static::getContainer()->get('customer.repository');

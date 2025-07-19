@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Test\Stub\Doctrine;
 
-use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
@@ -29,17 +28,11 @@ class FakeQueryBuilder extends QueryBuilder
 
     public function execute(): Result|int|string
     {
-        return new Result(
-            new ArrayResult($this->dbRows),
-            $this->connection
-        );
+        return FakeResultFactory::createResult($this->dbRows, $this->connection);
     }
 
     public function executeQuery(): Result
     {
-        return new Result(
-            new ArrayResult($this->dbRows),
-            $this->connection
-        );
+        return FakeResultFactory::createResult($this->dbRows, $this->connection);
     }
 }

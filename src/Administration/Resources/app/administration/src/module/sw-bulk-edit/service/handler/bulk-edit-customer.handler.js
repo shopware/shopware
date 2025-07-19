@@ -41,7 +41,7 @@ class BulkEditCustomerHandler extends BulkEditBaseHandler {
 
     async bulkEditRequestedGroup(entityIds, payload) {
         const promises = [];
-        const shouldTriggerFlows = Shopware.State.get('swBulkEdit').isFlowTriggered;
+        const shouldTriggerFlows = Shopware.Store.get('swBulkEdit').isFlowTriggered;
 
         payload.forEach((change) => {
             if (!change.value) {

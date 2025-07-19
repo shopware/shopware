@@ -26,7 +26,7 @@ class UsageDataApprovalSubscriberTest extends TestCase
     public function testItStartsDataSyncWhenApprovalWasGiven(): void
     {
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
-        $entityDispatchService->expects(static::once())
+        $entityDispatchService->expects($this->once())
             ->method('dispatchCollectEntityDataMessage');
 
         (new UsageDataApprovalSubscriber($entityDispatchService))->onDataUsageApprovalChange(
@@ -41,7 +41,7 @@ class UsageDataApprovalSubscriberTest extends TestCase
     public function testItDoesNotDispatchCollectionMessageWhenConfigKeyIsNotCorrect(): void
     {
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
-        $entityDispatchService->expects(static::never())
+        $entityDispatchService->expects($this->never())
             ->method('dispatchCollectEntityDataMessage');
 
         (new UsageDataApprovalSubscriber($entityDispatchService))->onDataUsageApprovalChange(
@@ -56,7 +56,7 @@ class UsageDataApprovalSubscriberTest extends TestCase
     public function testItDoesNotDispatchCollectionMessageWhenApprovalWasNotGiven(): void
     {
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
-        $entityDispatchService->expects(static::never())
+        $entityDispatchService->expects($this->never())
             ->method('dispatchCollectEntityDataMessage');
 
         (new UsageDataApprovalSubscriber($entityDispatchService))->onDataUsageApprovalChange(

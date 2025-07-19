@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     emits: ['element-update'],
@@ -50,6 +48,46 @@ export default {
         isProductPageType() {
             return this.cmsPageState?.currentPage?.type === 'product_detail';
         },
+
+        boxLayoutOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'standard',
+                    label: this.$tc('sw-cms.elements.productBox.config.label.layoutTypeStandard'),
+                },
+                {
+                    id: 2,
+                    value: 'image',
+                    label: this.$tc('sw-cms.elements.productBox.config.label.layoutTypeImage'),
+                },
+                {
+                    id: 3,
+                    value: 'minimal',
+                    label: this.$tc('sw-cms.elements.productBox.config.label.layoutTypeMinimal'),
+                },
+            ];
+        },
+
+        displayModeOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'standard',
+                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStandard'),
+                },
+                {
+                    id: 2,
+                    value: 'cover',
+                    label: this.$tc('sw-cms.elements.general.config.label.displayModeCover'),
+                },
+                {
+                    id: 3,
+                    value: 'contain',
+                    label: this.$tc('sw-cms.elements.general.config.label.displayModeContain'),
+                },
+            ];
+        },
     },
 
     created() {
@@ -79,21 +117,13 @@ export default {
             );
             this.element.config.product.value = productId;
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.element.data, 'product', product);
-            } else {
-                this.element.data.product = product;
-            }
+            this.element.data.product = product;
         },
 
         deleteProduct() {
             this.element.config.product.value = null;
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.element.data, 'product', null);
-            } else {
-                this.element.data.product = null;
-            }
+            this.element.data.product = null;
         },
     },
 };

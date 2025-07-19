@@ -123,7 +123,6 @@ ADD `registration_seo_meta_description` longtext NULL AFTER `registration_only_c
 
     private function fetchLanguageId(string $code, Connection $connection): ?string
     {
-        /** @var string|null $langId */
         $langId = $connection->fetchOne('
         SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`locale_id` = `locale`.`id` WHERE `code` = :code LIMIT 1
         ', ['code' => $code]);

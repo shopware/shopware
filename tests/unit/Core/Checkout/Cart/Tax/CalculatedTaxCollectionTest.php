@@ -6,15 +6,15 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(CalculatedTaxCollection::class)]
+#[Package('checkout')]
 class CalculatedTaxCollectionTest extends TestCase
 {
-    final public const DUMMY_TAX_NAME = 'dummy-tax';
-
     public function testCollectionIsCountable(): void
     {
         $collection = new CalculatedTaxCollection();

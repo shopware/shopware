@@ -2,41 +2,26 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
-use Composer\EventDispatcher\EventSubscriberInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
 use Twig\Extension\CoreExtension;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - This event listener will be internal
+ * @internal
  */
 #[Package('framework')]
-class TwigDateRequestListener implements EventSubscriberInterface
+class TwigDateRequestListener
 {
     final public const TIMEZONE_COOKIE = 'timezone';
 
-    /**
-     * @internal
-     */
     public function __construct(private readonly ContainerInterface $container)
     {
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - return type will be array
-     *
-     * @return array<string, string>
-     */
-    public static function getSubscribedEvents()
-    {
-        return [KernelEvents::REQUEST => 'onKernelRequest'];
-    }
-
-    public function onKernelRequest(RequestEvent $event): void
+    public function __invoke(RequestEvent $event): void
     {
         $request = $event->getRequest();
 
@@ -57,7 +42,6 @@ class TwigDateRequestListener implements EventSubscriberInterface
             return;
         }
 
-        /** @var CoreExtension $coreExtension */
         $coreExtension = $twig->getExtension(CoreExtension::class);
         $coreExtension->setTimezone($timezone);
     }

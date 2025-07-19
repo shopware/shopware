@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
@@ -27,7 +28,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\String\Inflector\EnglishInflector;
@@ -96,11 +96,14 @@ class DefinitionValidator
         'elasticsearch_index_task',
         'increment',
         'messenger_messages',
+        'messenger_stats',
         'payment_token',
         'refresh_token',
         'usage_data_entity_deletion',
         'one_time_tasks',
         'invalidation_tags',
+        'subscription_cart',
+        'theme_runtime_config',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [
@@ -231,21 +234,6 @@ class DefinitionValidator
     }
 
     /**
-     * @deprecated tag:v6.7.0 - Will be removed without replacement, as it has no purpose
-     *
-     * @return array{}
-     */
-    public function getNotices(): array
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0')
-        );
-
-        return [];
-    }
-
-    /**
      * @param list<Table> $tables
      *
      * @return array<class-string<DefinitionInstanceRegistry>, list<string>>
@@ -292,9 +280,7 @@ class DefinitionValidator
 
             if ($property->getDocComment()
                 && (str_contains($property->getDocComment(), '@internal')
-                    || str_contains($property->getDocComment(), '@deprecated')
-                    /** @deprecated tag:v6.7.0 check can be removed if everything is natively typed, otherwise this would skip a lot of properties */
-                    && !str_contains($property->getDocComment(), 'natively typed'))
+                    || str_contains($property->getDocComment(), '@deprecated'))
             ) {
                 continue;
             }
@@ -361,7 +347,7 @@ class DefinitionValidator
             if ($field instanceof BoolField) {
                 $getterMethods[] = 'is' . $propertyName;
                 $getterMethods[] = 'has' . $propertyName;
-                $getterMethods[] = 'has' . (string) preg_replace('/^has/', '', $propertyName);
+                $getterMethods[] = 'has' . preg_replace('/^has/', '', $propertyName);
             }
 
             $hasGetter = false;
@@ -382,7 +368,7 @@ class DefinitionValidator
                 $functionViolations[] = \sprintf('No getter function for property %s in %s', $propertyName, $struct);
             }
 
-            if (!$field->is(Runtime::class) && !$reflection->hasMethod($setter)) {
+            if (!$field->isAny([Runtime::class, Computed::class]) && !$reflection->hasMethod($setter)) {
                 $functionViolations[] = \sprintf('No setter function for property %s in %s', $propertyName, $struct);
             }
         }

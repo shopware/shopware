@@ -9,26 +9,11 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class QuantityInformation extends Struct
 {
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $minPurchase = 1;
+    protected int $minPurchase = 1;
 
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $maxPurchase;
+    protected ?int $maxPurchase = null;
 
-    /**
-     * @var int|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $purchaseSteps = 1;
+    protected ?int $purchaseSteps = 1;
 
     public function getMinPurchase(): int
     {

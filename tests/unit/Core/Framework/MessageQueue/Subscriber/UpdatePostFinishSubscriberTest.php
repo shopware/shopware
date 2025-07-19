@@ -22,13 +22,13 @@ class UpdatePostFinishSubscriberTest extends TestCase
 
         static::assertCount(1, $events);
         static::assertArrayHasKey(UpdatePostFinishEvent::class, $events);
-        static::assertEquals('updatePostFinishEvent', $events[UpdatePostFinishEvent::class]);
+        static::assertSame('updatePostFinishEvent', $events[UpdatePostFinishEvent::class]);
     }
 
     public function testUpdatePostFinishEvent(): void
     {
         $registry = $this->createMock(TaskRegistry::class);
-        $registry->expects(static::once())->method('registerTasks');
+        $registry->expects($this->once())->method('registerTasks');
 
         (new UpdatePostFinishSubscriber($registry))->updatePostFinishEvent();
     }

@@ -58,9 +58,6 @@ class FlowBuilder
         return $items;
     }
 
-    /**
-     * @param ArrayStruct<string, mixed> $flatBag
-     */
     private function createNestedSequence(array $sequence, array $siblings, ArrayStruct $flatBag): Sequence
     {
         if ($sequence['action_name'] !== null) {
@@ -74,9 +71,6 @@ class FlowBuilder
         return $object;
     }
 
-    /**
-     * @param ArrayStruct<string, mixed> $flagBag
-     */
     private function createNestedAction(array $currentSequence, array $siblingSequences, ArrayStruct $flagBag): Sequence
     {
         $config = $currentSequence['config'] ? json_decode((string) $currentSequence['config'], true, 512, \JSON_THROW_ON_ERROR) : [];
@@ -117,9 +111,6 @@ class FlowBuilder
         );
     }
 
-    /**
-     * @param ArrayStruct<string, mixed> $flagBag
-     */
     private function createNestedIf(array $currentSequence, ArrayStruct $flagBag): Sequence
     {
         $sequenceChildren = $currentSequence['children'];

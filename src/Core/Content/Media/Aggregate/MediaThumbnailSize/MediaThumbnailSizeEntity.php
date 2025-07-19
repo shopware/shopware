@@ -15,25 +15,16 @@ class MediaThumbnailSizeEntity extends Entity
     use EntityIdTrait;
 
     /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
      * @var int<1, max>
      */
-    protected $width;
+    protected int $width;
 
     /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
      * @var int<1, max>
      */
-    protected $height;
+    protected int $height;
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     *
-     * @var MediaFolderConfigurationCollection|null
-     */
-    protected $mediaFolderConfigurations;
+    protected ?MediaFolderConfigurationCollection $mediaFolderConfigurations = null;
 
     /**
      * @return int<1, max>

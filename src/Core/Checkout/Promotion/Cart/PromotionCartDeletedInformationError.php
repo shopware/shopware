@@ -11,16 +11,16 @@ class PromotionCartDeletedInformationError extends Error
 {
     private const KEY = 'promotion-discount-deleted';
 
-    private string $name;
+    protected string $name;
 
-    private readonly string $discountLineItemId;
+    protected readonly string $discountLineItemId;
 
     public function __construct(LineItem $discountLineItem)
     {
-        $this->name = $discountLineItem->getLabel();
+        $this->name = $discountLineItem->getLabel() ?? '';
         $this->discountLineItemId = $discountLineItem->getId();
         $this->message = \sprintf(
-            'Discount %s has been added',
+            'Promotion %s has been deleted',
             $this->name
         );
         parent::__construct($this->message);

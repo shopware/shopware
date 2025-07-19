@@ -93,7 +93,6 @@ class EntityHydratorTest extends TestCase
         $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
         static::assertCount(1, $structs);
 
-        /** @var ArrayEntity|null $first */
         $first = $structs->first();
 
         static::assertInstanceOf(ArrayEntity::class, $first);
@@ -104,7 +103,6 @@ class EntityHydratorTest extends TestCase
         static::assertSame(Uuid::fromBytesToHex($normal), $first->get('normalFk'));
 
         static::assertTrue($first->hasExtension(EntityReader::FOREIGN_KEYS));
-        /** @var ArrayStruct<string, mixed>|null $foreignKeys */
         $foreignKeys = $first->getExtension(EntityReader::FOREIGN_KEYS);
 
         static::assertInstanceOf(ArrayStruct::class, $foreignKeys);
@@ -134,8 +132,6 @@ class EntityHydratorTest extends TestCase
         $structs = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
         static::assertCount(1, $structs);
 
-        static::assertEquals(1, $structs->count());
-
         $first = $structs->first();
         static::assertNotNull($first);
         static::assertSame('0', $first->get('name'));
@@ -159,7 +155,6 @@ class EntityHydratorTest extends TestCase
         $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
         static::assertCount(1, $structs);
 
-        static::assertEquals(1, $structs->count());
         $first = $structs->first();
         static::assertNotNull($first);
         $customFields = $first->get('customFields');
@@ -388,7 +383,7 @@ class EntityHydratorTest extends TestCase
         static::assertNotNull($first);
         $country = $first->get('zipcode')->get('country');
         static::assertInstanceOf(ArrayEntity::class, $country);
-        static::assertEquals(Uuid::fromBytesToHex($countryId), $country->get('id'));
+        static::assertSame(Uuid::fromBytesToHex($countryId), $country->get('id'));
         static::assertArrayHasKey('zipcode', $first->get('warehouse')->all());
         static::assertNull($first->get('warehouse')->all()['zipcode']);
 
@@ -415,7 +410,7 @@ class EntityHydratorTest extends TestCase
         $structsWithoutToManyHydration = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, [$rowWithoutToManyHydration], 'test', $context);
         $first = $structsWithoutToManyHydration->first();
         static::assertNotNull($first);
-        static::assertEquals(Uuid::fromBytesToHex($id), $first->getId());
+        static::assertSame(Uuid::fromBytesToHex($id), $first->getId());
         static::assertArrayHasKey('toMany', $first->all());
         static::assertNull($first->all()['toMany']);
     }

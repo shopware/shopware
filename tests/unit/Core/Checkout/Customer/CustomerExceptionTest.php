@@ -6,6 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -18,7 +21,6 @@ class CustomerExceptionTest extends TestCase
     public function testCustomerGroupNotFound(): void
     {
         $exception = CustomerException::customerGroupNotFound('id-1');
-
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_GROUP_NOT_FOUND, $exception->getErrorCode());
         static::assertSame('Could not find customer group with id "id-1"', $exception->getMessage());
@@ -28,7 +30,6 @@ class CustomerExceptionTest extends TestCase
     public function testGroupRequestNotFound(): void
     {
         $exception = CustomerException::groupRequestNotFound('id-1');
-
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_GROUP_REQUEST_NOT_FOUND, $exception->getErrorCode());
         static::assertSame('Group request for customer "id-1" is not found', $exception->getMessage());
@@ -38,7 +39,6 @@ class CustomerExceptionTest extends TestCase
     public function testCustomersNotFound(): void
     {
         $exception = CustomerException::customersNotFound(['id-1', 'id-2']);
-
         static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMERS_NOT_FOUND, $exception->getErrorCode());
         static::assertSame('These customers "id-1, id-2" are not found', $exception->getMessage());
@@ -48,7 +48,6 @@ class CustomerExceptionTest extends TestCase
     public function testCustomerNotLoggedIn(): void
     {
         $exception = CustomerException::customerNotLoggedIn();
-
         static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_NOT_LOGGED_IN, $exception->getErrorCode());
         static::assertSame('Customer is not logged in.', $exception->getMessage());
@@ -58,7 +57,6 @@ class CustomerExceptionTest extends TestCase
     public function testDownloadFileNotFound(): void
     {
         $exception = CustomerException::downloadFileNotFound('id-1');
-
         static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
         static::assertSame(CustomerException::LINE_ITEM_DOWNLOAD_FILE_NOT_FOUND, $exception->getErrorCode());
         static::assertSame('Line item download file with id "id-1" not found.', $exception->getMessage());
@@ -68,7 +66,6 @@ class CustomerExceptionTest extends TestCase
     public function testCustomerIdsParameterIsMissing(): void
     {
         $exception = CustomerException::customerIdsParameterIsMissing();
-
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_IDS_PARAMETER_IS_MISSING, $exception->getErrorCode());
         static::assertSame('Parameter "customerIds" is missing.', $exception->getMessage());
@@ -78,7 +75,6 @@ class CustomerExceptionTest extends TestCase
     public function testUnknownPaymentMethod(): void
     {
         $exception = CustomerException::unknownPaymentMethod('id-1');
-
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_CHANGE_PAYMENT_ERROR, $exception->getErrorCode());
         static::assertSame('Change Payment to method id-1 not possible.', $exception->getMessage());
@@ -88,7 +84,6 @@ class CustomerExceptionTest extends TestCase
     public function testProductIdsParameterIsMissing(): void
     {
         $exception = CustomerException::productIdsParameterIsMissing();
-
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(CustomerException::PRODUCT_IDS_PARAMETER_IS_MISSING, $exception->getErrorCode());
         static::assertSame('Parameter "productIds" is missing.', $exception->getMessage());
@@ -98,7 +93,6 @@ class CustomerExceptionTest extends TestCase
     public function testAddressNotFound(): void
     {
         $exception = CustomerException::addressNotFound('id-1');
-
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_ADDRESS_NOT_FOUND, $exception->getErrorCode());
         static::assertSame('Customer address with id "id-1" not found.', $exception->getMessage());
@@ -108,7 +102,6 @@ class CustomerExceptionTest extends TestCase
     public function testBadCredentials(): void
     {
         $exception = CustomerException::badCredentials();
-
         static::assertSame(Response::HTTP_UNAUTHORIZED, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_AUTH_BAD_CREDENTIALS, $exception->getErrorCode());
         static::assertSame('Invalid username and/or password.', $exception->getMessage());
@@ -118,7 +111,6 @@ class CustomerExceptionTest extends TestCase
     public function testCannotDeleteActiveAddress(): void
     {
         $exception = CustomerException::cannotDeleteActiveAddress('id-1');
-
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_ADDRESS_IS_ACTIVE, $exception->getErrorCode());
         static::assertSame('Customer address with id "id-1" is an active address and cannot be deleted.', $exception->getMessage());
@@ -128,7 +120,6 @@ class CustomerExceptionTest extends TestCase
     public function testCannotDeleteDefaultAddress(): void
     {
         $exception = CustomerException::cannotDeleteDefaultAddress('id-1');
-
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_ADDRESS_IS_DEFAULT, $exception->getErrorCode());
         static::assertSame('Customer address with id "id-1" is a default address and cannot be deleted.', $exception->getMessage());
@@ -138,7 +129,6 @@ class CustomerExceptionTest extends TestCase
     public function testCustomerAlreadyConfirmed(): void
     {
         $exception = CustomerException::customerAlreadyConfirmed('id-1');
-
         static::assertSame(Response::HTTP_PRECONDITION_FAILED, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_IS_ALREADY_CONFIRMED, $exception->getErrorCode());
         static::assertSame('The customer with the id "id-1" is already confirmed.', $exception->getMessage());
@@ -148,7 +138,6 @@ class CustomerExceptionTest extends TestCase
     public function testCustomerGroupRegistrationConfigurationNotFound(): void
     {
         $exception = CustomerException::customerGroupRegistrationConfigurationNotFound('id-1');
-
         static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_GROUP_REGISTRATION_NOT_FOUND, $exception->getErrorCode());
         static::assertSame('Customer group registration for id id-1 not found.', $exception->getMessage());
@@ -158,7 +147,6 @@ class CustomerExceptionTest extends TestCase
     public function testCustomerNotFoundByHash(): void
     {
         $exception = CustomerException::customerNotFoundByHash('e9c8985e0b0f8ec20a16ac9ffd0m');
-
         static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_NOT_FOUND_BY_HASH, $exception->getErrorCode());
         static::assertSame('No matching customer for the hash "e9c8985e0b0f8ec20a16ac9ffd0m" was found.', $exception->getMessage());
@@ -168,7 +156,6 @@ class CustomerExceptionTest extends TestCase
     public function testCustomerNotFoundByIdException(): void
     {
         $exception = CustomerException::customerNotFoundByIdException('id-1');
-
         static::assertSame(Response::HTTP_UNAUTHORIZED, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_NOT_FOUND_BY_ID, $exception->getErrorCode());
         static::assertSame('No matching customer for the id "id-1" was found.', $exception->getMessage());
@@ -178,7 +165,6 @@ class CustomerExceptionTest extends TestCase
     public function testCustomerNotFound(): void
     {
         $exception = CustomerException::customerNotFound('abc@com');
-
         static::assertSame(Response::HTTP_UNAUTHORIZED, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_NOT_FOUND, $exception->getErrorCode());
         static::assertSame('No matching customer for the email "abc@com" was found.', $exception->getMessage());
@@ -188,7 +174,6 @@ class CustomerExceptionTest extends TestCase
     public function testCustomerRecoveryHashExpired(): void
     {
         $exception = CustomerException::customerRecoveryHashExpired('e9c8985e0b0f8ec20a16ac9ffd0m');
-
         static::assertSame(Response::HTTP_GONE, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_RECOVERY_HASH_EXPIRED, $exception->getErrorCode());
         static::assertSame('The hash "e9c8985e0b0f8ec20a16ac9ffd0m" is expired.', $exception->getMessage());
@@ -198,7 +183,6 @@ class CustomerExceptionTest extends TestCase
     public function testCustomerWishlistNotActivated(): void
     {
         $exception = CustomerException::customerWishlistNotActivated();
-
         static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
         static::assertSame(CustomerException::WISHLIST_IS_NOT_ACTIVATED, $exception->getErrorCode());
         static::assertSame('Wishlist is not activated!', $exception->getMessage());
@@ -208,7 +192,6 @@ class CustomerExceptionTest extends TestCase
     public function testCustomerWishlistNotFound(): void
     {
         $exception = CustomerException::customerWishlistNotFound();
-
         static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
         static::assertSame(CustomerException::WISHLIST_NOT_FOUND, $exception->getErrorCode());
         static::assertSame('Wishlist for this customer was not found.', $exception->getMessage());
@@ -218,7 +201,6 @@ class CustomerExceptionTest extends TestCase
     public function testDuplicateWishlistProduct(): void
     {
         $exception = CustomerException::duplicateWishlistProduct();
-
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(CustomerException::DUPLICATE_WISHLIST_PRODUCT, $exception->getErrorCode());
         static::assertSame('Product already added in wishlist', $exception->getMessage());
@@ -228,7 +210,6 @@ class CustomerExceptionTest extends TestCase
     public function testLegacyPasswordEncoderNotFound(): void
     {
         $exception = CustomerException::legacyPasswordEncoderNotFound('encoder');
-
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(CustomerException::LEGACY_PASSWORD_ENCODER_NOT_FOUND, $exception->getErrorCode());
         static::assertSame('Could not find encoder with name "encoder"', $exception->getMessage());
@@ -238,7 +219,6 @@ class CustomerExceptionTest extends TestCase
     public function testNoHashProvided(): void
     {
         $exception = CustomerException::noHashProvided();
-
         static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
         static::assertSame(CustomerException::NO_HASH_PROVIDED, $exception->getErrorCode());
         static::assertSame('The given hash is empty.', $exception->getMessage());
@@ -248,7 +228,6 @@ class CustomerExceptionTest extends TestCase
     public function testWishlistProductNotFound(): void
     {
         $exception = CustomerException::wishlistProductNotFound('id-1');
-
         static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
         static::assertSame(CustomerException::WISHLIST_PRODUCT_NOT_FOUND, $exception->getErrorCode());
         static::assertSame('Could not find wishlist product with id "id-1"', $exception->getMessage());
@@ -258,7 +237,6 @@ class CustomerExceptionTest extends TestCase
     public function testCustomerOptinNotCompleted(): void
     {
         $exception = CustomerException::customerOptinNotCompleted('id-1');
-
         static::assertSame(Response::HTTP_UNAUTHORIZED, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_OPTIN_NOT_COMPLETED, $exception->getErrorCode());
         static::assertSame('The customer with the id "id-1" has not completed the opt-in.', $exception->getMessage());
@@ -269,7 +247,6 @@ class CustomerExceptionTest extends TestCase
     public function testCustomerAuthThrottledException(): void
     {
         $exception = CustomerException::customerAuthThrottledException(100);
-
         static::assertSame(Response::HTTP_TOO_MANY_REQUESTS, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_AUTH_THROTTLED, $exception->getErrorCode());
         static::assertSame('Customer auth throttled for 100 seconds.', $exception->getMessage());
@@ -279,7 +256,6 @@ class CustomerExceptionTest extends TestCase
     public function testGuestAccountInvalidAuth(): void
     {
         $exception = CustomerException::guestAccountInvalidAuth();
-
         static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_GUEST_AUTH_INVALID, $exception->getErrorCode());
         static::assertSame('Guest account is not allowed to login', $exception->getMessage());
@@ -289,10 +265,53 @@ class CustomerExceptionTest extends TestCase
     public function testCountryNotFound(): void
     {
         $exception = CustomerException::countryNotFound('id-1');
-
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(CustomerException::COUNTRY_NOT_FOUND, $exception->getErrorCode());
         static::assertSame('Country with id "id-1" not found.', $exception->getMessage());
         static::assertSame(['countryId' => 'id-1'], $exception->getParameters());
+    }
+
+    public function testUnsupportedOperator(): void
+    {
+        $exception = CustomerException::unsupportedOperator('$', 'testClass');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CustomerException::OPERATOR_NOT_SUPPORTED, $exception->getErrorCode());
+        static::assertSame('Unsupported operator $ in testClass', $exception->getMessage());
+        static::assertSame(['operator' => '$', 'class' => 'testClass'], $exception->getParameters());
+    }
+
+    public function testUnsupportedValue(): void
+    {
+        $exception = CustomerException::unsupportedValue('badType', 'testClass');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CustomerException::VALUE_NOT_SUPPORTED, $exception->getErrorCode());
+        static::assertSame('Unsupported value of type badType in testClass', $exception->getMessage());
+        static::assertSame(['type' => 'badType', 'class' => 'testClass'], $exception->getParameters());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testUnsupportedOperatorDeprecated(): void
+    {
+        $exception = CustomerException::unsupportedOperator('$', 'testClass');
+
+        static::assertInstanceOf(UnsupportedOperatorException::class, $exception);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('CONTENT__RULE_OPERATOR_NOT_SUPPORTED', $exception->getErrorCode());
+        static::assertSame('Unsupported operator $ in testClass', $exception->getMessage());
+        static::assertSame(['operator' => '$', 'class' => 'testClass'], $exception->getParameters());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testUnsupportedValueDeprecated(): void
+    {
+        $exception = CustomerException::unsupportedValue('badType', 'testClass');
+
+        static::assertInstanceOf(UnsupportedValueException::class, $exception);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('CONTENT__RULE_VALUE_NOT_SUPPORTED', $exception->getErrorCode());
+        static::assertSame('Unsupported value of type badType in testClass', $exception->getMessage());
+        static::assertSame(['type' => 'badType', 'class' => 'testClass'], $exception->getParameters());
     }
 }

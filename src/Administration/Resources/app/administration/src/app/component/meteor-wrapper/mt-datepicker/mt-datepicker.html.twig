@@ -1,0 +1,19 @@
+<mt-datepicker-original
+    v-bind="$attrs"
+    :is24="is24HourFormat"
+    :date-type="dateType"
+    :locale="locale || userLocale"
+    :format="format || customFormat"
+    :time-zone="timeZone || userTimeZone"
+>
+    <!-- Dynamically pass all slots -->
+    <template
+        v-for="(_, name) in $slots"
+        #[name]="bindings"
+    >
+        <slot
+            :name="name"
+            v-bind="bindings"
+        ></slot>
+    </template>
+</mt-datepicker-original>

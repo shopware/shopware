@@ -13,16 +13,7 @@
     </parameters>
 
     <services>
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator"/>
         <service id="Shopware\Core\Framework\DataAbstractionLayer\EntityGenerator"/>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\CreateSchemaCommand">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument>%kernel.project_dir%</argument>
-
-            <tag name="console.command"/>
-        </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\CreateEntitiesCommand">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\EntityGenerator"/>
@@ -128,26 +119,17 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser"/>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry" public="true">
-            <argument type="tagged_iterator" tag="shopware.entity.extension"/>
-            <argument type="tagged_iterator" tag="shopware.bulk.entity.extension"/>
-        </service>
-
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Facade\AppContextCreator"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\AppContextCreator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Acl\AclCriteriaValidator"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacadeHookFactory" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Facade\AppContextCreator"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\AppContextCreator"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Sync\SyncService"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Facade\AppContextCreator">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory" public="true">

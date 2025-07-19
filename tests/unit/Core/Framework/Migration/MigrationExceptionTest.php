@@ -7,7 +7,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Migration;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationException;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -30,21 +29,9 @@ class MigrationExceptionTest extends TestCase
     {
         $exception = MigrationException::invalidArgument('invalid');
 
-        static::assertInstanceOf(MigrationException::class, $exception);
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
         static::assertSame('FRAMEWORK__MIGRATION_INVALID_ARGUMENT_EXCEPTION', $exception->getErrorCode());
         static::assertSame('invalid', $exception->getMessage());
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - reason: see MigrationException::invalidArgument - to be removed
-     */
-    #[DisabledFeatures(['v6.7.0.0'])]
-    public function testInvalidArgumentDeprecated(): void
-    {
-        $exception = MigrationException::invalidArgument('test');
-        static::assertInstanceOf(\InvalidArgumentException::class, $exception);
-        static::assertSame('test', $exception->getMessage());
     }
 
     public function testMoreThanOnePluginFound(): void

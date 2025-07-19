@@ -32,7 +32,7 @@ Module.register('sw-settings-newsletter', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'content',
         to: 'sw.settings.newsletter.index',
         icon: 'regular-inbox',
         privilege: 'system.system_config',

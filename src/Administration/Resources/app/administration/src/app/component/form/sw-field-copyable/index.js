@@ -1,7 +1,7 @@
 import './sw-field-copyable.scss';
 import template from './sw-field-copyable.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const domUtils = Shopware.Utils.dom;
 
 /**
@@ -9,10 +9,8 @@ const domUtils = Shopware.Utils.dom;
  *
  * @private
  */
-Component.register('sw-field-copyable', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('notification'),
@@ -83,4 +81,4 @@ Component.register('sw-field-copyable', {
             this.wasCopied = false;
         },
     },
-});
+};

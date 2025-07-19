@@ -40,7 +40,6 @@ class AdminUiXmlSchemaTest extends TestCase
             'System/CustomEntity/Xml/Config/AdminUi/admin-ui-1.0.xsd',
             AdminUiXmlSchema::XSD_FILEPATH
         );
-        static::assertEquals('admin-ui.xml', AdminUiXmlSchema::FILENAME);
     }
 
     public function testCreateFromXmlFileMinSetting(): void
@@ -147,12 +146,12 @@ class AdminUiXmlSchemaTest extends TestCase
             AdminUiXmlSchema::createFromXmlFile('invalid_path');
             static::fail('no Exception was thrown');
         } catch (CustomEntityXmlParsingException $exception) {
-            static::assertEquals(
+            static::assertSame(
                 'Unable to parse file "invalid_path". Message: Resource "invalid_path" is not a file.',
                 $exception->getMessage()
             );
-            static::assertEquals('SYSTEM_CUSTOM_ENTITY__XML_PARSE_ERROR', $exception->getErrorCode());
-            static::assertEquals(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+            static::assertSame('SYSTEM_CUSTOM_ENTITY__XML_PARSE_ERROR', $exception->getErrorCode());
+            static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         }
     }
 
@@ -167,8 +166,8 @@ class AdminUiXmlSchemaTest extends TestCase
                 'System/CustomEntity/Xml/Config/AdminUi/../../../_fixtures/AdminUiXmlSchemaTest/admin-ui.invalid.xml". Message: [ERROR 1871] Element \'ERROR\': This element is not expected. Expected is ( field ).',
                 $exception->getMessage()
             );
-            static::assertEquals('SYSTEM_CUSTOM_ENTITY__XML_PARSE_ERROR', $exception->getErrorCode());
-            static::assertEquals(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+            static::assertSame('SYSTEM_CUSTOM_ENTITY__XML_PARSE_ERROR', $exception->getErrorCode());
+            static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         }
     }
 
@@ -207,7 +206,7 @@ class AdminUiXmlSchemaTest extends TestCase
     private function checkEntity(array $entities, string $name): Entity
     {
         static::assertInstanceOf(Entity::class, $entities[$name]);
-        static::assertEquals($name, $entities[$name]->getName());
+        static::assertSame($name, $entities[$name]->getName());
 
         return $entities[$name];
     }
@@ -236,7 +235,7 @@ class AdminUiXmlSchemaTest extends TestCase
         Tab $tab,
         string $tabName
     ): array {
-        static::assertEquals($tabName, $tab->getName());
+        static::assertSame($tabName, $tab->getName());
 
         return $tab->getCards();
     }
@@ -249,7 +248,7 @@ class AdminUiXmlSchemaTest extends TestCase
         string $tabName,
         array $refs
     ): void {
-        static::assertEquals($tabName, $card->getName());
+        static::assertSame($tabName, $card->getName());
 
         $fields = $card->getFields();
         static::assertCount(\count($refs), $fields);

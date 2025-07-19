@@ -1,6 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DeviceDetection from 'src/helper/device-detection.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 /**
  * @sw-package framework
@@ -17,10 +16,10 @@ export default class SetBrowserClassPlugin extends Plugin {
     _browserDetection() {
         const detections = DeviceDetection.getList();
 
-        Iterator.iterate(detections, function(value, key) {
+        for (const [key, value] of Object.entries(detections)) {
             if (value) {
-                return document.documentElement.classList.add(key);
+                document.documentElement.classList.add(key);
             }
-        });
+        }
     }
 }

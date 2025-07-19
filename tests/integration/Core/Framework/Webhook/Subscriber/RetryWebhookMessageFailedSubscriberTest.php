@@ -97,6 +97,6 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
             ->getEntities()
             ->first();
         static::assertNotNull($webhookEventLog);
-        static::assertEquals($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_FAILED);
+        static::assertSame($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_FAILED);
     }
 }

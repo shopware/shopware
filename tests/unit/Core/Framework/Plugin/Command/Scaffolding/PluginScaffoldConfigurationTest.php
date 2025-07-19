@@ -23,8 +23,8 @@ class PluginScaffoldConfigurationTest extends TestCase
         static::assertTrue($config->hasOption('option1'));
         static::assertTrue($config->hasOption('option2'));
         static::assertFalse($config->hasOption('option3'));
-        static::assertEquals('value1', $config->getOption('option1'));
-        static::assertEquals('value2', $config->getOption('option2'));
+        static::assertSame('value1', $config->getOption('option1'));
+        static::assertSame('value2', $config->getOption('option2'));
         static::assertNull($config->getOption('option3'));
     }
 
@@ -44,7 +44,7 @@ class PluginScaffoldConfigurationTest extends TestCase
 
         $config->addOption('option1', 'value1');
 
-        static::assertEquals('value1', $config->getOption('option1'));
+        static::assertSame('value1', $config->getOption('option1'));
         static::assertNull($config->getOption('option2'));
     }
 }

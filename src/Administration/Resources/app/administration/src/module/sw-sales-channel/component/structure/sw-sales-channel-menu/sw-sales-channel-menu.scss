@@ -60,11 +60,6 @@
 
         .sw-context-button__button {
             color: $color-white !important;
-
-            .sw-icon.icon--regular-ellipsis-v {
-                width: 20px;
-                height: 20px;
-            }
         }
     }
 
@@ -80,6 +75,10 @@
 .is--collapsed .sw-sales-channel-menu {
     .sw-sales-channel-menu__collapsed-context-menu {
         opacity: 1;
+
+        .mt-icon {
+            margin-right: 4px;
+        }
     }
 
     .sw-loader {

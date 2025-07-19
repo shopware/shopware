@@ -58,7 +58,7 @@ class SeoUrlUpdaterTest extends TestCase
         $seoUrlUpdater = $this->createSeoUrlUpdater();
 
         $this->connection->method('fetchAllAssociative')->willReturn([]);
-        $this->seoUrlPersister->expects(static::never())->method('updateSeoUrls');
+        $this->seoUrlPersister->expects($this->never())->method('updateSeoUrls');
 
         $seoUrlUpdater->update('test', []);
     }
@@ -75,7 +75,7 @@ class SeoUrlUpdaterTest extends TestCase
         ]);
         $this->connection->method('fetchAllKeyValue')->willReturn([]);
 
-        $this->seoUrlPersister->expects(static::never())->method('updateSeoUrls');
+        $this->seoUrlPersister->expects($this->never())->method('updateSeoUrls');
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Default templates not configured');
@@ -99,7 +99,7 @@ class SeoUrlUpdaterTest extends TestCase
             ]
         );
 
-        $this->seoUrlPersister->expects(static::never())->method('updateSeoUrls');
+        $this->seoUrlPersister->expects($this->never())->method('updateSeoUrls');
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Route by name test not found');
 
@@ -133,7 +133,7 @@ class SeoUrlUpdaterTest extends TestCase
             ]
         );
 
-        $this->seoUrlPersister->expects(static::never())->method('updateSeoUrls');
+        $this->seoUrlPersister->expects($this->never())->method('updateSeoUrls');
 
         $seoUrlUpdater->update('frontend.detail.page', []);
     }
@@ -175,8 +175,8 @@ class SeoUrlUpdaterTest extends TestCase
             ]
         );
 
-        $this->seoUrlGenerator->expects(static::once())->method('generate');
-        $this->seoUrlPersister->expects(static::once())->method('updateSeoUrls');
+        $this->seoUrlGenerator->expects($this->once())->method('generate');
+        $this->seoUrlPersister->expects($this->once())->method('updateSeoUrls');
 
         $seoUrlUpdater->update('frontend.detail.page', []);
     }

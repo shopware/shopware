@@ -16,110 +16,38 @@ class OrderCustomerEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $email;
+    protected string $email;
+
+    protected string $orderId;
+
+    protected ?string $salutationId = null;
+
+    protected string $firstName;
+
+    protected string $lastName;
+
+    protected ?string $title = null;
 
     /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
+     * @var list<string>|null
      */
-    protected $orderId;
+    protected ?array $vatIds = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salutationId;
+    protected ?string $company = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $firstName;
+    protected ?string $customerNumber = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $lastName;
+    protected ?string $customerId = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $title;
+    protected ?CustomerEntity $customer = null;
 
-    /**
-     * @var array|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $vatIds;
+    protected ?SalutationEntity $salutation = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $company;
+    protected ?OrderEntity $order = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customerNumber;
+    protected ?string $remoteAddress = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customerId;
-
-    /**
-     * @var CustomerEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $customer;
-
-    /**
-     * @var SalutationEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $salutation;
-
-    /**
-     * @var OrderEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $order;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $remoteAddress;
-
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderVersionId;
+    protected string $orderVersionId;
 
     public function getEmail(): string
     {
@@ -171,13 +99,16 @@ class OrderCustomerEntity extends Entity
         $this->title = $title;
     }
 
+    /**
+     * @return list<string>|null
+     */
     public function getVatIds(): ?array
     {
         return $this->vatIds;
     }
 
     /**
-     * @param array<string> $vatIds
+     * @param list<string> $vatIds
      */
     public function setVatIds(array $vatIds): void
     {

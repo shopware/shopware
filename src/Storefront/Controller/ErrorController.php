@@ -2,15 +2,12 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Twig\ErrorTemplateResolver;
 use Shopware\Storefront\Page\Navigation\Error\ErrorPageLoaderInterface;
-use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,10 +27,8 @@ class ErrorController extends StorefrontController
      */
     public function __construct(
         private readonly ErrorTemplateResolver $errorTemplateResolver,
-        private readonly HeaderPageletLoaderInterface $headerPageletLoader,
         private readonly SystemConfigService $systemConfigService,
         private readonly ErrorPageLoaderInterface $errorPageLoader,
-        private readonly FooterPageletLoaderInterface $footerPageletLoader
     ) {
     }
 
@@ -62,14 +57,6 @@ class ErrorController extends StorefrontController
                 );
             } else {
                 $errorTemplate = $this->errorTemplateResolver->resolve($exception, $request);
-
-                /* @deprecated tag:v6.7.0 - Remove the whole if branch as it is not needed anymore */
-                if (!$request->isXmlHttpRequest() && !Feature::isActive('cache_rework')) {
-                    $header = $this->headerPageletLoader->load($request, $context);
-                    $footer = $this->footerPageletLoader->load($request, $context);
-                    $errorTemplate->setHeader($header);
-                    $errorTemplate->setFooter($footer);
-                }
 
                 $response = $this->renderStorefront($errorTemplate->getTemplateName(), ['page' => $errorTemplate]);
             }
@@ -106,33 +93,14 @@ class ErrorController extends StorefrontController
         }
 
         $response = [];
-
-        if (Feature::isActive('ACCESSIBILITY_TWEAKS')) {
-            $response[] = [
+        $response[] = [
+            'type' => 'danger',
+            'error' => 'invalid_captcha',
+            'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
                 'type' => 'danger',
-                'error' => 'invalid_captcha',
-                'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
-                    'type' => 'danger',
-                    'list' => [$this->trans('error.' . $formViolations->getViolations()->get(0)->getCode())],
-                ]),
-            ];
-        } else {
-            $response[] = [
-                'type' => 'danger',
-                'error' => 'invalid_captcha',
-                'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
-                    'type' => 'danger',
-                    'list' => [$this->trans('error.' . $formViolations->getViolations()->get(0)->getCode())],
-                ]),
-                /**
-                 * @deprecated tag:v6.7.0 - Storefront implementation changed. The response no longer needs the rendered input.
-                 */
-                'input' => $this->renderView('@Storefront/storefront/component/captcha/basicCaptchaFields.html.twig', [
-                    'formId' => $request->get('formId'),
-                    'formViolations' => $formViolations,
-                ]),
-            ];
-        }
+                'list' => [$this->trans('error.' . $formViolations->getViolations()->get(0)->getCode())],
+            ]),
+        ];
 
         return new JsonResponse($response);
     }

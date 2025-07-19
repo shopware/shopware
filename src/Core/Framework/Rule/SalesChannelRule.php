@@ -5,15 +5,18 @@ namespace Shopware\Core\Framework\Rule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @final
+ */
 #[Package('fundamentals@after-sales')]
 class SalesChannelRule extends Rule
 {
     final public const RULE_NAME = 'salesChannel';
 
     /**
-     * @internal
-     *
      * @param list<string>|null $salesChannelIds
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

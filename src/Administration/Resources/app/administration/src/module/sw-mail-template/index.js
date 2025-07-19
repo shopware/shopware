@@ -82,7 +82,7 @@ Module.register('sw-mail-template', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'content',
         to: 'sw.mail.template.index',
         icon: 'regular-envelope',
         privilege: 'mail_templates.viewer',

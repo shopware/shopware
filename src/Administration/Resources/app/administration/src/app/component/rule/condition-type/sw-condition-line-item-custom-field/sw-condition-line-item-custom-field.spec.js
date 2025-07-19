@@ -78,7 +78,6 @@ async function createWrapper() {
                     'sw-help-text': true,
                     'sw-field-error': true,
                     'sw-product-variant-info': true,
-                    'sw-icon': true,
                     'sw-highlight-text': true,
                     'sw-loader': true,
                     'sw-inheritance-switch': true,

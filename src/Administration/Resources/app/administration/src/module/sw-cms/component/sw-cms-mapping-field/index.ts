@@ -1,15 +1,12 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-mapping-field.html.twig';
 import './sw-cms-mapping-field.scss';
 
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['cmsService'],
 
@@ -65,10 +62,6 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         hasPreview() {
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return typeof this.$scopedSlots.preview !== 'undefined';
-            }
-
             return this.$slots.preview !== undefined;
         },
 

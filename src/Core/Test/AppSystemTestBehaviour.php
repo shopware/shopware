@@ -7,6 +7,7 @@ use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
@@ -35,7 +36,7 @@ trait AppSystemTestBehaviour
             static::getContainer()->get(AppLifecycle::class)
         );
 
-        $fails = $appService->doRefreshApps($activateApps, Context::createDefaultContext());
+        $fails = $appService->doRefreshApps(new AppInstallParameters(activate: $activateApps), Context::createDefaultContext());
 
         if ($fails !== []) {
             $errors = \array_map(function (array $fail): string {

@@ -2,10 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Seo;
 
-use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -13,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Doctrine\FakeResultFactory;
 
 /**
  * @internal
@@ -129,17 +128,17 @@ class SeoResolverTest extends TestCase
     private function getMockConnection(string $salesChannelId, bool $isCanonical, string $pathInfo): Connection&MockObject
     {
         $mock = $this->createMock(Connection::class);
-        $firstResult = new Result(new ArrayResult([[
+        $firstResult = FakeResultFactory::createResult([[
             'id' => Uuid::randomHex(),
             'salesChannelId' => $salesChannelId,
             'isCanonical' => $isCanonical,
             'pathInfo' => $pathInfo,
-        ]]), $mock);
-        $canonicalResult = new Result(new ArrayResult([[
+        ]], $mock);
+        $canonicalResult = FakeResultFactory::createResult([[
             'id' => Uuid::randomHex(),
             'isCanonical' => $isCanonical,
             'seoPathInfo' => $pathInfo,
-        ]]), $mock);
+        ]], $mock);
 
         $mock
             ->method('executeQuery')

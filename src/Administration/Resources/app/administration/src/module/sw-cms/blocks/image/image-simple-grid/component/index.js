@@ -7,6 +7,4 @@ import './sw-cms-block-image-simple-grid.scss';
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

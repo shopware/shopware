@@ -24,20 +24,12 @@ use Symfony\Component\Routing\Attribute\Route;
 class StateMachineActionController extends AbstractController
 {
     /**
-     * @var StateMachineRegistry
-     *
-     * @deprecated tag:v6.7.0 - will be private and typed
-     */
-    protected $stateMachineRegistry;
-
-    /**
      * @internal
      */
     public function __construct(
-        StateMachineRegistry $stateMachineRegistry,
+        private readonly StateMachineRegistry $stateMachineRegistry,
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry
     ) {
-        $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
     #[Route(path: '/api/_action/state-machine/{entityName}/{entityId}/state', name: 'api.state_machine.states', methods: ['GET'])]

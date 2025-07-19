@@ -26,7 +26,6 @@ async function createWrapper(blockConfig = {}) {
                     cmsService: Shopware.Service().get('cmsService'),
                 },
                 stubs: {
-                    'sw-icon': true,
                     'sw-cms-visibility-toggle': {
                         template: '<div class="sw-cms-visibility-toggle-wrapper"></div>',
                     },
@@ -44,6 +43,8 @@ describe('module/sw-cms/component/sw-cms-block', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
+        expect(wrapper.vm.block.backgroundMediaMode).toBe('cover');
+        expect(wrapper.vm.block.backgroundColor).toBe('');
     });
 
     it('should have the overlay by default', async () => {

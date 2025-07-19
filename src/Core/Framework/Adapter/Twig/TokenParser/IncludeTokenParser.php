@@ -11,6 +11,11 @@ use Twig\Node\Node;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
+/**
+ * @internal
+ *
+ * @see \Twig\TokenParser\IncludeTokenParser
+ */
 #[Package('framework')]
 final class IncludeTokenParser extends AbstractTokenParser
 {
@@ -23,7 +28,7 @@ final class IncludeTokenParser extends AbstractTokenParser
      */
     public function parse(Token $token)
     {
-        $expr = $this->parser->getExpressionParser()->parseExpression();
+        $expr = $this->parser->parseExpression();
         \assert($expr instanceof AbstractExpression);
 
         [$variables, $only, $ignoreMissing] = $this->parseArguments();
@@ -62,7 +67,7 @@ final class IncludeTokenParser extends AbstractTokenParser
 
         $variables = null;
         if ($stream->nextIf(Token::NAME_TYPE, 'with')) {
-            $variables = $this->parser->getExpressionParser()->parseExpression();
+            $variables = $this->parser->parseExpression();
         }
 
         $only = false;

@@ -42,7 +42,7 @@ Module.register('sw-settings-salutation', {
             props: {
                 default(route) {
                     return {
-                        salutationId: route.params.id,
+                        salutationId: route.params.id.toLowerCase(),
                     };
                 },
             },
@@ -58,7 +58,7 @@ Module.register('sw-settings-salutation', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'customer',
         to: 'sw.settings.salutation.index',
         icon: 'regular-comments',
         privilege: 'salutation.viewer',

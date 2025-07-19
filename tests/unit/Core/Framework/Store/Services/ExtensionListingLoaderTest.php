@@ -31,7 +31,7 @@ class ExtensionListingLoaderTest extends TestCase
 
         $client = $this->createMock(StoreClient::class);
         $client
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('listMyExtensions')
             ->willReturn($storeExtensions);
 
@@ -62,7 +62,7 @@ class ExtensionListingLoaderTest extends TestCase
 
         $client = $this->createMock(StoreClient::class);
         $client
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getExtensionUpdateList')
             ->willReturn([$update]);
 
@@ -88,8 +88,8 @@ class ExtensionListingLoaderTest extends TestCase
         $context = Context::createDefaultContext(new AdminApiSource(null, Uuid::randomHex()));
 
         $client = $this->createMock(StoreClient::class);
-        $client->expects(static::never())->method('getExtensionUpdateList');
-        $client->expects(static::never())->method('listMyExtensions');
+        $client->expects($this->never())->method('getExtensionUpdateList');
+        $client->expects($this->never())->method('listMyExtensions');
         $loader = new ExtensionListingLoader($client);
 
         $loader->load($collection, $context);

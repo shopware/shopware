@@ -16,47 +16,17 @@ class LocaleEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $code;
+    protected string $code;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $territory;
+    protected ?string $territory = null;
 
-    /**
-     * @var LocaleTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?LocaleTranslationCollection $translations = null;
 
-    /**
-     * @var UserCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $users;
+    protected ?UserCollection $users = null;
 
-    /**
-     * @var LanguageCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $languages;
+    protected ?LanguageCollection $languages = null;
 
     public function getCode(): string
     {

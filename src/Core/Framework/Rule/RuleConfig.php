@@ -116,6 +116,14 @@ final class RuleConfig extends Struct
     /**
      * @param array<string, mixed> $config
      */
+    public function dateField(string $name, array $config = []): self
+    {
+        return $this->field($name, 'date', $config);
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
     public function dateTimeField(string $name, array $config = []): self
     {
         return $this->field($name, 'datetime', $config);

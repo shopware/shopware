@@ -12,8 +12,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     emits: [
@@ -170,6 +168,12 @@ export default {
                 {
                     value: 'product.price',
                     label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.price'),
+                },
+                {
+                    value: 'product.createdAt',
+                    label: this.$tc(
+                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.createdAt',
+                    ),
                 },
             ];
 

@@ -22,6 +22,7 @@ class ResponseFieldsTest extends TestCase
     public function testIsAllowedThrowsExceptionWhenIncludesTypeIsNotArray(): void
     {
         $this->expectException(SalesChannelException::class);
+        /** @phpstan-ignore argument.type (for test purpose) */
         $responseFields = new ResponseFields(['someType' => 'notArray']);
         $responseFields->isAllowed('someType', 'someProperty');
     }

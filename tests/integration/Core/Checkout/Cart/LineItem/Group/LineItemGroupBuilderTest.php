@@ -6,8 +6,6 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
-use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
@@ -383,34 +381,34 @@ class LineItemGroupBuilderTest extends TestCase
         static::assertCount(2, $items);
         static::assertInstanceOf(LineItemQuantity::class, $items[0]);
         static::assertInstanceOf(LineItemQuantity::class, $items[1]);
-        static::assertEquals($item1->getId(), $items[0]->getLineItemId());
-        static::assertEquals($item2->getId(), $items[1]->getLineItemId());
-        static::assertEquals(3, $items[0]->getQuantity());
-        static::assertEquals(2, $items[1]->getQuantity());
+        static::assertSame($item1->getId(), $items[0]->getLineItemId());
+        static::assertSame($item2->getId(), $items[1]->getLineItemId());
+        static::assertSame(3, $items[0]->getQuantity());
+        static::assertSame(2, $items[1]->getQuantity());
 
         static::assertInstanceOf(LineItemGroup::class, $groupCount[1]);
         $items = $groupCount[1]->getItems();
         static::assertCount(1, $items);
         static::assertInstanceOf(LineItemQuantity::class, $items[0]);
-        static::assertEquals($item2->getId(), $items[0]->getLineItemId());
-        static::assertEquals(4, $items[0]->getQuantity());
+        static::assertSame($item2->getId(), $items[0]->getLineItemId());
+        static::assertSame(4, $items[0]->getQuantity());
 
         static::assertInstanceOf(LineItemGroup::class, $groupCount[2]);
         $items = $groupCount[2]->getItems();
         static::assertCount(2, $items);
         static::assertInstanceOf(LineItemQuantity::class, $items[0]);
         static::assertInstanceOf(LineItemQuantity::class, $items[1]);
-        static::assertEquals($item2->getId(), $items[0]->getLineItemId());
-        static::assertEquals($item3->getId(), $items[1]->getLineItemId());
-        static::assertEquals(1, $items[0]->getQuantity());
-        static::assertEquals(2, $items[1]->getQuantity());
+        static::assertSame($item2->getId(), $items[0]->getLineItemId());
+        static::assertSame($item3->getId(), $items[1]->getLineItemId());
+        static::assertSame(1, $items[0]->getQuantity());
+        static::assertSame(2, $items[1]->getQuantity());
 
         static::assertInstanceOf(LineItemGroup::class, $groupCount[3]);
         $items = $groupCount[3]->getItems();
         static::assertCount(1, $items);
         static::assertInstanceOf(LineItemQuantity::class, $items[0]);
-        static::assertEquals($item3->getId(), $items[0]->getLineItemId());
-        static::assertEquals(2, $items[0]->getQuantity());
+        static::assertSame($item3->getId(), $items[0]->getLineItemId());
+        static::assertSame(2, $items[0]->getQuantity());
     }
 
     /**
@@ -424,7 +422,7 @@ class LineItemGroupBuilderTest extends TestCase
 
         $group = $this->buildGroup('UNKNOWN', 2, self::KEY_SORTER_PRICE_ASC, new RuleCollection());
 
-        $this->expectException(LineItemGroupPackagerNotFoundException::class);
+        $this->expectExceptionObject(CartException::lineItemGroupPackagerNotFoundException('UNKNOWN'));
 
         $this->unitTestBuilder->findGroupPackages([$group], $cart, $this->context);
     }
@@ -440,7 +438,7 @@ class LineItemGroupBuilderTest extends TestCase
 
         $group = $this->buildGroup(self::KEY_PACKAGER_COUNT, 2, 'UNKNOWN', new RuleCollection());
 
-        $this->expectException(LineItemGroupSorterNotFoundException::class);
+        $this->expectExceptionObject(CartException::lineItemGroupSorterNotFoundException('UNKNOWN'));
 
         $this->unitTestBuilder->findGroupPackages([$group], $cart, $this->context);
     }

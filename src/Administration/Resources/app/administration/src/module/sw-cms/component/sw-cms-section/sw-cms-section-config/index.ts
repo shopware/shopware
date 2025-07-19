@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-section-config.html.twig';
 import './sw-cms-section-config.scss';
 import type MediaUploadResult from '../../../shared/MediaUploadResult';
@@ -6,13 +5,11 @@ import type MediaUploadResult from '../../../shared/MediaUploadResult';
 const { Mixin } = Shopware;
 
 /**
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -55,6 +52,49 @@ export default Shopware.Component.wrapComponentConfig({
             return {
                 'is--disabled': this.quickactionsDisabled,
             };
+        },
+
+        sizingModeOptions() {
+            return [
+                {
+                    value: 'boxed',
+                    label: this.$tc('sw-cms.detail.label.sizingOptionBoxed'),
+                },
+                {
+                    value: 'full_width',
+                    label: this.$tc('sw-cms.detail.label.sizingOptionFull'),
+                },
+            ];
+        },
+
+        mobileBehaviorOptions() {
+            return [
+                {
+                    value: 'hidden',
+                    label: this.$tc('sw-cms.detail.sidebar.mobileOptionHidden'),
+                },
+                {
+                    value: 'wrap',
+                    label: this.$tc('sw-cms.detail.sidebar.mobileOptionWrap'),
+                },
+            ];
+        },
+
+        backgroundMediaModeOptions() {
+            return [
+                {
+                    value: 'auto',
+                    label: this.$tc('sw-cms.detail.label.backgroundMediaModeAuto'),
+                },
+                {
+                    value: 'contain',
+                    label: this.$tc('sw-cms.detail.label.backgroundMediaModeContain'),
+                },
+                {
+                    value: 'cover',
+                    label: this.$tc('sw-cms.detail.label.backgroundMediaModeCover'),
+                },
+            ];
         },
     },
 

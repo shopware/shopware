@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-class OneToMany extends Field
+final class OneToMany extends Field
 {
     public const TYPE = 'one-to-many';
 

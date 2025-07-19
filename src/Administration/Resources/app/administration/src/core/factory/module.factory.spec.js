@@ -377,7 +377,7 @@ describe('core/factory/module.factory.js', () => {
 
     it('should add settings item if feature flag is active', () => {
         global.activeFeatureFlags = ['testFlag'];
-        Shopware.State.get('settingsItems').settingsGroups = {};
+        Shopware.Store.get('settingsItems').settingsGroups = {};
 
         register('sw-foo', {
             name: 'fooBar',
@@ -408,12 +408,12 @@ describe('core/factory/module.factory.js', () => {
                 },
             ],
         };
-        expect(Shopware.State.get('settingsItems').settingsGroups).toEqual(expectedSettingsItem);
+        expect(Shopware.Store.get('settingsItems').settingsGroups).toEqual(expectedSettingsItem);
     });
 
     it('should not add settings item if feature flag is deactivated', () => {
         global.activeFeatureFlags = [];
-        Shopware.State.get('settingsItems').settingsGroups = {};
+        Shopware.Store.get('settingsItems').settingsGroups = {};
 
         register('sw-foo', {
             name: 'fooBar',
@@ -432,7 +432,7 @@ describe('core/factory/module.factory.js', () => {
             },
         });
 
-        expect(Shopware.State.get('settingsItems').settingsGroups).toEqual({});
+        expect(Shopware.Store.get('settingsItems').settingsGroups).toEqual({});
     });
 
     it('should not allow plugin modules to create menu entries on first level', () => {

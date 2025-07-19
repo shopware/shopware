@@ -21,7 +21,6 @@ async function createWrapper({ provide, ...additionalOptions } = {}) {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': true,
-                'sw-icon': true,
                 'sw-field-copyable': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,

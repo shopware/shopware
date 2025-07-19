@@ -13,6 +13,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
+use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -48,7 +49,7 @@ class PropertyFilterHandlerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('fetchAllAssociative');
 
         $handler = new PropertyListingFilterHandler(
@@ -68,7 +69,7 @@ class PropertyFilterHandlerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('fetchAllAssociative');
 
         $handler = new PropertyListingFilterHandler(
@@ -109,7 +110,7 @@ class PropertyFilterHandlerTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn($mapping);
 
@@ -175,7 +176,7 @@ class PropertyFilterHandlerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('fetchAllAssociative');
 
         $handler = new PropertyListingFilterHandler(
@@ -236,6 +237,7 @@ class PropertyFilterHandlerTest extends TestCase
                         'position' => 1,
                         'group' => (new PropertyGroupEntity())->assign([
                             'id' => 'color',
+                            'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
                             'position' => 1,
                         ]),
                     ]),
@@ -245,6 +247,7 @@ class PropertyFilterHandlerTest extends TestCase
                         'position' => 2,
                         'group' => (new PropertyGroupEntity())->assign([
                             'id' => 'color',
+                            'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
                             'position' => 2,
                         ]),
                     ]),
@@ -254,6 +257,7 @@ class PropertyFilterHandlerTest extends TestCase
                         'position' => 2,
                         'group' => (new PropertyGroupEntity())->assign([
                             'id' => 'size',
+                            'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
                             'position' => 1,
                         ]),
                     ]),
@@ -263,6 +267,7 @@ class PropertyFilterHandlerTest extends TestCase
                         'position' => 1,
                         'group' => (new PropertyGroupEntity())->assign([
                             'id' => 'size',
+                            'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
                             'position' => 1,
                         ]),
                     ]),
@@ -303,28 +308,28 @@ class PropertyFilterHandlerTest extends TestCase
 
         $color = $properties->getEntities()->first();
         static::assertInstanceOf(Entity::class, $color);
-        static::assertEquals('color', $color->get('id'));
+        static::assertSame('color', $color->get('id'));
 
         $options = $color->get('options');
         static::assertInstanceOf(EntityCollection::class, $options);
         static::assertCount(2, $options);
 
         static::assertInstanceOf(Entity::class, $options->first());
-        static::assertEquals('red', $options->first()->get('id'));
+        static::assertSame('red', $options->first()->get('id'));
         static::assertInstanceOf(Entity::class, $options->last());
-        static::assertEquals('green', $options->last()->get('id'));
+        static::assertSame('green', $options->last()->get('id'));
 
         $size = $properties->getEntities()->last();
         static::assertInstanceOf(Entity::class, $size);
-        static::assertEquals('size', $size->get('id'));
+        static::assertSame('size', $size->get('id'));
 
         $options = $size->get('options');
         static::assertInstanceOf(EntityCollection::class, $options);
         static::assertCount(2, $options);
         static::assertInstanceOf(Entity::class, $options->first());
-        static::assertEquals('l', $options->first()->get('id'));
+        static::assertSame('l', $options->first()->get('id'));
         static::assertInstanceOf(Entity::class, $options->last());
-        static::assertEquals('xl', $options->last()->get('id'));
+        static::assertSame('xl', $options->last()->get('id'));
     }
 
     public static function createProvider(): \Generator

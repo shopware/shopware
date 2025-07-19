@@ -10,8 +10,6 @@ import './sw-import-export.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     data() {

@@ -1,10 +1,9 @@
 import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-shipping-detail.html.twig';
 import './sw-settings-shipping-detail.scss';
-import swShippingDetailState from './state';
+import './store';
 
 const { Mixin, Context } = Shopware;
-const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 
@@ -15,14 +14,11 @@ const { warn } = Shopware.Utils.debug;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'ruleConditionDataProviderService',
         'repositoryFactory',
         'acl',
         'customFieldDataProviderService',
-        'feature',
     ],
 
     mixins: [
@@ -62,15 +58,17 @@ export default {
     },
 
     computed: {
-        ...mapState('swShippingDetail', [
-            'shippingMethod',
-            'currencies',
-            'restrictedRuleIds',
-        ]),
+        shippingMethod() {
+            return Shopware.Store.get('swShippingDetail').shippingMethod;
+        },
 
-        ...mapGetters('swShippingDetail', [
-            'usedRules',
-        ]),
+        currencies() {
+            return Shopware.Store.get('swShippingDetail').currencies;
+        },
+
+        restrictedRuleIds() {
+            return Shopware.Store.get('swShippingDetail').restrictedRuleIds;
+        },
 
         ...mapPropertyErrors('shippingMethod', [
             'name',
@@ -150,10 +148,6 @@ export default {
 
             criteria.getAssociation('prices').addAssociation('rule').addSorting(Criteria.sort('quantityStart'));
 
-            if (!Shopware.Feature.isActive('v6.7.0.0')) {
-                criteria.getAssociation('prices').addAssociation('calculationRule');
-            }
-
             return criteria;
         },
 
@@ -175,22 +169,14 @@ export default {
         },
     },
 
-    beforeCreate() {
-        Shopware.State.registerModule('swShippingDetail', swShippingDetailState);
-    },
-
     created() {
         this.createdComponent();
-    },
-
-    beforeUnmount() {
-        Shopware.State.unregisterModule('swShippingDetail');
     },
 
     methods: {
         createdComponent() {
             if (!this.shippingMethodId) {
-                Shopware.State.commit('context/resetLanguageToDefault');
+                Shopware.Store.get('context').resetLanguageToDefault();
 
                 const shippingMethod = this.shippingMethodRepository.create();
                 const shippingMethodPrice = this.shippingMethodPricesRepository.create();
@@ -199,7 +185,7 @@ export default {
                 shippingMethodPrice.shippingMethodId = shippingMethod.id;
                 shippingMethodPrice.ruleId = null;
                 shippingMethod.prices.add(shippingMethodPrice);
-                Shopware.State.commit('swShippingDetail/setShippingMethod', shippingMethod);
+                Shopware.Store.get('swShippingDetail').shippingMethod = shippingMethod;
             } else {
                 this.loadEntityData();
             }
@@ -213,7 +199,7 @@ export default {
         loadCurrencies() {
             this.currenciesLoading = true;
             this.currencyRepository.search(new Criteria(1, 500), Context.api).then((currencyResponse) => {
-                Shopware.State.commit('swShippingDetail/setCurrencies', this.sortCurrencies(currencyResponse));
+                Shopware.Store.get('swShippingDetail').currencies = this.sortCurrencies(currencyResponse);
                 this.currenciesLoading = false;
             });
         },
@@ -228,10 +214,10 @@ export default {
             this.shippingMethodRepository
                 .get(this.shippingMethodId, Shopware.Context.api, this.shippingMethodCriteria)
                 .then((res) => {
-                    Shopware.State.commit('swShippingDetail/setShippingMethod', res);
+                    Shopware.Store.get('swShippingDetail').shippingMethod = res;
 
                     this.ruleConditionDataProviderService.getRestrictedRules('shippingMethodPrices').then((result) => {
-                        Shopware.State.commit('swShippingDetail/setRestrictedRuleIds', this.usedRules.concat(result));
+                        Shopware.Store.get('swShippingDetail').restrictedRuleIds = this.restrictedRuleIds.concat(result);
                     });
 
                     this.loadCustomFieldSets().then(() => {
@@ -300,7 +286,7 @@ export default {
             this.createNotificationError({
                 title: this.$tc('global.default.error'),
                 // eslint-disable-next-line max-len
-                message: `${this.$tc('sw-settings-shipping.detail.messageSaveError', 0, { name: this.shippingMethod.name })} ${errorDetails}`,
+                message: `${this.$tc('sw-settings-shipping.detail.messageSaveError', { name: this.shippingMethod.name }, 0)} ${errorDetails}`,
             });
         },
 

@@ -8,19 +8,9 @@ use Shopware\Core\System\Language\LanguageEntity;
 #[Package('framework')]
 class TranslationEntity extends Entity
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $languageId;
+    protected string $languageId;
 
-    /**
-     * @var LanguageEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $language;
+    protected ?LanguageEntity $language = null;
 
     public function getLanguageId(): string
     {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\DataAbstractionLayer;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Event\CustomerIndexerEvent;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
@@ -25,6 +26,8 @@ class CustomerIndexer extends EntityIndexer
 
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $repository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,

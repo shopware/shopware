@@ -1,5 +1,5 @@
 {
-    "openapi": "3.0.0",
+    "openapi": "3.1.0",
     "info": [],
     "paths": [],
     "components": {
@@ -42,9 +42,20 @@
                             }
                         },
                         "required": ["breadcrumb"]
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": ["page", "link"]
                     }
                 },
-                "required": ["apiAlias", "breadcrumb", "children", "childCount", "translated"]
+                "required": [
+                    "apiAlias",
+                    "breadcrumb",
+                    "children",
+                    "childCount",
+                    "translated",
+                    "type"
+                ]
             }
         }
     }

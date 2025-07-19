@@ -60,7 +60,7 @@ class NoFlowStoreFunctionRule implements Rule
         }
 
         $class = $scope->getClassReflection();
-        if ($class === null || $class->isSubclassOf(FlowStorer::class)) {
+        if ($class === null || $class->is(FlowStorer::class)) {
             return [];
         }
 

@@ -9,31 +9,10 @@ use Shopware\Core\Framework\Util\FloatComparator;
 #[Package('checkout')]
 class ListPrice extends Struct
 {
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $price;
-
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $discount;
-
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $percentage;
-
     private function __construct(
-        float $price,
-        float $discount,
-        float $percentage
+        protected float $price,
+        protected float $discount,
+        protected float $percentage
     ) {
         $this->price = FloatComparator::cast($price);
         $this->discount = FloatComparator::cast($discount);

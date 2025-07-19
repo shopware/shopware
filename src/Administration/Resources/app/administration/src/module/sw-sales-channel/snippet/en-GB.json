@@ -144,6 +144,7 @@
       "ipAddressAllowlistHelpText": "Add IP addresses to the allowlist in order to allow selective access to your shop. You may add IPv4 and IPv6 addresses as needed.",
       "basicinformationLink": "Change default maintenance layout here",
       "columnDomainCurrency": "Currency",
+      "columnDomainUnitSystem": "Unit system",
       "products": {
         "titleEmptyState": "No more products found",
         "titleEmptyStateTable": "No matching products found",
@@ -253,7 +254,7 @@
           "trackingId": {
             "label": "Tracking ID",
             "placeHolder": "Enter tracking ID...",
-            "helpText": "When logged in to your Google Analytics account, you will be given access to a tracking ID, which should look like this: G-XXXXXXXXXX"
+            "helpText": "When logged into your Google Analytics account, you will receive a tracking ID in the format `G-XXXXXXXXXX`. If you want to use the Google Tag Manager, then use an ID which starts with `GTM-`. The storefront then automatically includes the Google Tag Manager script: `https://www.googletagmanager.com/gtm.js?id=...`. Otherwise, it uses `https://www.googletagmanager.com/gtag/js?id=...`."
           },
           "active": {
             "label": "Activate Google Analytics"
@@ -292,10 +293,18 @@
           "titleNoProductStreamsMatching": "No matching dynamic product groups found.",
           "titleNoProductStreamsAvailable": "No dynamic product groups available."
         }
+      },
+      "measurementSystem": {
+        "labelDefaultUnitSystem": "Default unit system",
+        "labelDefaultLengthUnit": "Default length unit",
+        "labelDefaultWeightUnit": "Default weight unit",
+        "labelUnitSystem": "Unit system",
+        "labelLengthUnit": "Length unit",
+        "labelWeightUnit": "Weight unit"
       }
     },
     "sw-sales-channel-defaults-select": {
-      "messageError": "The value is in use by this domain: \"%{url}\"."
+      "messageError": "The value is in use by this domain: \"{url}\"."
     }
   },
   "sw-privileges": {

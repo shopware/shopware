@@ -11,7 +11,6 @@ describe('components/base/sw-circle-icon', () => {
     beforeAll(async () => {
         stubs = {
             'sw-label': await wrapTestComponent('sw-label'),
-            'sw-icon': true,
             'sw-color-badge': true,
         };
     });
@@ -27,7 +26,7 @@ describe('components/base/sw-circle-icon', () => {
 
     it('passes default values', async () => {
         wrapper = await createWrapper({
-            iconName: 'default-basic-checkmark-line',
+            iconName: 'regular-checkmark',
         });
         await flushPromises();
 
@@ -41,13 +40,15 @@ describe('components/base/sw-circle-icon', () => {
         expect(width).toBe('50px');
         expect(height).toBe('50px');
 
-        expect(wrapper.get('sw-icon-stub').attributes('name')).toBe('default-basic-checkmark-line');
-        expect(wrapper.get('sw-icon-stub').attributes('size')).toBe('25px');
+        const icon = wrapper.getComponent('.mt-icon');
+
+        expect(icon.props('name')).toBe('regular-checkmark');
+        expect(icon.props('size')).toBe('25px');
     });
 
     it('passes variant correctly', async () => {
         wrapper = await createWrapper({
-            iconName: 'default-basic-checkmark-line',
+            iconName: 'regular-checkmark',
             variant: 'danger',
         });
 
@@ -60,7 +61,7 @@ describe('components/base/sw-circle-icon', () => {
         const size = 72;
 
         wrapper = await createWrapper({
-            iconName: 'default-basic-checkmark-line',
+            iconName: 'regular-checkmark',
             size,
         });
 
@@ -69,6 +70,7 @@ describe('components/base/sw-circle-icon', () => {
         expect(width).toBe(`${size}px`);
         expect(height).toBe(`${size}px`);
 
-        expect(wrapper.get('sw-icon-stub').attributes('size')).toBe(`${size / 2}px`);
+        const icon = wrapper.getComponent('.mt-icon');
+        expect(icon.props('size')).toBe('36px');
     });
 });

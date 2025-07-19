@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
@@ -28,8 +28,6 @@ class CustomerGenerator implements DemodataGeneratorInterface
      * @var array<string>
      */
     private array $salutationIds = [];
-
-    private string|false|null $paymentMethodId = false;
 
     private Generator $faker;
 
@@ -97,6 +95,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
             'salesChannelId' => $salesChannelIds[array_rand($salesChannelIds)],
             'defaultBillingAddressId' => $billingAddressId,
             'defaultShippingAddressId' => $shippingAddressId,
+            'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
             'addresses' => [
                 [
                     'id' => $shippingAddressId,
@@ -122,10 +121,6 @@ class CustomerGenerator implements DemodataGeneratorInterface
                 ],
             ],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getDefaultPaymentMethod();
-        }
 
         $writeContext = WriteContext::createFromContext($context);
 
@@ -189,11 +184,8 @@ class CustomerGenerator implements DemodataGeneratorInterface
                 'addresses' => $addresses,
                 'tags' => $this->getTags($tags),
                 'createdAt' => $randomDate->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
             ];
-
-            if (!Feature::isActive('v6.7.0.0')) {
-                $customer['defaultPaymentMethodId'] = $this->getDefaultPaymentMethod();
-            }
 
             $payload[] = $customer;
 
@@ -232,7 +224,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
         $tagAssignments = [];
 
         if (!empty($tags)) {
-            $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit(), false);
+            $chosenTags = $this->faker->randomElements($tags, $this->faker->numberBetween(1, \count($tags)));
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_map(
@@ -260,25 +252,5 @@ class CustomerGenerator implements DemodataGeneratorInterface
         }
 
         return $this->salutationIds[array_rand($this->salutationIds)];
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed, customer has no default payment method anymore
-     */
-    private function getDefaultPaymentMethod(): ?string
-    {
-        if ($this->paymentMethodId === false) {
-            $id = $this->connection->fetchOne(
-                'SELECT `id` FROM `payment_method` WHERE `active` = 1 ORDER BY `position` ASC'
-            );
-
-            if (!$id) {
-                return $this->paymentMethodId = null;
-            }
-
-            return $this->paymentMethodId = Uuid::fromBytesToHex($id);
-        }
-
-        return $this->paymentMethodId;
     }
 }

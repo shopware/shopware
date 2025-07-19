@@ -114,12 +114,12 @@
             bottom: 8px;
             position: absolute;
 
-            .sw-icon.sw-cms-sidebar__icon-cms-block-favorite {
+            .mt-icon.sw-cms-sidebar__icon-cms-block-favorite {
                 color: $color-module-pink-800;
             }
 
             &:disabled {
-                .sw-icon.sw-cms-sidebar__icon-cms-block-favorite {
+                .mt-icon.sw-cms-sidebar__icon-cms-block-favorite {
                     color: $color-module-pink-200;
                 }
             }

@@ -16,6 +16,15 @@ export default class FocusHandler {
 
         // Stores different focus states.
         this._focusMap = new Map();
+
+        this._focusAbleElements = `
+            input:not([tabindex^="-"]):not([disabled]):not([type="hidden"]),
+            select:not([tabindex^="-"]):not([disabled]),
+            textarea:not([tabindex^="-"]):not([disabled]),
+            button:not([tabindex^="-"]):not([disabled]),
+            a[href]:not([tabindex^="-"]):not([disabled]),
+            [tabindex]:not([tabindex^="-"]):not([disabled])
+        `;
     }
 
     /**
@@ -128,5 +137,37 @@ export default class FocusHandler {
         } catch (error) {
             console.error('[FocusHandler]: Unable to focus element.', error);
         }
+    }
+
+    /**
+     * Returns a node list of all focusable elements within the given parent element.
+     *
+     * @param {Element} parentNode
+     * @return {NodeListOf<Element>}
+     */
+    getFocusableElements(parentNode = document.body) {
+        return parentNode.querySelectorAll(this._focusAbleElements);
+    }
+
+    /**
+     * Returns the first focusable element within the given parent element.
+     *
+     * @param {Element} parentNode
+     * @return {Element}
+     */
+    getFirstFocusableElement(parentNode = document.body) {
+        return parentNode.querySelector(this._focusAbleElements);
+    }
+
+    /**
+     * Returns the last focusable element within the given parent element.
+     *
+     * @param {Element} parentNode
+     * @return {Element}
+     */
+    getLastFocusableElement(parentNode = document.body) {
+        const result = this.getFocusableElements(parentNode);
+
+        return result[result.length - 1];
     }
 }

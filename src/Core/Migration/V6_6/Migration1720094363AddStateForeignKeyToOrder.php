@@ -39,8 +39,4 @@ class Migration1720094363AddStateForeignKeyToOrder extends MigrationStep
             REFERENCES `state_machine_state` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
         SQL);
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

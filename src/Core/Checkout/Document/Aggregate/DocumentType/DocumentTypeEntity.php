@@ -17,47 +17,17 @@ class DocumentTypeEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $technicalName;
+    protected string $technicalName;
 
-    /**
-     * @var ProductTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?ProductTranslationCollection $translations = null;
 
-    /**
-     * @var DocumentCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documents;
+    protected ?DocumentCollection $documents = null;
 
-    /**
-     * @var DocumentBaseConfigCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentBaseConfigs;
+    protected ?DocumentBaseConfigCollection $documentBaseConfigs = null;
 
-    /**
-     * @var DocumentBaseConfigSalesChannelCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $documentBaseConfigSalesChannels;
+    protected ?DocumentBaseConfigSalesChannelCollection $documentBaseConfigSalesChannels = null;
 
     public function getName(): string
     {

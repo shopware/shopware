@@ -26,6 +26,8 @@ class GuestWishlistPageLoader
     public function load(Request $request, SalesChannelContext $context): GuestWishlistPage
     {
         $page = $this->genericPageLoader->load($request, $context);
+        $page->getMetaInformation()?->setRobots('noindex,follow');
+
         $page = GuestWishlistPage::createFrom($page);
 
         $this->eventDispatcher->dispatch(new GuestWishlistPageLoadedEvent($page, $context, $request));

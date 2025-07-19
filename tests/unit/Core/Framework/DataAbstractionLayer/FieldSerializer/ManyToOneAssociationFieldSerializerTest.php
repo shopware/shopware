@@ -162,7 +162,7 @@ class ManyToOneAssociationFieldSerializerTest extends TestCase
             $params
         );
 
-        static::assertEquals([], iterator_to_array($result));
+        static::assertSame([], iterator_to_array($result));
     }
 }
 

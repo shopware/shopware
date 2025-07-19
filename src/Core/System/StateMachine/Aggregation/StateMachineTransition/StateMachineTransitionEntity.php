@@ -15,54 +15,19 @@ class StateMachineTransitionEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $actionName;
+    protected string $actionName;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $stateMachineId;
+    protected string $stateMachineId;
 
-    /**
-     * @var StateMachineEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $stateMachine;
+    protected ?StateMachineEntity $stateMachine = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $fromStateId;
+    protected string $fromStateId;
 
-    /**
-     * @var StateMachineStateEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $fromStateMachineState;
+    protected ?StateMachineStateEntity $fromStateMachineState = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $toStateId;
+    protected string $toStateId;
 
-    /**
-     * @var StateMachineStateEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $toStateMachineState;
+    protected ?StateMachineStateEntity $toStateMachineState = null;
 
     public function getStateMachineId(): string
     {

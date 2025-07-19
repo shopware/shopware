@@ -1,6 +1,6 @@
 import type { AxiosInstance, AxiosResponse } from 'axios';
 import type { LoginService } from 'src/core/service/login.service';
-import type { ContextState } from 'src/app/state/context.store';
+import type { ContextStore } from 'src/app/store/context.store';
 import type { BasicHeaders } from 'src/core/service/api.service';
 
 import ApiService from 'src/core/service/api.service';
@@ -252,7 +252,7 @@ export default class ExtensionStoreActionService extends ApiService {
         return ApiService.handleResponse(response);
     }
 
-    private storeHeaders(context: ContextState['api'] | null = null): ExtensionStoreActionHeaders {
+    private storeHeaders(context: ContextStore['api'] | null = null): ExtensionStoreActionHeaders {
         const headers = super.getBasicHeaders();
 
         if (context?.languageId) {

@@ -28,7 +28,7 @@ class SnippetControllerTest extends TestCase
         $context = new Context(new SystemSource());
 
         if ($exception !== null) {
-            $snippetService->expects(static::never())->method('getList');
+            $snippetService->expects($this->never())->method('getList');
             static::expectExceptionObject($exception);
             static::expectExceptionMessage($exception->getMessage());
 
@@ -39,7 +39,7 @@ class SnippetControllerTest extends TestCase
             return;
         }
 
-        $snippetService->expects(static::once())->method('getList')->with(
+        $snippetService->expects($this->once())->method('getList')->with(
             $request->request->getInt('page', 1),
             $request->request->getInt('limit', 25),
             $context,

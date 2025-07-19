@@ -19,110 +19,40 @@ class OrderDeliveryEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderId;
+    protected string $orderId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $orderVersionId;
+    protected string $orderVersionId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingOrderAddressId;
+    protected string $shippingOrderAddressId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingOrderAddressVersionId;
+    protected string $shippingOrderAddressVersionId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingMethodId;
+    protected string $shippingMethodId;
 
     /**
      * @var array<string>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $trackingCodes;
+    protected array $trackingCodes;
 
-    /**
-     * @var \DateTimeInterface
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingDateEarliest;
+    protected \DateTimeInterface $shippingDateEarliest;
 
-    /**
-     * @var \DateTimeInterface
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingDateLatest;
+    protected \DateTimeInterface $shippingDateLatest;
 
-    /**
-     * @var CalculatedPrice
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingCosts;
+    protected CalculatedPrice $shippingCosts;
 
-    /**
-     * @var OrderAddressEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingOrderAddress;
+    protected ?OrderAddressEntity $shippingOrderAddress = null;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $stateId;
+    protected string $stateId;
 
-    /**
-     * @var StateMachineStateEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $stateMachineState;
+    protected ?StateMachineStateEntity $stateMachineState = null;
 
-    /**
-     * @var ShippingMethodEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shippingMethod;
+    protected ?ShippingMethodEntity $shippingMethod = null;
 
-    /**
-     * @var OrderEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $order;
+    protected ?OrderEntity $order = null;
 
-    /**
-     * @var OrderDeliveryPositionCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $positions;
+    protected ?OrderDeliveryPositionCollection $positions = null;
+
+    protected ?OrderEntity $primaryOrder = null;
 
     public function getOrderId(): string
     {
@@ -278,5 +208,15 @@ class OrderDeliveryEntity extends Entity
     public function setShippingOrderAddressVersionId(string $shippingOrderAddressVersionId): void
     {
         $this->shippingOrderAddressVersionId = $shippingOrderAddressVersionId;
+    }
+
+    public function getPrimaryOrder(): ?OrderEntity
+    {
+        return $this->primaryOrder;
+    }
+
+    public function setPrimaryOrder(?OrderEntity $primaryOrder): void
+    {
+        $this->primaryOrder = $primaryOrder;
     }
 }

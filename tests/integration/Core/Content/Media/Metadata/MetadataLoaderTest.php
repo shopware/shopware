@@ -1,13 +1,16 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Shopware\Tests\Integration\Core\Content\Media\Metadata;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\MediaFile;
-use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Util\Hasher;
 
 /**
  * @internal
@@ -16,70 +19,75 @@ class MetadataLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testJpg(): void
+    /**
+     * @return iterable<string, array<string, mixed>>
+     */
+    public static function fileDataProvider(): iterable
     {
+        $imgPath = __DIR__ . '/../fixtures/shopware.jpg';
+        yield 'jpg' => [
+            'imgPath' => $imgPath,
+            'expected' => [
+                'type' => \IMAGETYPE_JPEG,
+                'width' => 1530,
+                'height' => 1021,
+                'hash' => Hasher::hashFile($imgPath, 'md5'),
+            ],
+        ];
+
+        $imgPath = __DIR__ . '/../fixtures/logo.gif';
+        yield 'gif' => [
+            'imgPath' => $imgPath,
+            'expected' => [
+                'type' => \IMAGETYPE_GIF,
+                'width' => 142,
+                'height' => 37,
+                'hash' => Hasher::hashFile($imgPath, 'md5'),
+            ],
+        ];
+
+        $imgPath = __DIR__ . '/../fixtures/shopware-logo.png';
+        yield 'png' => [
+            'imgPath' => $imgPath,
+            'expected' => [
+                'type' => \IMAGETYPE_PNG,
+                'width' => 499,
+                'height' => 266,
+                'hash' => Hasher::hashFile($imgPath, 'md5'),
+            ],
+        ];
+
+        $imgPath = __DIR__ . '/../fixtures/logo-version-professionalplus.svg';
+        yield 'svg' => [
+            'imgPath' => $imgPath,
+            'expected' => [
+                'hash' => Hasher::hashFile($imgPath, 'md5'),
+            ],
+        ];
+
+        $imgPath = __DIR__ . '/../fixtures/small.pdf';
+        yield 'pdf' => [
+            'imgPath' => $imgPath,
+            'expected' => [
+                'hash' => Hasher::hashFile($imgPath, 'md5'),
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed>|null $expected
+     */
+    #[DataProvider('fileDataProvider')]
+    public function testLoadFromFile(
+        string $imgPath,
+        ?array $expected
+    ): void {
         $result = $this
             ->getMetadataLoader()
-            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/shopware.jpg'), new ImageType());
-
-        $expected = [
-            'type' => \IMAGETYPE_JPEG,
-            'width' => 1530,
-            'height' => 1021,
-        ];
+            ->loadFromFile($this->createMediaFile($imgPath), new ImageType());
 
         static::assertIsArray($result);
         static::assertEquals($expected, $result);
-    }
-
-    public function testGif(): void
-    {
-        $result = $this
-            ->getMetadataLoader()
-            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/logo.gif'), new ImageType());
-
-        $expected = [
-            'type' => \IMAGETYPE_GIF,
-            'width' => 142,
-            'height' => 37,
-        ];
-
-        static::assertIsArray($result);
-        static::assertEquals($expected, $result);
-    }
-
-    public function testPng(): void
-    {
-        $result = $this
-            ->getMetadataLoader()
-            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/shopware-logo.png'), new ImageType());
-
-        $expected = [
-            'type' => \IMAGETYPE_PNG,
-            'width' => 499,
-            'height' => 266,
-        ];
-
-        static::assertIsArray($result);
-        static::assertEquals($expected, $result);
-    }
-
-    public function testSvg(): void
-    {
-        $result = $this
-            ->getMetadataLoader()
-            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/logo-version-professionalplus.svg'), new ImageType());
-
-        static::assertNull($result);
-    }
-
-    public function testPdf(): void
-    {
-        $result = $this
-            ->getMetadataLoader()
-            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/small.pdf'), new DocumentType());
-
-        static::assertNull($result);
     }
 
     private function getMetadataLoader(): MetadataLoader
@@ -100,7 +108,8 @@ class MetadataLoaderTest extends TestCase
             $filePath,
             $mimeType,
             pathinfo($filePath, \PATHINFO_EXTENSION),
-            $fileSize
+            $fileSize,
+            Hasher::hashFile($filePath, 'md5')
         );
     }
 }

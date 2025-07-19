@@ -72,7 +72,6 @@ class Migration1583142266FixDefaultOrderConfirmationMailTemplateVATDisplay exten
 
     private function fetchLanguageId(string $code, Connection $connection): ?string
     {
-        /** @var string|null $langId */
         $langId = $connection->fetchOne('
         SELECT `language`.`id` FROM `language`
         INNER JOIN `locale` ON `language`.`translation_code_id` = `locale`.`id`

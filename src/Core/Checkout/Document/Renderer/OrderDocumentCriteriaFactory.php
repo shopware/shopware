@@ -26,8 +26,10 @@ final class OrderDocumentCriteriaFactory
         $criteria = new Criteria($ids);
 
         $criteria->addAssociations([
+            'primaryOrderDelivery',
             'lineItems',
-            'transactions.paymentMethod',
+            'primaryOrderTransaction.paymentMethod',
+            'primaryOrderTransaction.stateMachineState',
             'currency',
             'language.locale',
             'addresses.country',
@@ -41,11 +43,16 @@ final class OrderDocumentCriteriaFactory
             'orderCustomer.salutation',
         ]);
 
+        if (!Feature::isActive('v6.8.0.0')) {
+            $criteria->getAssociation('transactions')
+                ->addAssociations(['paymentMethod', 'stateMachineState'])
+                ->addSorting(new FieldSorting('createdAt'));
+        }
+
         $criteria->getAssociation('lineItems')->addSorting(new FieldSorting('position'));
-        $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
         $criteria->getAssociation('deliveries')->addSorting(new FieldSorting('createdAt'));
 
-        if ($documentType && Feature::isActive('v6.7.0.0')) {
+        if ($documentType) {
             $criteria->addAssociation('documents.documentType');
             $criteria->getAssociation('documents')
                 ->addFilter(new EqualsFilter('documentType.technicalName', $documentType))

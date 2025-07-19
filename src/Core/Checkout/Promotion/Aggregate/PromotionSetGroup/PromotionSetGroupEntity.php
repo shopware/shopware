@@ -13,47 +13,17 @@ class PromotionSetGroupEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $packagerKey;
+    protected string $packagerKey;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $sorterKey;
+    protected string $sorterKey;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $value;
+    protected float $value;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $promotionId;
+    protected string $promotionId;
 
-    /**
-     * @var PromotionEntity|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $promotion;
+    protected ?PromotionEntity $promotion = null;
 
-    /**
-     * @var RuleCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $setGroupRules;
+    protected ?RuleCollection $setGroupRules = null;
 
     public function getPackagerKey(): string
     {

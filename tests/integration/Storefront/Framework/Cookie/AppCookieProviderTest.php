@@ -32,18 +32,18 @@ class AppCookieProviderTest extends TestCase
 
     public function testItReturnsDefaultCookiesIfNoAppIsInstalled(): void
     {
-        $this->baseProvider->expects(static::once())
+        $this->baseProvider->expects($this->once())
             ->method('getCookieGroups')
             ->willReturn(['test']);
 
         $result = $this->appCookieProvider->getCookieGroups();
 
-        static::assertEquals(['test'], $result);
+        static::assertSame(['test'], $result);
     }
 
     public function testItAddsSingleCookieFromApp(): void
     {
-        $this->baseProvider->expects(static::once())
+        $this->baseProvider->expects($this->once())
             ->method('getCookieGroups')
             ->willReturn([]);
 
@@ -61,7 +61,7 @@ class AppCookieProviderTest extends TestCase
 
     public function testItAddsCookieGroupFromApp(): void
     {
-        $this->baseProvider->expects(static::once())
+        $this->baseProvider->expects($this->once())
             ->method('getCookieGroups')
             ->willReturn([]);
 
@@ -87,7 +87,7 @@ class AppCookieProviderTest extends TestCase
 
     public function testItMergesCookiesFromAppWithCoreGroup(): void
     {
-        $this->baseProvider->expects(static::once())
+        $this->baseProvider->expects($this->once())
             ->method('getCookieGroups')
             ->willReturn([[
                 'snippet_name' => 'cookie.groupRequired',
@@ -103,7 +103,7 @@ class AppCookieProviderTest extends TestCase
 
         $result = $this->appCookieProvider->getCookieGroups();
         static::assertCount(1, $result);
-        static::assertEquals('cookie.groupRequired', $result[0]['snippet_name']);
+        static::assertSame('cookie.groupRequired', $result[0]['snippet_name']);
         static::assertCount(3, $result[0]['entries']);
         usort($result[0]['entries'], fn (array $a, array $b): int => $a['snippet_name'] <=> $b['snippet_name']);
 
@@ -125,7 +125,7 @@ class AppCookieProviderTest extends TestCase
 
     public function testItMergesCookiesFromMultipleApps(): void
     {
-        $this->baseProvider->expects(static::once())
+        $this->baseProvider->expects($this->once())
             ->method('getCookieGroups')
             ->willReturn([]);
 
@@ -133,7 +133,7 @@ class AppCookieProviderTest extends TestCase
 
         $result = $this->appCookieProvider->getCookieGroups();
         static::assertCount(1, $result);
-        static::assertEquals('App Cookies', $result[0]['snippet_name']);
+        static::assertSame('App Cookies', $result[0]['snippet_name']);
         static::assertCount(3, $result[0]['entries']);
         usort($result[0]['entries'], fn (array $a, array $b): int => $a['snippet_name'] <=> $b['snippet_name']);
 
@@ -155,7 +155,7 @@ class AppCookieProviderTest extends TestCase
 
     public function testItIgnoresDeactivatedApps(): void
     {
-        $this->baseProvider->expects(static::once())
+        $this->baseProvider->expects($this->once())
             ->method('getCookieGroups')
             ->willReturn([]);
 

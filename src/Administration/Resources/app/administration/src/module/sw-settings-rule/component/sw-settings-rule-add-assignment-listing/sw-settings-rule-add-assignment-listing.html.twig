@@ -1,11 +1,14 @@
 {% block sw_settings_rule_add_assignment_listing %}
-<sw-card
+<mt-card
     class="sw-settings-rule-add-assignment-listing__card"
     position-identifier="sw-settings-rule-add-assignment-listing"
 >
     <template #toolbar>
         {% block sw_settings_rule_add_assignment_listing_toolbar %}
-        <sw-card-filter @sw-card-filter-term-change="doSearch" />
+        <sw-card-filter
+            :placeholder="$tc('global.sw-simple-search-field.defaultPlaceholder')"
+            @sw-card-filter-term-change="doSearch"
+        />
         {% endblock %}
     </template>
 
@@ -30,10 +33,10 @@
         >
             {% block sw_settings_rule_add_assignment_listing_checkbox %}
             <div class="sw-data-grid__cell-content">
-                <sw-checkbox-field
+                <mt-checkbox
                     :disabled="!isRecordSelectable(item)"
-                    :value="isSelected(item[itemIdentifierProperty]) || !isNotAssigned(item)"
-                    @update:value="selectItem($event, item)"
+                    :checked="isSelected(item[itemIdentifierProperty]) || !isNotAssigned(item)"
+                    @update:checked="selectItem($event, item)"
                 />
             </div>
             {% endblock %}
@@ -55,16 +58,16 @@
 
         <template #column-active="{ item }">
             {% block sw_settings_rule_add_assignment_listing_active_flag %}
-            <sw-icon
+            <mt-icon
                 v-if="item.active"
                 name="regular-checkmark-xs"
-                small
+                size="16px"
                 class="is--active"
             />
-            <sw-icon
+            <mt-icon
                 v-else
                 name="regular-times-s"
-                small
+                size="16px"
                 class="is--inactive"
             />
             {% endblock %}
@@ -88,5 +91,5 @@
         </template>
     </sw-data-grid>
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

@@ -16,12 +16,17 @@
             @modal-close="closeModal(modal.locationId)"
         >
             <sw-iframe-renderer
+                v-if="modal.locationId"
                 :src="modal.baseUrl"
                 :location-id="modal.locationId"
             />
 
+            <template v-else>
+                <p v-html="sanitizeTextContent(modal.textContent)"></p>
+            </template>
+
             <template #modal-footer>
-                <sw-button
+                <mt-button
                     v-for="button in modal.buttons"
                     :key="button.label"
                     :variant="buttonProps(button).variant"
@@ -30,7 +35,7 @@
                     @click="() => buttonProps(button).method()"
                 >
                     {{ $tc(button.label ?? '') }}
-                </sw-button>
+                </mt-button>
             </template>
         </sw-modal>
     </template>

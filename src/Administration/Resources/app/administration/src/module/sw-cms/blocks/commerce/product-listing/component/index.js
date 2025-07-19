@@ -6,6 +6,4 @@ import template from './sw-cms-block-product-listing.html.twig';
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 };

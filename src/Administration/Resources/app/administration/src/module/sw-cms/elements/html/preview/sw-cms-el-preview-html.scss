@@ -4,9 +4,12 @@
             .sw-code-editor__editor {
                 height: 112px;
 
-                .ace_gutter {
+                /* stylelint-disable max-nesting-depth */
+                .ace_gutter,
+                .ace_scrollbar {
                     z-index: 0;
                 }
+                /* stylelint-enable max-nesting-depth */
             }
         }
     }

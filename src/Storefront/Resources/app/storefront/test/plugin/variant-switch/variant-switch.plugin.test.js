@@ -3,8 +3,8 @@ import NativeEventEmitter from 'src/helper/emitter.helper';
 
 describe('VariantSwitchPlugin tests', () => {
     let variantSwitchPlugin = undefined;
-    let spyInit = jest.fn();
-    let spyInitializePlugins = jest.fn();
+    const spyInit = jest.fn();
+    const spyInitializePlugins = jest.fn();
 
     beforeEach(() => {
         document.$emitter = new NativeEventEmitter();
@@ -47,9 +47,9 @@ describe('VariantSwitchPlugin tests', () => {
         variantSwitchPlugin._onChange = jest.fn();
         const spy = jest.spyOn(variantSwitchPlugin, '_onChange');
 
-        // simulate click
+        // simulate click and change
         const mockInput = variantSwitchPlugin.el.firstChild;
-        mockInput.click();
+        mockInput.dispatchEvent(new Event('change', { bubbles: true }));
 
         expect(spy).toHaveBeenCalled();
 
@@ -64,7 +64,7 @@ describe('VariantSwitchPlugin tests', () => {
 
         // simulate click
         const mockInput = variantSwitchPlugin.el.firstChild;
-        mockInput.click();
+        mockInput.dispatchEvent(new Event('change', { bubbles: true }));
 
         expect(spy).toHaveBeenCalled();
 
@@ -117,7 +117,7 @@ describe('VariantSwitchPlugin tests', () => {
 
         // simulate click
         const mockInput = variantSwitchPlugin.el.firstChild;
-        mockInput.click();
+        mockInput.dispatchEvent(new Event('change', { bubbles: true }));
 
         expect(spy).toHaveBeenCalled();
 

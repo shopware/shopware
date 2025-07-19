@@ -57,8 +57,10 @@ class CmsBlockDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $collection = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new VersionField())->addFlags(new ApiAware()),
+            (new ReferenceVersionField(CmsSectionDefinition::class))->addFlags(new Required(), new ApiAware()),
 
             (new IntField('position', 'position'))->addFlags(new ApiAware(), new Required()),
             (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required()),
@@ -86,10 +88,5 @@ class CmsBlockDefinition extends EntityDefinition
             (new OneToManyAssociationField('slots', CmsSlotDefinition::class, 'cms_block_id'))->addFlags(new ApiAware(), new CascadeDelete()),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);
-
-        $collection->add((new VersionField())->addFlags(new ApiAware()));
-        $collection->add((new ReferenceVersionField(CmsSectionDefinition::class))->addFlags(new Required(), new ApiAware()));
-
-        return $collection;
     }
 }

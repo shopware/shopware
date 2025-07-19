@@ -4,11 +4,11 @@ import './sw-settings-country-preview-template.scss';
 const { Component } = Shopware;
 
 /**
- * @sw-package buyers-experience
+ * @sw-package fundamentals@discovery
  *
  * @private
  */
-Component.register('sw-settings-country-preview-template', {
+export default Component.wrapComponentConfig({
     template,
 
     props: {

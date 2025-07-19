@@ -39,12 +39,12 @@ class DefinitionRegistryChainTest extends TestCase
     public function testGetRepository(): void
     {
         $this->salesChannelDefinitionInstanceRegistry
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getSalesChannelRepository')
             ->willThrowException(new SalesChannelRepositoryNotFoundException('product_manufacturer'));
 
         $this->definitionInstanceRegistry
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getRepository')
             ->willReturn($this->createMock(EntityRepository::class));
 
@@ -56,7 +56,7 @@ class DefinitionRegistryChainTest extends TestCase
     public function testGetSalesChannelRepository(): void
     {
         $this->salesChannelDefinitionInstanceRegistry
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getSalesChannelRepository')
             ->willReturn($this->createMock(SalesChannelRepository::class));
 

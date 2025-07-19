@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class User implements UserEntityInterface
 {
+    /**
+     * @param non-empty-string $userId
+     */
     public function __construct(private readonly string $userId)
     {
     }
@@ -15,9 +18,9 @@ class User implements UserEntityInterface
     /**
      * Return the user's identifier.
      *
-     * @return string
+     * @return non-empty-string
      */
-    public function getIdentifier()
+    public function getIdentifier(): string
     {
         return $this->userId;
     }

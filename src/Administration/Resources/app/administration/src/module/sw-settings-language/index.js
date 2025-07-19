@@ -1,5 +1,5 @@
 /**
- * @sw-package buyers-experience
+ * @sw-package fundamentals@discovery
  */
 import './acl';
 
@@ -38,7 +38,7 @@ Module.register('sw-settings-language', {
                 privilege: 'language.viewer',
             },
             props: {
-                default: (route) => ({ languageId: route.params.id }),
+                default: (route) => ({ languageId: route.params.id?.toLowerCase() }),
             },
         },
         create: {
@@ -52,7 +52,7 @@ Module.register('sw-settings-language', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'general',
         to: 'sw.settings.language.index',
         icon: 'regular-flag',
         privilege: 'language.viewer',

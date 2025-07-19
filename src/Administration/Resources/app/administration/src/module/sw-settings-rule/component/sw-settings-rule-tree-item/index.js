@@ -7,8 +7,6 @@ import template from './sw-settings-rule-tree-item.html.twig';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         association: {
             type: String,

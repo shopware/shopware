@@ -100,13 +100,10 @@ class PdfRendererTest extends TestCase
 
         $rendered = $processedTemplate->getSuccess()[$orderId];
 
-        static::assertStringContainsString('<html lang="en-GB">', $rendered->getHtml());
-        static::assertStringContainsString('</html>', $rendered->getHtml());
-
         $generatorOutput = $this->pdfRenderer->render($rendered);
         static::assertNotEmpty($generatorOutput);
 
         $finfo = new \finfo(\FILEINFO_MIME_TYPE);
-        static::assertEquals('application/pdf', $finfo->buffer($generatorOutput));
+        static::assertSame('application/pdf', $finfo->buffer($generatorOutput));
     }
 }

@@ -11,33 +11,16 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class StoreLicenseViolationStruct extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var StoreLicenseViolationTypeStruct
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $type;
+    protected StoreLicenseViolationTypeStruct $type;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $text;
+    protected string $text;
 
     /**
      * @var StoreActionStruct[]
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $actions;
+    protected array $actions;
 
     public function getName(): string
     {

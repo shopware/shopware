@@ -8,16 +8,9 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class IdStruct extends Struct
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $id;
-
-    public function __construct(string $id)
-    {
-        $this->id = $id;
+    public function __construct(
+        protected string $id
+    ) {
     }
 
     public function getId(): string

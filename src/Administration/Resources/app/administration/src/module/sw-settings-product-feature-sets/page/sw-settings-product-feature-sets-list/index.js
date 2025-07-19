@@ -12,8 +12,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -115,7 +113,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
             this.getList();
         },
 
@@ -123,9 +121,13 @@ export default {
             promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-product-feature-sets.detail.messageSaveSuccess', 0, {
-                            name: productFeatureSets.name,
-                        }),
+                        message: this.$tc(
+                            'sw-settings-product-feature-sets.detail.messageSaveSuccess',
+                            {
+                                name: productFeatureSets.name,
+                            },
+                            0,
+                        ),
                     });
                 })
                 .catch(() => {

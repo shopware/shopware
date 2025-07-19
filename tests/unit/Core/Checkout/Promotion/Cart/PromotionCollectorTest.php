@@ -92,6 +92,23 @@ class PromotionCollectorTest extends TestCase
         static::assertNull($promotionLast->getExtension(OrderConverter::ORIGINAL_ID));
     }
 
+    public function testCollectWithCreditLineItemInRecalculation(): void
+    {
+        $discountId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+
+        $cart = $this->prepareCart([$discountId], $promotionId);
+
+        $creditLineItem = new LineItem(Uuid::randomHex(), LineItem::CREDIT_LINE_ITEM_TYPE);
+        $cart->add($creditLineItem);
+
+        $cartDataCollection = new CartDataCollection();
+
+        $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior(isRecalculation: true));
+
+        static::assertEmpty($cart->getErrors()->getElements());
+    }
+
     public function testPromotionWithInvalidOrderCount(): void
     {
         $cart = $this->prepareCart([Uuid::randomHex(), Uuid::randomHex()], Uuid::randomHex(), 2, 1);
@@ -137,7 +154,7 @@ class PromotionCollectorTest extends TestCase
 
     public function testPromotionWithMaxTotalUseIsReachedInEditingOrder(): void
     {
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('fetchOne')
             ->willReturn('1');
         $discountId1 = Uuid::randomHex();
@@ -170,7 +187,7 @@ class PromotionCollectorTest extends TestCase
 
     public function testPromotionWithMaxUsePerCustomerIsReachedInEditingOrder(): void
     {
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('fetchOne')
             ->willReturn('1');
         $discountId1 = Uuid::randomHex();
@@ -260,6 +277,7 @@ class PromotionCollectorTest extends TestCase
             $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
             $discount->setValue(10.0);
             $discount->setPromotionId($promotion->getId());
+            $discount->setConsiderAdvancedRules(false);
 
             $discounts[] = $discount;
         }

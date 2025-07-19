@@ -9,10 +9,9 @@ use Shopware\Core\Framework\Util\FloatComparator;
 #[Package('checkout')]
 class RegulationPrice extends Struct
 {
-    protected float $price;
-
-    public function __construct(float $price)
-    {
+    public function __construct(
+        protected float $price
+    ) {
         $this->price = FloatComparator::cast($price);
     }
 

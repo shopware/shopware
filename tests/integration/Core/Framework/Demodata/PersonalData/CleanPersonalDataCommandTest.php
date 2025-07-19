@@ -8,12 +8,12 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Demodata\PersonalData\CleanPersonalDataCommand;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -33,6 +33,9 @@ class CleanPersonalDataCommandTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
 
     protected function setUp(): void
@@ -66,7 +69,7 @@ class CleanPersonalDataCommandTest extends TestCase
         $input = new ArrayInput(['type' => 'guests'], $this->createInputDefinition());
         $this->getCommand()->run($input, new BufferedOutput());
 
-        static::assertEmpty($this->fetchAllCustomers());
+        static::assertCount(0, $this->fetchAllCustomers());
     }
 
     public function testCommandIsNoGuest(): void
@@ -136,7 +139,7 @@ class CleanPersonalDataCommandTest extends TestCase
         $input = new ArrayInput(['type' => 'guests'], $this->createInputDefinition());
         $this->getCommand()->run($input, new BufferedOutput());
 
-        static::assertEmpty($this->fetchAllCustomers());
+        static::assertCount(0, $this->fetchAllCustomers());
     }
 
     public function testCommandRemovesNoGuestBecauseOfDays(): void
@@ -162,8 +165,8 @@ class CleanPersonalDataCommandTest extends TestCase
         $input = new ArrayInput(['--all' => true], $this->createInputDefinition());
         $this->getCommand()->run($input, new BufferedOutput());
 
-        static::assertEmpty($this->fetchAllCustomers());
-        static::assertEmpty($this->fetchAllCarts());
+        static::assertCount(0, $this->fetchAllCustomers());
+        static::assertCount(0, $this->fetchAllCarts());
     }
 
     public function testCommandRemovesCart(): void
@@ -298,10 +301,6 @@ class CleanPersonalDataCommandTest extends TestCase
             'customerNumber' => 'not',
             'guest' => $isGuest,
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $guest['defaultPaymentMethodId'] = $this->fetchFirstIdFromTable('payment_method');
-        }
 
         $this->customerRepository->upsert([$guest], Context::createDefaultContext());
 

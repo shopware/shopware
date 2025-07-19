@@ -1,0 +1,30 @@
+{% block component_address_field_additional_line %}
+    {% set index = index in [1, 2] ? index : 1 %}
+
+    {% set path = 'additionalAddressLine' ~ index %}
+
+    {% if formViolations.getViolations('/' ~ path) is not empty %}
+        {% set violationPath = formPath %}
+    {% elseif formViolations.getViolations("/#{prefix}/" ~ formPath) is not empty %}
+        {% set violationPath = "/#{prefix}/" ~ formPath %}
+    {% endif %}
+
+    {% set additionalFieldAutocomplete = 'address-line' ~ (index + 1) %}
+
+    {% if prefix == 'shippingAddress' %}
+        {% set additionalFieldAutocomplete = 'shipping ' ~ additionalFieldAutocomplete %}
+    {% elseif prefix == 'billingAddress' %}
+        {% set additionalFieldAutocomplete = 'billing ' ~ additionalFieldAutocomplete %}
+    {% endif %}
+
+    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+        label: ('address.additionalField' ~ index ~ 'Label')|trans|sw_sanitize,
+        id: idPrefix ~ prefix ~ 'AdditionalField' ~ index,
+        name: prefix ~ '[' ~ path ~ ']',
+        value: data.get(path),
+        autocomplete: additionalFieldAutocomplete,
+        violationPath: violationPath,
+        validationRules: config('core.loginRegistration.additionalAddressField' ~ index ~ 'Required') ? 'required',
+        additionalClass: additionalClass ?? 'col-md-6',
+    } %}
+{% endblock %}

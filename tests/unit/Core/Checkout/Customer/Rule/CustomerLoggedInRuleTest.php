@@ -72,13 +72,13 @@ class CustomerLoggedInRuleTest extends TestCase
     {
         $rule = new CustomerLoggedInRule($isLoggedIn);
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->expects(static::once())
+        $salesChannelContext->expects($this->once())
             ->method('getCustomer')
             ->willReturn($hasCustomer ? new CustomerEntity() : null);
 
         $scope = new CheckoutRuleScope($salesChannelContext);
         $match = $rule->match($scope);
-        static::assertEquals($match, $isMatching);
+        static::assertSame($match, $isMatching);
     }
 
     public static function getCaseTestMatchValues(): \Generator

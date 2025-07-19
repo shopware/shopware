@@ -18,7 +18,7 @@ class RunSingleScheduledTaskCommandTest extends TestCase
     {
         $taskRunner = $this->createMock(TaskRunner::class);
         $taskRunner
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('runSingleTask')
             ->with('TestTask.ID');
 

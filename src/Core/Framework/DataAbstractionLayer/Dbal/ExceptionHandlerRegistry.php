@@ -12,10 +12,8 @@ class ExceptionHandlerRegistry
 {
     /**
      * @var array<int, list<ExceptionHandlerInterface>>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $exceptionHandlers = [];
+    protected array $exceptionHandlers = [];
 
     /**
      * @internal
@@ -34,13 +32,13 @@ class ExceptionHandlerRegistry
         $this->exceptionHandlers[$exceptionHandler->getPriority()][] = $exceptionHandler;
     }
 
-    public function matchException(\Exception $e): ?\Exception
+    public function matchException(\Throwable $e): ?\Throwable
     {
         foreach ($this->getExceptionHandlers() as $priorityExceptionHandlers) {
             foreach ($priorityExceptionHandlers as $exceptionHandler) {
                 $innerException = $exceptionHandler->matchException($e);
 
-                if ($innerException instanceof \Exception) {
+                if ($innerException !== null) {
                     return $innerException;
                 }
             }

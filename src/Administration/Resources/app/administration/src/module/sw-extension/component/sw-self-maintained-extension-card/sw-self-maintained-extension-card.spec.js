@@ -10,18 +10,18 @@ async function createWrapper() {
             global: {
                 stubs: {
                     'sw-context-button': true,
-                    'sw-switch-field': true,
+
                     'router-link': true,
                     'sw-context-menu-item': true,
                     'sw-loader': true,
                     'sw-meteor-card': await wrapTestComponent('sw-meteor-card', { sync: true }),
                     'sw-extension-icon': true,
-                    'sw-icon': true,
                     'sw-extension-uninstall-modal': true,
                     'sw-extension-removal-modal': true,
                     'sw-extension-permissions-modal': true,
                     'sw-extension-privacy-policy-extensions-modal': true,
                     'sw-tabs': true,
+                    'sw-time-ago': true,
                 },
                 provide: {
                     repositoryFactory: {
@@ -58,13 +58,13 @@ async function createWrapper() {
  */
 describe('src/module/sw-extension/component/sw-self-maintained-extension-card', () => {
     beforeAll(() => {
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
                 app: {
                     config: {
                         settings: {
@@ -78,7 +78,7 @@ describe('src/module/sw-extension/component/sw-self-maintained-extension-card', 
                         token: 'testToken',
                     },
                 },
-            },
+            }),
         });
     });
 

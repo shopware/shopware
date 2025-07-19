@@ -43,7 +43,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
@@ -57,7 +56,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tax\TaxDefinition;
-use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
 use Shopware\Core\Test\TestDefaults;
@@ -2020,10 +2019,6 @@ class VersioningTest extends TestCase
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         $this->customerRepository->upsert([$customer], Context::createDefaultContext());
 
         return $customerId;
@@ -2127,7 +2122,7 @@ class VersioningTest extends TestCase
 
         $data = [
             'id' => $paymentMethodId,
-            'handlerIdentifier' => SyncTestPaymentHandler::class,
+            'handlerIdentifier' => TestPaymentHandler::class,
             'name' => 'Payment',
             'technicalName' => 'payment_test',
             'active' => true,

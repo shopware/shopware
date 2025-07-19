@@ -175,6 +175,7 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Subscriber\PromotionIndividualCodeRedeemer">
             <argument type="service" id="promotion_individual_code.repository"/>
+            <argument type="service" id="order_customer.repository"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -216,6 +217,10 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetScopeDiscountPackager">
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\Cart\CartPromotionsSubscriber">
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

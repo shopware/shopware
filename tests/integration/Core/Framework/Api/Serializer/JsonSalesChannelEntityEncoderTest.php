@@ -7,24 +7,22 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\ApiException;
-use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait;
-use Shopware\Core\Framework\Test\Api\Serializer\fixtures\SerializationFixture;
-use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicStruct;
-use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicWithExtension;
-use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicWithToOneRelationship;
-use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestCollectionWithToOneRelationship;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AssociationExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendableDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarRuntimeExtension;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\SerializationFixture;
+use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestBasicStruct;
+use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestBasicWithExtension;
+use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestBasicWithToOneRelationship;
+use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestCollectionWithToOneRelationship;
 
 /**
  * @internal
@@ -56,19 +54,14 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
     #[DataProvider('emptyInputProvider')]
     public function testEncodeWithEmptyInput(mixed $input): void
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->expectException(ApiException::class);
-        } else {
-            $this->expectException(UnsupportedEncoderInputException::class);
-        }
-        $this->expectExceptionMessage('Unsupported encoder data provided. Only entities and entity collections are supported');
+        $this->expectExceptionObject(ApiException::unsupportedEncoderInput());
 
         $encoder = static::getContainer()->get(JsonEntityEncoder::class);
 
         $encoder->encode(
             new Criteria(),
             static::getContainer()->get(ProductDefinition::class),
-            /** @phpstan-ignore-next-line intentionally wrong parameter provided **/
+            /** @phpstan-ignore argument.type (for test purpose) */
             $input,
             SerializationFixture::SALES_CHANNEL_API_BASE_URL
         );

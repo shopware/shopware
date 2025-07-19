@@ -81,10 +81,6 @@ class NoDropStatementInUpdateRule implements Rule
             return [];
         }
 
-        if (!$node->name instanceof Identifier) {
-            return [];
-        }
-
         $methodName = $node->name->name;
         if (\in_array($methodName, self::$publicMethodsOfMigrationsWhichDontNeedToBeChecked, true)) {
             return [];

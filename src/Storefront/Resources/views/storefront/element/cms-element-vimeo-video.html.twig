@@ -48,7 +48,7 @@
                     <iframe
                         class="{{ iframeClass }}"
                         src="{{ videoUrl }}"
-                        title="{{ config.videoTitle.value }}"
+                        title="{{ config.iframeTitle.value }}"
                         allowfullscreen
                     ></iframe>
                     <div class="position-absolute top-0 end-0 m-3 js-vimeo-link d-none">
@@ -65,6 +65,7 @@
                 {% set pluginConfiguration = {
                     videoUrl: videoUrl,
                     iframeClasses: [ iframeClass ],
+                    iframeTitle: config.iframeTitle.value,
                     btnClasses: [ 'btn', 'btn-outline-secondary' ],
                     backdropClasses: [ 'cms-element-vimeo-video__backdrop' ],
                     confirmButtonText: 'component.cms.vimeo.acceptButtonLabel'|trans,

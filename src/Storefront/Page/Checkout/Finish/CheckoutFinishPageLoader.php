@@ -13,13 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
-use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -31,14 +31,12 @@ class CheckoutFinishPageLoader
 {
     /**
      * @internal
-     *
-     * @deprecated tag:v6.7.0 - translator will be mandatory from 6.7
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly AbstractOrderRoute $orderRoute,
-        private readonly ?AbstractTranslator $translator = null
+        private readonly AbstractTranslator $translator
     ) {
     }
 
@@ -81,25 +79,10 @@ class CheckoutFinishPageLoader
 
     protected function setMetaInformation(CheckoutFinishPage $page): void
     {
-        /**
-         * @deprecated tag:v6.7.0 - Remove condition in 6.7.
-         */
-        if ($page->getMetaInformation() !== null) {
-            $page->getMetaInformation()->setRobots('noindex,follow');
-        }
-
-        /**
-         * @deprecated tag:v6.7.0 - Remove condition with body in 6.7.
-         */
-        if ($this->translator !== null && $page->getMetaInformation() === null) {
-            $page->setMetaInformation(new MetaInformation());
-        }
-
-        if ($this->translator !== null) {
-            $page->getMetaInformation()?->setMetaTitle(
-                $this->translator->trans('checkout.finishMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
-            );
-        }
+        $page->getMetaInformation()?->setRobots('noindex,follow');
+        $page->getMetaInformation()?->setMetaTitle(
+            $this->translator->trans('checkout.finishMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
+        );
     }
 
     /**
@@ -122,17 +105,26 @@ class CheckoutFinishPageLoader
 
         $criteria = (new Criteria([$orderId]))
             ->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customer->getId()))
+            ->addAssociation('primaryOrderDelivery.shippingMethod')
+            ->addAssociation('primaryOrderDelivery.shippingOrderAddress.salutation')
+            ->addAssociation('primaryOrderDelivery.shippingOrderAddress.country')
+            ->addAssociation('primaryOrderDelivery.shippingOrderAddress.countryState')
+            ->addAssociation('primaryOrderTransaction.paymentMethod')
             ->addAssociation('lineItems.cover')
-            ->addAssociation('transactions.paymentMethod')
-            ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('billingAddress.salutation')
             ->addAssociation('billingAddress.country')
-            ->addAssociation('billingAddress.countryState')
-            ->addAssociation('deliveries.shippingOrderAddress.salutation')
-            ->addAssociation('deliveries.shippingOrderAddress.country')
-            ->addAssociation('deliveries.shippingOrderAddress.countryState');
+            ->addAssociation('billingAddress.countryState');
 
-        $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
+        if (!Feature::isActive('v6.8.0.0')) {
+            $criteria
+                ->addAssociation('transactions.paymentMethod')
+                ->addAssociation('deliveries.shippingMethod')
+                ->addAssociation('deliveries.shippingOrderAddress.salutation')
+                ->addAssociation('deliveries.shippingOrderAddress.country')
+                ->addAssociation('deliveries.shippingOrderAddress.countryState');
+
+            $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
+        }
 
         $this->eventDispatcher->dispatch(
             new CheckoutFinishPageOrderCriteriaEvent($criteria, $salesChannelContext)

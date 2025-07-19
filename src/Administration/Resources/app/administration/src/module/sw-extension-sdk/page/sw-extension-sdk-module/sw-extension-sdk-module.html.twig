@@ -22,9 +22,9 @@
         <router-link
             :to="{ name: back }"
         >
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-left"
-                small
+                size="16px"
             />
         </router-link>
     </template>
@@ -34,16 +34,17 @@
         v-if="showSmartBar"
         #smart-bar-actions
     >
-        <sw-button
+        <mt-button
             v-for="button in smartBarButtons"
             :id="button.buttonId"
             :key="button.buttonId"
             :disabled="button.disabled"
             :variant="button.variant"
+            size="default"
             @click="button.onClickCallback"
         >
             {{ $tc(button.label ?? '') }}
-        </sw-button>
+        </mt-button>
     </template>
     {% endblock %}
 

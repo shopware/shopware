@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
@@ -25,32 +26,17 @@ class AdvancedPackageRules extends SetGroupScopeFilter
 
     public function filter(DiscountLineItem $discount, DiscountPackageCollection $packages, SalesChannelContext $context): DiscountPackageCollection
     {
-        $priceDefinition = $discount->getPriceDefinition();
-
-        $newPackages = [];
+        $filtered = new DiscountPackageCollection();
 
         foreach ($packages as $package) {
-            $foundItems = [];
+            [$metaData, $cartItems] = $this->filterPackage($package, $discount->getPriceDefinition(), $context);
 
-            foreach ($package->getMetaData() as $item) {
-                $lineItem = $package->getCartItem($item->getLineItemId());
-
-                if ($this->isRulesFilterValid($lineItem, $priceDefinition, $context)) {
-                    $item = new LineItemQuantity(
-                        $lineItem->getId(),
-                        $lineItem->getQuantity()
-                    );
-
-                    $foundItems[] = $item;
-                }
-            }
-
-            if (\count($foundItems) > 0) {
-                $newPackages[] = new DiscountPackage(new LineItemQuantityCollection($foundItems));
+            if (\count($metaData) > 0) {
+                $filtered->add($this->createFilteredValuesPackage($metaData, $cartItems));
             }
         }
 
-        return new DiscountPackageCollection($newPackages);
+        return $filtered;
     }
 
     private function isRulesFilterValid(LineItem $item, PriceDefinitionInterface $priceDefinition, SalesChannelContext $context): bool
@@ -79,5 +65,53 @@ class AdvancedPackageRules extends SetGroupScopeFilter
         }
 
         return false;
+    }
+
+    /**
+     * @return array{array<string, LineItemQuantity>, array<string, LineItem>}
+     */
+    private function filterPackage(DiscountPackage $package, PriceDefinitionInterface $priceDefinition, SalesChannelContext $context): array
+    {
+        $checkedItems = [];
+        $metaData = [];
+        $cartItems = [];
+
+        foreach ($package->getMetaData() as $key => $item) {
+            $id = $item->getLineItemId();
+            if (!\array_key_exists($id, $checkedItems)) {
+                $lineItem = $package->getCartItem($id);
+
+                if ($this->isRulesFilterValid($lineItem, $priceDefinition, $context)) {
+                    $checkedItems[$id] = $lineItem;
+                }
+            }
+
+            if (isset($checkedItems[$id])) {
+                $metaData[$key] = $item;
+                $cartItems[$key] = $checkedItems[$id];
+            }
+        }
+
+        return [$metaData, $cartItems];
+    }
+
+    /**
+     * @param array<string, LineItemQuantity> $metaData
+     * @param array<string, LineItem> $cartItems
+     */
+    private function createFilteredValuesPackage(array $metaData, array $cartItems): DiscountPackage
+    {
+        // assign instead of add for performance reasons
+        $metaCollection = new LineItemQuantityCollection();
+        $metaCollection->assign(['elements' => $metaData]);
+
+        // assign instead of add for performance reasons
+        $cartCollection = new LineItemFlatCollection();
+        $cartCollection->assign(['elements' => $cartItems]);
+
+        $package = new DiscountPackage($metaCollection);
+        $package->setCartItems($cartCollection);
+
+        return $package;
     }
 }

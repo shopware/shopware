@@ -16,15 +16,14 @@ use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\VersionParser;
-use Shopware\Core\Service\Service;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
-use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
@@ -36,71 +35,50 @@ class Kernel extends HttpKernel
     use MicroKernelTrait;
 
     final public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
-
     /**
      * @var string Fallback version if nothing is provided via kernel constructor
      */
-    final public const SHOPWARE_FALLBACK_VERSION = '6.6.9999999-dev';
+    final public const SHOPWARE_FALLBACK_VERSION = '6.7.9999999-dev';
 
     protected static ?Connection $connection = null;
 
-    /**
-     * @var KernelPluginLoader
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $pluginLoader;
+    protected string $shopwareVersion;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shopwareVersion;
-
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $shopwareVersionRevision;
+    protected ?string $shopwareVersionRevision;
 
     private bool $rebooting = false;
 
+    private string $cacheRootDir;
+
     /**
      * @internal
-     *
-     * {@inheritdoc}
      */
     public function __construct(
         string $environment,
         bool $debug,
-        KernelPluginLoader $pluginLoader,
+        protected KernelPluginLoader $pluginLoader,
         private string $cacheId,
         string $version,
         Connection $connection,
-        protected string $projectDir
+        protected string $projectDir,
     ) {
         date_default_timezone_set('UTC');
 
         parent::__construct($environment, $debug);
         self::$connection = $connection;
 
-        $this->pluginLoader = $pluginLoader;
+        $versionArray = VersionParser::parseShopwareVersion($version);
+        $this->shopwareVersion = $versionArray['version'];
+        $this->shopwareVersionRevision = $versionArray['revision'];
 
-        $version = VersionParser::parseShopwareVersion($version);
-        $this->shopwareVersion = $version['version'];
-        $this->shopwareVersionRevision = $version['revision'];
+        $this->cacheRootDir = EnvironmentHelper::getVariable('APP_CACHE_DIR', $this->getProjectDir()) . '/var/cache';
     }
 
-    /**
-     * @return iterable<BundleInterface>
-     */
     public function registerBundles(): iterable
     {
         /** @var array<class-string<Bundle>, array<string, bool>> $bundles */
         $bundles = require $this->getProjectDir() . '/config/bundles.php';
-        $instanciatedBundleNames = [];
+        $instantiatedBundleNames = [];
 
         $kernelParameters = $this->getKernelParameters();
 
@@ -109,11 +87,11 @@ class Kernel extends HttpKernel
                 /** @var ShopwareBundle|Bundle $bundle */
                 $bundle = new $class();
 
-                if ($this->isBundleRegistered($bundle, $instanciatedBundleNames)) {
+                if ($this->isBundleRegistered($bundle, $instantiatedBundleNames)) {
                     continue;
                 }
 
-                $instanciatedBundleNames[] = $bundle->getName();
+                $instantiatedBundleNames[] = $bundle->getName();
 
                 yield $bundle;
 
@@ -124,22 +102,17 @@ class Kernel extends HttpKernel
                 $classLoader = new ClassLoader();
                 $parameters = new AdditionalBundleParameters($classLoader, new KernelPluginCollection(), $kernelParameters);
                 foreach ($bundle->getAdditionalBundles($parameters) as $additionalBundle) {
-                    if ($this->isBundleRegistered($additionalBundle, $instanciatedBundleNames)) {
+                    if ($this->isBundleRegistered($additionalBundle, $instantiatedBundleNames)) {
                         continue;
                     }
 
-                    $instanciatedBundleNames[] = $additionalBundle->getName();
+                    $instantiatedBundleNames[] = $additionalBundle->getName();
                     yield $additionalBundle;
                 }
             }
         }
 
-        if ((!Feature::has('v6.7.0.0') || !Feature::isActive('v6.7.0.0')) && !isset($bundles[Service::class])) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', \sprintf('The %s bundle should be added to config/bundles.php', Service::class));
-            yield new Service();
-        }
-
-        yield from $this->pluginLoader->getBundles($kernelParameters, $instanciatedBundleNames);
+        yield from $this->pluginLoader->getBundles($kernelParameters, $instantiatedBundleNames);
     }
 
     public function getProjectDir(): string
@@ -158,7 +131,7 @@ class Kernel extends HttpKernel
 
     public function boot(): void
     {
-        if ($this->booted === true) {
+        if ($this->booted) {
             if ($this->debug) {
                 $this->startTime = microtime(true);
             }
@@ -185,8 +158,6 @@ class Kernel extends HttpKernel
             }
         }
 
-        $this->initializeDatabaseConnectionVariables();
-
         parent::boot();
     }
 
@@ -204,11 +175,10 @@ class Kernel extends HttpKernel
     public function getCacheDir(): string
     {
         return \sprintf(
-            '%s/var/cache/%s_h%s%s',
-            EnvironmentHelper::getVariable('APP_CACHE_DIR', $this->getProjectDir()),
+            '%s/%s_h%s',
+            $this->cacheRootDir,
             $this->getEnvironment(),
             $this->getCacheHash(),
-            EnvironmentHelper::getVariable('TEST_TOKEN') ?? ''
         );
     }
 
@@ -289,9 +259,7 @@ class Kernel extends HttpKernel
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @return array<string, mixed>
+     * @return array<string, array<string, mixed>|bool|string|int|float|\UnitEnum|null>
      */
     protected function getKernelParameters(): array
     {
@@ -350,69 +318,52 @@ class Kernel extends HttpKernel
         ]);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - removed: all connection variables are configured in MySQLFactory
+     */
     protected function initializeDatabaseConnectionVariables(): void
     {
-        /**
-         * @deprecated tag:v6.7.0 - remove if-clause, we have already SQL_SET_DEFAULT_SESSION_VARIABLES which is documented does the same
-         */
-        $shopwareSkipConnectionVariables = EnvironmentHelper::getVariable('SHOPWARE_SKIP_CONNECTION_VARIABLES', false);
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'The method initializeDatabaseConnectionVariables is deprecated and will be removed in 6.8.0.0. All MySQL connection variables are configured in ' . MySQLFactory::class
+        );
 
-        if ($shopwareSkipConnectionVariables) {
-            return;
-        }
-
-        $connection = self::getConnection();
-
-        try {
-            $setSessionVariables = (bool) EnvironmentHelper::getVariable('SQL_SET_DEFAULT_SESSION_VARIABLES', true);
-            $connectionVariables = [];
-
-            /**
-             * @deprecated tag:v6.7.0 - remove if clause and enforce timezone setting
-             */
-            $timeZoneSupportEnabled = (bool) EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', Feature::isActive('v6.7.0.0'));
-            if ($timeZoneSupportEnabled && $setSessionVariables) {
-                $connectionVariables[] = 'SET @@session.time_zone = "+00:00"';
-            }
-
-            if ($setSessionVariables) {
-                $connectionVariables[] = 'SET @@group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED)';
-                $connectionVariables[] = 'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'))';
-            }
-
-            if (empty($connectionVariables)) {
-                return;
-            }
-            $connection->executeQuery(implode(';', $connectionVariables));
-        } catch (\Throwable) {
-        }
+        self::$connection = self::getConnection();
     }
 
-    /**
-     * Dumps the preload file to an always known location outside the generated cache folder name
-     */
     protected function dumpContainer(ConfigCache $cache, ContainerBuilder $container, string $class, string $baseClass): void
     {
         parent::dumpContainer($cache, $container, $class, $baseClass);
+
+        $filesystem = new Filesystem();
+        $filesystem->dumpFile($this->cacheRootDir . \DIRECTORY_SEPARATOR . 'CACHEDIR.TAG', 'Signature: 8a477f597d28d172789f06886806bc55');
+
         $cacheDir = $container->getParameter('kernel.cache_dir');
-        $cacheName = basename($cacheDir);
-        $fileName = substr(basename($cache->getPath()), 0, -3) . 'preload.php';
 
-        file_put_contents(\dirname($cacheDir) . '/CACHEDIR.TAG', 'Signature: 8a477f597d28d172789f06886806bc55');
+        // Do not dump the preload file if the cache dir is a warmup dir.
+        // See https://github.com/symfony/symfony/blob/v7.2.6/src/Symfony/Bundle/FrameworkBundle/Command/CacheClearCommand.php#L115-L117
+        if (str_ends_with($cacheDir, '_')) {
+            return;
+        }
 
-        $preloadFile = \dirname($cacheDir) . '/opcache-preload.php';
+        $cacheDirectoryName = basename($cacheDir);
+        $containerPreloadFileName = $class . '.preload.php';
 
-        $loader = <<<PHP
+        $preloadFileContent = <<<PHP
 <?php
 
 require_once __DIR__ . '/#CACHE_PATH#';
 PHP;
 
-        file_put_contents($preloadFile, str_replace(
-            ['#CACHE_PATH#'],
-            [$cacheName . '/' . $fileName],
-            $loader
-        ));
+        // Dumps the preload file to an always known location outside the generated cache folder name
+        $filesystem->dumpFile(
+            $this->cacheRootDir . \DIRECTORY_SEPARATOR . 'opcache-preload.php',
+            str_replace(
+                '#CACHE_PATH#',
+                $cacheDirectoryName . \DIRECTORY_SEPARATOR . $containerPreloadFileName,
+                $preloadFileContent,
+            )
+        );
     }
 
     private function addApiRoutes(RoutingConfigurator $routes): void
@@ -450,11 +401,11 @@ PHP;
     }
 
     /**
-     * @param array<int, string> $instanciatedBundleNames
+     * @param array<int, string> $instantiatedBundleNames
      */
-    private function isBundleRegistered(Bundle|ShopwareBundle $bundle, array $instanciatedBundleNames): bool
+    private function isBundleRegistered(Bundle|ShopwareBundle $bundle, array $instantiatedBundleNames): bool
     {
-        return \array_key_exists($bundle->getName(), $instanciatedBundleNames)
+        return \array_key_exists($bundle->getName(), $instantiatedBundleNames)
             || \array_key_exists($bundle->getName(), $this->bundles);
     }
 }

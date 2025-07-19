@@ -14,7 +14,7 @@ class InAppPurchase {
     }
 
     public all(): Record<string, string[]> {
-        return Shopware.State.get('context').app.config.inAppPurchases;
+        return Shopware.Store.get('context').app.config.inAppPurchases;
     }
 
     public getByExtension(extensionName: string): string[] {

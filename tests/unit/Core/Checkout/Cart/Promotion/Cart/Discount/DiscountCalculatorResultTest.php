@@ -10,11 +10,13 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(DiscountCalculatorResult::class)]
+#[Package('checkout')]
 class DiscountCalculatorResultTest extends TestCase
 {
     /**
@@ -31,7 +33,7 @@ class DiscountCalculatorResultTest extends TestCase
             []
         );
 
-        static::assertEquals(29, $result->getPrice()->getTotalPrice());
+        static::assertSame(29.0, $result->getPrice()->getTotalPrice());
     }
 
     /**

@@ -39,7 +39,7 @@ class NoManualSalesChannelContextCreationRule implements Rule
     ];
 
     public function __construct(
-        private ReflectionProvider $reflectionProvider,
+        private readonly ReflectionProvider $reflectionProvider,
     ) {
     }
 
@@ -88,6 +88,6 @@ class NoManualSalesChannelContextCreationRule implements Rule
             return true;
         }
 
-        return $class->isSubclassOf(SalesChannelContext::class);
+        return $class->is(SalesChannelContext::class);
     }
 }

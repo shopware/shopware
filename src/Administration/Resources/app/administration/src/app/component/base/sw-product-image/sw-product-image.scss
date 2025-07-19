@@ -80,7 +80,7 @@
     .sw-context-button__button {
         visibility: hidden;
 
-        .sw-icon {
+        .mt-icon {
             color: $color-white;
             height: 100%;
         }
@@ -111,5 +111,9 @@
         object-fit: contain;
         max-width: 64px;
         max-height: 55px;
+    }
+
+    &.is--droppable.is--draggable.is--drag-element {
+        position: absolute;
     }
 }

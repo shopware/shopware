@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -260,6 +261,7 @@ class ControllerRateLimiterTest extends TestCase
             $this->createMock(EventDispatcher::class),
             $orderRoute,
             $this->createMock(AccountService::class),
+            $this->createMock(AbstractTranslator::class)
         );
 
         $controller->load(new Request([

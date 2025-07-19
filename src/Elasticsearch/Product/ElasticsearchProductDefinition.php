@@ -4,7 +4,7 @@ namespace Shopware\Elasticsearch\Product;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use OpenSearchDSL\Query\Compound\BoolQuery;
+use OpenSearchDSL\BuilderInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SqlHelper;
@@ -150,7 +150,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     /**
      * {@inheritdoc}
      */
-    public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery
+    public function buildTermQuery(Context $context, Criteria $criteria): BuilderInterface
     {
         return $this->searchQueryBuilder->build($criteria, $context);
     }

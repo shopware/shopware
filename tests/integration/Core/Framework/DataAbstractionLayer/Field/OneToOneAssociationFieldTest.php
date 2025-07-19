@@ -336,7 +336,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 
         static::assertInstanceOf(SumResult::class, $sum);
 
-        static::assertEquals(11, $sum->getSum());
+        static::assertSame(11.0, $sum->getSum());
     }
 
     public function testCreateVersioning(): void

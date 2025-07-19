@@ -1,15 +1,12 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-block-layout-config.html.twig';
 import './sw-cms-block-layout-config.scss';
 
 /**
  * @private
- * @sw-package buyers-experience
+ * @sw-package discovery
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         block: {

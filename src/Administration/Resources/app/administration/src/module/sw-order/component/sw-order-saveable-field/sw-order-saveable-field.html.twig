@@ -1,8 +1,9 @@
 {% block sw_order_saveable_field %}
 <sw-container
     v-if="isEditing"
-    columns="1fr 20px 25px"
+    columns="1fr 20px 20px"
     gap="0px 10px"
+    align="center"
     class="sw-order-saveable-field"
 >
     {% block sw_order_saveable_field_input %}
@@ -10,39 +11,38 @@
     <component
         :is="component"
         ref="edit-field"
-        :value="value"
         :placeholder="placeholder"
-        v-bind="$attrs"
-        v-on="listeners"
+        v-bind="computedAttrs"
     />
     {% endblock %}
     {% endblock %}
     {% block sw_order_saveable_field_actions %}
     {% block sw_order_saveable_field_cancel_button %}
-    <sw-button
+    <mt-button
         size="x-small"
+        variant="secondary"
+        aria-label="global.default.cancel"
         square
         @click="onCancelButtonClicked"
     >
-        <sw-icon
-            name="regular-times-xs"
-            small
+        <mt-icon
+            name="regular-times-xxs"
         />
-    </sw-button>
+    </mt-button>
     {%  endblock %}
     {%  block sw_order_saveable_field_save_button %}
-    <sw-button
+    <mt-button
         size="x-small"
         variant="primary"
+        aria-label="global.default.save"
         square
         @click="onSaveButtonClicked"
     >
-        <sw-icon
+        <mt-icon
             name="regular-checkmark-xxs"
-            small
         />
-    </sw-button>
-    {%  endblock %}
+    </mt-button>
+    {% endblock %}
     {% endblock %}
 </sw-container>
 <div

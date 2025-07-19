@@ -1,7 +1,6 @@
 import template from './sw-advanced-selection-rule.html.twig';
 import './sw-advanced-selection-rule.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -12,10 +11,8 @@ const { Criteria } = Shopware.Data;
  * to `sw-entity-...-select` components.
  * @status prototype
  */
-Component.register('sw-advanced-selection-rule', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'ruleConditionDataProviderService',
@@ -265,6 +262,9 @@ Component.register('sw-advanced-selection-rule', {
             return aggregations;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -344,4 +344,4 @@ Component.register('sw-advanced-selection-rule', {
             return counts;
         },
     },
-});
+};

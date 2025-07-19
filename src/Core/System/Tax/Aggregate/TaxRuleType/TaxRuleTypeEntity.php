@@ -13,40 +13,15 @@ class TaxRuleTypeEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $typeName;
+    protected string $typeName;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $technicalName;
+    protected string $technicalName;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $position;
+    protected int $position;
 
-    /**
-     * @var TaxRuleCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $rules;
+    protected ?TaxRuleCollection $rules = null;
 
-    /**
-     * @var TaxRuleTypeTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?TaxRuleTypeTranslationCollection $translations = null;
 
     public function getTypeName(): string
     {

@@ -2,24 +2,13 @@
 
 namespace Shopware\Core\Maintenance\System\Exception;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\MaintenanceException;
 
-if (!Feature::isActive('v6.7.0.0')) {
-    /**
-     * @deprecated tag:v6.7.0 - reason:becomes-internal
-     */
-    #[Package('framework')]
-    class DatabaseSetupException extends \RuntimeException
-    {
-    }
-} else {
-    /**
-     * @internal
-     */
-    #[Package('framework')]
-    class DatabaseSetupException extends MaintenanceException
-    {
-    }
+/**
+ * @internal
+ */
+#[Package('framework')]
+class DatabaseSetupException extends MaintenanceException
+{
 }

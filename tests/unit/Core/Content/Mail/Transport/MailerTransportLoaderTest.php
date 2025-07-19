@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Mail\Transport;
 
-use Doctrine\DBAL\Exception\DriverException;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -16,6 +15,7 @@ use Shopware\Core\Content\Mail\Transport\SmtpOauthTransportFactoryDecorator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Transport\NullTransport;
@@ -205,7 +205,7 @@ class MailerTransportLoaderTest extends TestCase
     public function testFactoryNoConnection(): void
     {
         $config = $this->createMock(SystemConfigService::class);
-        $config->method('get')->willThrowException(DriverException::typeExists('no connection'));
+        $config->method('get')->willThrowException(TestExceptionFactory::createDriverException('no connection'));
 
         $loader = new MailerTransportLoader(
             $this->getTransportFactory(),

@@ -24,6 +24,7 @@ import Plugin from 'src/plugin-system/plugin.class';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
 
@@ -42,7 +43,6 @@ export default class CookieConfiguration extends Plugin {
         buttonSubmitSelector: '.js-offcanvas-cookie-submit',
         buttonAcceptAllSelector: '.js-offcanvas-cookie-accept-all',
         globalButtonAcceptAllSelector: '.js-cookie-accept-all-button',
-        wrapperToggleSelector: '.offcanvas-cookie-entries span',
         parentInputSelector: '.offcanvas-cookie-parent-input',
         customLinkSelector: `[href="${window.router['frontend.cookie.offcanvas']}"]`,
         entriesActiveClass: 'offcanvas-cookie-entries--active',
@@ -57,6 +57,7 @@ export default class CookieConfiguration extends Plugin {
             inactive: [],
         };
 
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._httpClient = new HttpClient();
 
         this._registerEvents();
@@ -90,14 +91,13 @@ export default class CookieConfiguration extends Plugin {
      * @private
      */
     _registerOffCanvasEvents() {
-        const { submitEvent, buttonSubmitSelector, buttonAcceptAllSelector, wrapperToggleSelector } = this.options;
+        const { submitEvent, buttonSubmitSelector, buttonAcceptAllSelector } = this.options;
         const offCanvas = this._getOffCanvas();
 
         if (offCanvas) {
             const button = offCanvas.querySelector(buttonSubmitSelector);
             const buttonAcceptAll = offCanvas.querySelector(buttonAcceptAllSelector);
             const checkboxes = Array.from(offCanvas.querySelectorAll('input[type="checkbox"]'));
-            const wrapperTrigger = Array.from(offCanvas.querySelectorAll(wrapperToggleSelector));
 
             if (button) {
                 button.addEventListener(submitEvent, this._handleSubmit.bind(this, CookieStorage));
@@ -109,10 +109,6 @@ export default class CookieConfiguration extends Plugin {
 
             checkboxes.forEach(checkbox => {
                 checkbox.addEventListener(submitEvent, this._handleCheckbox.bind(this));
-            });
-
-            wrapperTrigger.forEach(trigger => {
-                trigger.addEventListener(submitEvent, this._handleWrapperTrigger.bind(this));
             });
         }
     }
@@ -257,30 +253,6 @@ export default class CookieConfiguration extends Plugin {
             target.checked = true;
             this._childCheckboxEvent(target);
         });
-    }
-
-    /**
-     * From click target, try to find the cookie group container and toggle the open state
-     *
-     * @param event
-     * @private
-     */
-    _handleWrapperTrigger(event) {
-        event.preventDefault();
-        const { entriesActiveClass, entriesClass, groupClass } = this.options;
-        const { target } = event;
-
-        const cookieEntryContainer = this._findParentEl(target, entriesClass, groupClass);
-
-        if (cookieEntryContainer) {
-            const active = cookieEntryContainer.classList.contains(entriesActiveClass);
-
-            if (active) {
-                cookieEntryContainer.classList.remove(entriesActiveClass);
-            } else {
-                cookieEntryContainer.classList.add(entriesActiveClass);
-            }
-        }
     }
 
     /**
@@ -452,14 +424,18 @@ export default class CookieConfiguration extends Plugin {
 
         const url = window.router['frontend.cookie.offcanvas'];
 
-        this._httpClient.get(url, (response) => {
-            const dom = new DOMParser().parseFromString(response, 'text/html');
+        fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+            .then(response => response.text())
+            .then(response => {
+                const dom = new DOMParser().parseFromString(response, 'text/html');
 
-            this._handleAcceptAll(dom);
+                this._handleAcceptAll(dom);
 
-            ElementLoadingIndicatorUtil.remove(this.el);
-            this._hideCookieBar();
-        });
+                ElementLoadingIndicatorUtil.remove(this.el);
+                this._hideCookieBar();
+            });
     }
 
     /**

@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'languagePluginService',
         'userService',
@@ -41,6 +39,7 @@ export default {
             userProfile: {},
             userPromise: null,
             isLoading: false,
+            localeOptions: [],
         };
     },
 
@@ -54,7 +53,7 @@ export default {
         },
 
         languageId() {
-            return Shopware.State.get('session').languageId;
+            return Shopware.Store.get('session').languageId;
         },
 
         languageCriteria() {
@@ -115,7 +114,7 @@ export default {
         },
 
         updateButtons() {
-            const disabledExtensionManagement = Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            const disabledExtensionManagement = Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
             const nextRoute = disabledExtensionManagement ? 'defaults' : 'data-import';
 
             const buttonConfig = [
@@ -140,7 +139,7 @@ export default {
         },
 
         getLanguagePlugins() {
-            if (Shopware.State.get('context').app.config.settings.disableExtensionManagement) {
+            if (Shopware.Store.get('context').app.config.settings.disableExtensionManagement) {
                 this.languagePlugins = [];
                 return;
             }
@@ -231,10 +230,16 @@ export default {
         loadLanguages() {
             return this.languageRepository.search(this.languageCriteria).then((result) => {
                 this.languages = [];
+                this.localeOptions = [];
 
                 result.forEach((lang) => {
                     lang.customLabel = `${lang.locale.translated.name} (${lang.locale.translated.territory})`;
                     this.languages.push(lang);
+                    this.localeOptions.push({
+                        id: lang.locale.id,
+                        value: lang.locale.id,
+                        label: lang.customLabel,
+                    });
                 });
 
                 return this.languages;

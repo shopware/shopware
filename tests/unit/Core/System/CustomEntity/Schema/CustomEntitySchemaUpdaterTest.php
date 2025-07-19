@@ -21,12 +21,12 @@ class CustomEntitySchemaUpdaterTest extends TestCase
     public function testAddsDoctrineTypeMappingForEnum(): void
     {
         $platform = $this->createMock(AbstractPlatform::class);
-        $platform->expects(static::once())
+        $platform->expects($this->once())
             ->method('registerDoctrineTypeMapping')
             ->with('enum', 'string');
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('getDatabasePlatform')
             ->willReturn($platform);
 

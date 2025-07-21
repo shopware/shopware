@@ -78,8 +78,8 @@ class Translator extends AbstractTranslator
 
     public static function buildName(string $id): string
     {
-        if (\strpbrk($id, (string) ItemInterface::RESERVED_CHARACTERS) !== false) {
-            $id = \str_replace(\str_split((string) ItemInterface::RESERVED_CHARACTERS, 1), '_r_', $id);
+        if (\strpbrk($id, ItemInterface::RESERVED_CHARACTERS) !== false) {
+            $id = \str_replace(\str_split(ItemInterface::RESERVED_CHARACTERS, 1), '_r_', $id);
         }
 
         return 'translator.' . $id;
@@ -124,7 +124,7 @@ class Translator extends AbstractTranslator
             $catalog->addFallbackCatalogue($this->translator->getCatalogue($localization));
         } else {
             // fallback locale and current locale has the same localization -> reset fallback
-            // or locale is symfony style locale so we shouldn't add shopware fallbacks as it may lead to circular references
+            // or locale is symfony style locale, so we shouldn't add shopware fallbacks as it may lead to circular references
             $fallbackLocale = null;
         }
 

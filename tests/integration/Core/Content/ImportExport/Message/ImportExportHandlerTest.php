@@ -35,11 +35,9 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
 
         $factory = static::getContainer()->get(ImportExportFactory::class);
 
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
-
         $context = Context::createDefaultContext();
 
-        $importExportHandler = new ImportExportHandler($messageBus, $factory, $eventDispatcher);
+        $importExportHandler = new ImportExportHandler($messageBus, $factory, $this->listener);
 
         $importExportService = static::getContainer()->get(ImportExportService::class);
 

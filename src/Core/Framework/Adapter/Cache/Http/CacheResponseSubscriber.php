@@ -102,7 +102,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $states = $this->updateSystemState($cart, $context, $request, $response);
 
         // We need to allow it on login, otherwise the state is wrong
-        if (!($route === 'frontend.account.login' || $request->getMethod() === Request::METHOD_GET)) {
+        if (!($route === 'frontend.account.login' || $request->isMethod(Request::METHOD_GET))) {
             return;
         }
 

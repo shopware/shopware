@@ -1,0 +1,88 @@
+repository-url: https://raw.githubusercontent.com/shopware/translations/main/translations
+
+locales: [
+    'bs-BA', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-GB', 'en-US',
+    'es-ES', 'fi-FI', 'fr-FR', 'hi-IN', 'hr-HR', 'hu-HU', 'id-ID', 'it-IT',
+    'ko-KR', 'lv-LV', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-PT', 'ro-RO', 'ru-RU',
+    'sk-SK', 'sl-SI', 'sr-RS', 'sv-SE', 'tr-TR', 'uk-UA', 'vi-VN',
+]
+
+plugins: [
+    'PluginPublisher',
+    'SwagB2bPlatform',
+    'SwagCmsExtensions',
+    'SwagCommercial',
+    'SwagCustomizedProducts',
+    'SwagMigrationAssistant',
+    'SwagMigrationMagento',
+    'SwagPayPal',
+    'SwagSocialShopping',
+]
+
+plugin-mapping:
+  - plugin: 'SwagPublisher'
+    name: 'PluginPublisher'
+
+languages:
+  - name: 'Bosanski'
+    locale: 'bs-BA'
+  - name: 'български език'
+    locale: 'bg-BG'
+  - name: 'Čeština'
+    locale: 'cs-CZ'
+  - name: 'Dansk'
+    locale: 'da-DK'
+  - name: 'Deutsch'
+    locale: 'de-DE'
+  - name: 'Ελληνικά'
+    locale: 'el-GR'
+  - name: 'English'
+    locale: 'en-GB'
+  - name: 'English (US)'
+    locale: 'en-US'
+  - name: 'Español'
+    locale: 'es-ES'
+  - name: 'Suomi'
+    locale: 'fi-FI'
+  - name: 'Français'
+    locale: 'fr-FR'
+  - name: 'हिन्दी'
+    locale: 'hi-IN'
+  - name: 'Hrvatski'
+    locale: 'hr-HR'
+  - name: 'Magyar'
+    locale: 'hu-HU'
+  - name: 'Bahasa Indonesia'
+    locale: 'id-ID'
+  - name: 'Italiano'
+    locale: 'it-IT'
+  - name: '한국어'
+    locale: 'ko-KR'
+  - name: 'Latviešu'
+    locale: 'lv-LV'
+  - name: 'Nederlands'
+    locale: 'nl-NL'
+  - name: 'Norsk'
+    locale: 'nn-NO'
+  - name: 'Polski'
+    locale: 'pl-PL'
+  - name: 'Português'
+    locale: 'pt-PT'
+  - name: 'Română'
+    locale: 'ro-RO'
+  - name: 'Русский'
+    locale: 'ru-RU'
+  - name: 'Slovenčina'
+    locale: 'sk-SK'
+  - name: 'Slovenščina'
+    locale: 'sl-SI'
+  - name: 'Srpski'
+    locale: 'sr-RS'
+  - name: 'Svenska'
+    locale: 'sv-SE'
+  - name: 'Türkçe'
+    locale: 'tr-TR'
+  - name: 'Українська'
+    locale: 'uk-UA'
+  - name: 'Tiếng Việt Nam'
+    locale: 'vi-VN'

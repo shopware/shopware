@@ -519,8 +519,8 @@ class SnippetService
         unset($snippets[$sort['sortBy']]);
 
         uasort($mainSet['snippets'], static function ($a, $b) use ($sort) {
-            $a = mb_strtolower((string) $a['value']);
-            $b = mb_strtolower((string) $b['value']);
+            $a = mb_strtolower($a['value']);
+            $b = mb_strtolower($b['value']);
 
             return $sort['sortDirection'] !== 'DESC' ? $a <=> $b : $b <=> $a;
         });

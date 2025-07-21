@@ -30,6 +30,30 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\System\Snippet\Command\InstallTranslationCommand">
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationLoader"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="shopware.translation.client" class="GuzzleHttp\Client"/>
+
+        <service id="Shopware\Core\System\Snippet\Service\TranslationConfigLoader"/>
+
+        <service id="Shopware\Core\System\Snippet\Struct\TranslationConfig" lazy="true" public="true">
+            <factory class="Shopware\Core\System\Snippet\Service\TranslationConfigLoader" method="load"/>
+        </service>
+
+        <service id="Shopware\Core\System\Snippet\Service\TranslationLoader">
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="locale.repository"/>
+            <argument type="service" id="snippet_set.repository"/>
+            <argument type="service" id="shopware.translation.client"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
+        </service>
+
         <service id="Shopware\Core\System\Snippet\SnippetFileHandler" />
 
         <service id="Shopware\Core\System\Snippet\Subscriber\CustomFieldSubscriber">

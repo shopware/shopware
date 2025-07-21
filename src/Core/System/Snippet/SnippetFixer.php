@@ -27,7 +27,7 @@ class SnippetFixer
     public function fix(MissingSnippetCollection $missingSnippetCollection /* , InvalidPluralizationCollection $invalidPluralization */): void
     {
         /** @var InvalidPluralizationCollection $invalidPluralization */
-        $invalidPluralization = \func_num_args() === 2 ? func_get_arg(1) : [];
+        $invalidPluralization = \func_num_args() === 2 ? func_get_arg(1) : new InvalidPluralizationCollection();
 
         if (!Feature::isActive('v6.8.0.0') && \func_num_args() < 2) {
             Feature::triggerDeprecationOrThrow(

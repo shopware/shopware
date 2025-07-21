@@ -46,7 +46,7 @@ class SnippetValidator implements SnippetValidatorInterface
         );
 
         $missingSnippetsArray = [];
-        foreach ($this->getValidation()->missingSnippets->getIterator() as $entry) {
+        foreach ($this->getValidation()->missingSnippets as $entry) {
             $key = $entry->getKeyPath();
             $missingSnippetsArray[$entry->getMissingForISO()][$key] = [
                 'path' => $entry->getFilePath(),

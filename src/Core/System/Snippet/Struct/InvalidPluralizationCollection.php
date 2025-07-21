@@ -11,4 +11,8 @@ use Shopware\Core\Framework\Struct\Collection;
 #[Package('discovery')]
 class InvalidPluralizationCollection extends Collection
 {
+    protected function getExpectedClass(): string
+    {
+        return InvalidPluralizationStruct::class;
+    }
 }

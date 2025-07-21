@@ -66,7 +66,7 @@ class ValidateSnippetsCommand extends Command
                     'Snippet', 'Missing for ISO', 'Found in file',
                 ]);
 
-                foreach ($missingSnippetsCollection->getIterator() as $missingSnippetStruct) {
+                foreach ($missingSnippetsCollection as $missingSnippetStruct) {
                     $table->addRow([
                         $missingSnippetStruct->getKeyPath(),
                         $missingSnippetStruct->getMissingForISO(),

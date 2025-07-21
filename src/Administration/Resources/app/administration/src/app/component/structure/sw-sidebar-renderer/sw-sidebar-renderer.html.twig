@@ -2,6 +2,7 @@
     v-for="sidebar in sidebars"
     :key="sidebar.locationId"
 >
+    <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions, vuejs-accessibility/click-events-have-key-events -->
     <div
         v-if="activeSidebar && activeSidebar.locationId === sidebar.locationId && isOverlayMode"
         class="sw-sidebar-renderer__backdrop"
@@ -10,43 +11,45 @@
 
     <aside
         class="sw-sidebar-renderer"
-        :class="{ 
+        :class="{
             'is-active': activeSidebar && activeSidebar.locationId === sidebar.locationId,
             'is-resizing': isResizing,
             'is-overlay': isOverlayMode
         }"
-        :style="{ 
+        :style="{
             display: (activeSidebar && activeSidebar.locationId === sidebar.locationId) ? 'flex' : 'none',
             width: sidebarWidth + 'px'
         }"
     >
-        <div 
+        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
+        <div
             class="sw-sidebar-renderer__resize-handle"
             @mousedown="startResize"
         ></div>
         <header class="sw-sidebar-renderer__header">
             <div class="sw-sidebar-renderer__header-content">
-            <h3 class="sw-sidebar-renderer__title">
-                {{ $tc(sidebar.title) }}
-            </h3>
-            <mt-button
-                v-if="isOverlayMode"
-                show-front-icon="true"
-                class="sw-sidebar-renderer__button-collapse"
-                :aria-label="$tc('sidebar.ariaLabelButtonCollapse')"
-                @click="collapseSidebar"
-            >
+                <h3 class="sw-sidebar-renderer__title">
+                    {{ $tc(sidebar.title) }}
+                </h3>
+                <mt-button
+                    v-if="isOverlayMode"
+                    show-front-icon="true"
+                    class="sw-sidebar-renderer__button-collapse"
+                    :aria-label="$tc('sidebar.ariaLabelButtonCollapse')"
+                    variant="secondary"
+                    @click="collapseSidebar"
+                >
 
-            <template #iconFront>
-                <mt-icon
-                    name="regular-long-arrow-right"
-                    size="12px"
-                />
-            </template>
+                    <template #iconFront>
+                        <mt-icon
+                            name="regular-long-arrow-right"
+                            size="12px"
+                        />
+                    </template>
 
-            {{ $tc('sidebar.buttonCollapse') }}
-            
-            </mt-button>
+                    {{ $tc('sidebar.buttonCollapse') }}
+
+                </mt-button>
             </div>
 
             <button

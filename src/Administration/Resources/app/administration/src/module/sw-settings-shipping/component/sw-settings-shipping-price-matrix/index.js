@@ -158,7 +158,7 @@ export default {
 
         quantityStepCurrencyColumns() {
             return this.currencies.map((currency, index) => {
-                let label = currency.translated.name || currency.name;
+                const label = currency.translated.name || currency.name;
                 return {
                     property: `quantity-step-price-${currency.isoCode}`,
                     label: this.$tc('sw-settings-shipping.priceMatrix.labelQuantityStepGrossNet', { currency: label }),
@@ -516,9 +516,9 @@ export default {
             };
         },
 
-        onQuantityEndChange() {
+        onQuantityEndChange(shippingPrice) {
             // when not last price
-            if (this.priceGroup.prices.indexOf(price) + 1 !== this.priceGroup.prices.length) {
+            if (this.priceGroup.prices.indexOf(shippingPrice) + 1 !== this.priceGroup.prices.length) {
                 return;
             }
 

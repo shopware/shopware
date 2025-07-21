@@ -5,7 +5,6 @@
     background: var(--color-elevation-surface-raised);
     position: relative;
     transition: all 0.3s ease-in-out;
-    
     will-change: width;
     contain: layout style;
 
@@ -17,11 +16,13 @@
 
     &.is-resizing {
         transition: none;
-        
+
         * {
             transition: none;
+            user-select: none;
+            pointer-events: none;
         }
-        
+
         iframe {
             pointer-events: none;
         }
@@ -33,7 +34,7 @@
         right: 0;
         bottom: 0;
         z-index: 1000;
-        box-shadow: -4px 0 16px rgba(0, 0, 0, 0.15);
+        box-shadow: -4px 0 16px rgba(0, 0, 0, 15%);
         border-left: 1px solid var(--color-border-primary-default);
         border-radius: 8px 0 0 8px;
     }
@@ -44,7 +45,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.3);
+        background: rgba(0, 0, 0, 30%);
         z-index: 999;
         cursor: pointer;
         animation: fadeIn 0.3s ease-in-out;
@@ -54,6 +55,7 @@
         from {
             opacity: 0;
         }
+
         to {
             opacity: 1;
         }
@@ -68,7 +70,7 @@
         cursor: col-resize;
         background: transparent;
         z-index: 10;
-        
+
         &:hover {
             background: var(--color-interaction-primary-default);
             opacity: 0.3;
@@ -80,22 +82,13 @@
         }
 
         &::before {
-            content: '';
+            content: "";
             position: absolute;
             left: -3px;
             right: -3px;
             top: 0;
             bottom: 0;
         }
-    }
-
-    &.is-resizing {
-        user-select: none;
-    }
-
-    &.is-resizing * {
-        user-select: none;
-        pointer-events: none;
     }
 
     &__header {

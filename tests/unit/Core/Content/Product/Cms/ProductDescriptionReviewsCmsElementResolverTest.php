@@ -33,6 +33,13 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
 {
     private StaticSystemConfigService $systemConfigService;
 
+    public function setUp(): void
+    {
+        $this->systemConfigService = new StaticSystemConfigService([
+            'core.listing.showReview' => true,
+        ]);
+    }
+
     public function testGetType(): void
     {
         $resolver = $this->getResolver();
@@ -156,10 +163,6 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
 
     private function getResolver(): ProductDescriptionReviewsCmsElementResolver
     {
-        $this->systemConfigService = new StaticSystemConfigService([
-            'core.listing.showReview' => true,
-        ]);
-
         $productReviewLoader = new ProductReviewLoader(
             $this->createMock(AbstractProductReviewRoute::class),
             $this->systemConfigService,

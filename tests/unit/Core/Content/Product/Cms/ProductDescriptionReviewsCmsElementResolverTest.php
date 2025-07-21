@@ -33,7 +33,7 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
 {
     private StaticSystemConfigService $systemConfigService;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->systemConfigService = new StaticSystemConfigService([
             'core.listing.showReview' => true,

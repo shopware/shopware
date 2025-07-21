@@ -141,7 +141,6 @@ class CookieControllerTest extends TestCase
 
         $response = $controller->cookieConsentOffcanvas($request, $salesChannelContext);
 
-        static::assertInstanceOf(Response::class, $response);
         static::assertStringContainsString('@Storefront/storefront/layout/cookie/cookie-consent-offcanvas.html.twig', $controller->renderStorefrontView);
         static::assertSame('test-feature', $controller->renderStorefrontParameters['featureName']);
         static::assertSame('test-cookie', $controller->renderStorefrontParameters['cookieName']);

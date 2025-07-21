@@ -130,7 +130,9 @@ class CookieControllerTest extends TestCase
         );
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
-        static::assertStringContainsString('feature', $this->browser->getResponse()->getContent());
-        static::assertStringContainsString('cookieName', $this->browser->getResponse()->getContent());
+        $content = $this->browser->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertStringContainsString('cookie.feature.title', $content);
+        static::assertStringContainsString('js-wishlist-cookie-accept', $content);
     }
 }

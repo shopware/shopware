@@ -1291,16 +1291,14 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
         $mailSent = false;
 
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
-
         $listenerClosure = function () use (&$mailSent): void {
             $mailSent = true;
         };
 
-        $this->addEventListener($eventDispatcher, MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($this->listener, MailSentEvent::class, $listenerClosure);
 
         $progress = $this->import($context, CustomerDefinition::ENTITY_NAME, '/fixtures/customers.csv', 'customers.csv');
-        $eventDispatcher->removeListener(MailSentEvent::class, $listenerClosure);
+        $this->listener->removeListener(MailSentEvent::class, $listenerClosure);
 
         static::assertTrue($context->hasState(Context::SKIP_TRIGGER_FLOW));
         static::assertFalse($mailSent, 'The mail.sent Event did run');
@@ -1742,7 +1740,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
             $importExportService,
             $logEntity,
             static::getContainer()->get('shopware.filesystem.private'),
-            static::getContainer()->get('event_dispatcher'),
+            $this->listener,
             static::getContainer()->get(Connection::class),
             $mockRepository,
             $pipeFactory->create($logEntity),

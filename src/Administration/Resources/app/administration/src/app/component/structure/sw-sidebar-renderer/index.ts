@@ -43,40 +43,26 @@ export default Shopware.Component.wrapComponentConfig({
             sidebarWidth.value = minWidth;
         };
 
-        const startResize = (event: MouseEvent) => {
-            isResizing.value = true;
-            document.body.style.cursor = 'col-resize';
-            document.body.style.userSelect = 'none';
-            
-            sidebarElement = document.querySelector('.sw-sidebar-renderer.is-active') as HTMLElement;
-            
-            document.addEventListener('mousemove', handleResize, { passive: true, capture: true });
-            document.addEventListener('mouseup', stopResize, { capture: true });
-            event.preventDefault();
-        };
-
-        const handleResize = (event: MouseEvent) => {
-            if (!isResizing.value) return;
-            if (!sidebarElement) return;
-
-            let newWidth;
-
-            const rect = sidebarElement.getBoundingClientRect();
-            newWidth = rect.right - event.clientX;
-            
-            pendingWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
-            
-            if (animationFrameId === null) {
-                animationFrameId = requestAnimationFrame(applyPendingWidth);
-            }
-        };
-
         const applyPendingWidth = () => {
             if (pendingWidth !== null) {
                 sidebarWidth.value = pendingWidth;
                 pendingWidth = null;
             }
             animationFrameId = null;
+        };
+
+        const handleResize = (event: MouseEvent) => {
+            if (!isResizing.value) return;
+            if (!sidebarElement) return;
+
+            const rect = sidebarElement.getBoundingClientRect();
+            const newWidth = rect.right - event.clientX;
+            
+            pendingWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+            
+            if (animationFrameId === null) {
+                animationFrameId = requestAnimationFrame(applyPendingWidth);
+            }
         };
 
         const stopResize = () => {
@@ -94,6 +80,18 @@ export default Shopware.Component.wrapComponentConfig({
             pendingWidth = null;
             
             localStorage.setItem('sw-sidebar-width', sidebarWidth.value.toString());
+        };
+
+        const startResize = (event: MouseEvent) => {
+            isResizing.value = true;
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+            
+            sidebarElement = document.querySelector('.sw-sidebar-renderer.is-active') as HTMLElement;
+            
+            document.addEventListener('mousemove', handleResize, { passive: true, capture: true });
+            document.addEventListener('mouseup', stopResize, { capture: true });
+            event.preventDefault();
         };
 
         onMounted(() => {

@@ -14,7 +14,6 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Controller\CookieController;
 use Shopware\Storefront\Framework\Cookie\CookieProvider;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal

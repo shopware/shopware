@@ -19,6 +19,20 @@ export default class SpatialZoomGallerySliderViewerPlugin extends SpatialBaseVie
      * does not initialize the 3d scene
      */
     async init() {
+        console.log('zoom-gallery-slider-viewer-plugin:init');
+
+        const modalWrapper = document.querySelector('.zoom-modal-wrapper');
+        const modal = modalWrapper?.querySelector('.zoom-modal');
+
+        modal?.addEventListener('hidden.bs.modal', () => {
+            console.log('zoom-gallery-slider-viewer-plugin:modal hidden');
+            this.startRendering();
+        });
+        modal?.addEventListener('shown.bs.modal', () => {
+            console.log('zoom-gallery-slider-viewer-plugin:modal shown');
+            this.stopRendering();
+        });
+
         await loadDIVE();
 
         if (!this.el) {

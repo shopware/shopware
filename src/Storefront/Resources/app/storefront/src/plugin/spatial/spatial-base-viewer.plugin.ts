@@ -3,7 +3,7 @@ import Plugin from 'src/plugin-system/plugin.class';
 // @ts-ignore
 import type NativeEventEmitter from 'src/helper/emitter.helper';
 import type { Clock, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
-import { loadDIVE } from './utils/spatial-dive-load-util';
+import { loadDIVE, QuickViewInstance } from './utils/spatial-dive-load-util';
 
 /**
  * @package innovation
@@ -32,6 +32,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
      * initialize plugin
      */
     public async init() {
+        console.log('base-viewer-plugin:init');
         await loadDIVE();
 
         await this.initViewer();
@@ -67,6 +68,9 @@ export default class SpatialBaseViewerPlugin extends Plugin {
 
         // start render loop
         this.rendering = true;
+        this._dive?.setCanvas(this.canvas as HTMLCanvasElement);
+        console.log('this._dive', this._dive);
+        console.log('this._dive?.canvas', this._dive?.canvas);
         this._dive?.engine.start();
 
         // Add classes to canvas parent
@@ -87,6 +91,8 @@ export default class SpatialBaseViewerPlugin extends Plugin {
     public stopRendering() {
         // stop render loop
         this.rendering = false;
+
+        this._dive?.engine.stop();
 
         // Remove classes from canvas parent
         this.canvas?.parentElement?.classList.remove('spatial-canvas-rendering');

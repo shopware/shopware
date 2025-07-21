@@ -45,5 +45,15 @@ export async function loadDIVE(): Promise<void> {
         });
     }
 
+
     return window.loadDiveUtil.promise;
 }
+
+let instance: Promise<InstanceType<typeof import('@shopware-ag/dive').DIVE>> | null = null;
+export const QuickViewInstance = async (modelUrl: string, options: any): Promise<InstanceType<typeof import('@shopware-ag/dive').DIVE>> => {
+    if (instance) {
+        return instance;
+    }
+    instance = window.DIVEClass.QuickView(modelUrl, options);
+    return instance;
+};

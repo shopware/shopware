@@ -19,6 +19,20 @@ export default class SpatialGallerySliderViewerPlugin extends SpatialBaseViewerP
      * does not initialize the 3d scene
      */
     async init() {
+        console.log('gallery-slider-viewer-plugin:init');
+
+        const modalWrapper = document.querySelector('.zoom-modal-wrapper');
+        const modal = modalWrapper?.querySelector('.zoom-modal');
+
+        modal?.addEventListener('shown.bs.modal', () => {
+            console.log('gallery-slider-viewer-plugin:modal shown');
+            this.stopRendering();
+        });
+        modal?.addEventListener('hidden.bs.modal', () => {
+            console.log('gallery-slider-viewer-plugin:modal hidden');
+            this.startRendering();
+        });
+
         await loadDIVE();
 
         if (!this.el) {

@@ -35,6 +35,8 @@ export const COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS = 'CookieConfiguration_CloseO
 
 export default class CookieConfiguration extends Plugin {
 
+    static lastTriggerElement = null;
+
     static options = {
         offCanvasPosition: 'left',
         submitEvent: 'click',
@@ -233,6 +235,8 @@ export default class CookieConfiguration extends Plugin {
         if (!route || !cookieName) {
             return;
         }
+
+        CookieConfiguration.lastTriggerElement = document.activeElement;
 
         AjaxOffCanvas.open(route, false, () => {
             window.PluginManager.initializePlugins();
@@ -622,6 +626,26 @@ export default class CookieConfiguration extends Plugin {
     _onPreferences(e) {
         e.preventDefault();
         AjaxOffCanvas.close();
-        this.openOffCanvas();
+        this.openOffCanvas(() => {
+            const offcanvasElement = document.querySelector('.offcanvas');
+            if (!offcanvasElement) {
+                return;
+            }
+            offcanvasElement.addEventListener('hidden.bs.offcanvas',
+                this._restoreFocus.bind(this),
+                { once: true }
+            );
+        });
+    }
+
+    /**
+     * Restores focus to the element that triggered the consent offcanvas (e.g., add-to-wishlist button)
+     * @private
+     */
+    _restoreFocus() {
+        const btn = CookieConfiguration.lastTriggerElement;
+        if (btn && btn.focus) {
+            btn.focus();
+        }
     }
 }

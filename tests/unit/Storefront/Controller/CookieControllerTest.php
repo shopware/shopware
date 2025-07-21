@@ -13,6 +13,8 @@ use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Controller\CookieController;
 use Shopware\Storefront\Framework\Cookie\CookieProvider;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -117,6 +119,32 @@ class CookieControllerTest extends TestCase
         $cookieGroups = $controller->renderStorefrontParameters['cookieGroups'];
 
         $this->assertGoogleAnalyticsCookie(false, $cookieGroups);
+    }
+
+    public function testCookieConsentOffcanvasRendersWithCorrectParameters(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
+        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
+
+        $controller = new CookieControllerTestClass(
+            new CookieProvider(),
+            $this->createMock(SystemConfigService::class),
+            $repository
+        );
+
+        $request = new Request([
+            'featureName' => 'test-feature',
+            'cookieName' => 'test-cookie',
+        ]);
+
+        $response = $controller->cookieConsentOffcanvas($request, $salesChannelContext);
+
+        static::assertInstanceOf(Response::class, $response);
+        static::assertStringContainsString('@Storefront/storefront/layout/cookie/cookie-consent-offcanvas.html.twig', $controller->renderStorefrontView);
+        static::assertSame('test-feature', $controller->renderStorefrontParameters['featureName']);
+        static::assertSame('test-cookie', $controller->renderStorefrontParameters['cookieName']);
     }
 
     /**

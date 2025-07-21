@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\AfterLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
@@ -26,7 +27,8 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CartCalculator $cartCalculator,
-        private readonly AbstractCartPersister $cartPersister
+        private readonly AbstractCartPersister $cartPersister,
+        private readonly CartLocker $cartLocker
     ) {
     }
 
@@ -39,34 +41,36 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
     #[Route(path: '/store-api/checkout/cart/line-item/delete', name: 'store-api.checkout.cart.remove-item-v2', methods: ['POST'])]
     public function remove(Request $request, Cart $cart, SalesChannelContext $context): CartResponse
     {
-        $ids = $request->get('ids');
-        $lineItems = [];
+        return $this->cartLocker->locked($cart->getToken(), function () use ($request, $cart, $context) {
+            $ids = $request->get('ids');
+            $lineItems = [];
 
-        foreach ($ids as $id) {
-            if (!\is_string($id)) {
-                throw CartException::lineItemNotFound((string) $id);
+            foreach ($ids as $id) {
+                if (!\is_string($id)) {
+                    throw CartException::lineItemNotFound((string) $id);
+                }
+
+                $lineItem = $cart->get($id);
+
+                if (!$lineItem) {
+                    throw CartException::lineItemNotFound($id);
+                }
+                $lineItems[] = $lineItem;
+
+                $cart->remove($id);
+
+                $this->eventDispatcher->dispatch(new BeforeLineItemRemovedEvent($lineItem, $cart, $context));
+
+                $cart->markModified();
             }
 
-            $lineItem = $cart->get($id);
+            $cart = $this->cartCalculator->calculate($cart, $context);
+            $this->cartPersister->save($cart, $context);
 
-            if (!$lineItem) {
-                throw CartException::lineItemNotFound($id);
-            }
-            $lineItems[] = $lineItem;
+            $this->eventDispatcher->dispatch(new AfterLineItemRemovedEvent($lineItems, $cart, $context));
+            $this->eventDispatcher->dispatch(new CartChangedEvent($cart, $context));
 
-            $cart->remove($id);
-
-            $this->eventDispatcher->dispatch(new BeforeLineItemRemovedEvent($lineItem, $cart, $context));
-
-            $cart->markModified();
-        }
-
-        $cart = $this->cartCalculator->calculate($cart, $context);
-        $this->cartPersister->save($cart, $context);
-
-        $this->eventDispatcher->dispatch(new AfterLineItemRemovedEvent($lineItems, $cart, $context));
-        $this->eventDispatcher->dispatch(new CartChangedEvent($cart, $context));
-
-        return new CartResponse($cart);
+            return new CartResponse($cart);
+        });
     }
 }

@@ -8,7 +8,9 @@
         <parameter key="env(SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED)" type="string">0</parameter>
         <parameter key="shopware.dbal.time_zone_support_enabled">%env(bool:SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED)%</parameter>
 
+        <!-- @deprecated tag:v6.8.0 Will be removed -->
         <parameter key="env(SHOPWARE_DBAL_TOKEN_MINIMUM_LENGTH)" type="string">3</parameter>
+        <!-- @deprecated tag:v6.8.0 Will be removed -->
         <parameter key="shopware.dbal.token_minimum_length">%env(int:SHOPWARE_DBAL_TOKEN_MINIMUM_LENGTH)%</parameter>
     </parameters>
 

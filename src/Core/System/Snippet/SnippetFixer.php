@@ -5,12 +5,11 @@ namespace Shopware\Core\System\Snippet;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand;
+use Shopware\Core\System\Snippet\Struct\InvalidPluralizationCollection;
 use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
-use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
 
 /**
  * @phpstan-import-type Snippets from ValidateSnippetsCommand
- * @phpstan-import-type InvalidPluralization from SnippetValidationStruct
  */
 #[Package('discovery')]
 class SnippetFixer
@@ -24,12 +23,10 @@ class SnippetFixer
 
     /**
      * @deprecated tag:v6.8.0 reason:new-optional-parameter - Will get a second parameter `$invalidPluralization`
-     *
-     * @toDo: Add `@param InvalidPluralization $invalidPluralization`
      */
-    public function fix(MissingSnippetCollection $missingSnippetCollection /* , array $invalidPluralization */): void
+    public function fix(MissingSnippetCollection $missingSnippetCollection /* , InvalidPluralizationCollection $invalidPluralization */): void
     {
-        /** @var InvalidPluralization $invalidPluralization */
+        /** @var InvalidPluralizationCollection $invalidPluralization */
         $invalidPluralization = \func_num_args() === 2 ? func_get_arg(1) : [];
 
         if (!Feature::isActive('v6.8.0.0') && \func_num_args() < 2) {
@@ -40,6 +37,11 @@ class SnippetFixer
         }
 
         $this->fixMissingSnippets($missingSnippetCollection);
+
+        if ($invalidPluralization->count() < 1) {
+            return;
+        }
+
         $this->fixInvalidPluralization($invalidPluralization);
     }
 
@@ -70,20 +72,17 @@ class SnippetFixer
         }
     }
 
-    /**
-     * @param InvalidPluralization $invalidPluralization
-     */
-    private function fixInvalidPluralization(array $invalidPluralization): void
+    private function fixInvalidPluralization(InvalidPluralizationCollection $invalidPluralization): void
     {
-        foreach ($invalidPluralization as $invalidSnippet) {
-            $json = $this->snippetFileHandler->openJsonFile($invalidSnippet['path']);
+        foreach ($invalidPluralization->getIterator() as $invalidSnippet) {
+            $json = $this->snippetFileHandler->openJsonFile($invalidSnippet->path);
 
             $json = $this->replaceInvalidPluralization(
                 $json,
-                $invalidSnippet['snippetKey'],
+                $invalidSnippet->snippetKey,
             );
 
-            $this->snippetFileHandler->writeJsonFile($invalidSnippet['path'], $json);
+            $this->snippetFileHandler->writeJsonFile($invalidSnippet->path, $json);
         }
     }
 

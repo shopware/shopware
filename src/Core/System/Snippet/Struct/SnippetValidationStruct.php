@@ -12,23 +12,16 @@ use Shopware\Core\Framework\Struct\Struct;
  *      availableValue: string,
  *      keyPath: string
  * }>>
- * @phpstan-type InvalidPluralization array<string, array{
- *      snippetKey: string,
- *      snippetValue: string,
- *      isFixable: bool,
- *      path: string,
- * }>
  */
 #[Package('discovery')]
 class SnippetValidationStruct extends Struct
 {
     /**
      * @param MissingSnippets $missingSnippets
-     * @param InvalidPluralization $invalidPluralization
      */
     public function __construct(
         public readonly array $missingSnippets,
-        public readonly array $invalidPluralization,
+        public readonly InvalidPluralizationCollection $invalidPluralization,
     ) {
     }
 }

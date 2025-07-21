@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\System\Snippet\Struct\InvalidPluralizationCollection;
+use Shopware\Core\System\Snippet\Struct\InvalidPluralizationStruct;
 use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
 
 /**
@@ -43,7 +45,7 @@ class SnippetValidator implements SnippetValidatorInterface
     {
         $files = $this->getAllFiles();
 
-        $invalidPluralization = [];
+        $invalidPluralization = new InvalidPluralizationCollection();
         $snippetFileMappings = [];
         $availableISOs = [];
         foreach ($files as $snippetFile) {
@@ -72,12 +74,12 @@ class SnippetValidator implements SnippetValidatorInterface
                 $validationData = $this->hasInvalidPluralization($value, $path);
 
                 if ($validationData['isInvalid']) {
-                    $invalidPluralization[$key] = [
-                        'snippetKey' => $key,
-                        'snippetValue' => $value,
-                        'isFixable' => $validationData['isFixable'],
-                        'path' => $path,
-                    ];
+                    $invalidPluralization->set($key, new InvalidPluralizationStruct(
+                        $key,
+                        $value,
+                        $validationData['isFixable'],
+                        $path,
+                    ));
                 }
             }
         }

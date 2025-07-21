@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\SnippetFixer;
 use Shopware\Core\System\Snippet\SnippetValidator;
+use Shopware\Core\System\Snippet\Struct\InvalidPluralizationCollection;
 use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
 use Shopware\Core\System\Snippet\Struct\MissingSnippetStruct;
 use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
@@ -20,7 +21,6 @@ use Symfony\Component\Console\Question\Question;
 /**
  * @phpstan-type Snippets array<string, string|array<string, mixed>>
  *
- * @phpstan-import-type InvalidPluralization from SnippetValidationStruct
  * @phpstan-import-type MissingSnippets from SnippetValidationStruct
  */
 #[AsCommand(
@@ -53,7 +53,7 @@ class ValidateSnippetsCommand extends Command
         $hasMissingSnippets = $missingSnippetsCollection->count() > 0;
 
         $invalidPluralization = $invalidSnippetsStruct->invalidPluralization;
-        $hasInvalidPluralization = \count($invalidPluralization) > 0;
+        $hasInvalidPluralization = $invalidPluralization->count() > 0;
 
         $io = new ShopwareStyle($input, $output);
 
@@ -127,23 +127,23 @@ class ValidateSnippetsCommand extends Command
         return $missingSnippetsCollection;
     }
 
-    /**
-     * @param InvalidPluralization $invalidPluralization
-     */
-    private function renderPluralizationErrors(ShopwareStyle $io, OutputInterface $output, array $invalidPluralization): void
-    {
+    private function renderPluralizationErrors(
+        ShopwareStyle $io,
+        OutputInterface $output,
+        InvalidPluralizationCollection $invalidPluralization
+    ): void {
         $io->error('Invalid pluralization found! Please always contain cases from 0 to Inf');
         $table = new Table($output);
         $table->setHeaders([
             'Snippet', 'Value', 'Automatically fixable', 'File Path',
         ]);
 
-        foreach ($invalidPluralization as $invalidPluralizationEntry) {
+        foreach ($invalidPluralization->getIterator() as $invalidPluralizationEntry) {
             $table->addRow([
-                $invalidPluralizationEntry['snippetKey'],
-                $invalidPluralizationEntry['snippetValue'],
-                $invalidPluralizationEntry['isFixable'] ? 'Yes' : 'No',
-                $invalidPluralizationEntry['path'],
+                $invalidPluralizationEntry->snippetKey,
+                $invalidPluralizationEntry->snippetValue,
+                $invalidPluralizationEntry->isFixable ? 'Yes' : 'No',
+                $invalidPluralizationEntry->path,
             ]);
         }
 

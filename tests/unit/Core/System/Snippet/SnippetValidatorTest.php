@@ -91,8 +91,8 @@ class SnippetValidatorTest extends TestCase
             'noIndexes' => 'Singular | Plural',
             'noFallbackRange' => '{1}Singular | Plural',
             'noOneIndex' => '{0} Singular | [0,Inf[ Plural',
-            'wrongPluralRangeSnippet' => '{1} Singular |]1,Inf[ Plural',
-            'wrongPluralRangeSnippetDupe' => '{1} Singular DUPE |]1,Inf[ Plural DUPE',
+            'wrongPluralRangeSnippetFixable' => '{1} Singular |]1,Inf[ Plural',
+            'wrongPluralRangeSnippetDupeFixable' => '{1} Singular DUPE |]1,Inf[ Plural DUPE',
         ];
 
         $actualSnippets = [
@@ -110,16 +110,16 @@ class SnippetValidatorTest extends TestCase
         $invalidPluralization = $invalidData->invalidPluralization;
 
         static::assertCount(5, $invalidPluralization);
-        static::assertArrayNotHasKey('somethingValid', $invalidPluralization);
-        static::assertArrayNotHasKey('somethingValidWith0', $invalidPluralization);
+        static::assertFalse($invalidPluralization->has('somethingValid'));
+        static::assertFalse($invalidPluralization->has('somethingValidWith0'));
 
         foreach ($expectedInvalidSnippets as $expectedKey => $expectedValue) {
-            static::assertArrayHasKey($expectedKey, $invalidPluralization, "Missing expected key: $expectedKey");
+            static::assertTrue($invalidPluralization->has($expectedKey), "Missing expected key: $expectedKey");
 
-            $invalidSnippet = $invalidPluralization[$expectedKey];
-            static::assertCount(4, $invalidSnippet);
-            static::assertSame($expectedValue, $invalidSnippet['snippetValue'], "Invalid pluralization for key: $expectedKey");
-            static::assertSame($path, $invalidSnippet['path'], "Invalid path for key: $expectedKey");
+            $invalidSnippet = $invalidPluralization->get($expectedKey);
+            static::assertSame($expectedValue, $invalidSnippet->snippetValue, "Invalid pluralization for key: $expectedKey");
+            static::assertSame($path, $invalidSnippet->path, "Invalid path for key: $expectedKey");
+            static::assertSame(\str_contains($expectedKey, 'Fixable'), $invalidSnippet->isFixable);
         }
     }
 }

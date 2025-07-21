@@ -4,7 +4,7 @@
             "label": "Users & permissions"
         },
         "permissions": {},
-        "saas": {
+        "sso": {
             "inviteButtonLabel": "Invite user",
             "invitationNotYetAccepted": "This user hasn't accepted your invitation yet. As soon as they do, any missing information will be filled in automatically.",
             "error": {

@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Saas\SaasService;
+use Shopware\Core\Framework\Sso\SsoService;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -36,7 +36,7 @@ class UserController extends AbstractController
         private readonly EntityRepository $roleRepository,
         private readonly EntityRepository $keyRepository,
         private readonly UserDefinition $userDefinition,
-        private readonly SaasService $saasService,
+        private readonly SsoService $ssoService,
     ) {
     }
 
@@ -237,7 +237,7 @@ class UserController extends AbstractController
             return;
         }
 
-        if ($this->saasService->isSaas()) {
+        if ($this->ssoService->isSso()) {
             return;
         }
 

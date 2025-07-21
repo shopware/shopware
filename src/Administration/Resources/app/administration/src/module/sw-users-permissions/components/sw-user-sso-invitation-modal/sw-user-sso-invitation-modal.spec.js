@@ -1,6 +1,6 @@
 /**
  * @internal
- * @sw-package after-sales
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -36,7 +36,7 @@ responses.addResponse({
 
 async function createWrapper() {
     return mount(
-        await wrapTestComponent('sw-user-saas-invitation-modal', {
+        await wrapTestComponent('sw-user-sso-invitation-modal', {
             sync: true,
         }),
         {
@@ -77,11 +77,11 @@ async function createWrapper() {
     );
 }
 
-describe('module/sw-users-permissions/components/sw-user-saas-invitation-modal/sw-user-saas-invitation-modal', () => {
+describe('module/sw-users-permissions/components/sw-user-sso-invitation-modal/sw-user-sso-invitation-modal', () => {
     it('should throw "modal-close" event', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.find('.sw-users-permissions-saas-modal-close-button').trigger('click');
+        await wrapper.find('.sw-users-permissions-sso-modal-close-button').trigger('click');
 
         expect(wrapper.emitted('modal-close')).toBeTruthy();
         expect(wrapper.emitted('user-invited')).toBeFalsy();
@@ -91,19 +91,19 @@ describe('module/sw-users-permissions/components/sw-user-saas-invitation-modal/s
     it('should show errors', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.find('.sw-users-permissions-saas-modal-save-button').trigger('click');
+        await wrapper.find('.sw-users-permissions-sso-modal-save-button').trigger('click');
 
-        const emailField = wrapper.find('.sw-users-permissions-saas-modal-field-email');
+        const emailField = wrapper.find('.sw-users-permissions-sso-modal-field-email');
         expect(emailField.exists()).toBeTruthy();
         expect(emailField.attributes('class')).toContain('has--error');
 
-        const languageField = wrapper.find('.sw-users-permissions-saas-modal-field-email');
+        const languageField = wrapper.find('.sw-users-permissions-sso-modal-field-email');
         expect(languageField.exists()).toBeTruthy();
         expect(languageField.attributes('class')).toContain('has--error');
     });
 
     it('should throw "invitation-failed" event', async () => {
-        Shopware.Service().register('saasInvitationService', () => {
+        Shopware.Service().register('ssoInvitationService', () => {
             return {
                 inviteUser: () => {
                     return Promise.reject();
@@ -114,10 +114,10 @@ describe('module/sw-users-permissions/components/sw-user-saas-invitation-modal/s
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const emailField = wrapper.find('.sw-users-permissions-saas-modal-field-email');
+        const emailField = wrapper.find('.sw-users-permissions-sso-modal-field-email');
         expect(emailField.exists()).toBeTruthy();
 
-        const languageField = wrapper.find('.sw-users-permissions-saas-modal-field-language');
+        const languageField = wrapper.find('.sw-users-permissions-sso-modal-field-language');
         expect(languageField.exists()).toBeTruthy();
 
         await emailField.find('input').setValue('test@example.com');
@@ -128,7 +128,7 @@ describe('module/sw-users-permissions/components/sw-user-saas-invitation-modal/s
         await wrapper.find('.sw-select-option--0').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-users-permissions-saas-modal-save-button').trigger('click');
+        await wrapper.find('.sw-users-permissions-sso-modal-save-button').trigger('click');
         await flushPromises();
 
         expect(wrapper.emitted('user-invited')).toBeFalsy();
@@ -137,7 +137,7 @@ describe('module/sw-users-permissions/components/sw-user-saas-invitation-modal/s
     });
 
     it('should throw "user-invited" event', async () => {
-        Shopware.Application.getContainer('service').saasInvitationService = {
+        Shopware.Application.getContainer('service').ssoInvitationService = {
             inviteUser: () => {
                 return Promise.resolve();
             },
@@ -146,10 +146,10 @@ describe('module/sw-users-permissions/components/sw-user-saas-invitation-modal/s
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const emailField = wrapper.find('.sw-users-permissions-saas-modal-field-email');
+        const emailField = wrapper.find('.sw-users-permissions-sso-modal-field-email');
         expect(emailField.exists()).toBeTruthy();
 
-        const languageField = wrapper.find('.sw-users-permissions-saas-modal-field-language');
+        const languageField = wrapper.find('.sw-users-permissions-sso-modal-field-language');
         expect(languageField.exists()).toBeTruthy();
 
         await emailField.find('input').setValue('test@example.com');
@@ -160,7 +160,7 @@ describe('module/sw-users-permissions/components/sw-user-saas-invitation-modal/s
         await wrapper.find('.sw-select-option--1').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-users-permissions-saas-modal-save-button').trigger('click');
+        await wrapper.find('.sw-users-permissions-sso-modal-save-button').trigger('click');
         await flushPromises();
 
         expect(wrapper.emitted('user-invited')).toBeTruthy();

@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('after-sales')]
+#[Package('framework')]
 class AdminAuthController extends AbstractController
 {
     public function __construct(
@@ -32,7 +32,7 @@ class AdminAuthController extends AbstractController
     }
 
     #[Route(path: '/api/oauth/sso/config', name: 'api.oauth.sso.config', defaults: ['auth_required' => false], methods: ['GET'])]
-    public function loginButtonConfig(Request $request): JsonResponse
+    public function loadSsoLoginConfig(Request $request): JsonResponse
     {
         $loginConfig = $this->loginConfigService->getConfig();
         $random = $this->stateValidator->createRandom($request);
@@ -42,7 +42,7 @@ class AdminAuthController extends AbstractController
     }
 
     #[Route(path: '/api/oauth/sso/code', name: 'api.oauth.sso.code', defaults: ['auth_required' => false], methods: ['GET'])]
-    public function code(Request $request): Response
+    public function callBackWithCode(Request $request): Response
     {
         $this->stateValidator->validateRequest($request);
 

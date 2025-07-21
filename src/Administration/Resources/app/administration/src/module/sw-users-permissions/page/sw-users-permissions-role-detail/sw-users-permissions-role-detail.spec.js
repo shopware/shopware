@@ -28,7 +28,7 @@ async function createWrapper(
     options = {
         isNew: false,
     },
-    isSaas = { isSaas: false },
+    isSso = { isSso: false },
     roleSaveFunction = jest.fn(() => Promise.resolve()),
 ) {
     privilegeMappingEntries.forEach((mappingEntry) => privilegesService.addPrivilegeMappingEntry(mappingEntry));
@@ -97,9 +97,9 @@ async function createWrapper(
                     userService: {},
                     privileges: privilegesService,
                     appAclService: appAclService,
-                    saasSettingsService: {
-                        isSaas: () => {
-                            return Promise.resolve(isSaas);
+                    ssoSettingsService: {
+                        isSso: () => {
+                            return Promise.resolve(isSso);
                         },
                     },
                 },
@@ -670,7 +670,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     isNew: true,
                 },
             },
-            { isSaas: false },
+            { isSso: false },
             saveFunction,
         );
         await flushPromises();
@@ -696,7 +696,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     isNew: true,
                 },
             },
-            { isSaas: true },
+            { isSso: true },
             saveFunction,
         );
         await flushPromises();

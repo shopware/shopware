@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 class FakeUserInstaller
 {
     public function __construct(

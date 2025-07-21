@@ -1,9 +1,9 @@
 /**
  * @internal
- * @sw-package after-sales
+ * @sw-package framework
  */
-import template from './sw-saas-users-permission-user-detail.html.twig';
-import './sw-saas-users-permissions-user-detail.scss';
+import template from './sw-sso-users-permission-user-detail.html.twig';
+import './sw-sso-users-permissions-user-detail.scss';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;

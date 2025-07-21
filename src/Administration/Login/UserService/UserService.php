@@ -20,7 +20,7 @@ use Shopware\Core\System\User\UserEntity;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 final class UserService
 {
     /**

@@ -20,7 +20,7 @@ use Symfony\Component\Clock\ClockInterface;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 final class IdTokenParser
 {
     private Parser $parser;

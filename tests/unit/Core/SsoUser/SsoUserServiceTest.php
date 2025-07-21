@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\SaasUser;
+namespace Shopware\Tests\Unit\Core\SsoUser;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\SaasUser\SaasUserService;
+use Shopware\Core\Content\SsoUser\SsoUserService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -16,9 +16,9 @@ use Shopware\Core\System\User\UserEntity;
 /**
  * @internal
  */
-#[Package('after-sales')]
-#[CoversClass(SaasUserService::class)]
-class SaasUserServiceTest extends TestCase
+#[Package('framework')]
+#[CoversClass(SsoUserService::class)]
+class SsoUserServiceTest extends TestCase
 {
     public function testInviteUserWillCreateNewUser(): void
     {
@@ -26,9 +26,9 @@ class SaasUserServiceTest extends TestCase
         $userRepository->expects($this->once())->method('search');
         $userRepository->expects($this->once())->method('create');
 
-        $saasUserService = new SaasUserService($userRepository);
+        $ssoUserService = new SsoUserService($userRepository);
 
-        $saasUserService->inviteUser('test@example.com', Uuid::randomHex(), Context::createDefaultContext());
+        $ssoUserService->inviteUser('test@example.com', Uuid::randomHex(), Context::createDefaultContext());
     }
 
     public function testInviteUserWillNotCreateNewUser(): void
@@ -47,8 +47,8 @@ class SaasUserServiceTest extends TestCase
         $userRepository->expects($this->once())->method('search')->willReturn($searchResult);
         $userRepository->expects($this->never())->method('create');
 
-        $saasUserService = new SaasUserService($userRepository);
+        $ssoUserService = new SsoUserService($userRepository);
 
-        $saasUserService->inviteUser('test@example.com', Uuid::randomHex(), Context::createDefaultContext());
+        $ssoUserService->inviteUser('test@example.com', Uuid::randomHex(), Context::createDefaultContext());
     }
 }

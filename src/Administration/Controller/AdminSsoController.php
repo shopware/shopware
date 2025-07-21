@@ -2,11 +2,11 @@
 
 namespace Shopware\Administration\Controller;
 
-use Shopware\Core\Content\SaasUser\SaasUserInvitationMailService;
-use Shopware\Core\Content\SaasUser\SaasUserService;
+use Shopware\Core\Content\SsoUser\SsoUserInvitationMailService;
+use Shopware\Core\Content\SsoUser\SsoUserService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Saas\SaasService;
+use Shopware\Core\Framework\Sso\SsoService;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,23 +16,23 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('after-sales')]
-class AdminSaasController extends AbstractController
+#[Package('framework')]
+class AdminSsoController extends AbstractController
 {
     public function __construct(
-        private readonly SaasUserService $saasUserService,
-        private readonly SaasUserInvitationMailService $saasUserInvitationMailService,
-        private readonly SaasService $saasService,
+        private readonly SsoUserService $saasUserService,
+        private readonly SsoUserInvitationMailService $saasUserInvitationMailService,
+        private readonly SsoService $saasService,
     ) {
     }
 
-    #[Route(path: '/api/_info/is-saas', name: 'api.info.is-saas', defaults: ['auth_required' => true, '_routeScope' => ['administration']], methods: ['GET'])]
-    public function isSaas(): JsonResponse
+    #[Route(path: '/api/_info/is-sso', name: 'api.info.is-sso', defaults: ['auth_required' => true, '_routeScope' => ['administration']], methods: ['GET'])]
+    public function isSso(): JsonResponse
     {
-        return new JsonResponse(['isSaas' => $this->saasService->isSaas()]);
+        return new JsonResponse(['isSso' => $this->saasService->isSso()]);
     }
 
-    #[Route(path: '/api/_action/saas/invite-user', name: 'api.action.saas.invite-user', defaults: ['auth_required' => true, '_routeScope' => ['administration']], methods: ['POST'])]
+    #[Route(path: '/api/_action/sso/invite-user', name: 'api.action.sso.invite-user', defaults: ['auth_required' => true, '_routeScope' => ['administration']], methods: ['POST'])]
     public function inviteUser(RequestDataBag $requestDataBag, Context $context): JsonResponse
     {
         $email = $requestDataBag->get('email');

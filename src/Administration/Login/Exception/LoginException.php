@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 class LoginException extends HttpException
 {
     final public const LOGIN_CONFIG_INCOMPLETE_OR_MISCONFIGURED = 'LOGIN_CONFIG__INCOMPLETE_OR_MISCONFIGURED';

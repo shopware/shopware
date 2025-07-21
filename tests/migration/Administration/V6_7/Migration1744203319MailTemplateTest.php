@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 #[CoversClass(Migration1744203319MailTemplate::class)]
 class Migration1744203319MailTemplateTest extends TestCase
 {

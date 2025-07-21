@@ -1,25 +1,25 @@
-{% block sw_settings_saas_user_create_access_key_modal %}
+{% block sw_settings_sso_user_create_access_key_modal %}
     <sw-modal
         v-if="isOpen"
-        class="sw-settings-saas-user-create-access-key-modal"
+        class="sw-settings-sso-user-create-access-key-modal"
         size="550px"
         :title="$tc('global.default.warning')"
         :is-loading="isLoading"
         @modal-close="onCancel()"
     >
-        {% block sw_settings_saas_user_create_access_key_modal_inner %}
-            {% block sw_settings_saas_user_create_access_key_modal_inner_field_access_key %}
+        {% block sw_settings_sso_user_create_access_key_modal_inner %}
+            {% block sw_settings_sso_user_create_access_key_modal_inner_field_access_key %}
                 <mt-text-field
                     v-model="accessKey"
                     :label="$tc('sw-users-permissions.users.user-detail.modal.idFieldLabel')"
                     :disabled="true"
                     :copyable="true"
                     :copyable-tooltip="true"
-                    class="saas-user-Integrations-modal-field--access-key"
+                    class="sso-user-Integrations-modal-field--access-key"
                 />
             {% endblock %}
 
-            {% block sw_settings_saas_user_create_access_key_modal_inner_field_secret_access_key_field %}
+            {% block sw_settings_sso_user_create_access_key_modal_inner_field_secret_access_key_field %}
                 <mt-password-field
                     v-if="mode === 'view'"
                     v-model="secretAccessKey"
@@ -29,7 +29,7 @@
                     :copyable="false"
                     :copyable-tooltip="false"
                     autocomplete="off"
-                    class="saas-user-Integrations-modal-field--secret-acces-key"
+                    class="sso-user-Integrations-modal-field--secret-acces-key"
                 />
 
                 <mt-text-field
@@ -39,11 +39,11 @@
                     :disabled="true"
                     :copyable="true"
                     :copyable-tooltip="true"
-                    class="saas-user-Integrations-modal-field--secret-acces-key"
+                    class="sso-user-Integrations-modal-field--secret-acces-key"
                 />
             {% endblock %}
 
-            {% block sw_settings_saas_user_create_access_key_modal_inner_help_text %}
+            {% block sw_settings_sso_user_create_access_key_modal_inner_help_text %}
                 <mt-banner
                     v-if="mode === 'view'"
                     variant="attention"
@@ -59,23 +59,23 @@
                 </mt-banner>
             {% endblock %}
 
-            {% block sw_settings_saas_user_create_access_key_modal_inner_generate_new_key_button %}
+            {% block sw_settings_sso_user_create_access_key_modal_inner_generate_new_key_button %}
                 <mt-button
                     v-if="mode === 'view'"
                     variant="critical"
                     :block="true"
-                    class="saas-user-Integrations-modal-field--generate-access-key"
+                    class="sso-user-Integrations-modal-field--generate-access-key"
                     @click="onGenerateNewAccessKey()"
                 >
                     {{ $tc('sw-users-permissions.users.user-detail.modal.buttonCreateNewApiKeys') }}
                 </mt-button>
             {% endblock %}
 
-            {% block sw_settings_saas_user_create_access_key_modal_inner_footer %}
+            {% block sw_settings_sso_user_create_access_key_modal_inner_footer %}
                 <template #modal-footer>
-                    {% block sw_settings_saas_user_create_access_key_modal_inner_footer_cancel %}
+                    {% block sw_settings_sso_user_create_access_key_modal_inner_footer_cancel %}
                         <mt-button
-                            class="saas-user-Integrations-modal--cancel"
+                            class="sso-user-Integrations-modal--cancel"
                             size="small"
                             variant="secondary"
                             @click="onCancel()"
@@ -84,9 +84,9 @@
                         </mt-button>
                     {% endblock %}
 
-                    {% block sw_settings_saas_user_create_access_key_modal_inner_footer_save %}
+                    {% block sw_settings_sso_user_create_access_key_modal_inner_footer_save %}
                         <mt-button
-                            class="saas-user-Integrations-modal--apply"
+                            class="sso-user-Integrations-modal--apply"
                             size="small"
                             variant="primary"
                             :disabled="isLoading"

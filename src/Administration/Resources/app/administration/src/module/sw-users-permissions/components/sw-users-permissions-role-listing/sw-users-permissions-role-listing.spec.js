@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(privileges = [], isSaas = { isSaas: false }, deleteFunction = () => {}) {
+async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFunction = () => {}) {
     return mount(
         await wrapTestComponent('sw-users-permissions-role-listing', {
             sync: true,
@@ -28,9 +28,9 @@ async function createWrapper(privileges = [], isSaas = { isSaas: false }, delete
                         },
                     },
                     searchRankingService: {},
-                    saasSettingsService: {
-                        isSaas: () => {
-                            return Promise.resolve(isSaas);
+                    ssoSettingsService: {
+                        isSso: () => {
+                            return Promise.resolve(isSso);
                         },
                     },
                 },
@@ -159,7 +159,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
                 'users_and_permissions.deleter',
                 'users_and_permissions.editor',
             ],
-            { isSaas: false },
+            { isSso: false },
             deleteFunction,
         );
 
@@ -193,7 +193,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
                 'users_and_permissions.deleter',
                 'users_and_permissions.editor',
             ],
-            { isSaas: true },
+            { isSso: true },
             deleteFunction,
         );
 

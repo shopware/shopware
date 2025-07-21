@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 final class StateValidator
 {
     final public const SESSION_KEY = 'sw_sso_session_key';

@@ -14,7 +14,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 #[CoversClass(ExternalTokenService::class)]
 class ExternalTokenServiceTest extends TestCase
 {

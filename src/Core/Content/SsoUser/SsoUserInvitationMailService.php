@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\SaasUser;
+namespace Shopware\Core\Content\SsoUser;
 
 use Shopware\Administration\Login\Config\LoginConfig;
 use Shopware\Administration\Login\Config\LoginConfigService;
@@ -26,8 +26,8 @@ use Shopware\Core\System\User\UserEntity;
 /**
  * @internal
  */
-#[Package('after-sales')]
-class SaasUserInvitationMailService
+#[Package('framework')]
+class SsoUserInvitationMailService
 {
     /**
      * @param EntityRepository<MailTemplateCollection> $mailTemplateRepository
@@ -84,7 +84,7 @@ class SaasUserInvitationMailService
 
         $loginConfig = $this->loginConfigService->getConfig();
         if (!$loginConfig instanceof LoginConfig) {
-            throw SaasUserException::noLoginConfig();
+            throw SsoUserException::noLoginConfig();
         }
 
         $lang = $locale?->getCode() === 'de-DE' ? 'de' : 'en';
@@ -116,7 +116,7 @@ class SaasUserInvitationMailService
 
         $result = $this->mailTemplateTypeRepository->search($criteria, $newContext)->first();
         if (!$result instanceof MailTemplateTypeEntity) {
-            throw SaasUserException::mailTemplateNotFound();
+            throw SsoUserException::mailTemplateNotFound();
         }
 
         $criteria = new Criteria();

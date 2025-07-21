@@ -346,9 +346,9 @@
  "sw-users-permissions-user-listing",
  "sw-variant-card-tabs",
  "tabExtension.componentSectionId",
-  "sw-settings-saas-user-detail-content-card-information",
-  "sw-settings-saas-user-detail-content-card-integrations",
-  "sw-settings-saas-user-detail-content-card-rolesAndPermission",
-  "sw-settings-saas-user-detail-content-card-userinterface",
+  "sw-settings-sso-user-detail-content-card-information",
+  "sw-settings-sso-user-detail-content-card-integrations",
+  "sw-settings-sso-user-detail-content-card-rolesAndPermission",
+  "sw-settings-sso-user-detail-content-card-userinterface",
   "sw-sso-error-card"
 ]

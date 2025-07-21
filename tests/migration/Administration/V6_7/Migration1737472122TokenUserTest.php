@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 #[CoversClass(Migration1737472122TokenUser::class)]
 class Migration1737472122TokenUserTest extends TestCase
 {

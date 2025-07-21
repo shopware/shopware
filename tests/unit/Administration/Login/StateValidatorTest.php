@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 #[CoversClass(StateValidator::class)]
 class StateValidatorTest extends TestCase
 {

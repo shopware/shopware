@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\SaasUser;
+namespace Shopware\Core\Content\SsoUser;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -14,8 +14,8 @@ use Shopware\Core\System\User\UserEntity;
 /**
  * @internal
  */
-#[Package('after-sales')]
-class SaasUserService
+#[Package('framework')]
+class SsoUserService
 {
     /**
      * @param EntityRepository<UserCollection> $userRepository

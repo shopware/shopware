@@ -17,7 +17,7 @@ export default {
         'loginService',
         'acl',
         'appAclService',
-        'saasSettingsService',
+        'ssoSettingsService',
     ],
 
     mixins: [
@@ -142,8 +142,8 @@ export default {
 
         onSave() {
             this.isLoading = true;
-            this.saasSettingsService.isSaas().then((response) => {
-                if (response.isSaas) {
+            this.ssoSettingsService.isSso().then((response) => {
+                if (response.isSso) {
                     this.isLoading = false;
                     this.saveRole({ ...Shopware.Context.api });
 

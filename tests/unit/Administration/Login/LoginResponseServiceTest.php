@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 #[CoversClass(LoginResponseService::class)]
 class LoginResponseServiceTest extends TestCase
 {

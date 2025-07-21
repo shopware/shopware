@@ -1,12 +1,12 @@
 /**
  * @internal
- * @sw-package after-sales
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(user) {
     return mount(
-        await wrapTestComponent('sw-user-saas-status-label', {
+        await wrapTestComponent('sw-user-sso-status-label', {
             sync: true,
         }),
         {
@@ -22,7 +22,7 @@ async function createWrapper(user) {
     );
 }
 
-describe('module/sw-users-permissions/components/sw-user-saas-status-label', () => {
+describe('module/sw-users-permissions/components/sw-user-sso-status-label', () => {
     it('should be active', async () => {
         const wrapper = await createWrapper({ active: true });
 
@@ -30,7 +30,7 @@ describe('module/sw-users-permissions/components/sw-user-saas-status-label', () 
         expect(colorBadge.attributes('variant')).toBe('success');
 
         const text = await wrapper.find('span');
-        expect(text.text()).toBe('sw-users-permissions.saas.user-listing.status-label.active');
+        expect(text.text()).toBe('sw-users-permissions.sso.user-listing.status-label.active');
     });
 
     it('should be invited', async () => {
@@ -45,7 +45,7 @@ describe('module/sw-users-permissions/components/sw-user-saas-status-label', () 
         expect(colorBadge.attributes('variant')).toBe('warning');
 
         const text = await wrapper.find('span');
-        expect(text.text()).toBe('sw-users-permissions.saas.user-listing.status-label.invited');
+        expect(text.text()).toBe('sw-users-permissions.sso.user-listing.status-label.invited');
     });
 
     it('should be inactive', async () => {
@@ -60,6 +60,6 @@ describe('module/sw-users-permissions/components/sw-user-saas-status-label', () 
         expect(colorBadge.attributes('variant')).toBe('danger');
 
         const text = await wrapper.find('span');
-        expect(text.text()).toBe('sw-users-permissions.saas.user-listing.status-label.inactive');
+        expect(text.text()).toBe('sw-users-permissions.sso.user-listing.status-label.inactive');
     });
 });

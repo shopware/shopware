@@ -37,7 +37,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 #[CoversClass(ShopwareGrantType::class)]
 class ShopwareGrantTypeTest extends TestCase
 {

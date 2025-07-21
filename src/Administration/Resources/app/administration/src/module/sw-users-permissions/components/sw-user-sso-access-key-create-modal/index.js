@@ -1,8 +1,8 @@
 /**
  * @internal
- * @sw-package after-sales
+ * @sw-package framework
  */
-import template from './sw-user-saas-access-key-create-modal.html.twig';
+import template from './sw-user-sso-access-key-create-modal.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

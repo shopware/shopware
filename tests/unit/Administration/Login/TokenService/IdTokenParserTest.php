@@ -22,7 +22,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 #[CoversClass(IdTokenParser::class)]
 class IdTokenParserTest extends TestCase
 {

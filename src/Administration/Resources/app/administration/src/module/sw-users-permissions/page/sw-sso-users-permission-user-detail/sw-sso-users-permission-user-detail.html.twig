@@ -1,7 +1,7 @@
-{% block sw_settings_saas_user_detail %}
-    <sw-page class="sw-settings-saas-user-detail">
+{% block sw_settings_sso_user_detail %}
+    <sw-page class="sw-settings-sso-user-detail">
 
-        {% block sw_settings_saas_user_detail_header %}
+        {% block sw_settings_sso_user_detail_header %}
             <template #smart-bar-header>
                 <h2 v-if="!isLoading">
                     {{ user.email }}
@@ -9,9 +9,9 @@
             </template>
         {% endblock %}
 
-        {% block sw_settings_saas_user_detail_actions %}
+        {% block sw_settings_sso_user_detail_actions %}
             <template #smart-bar-actions>
-                {% block sw_settings_saas_user_detail_actions_cancel %}
+                {% block sw_settings_sso_user_detail_actions_cancel %}
                     <mt-button
                         v-tooltip.bottom="tooltipCancel"
                         variant="secondary"
@@ -22,7 +22,7 @@
                     </mt-button>
                 {% endblock %}
 
-                {% block sw_settings_saas_user_detail_actions_save %}
+                {% block sw_settings_sso_user_detail_actions_save %}
                     <sw-button-process
                         v-tooltip.bottom="tooltipSave"
                         class="sw-settings-user-detail__save-action"
@@ -37,54 +37,54 @@
             </template>
         {% endblock %}
 
-        {% block sw_settings_saas_user_detail_content %}
+        {% block sw_settings_sso_user_detail_content %}
             <template #content>
                 <sw-card-view>
                     <mt-banner
                         v-if="!isLoading && isInvited"
-                        class="sw-saas-user-invitation-info"
+                        class="sw-sso-user-invitation-info"
                         variant="info"
                     >
-                        {{ $tc('sw-users-permissions.saas.invitationNotYetAccepted') }}
+                        {{ $tc('sw-users-permissions.sso.invitationNotYetAccepted') }}
                     </mt-banner>
 
                     <mt-card
-                        position-identifier="sw-settings-saas-user-detail-content-card-information"
-                        :title="$tc('sw-users-permissions.saas.user-detail.cards-title.information')"
+                        position-identifier="sw-settings-sso-user-detail-content-card-information"
+                        :title="$tc('sw-users-permissions.sso.user-detail.cards-title.information')"
                         :is-loading="isLoading"
                     >
-                        {% block sw_settings_saas_user_detail_content_details %}
+                        {% block sw_settings_sso_user_detail_content_details %}
                             <div
                                 v-if="user"
-                                class="sw-settings-saas-user-detail__grid sw-detail-grid__information"
+                                class="sw-settings-sso-user-detail__grid sw-detail-grid__information"
                             >
-                                {% block sw_settings_saas_user_detail_content_details_first_name %}
+                                {% block sw_settings_sso_user_detail_content_details_first_name %}
                                     <mt-text-field
                                         v-model="user.firstName"
                                         name="sw-field--user-firstName"
-                                        class="sw-saas-detail-card__information-firstName"
+                                        class="sw-sso-detail-card__information-firstName"
                                         :disabled="true"
                                         required
                                         :label="$tc('sw-users-permissions.users.user-detail.labelFirstName')"
                                     />
                                 {% endblock %}
 
-                                {% block sw_settings_saas_user_detail_content_details_last_name %}
+                                {% block sw_settings_sso_user_detail_content_details_last_name %}
                                     <mt-text-field
                                         v-model="user.lastName"
                                         name="sw-field--user-lastName"
-                                        class="sw-saas-detail-card__information-lastName"
+                                        class="sw-sso-detail-card__information-lastName"
                                         :disabled="true"
                                         required
                                         :label="$tc('sw-users-permissions.users.user-detail.labelLastName')"
                                     />
                                 {% endblock %}
 
-                                {% block sw_settings_saas_user_detail_content_details_email %}
+                                {% block sw_settings_sso_user_detail_content_details_email %}
                                     <mt-text-field
                                         v-model="user.email"
                                         name="sw-field--user-email"
-                                        class="sw-saas-detail-card__information-eMail"
+                                        class="sw-sso-detail-card__information-eMail"
                                         :disabled="true"
                                         required
                                         :label="$tc('sw-users-permissions.users.user-detail.labelEmail')"
@@ -95,19 +95,19 @@
                     </mt-card>
 
                     <mt-card
-                        position-identifier="sw-settings-saas-user-detail-content-card-userinterface"
-                        :title="$tc('sw-users-permissions.saas.user-detail.cards-title.userinterface')"
+                        position-identifier="sw-settings-sso-user-detail-content-card-userinterface"
+                        :title="$tc('sw-users-permissions.sso.user-detail.cards-title.userinterface')"
                         :is-loading="isLoading"
                     >
                         <div
                             v-if="user"
-                            class="sw-settings-saas-user-detail__grid sw-detail-grid__user-interface"
+                            class="sw-settings-sso-user-detail__grid sw-detail-grid__user-interface"
                         >
-                            {% block sw_settings_saas_user_detail_content_details_language %}
+                            {% block sw_settings_sso_user_detail_content_details_language %}
                                 <mt-select
                                     v-model="user.localeId"
                                     name="sw-field--user-localeId"
-                                    class="sw-saas-detail-card__user-interface-language"
+                                    class="sw-sso-detail-card__user-interface-language"
                                     :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
                                     :disabled="!acl.can('users_and_permissions.editor') || undefined"
                                     :options="languages"
@@ -116,11 +116,11 @@
                                 />
                             {% endblock %}
 
-                            {% block sw_settings_saas_user_detail_grid_content_timezone %}
+                            {% block sw_settings_sso_user_detail_grid_content_timezone %}
                                 <mt-select
                                     v-model="user.timeZone"
                                     name="sw-field--user-timeZone"
-                                    class="sw-saas-detail-card__user-interface-timezone"
+                                    class="sw-sso-detail-card__user-interface-timezone"
                                     :options="timezoneOptions"
                                     required
                                     :label="$tc('sw-users-permissions.users.user-detail.labelTimezone')"
@@ -129,7 +129,7 @@
                                 />
                             {% endblock %}
 
-                            {% block sw_settings_saas_user_detail_content_media_upload %}
+                            {% block sw_settings_sso_user_detail_content_media_upload %}
                                 <sw-upload-listener
                                     :upload-tag="user.id"
                                     auto-upload
@@ -137,7 +137,7 @@
                                 />
 
                                 <sw-media-upload-v2
-                                    class="w-saas-detail-card__user-interface-picture"
+                                    class="w-sso-detail-card__user-interface-picture"
                                     :source="user.avatarMedia"
                                     :label="$tc('sw-users-permissions.users.user-detail.labelProfilePicture')"
                                     :upload-tag="user.id"
@@ -153,15 +153,15 @@
                     </mt-card>
 
                     <mt-card
-                        position-identifier="sw-settings-saas-user-detail-content-card-rolesAndPermission"
-                        :title="$tc('sw-users-permissions.saas.user-detail.cards-title.rolesAndPermission')"
+                        position-identifier="sw-settings-sso-user-detail-content-card-rolesAndPermission"
+                        :title="$tc('sw-users-permissions.sso.user-detail.cards-title.rolesAndPermission')"
                         :is-loading="isLoading"
                     >
                         <div
                             v-if="user"
-                            class="sw-settings-saas-user-detail__grid sw-detail-grid__roles-and-permissions"
+                            class="sw-settings-sso-user-detail__grid sw-detail-grid__roles-and-permissions"
                         >
-                            {% block sw_settings_saas_user_detail_grid_content_acl_roles %}
+                            {% block sw_settings_sso_user_detail_grid_content_acl_roles %}
                                 <sw-entity-multi-select
                                     v-model:entity-collection="user.aclRoles"
                                     v-tooltip="{
@@ -170,7 +170,7 @@
                             disabled: !user.admin || !acl.can('users_and_permissions.editor')
                         }"
                                     name="sw-field--user-aclRoles"
-                                    class="sw-saas-detail-card__roles-and-permission-aclRoles"
+                                    class="sw-sso-detail-card__roles-and-permission-aclRoles"
                                     :label="$tc('sw-users-permissions.users.user-detail.labelRoles')"
                                     :disabled="user.admin || !acl.can('users_and_permissions.editor') || undefined"
                                     :criteria="aclRoleCriteria"
@@ -178,21 +178,21 @@
                                 />
                             {% endblock %}
 
-                            {% block sw_settings_saas_user_detail_grid_content_job_title %}
+                            {% block sw_settings_sso_user_detail_grid_content_job_title %}
                                 <mt-text-field
                                     v-model="user.title"
                                     name="sw-field--user-title"
-                                    class="sw-saas-detail-card__roles-and-permission-jobTitle"
+                                    class="sw-sso-detail-card__roles-and-permission-jobTitle"
                                     :disabled="!acl.can('users_and_permissions.editor') || undefined"
                                     :label="$tc('sw-users-permissions.users.user-detail.labelJobTitle')"
                                 />
                             {% endblock %}
 
-                            {% block sw_settings_saas_user_detail_grid_content_acl_is_admin %}
+                            {% block sw_settings_sso_user_detail_grid_content_acl_is_admin %}
                                 <mt-switch
                                     v-model="user.admin"
                                     name="sw-field--user-admin"
-                                    class="sw-saas-detail-card__roles-and-permission-is-admin"
+                                    class="sw-sso-detail-card__roles-and-permission-is-admin"
                                     :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
                                     :disabled="isCurrentUser || !acl.can('users_and_permissions.editor') || undefined"
                                 />
@@ -201,15 +201,15 @@
                     </mt-card>
 
                     <mt-card
-                        position-identifier="sw-settings-saas-user-detail-content-card-integrations"
+                        position-identifier="sw-settings-sso-user-detail-content-card-integrations"
                         :title="$tc('sw-users-permissions.users.user-detail.labelIntegrationsCard')"
                         :is-loading="isLoading"
                     >
-                        {% block sw_settings_saas_user_detail_grid_toolbar %}
+                        {% block sw_settings_sso_user_detail_grid_toolbar %}
                             <template #toolbar>
-                                {% block sw_settings_saas_user_detail_grid_add_key %}
+                                {% block sw_settings_sso_user_detail_grid_add_key %}
                                     <mt-button
-                                        class="sw-saas-detail-card__integrations-create-access-key"
+                                        class="sw-sso-detail-card__integrations-create-access-key"
                                         variant="primary"
                                         size="small"
                                         :disabled="!$route.params.id || !acl.can('users_and_permissions.editor') || undefined"
@@ -221,9 +221,9 @@
                             </template>
                         {% endblock %}
 
-                        {% block sw_settings_saas_user_detail_key_grid %}
+                        {% block sw_settings_sso_user_detail_key_grid %}
                             <template #grid>
-                                {% block sw_settings_saas_user_detail_key_grid_content %}
+                                {% block sw_settings_sso_user_detail_key_grid_content %}
                                     <sw-data-grid
                                         :is-loading="isLoading"
                                         :data-source="integrations"
@@ -232,9 +232,9 @@
                                         :show-settings="true"
                                         :show-selection="false"
                                     >
-                                        {% block sw_settings_saas_user_detail_grid_columns_actions %}
+                                        {% block sw_settings_sso_user_detail_grid_columns_actions %}
                                             <template #actions="{ item }">
-                                                {% block sw_settings_saas_user_detail_grid_columns_actions_edit %}
+                                                {% block sw_settings_sso_user_detail_grid_columns_actions_edit %}
                                                     <sw-context-menu-item
                                                         class="sw-settings-user-detail__grid-context-menu-edit sw-product-list__edit-action"
                                                         :disabled="!acl.can('users_and_permissions.editor') || undefined"
@@ -244,7 +244,7 @@
                                                     </sw-context-menu-item>
                                                 {% endblock %}
 
-                                                {% block sw_settings_saas_user_detail_grid_columns_actions_delete %}
+                                                {% block sw_settings_sso_user_detail_grid_columns_actions_delete %}
                                                     <sw-context-menu-item
                                                         class="sw-settings-user-detail__grid-context-menu-delete"
                                                         :disabled="!acl.can('users_and_permissions.editor') || undefined"
@@ -271,19 +271,19 @@
                     </mt-card>
                 </sw-card-view>
 
-                {% block sw_settings_saas_user_detail_grid_inner_slot_delete_modal %}
+                {% block sw_settings_sso_user_detail_grid_inner_slot_delete_modal %}
                     <sw-modal
                         v-if="showAccessKeyDeleteModal"
                         :title="$tc('global.default.warning')"
                         @modal-close="onCloseAccessKeyDeleteModal()"
                     >
-                        {% block sw_settings_saas_user_detail_grid_inner_slot_delete_modal_confirm_text %}
+                        {% block sw_settings_sso_user_detail_grid_inner_slot_delete_modal_confirm_text %}
                             <p>
                                 {{ $tc('sw-users-permissions.users.user-detail.modal.confirmDelete') }}
                             </p>
                         {% endblock %}
 
-                        {% block sw_settings_saas_user_detail_grid_inner_slot_delete_modal_footer %}
+                        {% block sw_settings_sso_user_detail_grid_inner_slot_delete_modal_footer %}
                             <template #modal-footer>
                                 <mt-button
                                     size="small"
@@ -304,7 +304,7 @@
                     </sw-modal>
                 {% endblock %}
 
-                <sw-user-saas-access-key-create-modal
+                <sw-user-sso-access-key-create-modal
                     :is-loading="isLoading"
                     :is-open="isCreateAccessKeyModalOpen"
                     :access-key="newAccessKey"

@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 final class Token
 {
     private function __construct(

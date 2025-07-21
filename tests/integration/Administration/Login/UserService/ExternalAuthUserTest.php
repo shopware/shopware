@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 #[CoversClass(ExternalAuthUser::class)]
 class ExternalAuthUserTest extends TestCase
 {

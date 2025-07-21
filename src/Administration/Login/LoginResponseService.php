@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 final class LoginResponseService
 {
     private const ADMIN_ROUTE_NAME = 'administration.index';

@@ -1,6 +1,6 @@
 /**
  * @internal
- * @sw-package after-sales
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -131,7 +131,7 @@ async function createWrapper(user) {
     });
 
     const wrapper = mount(
-        await wrapTestComponent('sw-saas-users-permission-user-detail', {
+        await wrapTestComponent('sw-sso-users-permission-user-detail', {
             sync: true,
         }),
         {
@@ -150,7 +150,7 @@ async function createWrapper(user) {
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-data-grid-column-boolean': await wrapTestComponent('sw-data-grid-column-boolean'),
                     'sw-card-view': await wrapTestComponent('sw-card-view'),
-                    'sw-user-saas-access-key-create-modal': await wrapTestComponent('sw-user-saas-access-key-create-modal'),
+                    'sw-user-sso-access-key-create-modal': await wrapTestComponent('sw-user-sso-access-key-create-modal'),
                     'sw-page': await wrapTestComponent('sw-page'),
                     'sw-app-topbar-button': await wrapTestComponent('sw-app-topbar-button'),
                     'sw-notification-center': await wrapTestComponent('sw-notification-center'),
@@ -247,11 +247,11 @@ async function createWrapper(user) {
     return wrapper;
 }
 
-describe('module/sw-users-permissions/page/sw-saas-users-permission-user-detail', () => {
+describe('module/sw-users-permissions/page/sw-sso-users-permission-user-detail', () => {
     it('should not show invitation banner', async () => {
         const wrapper = await createWrapper();
 
-        const invitationBanner = wrapper.find('.sw-saas-user-invitation-info');
+        const invitationBanner = wrapper.find('.sw-sso-user-invitation-info');
         expect(invitationBanner.exists()).toBeFalsy();
     });
 
@@ -262,10 +262,10 @@ describe('module/sw-users-permissions/page/sw-saas-users-permission-user-detail'
 
         const wrapper = await createWrapper(user);
 
-        const invitationBanner = wrapper.find('.sw-saas-user-invitation-info');
+        const invitationBanner = wrapper.find('.sw-sso-user-invitation-info');
         expect(invitationBanner.exists()).toBeTruthy();
         expect(invitationBanner.find('.mt-banner__message').text()).toBe(
-            'sw-users-permissions.saas.invitationNotYetAccepted',
+            'sw-users-permissions.sso.invitationNotYetAccepted',
         );
     });
 
@@ -316,7 +316,7 @@ describe('module/sw-users-permissions/page/sw-saas-users-permission-user-detail'
     it('should disable the roles field', async () => {
         const wrapper = await createWrapper();
 
-        const aclSelect = wrapper.find('.sw-saas-detail-card__roles-and-permission-aclRoles');
+        const aclSelect = wrapper.find('.sw-sso-detail-card__roles-and-permission-aclRoles');
         expect(aclSelect.attributes('class')).toContain('is--disabled');
     });
 
@@ -326,7 +326,7 @@ describe('module/sw-users-permissions/page/sw-saas-users-permission-user-detail'
 
         const wrapper = await createWrapper(user);
 
-        const aclSelect = wrapper.find('.sw-saas-detail-card__roles-and-permission-aclRoles');
+        const aclSelect = wrapper.find('.sw-sso-detail-card__roles-and-permission-aclRoles');
 
         expect(aclSelect.attributes('class')).not.toContain('is--disabled');
     });
@@ -334,14 +334,14 @@ describe('module/sw-users-permissions/page/sw-saas-users-permission-user-detail'
     it('should show the create access key modal', async () => {
         const wrapper = await createWrapper();
 
-        let modalAccessKeyField = wrapper.find('.sw-settings-saas-user-create-access-key-modal');
+        let modalAccessKeyField = wrapper.find('.sw-settings-sso-user-create-access-key-modal');
         expect(modalAccessKeyField.exists()).toBeFalsy();
 
-        const createAccessKeyButton = wrapper.find('.sw-saas-detail-card__integrations-create-access-key');
+        const createAccessKeyButton = wrapper.find('.sw-sso-detail-card__integrations-create-access-key');
         await createAccessKeyButton.trigger('click');
         await flushPromises();
 
-        modalAccessKeyField = wrapper.find('.sw-settings-saas-user-create-access-key-modal');
+        modalAccessKeyField = wrapper.find('.sw-settings-sso-user-create-access-key-modal');
 
         expect(modalAccessKeyField.isVisible()).toBeTruthy();
     });

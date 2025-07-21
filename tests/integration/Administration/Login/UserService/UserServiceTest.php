@@ -23,7 +23,7 @@ use Shopware\Tests\Unit\Administration\Login\TokenService\_fixtures\JwksIds;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 #[CoversClass(UserService::class)]
 class UserServiceTest extends TestCase
 {

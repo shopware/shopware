@@ -16,7 +16,7 @@ export default {
         'loginService',
         'repositoryFactory',
         'acl',
-        'saasSettingsService',
+        'ssoSettingsService',
     ],
 
     emits: ['get-list'],
@@ -28,8 +28,8 @@ export default {
     ],
 
     created() {
-        this.saasSettingsService.isSaas().then((isSaas) => {
-            this.isSaas = isSaas.isSaas;
+        this.ssoSettingsService.isSso().then((isSso) => {
+            this.isSso = isSso.isSso;
         });
     },
 
@@ -43,7 +43,7 @@ export default {
             sortBy: 'username',
             isConfirmingPassword: false,
             showInvitationModal: false,
-            isSaas: false,
+            isSso: false,
         };
     },
 
@@ -82,7 +82,7 @@ export default {
         },
 
         userColumns() {
-            if (this.isSaas) {
+            if (this.isSso) {
                 return [
                     {
                         property: 'email',
@@ -177,7 +177,7 @@ export default {
         invitationFailed() {
             this.createNotificationError({
                 title: this.$tc('global.default.error'),
-                message: this.$tc('sw-users-permissions.saas.error.cannotInviteUser'),
+                message: this.$tc('sw-users-permissions.sso.error.cannotInviteUser'),
             });
         },
 
@@ -210,7 +210,7 @@ export default {
             }
 
             const context = { ...Shopware.Context.api };
-            if (!this.isSaas) {
+            if (!this.isSso) {
                 let verifiedToken;
                 try {
                     this.isConfirmingPassword = true;

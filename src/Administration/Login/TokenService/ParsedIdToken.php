@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 final class ParsedIdToken
 {
     private function __construct(

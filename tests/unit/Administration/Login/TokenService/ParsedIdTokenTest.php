@@ -17,7 +17,7 @@ use Shopware\Tests\Integration\Administration\Login\Helper\FakeTokenGenerator;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 #[CoversClass(ParsedIdToken::class)]
 class ParsedIdTokenTest extends TestCase
 {

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 class JwksIds
 {
     /**

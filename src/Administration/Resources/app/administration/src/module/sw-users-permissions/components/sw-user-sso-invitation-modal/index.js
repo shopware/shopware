@@ -1,4 +1,4 @@
-import template from './sw-user-saas-invitation-modal.html.twig';
+import template from './sw-user-sso-invitation-modal.html.twig';
 
 const {
     Data: { Criteria },
@@ -7,11 +7,11 @@ const { ShopwareError } = Shopware.Classes;
 
 /**
  * @internal
- * @sw-package after-sales
+ * @sw-package framework
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
-    name: 'sw-user-saas-invitation-modal',
+    name: 'sw-user-sso-invitation-modal',
     template,
 
     emits: [
@@ -34,7 +34,7 @@ export default {
 
     computed: {
         invitationService() {
-            return Shopware.Service('saasInvitationService');
+            return Shopware.Service('ssoInvitationService');
         },
 
         languageRepository() {

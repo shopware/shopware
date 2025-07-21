@@ -5,12 +5,12 @@ $sw-field-help-font-size: $font-size-xs;
 $sw-field-help-line-height: 22px;
 $sw-field-help-color: $color-darkgray-200;
 
-.sw-settings-saas-user-detail {
-    .sw-saas-user-invitation-info {
+.sw-settings-sso-user-detail {
+    .sw-sso-user-invitation-info {
         max-width: $content-width;
     }
 
-    .sw-settings-saas-user-detail__grid {
+    .sw-settings-sso-user-detail__grid {
         width: 100%;
         display: grid;
         grid-template-columns: 1fr 1fr;

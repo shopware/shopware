@@ -14,7 +14,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 final class PublicKeyLoader
 {
     private const CACHE_KEY = 'admin_sso_public_key_storage';

@@ -1,0 +1,53 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "\/api\/oauth\/sso\/config": {
+            "get": {
+                "tags": [
+                    "SSO Login configuration"
+                ],
+                "summary": "Loads SSO login configuration.",
+                "description": "Loads the SSO login configuration to configure the forward to the Shopware SSO login page.",
+                "operationId": "loadSsoLoginConfig",
+                "responses": {
+                    "200": {
+                        "description": "Returns the configuration for the SSO login page forward.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "properties": {
+                                        "useDefault": {
+                                            "description": "Indicates which login is used. Default or SSO.",
+                                            "type": "boolean"
+                                        },
+                                        "url": {
+                                            "description": "Contains the return url for the Shopware SSO login.",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/api\/oauth\/sso\/code": {
+            "get": {
+                "tags": [
+                    "SSO Login callback"
+                ],
+                "summary": "Callback for SSO login",
+                "description": "Logs in the user into the Shopware shop and forwards to the admin",
+                "operationId": "callBackWithCode",
+                "responses": {
+                    "302": {
+                        "description": "Forwards to the Shopware admin"
+                    }
+                }
+            }
+        }
+    }
+}

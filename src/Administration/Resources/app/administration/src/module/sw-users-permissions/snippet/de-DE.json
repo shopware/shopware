@@ -4,7 +4,7 @@
             "label": "Benutzer & Rechte"
         },
         "permissions": {},
-        "saas": {
+        "sso": {
             "inviteButtonLabel": "Benutzer einladen",
             "invitationNotYetAccepted": "Dieser Benutzer hat Ihre Einladung noch nicht angenommen. Sobald er dies tut, werden die fehlenden Informationen automatisch ergänzt.",
             "error": {

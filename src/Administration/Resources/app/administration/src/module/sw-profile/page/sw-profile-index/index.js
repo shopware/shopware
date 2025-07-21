@@ -23,7 +23,7 @@ export default {
         'searchPreferencesService',
         'searchRankingService',
         'userConfigService',
-        'saasSettingsService',
+        'ssoSettingsService',
     ],
 
     mixins: [
@@ -242,8 +242,8 @@ export default {
                 return;
             }
 
-            this.saasSettingsService.isSaas().then((response) => {
-                if (response.isSaas) {
+            this.ssoSettingsService.isSso().then((response) => {
+                if (response.isSso) {
                     this.saveUser();
 
                     return;

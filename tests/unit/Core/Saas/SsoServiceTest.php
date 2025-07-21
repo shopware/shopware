@@ -6,16 +6,16 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Saas\SaasService;
+use Shopware\Core\Framework\Sso\SsoService;
 
 /**
  * @internal
  */
-#[Package('after-sales')]
-#[CoversClass(SaasService::class)]
-class SaasServiceTest extends TestCase
+#[Package('framework')]
+#[CoversClass(SsoService::class)]
+class SsoServiceTest extends TestCase
 {
-    public function testIsSaasShouldReturnTrue(): void
+    public function testIsSsoShouldReturnTrue(): void
     {
         $loginConfigService = new LoginConfigService(
             [
@@ -34,18 +34,18 @@ class SaasServiceTest extends TestCase
             '/admin'
         );
 
-        $saasService = new SaasService($loginConfigService);
+        $ssoService = new SsoService($loginConfigService);
 
-        static::assertTrue($saasService->isSaas());
+        static::assertTrue($ssoService->isSso());
     }
 
-    public function testIsSaasShouldReturnFalse(): void
+    public function testIsSsoShouldReturnFalse(): void
     {
         // @phpstan-ignore-next-line argument.type
         $loginConfigService = new LoginConfigService([], 'local.host', '/admin');
 
-        $saasService = new SaasService($loginConfigService);
+        $ssoService = new SsoService($loginConfigService);
 
-        static::assertFalse($saasService->isSaas());
+        static::assertFalse($ssoService->isSso());
     }
 }

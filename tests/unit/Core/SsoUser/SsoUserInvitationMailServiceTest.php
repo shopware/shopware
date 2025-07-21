@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\SaasUser;
+namespace Shopware\Tests\Unit\Core\SsoUser;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -11,7 +11,7 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTy
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
-use Shopware\Core\Content\SaasUser\SaasUserInvitationMailService;
+use Shopware\Core\Content\SsoUser\SsoUserInvitationMailService;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -31,9 +31,9 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
-#[Package('after-sales')]
-#[CoversClass(SaasUserInvitationMailService::class)]
-class SaasUserInvitationMailServiceTest extends TestCase
+#[Package('framework')]
+#[CoversClass(SsoUserInvitationMailService::class)]
+class SsoUserInvitationMailServiceTest extends TestCase
 {
     public function testSendInvitationMailToUser(): void
     {
@@ -104,7 +104,7 @@ class SaasUserInvitationMailServiceTest extends TestCase
             new LocaleCollection([$localeEntity]),
         ], new LocaleDefinition());
 
-        $saasUserInvitationMailService = new SaasUserInvitationMailService(
+        $ssoUserInvitationMailService = new SsoUserInvitationMailService(
             $abstractMailService,
             $systemConfigService,
             $loginConfigService,
@@ -117,6 +117,6 @@ class SaasUserInvitationMailServiceTest extends TestCase
 
         $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex(), null));
 
-        $saasUserInvitationMailService->sendInvitationMailToUser('test@test.com', Uuid::randomHex(), $context);
+        $ssoUserInvitationMailService->sendInvitationMailToUser('test@test.com', Uuid::randomHex(), $context);
     }
 }

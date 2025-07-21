@@ -20,7 +20,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 #[CoversClass(PublicKeyLoader::class)]
 class PublicKeyLoaderTest extends TestCase
 {

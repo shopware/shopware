@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 class ShopwareGrantType extends AbstractGrant implements GrantTypeInterface
 {
     private const TYPE = 'shopware_grant';

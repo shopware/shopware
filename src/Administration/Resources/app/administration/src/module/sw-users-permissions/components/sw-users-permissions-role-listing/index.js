@@ -14,7 +14,7 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
-        'saasSettingsService',
+        'ssoSettingsService',
     ],
 
     emits: ['get-list'],
@@ -129,10 +129,10 @@ export default {
             this.isLoading = true;
             this.onCloseDeleteModal();
 
-            this.saasSettingsService.isSaas().then((response) => {
+            this.ssoSettingsService.isSso().then((response) => {
                 this.isLoading = false;
 
-                if (response.isSaas) {
+                if (response.isSso) {
                     this.deleteRole({ ...Shopware.Context.api });
 
                     return;

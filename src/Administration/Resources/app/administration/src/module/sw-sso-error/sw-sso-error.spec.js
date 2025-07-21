@@ -1,5 +1,5 @@
 /**
- * @sw-package after-sales
+ * @sw-package framework
  */
 
 import 'src/module/sw-sso-error';

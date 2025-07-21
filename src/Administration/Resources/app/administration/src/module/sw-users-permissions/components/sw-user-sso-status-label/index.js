@@ -1,12 +1,12 @@
-import template from './sw-user-saas-status-label.html.twig';
+import template from './sw-user-sso-status-label.html.twig';
 
 /**
  * @internal
- * @sw-package after-sales
+ * @sw-package framework
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
-    name: 'sw-user-saas-status-label',
+    name: 'sw-user-sso-status-label',
     template,
 
     props: {
@@ -30,7 +30,7 @@ export default {
         },
 
         statusText() {
-            return this.$tc(`sw-users-permissions.saas.user-listing.status-label.${this.status}`);
+            return this.$tc(`sw-users-permissions.sso.user-listing.status-label.${this.status}`);
         },
 
         variant() {

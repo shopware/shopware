@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 final class TemplateData implements \JsonSerializable
 {
     use JsonSerializableTrait;

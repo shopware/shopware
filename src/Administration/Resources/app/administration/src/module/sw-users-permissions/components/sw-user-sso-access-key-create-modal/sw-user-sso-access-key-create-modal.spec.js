@@ -1,6 +1,6 @@
 /**
  * @internal
- * @sw-package after-sales
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -16,7 +16,7 @@ function createDefaultProps() {
 
 async function createWrapper(props) {
     const wrapper = mount(
-        await wrapTestComponent('sw-user-saas-access-key-create-modal', {
+        await wrapTestComponent('sw-user-sso-access-key-create-modal', {
             sync: true,
         }),
         {
@@ -43,17 +43,17 @@ async function createWrapper(props) {
     return wrapper;
 }
 
-describe('module/sw-users-permissions/components/sw-user-saas-access-key-create-modal', () => {
+describe('module/sw-users-permissions/components/sw-user-sso-access-key-create-modal', () => {
     it('should show the "view" mode', async () => {
         const defaultProps = createDefaultProps();
         const wrapper = await createWrapper(defaultProps);
 
-        const accessKeyField = wrapper.find('.saas-user-Integrations-modal-field--access-key');
-        const secretAccessKeyField = wrapper.find('.saas-user-Integrations-modal-field--secret-acces-key');
+        const accessKeyField = wrapper.find('.sso-user-Integrations-modal-field--access-key');
+        const secretAccessKeyField = wrapper.find('.sso-user-Integrations-modal-field--secret-acces-key');
         const bannerMessage = wrapper.find('.mt-banner__message');
-        const generateAccessKeyButton = wrapper.find('.saas-user-Integrations-modal-field--generate-access-key');
-        const cancelButton = wrapper.find('.saas-user-Integrations-modal--cancel');
-        const saveButton = wrapper.find('.saas-user-Integrations-modal--apply');
+        const generateAccessKeyButton = wrapper.find('.sso-user-Integrations-modal-field--generate-access-key');
+        const cancelButton = wrapper.find('.sso-user-Integrations-modal--cancel');
+        const saveButton = wrapper.find('.sso-user-Integrations-modal--apply');
 
         expect(accessKeyField.find('input').attributes('value')).toBe('abdcefghi');
 
@@ -86,12 +86,12 @@ describe('module/sw-users-permissions/components/sw-user-saas-access-key-create-
 
         const wrapper = await createWrapper(defaultProps);
 
-        const accessKeyField = wrapper.find('.saas-user-Integrations-modal-field--access-key');
-        const secretAccessKeyField = wrapper.find('.saas-user-Integrations-modal-field--secret-acces-key');
+        const accessKeyField = wrapper.find('.sso-user-Integrations-modal-field--access-key');
+        const secretAccessKeyField = wrapper.find('.sso-user-Integrations-modal-field--secret-acces-key');
         const bannerMessage = wrapper.find('.mt-banner__message');
-        const generateAccessKeyButton = wrapper.find('.saas-user-Integrations-modal-field--generate-access-key');
-        const cancelButton = wrapper.find('.saas-user-Integrations-modal--cancel');
-        const saveButton = wrapper.find('.saas-user-Integrations-modal--apply');
+        const generateAccessKeyButton = wrapper.find('.sso-user-Integrations-modal-field--generate-access-key');
+        const cancelButton = wrapper.find('.sso-user-Integrations-modal--cancel');
+        const saveButton = wrapper.find('.sso-user-Integrations-modal--apply');
 
         expect(accessKeyField.find('input').attributes('value')).toBe('abdcefghi');
         expect(secretAccessKeyField.find('input').attributes('value')).toBe('123456789');
@@ -110,12 +110,12 @@ describe('module/sw-users-permissions/components/sw-user-saas-access-key-create-
 
         const wrapper = await createWrapper(defaultProps);
 
-        const accessKeyField = wrapper.find('.saas-user-Integrations-modal-field--access-key');
-        const secretAccessKeyField = wrapper.find('.saas-user-Integrations-modal-field--secret-acces-key');
+        const accessKeyField = wrapper.find('.sso-user-Integrations-modal-field--access-key');
+        const secretAccessKeyField = wrapper.find('.sso-user-Integrations-modal-field--secret-acces-key');
         const bannerMessage = wrapper.find('.mt-banner__message');
-        const generateAccessKeyButton = wrapper.find('.saas-user-Integrations-modal-field--generate-access-key');
-        const cancelButton = wrapper.find('.saas-user-Integrations-modal--cancel');
-        const saveButton = wrapper.find('.saas-user-Integrations-modal--apply');
+        const generateAccessKeyButton = wrapper.find('.sso-user-Integrations-modal-field--generate-access-key');
+        const cancelButton = wrapper.find('.sso-user-Integrations-modal--cancel');
+        const saveButton = wrapper.find('.sso-user-Integrations-modal--apply');
 
         expect(accessKeyField.find('input').attributes('value')).toBe('abdcefghi');
         expect(secretAccessKeyField.find('input').attributes('value')).toBe('123456789');

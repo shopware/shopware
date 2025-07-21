@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 class Migration1737472122TokenUser extends MigrationStep
 {
     public function getCreationTimestamp(): int

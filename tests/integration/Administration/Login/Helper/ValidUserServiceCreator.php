@@ -20,7 +20,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * @internal
  */
-#[Package('after-sales')]
+#[Package('framework')]
 class ValidUserServiceCreator
 {
     use KernelTestBehaviour;

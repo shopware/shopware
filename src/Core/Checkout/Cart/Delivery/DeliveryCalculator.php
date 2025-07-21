@@ -272,14 +272,15 @@ class DeliveryCalculator
         $quantityStepPrice = $shippingMethodPrice->getQuantityStepPrice();
 
         if ($quantityStep > 0 && $quantityStepPrice !== null) {
-            // Use ceil to round up, because the steps are used as "to" checkpoints
-            $steps = ceil(($value - ($start ?? 0)) / $quantityStep);
+            // Floor to round down to use the steps as "from" checkpoints
+            // If the value is below the first step, only the base price is used
+            $steps = floor(($value - ($start ?? 0)) / $quantityStep);
 
             return (float) bcadd(
                 (string) $price,
                 bcmul(
-                    (string) $steps,
                     (string) $this->getCurrencyPrice($quantityStepPrice, $context),
+                    (string) $steps,
                     $context->getTotalRounding()->getDecimals()
                 ),
                 $context->getTotalRounding()->getDecimals()

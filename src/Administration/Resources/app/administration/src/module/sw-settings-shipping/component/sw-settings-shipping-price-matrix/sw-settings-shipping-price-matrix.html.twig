@@ -168,10 +168,10 @@
             >
                 <sw-inherit-wrapper
                     class="sw-settings-shipping-price-matrix__price"
-                    :value="getPrice(item, currency)"
+                    :value="getPrice(item, currency, 'currencyPrice')"
                     :has-parent="!currency.isSystemDefault"
-                    :inherited-value="currency.isSystemDefault ? null : convertDefaultPriceToCurrencyPrice(item, currency)"
-                    @update:value="setPrice(item, currency, $event)"
+                    :inherited-value="currency.isSystemDefault ? null : convertDefaultPriceToCurrencyPrice(item, currency, 'currencyPrice')"
+                    @update:value="setPrice(item, currency, $event, 'currencyPrice')"
                 >
                     <template #content="props">
 
@@ -199,6 +199,68 @@
                             class="sw-settings-shipping-price-matrix__price-input"
                             :digits="50"
                             :disabled="props.isInherited || disabled"
+                        />
+                    </template>
+                </sw-inherit-wrapper>
+            </template>
+            {% endblock %}
+            {% block sw_settings_shipping_price_matrix_price_grid_column_quantity_step %}
+            <template
+                #column-quantityStep="{ item, itemIndex, compact }"
+            >
+                <mt-number-field
+                    v-model="item.quantityStep"
+                    :disabled="disabled"
+                    :name="`sw-field--${item.id}-quantity-step`"
+                    :number-type="numberFieldType"
+                    :size="compact ? 'small' : 'default'"
+                    :placeholder="$tc('sw-settings-shipping.priceMatrix.none')"
+                    :validation="item.quantityStep === null || item.quantityStep < item.quantityEnd"
+                    :min="0"
+                    :digits="3"
+                    @update:model-value="onQuantityStepChange(item)"
+                />
+            </template>
+            {% endblock %}
+            {% block sw_settings_shipping_price_matrix_price_grid_quantity_step_currencies_list %}
+            <template
+                v-for="currency in currencies"
+                :key="currency.isoCode"
+                #[`column-quantity-step-price-${currency.isoCode}`]="{ item, column, compact }"
+            >
+                <sw-inherit-wrapper
+                    class="sw-settings-shipping-price-matrix__quantity-step-price"
+                    :value="getPrice(item, currency, 'quantityStepPrice')"
+                    :has-parent="!currency.isSystemDefault"
+                    :inherited-value="currency.isSystemDefault ? null : convertDefaultPriceToCurrencyPrice(item, currency, 'quantityStepPrice')"
+                    @update:value="setPrice(item, currency, $event, 'quantityStepPrice')"
+                >
+                    <template #content="props">
+
+                        <sw-inheritance-switch
+                            v-if="!currency.isSystemDefault"
+                            class="sw-settings-shipping-price-matrix__quantity-step-price-inherit-icon"
+                            :is-inherited="props.isInherited"
+                            :disabled="disabled || item.quantityStep === null || item.quantityStep <= 0"
+                            @inheritance-restore="props.restoreInheritance"
+                            @inheritance-remove="props.removeInheritance"
+                        />
+
+                        <mt-number-field
+                            v-model="props.currentValue.gross"
+                            :name="`sw-field--${item.id}-${currency.id}-gross`"
+                            :size="compact ? 'small' : 'default'"
+                            class="sw-settings-shipping-price-matrix__quantity-step-price-input"
+                            :digits="50"
+                            :disabled="props.isInherited || disabled || item.quantityStep === null || item.quantityStep <= 0"
+                        />
+                        <mt-number-field
+                            v-model="props.currentValue.net"
+                            :name="`sw-field--${item.id}-${currency.id}-net`"
+                            :size="compact ? 'small' : 'default'"
+                            class="sw-settings-shipping-price-matrix__quantity-step-price-input"
+                            :digits="50"
+                            :disabled="props.isInherited || disabled || item.quantityStep === null || item.quantityStep <= 0"
                         />
                     </template>
                 </sw-inherit-wrapper>

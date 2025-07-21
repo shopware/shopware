@@ -54,7 +54,8 @@ $sw-shipping-list-color-error: $color-crimson-500;
         margin-bottom: 17px;
     }
 
-    .sw-settings-shipping-price-matrix__price {
+    .sw-settings-shipping-price-matrix__price,
+    .sw-settings-shipping-price-matrix__quantity-step-price {
         display: flex;
         align-items: center;
     }

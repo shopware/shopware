@@ -156,6 +156,21 @@ export default {
             });
         },
 
+        quantityStepCurrencyColumns() {
+            return this.currencies.map((currency, index) => {
+                let label = currency.translated.name || currency.name;
+                return {
+                    property: `quantity-step-price-${currency.isoCode}`,
+                    label: this.$tc('sw-settings-shipping.priceMatrix.labelQuantityStepGrossNet', { currency: label }),
+                    visible: index === 0,
+                    allowResize: true,
+                    primary: !!currency.isSystemDefault,
+                    rawData: false,
+                    width: '200px',
+                };
+            });
+        },
+
         showDataGrid() {
             return (
                 !!this.priceGroup.calculation ||
@@ -284,6 +299,19 @@ export default {
             }
 
             this.ruleColumns.push(...this.currencyColumns);
+
+            if (!this.isRuleMatrix) {
+                this.ruleColumns.push({
+                    property: 'quantityStep',
+                    label: 'sw-settings-shipping.priceMatrix.columnQuantityStep',
+                    allowResize: true,
+                    rawData: true,
+                    primary: true,
+                    width: '130px',
+                });
+
+                this.ruleColumns.push(...this.quantityStepCurrencyColumns);
+            }
         },
 
         onAddNewShippingPrice() {
@@ -294,6 +322,7 @@ export default {
             newShippingPrice.shippingMethodId = this.shippingMethod.id;
             newShippingPrice.ruleId = this.priceGroup.ruleId;
             newShippingPrice.currencyPrice = cloneDeep(refPrice.currencyPrice);
+            newShippingPrice.quantityStepPrice = cloneDeep(refPrice.quantityStepPrice);
 
             if (refPrice._inNewMatrix) {
                 newShippingPrice._inNewMatrix = true;
@@ -415,12 +444,12 @@ export default {
             this.shippingMethod.prices.remove(shippingPrice.id);
         },
 
-        convertDefaultPriceToCurrencyPrice(item, currency) {
-            if (!item.currencyPrice) {
-                this.initCurrencyPrice(item);
+        convertDefaultPriceToCurrencyPrice(shippingPrice, currency, priceField = 'currencyPrice') {
+            if (!shippingPrice[priceField]) {
+                this.initCurrencyPrice(shippingPrice, priceField);
             }
 
-            const defaultPrice = item.currencyPrice.find((price) => {
+            const defaultPrice = shippingPrice[priceField].find((price) => {
                 return price.currencyId === this.defaultCurrency.id;
             });
 
@@ -430,8 +459,8 @@ export default {
         /**
          * Initialises the currencyPrice field with the default currency
          */
-        initCurrencyPrice(shippingPrice) {
-            shippingPrice.currencyPrice = [
+        initCurrencyPrice(shippingPrice, priceField = 'currencyPrice') {
+            shippingPrice[priceField] = [
                 {
                     currencyId: this.defaultCurrency.id,
                     gross: 0,
@@ -441,8 +470,8 @@ export default {
             ];
         },
 
-        getPrice(shippingPrice, currency) {
-            const currencyPrice = this.getPriceOfCurrency(shippingPrice, currency);
+        getPrice(shippingPrice, currency, priceField = 'currencyPrice') {
+            const currencyPrice = this.getPriceOfCurrency(shippingPrice, currency, priceField);
             if (currencyPrice) {
                 return currencyPrice;
             }
@@ -450,9 +479,9 @@ export default {
             return null;
         },
 
-        setPrice(shippingPrice, currency, value) {
+        setPrice(shippingPrice, currency, value, priceField = 'currencyPrice') {
             if (!value) {
-                shippingPrice.currencyPrice = shippingPrice.currencyPrice.filter((price) => {
+                shippingPrice[priceField] = shippingPrice[priceField].filter((price) => {
                     return price.currencyId !== currency.id;
                 });
                 return;
@@ -464,15 +493,16 @@ export default {
                 linked: false,
                 net: value.net,
             };
-            shippingPrice.currencyPrice.push(price);
+
+            shippingPrice[priceField].push(price);
         },
 
-        getPriceOfCurrency(priceArray, currency) {
-            if (!priceArray.currencyPrice) {
-                this.initCurrencyPrice(priceArray);
+        getPriceOfCurrency(shippingPrice, currency, priceField = 'currencyPrice') {
+            if (!shippingPrice[priceField]) {
+                this.initCurrencyPrice(shippingPrice, priceField);
             }
 
-            return priceArray.currencyPrice.find((price) => {
+            return shippingPrice[priceField].find((price) => {
                 return price.currencyId === currency.id;
             });
         },
@@ -486,13 +516,22 @@ export default {
             };
         },
 
-        onQuantityEndChange(price) {
+        onQuantityEndChange() {
             // when not last price
             if (this.priceGroup.prices.indexOf(price) + 1 !== this.priceGroup.prices.length) {
                 return;
             }
 
             this.onAddNewShippingPrice();
+        },
+
+        onQuantityStepChange(shippingPrice) {
+            if (shippingPrice.quantityStep) {
+                return;
+            }
+
+            shippingPrice.quantityStep = null;
+            shippingPrice.quantityStepPrice = this.initCurrencyPrice(shippingPrice, 'quantityStepPrice');
         },
 
         updateShowAllPrices() {

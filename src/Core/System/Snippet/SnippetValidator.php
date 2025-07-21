@@ -8,10 +8,17 @@ use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Struct\InvalidPluralizationCollection;
 use Shopware\Core\System\Snippet\Struct\InvalidPluralizationStruct;
+use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
+use Shopware\Core\System\Snippet\Struct\MissingSnippetStruct;
 use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
 
 /**
- * @phpstan-import-type MissingSnippets from SnippetValidationStruct
+ * @phpstan-type MissingSnippets array<string, array<string, array{
+ *      path: string,
+ *      availableISO: string,
+ *      availableValue: string,
+ *      keyPath: string
+ * }>>
  */
 #[Package('discovery')]
 class SnippetValidator implements SnippetValidatorInterface
@@ -38,7 +45,18 @@ class SnippetValidator implements SnippetValidatorInterface
             'The method  Will be removed, use `getValidation()` instead.'
         );
 
-        return $this->getValidation()->missingSnippets;
+        $missingSnippetsArray = [];
+        foreach ($this->getValidation()->missingSnippets->getIterator() as $entry) {
+            $key = $entry->getKeyPath();
+            $missingSnippetsArray[$entry->getMissingForISO()][$key] = [
+                'path' => $entry->getFilePath(),
+                'availableISO' => $entry->getAvailableISO(),
+                'availableValue' => $entry->getAvailableTranslation(),
+                'keyPath' => $key,
+            ];
+        }
+
+        return $missingSnippetsArray;
     }
 
     public function getValidation(): SnippetValidationStruct
@@ -97,6 +115,21 @@ class SnippetValidator implements SnippetValidatorInterface
         $storefrontSnippetFiles = $this->snippetFileHandler->findStorefrontSnippetFiles();
 
         return $this->hydrateFiles(array_merge($deprecatedFiles, $administrationFiles, $storefrontSnippetFiles));
+    }
+
+    /**
+     * @param MissingSnippets $missingSnippetsArray
+     */
+    private function hydrateMissingSnippets(array $missingSnippetsArray): MissingSnippetCollection
+    {
+        $missingSnippetsCollection = new MissingSnippetCollection();
+        foreach ($missingSnippetsArray as $locale => $missingSnippets) {
+            foreach ($missingSnippets as $key => $missingSnippet) {
+                $missingSnippetsCollection->add(new MissingSnippetStruct($key, $missingSnippet['path'], $missingSnippet['availableISO'], $missingSnippet['availableValue'], $locale));
+            }
+        }
+
+        return $missingSnippetsCollection;
     }
 
     /**
@@ -162,10 +195,8 @@ class SnippetValidator implements SnippetValidatorInterface
     /**
      * @param array<string, array<string, array<string, mixed>>> $snippetFileMappings
      * @param array<int, string> $availableISOs
-     *
-     * @return MissingSnippets
      */
-    private function findMissingSnippets(array $snippetFileMappings, array $availableISOs): array
+    private function findMissingSnippets(array $snippetFileMappings, array $availableISOs): MissingSnippetCollection
     {
         $availableISOs = array_keys(array_flip($availableISOs));
 
@@ -189,7 +220,7 @@ class SnippetValidator implements SnippetValidatorInterface
             }
         }
 
-        return $missingSnippetsArray;
+        return $this->hydrateMissingSnippets($missingSnippetsArray);
     }
 
     /**

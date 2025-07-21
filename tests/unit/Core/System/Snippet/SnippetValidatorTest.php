@@ -40,16 +40,16 @@ class SnippetValidatorTest extends TestCase
 
         $snippetValidator = new SnippetValidator(new SnippetFileCollection(), $snippetFileHandler, '');
         $invalidData = $snippetValidator->getValidation();
-        $missingSnippets = $invalidData->missingSnippets;
-
+        $missingSnippets = $invalidData->missingSnippets->getElements();
         static::assertCount(2, $missingSnippets);
-        static::assertArrayHasKey('german', $missingSnippets['en-GB']);
-        static::assertSame('german', $missingSnippets['en-GB']['german']['keyPath']);
-        static::assertSame('exampleGerman', $missingSnippets['en-GB']['german']['availableValue']);
 
-        static::assertArrayHasKey('english', $missingSnippets['de-DE']);
-        static::assertSame('english', $missingSnippets['de-DE']['english']['keyPath']);
-        static::assertSame('exampleEnglish', $missingSnippets['de-DE']['english']['availableValue']);
+        $missingSnippetEnGB = $missingSnippets[0];
+        static::assertSame('german', $missingSnippetEnGB->getKeyPath());
+        static::assertSame('exampleGerman', $missingSnippetEnGB->getAvailableTranslation());
+
+        $missingSnippetdeDE = $missingSnippets[1];
+        static::assertSame('english', $missingSnippetdeDE->getKeyPath());
+        static::assertSame('exampleEnglish', $missingSnippetdeDE->getAvailableTranslation());
 
         $invalidPluralization = $invalidData->invalidPluralization;
         static::assertCount(0, $invalidPluralization);

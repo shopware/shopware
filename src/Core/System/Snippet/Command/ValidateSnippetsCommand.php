@@ -7,9 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\SnippetFixer;
 use Shopware\Core\System\Snippet\SnippetValidator;
 use Shopware\Core\System\Snippet\Struct\InvalidPluralizationCollection;
-use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
-use Shopware\Core\System\Snippet\Struct\MissingSnippetStruct;
-use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
@@ -20,8 +17,6 @@ use Symfony\Component\Console\Question\Question;
 
 /**
  * @phpstan-type Snippets array<string, string|array<string, mixed>>
- *
- * @phpstan-import-type MissingSnippets from SnippetValidationStruct
  */
 #[AsCommand(
     name: 'snippets:validate',
@@ -49,7 +44,7 @@ class ValidateSnippetsCommand extends Command
     {
         $invalidSnippetsStruct = $this->snippetValidator->getValidation();
 
-        $missingSnippetsCollection = $this->hydrateMissingSnippets($invalidSnippetsStruct->missingSnippets);
+        $missingSnippetsCollection = $invalidSnippetsStruct->missingSnippets;
         $hasMissingSnippets = $missingSnippetsCollection->count() > 0;
 
         $invalidPluralization = $invalidSnippetsStruct->invalidPluralization;
@@ -110,21 +105,6 @@ class ValidateSnippetsCommand extends Command
         }
 
         return self::SUCCESS;
-    }
-
-    /**
-     * @param MissingSnippets $missingSnippetsArray
-     */
-    private function hydrateMissingSnippets(array $missingSnippetsArray): MissingSnippetCollection
-    {
-        $missingSnippetsCollection = new MissingSnippetCollection();
-        foreach ($missingSnippetsArray as $locale => $missingSnippets) {
-            foreach ($missingSnippets as $key => $missingSnippet) {
-                $missingSnippetsCollection->add(new MissingSnippetStruct($key, $missingSnippet['path'], $missingSnippet['availableISO'], $missingSnippet['availableValue'], $locale));
-            }
-        }
-
-        return $missingSnippetsCollection;
     }
 
     private function renderPluralizationErrors(

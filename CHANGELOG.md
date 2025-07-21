@@ -1,6 +1,30 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.6
+*  [#10763 - fix: remove 6.8.0.0 feature flag](https://github.com/shopware/shopware/issues/10763)
+*  [#10146 - Filter cart success error messages](./changelog/release-6-6-10-6/2025-06-11-filter-cart-success-error-messages.md)
+*  [#10457 - Improve ES search scoring for numeric tokens](./changelog/release-6-6-10-6/2025-06-11-improve-es-search-scoring-for-numeric-tokens.md) @thuong.le
+*  [#10518 - Press ESC key in the modal will go back listing page](./changelog/release-6-6-10-6/2025-06-17-press-esc-key-in-the-modal-will-go-back-listing-page.md) 
+*  [#10682 - Live search page broken if the data is empty](./changelog/release-6-6-10-6/2025-06-18-live-search-page-broken-if-the-data-is-empty.md)
+*  [#10696 - Respect missing shipping method currency prices](./changelog/release-6-6-10-6/2025-06-20-respect-missing-shipping-method-currency-prices.md)
+*  [#10738 - Fix apps with duplicated custom field sets](./changelog/release-6-6-10-6/2025-06-24-fix-apps-with-duplicated-custom-field-sets.md)
+*  [#10774 - Multiple promotions order count fix](./changelog/release-6-6-10-6/2025-07-02-multiple-promotions-order-count-fix.md)
+*  [#10853 - Skip In-App Purchases update task on missing authentication headers](./changelog/release-6-6-10-6/2025-06-27-skip-in-app-purchases-update-task-on-missing-authentication.md)
+*  [#10900 - Add new data id to set off-canvas aria-labelledby](./changelog/release-6-6-10-6/2025-03-05-add-new-data-id-to-set-off-canvas-aria-labelledby.md)
+*  [#10919 - Delete correct expired store session](./changelog/release-6-6-10-6/2025-07-04-delete-correct-expired-store-session.md)
+*  [#11016 - Change URL generation for ESI includes to avoid HTTPS issues with Varnish](./changelog/release-6-6-10-6/2025-07-03-esi-url-instead-of-path.md) @stefanpoensgen
+*  [#11092 - Fix variant listing config when cloning products or deleting variants](./changelog/release-6-6-10-6/2024-07-26-fix-variant-listing-config-when-cloning-products-or-deleting-variants.md) @schneider-felix
+*  [#8228 - Allow empty alt with sw_thumbnails](./changelog/release-6-6-10-6/2025-06-16-allow-empty-alt-with-sw_thumbnails.md)
+*  [#8591 - Fixed theme config inheritance for database child themes](./changelog/release-6-6-10-6/2025-07-08-fix-theme-config-inheritance.md)
+*  [#9229 - Fix the reading of the cart widget by screen readers](./changelog/release-6-6-10-6/2025-07-04-fix-the-reading-of-the-cart-widget-by-screen-readers.md)
+*  [#9310 - E-invoice vertical tax calculation](./changelog/release-6-6-10-6/2025-05-22-e-invoice-vertical-tax-calculation.md)
+*  [#10513 - Fix issue SEO url not generating anymore](./changelog/release-6-6-10-6/2025-06-23-fix-issue-seo-url-not-generating-anymore.md)
+*  [#10906 - Change path of header and footer routes](./changelog/release-6-6-10-6/2025-07-01-change-path-of-header-and-footer-routes.md)
+*  [#8471 - ES should work correctly with ScoreQuery](./changelog/release-6-6-10-6/2025-06-17-es-should-work-correctly-with-scorequery.md)
+*  [#9367 - Fix alignment logo manufacturer media field not correct](./changelog/release-6-6-10-6/2025-05-26-fix-alignment-logo-manufacture-media-field.md)
+*  [#11106 - Fix Quote counts up the order number range](./changelog/release-6-6-10-6/2025-07-14-fix-quote-counts-up-the-order-number-range.md)
+
 ## 6.6.10.5
 *  [#10112 - Silence and log exceptions of In-App purchases](./changelog/release-6-6-10-5/2025-05-30-silence-and-log-exceptions-of-in-app-purchases.md)
 *  [#10254 - Pass through extensions from IdSearchResult to EntitySearchResult in ProductListingLoader](./changelog/release-6-6-10-5/2025-06-02-bypass-extensions-from-id-result-to-search-result.md) @OliverSkroblin

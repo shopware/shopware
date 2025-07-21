@@ -31,7 +31,7 @@ export default Shopware.Component.wrapComponentConfig({
         });
 
         const isOverlayMode = computed(() => {
-            return sidebarWidth.value > minWidth
+            return sidebarWidth.value > minWidth;
         });
 
         const closeSidebar = (locationId: string) => {

@@ -322,6 +322,7 @@ export default {
             newShippingPrice.shippingMethodId = this.shippingMethod.id;
             newShippingPrice.ruleId = this.priceGroup.ruleId;
             newShippingPrice.currencyPrice = cloneDeep(refPrice.currencyPrice);
+            newShippingPrice.quantityStep = refPrice.quantityStep || null;
             newShippingPrice.quantityStepPrice = cloneDeep(refPrice.quantityStepPrice);
 
             if (refPrice._inNewMatrix) {

@@ -17,7 +17,6 @@ export default Shopware.Component.wrapComponentConfig({
         const isResizing = ref(false);
         const minWidth = 480;
         const maxWidth = 0.9 * window.innerWidth;
-        const overlayThreshold = 480;
 
         let animationFrameId: number | null = null;
         let sidebarElement: HTMLElement | null = null;
@@ -32,7 +31,7 @@ export default Shopware.Component.wrapComponentConfig({
         });
 
         const isOverlayMode = computed(() => {
-            return sidebarWidth.value > overlayThreshold;
+            return sidebarWidth.value > minWidth
         });
 
         const closeSidebar = (locationId: string) => {

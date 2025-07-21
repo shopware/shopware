@@ -15,7 +15,7 @@ test('Creates a screenshot of the Storefront Homepage.', { tag: '@Visual' }, asy
             '.cms-element-text h1',
         ]);
 
-        await expect(StorefrontHome.page).toHaveScreenshot({
+        await expect(StorefrontHome.page).toHaveScreenshot('Homepage.png', {
             fullPage: true,
         });   
     });

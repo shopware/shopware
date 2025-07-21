@@ -76,7 +76,7 @@ class SeoActionController extends AbstractController
             $definition = $this->definitionInstanceRegistry->getByEntityName($seoUrlTemplate['entityName']);
 
             $previewCriteria = $this->requestCriteriaBuilder->handleRequest(
-                Request::create('', 'POST', $seoUrlTemplate['criteria']),
+                Request::create('', Request::METHOD_POST, $seoUrlTemplate['criteria']),
                 $previewCriteria,
                 $definition,
                 $context

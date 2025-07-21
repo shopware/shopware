@@ -7,16 +7,13 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\ServiceClientFactory;
-use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceRegistry\Client;
-use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -73,8 +70,8 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
 
         $apps = $this->appRepository->search($criteria, $context)->getEntities();
 
-        $licenseKey = $key === self::CONFIG_STORE_LICENSE_KEY ? $value : null;
-        $licenseHost = $key === self::CONFIG_STORE_LICENSE_HOST ? $value : null;
+        $licenseKey = $key === self::CONFIG_STORE_LICENSE_KEY ? $value : $this->config->getString(self::CONFIG_STORE_LICENSE_KEY);
+        $licenseHost = $key === self::CONFIG_STORE_LICENSE_HOST ? $value : $this->config->getString(self::CONFIG_STORE_LICENSE_HOST);
 
         /** @var AppEntity $app */
         foreach ($apps as $app) {
@@ -82,9 +79,7 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            $serviceEntry = $this->serviceRegistryClient->get($app->getName());
-
-            $this->syncLicenseByService($serviceEntry, $app, $context, $licenseKey, $licenseHost);
+            $this->syncLicenseByService($app, $context, $licenseKey, $licenseHost);
         }
     }
 
@@ -102,33 +97,27 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
             return;
         }
 
-        try {
-            $serviceEntry = $this->serviceRegistryClient->get($app->getName());
-            $this->syncLicenseByService($serviceEntry, $app, $context);
-        } catch (\Throwable $e) {
-            $this->logger->warning('Could not sync license', ['exception' => $e->getMessage()]);
-        }
+        $this->syncLicenseByService(
+            $app,
+            $context,
+            $this->config->getString(self::CONFIG_STORE_LICENSE_KEY),
+            $this->config->getString(self::CONFIG_STORE_LICENSE_HOST)
+        );
     }
 
-    private function syncLicenseByService(ServiceEntry $serviceEntry, AppEntity $app, Context $context, ?string $licenseKey = null, ?string $licenseHost = null): void
+    private function syncLicenseByService(AppEntity $app, Context $context, string $licenseKey, string $licenseHost): void
     {
-        if ($serviceEntry->licenseSyncEndPoint === null) {
-            return;
-        }
-
-        if ($licenseKey === null) {
-            $licenseKey = $this->config->getString(self::CONFIG_STORE_LICENSE_KEY);
-        }
-
-        if ($licenseHost === null) {
-            $licenseHost = $this->config->getString(self::CONFIG_STORE_LICENSE_HOST);
-        }
-
         try {
+            $serviceEntry = $this->serviceRegistryClient->get($app->getName());
+
+            if ($serviceEntry->licenseSyncEndPoint === null) {
+                return;
+            }
+
             $client = $this->clientFactory->newAuthenticatedFor($serviceEntry, $app, $context);
 
             $client->syncLicense($licenseKey, $licenseHost);
-        } catch (ServiceException|AppUrlChangeDetectedException $e) {
+        } catch (\Throwable $e) {
             $this->logger->warning('Could not sync license', ['exception' => $e->getMessage()]);
         }
     }

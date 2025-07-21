@@ -198,7 +198,7 @@ class AppException extends HttpException
      */
     public static function installationFailed(string $appName, string $reason): self
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
 
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -239,7 +239,7 @@ class AppException extends HttpException
      */
     public static function checkoutGatewayPayloadInvalid(): self
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
 
         return new self(
             Response::HTTP_BAD_REQUEST,
@@ -277,7 +277,7 @@ class AppException extends HttpException
      */
     public static function inAppPurchaseGatewayUrlEmpty(): self
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
 
         return new self(
             Response::HTTP_BAD_REQUEST,

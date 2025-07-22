@@ -18,9 +18,7 @@ export default Shopware.Component.wrapComponentConfig({
         const minWidth = 480;
         const maxWidth = 0.9 * window.innerWidth;
 
-        let animationFrameId: number | null = null;
         let sidebarElement: HTMLElement | null = null;
-        let pendingWidth: number | null = null;
 
         const activeSidebar = computed(() => {
             return Shopware.Store.get('sidebar').getActiveSidebar;
@@ -42,14 +40,6 @@ export default Shopware.Component.wrapComponentConfig({
             sidebarWidth.value = minWidth;
         };
 
-        const applyPendingWidth = () => {
-            if (pendingWidth !== null) {
-                sidebarWidth.value = pendingWidth;
-                pendingWidth = null;
-            }
-            animationFrameId = null;
-        };
-
         const handleResize = (event: MouseEvent) => {
             if (!isResizing.value) return;
             if (!sidebarElement) return;
@@ -57,11 +47,7 @@ export default Shopware.Component.wrapComponentConfig({
             const rect = sidebarElement.getBoundingClientRect();
             const newWidth = rect.right - event.clientX;
 
-            pendingWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
-
-            if (animationFrameId === null) {
-                animationFrameId = requestAnimationFrame(applyPendingWidth);
-            }
+            sidebarWidth.value = Math.max(minWidth, Math.min(maxWidth, newWidth));
         };
 
         const stopResize = () => {
@@ -72,11 +58,6 @@ export default Shopware.Component.wrapComponentConfig({
             document.removeEventListener('mouseup', stopResize, true);
 
             sidebarElement = null;
-            if (animationFrameId !== null) {
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = null;
-            }
-            pendingWidth = null;
 
             localStorage.setItem('sw-sidebar-width', sidebarWidth.value.toString());
         };

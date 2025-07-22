@@ -3,7 +3,6 @@ import { ui } from '@shopware-ag/meteor-admin-sdk';
 import initializeSidebar from 'src/app/init/sidebar.init';
 
 describe('src/app/component/structure/sw-sidebar-renderer', () => {
-    let mockRequestAnimationFrame;
     let mockLocalStorage;
 
     async function createWrapper() {
@@ -26,10 +25,6 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
 
     beforeAll(() => {
         initializeSidebar();
-
-        mockRequestAnimationFrame = jest.fn((cb) => setTimeout(cb, 16));
-        global.requestAnimationFrame = mockRequestAnimationFrame;
-        global.cancelAnimationFrame = jest.fn();
 
         mockLocalStorage = {
             getItem: jest.fn(),
@@ -97,7 +92,6 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
         beforeEach(() => {
             mockLocalStorage.getItem.mockClear();
             mockLocalStorage.setItem.mockClear();
-            mockRequestAnimationFrame.mockClear();
         });
 
         it('should initialize with saved width from localStorage', async () => {
@@ -151,11 +145,6 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
 
             const mouseMoveEvent = new MouseEvent('mousemove', { clientX: 200 });
             document.dispatchEvent(mouseMoveEvent);
-
-            expect(mockRequestAnimationFrame).toHaveBeenCalled();
-
-            const rafCallback = mockRequestAnimationFrame.mock.calls[0][0];
-            rafCallback();
 
             expect(wrapper.vm.sidebarWidth).toBe(500);
 

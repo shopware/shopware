@@ -71,7 +71,7 @@ class PermissionsServiceTest extends TestCase
     public function testRevokePermissionsIntegration(): void
     {
         $this->getKernel()->getContainer()->get('test.client')->enableProfiler();
-        
+
         $revision = '2025-06-13';
         $this->permissionsService->grant($revision, $this->context);
 

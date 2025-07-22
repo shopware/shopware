@@ -136,8 +136,8 @@ class ImportExportTest extends AbstractImportExportTestCase
 
     public function testExportEvents(): void
     {
-        $profilerNeedsToBeDisabledAgain = self::getContainer()->get('profiler')->isEnabled();
-        if (!$profilerNeedsToBeDisabledAgain) {
+        $profilerNeedsToBeDisabledAgain = !self::getContainer()->get('profiler')->isEnabled();
+        if ($profilerNeedsToBeDisabledAgain) {
             self::getContainer()->get('profiler')->enable();
         }
 
@@ -165,8 +165,8 @@ class ImportExportTest extends AbstractImportExportTestCase
 
     public function testImportEvents(): void
     {
-        $profilerNeedsToBeDisabledAgain = self::getContainer()->get('profiler')->isEnabled();
-        if (!$profilerNeedsToBeDisabledAgain) {
+        $profilerNeedsToBeDisabledAgain = !self::getContainer()->get('profiler')->isEnabled();
+        if ($profilerNeedsToBeDisabledAgain) {
             self::getContainer()->get('profiler')->enable();
         }
 

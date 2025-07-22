@@ -43,8 +43,8 @@ class PermissionsServiceTest extends TestCase
 
     public function testGrantPermissionsIntegration(): void
     {
-        $profilerNeedsToBeDisabledAgain = self::getContainer()->get('profiler')->isEnabled();
-        if (!$profilerNeedsToBeDisabledAgain) {
+        $profilerNeedsToBeDisabledAgain = !self::getContainer()->get('profiler')->isEnabled();
+        if ($profilerNeedsToBeDisabledAgain) {
             self::getContainer()->get('profiler')->enable();
         }
 
@@ -77,8 +77,8 @@ class PermissionsServiceTest extends TestCase
 
     public function testRevokePermissionsIntegration(): void
     {
-        $profilerNeedsToBeDisabledAgain = self::getContainer()->get('profiler')->isEnabled();
-        if (!$profilerNeedsToBeDisabledAgain) {
+        $profilerNeedsToBeDisabledAgain = !self::getContainer()->get('profiler')->isEnabled();
+        if ($profilerNeedsToBeDisabledAgain) {
             self::getContainer()->get('profiler')->enable();
         }
 

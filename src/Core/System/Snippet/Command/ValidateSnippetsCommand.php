@@ -5,9 +5,8 @@ namespace Shopware\Core\System\Snippet\Command;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\SnippetFixer;
-use Shopware\Core\System\Snippet\SnippetValidatorInterface;
-use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
-use Shopware\Core\System\Snippet\Struct\MissingSnippetStruct;
+use Shopware\Core\System\Snippet\SnippetValidator;
+use Shopware\Core\System\Snippet\Struct\InvalidPluralizationCollection;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
@@ -16,6 +15,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
+/**
+ * @phpstan-type Snippets array<string, string|array<string, mixed>>
+ */
 #[AsCommand(
     name: 'snippets:validate',
     description: 'Validates snippets',
@@ -27,7 +29,7 @@ class ValidateSnippetsCommand extends Command
      * @internal
      */
     public function __construct(
-        private readonly SnippetValidatorInterface $snippetValidator,
+        private readonly SnippetValidator $snippetValidator,
         private readonly SnippetFixer $snippetFixer
     ) {
         parent::__construct();
@@ -40,33 +42,44 @@ class ValidateSnippetsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $missingSnippetsArray = $this->snippetValidator->validate();
-        $missingSnippetsCollection = $this->hydrateMissingSnippets($missingSnippetsArray);
+        $invalidSnippetsStruct = $this->snippetValidator->getValidation();
+
+        $missingSnippetsCollection = $invalidSnippetsStruct->missingSnippets;
+        $hasMissingSnippets = $missingSnippetsCollection->count() > 0;
+
+        $invalidPluralization = $invalidSnippetsStruct->invalidPluralization;
+        $hasInvalidPluralization = $invalidPluralization->count() > 0;
 
         $io = new ShopwareStyle($input, $output);
 
-        if ($missingSnippetsCollection->count() === 0) {
+        if (!$hasMissingSnippets && !$hasInvalidPluralization) {
             $io->success('Snippets are valid!');
 
             return self::SUCCESS;
         }
 
         if (!$input->getOption('fix')) {
-            $io->error('Invalid snippets found!');
-            $table = new Table($output);
-            $table->setHeaders([
-                'Snippet', 'Missing for ISO', 'Found in file',
-            ]);
-
-            foreach ($missingSnippetsCollection->getIterator() as $missingSnippetStruct) {
-                $table->addRow([
-                    $missingSnippetStruct->getKeyPath(),
-                    $missingSnippetStruct->getMissingForISO(),
-                    $missingSnippetStruct->getFilePath(),
+            if ($hasMissingSnippets) {
+                $io->error('Invalid snippets found!');
+                $table = new Table($output);
+                $table->setHeaders([
+                    'Snippet', 'Missing for ISO', 'Found in file',
                 ]);
+
+                foreach ($missingSnippetsCollection as $missingSnippetStruct) {
+                    $table->addRow([
+                        $missingSnippetStruct->getKeyPath(),
+                        $missingSnippetStruct->getMissingForISO(),
+                        $missingSnippetStruct->getFilePath(),
+                    ]);
+                }
+
+                $table->render();
             }
 
-            $table->render();
+            if ($hasInvalidPluralization) {
+                $this->renderPluralizationErrors($io, $output, $invalidPluralization);
+            }
 
             return -1;
         }
@@ -84,20 +97,36 @@ class ValidateSnippetsCommand extends Command
             $missingSnippetStruct->setTranslation($questionHelper->ask($input, $output, new Question($question)) ?? '');
         }
 
-        $this->snippetFixer->fix($missingSnippetsCollection);
+        $this->snippetFixer->fix($missingSnippetsCollection, $invalidPluralization);
+
+        if ($hasInvalidPluralization) {
+            $this->renderPluralizationErrors($io, $output, $invalidPluralization);
+            $io->warning('Only invalid pluralization range can be fixed automatically. Please review carefully.');
+        }
 
         return self::SUCCESS;
     }
 
-    private function hydrateMissingSnippets(array $missingSnippetsArray): MissingSnippetCollection
-    {
-        $missingSnippetsCollection = new MissingSnippetCollection();
-        foreach ($missingSnippetsArray as $locale => $missingSnippets) {
-            foreach ($missingSnippets as $key => $missingSnippet) {
-                $missingSnippetsCollection->add(new MissingSnippetStruct($key, $missingSnippet['path'], $missingSnippet['availableISO'], $missingSnippet['availableValue'], $locale));
-            }
+    private function renderPluralizationErrors(
+        ShopwareStyle $io,
+        OutputInterface $output,
+        InvalidPluralizationCollection $invalidPluralization
+    ): void {
+        $io->error('Invalid pluralization found! Please always contain cases from 0 to Inf');
+        $table = new Table($output);
+        $table->setHeaders([
+            'Snippet', 'Value', 'Automatically fixable', 'File Path',
+        ]);
+
+        foreach ($invalidPluralization->getIterator() as $invalidPluralizationEntry) {
+            $table->addRow([
+                $invalidPluralizationEntry->snippetKey,
+                $invalidPluralizationEntry->snippetValue,
+                $invalidPluralizationEntry->isFixable ? 'Yes' : 'No',
+                $invalidPluralizationEntry->path,
+            ]);
         }
 
-        return $missingSnippetsCollection;
+        $table->render();
     }
 }

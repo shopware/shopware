@@ -34,7 +34,7 @@ class Migration1736866790AddDocumentA11yMediaFileIdForDocumentTable extends Migr
             return;
         }
 
-        $connection->executeStatement(<<<SQL
+        $connection->executeStatement(<<<'SQL'
             ALTER TABLE `document`
             ADD CONSTRAINT `fk.document.document_a11y_media_file_id` FOREIGN KEY (`document_a11y_media_file_id`)
             REFERENCES `media` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE

@@ -7,6 +7,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
@@ -36,8 +37,9 @@ class SchemaUpdater
             $fields = \json_decode($customEntity['fields'], true, 512, \JSON_THROW_ON_ERROR);
 
             if (!\str_starts_with($entityName, self::TABLE_PREFIX) && !\str_starts_with($entityName, self::SHORTHAND_TABLE_PREFIX)) {
-                throw new \RuntimeException(
-                    \sprintf('Table "%s" has to be prefixed with "%s or %s"', $entityName, self::TABLE_PREFIX, self::SHORTHAND_TABLE_PREFIX)
+                throw CustomEntityException::wrongTablePrefix(
+                    $entityName,
+                    [self::TABLE_PREFIX, self::SHORTHAND_TABLE_PREFIX]
                 );
             }
 

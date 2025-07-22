@@ -20,7 +20,7 @@ class Migration1720094362AddStateForeignKeyToOrderDelivery extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement(<<<SQL
+        $connection->executeStatement(<<<'SQL'
             UPDATE `order_delivery`
             SET `state_id` = (SELECT `initial_state_id` FROM `state_machine` WHERE `technical_name` = 'order_delivery.state')
             WHERE `state_id` NOT IN (SELECT `id` FROM `state_machine_state` WHERE `state_machine_id` = (SELECT `id` FROM `state_machine` WHERE `technical_name` = 'order_delivery.state'));
@@ -33,7 +33,7 @@ class Migration1720094362AddStateForeignKeyToOrderDelivery extends MigrationStep
             return;
         }
 
-        $connection->executeStatement(<<<SQL
+        $connection->executeStatement(<<<'SQL'
             ALTER TABLE `order_delivery`
             ADD CONSTRAINT `fk.order_delivery.state_id` FOREIGN KEY (`state_id`)
             REFERENCES `state_machine_state` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE

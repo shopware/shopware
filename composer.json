@@ -82,7 +82,7 @@
         "cocur/slugify": "^4.3.0",
         "composer/composer": "^2.8.5",
         "composer/semver": "^3.4.0",
-        "doctrine/dbal": "^4.3",
+        "doctrine/dbal": "^4.3.1",
         "doctrine/inflector": "^2.0",
         "dompdf/dompdf": "3.1.0",
         "dragonmantank/cron-expression": "^3.3",
@@ -474,8 +474,7 @@
     },
     "autoload": {
         "files": [
-            "src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
-            "src/Core/Framework/Adapter/Doctrine/Patch/MySQLSchemaManager.php"
+            "src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php"
         ],
         "psr-4": {
             "Shopware\\": "src/"

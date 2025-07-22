@@ -43,6 +43,11 @@ class PermissionsServiceTest extends TestCase
 
     public function testGrantPermissionsIntegration(): void
     {
+        $profilerNeedsToBeDisabledAgain = self::getContainer()->get('profiler')->isEnabled();
+        if (!$profilerNeedsToBeDisabledAgain) {
+            self::getContainer()->get('profiler')->enable();
+        }
+
         $revision = '2025-06-13';
 
         $this->permissionsService->grant($revision, $this->context);
@@ -64,10 +69,19 @@ class PermissionsServiceTest extends TestCase
         });
 
         static::assertNotEmpty($permissionsGrantedEvents, 'PermissionsGrantedEvent should have been dispatched');
+
+        if ($profilerNeedsToBeDisabledAgain) {
+            self::getContainer()->get('profiler')->disable();
+        }
     }
 
     public function testRevokePermissionsIntegration(): void
     {
+        $profilerNeedsToBeDisabledAgain = self::getContainer()->get('profiler')->isEnabled();
+        if (!$profilerNeedsToBeDisabledAgain) {
+            self::getContainer()->get('profiler')->enable();
+        }
+
         $revision = '2025-06-13';
         $this->permissionsService->grant($revision, $this->context);
 
@@ -86,6 +100,10 @@ class PermissionsServiceTest extends TestCase
         });
 
         static::assertNotEmpty($permissionsRevokedEvents, 'PermissionsRevokedEvent should have been dispatched');
+
+        if ($profilerNeedsToBeDisabledAgain) {
+            self::getContainer()->get('profiler')->disable();
+        }
     }
 
     public function testGrantPermissionsWithInvalidRevisionIntegration(): void

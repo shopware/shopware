@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import template from './sw-sidebar-renderer.html.twig';
 import './sw-sidebar-renderer.scss';
 
@@ -16,7 +16,7 @@ export default Shopware.Component.wrapComponentConfig({
         const sidebarWidth = ref(480);
         const isResizing = ref(false);
         const minWidth = 480;
-        const maxWidth = 0.9 * window.innerWidth;
+        const maxWidth = ref(0.9 * window.innerWidth);
 
         let sidebarElement: HTMLElement | null = null;
 
@@ -47,7 +47,7 @@ export default Shopware.Component.wrapComponentConfig({
             const rect = sidebarElement.getBoundingClientRect();
             const newWidth = rect.right - event.clientX;
 
-            sidebarWidth.value = Math.max(minWidth, Math.min(maxWidth, newWidth));
+            sidebarWidth.value = Math.max(minWidth, Math.min(maxWidth.value, newWidth));
         };
 
         const stopResize = () => {
@@ -74,11 +74,25 @@ export default Shopware.Component.wrapComponentConfig({
             event.preventDefault();
         };
 
+        const handleWindowResize = () => {
+            maxWidth.value = 0.9 * window.innerWidth;
+
+            if (sidebarWidth.value > maxWidth.value) {
+                sidebarWidth.value = maxWidth.value;
+            }
+        };
+
         onMounted(() => {
             const savedWidth = localStorage.getItem('sw-sidebar-width');
             if (savedWidth) {
-                sidebarWidth.value = Math.max(minWidth, Math.min(maxWidth, parseInt(savedWidth, 10)));
+                sidebarWidth.value = Math.max(minWidth, Math.min(maxWidth.value, parseInt(savedWidth, 10)));
             }
+
+            window.addEventListener('resize', handleWindowResize);
+        });
+
+        onUnmounted(() => {
+            window.removeEventListener('resize', handleWindowResize);
         });
 
         return {

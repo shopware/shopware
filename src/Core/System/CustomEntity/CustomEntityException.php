@@ -33,7 +33,8 @@ class CustomEntityException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::CUSTOM_ENTITY_TABLE_WRONG_PREFIX,
-            sprintf('Table "%s" has to be prefixed with "%s"', $tableName, implode('", "', $allowedPrefixes)),
+            'Table "{{ tableName }}" has to be prefixed with "{{ allowedPrefixes }}"',
+            ['tableName' => $tableName, 'allowedPrefixes' => implode('", "', $allowedPrefixes)],
         );
     }
 

@@ -43,7 +43,7 @@ class PermissionsServiceTest extends TestCase
 
     public function testGrantPermissionsIntegration(): void
     {
-        $this->getKernel()->getContainer()->get('test.client')->enableProfiler();
+        $this->getContainer()->get('profiler')->enable();
 
         $revision = '2025-06-13';
 
@@ -70,7 +70,7 @@ class PermissionsServiceTest extends TestCase
 
     public function testRevokePermissionsIntegration(): void
     {
-        $this->getKernel()->getContainer()->get('test.client')->enableProfiler();
+        $this->getContainer()->get('profiler')->enable();
 
         $revision = '2025-06-13';
         $this->permissionsService->grant($revision, $this->context);

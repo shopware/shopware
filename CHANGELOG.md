@@ -2,6 +2,7 @@
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
 ## 6.6.10.6
+*  [#8724 - Added locking to cart mutating routes](./changelog/release-6-6-10-6/2025-07-15-added-locking-to-cart-mutating-routes.md)
 *  [#10763 - fix: remove 6.8.0.0 feature flag](https://github.com/shopware/shopware/issues/10763)
 *  [#10146 - Filter cart success error messages](./changelog/release-6-6-10-6/2025-06-11-filter-cart-success-error-messages.md)
 *  [#10457 - Improve ES search scoring for numeric tokens](./changelog/release-6-6-10-6/2025-06-11-improve-es-search-scoring-for-numeric-tokens.md) @thuong.le

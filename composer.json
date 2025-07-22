@@ -188,7 +188,8 @@
         "phpdocumentor/reflection-docblock": "^5.3.0",
         "phpdocumentor/type-resolver": "^1.7.1",
         "phpstan/extension-installer": "^1.4.3",
-        "phpstan/phpstan": "2.1.16",
+        "phpstan/phpdoc-parser": "^2.0.0",
+        "phpstan/phpstan": "2.1.18",
         "phpstan/phpstan-deprecation-rules": "2.0.3",
         "phpstan/phpstan-phpunit": "2.0.6",
         "phpstan/phpstan-strict-rules": "2.0.4",
@@ -204,7 +205,7 @@
         "symfony/expression-language": "~7.2.0",
         "symfony/phpunit-bridge": "~7.2.0",
         "symfony/var-dumper": "~7.2.0",
-        "symplify/phpstan-rules": "14.6.9"
+        "symplify/phpstan-rules": "14.6.11"
     },
     "suggest": {
         "shopware/dev-tools": "For development tools, profiler, faker, etc",

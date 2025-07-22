@@ -136,6 +136,7 @@ class ImportExportTest extends AbstractImportExportTestCase
 
     public function testExportEvents(): void
     {
+        $this->getKernel()->getContainer()->get('test.client')->enableProfiler();
         $this->listener->addSubscriber(new StockSubscriber());
 
         $productId = Uuid::randomHex();
@@ -167,6 +168,7 @@ class ImportExportTest extends AbstractImportExportTestCase
 
     public function testImportExport(): void
     {
+        $this->getKernel()->getContainer()->get('test.client')->enableProfiler();
         $filesystem = static::getContainer()->get('shopware.filesystem.private');
 
         $productId = Uuid::randomHex();

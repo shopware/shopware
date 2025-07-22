@@ -77,7 +77,7 @@ shopware.installer:
     database-configuration_fetch_error: 'Det oppstod en feil under henting av databaseinformasjon'
     database-configuration_access_denied: 'Tilgang avslått, legitimasjon er feil'
     database-configuration_host_not_found: 'Kunne ikke koble til databaseserveren'
-    database-configuration_invalid_requirements: 'Shopware 6 krever minst MySQL 8.0.17 eller MariaDB 10.11'
+    database-configuration_invalid_requirements: 'Shopware 6 krever minst MySQL 8.0.22 eller MariaDB 10.11'
     database-configuration_refresh_databases: 'Oppdater databaser'
     database-import_header: 'Insallasjon'
     database-import_skip_import: 'Hopp over'

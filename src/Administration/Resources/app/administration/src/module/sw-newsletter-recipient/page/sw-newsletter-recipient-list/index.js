@@ -205,7 +205,6 @@ export default {
                 },
                 {
                     property: 'firstName',
-                    dataIndex: 'firstName,lastName',
                     inlineEdit: 'string',
                     label: 'sw-newsletter-recipient.list.name',
                     allowResize: true,

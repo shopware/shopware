@@ -8,6 +8,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 /**
  * @phpstan-type DefaultExceptionData array{code: string, status: string, title: string, detail: string|null, meta?: array{trace: array<int|string, mixed>, file: string, line: int, previous?: mixed}}
@@ -68,7 +69,15 @@ class ErrorResponseFactory
      */
     private function getHeadersFromException(\Throwable $exception): array
     {
-        return $exception instanceof OAuthServerException ? $exception->getHttpHeaders() : [];
+        if ($exception instanceof OAuthServerException) {
+            return $exception->getHttpHeaders();
+        }
+
+        if ($exception instanceof HttpExceptionInterface) {
+            return $exception->getHeaders();
+        }
+
+        return [];
     }
 
     /**

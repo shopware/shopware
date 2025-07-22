@@ -211,6 +211,13 @@ shopware:
                       interval: '30 seconds'
                     - limit: 20
                       interval: '60 seconds'
+            admin_api:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '1 hour'
+                limits:
+                    - limit: 200
+                      interval: '1 minute'
             oauth:
                 enabled: true
                 policy: 'time_backoff'

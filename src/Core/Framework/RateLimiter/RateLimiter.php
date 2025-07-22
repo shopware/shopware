@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\RateLimiter;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimit;
 
 #[Package('framework')]
 class RateLimiter
@@ -24,6 +26,8 @@ class RateLimiter
 
     final public const CART_ADD_LINE_ITEM = 'cart_add_line_item';
 
+    final public const ADMIN_API = 'admin_api';
+
     /**
      * @var array<string, RateLimiterFactory>
      */
@@ -34,18 +38,35 @@ class RateLimiter
         $this->getFactory($route)->create($key)->reset();
     }
 
-    public function ensureAccepted(string $route, string $key): void
+    public function ensureAccepted(string $route, string $key): RateLimit
     {
         $limiter = $this->getFactory($route)->create($key)->consume();
 
         if (!$limiter->isAccepted()) {
-            throw new RateLimitExceededException($limiter->getRetryAfter()->getTimestamp());
+            throw new RateLimitExceededException($limiter);
         }
+
+        return $limiter;
     }
 
     public function registerLimiterFactory(string $route, RateLimiterFactory $factory): void
     {
         $this->factories[$route] = $factory;
+    }
+
+    public static function getRateLimitHeaders(RateLimit $rateLimit): array
+    {
+        $headers = [
+            'X-RateLimit-Limit' => (string) $rateLimit->getLimit(),
+            'X-RateLimit-Remaining' => (string) $rateLimit->getRemainingTokens(),
+        ];
+
+        if (!$rateLimit->isAccepted()) {
+            $headers['X-RateLimit-Reset'] = (string) $rateLimit->getRetryAfter()->getTimestamp();
+            $headers['Retry-After'] = (string) $rateLimit->getRetryAfter()->getTimestamp();
+        }
+
+        return $headers;
     }
 
     private function getFactory(string $route): RateLimiterFactory

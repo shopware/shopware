@@ -287,6 +287,7 @@
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
             <argument type="string">%shopware.api.access_token_ttl%</argument>
             <argument type="string">%shopware.api.refresh_token_ttl%</argument>
+            <argument type="service" id="shopware.rate_limiter"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

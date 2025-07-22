@@ -10,14 +10,20 @@ use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\ApiContextRouteScopeDependant;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RouteScopeCheckTrait;
 use Shopware\Core\Framework\Routing\RouteScopeRegistry;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\RateLimiter\Policy\Rate;
+use Symfony\Component\RateLimiter\RateLimit;
 
 /**
  * @internal
@@ -37,7 +43,8 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         private readonly RefreshTokenRepositoryInterface $refreshTokenRepository,
         private readonly RouteScopeRegistry $routeScopeRegistry,
         private readonly string $accessTokenTtl = 'PT10M',
-        private readonly string $refreshTokenTtl = 'P1W'
+        private readonly string $refreshTokenTtl = 'P1W',
+        private readonly RateLimiter $rateLimiter,
     ) {
     }
 
@@ -50,7 +57,19 @@ class ApiAuthenticationListener implements EventSubscriberInterface
             KernelEvents::CONTROLLER => [
                 ['validateRequest', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_PRIORITY_AUTH_VALIDATE],
             ],
+            KernelEvents::RESPONSE => [
+                'setResponseHeaders'
+            ]
         ];
+    }
+
+    public function setResponseHeaders(ResponseEvent $event): void
+    {
+        $rateLimiter = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_RATE_LIMIT);
+
+        if ($rateLimiter instanceof RateLimit) {
+            $event->getResponse()->headers->add(RateLimiter::getRateLimitHeaders($rateLimiter));
+        }
     }
 
     public function setupOAuth(RequestEvent $event): void
@@ -86,6 +105,9 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         }
 
         $this->symfonyBearerTokenValidator->validateAuthorization($event->getRequest());
+
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_RATE_LIMIT, $this->rateLimiter->ensureAccepted(RateLimiter::ADMIN_API, $request->attributes->get('oauth_user_id')));
+
     }
 
     protected function getScopeRegistry(): RouteScopeRegistry

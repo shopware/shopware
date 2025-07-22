@@ -20,7 +20,6 @@ parameters:
     excludePaths:
         # vendor patches over autoload files
         - src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php
-        - src/Core/Framework/Adapter/Doctrine/Patch/MySQLSchemaManager.php
 
         # Code copied and adapted from twig
         - src/Core/Framework/Adapter/Twig/TokenParser/SwMacroFunctionTokenParser.php

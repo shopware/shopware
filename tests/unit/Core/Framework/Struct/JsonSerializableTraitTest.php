@@ -27,7 +27,7 @@ class JsonSerializableTraitTest extends TestCase
                     'extensions' => [],
                 ],
             ],
-            (new SerializableClass())->jsonSerialize(),
+            (new JsonSerializableTraitTestSerializableClass())->jsonSerialize(),
         );
     }
 }
@@ -35,7 +35,7 @@ class JsonSerializableTraitTest extends TestCase
 /**
  * @internal
  */
-class NonStruct implements \JsonSerializable
+class JsonSerializableTraitTestNonStruct implements \JsonSerializable
 {
     public function jsonSerialize(): array
     {
@@ -46,13 +46,13 @@ class NonStruct implements \JsonSerializable
 /**
  * @internal
  */
-class TestEntity extends Struct
+class JsonSerializableTraitTestEntity extends Struct
 {
     public function __construct(
         private string $state = 'unprocessed',
         protected string $name = 'example-name',
-        protected NonStruct $nonStruct = new NonStruct(),
-        public \DateTimeInterface $createdAt = new \DateTimeImmutable('2025-01-01T00:00:00.000+00:00'),
+        protected JsonSerializableTraitTestNonStruct $nonStruct = new JsonSerializableTraitTestNonStruct(),
+        public \DateTimeInterface $createdAt = new \DateTimeImmutable('2025-01-01'),
     ) {
     }
 }
@@ -60,13 +60,13 @@ class TestEntity extends Struct
 /**
  * @internal
  */
-class SerializableClass implements \JsonSerializable
+class JsonSerializableTraitTestSerializableClass implements \JsonSerializable
 {
     use JsonSerializableTrait;
 
     public function __construct(
         protected int $value = 1,
-        protected TestEntity $testEntity = new TestEntity()
+        protected JsonSerializableTraitTestEntity $testEntity = new JsonSerializableTraitTestEntity()
     ) {
     }
 }

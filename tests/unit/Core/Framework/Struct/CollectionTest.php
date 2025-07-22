@@ -239,8 +239,8 @@ class CollectionTest extends TestCase
     public function testJsonSerializeWithObjects(): void
     {
         $collection = new TestCollection();
-        $collection->add(new TestEntity('name-1', 'value-1'));
-        $collection->add(new TestEntity('name-2', 'value-2'));
+        $collection->add(new CollectionTestEntity('name-1', 'value-1'));
+        $collection->add(new CollectionTestEntity('name-2', 'value-2'));
 
         static::assertEquals(
             [
@@ -264,7 +264,7 @@ class TestCollection extends Collection
 /**
  * @internal
  */
-class TestEntity extends Struct
+class CollectionTestEntity extends Struct
 {
     public function __construct(
         protected string $name,

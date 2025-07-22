@@ -101,7 +101,8 @@ class SalesChannelProxyController extends AbstractController
     #[Route(path: '/api/_proxy-order/{salesChannelId}', name: 'api.proxy-order.create')]
     public function proxyCreateOrder(string $salesChannelId, Request $request, Context $context, RequestDataBag $data): Response
     {
-        $this->fetchSalesChannel($salesChannelId, $context);
+        $salesChannel = $this->fetchSalesChannel($salesChannelId, $context);
+        $request->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $salesChannel->getLanguageId());
 
         $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request, $context);
 
@@ -130,7 +131,8 @@ class SalesChannelProxyController extends AbstractController
             throw ApiException::salesChannelIdParameterIsMissing();
         }
 
-        $this->fetchSalesChannel($salesChannelId, $context);
+        $salesChannel = $this->fetchSalesChannel($salesChannelId, $context);
+        $request->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $salesChannel->getLanguageId());
 
         $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request, $context);
 
@@ -187,7 +189,8 @@ class SalesChannelProxyController extends AbstractController
 
         $salesChannelId = (string) $request->request->get('salesChannelId');
 
-        $this->fetchSalesChannel($salesChannelId, $context);
+        $salesChannel = $this->fetchSalesChannel($salesChannelId, $context);
+        $request->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $salesChannel->getLanguageId());
 
         $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request, $context);
 
@@ -254,6 +257,7 @@ class SalesChannelProxyController extends AbstractController
 
         $subrequest->headers->set(PlatformRequest::HEADER_ACCESS_KEY, $salesChannel->getAccessKey());
         $subrequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
+        $subrequest->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $salesChannel->getLanguageId());
         $subrequest->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $salesChannel->getAccessKey());
 
         $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $subrequest, $context);

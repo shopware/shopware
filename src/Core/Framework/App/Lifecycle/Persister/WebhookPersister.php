@@ -109,7 +109,7 @@ class WebhookPersister
             'event_name' => $webhook['eventName'],
             'url' => $webhook['url'],
             'only_live_version' => \array_key_exists('onlyLiveVersion', $webhook) ? (int) $webhook['onlyLiveVersion'] : 0,
-            'error_count' => \array_key_exists('errorCount', $webhook) ? (int) $webhook['errorCount'] : 0,
+            'error_count' => \array_key_exists('errorCount', $webhook) ? $webhook['errorCount'] : 0,
             'active' => 1,
             'app_id' => Uuid::fromHexToBytes($appId),
         ];

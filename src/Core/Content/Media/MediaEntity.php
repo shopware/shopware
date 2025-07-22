@@ -144,7 +144,7 @@ class MediaEntity extends Entity
      *
      * @var MediaConfig|null
      */
-    protected ?array $config;
+    protected ?array $config = null;
 
     /**
      * @internal

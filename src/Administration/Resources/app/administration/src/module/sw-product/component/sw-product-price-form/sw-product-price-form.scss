@@ -3,12 +3,16 @@
 $sw-product-price-suffix-font-size: 20px;
 
 .sw-product-price-form {
-    .sw-product-price-form__currency {
+    &__tax-rate.sw-inherit-wrapper {
+        justify-content: flex-start;
+    }
+
+    &__currency {
         font-weight: $font-weight-regular;
         font-size: $sw-product-price-suffix-font-size;
     }
 
-    .sw-product-price-form__links {
+    &__links {
         a:first-child {
             margin-top: 0;
         }
@@ -20,7 +24,7 @@ $sw-product-price-suffix-font-size: 20px;
         }
     }
 
-    .sw-product-price-form__price-list:not(.has--parent) {
+    &__price-list:not(.has--parent) {
         .sw-inherit-wrapper__toggle-wrapper {
             margin: 0;
         }

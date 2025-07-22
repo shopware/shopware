@@ -3,10 +3,19 @@ import { MtModalAction, MtModalClose, MtModal } from '@shopware-ag/meteor-compon
 import SwSettingsServicesRevokePermissionsModal from './index';
 
 describe('src/module/sw-settings-services/component/sw-settings-services-revoke-permissions-modal', () => {
+    let originalLocation;
+
     beforeAll(() => {
         Shopware.Service().register('shopwareServicesService', () => ({
             revokePermissions: jest.fn(),
         }));
+        originalLocation = window.location;
+
+        Object.defineProperty(window, 'location', { configurable: true, value: { reload: jest.fn() } });
+    });
+
+    afterAll(() => {
+        Object.defineProperty(window, 'location', { configurable: true, value: originalLocation });
     });
 
     it('can be opened and closed', async () => {
@@ -48,7 +57,8 @@ describe('src/module/sw-settings-services/component/sw-settings-services-revoke-
         await flushPromises();
 
         expect(notificationSpy).not.toHaveBeenCalled();
-        expect(revokePermissionsModal.emitted('service-permissions-revoked')).toHaveLength(1);
+        expect(Shopware.Service('shopwareServicesService').revokePermissions).toHaveBeenCalled();
+        expect(window.location.reload).toHaveBeenCalled();
     });
 
     it('shows notification if permissions request fails', async () => {
@@ -72,5 +82,6 @@ describe('src/module/sw-settings-services/component/sw-settings-services-revoke-
             message: 'Revoke Permissions failed',
         });
         expect(revokePermissionsModal.emitted('service-permissions-revoked')).toBeUndefined();
+        expect(window.location.reload).not.toHaveBeenCalled();
     });
 });

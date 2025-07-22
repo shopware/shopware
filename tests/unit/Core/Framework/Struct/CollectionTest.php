@@ -235,6 +235,21 @@ class CollectionTest extends TestCase
         $collection->add('a3');
         static::assertSame('a1', $collection->firstWhere(fn ($element) => str_starts_with($element, 'a')));
     }
+
+    public function testJsonSerializeWithObjects(): void
+    {
+        $collection = new TestCollection();
+        $collection->add(new TestEntity('name-1', 'value-1'));
+        $collection->add(new TestEntity('name-2', 'value-2'));
+
+        static::assertEquals(
+            [
+                ['name' => 'name-1', 'value' => 'value-1', 'extensions' => []],
+                ['name' => 'name-2', 'value' => 'value-2', 'extensions' => []],
+            ],
+            $collection->jsonSerialize(),
+        );
+    }
 }
 
 /**
@@ -244,4 +259,16 @@ class CollectionTest extends TestCase
  */
 class TestCollection extends Collection
 {
+}
+
+/**
+ * @internal
+ */
+class TestEntity extends Struct
+{
+    public function __construct(
+        protected string $name,
+        protected string $value,
+    ) {
+    }
 }

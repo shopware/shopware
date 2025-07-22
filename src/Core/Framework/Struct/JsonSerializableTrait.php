@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -14,6 +15,16 @@ trait JsonSerializableTrait
     {
         $vars = get_object_vars($this);
         $this->convertDateTimePropertiesToJsonStringRepresentation($vars);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            return $vars;
+        }
+
+        foreach ($vars as &$value) {
+            if ($value instanceof \JsonSerializable) {
+                $value = $value->jsonSerialize();
+            }
+        }
 
         return $vars;
     }

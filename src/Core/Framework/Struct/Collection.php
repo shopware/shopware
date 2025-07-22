@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 
@@ -157,7 +158,19 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
 
     public function jsonSerialize(): array
     {
-        return array_values($this->elements);
+        $values = array_values($this->elements);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            return $values;
+        }
+
+        foreach ($values as &$value) {
+            if ($value instanceof \JsonSerializable) {
+                $value = $value->jsonSerialize();
+            }
+        }
+
+        return $values;
     }
 
     /**

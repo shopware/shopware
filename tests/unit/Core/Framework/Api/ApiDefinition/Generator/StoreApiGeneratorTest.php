@@ -6,9 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\CriteriaQueryParameterProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
+use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
+use Shopware\Core\Framework\Api\Route\RouteInfo;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
@@ -38,7 +41,9 @@ class StoreApiGeneratorTest extends TestCase
             [
                 'Framework' => ['path' => __DIR__ . '/_fixtures'],
             ],
-            new BundleSchemaPathCollection([])
+            new BundleSchemaPathCollection([]),
+            $this->createMock(ApiRouteInfoResolver::class),
+            new CriteriaQueryParameterProvider()
         );
 
         $this->customBundleSchemas = new ShopwareBundleWithName();
@@ -50,7 +55,9 @@ class StoreApiGeneratorTest extends TestCase
             [
                 'Framework' => ['path' => __DIR__ . '/_fixtures'],
             ],
-            $customBundlePathCollection
+            $customBundlePathCollection,
+            $this->createMock(ApiRouteInfoResolver::class),
+            new CriteriaQueryParameterProvider()
         );
         $this->definitionRegistry = new StaticDefinitionInstanceRegistry(
             [
@@ -133,5 +140,39 @@ class StoreApiGeneratorTest extends TestCase
         static::assertCount(2, $entities['Simple']['required']);
         static::assertContains('requiredField', $entities['Simple']['required']);
         static::assertContains('apiAlias', $entities['Simple']['required']);
+    }
+
+    public function testAddGetOperations(): void
+    {
+        $apiRouteInfoResolver = $this->createMock(ApiRouteInfoResolver::class);
+        $apiRouteInfoResolver->method('getApiRoutes')->willReturn([
+            new RouteInfo(
+                '/store-api/category',
+                ['GET', 'POST']
+            ),
+        ]);
+
+        $generator = new StoreApiGenerator(
+            new OpenApiSchemaBuilder('0.1.0'),
+            new OpenApiDefinitionSchemaBuilder(),
+            [
+                'Framework' => ['path' => __DIR__ . '/_fixtures'],
+            ],
+            new BundleSchemaPathCollection([]),
+            $apiRouteInfoResolver,
+            new CriteriaQueryParameterProvider()
+        );
+
+        $schema = $generator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            null
+        );
+
+        $paths = $schema['paths'];
+
+        static::assertArrayHasKey('get', $paths['/category']);
+        static::assertArrayHasKey('post', $paths['/category']);
     }
 }

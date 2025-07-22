@@ -15,14 +15,11 @@ use Symfony\Component\Finder\Finder;
 #[Package('discovery')]
 class SnippetFileHandler
 {
-    private readonly Filesystem $filesystem;
-
     /**
      * @internal
      */
-    public function __construct()
+    public function __construct(private readonly Filesystem $filesystem)
     {
-        $this->filesystem = new Filesystem();
     }
 
     /**

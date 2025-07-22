@@ -13,7 +13,7 @@ use Shopware\Core\System\Snippet\Struct\MissingSnippetStruct;
 use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
 
 /**
- * @phpstan-type MissingSnippets array<string, array<string, array{
+ * @phpstan-type MissingSnippetsArray array<string, array<string, array{
  *      path: string,
  *      availableISO: string,
  *      availableValue: string,
@@ -36,7 +36,7 @@ class SnippetValidator implements SnippetValidatorInterface
     /**
      * @deprecated tag:v6.8.0 - Will be removed, use `getValidation()` instead
      *
-     * @return MissingSnippets
+     * @return MissingSnippetsArray
      */
     public function validate(): array
     {
@@ -118,7 +118,7 @@ class SnippetValidator implements SnippetValidatorInterface
     }
 
     /**
-     * @param MissingSnippets $missingSnippetsArray
+     * @param MissingSnippetsArray $missingSnippetsArray
      */
     private function hydrateMissingSnippets(array $missingSnippetsArray): MissingSnippetCollection
     {

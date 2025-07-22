@@ -60,7 +60,9 @@
             <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
         </service>
 
-        <service id="Shopware\Core\System\Snippet\SnippetFileHandler" />
+        <service id="Shopware\Core\System\Snippet\SnippetFileHandler">
+            <argument type="service" id="filesystem"/>
+        </service>
 
         <service id="Shopware\Core\System\Snippet\Subscriber\CustomFieldSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>

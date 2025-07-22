@@ -106,17 +106,13 @@
             </template>
             {% endblock %}
 
-            {% block sw_settings_language_list_content_list_column_active %}
             <template #column-active="{ item, isInlineEdit }">
-                {% block sw_settings_language_list_content_list_column_active_inline_edit %}
                 <template v-if="isInlineEdit && !isDefault(item.id)">
                     <mt-checkbox
                         v-model:checked="item.active"
                     />
                 </template>
-                {% endblock %}
 
-                {% block sw_settings_language_list_content_list_column_active_content %}
                 <template v-else>
                     <mt-icon
                         v-if="item.active"
@@ -131,9 +127,7 @@
                         class="is--inactive"
                     />
                 </template>
-                {% endblock %}
             </template>
-            {% endblock %}
 
             {% block sw_settings_language_list_content_list_column_locale %}
             <template #column-locale="{ item, column, compact, isInlineEdit }">
@@ -149,7 +143,7 @@
                     size="16px"
                     class="is--active"
                 />
-                <div v-else/>
+                <div v-else></div>
             </template>
             {% endblock %}
 

@@ -30,7 +30,6 @@ class LanguageLoader implements LanguageLoaderInterface
             ->leftJoin('language', 'locale', 'locale', 'language.translation_code_id = locale.id')
             ->leftJoin('language', 'language', 'parentLanguage', 'language.parent_id = parentLanguage.id')
             ->leftJoin('parentLanguage', 'locale', 'parentLocale', 'parentLanguage.translation_code_id = parentLocale.id')
-            ->where('language.active = 1')
             ->executeQuery()
             ->fetchAllAssociative();
 

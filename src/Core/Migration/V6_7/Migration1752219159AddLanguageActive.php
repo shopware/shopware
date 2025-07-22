@@ -32,7 +32,8 @@ class Migration1752219159AddLanguageActive extends MigrationStep
             $connection->executeStatement(
                 <<<'SQL'
                     UPDATE `language`
-                    SET `active` = 1;
+                    SET `active` = 1
+                    WHERE 1;
                 SQL
             );
 

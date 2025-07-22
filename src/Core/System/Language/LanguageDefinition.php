@@ -98,6 +98,14 @@ class LanguageDefinition extends EntityDefinition
         return LanguageEntity::class;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    public function getDefaults(): array
+    {
+        return ['active' => 1];
+    }
+
     public function since(): ?string
     {
         return '6.0.0.0';

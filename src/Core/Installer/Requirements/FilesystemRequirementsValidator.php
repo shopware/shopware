@@ -17,7 +17,6 @@ class FilesystemRequirementsValidator implements RequirementsValidatorInterface
 {
     private const NEEDED_DIRECTORY_PATHS = [
         '.',
-        'var/log/',
         'var/cache/',
         'public/',
     ];
@@ -42,13 +41,6 @@ class FilesystemRequirementsValidator implements RequirementsValidatorInterface
 
     private function existsAndIsWritable(string $path): bool
     {
-        if (!is_dir($path)) {
-            try {
-                (new Filesystem())->mkdir($path);
-            } catch (IOException) {
-            }
-        }
-
         return \is_dir($path) && \is_readable($path) && \is_writable($path);
     }
 }

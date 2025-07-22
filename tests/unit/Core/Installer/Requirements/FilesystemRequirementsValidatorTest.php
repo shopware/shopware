@@ -19,7 +19,6 @@ class FilesystemRequirementsValidatorTest extends TestCase
     {
         mkdir(__DIR__ . '/fixtures');
         mkdir(__DIR__ . '/fixtures/var');
-        mkdir(__DIR__ . '/fixtures/var/log');
         mkdir(__DIR__ . '/fixtures/var/cache');
         mkdir(__DIR__ . '/fixtures/public');
 
@@ -28,25 +27,20 @@ class FilesystemRequirementsValidatorTest extends TestCase
         $checks = new RequirementsCheckCollection();
         $checks = $validator->validateRequirements($checks);
 
-        static::assertCount(4, $checks->getElements());
+        static::assertCount(3, $checks->getElements());
 
         static::assertInstanceOf(PathCheck::class, $checks->getElements()[0]);
         static::assertSame('.', $checks->getElements()[0]->getName());
         static::assertSame(RequirementCheck::STATUS_SUCCESS, $checks->getElements()[0]->getStatus());
 
         static::assertInstanceOf(PathCheck::class, $checks->getElements()[1]);
-        static::assertSame('var/log/', $checks->getElements()[1]->getName());
+        static::assertSame('var/cache/', $checks->getElements()[1]->getName());
         static::assertSame(RequirementCheck::STATUS_SUCCESS, $checks->getElements()[1]->getStatus());
 
-        static::assertInstanceOf(PathCheck::class, $checks->getElements()[2]);
-        static::assertSame('var/cache/', $checks->getElements()[2]->getName());
+        static::assertInstanceOf(PathCheck::class, $checks->getElements()[1]);
+        static::assertSame('public/', $checks->getElements()[2]->getName());
         static::assertSame(RequirementCheck::STATUS_SUCCESS, $checks->getElements()[2]->getStatus());
 
-        static::assertInstanceOf(PathCheck::class, $checks->getElements()[3]);
-        static::assertSame('public/', $checks->getElements()[3]->getName());
-        static::assertSame(RequirementCheck::STATUS_SUCCESS, $checks->getElements()[3]->getStatus());
-
-        rmdir(__DIR__ . '/fixtures/var/log');
         rmdir(__DIR__ . '/fixtures/var/cache');
         rmdir(__DIR__ . '/fixtures/var');
         rmdir(__DIR__ . '/fixtures/public');
@@ -60,22 +54,18 @@ class FilesystemRequirementsValidatorTest extends TestCase
         $checks = new RequirementsCheckCollection();
         $checks = $validator->validateRequirements($checks);
 
-        static::assertCount(4, $checks->getElements());
+        static::assertCount(3, $checks->getElements());
 
         static::assertInstanceOf(PathCheck::class, $checks->getElements()[0]);
         static::assertSame('.', $checks->getElements()[0]->getName());
         static::assertSame(RequirementCheck::STATUS_ERROR, $checks->getElements()[0]->getStatus());
 
         static::assertInstanceOf(PathCheck::class, $checks->getElements()[1]);
-        static::assertSame('var/log/', $checks->getElements()[1]->getName());
+        static::assertSame('var/cache/', $checks->getElements()[1]->getName());
         static::assertSame(RequirementCheck::STATUS_ERROR, $checks->getElements()[1]->getStatus());
 
         static::assertInstanceOf(PathCheck::class, $checks->getElements()[2]);
-        static::assertSame('var/cache/', $checks->getElements()[2]->getName());
+        static::assertSame('public/', $checks->getElements()[2]->getName());
         static::assertSame(RequirementCheck::STATUS_ERROR, $checks->getElements()[2]->getStatus());
-
-        static::assertInstanceOf(PathCheck::class, $checks->getElements()[3]);
-        static::assertSame('public/', $checks->getElements()[3]->getName());
-        static::assertSame(RequirementCheck::STATUS_ERROR, $checks->getElements()[3]->getStatus());
     }
 }

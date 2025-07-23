@@ -73,7 +73,7 @@ shopware.installer:
     database-configuration_fetch_error: 'Une erreur s''est produite lors de l''extraction des informations de la base de données.'
     database-configuration_access_denied: 'Accès refusé, les informations d''identification sont incorrectes'
     database-configuration_host_not_found: 'Impossible de se connecter au serveur de base de données'
-    database-configuration_invalid_requirements: 'Shopware 6 nécessite au moins MySQL 8.0.17 ou MariaDB 10.11'
+    database-configuration_invalid_requirements: 'Shopware 6 nécessite au moins MySQL 8.0.22 ou MariaDB 10.11'
     database-configuration_refresh_databases: 'Actualiser les bases de données'
     database-import_header: Installation
     database-import_skip_import: Ignorer

@@ -14,38 +14,37 @@ return [
     ],
     'errors' => [
         // Will be typed in Symfony 8 (maybe)
-        'Symfony\\\\Component\\\\Console\\\\Command\\\\Command#configure\(\) changed from no type to void',
+        preg_quote('Symfony\Component\Console\Command\Command#configure() changed from no type to void', '/'),
 
-        'An enum expression .* is not supported in .*', // Can not be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
-        // major
-        'Value of constant Shopware\\\\Core\\\\Kernel::SHOPWARE_FALLBACK_VERSION changed from \'6.6.9999999-dev\' to \'6.7.9999999-dev\'',
+        // Version related const values changed for 7.3 update
+        preg_quote('Value of constant Symfony\Component\HttpKernel\Kernel', '/'),
 
-        // Can be removed before RC release
-        'Shopware\\\\Core\\\\Framework\\\\Log\\\\LogEntryEntity.* array|null',
+        // Can not be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
+        'An enum expression .* is not supported in .*',
 
         // Incorrectly deprecated
         'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentException.* changed from self',
 
         // Expected to be appended when new event is added
-        'Value of constant Shopware\\\\Core\\\\Framework\\\\Webhook\\\\Hookable',
+        preg_quote('Value of constant Shopware\Core\Framework\Webhook\Hookable', '/'),
 
         // Adding optional parameters to a constructor is not a BC
-        'ADDED: Parameter prefixMatch was added to Method __construct\(\) of class Shopware\\\\Elasticsearch\\\\Product\\\\SearchFieldConfig',
-        'ADDED: Parameter label was added to Method __construct\(\) of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\CalculatedTax',
-        'ADDED: Parameter senderName was added to Method __construct\(\) of class Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\SendMailTemplateParams',
-        'ADDED: Parameter response was added to Method __construct\(\) of class Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\ElasticsearchEntitySearcherSearchedEvent',
+        preg_quote('ADDED: Parameter prefixMatch was added to Method __construct() of class Shopware\Elasticsearch\Product\SearchFieldConfig', '/'),
+        preg_quote('ADDED: Parameter label was added to Method __construct() of class Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax', '/'),
+        preg_quote('ADDED: Parameter senderName was added to Method __construct() of class Shopware\Core\Content\Mail\Service\SendMailTemplateParams', '/'),
+        preg_quote('ADDED: Parameter response was added to Method __construct() of class Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherSearchedEvent', '/'),
+        preg_quote('ADDED: Parameter clock was added to Method __construct() of class Shopware\Core\Checkout\Promotion\Gateway\Template\ActiveDateRange', '/'),
+        preg_quote('ADDED: Parameter visibility was added to Method __construct() of class Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput', '/'),
 
         // Fix to make promotions work with order recalculation
         'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*skipPromotion.*(\n.*)*to array \((\n.*)*pinAutomaticPromotions',
 
         // No break as mixed is the top type and every other type is a subtype of mixed
-        'The parameter \$value of Shopware\\\\Storefront\\\\Event\\\\StorefrontRenderEvent#setParameter\(\) changed from no type to mixed',
+        preg_quote('The parameter $value of Shopware\Storefront\Event\StorefrontRenderEvent#setParameter() changed from no type to mixed', '/'),
 
         // No break as the `{get,set}SeoLink()` changes have not been released
-        'REMOVED: Property Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\SalesChannelCategoryEntity#\$seoLink was removed',
+        preg_quote('REMOVED: Property Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity#$seoLink was removed', '/'),
         'REMOVED: Method Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\SalesChannelCategoryEntity#(get|set)SeoLink\(\) was removed',
-
-        'ADDED: Parameter visibility was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Plugin\\\\CopyBatchInput',
 
         // The type has been extended and the old type is still accepted
         'CHANGED: The parameter \$context of Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Extension\\\\BuildBreadcrumbExtension#(getFullBreadcrumb|getFullBreadcrumbById)\(\) changed from Shopware\\\\Core\\\\Framework\\\\Context to Shopware\\\\Core\\\\Framework\\\\Context\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext',
@@ -53,6 +52,8 @@ return [
         // The parameters are optional, so this is not a BC break
         'ADDED: Parameter .* was added to Method accessDeniedForXmlHttpRequest\(\) of class Shopware\\\\Core\\\\Framework\\\\Routing\\\\RoutingException',
 
-        'ADDED: Parameter clock was added to Method __construct\(\) of class Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Gateway\\\\Template\\\\ActiveDateRange'
+        // Widening the property type with null is necessary and not a BC break
+        preg_quote('CHANGED: Type of property Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity#$type changed from Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity to Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity|null', '/'),
+        preg_quote('CHANGED: Type of property Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#$url changed from string to string|null', '/'),
     ],
 ];

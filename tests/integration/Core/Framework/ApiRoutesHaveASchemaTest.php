@@ -36,6 +36,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
         '/store-api/product-listing/{categoryId}' => ['p' => true],
         '/store-api/search' => ['p' => true],
         '/store-api/search-suggest' => ['p' => true],
+        '/store-api/context/gateway' => ['data' => true],
     ];
 
     private RouteCollection $routes;

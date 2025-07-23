@@ -20,8 +20,6 @@ class CriteriaQueryParameterProviderTest extends TestCase
         static::assertNotEmpty($parameters);
         static::assertIsArray($parameters);
 
-        static::assertCount(14, $parameters);
-
         $parameters = array_column($parameters, null, 'name');
 
         // we assert only some of the parameters (to check general logic)

@@ -8,12 +8,10 @@ test('Administration dashboard', { tag: '@Visual' }, async ({
  }) => {
     await test.step('Creates a screenshot of the Administration dashboard.', async () => {
         await ShopAdmin.goesTo(AdminDashboard.url());
-
         const viewportSize = await AdminDashboard.getViewportDimensions({
             requestURL: 'api/search/sales-channel',
         });
         await AdminDashboard.page.setViewportSize({ width: viewportSize.contentWidth, height: viewportSize.totalHeight });
-
         await ReplaceElementsForScreenshot(AdminDashboard.page, [
             '.sw-dashboard-index__welcome-text',
             '.mt-card__subtitle',

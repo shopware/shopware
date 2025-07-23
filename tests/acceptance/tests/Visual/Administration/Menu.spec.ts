@@ -18,7 +18,7 @@ ReplaceElementsForScreenshot,
         await AdminDashboard.page.locator('.sw-admin-menu__user-actions-indicator').click();
 
         const viewportSize = await AdminDashboard.getViewportDimensions({
-            requestURL: 'api/search/sales-channel',
+            requestURL: 'api/search/user-config',
         });
         await AdminDashboard.page.setViewportSize({ width: viewportSize.contentWidth, height: viewportSize.totalHeight });
 

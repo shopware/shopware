@@ -9,10 +9,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
     CheckVisibilityInHome,
     InstanceMeta,
 }) => {
-    // eslint-disable-next-line playwright/no-conditional-in-test
-    if (InstanceMeta.isSaaS) {
-        test.slow();
-    }
+    test.slow(InstanceMeta.isSaaS);
     await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
     const color = await TestDataService.createColorPropertyGroup(
         {
@@ -168,10 +165,7 @@ test('Customer should see unavailable filter options disabled when filtering by 
     CheckVisibilityInHome,
     InstanceMeta,
 }) => {
-    // eslint-disable-next-line playwright/no-conditional-in-test
-    if (InstanceMeta.isSaaS) {
-        test.slow();
-    }
+    test.slow(InstanceMeta.isSaaS);
     await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
     const color = await TestDataService.createColorPropertyGroup();
     const propertyGroupsColor: PropertyGroup[] = [color];

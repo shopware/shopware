@@ -47,11 +47,7 @@ test('Customer should be able to see a new property displayed on the product det
     InstanceMeta,
 }) => {
 
-    // eslint-disable-next-line playwright/no-conditional-in-test
-    if (InstanceMeta.isSaaS) {
-        test.slow();
-    }
-
+    test.slow(InstanceMeta.isSaaS);
     await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
     const color = await TestDataService.createColorPropertyGroup(
         {

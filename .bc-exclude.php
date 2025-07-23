@@ -3,6 +3,7 @@
 return [
     'filePatterns' => [
         '**/Test/**', // Testing
+        '**/src/WebInstaller/**', // WebInstaller TODO: remove after first 6.7 release
         '**/src/Core/Framework/Update/**', // Updater
         '**/src/Core/TestBootstrapper.php', // Testing
         '**/src/Core/Framework/Demodata/Faker/Commerce.php', // dev dependency
@@ -50,5 +51,9 @@ return [
 
         // The parameters are optional, so this is not a BC break
         'ADDED: Parameter .* was added to Method accessDeniedForXmlHttpRequest\(\) of class Shopware\\\\Core\\\\Framework\\\\Routing\\\\RoutingException',
+
+        // Widening the property type with null is necessary and not a BC break
+        preg_quote('CHANGED: Type of property Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity#$type changed from Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity to Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity|null', '/'),
+        preg_quote('CHANGED: Type of property Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#$url changed from string to string|null', '/'),
     ],
 ];

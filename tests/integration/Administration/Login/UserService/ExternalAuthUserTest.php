@@ -202,7 +202,7 @@ class ExternalAuthUserTest extends TestCase
         static::assertSame($userSub, $externalAuthUser->sub);
         static::assertSame($token, $externalAuthUser->token->token);
         static::assertSame($refreshToken, $externalAuthUser->token->refreshToken);
-        static::assertSame($expiry, $externalAuthUser->expiry->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame($expiry, $externalAuthUser->expiry?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         static::assertFalse($externalAuthUser->isNew);
     }
 }

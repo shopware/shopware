@@ -8,7 +8,7 @@ use Shopware\Administration\Login\Config\LoginConfig;
 use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Cache\Adapter\AdapterInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
@@ -22,7 +22,7 @@ final class PublicKeyLoader
     public function __construct(
         private readonly HttpClientInterface $client,
         private readonly LoginConfigService $loginConfigService,
-        private readonly AdapterInterface $cache
+        private readonly CacheInterface $cache
     ) {
     }
 

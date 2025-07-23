@@ -55,6 +55,9 @@ final class ExternalAuthUser implements UserEntityInterface
         );
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function createFromDatabaseQuery(array $data, string $accessToken, string $refreshToken): self
     {
         $data['is_new'] = false;
@@ -129,15 +132,5 @@ final class ExternalAuthUser implements UserEntityInterface
                 new Type('bool', 'Needs to be a boolean'),
             ],
         ]);
-    }
-
-    private static function prepareData(array &$data): void
-    {
-        $data['id'] = Uuid::fromBytesToHex($data['id']);
-        $data['user_id'] = Uuid::fromBytesToHex($data['user_id']);
-
-        if ($data['expiry'] !== null) {
-            $data['expiry'] = new \DateTimeImmutable($data['expiry']);
-        }
     }
 }

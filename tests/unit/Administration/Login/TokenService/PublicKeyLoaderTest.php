@@ -14,6 +14,7 @@ use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -70,7 +71,7 @@ class PublicKeyLoaderTest extends TestCase
         $publicKeyLoader = new PublicKeyLoader(
             $this->createClient(true, $this->getJwks()),
             $this->createLoginConfigService(),
-            $this->createCache('cache_key', true, $cachedKeys, true)
+            $this->createCache($cachedKeys)
         );
 
         $publicKey = $publicKeyLoader->loadPublicKey(JwksIds::KEY_ID_ONE, true);
@@ -139,10 +140,7 @@ class PublicKeyLoaderTest extends TestCase
         return new LoginConfigService($rawConfig, 'local.host', '/admin');
     }
 
-    /**
-     * @param mixed $data
-     */
-    private function createCache(?string $cached = null): AdapterInterface
+    private function createCache(?string $cached = null): AdapterInterface&CacheInterface
     {
         $cache = new ArrayAdapter();
 

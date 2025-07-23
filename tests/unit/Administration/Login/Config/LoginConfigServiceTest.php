@@ -437,6 +437,12 @@ class LoginConfigServiceTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<string, mixed> $apply
+     * @param array<int, string> $unset
+     *
+     * @return array<string, mixed>
+     */
     private static function createConfig(array $apply, array $unset = []): array
     {
         $defaultConfig = [

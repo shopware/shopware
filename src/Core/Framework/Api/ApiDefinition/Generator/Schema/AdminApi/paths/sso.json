@@ -1,11 +1,14 @@
 {
     "openapi": "3.1.0",
-    "info": [],
+    "info": {
+        "title": "SSO",
+        "version": "v1"
+    },
     "paths": {
-        "\/api\/oauth\/sso\/config": {
+        "\/oauth\/sso\/config": {
             "get": {
                 "tags": [
-                    "@experimental",
+                    "Experimental",
                     "SSO Login configuration"
                 ],
                 "summary": "Experimental: Loads SSO login configuration.",
@@ -35,10 +38,10 @@
                 }
             }
         },
-        "\/api\/oauth\/sso\/code": {
+        "\/oauth\/sso\/code": {
             "get": {
                 "tags": [
-                    "@experimental",
+                    "Experimental",
                     "SSO Login callback"
                 ],
                 "summary": "Experimental: Callback for SSO login",

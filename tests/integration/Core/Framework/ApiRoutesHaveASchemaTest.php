@@ -124,10 +124,6 @@ class ApiRoutesHaveASchemaTest extends TestCase
         foreach ($this->routes as $route) {
             $path = $route->getPath();
             $subPath = \substr($path, \strlen('/api'));
-            if ($this->isOAuthRoute($subPath)) {
-                unset($schemaRoutes[$subPath]);
-                continue;
-            }
             if (!$this->isAdminApi($path)) {
                 continue;
             }
@@ -173,11 +169,6 @@ class ApiRoutesHaveASchemaTest extends TestCase
     private function isAdminApi(string $path): bool
     {
         return str_starts_with($path, '/api');
-    }
-
-    private function isOAuthRoute(string $path): bool
-    {
-        return str_starts_with($path, '/oauth/sso');
     }
 
     private function isRepositoryCrudRoute(Route $route): bool

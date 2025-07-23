@@ -26,8 +26,8 @@ export default {
 
             // The 'this' context is the component instance, bound via .call()
             const systemKey = this.$device.getSystemKey();
-            const { key, altKey, ctrlKey, metaKey } = event;
-            const systemKeyPressed = systemKey === 'CTRL' ? ctrlKey || metaKey : altKey;
+            const { key, altKey, ctrlKey } = event;
+            const systemKeyPressed = systemKey === 'CTRL' ? ctrlKey : altKey;
 
             // create combined key name and look for matching shortcut
             const combinedKey = `${systemKeyPressed ? 'SYSTEMKEY+' : ''}${key.toUpperCase()}`;

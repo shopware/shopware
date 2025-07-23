@@ -3,11 +3,11 @@
 namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\PublicServiceDecoratorRule;
 
 /**
- * This class represents a decorator that decorates a public service but is not marked as public itself.
+ * This class represents a decorator that decorates a service but the decorated service does not exist.
  * This should trigger a violation of the PublicServiceDecoratorRule.
  */
-class NonPublicDecorator
+class NonExistDecorator
 {
     // This class is expected to be defined in services.xml as:
-    // <service id="..." decorates="translator" public="false">
+    // <service id="..." decorates="non.exists.service" public="false">
 }

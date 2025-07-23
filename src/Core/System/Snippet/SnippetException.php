@@ -24,6 +24,8 @@ class SnippetException extends HttpException
 
     final public const INVALID_SNIPPET_FILE = 'SYSTEM__INVALID_SNIPPET_FILE';
 
+    final public const JSON_NOT_FOUND = 'SYSTEM__JSON_NOT_FOUND';
+
     final public const SNIPPET_NO_ARGUMENTS_PROVIDED = 'SYSTEM__NO_ARGUMENTS_PROVIDED';
 
     final public const SNIPPET_NO_LOCALES_ARGUMENT_PROVIDED = 'SYSTEM__NO_LOCALES_ARGUMENT_PROVIDED';
@@ -95,6 +97,15 @@ class SnippetException extends HttpException
             self::SNIPPET_SET_NOT_FOUND,
             'Snippet set with ID "{{ snippetSetId }}" not found.',
             ['snippetSetId' => $snippetSetId]
+        );
+    }
+
+    public static function jsonNotFound(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::JSON_NOT_FOUND,
+            'Snippet JSON file not found. Please check the path and ensure the file exists.'
         );
     }
 

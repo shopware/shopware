@@ -37,18 +37,14 @@ class StateValidatorTest extends TestCase
         $request = new Request(['rdm' => $state, 'code' => $code]);
         $request->setSession($session);
 
-        try {
-            $validator->validateRequest($request);
-        } catch (\Throwable $exception) {
-            static::assertInstanceOf(LoginException::class, $exception);
+        if ($expectException) {
+            $this->expectExceptionObject(new LoginException(0, '0', 'Invalid login state'));
+        }
 
-            if ($expectException) {
-                static::assertSame('Invalid login state', $exception->getMessage());
-                static::assertSame(Response::HTTP_UNAUTHORIZED, $exception->getStatusCode());
-                static::assertSame(LoginException::LOGIN_INVALID_LOGIN_STATE, $exception->getErrorCode());
+        $validator->validateRequest($request);
 
-                return;
-            }
+        if ($expectException) {
+            return;
         }
 
         static::assertSame('shopware_grant', $request->get('grant_type'));

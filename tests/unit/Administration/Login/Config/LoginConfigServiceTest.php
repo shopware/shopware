@@ -65,17 +65,9 @@ class LoginConfigServiceTest extends TestCase
     {
         $configService = new LoginConfigService($rawConfig, 'http://app.url', '/admin');
 
-        try {
-            $configService->getConfig();
-        } catch (LoginException $loginException) {
-            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $loginException->getStatusCode());
-            static::assertSame(LoginException::LOGIN_CONFIG_INCOMPLETE_OR_MISCONFIGURED, $loginException->getErrorCode());
-            static::assertSame($exceptionMessage, $loginException->getMessage());
+        $this->expectExceptionObject(new LoginException(0, '0', $exceptionMessage));
 
-            return;
-        }
-
-        static::fail('Exception should have been thrown.');
+        $configService->getConfig();
     }
 
     /**

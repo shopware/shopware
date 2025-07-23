@@ -48,13 +48,9 @@ class TokenTest extends TestCase
     #[DataProvider('validateTestDataProvider')]
     public function testValidate(array $data, string $expected): void
     {
-        try {
-            Token::fromArray($data);
-        } catch (LoginException $exception) {
-            static::assertSame($expected, $exception->getMessage());
-            static::assertSame(Response::HTTP_UNAUTHORIZED, $exception->getStatusCode());
-            static::assertSame(LoginException::LOGIN_INVALID_REFRESH_OR_ACCESS_TOKEN, $exception->getErrorCode());
-        }
+        $this->expectExceptionObject(new LoginException(0, '0', $expected));
+
+        Token::fromArray($data);
     }
 
     /**

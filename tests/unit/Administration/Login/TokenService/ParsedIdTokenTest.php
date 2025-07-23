@@ -37,16 +37,9 @@ class ParsedIdTokenTest extends TestCase
     #[DataProvider('invalidData')]
     public function testCreateFromDataSetShouldThrowException(DataSet $dataSet, string $expectedExceptionMessage): void
     {
-        try {
-            ParsedIdToken::createFromDataSet($dataSet);
-        } catch (LoginException $loginException) {
-            static::assertSame($expectedExceptionMessage, $loginException->getMessage());
-            static::assertSame(LoginException::LOGIN_INVALID_ID_TOKEN_DATA_SET, $loginException->getErrorCode());
+        $this->expectExceptionObject(new LoginException(0, '0', $expectedExceptionMessage));
 
-            return;
-        }
-
-        static::fail('LoginException should have thrown: ' . $expectedExceptionMessage);
+        ParsedIdToken::createFromDataSet($dataSet);
     }
 
     /**

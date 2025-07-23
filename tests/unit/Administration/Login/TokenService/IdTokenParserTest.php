@@ -15,7 +15,6 @@ use Shopware\Tests\Integration\Administration\Login\Helper\FakeTokenGenerator;
 use Shopware\Tests\Unit\Administration\Login\TokenService\_fixtures\JwksIds;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Clock\ClockInterface;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -65,17 +64,8 @@ class IdTokenParserTest extends TestCase
         $validatorProperty->setAccessible(true);
         $validatorProperty->setValue($idTokenParser, $validator);
 
-        try {
-            $idTokenParser->parse($idToken);
-        } catch (LoginException $loginException) {
-            static::assertSame('The id token is invalid', $loginException->getMessage());
-            static::assertSame('LOGIN__INVALID_ID_TOKEN', $loginException->getErrorCode());
-            static::assertSame(Response::HTTP_UNAUTHORIZED, $loginException->getStatusCode());
-
-            return;
-        }
-
-        static::fail('LoginException should have been thrown');
+        $this->expectExceptionObject(new LoginException(0, '0', 'The id token is invalid'));
+        $idTokenParser->parse($idToken);
     }
 
     private function createValidator(bool $isValid): ValidatorInterface

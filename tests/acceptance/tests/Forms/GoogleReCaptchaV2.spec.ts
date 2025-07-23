@@ -176,11 +176,13 @@ test('As a customer, I can perform a registration that is validated by the invis
         await test.step('Customer fills out the missing field and re-attempts the registration', async() => {
             await StorefrontAccountLogin.lastNameInput.fill(customer.lastName);
 
-            // Wait for any recaptcha or validation side-effects to settle
-            // eslint-disable-next-line playwright/no-networkidle
-            await StorefrontAccountLogin.page.waitForLoadState('networkidle');
-            await expect(StorefrontAccountLogin.page).toHaveURL(/\/account\/login/);
-            await StorefrontAccountLogin.page.getByRole('button', { name: 'Continue' }).click();
+            await expect(StorefrontAccountLogin.registerButton).toBeVisible();
+            await expect(StorefrontAccountLogin.registerButton).toBeEnabled();
+
+            await Promise.all([
+                StorefrontAccountLogin.page.waitForNavigation({ waitUntil: 'load' }),
+                StorefrontAccountLogin.registerButton.click(),
+            ]);
 
             await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
         });

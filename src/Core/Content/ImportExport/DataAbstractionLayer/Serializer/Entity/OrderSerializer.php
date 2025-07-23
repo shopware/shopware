@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
@@ -33,11 +34,53 @@ class OrderSerializer extends EntitySerializer
 
         yield from parent::serialize($config, $definition, $entity);
 
-        if (isset($entity['lineItems']) && $entity['lineItems'] instanceof OrderLineItemCollection) {
-            $lineItems = $entity['lineItems']->getElements();
-            $modifiedLineItems = [];
+        if (!Feature::isActive('v6.8.0.0')) {
+            if (isset($entity['lineItems']) && $entity['lineItems'] instanceof OrderLineItemCollection) {
+                $lineItems = $entity['lineItems']->getElements();
+                $modifiedLineItems = [];
 
-            foreach ($lineItems as $lineItem) {
+                foreach ($lineItems as $lineItem) {
+                    $lineItem = $lineItem->jsonSerialize();
+
+                    $modifiedLineItems[] = $lineItem['quantity'] . 'x ' . $lineItem['productId'];
+                }
+
+                $entity['lineItems'] = implode('|', $modifiedLineItems);
+            }
+
+            if (isset($entity['deliveries']) && $entity['deliveries'] instanceof OrderDeliveryCollection && $entity['deliveries']->count() > 0) {
+                $entity['deliveries'] = $entity['deliveries']->first()?->jsonSerialize();
+
+                if (!empty($entity['deliveries']['trackingCodes'])) {
+                    $entity['deliveries']['trackingCodes'] = implode('|', $entity['deliveries']['trackingCodes']);
+                }
+            }
+
+            if (isset($entity['transactions']) && $entity['transactions'] instanceof OrderTransactionCollection && $entity['transactions']->count() > 0) {
+                $entity['transactions'] = $entity['transactions']->first()?->jsonSerialize();
+
+                if (!empty($entity['transactions']['stateMachineState']) && $entity['transactions']['stateMachineState'] instanceof StateMachineStateEntity) {
+                    $entity['transactions']['stateMachineState'] = $entity['transactions']['stateMachineState']->jsonSerialize();
+                }
+            }
+
+            if (isset($entity['itemRounding']) && $entity['itemRounding'] instanceof CashRoundingConfig) {
+                $entity['itemRounding'] = $entity['itemRounding']->jsonSerialize();
+            }
+
+            if (isset($entity['totalRounding']) && $entity['totalRounding'] instanceof CashRoundingConfig) {
+                $entity['totalRounding'] = $entity['totalRounding']->jsonSerialize();
+            }
+
+            yield from $entity;
+
+            return;
+        }
+
+
+        if (isset($entity['lineItems']) && \is_array($entity['lineItems'])) {
+            $modifiedLineItems = [];
+            foreach ($entity['lineItems'] as $lineItem) {
                 $lineItem = $lineItem->jsonSerialize();
 
                 $modifiedLineItems[] = $lineItem['quantity'] . 'x ' . $lineItem['productId'];
@@ -46,28 +89,21 @@ class OrderSerializer extends EntitySerializer
             $entity['lineItems'] = implode('|', $modifiedLineItems);
         }
 
-        if (isset($entity['deliveries']) && $entity['deliveries'] instanceof OrderDeliveryCollection && $entity['deliveries']->count() > 0) {
-            $entity['deliveries'] = $entity['deliveries']->first()?->jsonSerialize();
+
+        if (isset($entity['deliveries']) && \is_array($entity['deliveries']) && \count($entity['deliveries']) > 0) {
+            $entity['deliveries'] = $entity['deliveries'][0];
 
             if (!empty($entity['deliveries']['trackingCodes'])) {
                 $entity['deliveries']['trackingCodes'] = implode('|', $entity['deliveries']['trackingCodes']);
             }
         }
 
-        if (isset($entity['transactions']) && $entity['transactions'] instanceof OrderTransactionCollection && $entity['transactions']->count() > 0) {
-            $entity['transactions'] = $entity['transactions']->first()?->jsonSerialize();
+        if (isset($entity['transactions']) && \is_array($entity['transactions']) && \count($entity['transactions']) > 0) {
+            $entity['transactions'] = $entity['transactions'][0];
 
             if (!empty($entity['transactions']['stateMachineState']) && $entity['transactions']['stateMachineState'] instanceof StateMachineStateEntity) {
                 $entity['transactions']['stateMachineState'] = $entity['transactions']['stateMachineState']->jsonSerialize();
             }
-        }
-
-        if (isset($entity['itemRounding']) && $entity['itemRounding'] instanceof CashRoundingConfig) {
-            $entity['itemRounding'] = $entity['itemRounding']->jsonSerialize();
-        }
-
-        if (isset($entity['totalRounding']) && $entity['totalRounding'] instanceof CashRoundingConfig) {
-            $entity['totalRounding'] = $entity['totalRounding']->jsonSerialize();
         }
 
         yield from $entity;

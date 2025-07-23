@@ -37,7 +37,7 @@ class PropertySortTest extends TestCase
         $propertyGroups->sortByConfig();
         $propertyGroup = $propertyGroups->first();
         static::assertNotNull($propertyGroup);
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        $propertyOptionsArray = $propertyGroup->getOptions()->jsonSerialize();
 
         $equalsArray = [];
         for ($x = 0; $x < 50; ++$x) {
@@ -59,7 +59,7 @@ class PropertySortTest extends TestCase
         $propertyGroups->sortByConfig();
         $propertyGroup = $propertyGroups->first();
         static::assertNotNull($propertyGroup);
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        $propertyOptionsArray = $propertyGroup->getOptions()->jsonSerialize();
 
         $equalsArray = [];
         $letterArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
@@ -82,7 +82,7 @@ class PropertySortTest extends TestCase
         $propertyGroups->sortByConfig();
         $propertyGroup = $propertyGroups->first();
         static::assertNotNull($propertyGroup);
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        $propertyOptionsArray = $propertyGroup->getOptions()->jsonSerialize();
 
         $equalsArray = [];
         for ($x = 10; $x < 20; ++$x) {
@@ -104,7 +104,7 @@ class PropertySortTest extends TestCase
         $propertyGroups->sortByConfig();
         $propertyGroup = $propertyGroups->first();
         static::assertNotNull($propertyGroup);
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        $propertyOptionsArray = $propertyGroup->getOptions()->jsonSerialize();
 
         static::assertSame(
             $this->notShuffledPosition,
@@ -121,7 +121,7 @@ class PropertySortTest extends TestCase
         $propertyGroups->sortByConfig();
         $propertyGroup = $propertyGroups->first();
         static::assertNotNull($propertyGroup);
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        $propertyOptionsArray = $propertyGroup->getOptions()->jsonSerialize();
 
         static::assertSame(
             $this->notShuffledName,
@@ -279,7 +279,7 @@ class PropertySortTest extends TestCase
             $propertyOptions[] = $propertyOption;
         }
         $this->notShuffledName = ['1a', '2aa', '3-x$e', '3d', '3e', '20aa', '44f', '55g', 'h6', 'i7', 'j2'];
-        $this->notShuffledPosition = array_column(json_decode(json_encode($propertyOptions, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR), 'position');
+        $this->notShuffledPosition = array_column(\array_map(fn ($option) => $option->jsonSerialize(), $propertyOptions), 'position');
         shuffle($propertyOptions);
 
         return new PropertyGroupOptionCollection($propertyOptions);

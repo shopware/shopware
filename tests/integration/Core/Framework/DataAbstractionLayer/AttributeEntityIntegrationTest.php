@@ -918,8 +918,8 @@ class AttributeEntityIntegrationTest extends TestCase
             'symbol' => '€',
             'isoCode' => $iso,
             'shortName' => 'Euro',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
+            'totalRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
         ];
     }
 
@@ -932,8 +932,8 @@ class AttributeEntityIntegrationTest extends TestCase
 
         return [
             'id' => $id,
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
+            'totalRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
             'orderDateTime' => '2024-05-06 12:34:56',
             'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
             'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),

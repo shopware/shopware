@@ -38,7 +38,7 @@ class DocumentConfigurationFactory
         if (\is_array($additionalConfig)) {
             $additionalConfigArray = $additionalConfig;
         } elseif (\is_object($additionalConfig)) {
-            $additionalConfigArray = $additionalConfig->jsonSerialize();
+            $additionalConfigArray = $additionalConfig->getVars();
         }
 
         $additionalConfigArray = self::cleanConfig($additionalConfigArray);

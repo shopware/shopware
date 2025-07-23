@@ -179,7 +179,7 @@ class Record implements \JsonSerializable
     {
         $this->id = $entity->getUniqueIdentifier();
 
-        $data = $entity->jsonSerialize();
+        $data = $entity->getVars();
 
         foreach ($this->attributes as $key => $_relationship) {
             $this->attributes[$key] = $data[$key] ?? null;

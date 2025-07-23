@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -85,9 +86,13 @@ class ArrayStruct extends Struct implements \ArrayAccess, \IteratorAggregate, \C
         // The key-values pairs from the property $data are now serialized in the JSON property "data".
         // But the key-value pairs from data should appear in the serialization as they were properties of the ArrayStruct itself.
         // Therefore, the key-values moved one level up.
+        $data = $jsonArray['data'];
         unset($jsonArray['data']);
-        $data = $this->data;
-        $this->convertDateTimePropertiesToJsonStringRepresentation($data);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $data = $this->data;
+            $this->convertDateTimePropertiesToJsonStringRepresentation($data);
+        }
 
         return array_merge($jsonArray, $data);
     }

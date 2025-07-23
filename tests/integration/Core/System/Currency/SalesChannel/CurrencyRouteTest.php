@@ -104,8 +104,8 @@ class CurrencyRouteTest extends TestCase
                 'shortName' => 'test',
                 'factor' => 1,
                 'symbol' => 'A',
-                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                'itemRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
+                'totalRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
             ],
             [
                 'id' => $this->ids->create('currency2'),
@@ -115,8 +115,8 @@ class CurrencyRouteTest extends TestCase
                 'shortName' => 'yay',
                 'factor' => 1,
                 'symbol' => 'B',
-                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                'itemRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
+                'totalRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
             ],
         ];
 

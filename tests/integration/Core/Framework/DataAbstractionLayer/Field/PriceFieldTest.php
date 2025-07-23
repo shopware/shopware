@@ -261,8 +261,8 @@ EOF;
             'symbol' => 'A',
             'shortName' => 'A',
             'isoCode' => 'A',
-            'itemRounding' => json_decode(json_encode($rounding, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode($rounding, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => $rounding->jsonSerialize(),
+            'totalRounding' => $rounding->jsonSerialize(),
         ];
 
         static::getContainer()
@@ -495,8 +495,8 @@ EOF;
             'symbol' => 'A',
             'shortName' => 'A',
             'isoCode' => 'A',
-            'itemRounding' => json_decode(json_encode($rounding, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode($rounding, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => $rounding->jsonSerialize(),
+            'totalRounding' => $rounding->jsonSerialize(),
         ];
 
         static::getContainer()

@@ -90,8 +90,8 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'isoCode' => 'FOO',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
+            'totalRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
             'translations' => [
                 'en-GB' => [
                     'name' => 'US Dollar',
@@ -129,8 +129,8 @@ class TranslationTest extends TestCase
             'decimalPrecision' => 2,
             'symbol' => '$',
             'isoCode' => 'FOO',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
+            'totalRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
             'translations' => [
                 [
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
@@ -171,8 +171,8 @@ class TranslationTest extends TestCase
             'decimalPrecision' => 2,
             'symbol' => '$',
             'isoCode' => 'FOO',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
+            'totalRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
             'translations' => [
                 'en-GB' => [
                     'name' => $name,
@@ -214,8 +214,8 @@ class TranslationTest extends TestCase
             'decimalPrecision' => 2,
             'symbol' => '$',
             'isoCode' => 'FOO',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
+            'totalRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
             'translations' => [
                 'en-GB' => [
                     'shortName' => $shortName,
@@ -279,8 +279,8 @@ class TranslationTest extends TestCase
             'factor' => 1,
             'decimalPrecision' => 2,
             'symbol' => '$',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
+            'totalRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
             'isoCode' => 'FOO',
             'translations' => [
                 'en-GB' => [
@@ -332,8 +332,8 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'isoCode' => 'FOO',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
+            'totalRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
             'translations' => [
                 'en-GB' => [
                     'name' => $englishName,
@@ -382,8 +382,8 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'isoCode' => 'BAR',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
+            'totalRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
             'translations' => [
                 Defaults::LANGUAGE_SYSTEM => [
                     'name' => 'default',
@@ -428,8 +428,8 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'isoCode' => 'TST',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
+            'totalRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
             'translations' => [
                 Defaults::LANGUAGE_SYSTEM => [
                     'name' => 'US Dollar',

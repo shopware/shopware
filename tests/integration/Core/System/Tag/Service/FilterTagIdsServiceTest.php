@@ -347,8 +347,8 @@ class FilterTagIdsServiceTest extends TestCase
         return [
             'id' => $orderId,
             'versionId' => $orderVersionId,
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
+            'totalRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
             'customerId' => Uuid::randomHex(),
             'billingAddressId' => Uuid::randomHex(),
             'currencyId' => Defaults::CURRENCY,

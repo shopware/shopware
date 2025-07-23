@@ -129,7 +129,7 @@ class PaymentPayloadServiceTest extends TestCase
             ->expects($this->once())
             ->method('request')
             ->with('POST', 'http://example.com', [
-                AuthMiddleware::APP_REQUEST_CONTEXT => $context,
+                AuthMiddleware::APP_REQUEST_CONTEXT => $context->jsonSerialize(),
                 AuthMiddleware::APP_REQUEST_TYPE => [
                     AuthMiddleware::APP_SECRET => 'secret',
                     AuthMiddleware::VALIDATED_RESPONSE => true,

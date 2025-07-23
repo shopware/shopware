@@ -98,7 +98,7 @@ class AppPayloadServiceHelperTest extends TestCase
 
         $array = $appPayloadServiceHelper->encode($payload);
 
-        static::assertSame(['source' => $source, 'cart' => $cart, 'context' => []], $array);
+        static::assertSame(['source' => $source->jsonSerialize(), 'cart' => $cart->jsonSerialize(), 'context' => []], $array);
     }
 
     public function testCreateRequestOptionsWithNoParams(): void
@@ -136,7 +136,7 @@ class AppPayloadServiceHelperTest extends TestCase
 
         $jsonPayload = $appPayloadServiceHelper->createRequestOptions($payload, $app, $context)->jsonSerialize();
 
-        static::assertSame($context, $jsonPayload[AuthMiddleware::APP_REQUEST_CONTEXT]);
+        static::assertSame($context->jsonSerialize(), $jsonPayload[AuthMiddleware::APP_REQUEST_CONTEXT]);
         static::assertSame('top-secret', $jsonPayload[AuthMiddleware::APP_REQUEST_TYPE][AuthMiddleware::APP_SECRET]);
         static::assertSame(['Content-Type' => 'application/json'], $jsonPayload['headers']);
         static::assertJsonStringEqualsJsonString('{"key":"value"}', $jsonPayload['body']);
@@ -177,7 +177,7 @@ class AppPayloadServiceHelperTest extends TestCase
 
         $jsonPayload = $appPayloadServiceHelper->createRequestOptions($payload, $app, $context, ['timeout' => 50])->jsonSerialize();
 
-        static::assertSame($context, $jsonPayload[AuthMiddleware::APP_REQUEST_CONTEXT]);
+        static::assertSame($context->jsonSerialize(), $jsonPayload[AuthMiddleware::APP_REQUEST_CONTEXT]);
         static::assertSame('top-secret', $jsonPayload[AuthMiddleware::APP_REQUEST_TYPE][AuthMiddleware::APP_SECRET]);
         static::assertSame(['Content-Type' => 'application/json'], $jsonPayload['headers']);
         static::assertArrayHasKey('timeout', $jsonPayload);

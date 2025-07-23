@@ -225,8 +225,8 @@ class ElasticsearchProductTest extends TestCase
                     'decimalPrecision' => 2,
                     'shortName' => 'A',
                     'isoCode' => 'A',
-                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                    'itemRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
+                    'totalRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
                 ],
                 [
                     'id' => $this->anotherCurrencyId,
@@ -236,8 +236,8 @@ class ElasticsearchProductTest extends TestCase
                     'decimalPrecision' => 2,
                     'shortName' => 'B',
                     'isoCode' => 'B',
-                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                    'itemRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
+                    'totalRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
                 ],
             ];
 

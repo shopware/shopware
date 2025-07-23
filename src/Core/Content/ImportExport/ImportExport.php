@@ -447,7 +447,7 @@ class ImportExport
         $offset = $progress->getOffset();
         foreach ($records as $originalRecord) {
             $originalRecord = $originalRecord instanceof Entity
-                ? $originalRecord->jsonSerialize()
+                ? $originalRecord->getVars()
                 : $originalRecord;
 
             $mappedRecord = [];

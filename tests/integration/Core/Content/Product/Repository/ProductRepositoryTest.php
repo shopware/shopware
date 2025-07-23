@@ -124,8 +124,8 @@ class ProductRepositoryTest extends TestCase
                     'symbol' => 'A',
                     'isoCode' => 'XX',
                     'decimalPrecision' => 2,
-                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                    'itemRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
+                    'totalRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
                 ],
             ],
             $this->context
@@ -2634,8 +2634,8 @@ class ProductRepositoryTest extends TestCase
                     'symbol' => 'DM',
                     'isoCode' => $isoCode,
                     'decimalPrecision' => 2,
-                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                    'itemRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
+                    'totalRounding' => (new CashRoundingConfig(2, 0.01, true))->jsonSerialize(),
                 ],
             ],
             Context::createDefaultContext()

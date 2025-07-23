@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -34,14 +35,14 @@ class CriteriaQueryParameterProvider
     {
         $file = __DIR__ . '/Schema/StoreApi/components/schemas/Criteria.json';
         if (!is_file($file)) {
-            return [];
+            throw ApiException::schemaDefinitionNotReadable($file);
         }
 
         try {
             /** @var array{components: array{schemas: array<string, array{properties: array<string, array<string, mixed>>}>}} $data */
             $data = json_decode((string) file_get_contents($file), true, 512, \JSON_THROW_ON_ERROR);
-        } catch (\JsonException) {
-            return [];
+        } catch (\JsonException $e) {
+            throw ApiException::invalidSchemaDefinitions($file, $e);
         }
 
         $properties = $data['components']['schemas']['Criteria']['properties'] ?? [];

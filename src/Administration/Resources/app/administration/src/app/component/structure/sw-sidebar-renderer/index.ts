@@ -29,15 +29,15 @@ export default Shopware.Component.wrapComponentConfig({
         });
 
         const sidebarDisplayOptions = computed(() => {
-           const availableWidth = windowWidth.value - MAIN_CONTENT_MIN_SIZE;
-           const currentWidth = Math.max(MIN_SIDEBAR_WIDTH, sidebarSetWidth.value);
-           return {
-               availableWidth: `${Math.max(availableWidth, 0)}px`,
-               currentWidth: `${currentWidth}px`,
-               isOverlayMode: availableWidth < currentWidth,
-               isCollapsable: availableWidth > MIN_SIDEBAR_WIDTH,
-               isResizing: isResizing.value,
-           }
+            const availableWidth = windowWidth.value - MAIN_CONTENT_MIN_SIZE;
+            const currentWidth = Math.max(MIN_SIDEBAR_WIDTH, sidebarSetWidth.value);
+            return {
+                availableWidth: `${Math.max(availableWidth, 0)}px`,
+                currentWidth: `${currentWidth}px`,
+                isOverlayMode: availableWidth < currentWidth,
+                isCollapsable: availableWidth > MIN_SIDEBAR_WIDTH,
+                isResizing: isResizing.value,
+            };
         });
 
         const closeSidebar = (locationId: string) => {
@@ -76,7 +76,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         const handleWindowResize = () => {
             windowWidth.value = window.innerWidth;
-        }
+        };
 
         onMounted(() => {
             const savedWidth = localStorage.getItem('sw-sidebar-width');

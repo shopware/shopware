@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted, useTemplateRef } from 'vue';
 import template from './sw-sidebar-renderer.html.twig';
 import './sw-sidebar-renderer.scss';
 
@@ -13,12 +13,12 @@ export default Shopware.Component.wrapComponentConfig({
     template,
 
     setup() {
-        const sidebarWidth = ref(480);
-        const isResizing = ref(false);
-        const minWidth = 480;
-        const maxWidth = ref(0.9 * window.innerWidth);
+        const MAIN_CONTENT_MIN_SIZE = 1400;
+        const MIN_SIDEBAR_WIDTH = 480;
 
-        let sidebarElement: HTMLElement | null = null;
+        const sidebarSetWidth = ref(480);
+        const isResizing = ref(false);
+        const windowWidth = ref(window.innerWidth);
 
         const activeSidebar = computed(() => {
             return Shopware.Store.get('sidebar').getActiveSidebar;
@@ -28,8 +28,16 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.Store.get('sidebar').sidebars;
         });
 
-        const isOverlayMode = computed(() => {
-            return sidebarWidth.value > minWidth;
+        const sidebarDisplayOptions = computed(() => {
+           const availableWidth = windowWidth.value - MAIN_CONTENT_MIN_SIZE;
+           const currentWidth = Math.max(MIN_SIDEBAR_WIDTH, sidebarSetWidth.value);
+           return {
+               availableWidth: `${Math.max(availableWidth, 0)}px`,
+               currentWidth: `${currentWidth}px`,
+               isOverlayMode: availableWidth < currentWidth,
+               isCollapsable: availableWidth > MIN_SIDEBAR_WIDTH,
+               isResizing: isResizing.value,
+           }
         });
 
         const closeSidebar = (locationId: string) => {
@@ -37,55 +45,43 @@ export default Shopware.Component.wrapComponentConfig({
         };
 
         const collapseSidebar = () => {
-            sidebarWidth.value = minWidth;
+            sidebarSetWidth.value = MIN_SIDEBAR_WIDTH;
         };
 
-        const handleResize = (event: MouseEvent) => {
+        const handleSidebarResize = (event: MouseEvent) => {
             if (!isResizing.value) return;
-            if (!sidebarElement) return;
 
-            const rect = sidebarElement.getBoundingClientRect();
-            const newWidth = rect.right - event.clientX;
-
-            sidebarWidth.value = Math.max(minWidth, Math.min(maxWidth.value, newWidth));
+            sidebarSetWidth.value = windowWidth.value - event.clientX;
         };
 
-        const stopResize = () => {
+        const stopSidebarResize = () => {
             isResizing.value = false;
             document.body.style.cursor = '';
             document.body.style.userSelect = '';
-            document.removeEventListener('mousemove', handleResize, true);
-            document.removeEventListener('mouseup', stopResize, true);
+            document.removeEventListener('mousemove', handleSidebarResize, true);
+            document.removeEventListener('mouseup', stopSidebarResize, true);
 
-            sidebarElement = null;
-
-            localStorage.setItem('sw-sidebar-width', sidebarWidth.value.toString());
+            localStorage.setItem('sw-sidebar-width', sidebarSetWidth.value.toString());
         };
 
-        const startResize = (event: MouseEvent) => {
+        const startSidebarResize = (event: MouseEvent) => {
             isResizing.value = true;
             document.body.style.cursor = 'col-resize';
             document.body.style.userSelect = 'none';
 
-            sidebarElement = document.querySelector('.sw-sidebar-renderer.is-active') as HTMLElement;
-
-            document.addEventListener('mousemove', handleResize, { passive: true, capture: true });
-            document.addEventListener('mouseup', stopResize, { capture: true });
+            document.addEventListener('mousemove', handleSidebarResize, { passive: true, capture: true });
+            document.addEventListener('mouseup', stopSidebarResize, { capture: true });
             event.preventDefault();
         };
 
         const handleWindowResize = () => {
-            maxWidth.value = 0.9 * window.innerWidth;
-
-            if (sidebarWidth.value > maxWidth.value) {
-                sidebarWidth.value = maxWidth.value;
-            }
-        };
+            windowWidth.value = window.innerWidth;
+        }
 
         onMounted(() => {
             const savedWidth = localStorage.getItem('sw-sidebar-width');
             if (savedWidth) {
-                sidebarWidth.value = Math.max(minWidth, Math.min(maxWidth.value, parseInt(savedWidth, 10)));
+                sidebarSetWidth.value = Math.max(parseInt(savedWidth, 10), MIN_SIDEBAR_WIDTH);
             }
 
             window.addEventListener('resize', handleWindowResize);
@@ -98,11 +94,9 @@ export default Shopware.Component.wrapComponentConfig({
         return {
             activeSidebar,
             sidebars,
-            sidebarWidth,
-            isResizing,
-            isOverlayMode,
+            sidebarDisplayOptions,
             closeSidebar,
-            startResize,
+            startSidebarResize,
             collapseSidebar,
         };
     },

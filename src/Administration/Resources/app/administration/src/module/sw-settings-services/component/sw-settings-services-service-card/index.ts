@@ -69,11 +69,22 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         updatedAt() {
-            return new Date(this.service.updated_at).toLocaleDateString();
+            return this.dateFilter(this.service.updated_at, {
+                month: '2-digit',
+                day: '2-digit',
+                year: 'numeric',
+                hour: undefined,
+                minute: undefined,
+                second: undefined,
+            });
         },
 
         readableVersion() {
             return this.service.version.split('-')[0];
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 

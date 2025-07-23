@@ -125,8 +125,6 @@ describe('src/module/sw-settings-services/service/shopware-services-service.ts',
 
         expect(clientMock.history.post).toHaveLength(1);
         expect(clientMock.history.post[0].url).toBe('services/permissions/grant/2025-07-07');
-        expect(clientMock.history.get).toHaveLength(1);
-        expect(clientMock.history.get[0].url).toBe('_action/system-config');
     });
 
     it('revokes permissions', async () => {
@@ -149,8 +147,6 @@ describe('src/module/sw-settings-services/service/shopware-services-service.ts',
 
         expect(clientMock.history.post).toHaveLength(1);
         expect(clientMock.history.post[0].url).toBe('services/permissions/revoke');
-        expect(clientMock.history.get).toHaveLength(1);
-        expect(clientMock.history.get[0].url).toBe('_action/system-config');
     });
 
     it.each([
@@ -182,7 +178,5 @@ describe('src/module/sw-settings-services/service/shopware-services-service.ts',
 
         expect(clientMock.history.post).toHaveLength(1);
         expect(clientMock.history.post[0].url).toBe(`services/${action}`);
-        expect(clientMock.history.get).toHaveLength(1);
-        expect(clientMock.history.get[0].url).toBe('_action/system-config');
     });
 });

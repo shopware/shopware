@@ -86,6 +86,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     }),
                     'sw-bulk-edit-save-modal': await wrapTestComponent('sw-bulk-edit-save-modal', { sync: true }),
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-help-center-v2': true,
                     'mt-loader': true,
                     'sw-loader-deprecated': true,

@@ -182,7 +182,7 @@ class FlowGenerator implements DemodataGeneratorInterface
                 }
             }
 
-            $sequences = json_decode((string) json_encode($sequences->jsonSerialize(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+            $sequences = json_decode(json_encode($sequences->jsonSerialize(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
             $sequences = array_map(fn (array $sequence) => array_filter($sequence), $sequences);
 
@@ -342,7 +342,7 @@ class FlowGenerator implements DemodataGeneratorInterface
 
     private function generateFlowName(string $event, int $num): string
     {
-        return str_replace(['.', '_'], ' ', ucfirst($event) . ' #' . (string) $num);
+        return str_replace(['.', '_'], ' ', ucfirst($event) . ' #' . $num);
     }
 
     /**

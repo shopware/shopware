@@ -347,7 +347,7 @@ class DefinitionValidator
             if ($field instanceof BoolField) {
                 $getterMethods[] = 'is' . $propertyName;
                 $getterMethods[] = 'has' . $propertyName;
-                $getterMethods[] = 'has' . (string) preg_replace('/^has/', '', $propertyName);
+                $getterMethods[] = 'has' . preg_replace('/^has/', '', $propertyName);
             }
 
             $hasGetter = false;

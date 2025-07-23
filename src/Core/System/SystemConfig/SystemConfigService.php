@@ -5,7 +5,7 @@ namespace Shopware\Core\System\SystemConfig;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
@@ -55,6 +55,7 @@ class SystemConfigService implements ResetInterface
         private readonly AbstractSystemConfigLoader $loader,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly SymfonySystemConfigService $symfonySystemConfigService,
+        private readonly CacheTagCollector $cacheTagCollector,
     ) {
     }
 
@@ -68,7 +69,7 @@ class SystemConfigService implements ResetInterface
      */
     public function get(string $key, ?string $salesChannelId = null)
     {
-        $this->dispatcher->dispatch(new AddCacheTagEvent('system.config-' . $salesChannelId));
+        $this->cacheTagCollector->addTag('system.config-' . $salesChannelId);
 
         $config = $this->loader->load($salesChannelId);
 
@@ -454,6 +455,8 @@ class SystemConfigService implements ResetInterface
 
     public function reset(): void
     {
+        $this->traces = [];
+        $this->keys = ['all' => true];
         $this->appMapping = null;
     }
 

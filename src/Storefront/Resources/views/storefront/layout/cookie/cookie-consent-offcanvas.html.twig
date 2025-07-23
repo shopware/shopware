@@ -9,11 +9,9 @@
 
 {% block utilities_offcanvas_content %}
     <div class="offcanvas-cookie" data-offcanvas-feature-cookie="true">
-        <div class="offcanvas-cookie-description">
-            <p>
-                {{ ('cookie.' ~ feature ~ '.description')|trans({'%cookieName%': cookie}) }}
-            </p>
-        </div>
+         <p class="offcanvas-cookie-description">
+             {{ ('cookie.' ~ feature ~ '.description')|trans({'%cookieName%': cookie}) }}
+         </p>
         <div class="offcanvas-cookie-list">
             <div class="d-grid gap-2 mb-2">
                 <button class="btn btn-primary js-wishlist-cookie-accept">{{ ('cookie.' ~ feature ~ '.accept')|trans }}</button>

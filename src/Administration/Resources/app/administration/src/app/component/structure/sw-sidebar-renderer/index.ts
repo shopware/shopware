@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { computed, ref, onMounted, onUnmounted, useTemplateRef } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import template from './sw-sidebar-renderer.html.twig';
 import './sw-sidebar-renderer.scss';
 

@@ -11,8 +11,8 @@
     ></div>
 
     <aside
-        class="sw-sidebar-renderer"
         ref="swSidebarRenderer"
+        class="sw-sidebar-renderer"
         :class="{
             'is-active': activeSidebar && activeSidebar.locationId === sidebar.locationId,
             'is-resizing': sidebarDisplayOptions.isResizing,
@@ -23,9 +23,12 @@
             maxWidth: sidebarDisplayOptions.availableWidth
         }"
     >
-        <div class="sw-sidebar-renderer__overlay" :style="{
-            width: sidebarDisplayOptions.currentWidth
-        }">
+        <div
+            class="sw-sidebar-renderer__overlay"
+            :style="{
+                width: sidebarDisplayOptions.currentWidth
+            }"
+        >
             <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
             <div
                 class="sw-sidebar-renderer__resize-handle"
@@ -46,7 +49,10 @@
                     >
 
                         <template #iconFront>
-                            <mt-icon name="regular-long-arrow-right" size="12px" />
+                            <mt-icon
+                                name="regular-long-arrow-right"
+                                size="12px"
+                            />
                         </template>
 
                         {{ $tc('sidebar.buttonCollapse') }}

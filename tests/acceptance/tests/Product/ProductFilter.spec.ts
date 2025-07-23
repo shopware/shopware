@@ -73,7 +73,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
     });
 
     await test.step('Verify setup filters display', async () => {
-        await ShopCustomer.page.goto(StorefrontHome.url());
+        await ShopCustomer.goesTo(StorefrontHome.url());
         await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
         await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible();
         await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeVisible();

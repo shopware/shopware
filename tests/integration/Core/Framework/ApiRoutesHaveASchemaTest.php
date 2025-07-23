@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\CriteriaQueryParameterProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
 use Shopware\Core\Framework\Api\Controller\ApiController;
@@ -25,6 +26,17 @@ class ApiRoutesHaveASchemaTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SnapshotTesting;
+
+    /**
+     * Query parameters that are allowed for specific Store API routes
+     */
+    private const WHITELISTED_QUERY_PARAMS = [
+        '/store-api/shipping-method' => ['onlyAvailable' => true],
+        '/store-api/checkout/cart/line-item' => ['ids' => true],
+        '/store-api/product-listing/{categoryId}' => ['p' => true],
+        '/store-api/search' => ['p' => true],
+        '/store-api/search-suggest' => ['p' => true],
+    ];
 
     private RouteCollection $routes;
 
@@ -53,6 +65,8 @@ class ApiRoutesHaveASchemaTest extends TestCase
             null
         );
 
+        $whitelistedQueryParams = $this->buildWhitelistedQueryParams($schema);
+
         $schemaRoutes = $schema['paths'];
         $missingRoutes = [];
 
@@ -67,7 +81,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
             $path = \substr($path, \strlen('/store-api'));
             if (\array_key_exists($path, $schemaRoutes)) {
                 $this->checkExperimentalState($route, $schemaRoutes[$path]);
-                $this->checkQueryParameters($route, $schemaRoutes[$path]);
+                $this->checkQueryParameters($route, $schemaRoutes[$path], $whitelistedQueryParams);
                 unset($schemaRoutes[$path]);
 
                 continue;
@@ -229,16 +243,11 @@ class ApiRoutesHaveASchemaTest extends TestCase
 
     /**
      * @param array<string, mixed> $schema
+     * @param array<string, array<string, true>> $whitelistedQueryParams
      */
-    private function checkQueryParameters(Route $route, array $schema): void
+    private function checkQueryParameters(Route $route, array $schema, array $whitelistedQueryParams): void
     {
-        $whitelist = [
-            '/store-api/shipping-method:onlyAvailable',
-            '/store-api/checkout/cart/line-item:ids',
-            '/store-api/product-listing/{categoryId}:p',
-            '/store-api/search:p',
-            '/store-api/search-suggest:p',
-        ];
+        $allowedForRoute = $whitelistedQueryParams[$route->getPath()] ?? [];
 
         foreach ($schema as $operation) {
             foreach ($operation['parameters'] ?? [] as $item) {
@@ -246,15 +255,21 @@ class ApiRoutesHaveASchemaTest extends TestCase
                     continue;
                 }
 
-                if ($item['schema']['type'] === 'string') {
+                $parameterName = $item['name'];
+
+                // It's explicitly allowed
+                if (isset($allowedForRoute[$parameterName])) {
                     continue;
                 }
 
-                /** @var string $parameterName */
-                $parameterName = $item['name'];
-                $key = $route->getPath() . ':' . $parameterName;
+                // string params are fine
+                if (isset($item['schema']['type']) && $item['schema']['type'] === 'string') {
+                    continue;
+                }
 
-                static::assertContains($key, $whitelist, \sprintf('Route "%s" has as query parameter "%s" which is not allowed.', $route->getPath(), $parameterName));
+                static::fail(
+                    \sprintf('Route "%s" has a non-string query parameter "%s" which is not allowed. Please add it to the whitelist in ApiRoutesHaveASchemaTest.', $route->getPath(), $parameterName)
+                );
             }
         }
     }
@@ -282,5 +297,44 @@ class ApiRoutesHaveASchemaTest extends TestCase
         }
 
         return $paths;
+    }
+
+    /**
+     * Build the complete whitelist of allowed query parameters by combining static params with Criteria params
+     *
+     * @param array{paths: array<string, array<string, mixed>>} $schema
+     *
+     * @return array<string, array<string, true>>
+     */
+    private function buildWhitelistedQueryParams(array $schema): array
+    {
+        $whitelistedQueryParams = self::WHITELISTED_QUERY_PARAMS;
+
+        // Build criteria paths from schema
+        $criteriaPaths = [];
+        foreach ($schema['paths'] as $path => $operations) {
+            foreach ($operations as $operation) {
+                if (!isset($operation['requestBody']['content']['application/json']['schema']['allOf'])) {
+                    continue;
+                }
+
+                foreach ($operation['requestBody']['content']['application/json']['schema']['allOf'] as $ref) {
+                    if (isset($ref['$ref']) && $ref['$ref'] === '#/components/schemas/Criteria') {
+                        $criteriaPaths[] = '/store-api' . $path;
+                    }
+                }
+            }
+        }
+
+        // Add Criteria parameters to whitelist for all criteria paths
+        $provider = $this->getContainer()->get(CriteriaQueryParameterProvider::class);
+        $criteriaParams = array_column($provider->getParameters(), 'name');
+        $criteriaParams = array_fill_keys($criteriaParams, true);
+
+        foreach ($criteriaPaths as $path) {
+            $whitelistedQueryParams[$path] = array_merge($whitelistedQueryParams[$path] ?? [], $criteriaParams);
+        }
+
+        return $whitelistedQueryParams;
     }
 }

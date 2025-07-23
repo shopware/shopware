@@ -279,6 +279,10 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             unset($getOperation['requestBody']);
         }
 
+        if (isset($getOperation['operationId'])) {
+            $getOperation['operationId'] = \sprintf('%s%s', $getOperation['operationId'], 'Get');
+        }
+
         if (isset($postOperation['requestBody']['content']['application/json']['schema']['allOf'])) {
             $criteria = $this->findCriteria($postOperation['requestBody']['content']['application/json']['schema']['allOf']);
 

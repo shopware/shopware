@@ -66,11 +66,11 @@ class CustomFieldRule
         }
 
         if (self::isFloat($renderedField)) {
-            return FloatComparator::compare((float) $actual, (float) $expected, $operator);
+            return FloatComparator::compare((float)$actual, (float)$expected, $operator);
         }
 
         if (self::isArray($renderedField)) {
-            return ArrayComparator::compare((array) $actual, (array) $expected, $operator);
+            return ArrayComparator::compare((array)$actual, (array)$expected, $operator);
         }
 
         return match ($operator) {
@@ -175,7 +175,7 @@ class CustomFieldRule
             return [new NotBlank()];
         }
 
-        if ($renderedField['type'] !== CustomFieldTypes::BOOL) {
+        if ($renderedField['type'] !== CustomFieldTypes::BOOL && $renderedField['type'] !== CustomFieldTypes::TEXT) {
             $constraints[] = new NotBlank();
         }
 

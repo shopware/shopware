@@ -77,7 +77,7 @@
     "searchButton": "Suchen",
     "searchPlaceholder": "Suchbegriff eingeben ...",
     "searchAllResults": "Alle Suchergebnisse anzeigen",
-    "searchResults": "{1} 1 Ergebnis|]1,Inf[ %count% Ergebnisse",
+    "searchResults": "{1} 1 Ergebnis|[0,Inf[ %count% Ergebnisse",
     "searchDropdownTitle": "Die Dropdown-Suche",
     "searchCloseButton": "Die Dropdown-Suche schließen",
     "supportInfo": "<strong>Fragen zu Ihrer Bestellung?</strong><br /><strong><a href=\"tel:+4912345-123456789\">12345-123456789</a></strong> <small>Täglich 7:30 bis 22:00 Uhr</small>",
@@ -422,7 +422,7 @@
     "companyVatPlaceholder": "Umsatzsteuer-ID"
   },
   "checkout": {
-    "itemCounter": "{1} 1 Position|]1,Inf[ %count% Positionen",
+    "itemCounter": "{1} 1 Position|[0,Inf[ %count% Positionen",
     "addressHeader": "Versandinformationen",
     "addressLoginToggle": "Sie sind bereits Kunde? Klicken Sie hier, um sich einzuloggen.",
     "addressRegisterCardTitle": "Persönliche Informationen",
@@ -433,7 +433,7 @@
     "cartMetaTitle": "Warenkorb",
     "cartHeader": "Warenkorb",
     "cartUpdateSuccess": "Warenkorb aktualisiert.",
-    "cartScreenReaderUpdate": "Warenkorb enthält eine Position. Der Gesamtwert beträgt %total%.|Warenkorb enthält %count% Positionen. Der Gesamtwert beträgt %total%.",
+    "cartScreenReaderUpdate": "{1}Warenkorb enthält eine Position. Der Gesamtwert beträgt %total%.|[0,Inf[Warenkorb enthält %count% Positionen. Der Gesamtwert beträgt %total%.",
     "continueShopping": "Weiter einkaufen",
     "emptyCart": "Ihr Warenkorb ist leer.",
     "proceedToCart": "Warenkorb anzeigen",
@@ -512,7 +512,7 @@
     "finishChangePayment": "Zahlungsart ändern",
     "finishPaymentFailed": "Leider ist der Zahlungsprozess fehlgeschlagen. Bitte ändern Sie die Zahlungsart um Ihre Bestellung abzuschließen. <a href=\"%editOrderUrl%\">Zahlung ändern</a>",
     "codeAddedSuccessful": "Gutscheincode erfolgreich hinzugefügt.",
-    "addToCartSuccess": "{1} 1 Produkt zum Warenkorb hinzugefügt.|]1,Inf[ %count% Produkte zum Warenkorb hinzugefügt.",
+    "addToCartSuccess": "{1} 1 Produkt zum Warenkorb hinzugefügt.|[0,Inf[ %count% Produkte zum Warenkorb hinzugefügt.",
     "shippingCosts": "Versanddetails öffnen",
     "shippingCountry": "Lieferland",
     "paymentMethod": "Zahlungsart",
@@ -640,7 +640,7 @@
     "success": "Wir haben Ihre Kontaktanfrage erhalten und werden sie schnellstmöglich bearbeiten."
   },
   "search": {
-    "headline": "{0} Zu \"%searchTerm%\" wurde kein Produkt gefunden | {1} Zu \"%searchTerm%\" wurde 1 Produkt gefunden | ]1,Inf[ Zu \"%searchTerm%\" wurden %count% Produkte gefunden",
+    "headline": "{0} Zu \"%searchTerm%\" wurde kein Produkt gefunden | {1} Zu \"%searchTerm%\" wurde 1 Produkt gefunden | [0,Inf[ Zu \"%searchTerm%\" wurden %count% Produkte gefunden",
     "metaTitle": "Suchergebnis"
   },
   "detail": {
@@ -658,13 +658,13 @@
     "dataColumnPrice": "Stückpreis",
     "dataColumnReferencePrice": "Grundpreis",
     "deliveryTimeAvailable": "Sofort verfügbar, Lieferzeit: %name%",
-    "deliveryTimeRestock": "{1} Versandfertig in 1 Tag, Lieferzeit %name% |]1,Inf[ Versandfertig in %restockTime% Tagen, Lieferzeit %name% ",
+    "deliveryTimeRestock": "{1} Versandfertig in 1 Tag, Lieferzeit %name% |[0,Inf[ Versandfertig in %restockTime% Tagen, Lieferzeit %name% ",
     "soldOut": "Nicht mehr verfügbar",
     "tabsReview": "Bewertungen",
     "reviewTitle": "%count% von %total% Bewertungen",
     "reviewVerifiedItemTooltip": "Verifizierter Käufer",
     "reviewCommentLabel": "Unser Kommentar: ",
-    "reviewLinkText": "{1} Bewertung|]1,Inf[ Bewertungen",
+    "reviewLinkText": "{1} Bewertung|[0,Inf[ Bewertungen",
     "reviewFormRatingLabel": "Ihre Bewertung",
     "reviewFormTitleLabel": "Titel",
     "reviewFormTitlePlaceholder": "Titel eingeben ...",
@@ -691,7 +691,7 @@
     "reviewSortLabel": "Sortiert nach",
     "reviewSortTopRatedLabel": "Am besten bewertet",
     "reviewSortNewLabel": "Neueste Bewertung",
-    "reviewCountAfter": "{1} Bewertung|]1,Inf[ Bewertungen",
+    "reviewCountAfter": "{1} Bewertung|[0,Inf[ Bewertungen",
     "reviewCountBefore": "von",
     "reviewListEmpty": "Keine Bewertungen gefunden. Teilen Sie Ihre Erfahrungen mit anderen.",
     "reviewLoginHeader": "Anmelden",
@@ -758,7 +758,7 @@
     "wishlistMergeHint": "Ihr Merkzettel kann Produkte enthalten, die bei einem vorhergehenden Besuch hinzugefügt und gespeichert wurden.",
     "wishlistEmptyHeader": "Ihr Merkzettel ist leer",
     "wishlistEmptyDescription": "Behalten Sie interessante Produkte im Auge, indem Sie sie zu Ihrem Merkzettel hinzufügen.",
-    "deliveryTimeRestock": "{1} Versandfertig in 1 Tag, Lieferzeit %name% |]1,Inf[ Versandfertig in %restockTime% Tagen, Lieferzeit %name% ",
+    "deliveryTimeRestock": "{1} Versandfertig in 1 Tag, Lieferzeit %name% |[0,Inf[ Versandfertig in %restockTime% Tagen, Lieferzeit %name% ",
     "deliveryShipping": "Dieses Produkt erscheint am",
     "remove": "%product_name% vom Merkzettel entfernen"
   },

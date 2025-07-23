@@ -1,6 +1,6 @@
 <div align="center">
 
-[![Build Status](https://github.com/shopware/shopware/actions/workflows/php.yml/badge.svg)](https://github.com/shopware/shopware/actions/workflows/php.yml)
+[![Nightly Build Status](https://github.com/shopware/shopware/actions/workflows/nightly.yml/badge.svg?event=schedule&branch=trunk)](https://github.com/shopware/shopware/actions/workflows/nightly.yml?query=event%3Aschedule+branch%3Atrunk)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/shopware/platform/badges/quality-score.png)](https://scrutinizer-ci.com/g/shopware/platform/)
 [![Latest Stable Version](https://poser.pugx.org/shopware/platform/v/stable)](https://packagist.org/packages/shopware/platform)
 [![Total Downloads](https://poser.pugx.org/shopware/platform/downloads)](https://packagist.org/packages/shopware/platform)

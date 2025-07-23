@@ -35,6 +35,7 @@ async function createWrapper() {
                     'sw-skeleton': true,
                     'sw-error-summary': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-help-center-v2': true,
                     'router-link': true,
                     'sw-sales-channel-switch': true,

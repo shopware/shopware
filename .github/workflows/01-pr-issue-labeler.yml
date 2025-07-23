@@ -36,7 +36,8 @@ jobs:
 
   apply-team-label:
     runs-on: ubuntu-24.04
-    if: github.event.act || (github.event_name == 'issues' && ( github.event.action == 'opened' || github.event.action == 'reopened' ))
+    if: github.event.act || github.event_name == 'issues'
+    needs: label
     env:
       TEAM_LABEL: "customer-support"
       CUSTOM_USERS: ${{ vars.ADDITIONAL_CUSTOMER_SUPPORT_USERS }}
@@ -160,6 +161,7 @@ jobs:
   priority-sync:
     runs-on: ubuntu-24.04
     if: github.event_name == 'issues' && github.event.action == 'labeled' && startsWith(github.event.label.name, 'priority')
+    needs: label
     permissions:
       contents: read
       id-token: write

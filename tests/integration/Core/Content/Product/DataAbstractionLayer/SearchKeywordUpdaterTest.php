@@ -46,6 +46,8 @@ class SearchKeywordUpdaterTest extends TestCase
     #[DataProvider('productKeywordProvider')]
     public function testItUpdatesKeywordsAndDictionary(array $productData, IdsCollection $ids, array $englishKeywords, array $germanKeywords, array $additionalDictionaries = []): void
     {
+        $this->cleanProductKeywords();
+
         $this->productRepository->create([$productData], Context::createDefaultContext());
 
         $this->assertKeywords($ids->get('1000'), Defaults::LANGUAGE_SYSTEM, $englishKeywords);
@@ -68,9 +70,7 @@ class SearchKeywordUpdaterTest extends TestCase
     #[DataProvider('productKeywordProvider')]
     public function testItUpdatesKeywordsForAvailableLanguagesOnly(array $productData, IdsCollection $ids, array $englishKeywords, array $germanKeywords, array $additionalDictionaries = []): void
     {
-        $this->connection->executeStatement('DELETE FROM product');
-        $this->connection->executeStatement('DELETE FROM product_search_keyword');
-        $this->connection->executeStatement('DELETE FROM product_keyword_dictionary');
+        $this->cleanProductKeywords();
 
         $context = Context::createDefaultContext();
 
@@ -370,5 +370,17 @@ class SearchKeywordUpdaterTest extends TestCase
         static::assertIsString($firstId);
 
         return $firstId;
+    }
+
+    /**
+     * Empty products, product_search_keyword, product_keyword_dictionary tables,
+     * since assertDictionary(), assertLanguageHasNoKeywords(), assertLanguageHasNoDictionary()
+     * methods expect empty clean states to work with.
+     */
+    private function cleanProductKeywords(): void
+    {
+        $this->connection->executeStatement('DELETE FROM product');
+        $this->connection->executeStatement('DELETE FROM product_search_keyword');
+        $this->connection->executeStatement('DELETE FROM product_keyword_dictionary');
     }
 }

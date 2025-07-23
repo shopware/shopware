@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
+use Shopware\Core\System\SalesChannel\Event\SalesChannelContextTokenChangeEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Attribute\Route;
@@ -44,13 +45,16 @@ class LogoutRoute extends AbstractLogoutRoute
         if ($this->shouldDelete($context)) {
             $this->cartService->deleteCart($context);
             $this->contextPersister->delete($context->getToken(), $context->getSalesChannelId());
-        } else {
-            $this->contextPersister->replace($context->getToken(), $context);
         }
 
+        $oldToken = $context->getToken();
+        $newToken = Random::getAlphanumericString(32);
+
         $context->assign([
-            'token' => Random::getAlphanumericString(32),
+            'token' => $newToken,
         ]);
+
+        $this->eventDispatcher->dispatch(new SalesChannelContextTokenChangeEvent($context, $oldToken, $newToken));
 
         $event = new CustomerLogoutEvent($context, $customer);
         $this->eventDispatcher->dispatch($event);

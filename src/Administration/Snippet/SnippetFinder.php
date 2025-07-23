@@ -6,10 +6,15 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\Snippet\Service\TranslationConfigLoader;
+use Shopware\Core\System\Snippet\Service\TranslationLoader;
+use Shopware\Core\System\Snippet\Struct\SnippetPaths;
 use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
+ *
+ * @description Loads administration snippets from the core, plugins, and apps.
  */
 #[Package('discovery')]
 class SnippetFinder implements SnippetFinderInterface
@@ -23,7 +28,7 @@ class SnippetFinder implements SnippetFinderInterface
 
     public function __construct(
         private readonly Kernel $kernel,
-        private readonly Connection $connection
+        private readonly Connection $connection,
     ) {
     }
 
@@ -35,36 +40,116 @@ class SnippetFinder implements SnippetFinderInterface
         $snippetFiles = $this->findSnippetFiles($locale);
         $snippets = $this->parseFiles($snippetFiles);
 
-        $snippets = [...$snippets, ...$this->getAppAdministrationSnippets($locale)];
-
-        if (!\count($snippets)) {
-            return [];
-        }
-
-        return $snippets;
+        return [...$snippets, ...$this->getAppAdministrationSnippets($locale)];
     }
 
     /**
      * @return array<int, string>
      */
-    private function getBundlePaths(): array
+    private function findSnippetFiles(string $locale): array
     {
-        $plugins = $this->kernel->getPluginLoader()->getPluginInstances()->all();
+        $paths = new SnippetPaths();
+        $this->addInstalledPlatformPaths($paths, $locale);
+
+        if ($paths->empty()) {
+            // @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
+            $this->addShopwareLegacyPaths($paths);
+        }
+
+        $this->addPluginPaths($paths, $locale);
+        $this->addMeteorBundlePaths($paths);
+
+        $finder = (new Finder())
+            ->files()
+            ->exclude('node_modules')
+            ->ignoreDotFiles(true)
+            ->ignoreVCS(true)
+            ->ignoreUnreadableDirs()
+            ->name([
+                'administration.json',
+                \sprintf('%s.json', $locale), // @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
+            ])
+            ->in($paths->all());
+
+        $iterator = $finder->getIterator();
+        $files = [];
+
+        foreach ($iterator as $file) {
+            $files[] = $file->getRealPath();
+        }
+
+        return \array_unique($files);
+    }
+
+    private function addInstalledPlatformPaths(SnippetPaths $paths, string $locale): void
+    {
+        $path = \sprintf(TranslationLoader::TRANSLATION_DESTINATION . '/%s/Platform', $locale);
+
+        if (!\is_dir($path)) {
+            return;
+        }
+
+        $paths->add($path);
+    }
+
+    private function addPluginPaths(SnippetPaths $paths, string $locale): void
+    {
         $activePlugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();
-        $bundles = $this->kernel->getBundles();
-        $paths = [];
 
         foreach ($activePlugins as $plugin) {
+            $name = TranslationConfigLoader::getMappedPluginName($plugin);
+            $path = \sprintf(TranslationLoader::TRANSLATION_DESTINATION . '/%s/Plugins/%s', $locale, $name);
+
+            // add the path of the installed plugin translation if it exists
+            if (\is_dir($path)) {
+                $paths->add($path);
+
+                continue;
+            }
+
+            // add the plugin specific paths if the translation does not exist
             $pluginPath = $plugin->getPath() . '/Resources/app/administration/src';
+
             if (\is_dir($pluginPath)) {
-                $paths[] = $pluginPath;
+                $paths->add($pluginPath);
             }
 
             $meteorPluginPath = $plugin->getPath() . '/Resources/app/meteor-app';
             if (\is_dir($meteorPluginPath)) {
-                $paths[] = $meteorPluginPath;
+                $paths->add($meteorPluginPath);
             }
         }
+    }
+
+    private function addMeteorBundlePaths(SnippetPaths $paths): void
+    {
+        $plugins = $this->kernel->getPluginLoader()->getPluginInstances()->all();
+        $bundles = $this->kernel->getBundles();
+
+        foreach ($bundles as $bundle) {
+            if (\in_array($bundle, $plugins, true)) {
+                continue;
+            }
+
+            $meteorBundlePath = $bundle->getPath() . '/Resources/app/meteor-app';
+
+            // Add the meteor bundle path if it exists
+            if (!\is_dir($meteorBundlePath)) {
+                continue;
+            }
+
+            $paths->add($meteorBundlePath);
+        }
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
+     * The method `getInstalledSnippetPaths` will be used to fetch the paths.
+     */
+    private function addShopwareLegacyPaths(SnippetPaths $paths): void
+    {
+        $plugins = $this->kernel->getPluginLoader()->getPluginInstances()->all();
+        $bundles = $this->kernel->getBundles();
 
         foreach ($bundles as $bundle) {
             if (\in_array($bundle, $plugins, true)) {
@@ -72,7 +157,7 @@ class SnippetFinder implements SnippetFinderInterface
             }
 
             if ($bundle->getName() === 'Administration') {
-                $paths = array_merge($paths, [
+                $paths->merge([
                     $bundle->getPath() . '/Resources/app/administration/src/app/snippet',
                     $bundle->getPath() . '/Resources/app/administration/src/module/*/snippet',
                     $bundle->getPath() . '/Resources/app/administration/src/app/component/*/*/snippet',
@@ -82,7 +167,7 @@ class SnippetFinder implements SnippetFinderInterface
             }
 
             if ($bundle->getName() === 'Storefront') {
-                $paths = array_merge($paths, [
+                $paths->merge([
                     $bundle->getPath() . '/Resources/app/administration/src/app/snippet',
                     $bundle->getPath() . '/Resources/app/administration/src/modules/*/snippet',
                 ]);
@@ -95,40 +180,14 @@ class SnippetFinder implements SnippetFinderInterface
 
             // Add the bundle path if it exists
             if (\is_dir($bundlePath)) {
-                $paths[] = $bundlePath;
+                $paths->add($bundlePath);
             }
 
             // Add the meteor bundle path if it exists
             if (\is_dir($meteorBundlePath)) {
-                $paths[] = $meteorBundlePath;
+                $paths->add($meteorBundlePath);
             }
         }
-
-        return $paths;
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private function findSnippetFiles(string $locale): array
-    {
-        $finder = (new Finder())
-            ->files()
-            ->exclude('node_modules')
-            ->ignoreDotFiles(true)
-            ->ignoreVCS(true)
-            ->ignoreUnreadableDirs()
-            ->name(\sprintf('%s.json', $locale))
-            ->in($this->getBundlePaths());
-
-        $iterator = $finder->getIterator();
-        $files = [];
-
-        foreach ($iterator as $file) {
-            $files[] = $file->getRealPath();
-        }
-
-        return \array_unique($files);
     }
 
     /**
@@ -173,9 +232,8 @@ class SnippetFinder implements SnippetFinderInterface
         );
 
         $appSnippets = array_replace_recursive([], ...$decodedSnippets);
-        $appSnippets = $this->sanitizeAppSnippets($appSnippets);
 
-        return $appSnippets;
+        return $this->sanitizeAppSnippets($appSnippets);
     }
 
     /**

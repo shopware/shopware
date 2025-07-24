@@ -8,6 +8,7 @@ use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\Language;
 use Shopware\Core\System\Snippet\Struct\LanguageCollection;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -69,9 +70,10 @@ class TranslationConfigLoader
         }
 
         $path .= self::TRANSLATION_CONFIG_FILE;
-        $content = file_get_contents($path);
+        $configReader = new Filesystem();
+        $content = $configReader->readFile($path);
 
-        if ($content === false) {
+        if (empty(\trim($content))) {
             throw SnippetException::translationConfigurationFileDoesNotExist(self::TRANSLATION_CONFIG_FILE);
         }
 

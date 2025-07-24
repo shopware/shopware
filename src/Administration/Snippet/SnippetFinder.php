@@ -3,6 +3,7 @@
 namespace Shopware\Administration\Snippet;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Kernel;
@@ -51,9 +52,17 @@ class SnippetFinder implements SnippetFinderInterface
         $paths = new SnippetPaths();
         $this->addInstalledPlatformPaths($paths, $locale);
 
-        if ($paths->empty()) {
+        if ($paths->isEmpty()) {
             // @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
-            $this->addShopwareLegacyPaths($paths);
+            if (!Feature::isActive('v6.8.0.0')) {
+                $this->addShopwareLegacyPaths($paths);
+            }
+        }
+
+        $snippetNames = ['administration.json'];
+        if (!Feature::isActive('v6.8.0.0')) {
+            // @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
+            $snippetNames[] = \sprintf('%s.json', $locale);
         }
 
         $this->addPluginPaths($paths, $locale);
@@ -65,10 +74,7 @@ class SnippetFinder implements SnippetFinderInterface
             ->ignoreDotFiles(true)
             ->ignoreVCS(true)
             ->ignoreUnreadableDirs()
-            ->name([
-                'administration.json',
-                \sprintf('%s.json', $locale), // @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
-            ])
+            ->name($snippetNames)
             ->in($paths->all());
 
         $iterator = $finder->getIterator();

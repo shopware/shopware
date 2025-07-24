@@ -129,7 +129,7 @@ class TranslationLoader
         try {
             $response = $this->client->request('GET', $url);
 
-            file_put_contents($destination, $response->getBody());
+            $this->filesystem->dumpFile($destination, $response->getBody());
         } catch (GuzzleException $e) {
             if ($e->getCode() === 404) {
                 // If the file does not exist, we can skip it

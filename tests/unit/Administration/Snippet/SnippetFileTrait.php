@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Administration\Snippet;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -13,6 +14,7 @@ trait SnippetFileTrait
 {
     private function createSnippetFiles(): void
     {
+        $snippetWriter = new Filesystem();
         $paths = [
             'platform' => TranslationLoader::TRANSLATION_DESTINATION . '/es-ES/Platform',
             'plugin' => TranslationLoader::TRANSLATION_DESTINATION . '/es-ES/Plugins/activePlugin',
@@ -38,7 +40,7 @@ trait SnippetFileTrait
             foreach ($files as $file) {
                 $filePath = $path . '/' . $file;
                 if (!is_file($filePath)) {
-                    file_put_contents($filePath, json_encode($snippet, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE));
+                    $snippetWriter->dumpFile($filePath, json_encode($snippet, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE));
                 }
             }
         }

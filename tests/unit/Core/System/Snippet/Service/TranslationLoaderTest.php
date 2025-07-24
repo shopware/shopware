@@ -2,8 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\System\Snippet\Service;
 
-require_once __DIR__ . '/../Mock/FilePutContentsMock.php';
-
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -16,11 +14,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
-use Shopware\Core\System\Snippet\Service\FilePutContentsMock;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\Language;
 use Shopware\Core\System\Snippet\Struct\LanguageCollection as LanguageDtoCollection;
+use Shopware\Core\System\Snippet\Struct\SnippetPaths;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -77,11 +75,6 @@ class TranslationLoaderTest extends TestCase
         $this->initClient();
     }
 
-    protected function tearDown(): void
-    {
-        FilePutContentsMock::reset();
-    }
-
     public function testLoadThrowsExceptionIfLanguageDoesNotExist(): void
     {
         $loader = $this->getTranslationLoader();
@@ -102,22 +95,30 @@ class TranslationLoaderTest extends TestCase
 
     public function testLoadFetchesCoreAndPluginSnippets(): void
     {
+        $writtenFilePaths = new SnippetPaths();
+        $this->filesystem
+            ->method('dumpFile')
+            ->willReturnCallback(
+                function (string $filename, $content) use ($writtenFilePaths): void {
+                    $writtenFilePaths->add($filename);
+                }
+            );
         $loader = $this->getTranslationLoader();
         $loader->load('es-ES', $this->context);
 
-        $fileNames = FilePutContentsMock::$fileNames;
-        static::assertCount(5, $fileNames);
+        static::assertCount(5, $writtenFilePaths);
 
+        $expectedFilePaths = new SnippetPaths();
         $shopwarePath = realpath(TranslationLoader::TRANSLATION_DESTINATION) . '/es-ES/Platform/';
         $pluginPath = realpath(TranslationLoader::TRANSLATION_DESTINATION) . '/es-ES/Plugins/SwagPublisher/';
 
-        static::assertEquals([
-            $shopwarePath . 'administration.json',
-            $shopwarePath . 'messages.es-ES.base.json',
-            $shopwarePath . 'storefront.json',
-            $pluginPath . 'storefront.json',
-            $pluginPath . 'administration.json',
-        ], $fileNames);
+        $expectedFilePaths->add($shopwarePath . 'administration.json');
+        $expectedFilePaths->add($shopwarePath . 'messages.es-ES.base.json');
+        $expectedFilePaths->add($shopwarePath . 'storefront.json');
+        $expectedFilePaths->add($pluginPath . 'storefront.json');
+        $expectedFilePaths->add($pluginPath . 'administration.json');
+
+        static::assertSame($expectedFilePaths->all(), $writtenFilePaths->all());
     }
 
     public function testLoadCreatesLanguageAndSnippetSet(): void
@@ -150,19 +151,26 @@ class TranslationLoaderTest extends TestCase
 
     public function testTranslationDirectoryIsCreatedIfNotExists(): void
     {
-        $path = realpath(TranslationLoader::TRANSLATION_DESTINATION);
-        $expectedPaths = [
-            $path . '/es-ES/Platform/',
-            $path . '/es-ES/Plugins/SwagPublisher/',
-        ];
+        $createdDirectoryPaths = new SnippetPaths();
 
         $this->filesystem->method('exists')->willReturn(false);
-        $this->filesystem->method('mkdir')->willReturnCallback(function (string $path) use ($expectedPaths): void {
-            static::assertTrue(\in_array($path, $expectedPaths, true));
-        });
+        $this->filesystem
+            ->method('mkdir')
+            ->willReturnCallback(
+                function (string $path) use ($createdDirectoryPaths): void {
+                    $createdDirectoryPaths->add($path);
+                }
+            );
 
         $loader = $this->getTranslationLoader();
         $loader->load('es-ES', $this->context);
+
+        $path = realpath(TranslationLoader::TRANSLATION_DESTINATION);
+        $expectedDirectoryPaths = new SnippetPaths();
+        $expectedDirectoryPaths->add($path . '/es-ES/Platform/');
+        $expectedDirectoryPaths->add($path . '/es-ES/Plugins/SwagPublisher/');
+
+        static::assertEquals($expectedDirectoryPaths->all(), $createdDirectoryPaths->all());
     }
 
     private function getTranslationLoader(): TranslationLoader

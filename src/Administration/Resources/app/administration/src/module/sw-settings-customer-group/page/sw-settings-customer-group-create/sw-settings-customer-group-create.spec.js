@@ -89,6 +89,7 @@ async function createWrapper() {
                     'sw-highlight-text': true,
                     'sw-skeleton': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'router-link': true,
                     'sw-context-menu-item': true,
                     'sw-notification-center-item': true,

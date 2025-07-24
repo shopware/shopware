@@ -184,7 +184,7 @@
         "league/construct-finder": "^1.1",
         "league/flysystem-async-aws-s3": "^3.29.0",
         "league/flysystem-google-cloud-storage": "^3.10.3",
-        "nikic/php-parser": "^4.16.0",
+        "nikic/php-parser": "^5.5.0",
         "opis/json-schema": "^2.3.0",
         "phpbench/phpbench": "^1.2.15",
         "phpdocumentor/reflection-docblock": "^5.3.0",

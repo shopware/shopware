@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\SwitchBuyBoxVariantEvent;
 use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -39,7 +40,8 @@ class CmsController extends StorefrontController
         private readonly AbstractProductDetailRoute $productRoute,
         private readonly AbstractProductReviewLoader $productReviewLoader,
         private readonly AbstractFindProductVariantRoute $findVariantRoute,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemConfigService $systemConfigService
     ) {
     }
 
@@ -176,7 +178,11 @@ class CmsController extends StorefrontController
         $product = $result->getProduct();
         $configurator = $result->getConfigurator();
 
-        $reviews = $this->productReviewLoader->load($request, $context, $product->getId(), $product->getParentId());
+        $reviewTotal = 0;
+        if ($this->systemConfigService->getBool('core.listing.showReview')) {
+            $reviews = $this->productReviewLoader->load($request, $context, $product->getId(), $product->getParentId());
+            $reviewTotal = $reviews->getTotal();
+        }
 
         $event = new SwitchBuyBoxVariantEvent($elementId, $product, $configurator, $request, $context);
         $this->eventDispatcher->dispatch($event);
@@ -184,7 +190,7 @@ class CmsController extends StorefrontController
         $response = $this->renderStorefront('@Storefront/storefront/component/buy-widget/buy-widget.html.twig', [
             'product' => $product,
             'configuratorSettings' => $configurator,
-            'totalReviews' => $reviews->getTotal(),
+            'totalReviews' => $reviewTotal,
             'elementId' => $elementId,
         ]);
         $response->headers->set('x-robots-tag', 'noindex');

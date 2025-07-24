@@ -213,22 +213,4 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
             }
         }
     }
-
-    .sw-page__sidebar-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: var(--border-radius-button);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        transition: background-color 0.2s ease-in-out;
-
-        &:hover {
-            background: var(--color-interaction-secondary-hover);
-        }
-
-        &-active {
-            background: var(--color-interaction-secondary-hover);
-        }
-    }
 }

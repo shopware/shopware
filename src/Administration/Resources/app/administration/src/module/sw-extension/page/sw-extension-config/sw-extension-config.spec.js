@@ -35,6 +35,7 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
                     'sw-form-field-renderer': true,
                     'sw-inherit-wrapper': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-ai-copilot-badge': true,
                 },
                 provide: {

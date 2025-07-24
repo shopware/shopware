@@ -1,5 +1,5 @@
-import { test } from '@fixtures/AcceptanceTest';
-import { VisualTestHelpers } from '@shopware-ag/acceptance-test-suite';
+import { test, expect } from '@fixtures/AcceptanceTest';
+import { setViewport, hideElements, replaceElements } from '@shopware-ag/acceptance-test-suite';
 test('Visual: Administration menu', { tag: '@Visual' }, async ({
 ShopAdmin,
 AdminDashboard,
@@ -15,17 +15,15 @@ AdminDashboard,
         await AdminDashboard.adminMenuExtension.click();
         await AdminDashboard.adminMenuUserChevron.click();
 
-        await VisualTestHelpers.setViewport(AdminDashboard.page, {
-            //waitForSelector: AdminDashboard.statisticsChart,
-            waitForSelector: AdminDashboard.page.locator('.sw-dashboard-statistics__statistics-sum'),
-            additionalHeight: -850,
+        await setViewport(AdminDashboard.page, {
+            contentHeight: 1796,
         });
-        await VisualTestHelpers.hideElements(AdminDashboard.page, [
+        await hideElements(AdminDashboard.page, [
             AdminDashboard.adminMenuUserIcon,
         ]);
-        await VisualTestHelpers.replaceElements(AdminDashboard.page, [
+        await replaceElements(AdminDashboard.page, [
             AdminDashboard.adminMenuUserName,
         ]);
-        await ShopAdmin.expects(AdminDashboard.adminMenuView).toHaveScreenshot('AdminMenu-Expanded.png');
+        await expect(AdminDashboard.adminMenuView).toHaveScreenshot('AdminMenu-Expanded.png');
     });
 });

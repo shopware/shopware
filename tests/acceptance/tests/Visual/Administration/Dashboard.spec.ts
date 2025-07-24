@@ -1,5 +1,5 @@
-import { test } from '@fixtures/AcceptanceTest';
-import { VisualTestHelpers } from '@shopware-ag/acceptance-test-suite';
+import { test, expect } from '@fixtures/AcceptanceTest';
+import { replaceElements, hideElements, setViewport } from '@shopware-ag/acceptance-test-suite';
 
 test('Administration dashboard', { tag: '@Visual' }, async ({
     ShopAdmin,
@@ -7,17 +7,17 @@ test('Administration dashboard', { tag: '@Visual' }, async ({
  }) => {
     await test.step('Creates a screenshot of the Administration dashboard.', async () => {
         await ShopAdmin.goesTo(AdminDashboard.url());
-        await VisualTestHelpers.setViewport(AdminDashboard.page, {
-            waitForSelector: AdminDashboard.statisticsChart,
+        await setViewport(AdminDashboard.page, {
+            contentHeight: 2646,
         });
-        await VisualTestHelpers.replaceElements(AdminDashboard.page, [
+        await replaceElements(AdminDashboard.page, [
             AdminDashboard.welcomeHeadline,
             AdminDashboard.welcomeMessage,
             AdminDashboard.statisticsDateRange,
         ]);
-        await VisualTestHelpers.hideElements(AdminDashboard.page, [
+        await hideElements(AdminDashboard.page, [
             AdminDashboard.statisticsChart,
         ]);
-        await ShopAdmin.expects(AdminDashboard.contentView).toHaveScreenshot('Dashboard.png');
+        await expect(AdminDashboard.contentView).toHaveScreenshot('Dashboard.png');
     });
 });

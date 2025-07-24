@@ -58,6 +58,16 @@ describe('WishlistLocalStoragePlugin tests', () => {
         expect(wishlistStoragePlugin.getCurrentCounter()).toEqual(0);
         expect(Storage.getItem(key)).toBeFalsy();
     });
+
+    test('LocalWishlistStoragePlugin clear wishlist storage on guest logout', () => {
+        const key = wishlistStoragePlugin._getStorageKey();
+
+        wishlistStoragePlugin.add('PRODUCT_001');
+
+        guestLogoutBtn.$emitter.publish('guest-logout');
+
+        expect(Storage.getItem(key)).toBeFalsy();
+    });
 });
 
 

@@ -33,7 +33,7 @@ class Migration1752219159AddLanguageActive extends MigrationStep
                 <<<'SQL'
                     UPDATE `language`
                     SET `active` = 1
-                    WHERE 1;
+                    WHERE `active` != 1;
                 SQL
             );
 

@@ -62,7 +62,7 @@ class Migration1752219159AddLanguageActiveTest extends TestCase
         foreach ($tryStatements as $statement) {
             try {
                 $this->connection->executeStatement($statement);
-            } catch (\Exception) {
+            } catch (\Throwable) {
                 // Column or table already does not exist, ignore
             }
         }
@@ -85,7 +85,7 @@ class Migration1752219159AddLanguageActiveTest extends TestCase
         $this->connection->executeStatement(<<<'SQL'
             UPDATE `language`
             SET `active` = 0
-            WHERE 1
+            WHERE `active` != 0
             LIMIT 1
         SQL);
 

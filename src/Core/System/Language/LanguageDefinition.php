@@ -103,7 +103,7 @@ class LanguageDefinition extends EntityDefinition
      */
     public function getDefaults(): array
     {
-        return ['active' => 1];
+        return ['active' => true];
     }
 
     public function since(): ?string

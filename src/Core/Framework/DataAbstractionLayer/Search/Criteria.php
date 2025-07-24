@@ -292,15 +292,20 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * Add for each part of the provided path an association
+     * Add for each part of the provided path an association. If a callback is provided, it will be executed
+     * with the final association.
      *
-     * e.g
+     * Example:
+     * $criteria->addAssociation('categories.media.thumbnails');
      *
-     * $criteria->addAssociation('categories.media.thumbnails')
+     * Or with callback:
+     * $criteria->addAssociation('categories.media.thumbnails', function (Criteria $thumbnailCriteria) {
+     *     $thumbnailCriteria->addFilter(...);
+     * });
      *
      * @throws InconsistentCriteriaIdsException
      */
-    public function addAssociation(string $path): self
+    public function addAssociation(string $path, callable $callback = null): self
     {
         $parts = explode('.', $path);
 
@@ -311,6 +316,10 @@ class Criteria extends Struct implements \Stringable
             }
 
             $criteria = $criteria->getAssociation($part);
+        }
+
+        if ($callback !== null) {
+            $callback($this->getAssociation($path));
         }
 
         return $this;

@@ -77,7 +77,7 @@
     "searchButton": "Search",
     "searchPlaceholder": "Enter search term...",
     "searchAllResults": "Show all search results",
-    "searchResults": "{1} 1 Result|]1,Inf[ %count% Results",
+    "searchResults": "{1} 1 Result|[0,Inf[ %count% Results",
     "searchDropdownTitle": "The dropdown search",
     "searchCloseButton": "Close the dropdown search",
     "supportInfo": "<strong>Questions regarding your order?</strong><br /><strong><a href=\"tel:+4912345-123456789\">12345-123456789</a></strong> <small>Daily from 7:30 am to 10:00 pm</small>",
@@ -422,7 +422,7 @@
     "companyVatPlaceholder": "VAT Reg.No."
   },
   "checkout": {
-    "itemCounter": "{1} 1 item|]1,Inf[ %count% items",
+    "itemCounter": "{1} 1 item|[0,Inf[ %count% items",
     "addressHeader": "Shipping information",
     "addressLoginToggle": "You already have an account? Click here to login.",
     "addressRegisterCardTitle": "Your personal details",
@@ -433,7 +433,7 @@
     "cartMetaTitle": "Shopping cart",
     "cartHeader": "Shopping cart",
     "cartUpdateSuccess": "Shopping cart updated.",
-    "cartScreenReaderUpdate": "Shopping cart contains one item. The cart total value is %total%.|Shopping cart contains %count% items. The cart total value is %total%.",
+    "cartScreenReaderUpdate": "{1}Shopping cart contains one item. The cart total value is %total%.|[0,Inf[Shopping cart contains %count% items. The cart total value is %total%.",
     "continueShopping": "Continue shopping",
     "emptyCart": "Your shopping cart is empty.",
     "proceedToCart": "Display shopping cart",
@@ -512,7 +512,7 @@
     "finishChangePayment": "Change payment method",
     "finishPaymentFailed": "Unfortunately, the payment process went wrong. Please change your payment method to finish your order. <a href=\"%editOrderUrl%\">Change payment method</a>",
     "codeAddedSuccessful": "Promo code added successfully.",
-    "addToCartSuccess": "{1} 1 product added to your shopping cart.|]1,Inf[ %count% products added to your shopping cart.",
+    "addToCartSuccess": "{1} 1 product added to your shopping cart.|[0,Inf[ %count% products added to your shopping cart.",
     "shippingCosts": "Open shipping details",
     "shippingCountry": "Shipping country",
     "paymentMethod": "Payment method",
@@ -640,7 +640,7 @@
     "success": "We have received your contact request and will process it as soon as possible."
   },
   "search": {
-    "headline": "{0} 0 products found for \"%searchTerm%\" | {1} One product found for \"%searchTerm%\" | ]1,Inf[ %count% products found for \"%searchTerm%\"",
+    "headline": "{0} 0 products found for \"%searchTerm%\" | {1} One product found for \"%searchTerm%\" | [0,Inf[ %count% products found for \"%searchTerm%\"",
     "metaTitle": "Search results"
   },
   "detail": {
@@ -658,13 +658,13 @@
     "dataColumnPrice": "Unit price",
     "dataColumnReferencePrice": "Base price",
     "deliveryTimeAvailable": "Available, delivery time: %name%",
-    "deliveryTimeRestock": "{1} Available in 1 day, delivery time %name%|]1,Inf[ Available in %restockTime% days, delivery time %name%",
+    "deliveryTimeRestock": "{1} Available in 1 day, delivery time %name%|[0,Inf[ Available in %restockTime% days, delivery time %name%",
     "soldOut": "No longer available",
     "tabsReview": "Reviews",
     "reviewTitle": "%count% of %total% reviews",
     "reviewVerifiedItemTooltip": "Verified buyer",
     "reviewCommentLabel": "Our feedback: ",
-    "reviewLinkText": "{1} Review|]1,Inf[ Reviews",
+    "reviewLinkText": "{1} Review|[0,Inf[ Reviews",
     "reviewFormRatingLabel": "Your rating",
     "reviewFormTitleLabel": "Title",
     "reviewFormTitlePlaceholder": "Enter title...",
@@ -691,7 +691,7 @@
     "reviewSortLabel": "Sort by",
     "reviewSortTopRatedLabel": "Top rated",
     "reviewSortNewLabel": "Most recent",
-    "reviewCountAfter": "{1} review|]1,Inf[ reviews",
+    "reviewCountAfter": "{1} review|[0,Inf[ reviews",
     "reviewCountBefore": "of",
     "reviewListEmpty": "No reviews found. Share your insights with others.",
     "reviewLoginHeader": "Login",
@@ -758,7 +758,7 @@
     "wishlistMergeHint": "Your wishlist might contain products that have been added and saved during a previous visit.",
     "wishlistEmptyHeader": "Your wishlist is empty",
     "wishlistEmptyDescription": "Keep an eye on products you like by adding them to your wishlist.",
-    "deliveryTimeRestock": "{1} Available in 1 day, delivery time %name%|]1,Inf[ Available in %restockTime% days, delivery time %name%",
+    "deliveryTimeRestock": "{1} Available in 1 day, delivery time %name%|[0,Inf[ Available in %restockTime% days, delivery time %name%",
     "deliveryShipping": "This product will be released on",
     "remove": "Remove %product_name% from wishlist"
   },

@@ -267,7 +267,8 @@ abstract class AbstractAsset
 
         if (str_contains($name, '.')) {
             // SHOPWARE FIX -- Start
-            // This is the fix, just ignore if the name has more then one point in it
+            // This is the fix, just ignore if the name has more then one point in it, original line:
+            // $parts = explode('.', $name);
             $parts = explode('.', $name, 2);
             // SHOPWARE FIX -- End
             $this->_namespace = $parts[0];

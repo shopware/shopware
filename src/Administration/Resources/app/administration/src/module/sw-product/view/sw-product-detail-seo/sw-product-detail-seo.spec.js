@@ -77,6 +77,14 @@ const seoUrlRepositoryMock = {
     },
 };
 
+const productRepositoryMock = {
+    search: () => Promise.resolve(createEntityCollection([])),
+};
+
+const mainCategoryRepositoryMock = {
+    create: () => ({}),
+};
+
 const repositoryMockFactory = (entity) => {
     if (entity === 'sales_channel') {
         return salesChannelRepositoryMock;
@@ -84,6 +92,14 @@ const repositoryMockFactory = (entity) => {
 
     if (entity === 'seo_url') {
         return seoUrlRepositoryMock;
+    }
+
+    if (entity === 'product') {
+        return productRepositoryMock;
+    }
+
+    if (entity === 'main_category') {
+        return mainCategoryRepositoryMock;
     }
 
     return false;
@@ -429,5 +445,44 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         expect(inheritanceSwitch).toBeTruthy();
 
         expect(inheritanceSwitch.classes()).toContain(classes.notInherited);
+    });
+
+    it('should create new main category when changing the value', async () => {
+        const wrapper = await createWrapper(['product.editor']);
+
+        const productDetailStore = Shopware.Store.get('swProductDetail');
+        productDetailStore.product = {
+            id: 'productId1',
+            mainCategories: createEntityCollection([
+                {
+                    salesChannelId: 'salesChannelId1',
+                    categoryId: 'categoryId1',
+                },
+            ]),
+        };
+
+        productDetailStore.parentProduct = {
+            id: 'productId2',
+            mainCategories: createEntityCollection([
+                {
+                    salesChannelId: 'salesChannelId1',
+                    categoryId: 'categoryId1',
+                },
+            ]),
+        };
+
+        await wrapper.vm.$nextTick();
+        wrapper.vm.currentSalesChannelId = 'salesChannelId1';
+
+        expect(productDetailStore.product.mainCategories).toHaveLength(1);
+
+        wrapper.vm.productMainCategory = {
+            salesChannelId: 'salesChannelId1',
+            categoryId: 'categoryId2',
+        };
+        await wrapper.vm.$nextTick();
+
+        expect(productDetailStore.product.mainCategories).toHaveLength(1);
+        expect(productDetailStore.product.mainCategories[0].categoryId).toBe('categoryId2');
     });
 });

@@ -1,24 +1,23 @@
-import { test, expect } from '@fixtures/AcceptanceTest';
+import { test } from '@fixtures/AcceptanceTest';
+import { VisualTestHelpers } from '@shopware-ag/acceptance-test-suite';
 
 test('Administration dashboard', { tag: '@Visual' }, async ({
     ShopAdmin,
     AdminDashboard,
-    ReplaceElementsForScreenshot,
-    HideElementsForScreenshot,
  }) => {
     await test.step('Creates a screenshot of the Administration dashboard.', async () => {
         await ShopAdmin.goesTo(AdminDashboard.url());
-        const viewportSize = await AdminDashboard.getViewportDimensions({
-            requestURL: 'api/search/sales-channel',
+        await VisualTestHelpers.setViewport(AdminDashboard.page, {
+            waitForSelector: AdminDashboard.statisticsChart,
         });
-        await AdminDashboard.page.setViewportSize({ width: viewportSize.contentWidth, height: viewportSize.totalHeight });
-        await ReplaceElementsForScreenshot(AdminDashboard.page, [
-            '.sw-dashboard-index__welcome-text',
-            '.mt-card__subtitle',
+        await VisualTestHelpers.replaceElements(AdminDashboard.page, [
+            AdminDashboard.welcomeHeadline,
+            AdminDashboard.welcomeMessage,
+            AdminDashboard.statisticsDateRange,
         ]);
-        await HideElementsForScreenshot(AdminDashboard.page, [
-            '.apexcharts-xaxis-texts-g',
+        await VisualTestHelpers.hideElements(AdminDashboard.page, [
+            AdminDashboard.statisticsChart,
         ]);
-        await ShopAdmin.expects(AdminDashboard.page.locator('.sw-desktop__content')).toHaveScreenshot('Dashboard.png');
+        await ShopAdmin.expects(AdminDashboard.contentView).toHaveScreenshot('Dashboard.png');
     });
 });

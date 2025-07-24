@@ -59,7 +59,7 @@ class SyncComposerVersionCommand extends Command
             $io->warning('Running in dry-run mode: no files will be changed.');
         }
 
-        $changed = false;
+        $changed = [];
         $isInRootButNotInBundle = [];
         $isInBundleButNotInRoot = [];
 
@@ -73,7 +73,7 @@ class SyncComposerVersionCommand extends Command
                     if (isset($bundleJson[$field][$package])) {
                         if ($bundleJson[$field][$package] !== $version) {
                             $bundleJson[$field][$package] = $version;
-                            $changed = true;
+                            $changed[$bundleName] = true;
                         }
                     } elseif ($field === 'require') {
                         // Dev dependencies should not be synced from root to bundles
@@ -92,7 +92,7 @@ class SyncComposerVersionCommand extends Command
                 }
             }
 
-            if (!$changed) {
+            if (!($changed[$bundleName] ?? false)) {
                 continue;
             }
 
@@ -133,7 +133,7 @@ class SyncComposerVersionCommand extends Command
             }
         }
 
-        if ($changed) {
+        if ($changed !== []) {
             if ($isDryMode) {
                 $io->error("Composer dependencies of bundles are not in sync with the root composer.json file.\nPlease run the `sync:composer:version` command without the --dry-run option to sync them.");
 

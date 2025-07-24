@@ -152,7 +152,7 @@
 
         <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher"
                  decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"
-                 decoration-priority="1000">
+                 decoration-priority="1000" public="true">
 
             <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher.inner"/>
@@ -166,7 +166,7 @@
 
         <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator"
                  decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"
-                 decoration-priority="1000">
+                 decoration-priority="1000" public="true">
 
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="OpenSearch\Client"/>

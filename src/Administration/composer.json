@@ -32,9 +32,9 @@
         "doctrine/dbal": "^4.2",
         "pentatrion/vite-bundle": "^8.1",
         "shopware/core": "*",
-        "symfony/framework-bundle": "~7.2.0",
-        "symfony/http-foundation": "~7.2.0",
-        "symfony/mime": "~7.2.0",
-        "symfony/routing": "~7.2.0"
+        "symfony/framework-bundle": "~7.3.0",
+        "symfony/http-foundation": "~7.3.0",
+        "symfony/mime": "~7.3.0",
+        "symfony/routing": "~7.3.0"
     }
 }

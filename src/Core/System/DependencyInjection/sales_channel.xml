@@ -95,7 +95,7 @@
 
         <service id="Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory"
                  decorates="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"
-                 decoration-priority="-1000">
+                 decoration-priority="-1000" public="true">
             <argument type="service" id=".inner"/>
             <argument type="service" id="cache.object"/>
         </service>

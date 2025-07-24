@@ -82,6 +82,8 @@ class SearchConfigLoaderTest extends TestCase
             'configKeyedByLanguageId' => [
                 Defaults::LANGUAGE_SYSTEM => [[
                     'and_logic' => 'and',
+                    'excluded_terms' => json_encode(['term1', 'term2']),
+                    'min_search_length' => 5,
                     'field' => 'name',
                     'tokenize' => 1,
                     'ranking' => 2,
@@ -90,6 +92,8 @@ class SearchConfigLoaderTest extends TestCase
             'expectedResult' => [
                 [
                     'and_logic' => 'and',
+                    'excluded_terms' => ['term1', 'term2'],
+                    'min_search_length' => 5,
                     'field' => 'name',
                     'tokenize' => 1,
                     'ranking' => 2,
@@ -104,9 +108,13 @@ class SearchConfigLoaderTest extends TestCase
                     'field' => 'name',
                     'tokenize' => 1,
                     'ranking' => 100,
+                    'excluded_terms' => json_encode(['term1', 'term2']),
+                    'min_search_length' => 5,
                 ]],
                 Uuid::randomHex() => [[
                     'and_logic' => 'and',
+                    'excluded_terms' => json_encode(['term3', 'term4']),
+                    'min_search_length' => 15,
                     'field' => 'name',
                     'tokenize' => 0,
                     'ranking' => 50,
@@ -115,6 +123,8 @@ class SearchConfigLoaderTest extends TestCase
             'expectedResult' => [
                 [
                     'and_logic' => 'and',
+                    'excluded_terms' => ['term1', 'term2'],
+                    'min_search_length' => 5,
                     'field' => 'name',
                     'tokenize' => 1,
                     'ranking' => 100,

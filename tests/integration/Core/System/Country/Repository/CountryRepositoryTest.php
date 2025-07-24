@@ -49,7 +49,7 @@ class CountryRepositoryTest extends TestCase
 
         $context = Context::createDefaultContext();
         $builder = static::getContainer()->get(EntityScoreQueryBuilder::class);
-        $pattern = static::getContainer()->get(SearchTermInterpreter::class)->interpret('match');
+        $pattern = static::getContainer()->get(SearchTermInterpreter::class)->interpret('match', Context::createDefaultContext());
         $queries = $builder->buildScoreQueries(
             $pattern,
             $this->repository->getDefinition(),

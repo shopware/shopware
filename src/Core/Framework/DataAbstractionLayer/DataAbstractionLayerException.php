@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
@@ -871,5 +872,10 @@ class DataAbstractionLayerException extends HttpException
             self::FRAMEWORK_DEPRECATED_DEFINITION_CALL,
             'Method getDefinitionClass is deprecated. Use getEntityName instead.'
         );
+    }
+
+    public static function invalidSortingDirection(string $direction): InvalidSortingDirectionException
+    {
+        return new InvalidSortingDirectionException($direction);
     }
 }

@@ -31,7 +31,7 @@
             <argument type="tagged_locator" tag="shopware.cache.invalidator.storage" index-by="storage" />
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage" lazy="true">
+        <service id="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage">
             <factory service="shopware.cache.invalidator.storage.locator" method="get"/>
 
             <argument>%shopware.cache.invalidation.delay_options.storage%</argument>

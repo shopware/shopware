@@ -42,14 +42,15 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
     {
         $originalTerm = mb_strtolower((string) $criteria->getTerm());
 
-        $tokens = $this->tokenizer->tokenize($originalTerm);
+        $searchConfig = $this->configLoader->load($context);
+
+        /** @phpstan-ignore arguments.count (This ignore should be removed when the deprecated method signature is updated) */
+        $tokens = $this->tokenizer->tokenize($originalTerm, $searchConfig[0]['min_search_length'] ?? null);
         $tokens = $this->tokenFilter->filter($tokens, $context);
 
         if (empty(array_filter($tokens))) {
             throw ElasticsearchException::emptyQuery();
         }
-
-        $searchConfig = $this->configLoader->load($context);
 
         $configs = array_map(function (array $item): SearchFieldConfig {
             return new SearchFieldConfig(

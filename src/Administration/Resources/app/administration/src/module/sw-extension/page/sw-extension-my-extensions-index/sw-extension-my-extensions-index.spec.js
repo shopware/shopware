@@ -24,6 +24,7 @@ async function createWrapper() {
                     'sw-meteor-navigation': true,
                     'sw-tabs': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                 },
                 mocks: {
                     $route: {

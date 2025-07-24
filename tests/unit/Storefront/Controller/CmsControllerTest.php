@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Controller\CmsController;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -60,7 +61,10 @@ class CmsControllerTest extends TestCase
             $this->createMock(ProductDetailRoute::class),
             $this->createMock(ProductReviewLoader::class),
             $this->createMock(FindProductVariantRoute::class),
-            $eventDispatcherMock
+            $eventDispatcherMock,
+            new StaticSystemConfigService([
+                'core.listing.showReview' => true,
+            ]),
         );
     }
 

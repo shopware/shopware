@@ -31,7 +31,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('framework')]
 class DumpClassSchemaCommand extends Command
 {
-    protected string $schemaPath;
+    /**
+     * @var string
+     *
+     * @deprecated tag:v6.7.0 - Will be natively typed and private
+     */
+    protected $schemaPath;
 
     /**
      * @internal

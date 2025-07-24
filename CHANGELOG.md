@@ -3,6 +3,9 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 
 ## 6.7.1.0
       
+*  [#11157 - Scope RenamePaidTransitionActions migration to order transaction state transitions](./changelog/release-6-7-1-1/2025-07-15-scope-renamepaidtransitionactions-migration-to-ordertransactions.md)
+*  [#11386 - Fix CMS element loading when reviews are not activated](./changelog/release-6-7-1-1/2025-07-21-fix-reviews-not-activated.md)
+*  [#8724 - Added locking to cart mutating routes](./changelog/release-6-7-1-1/2025-07-15-added-locking-to-cart-mutating-routes.md)
 *  [Improve CMS slot selection and prevent misclicks](./changelog/release-6-7-1-0/2025-07-09-improve-cms-slot-selection.md) @marvn-r3
 *  [#10030 - Align error styles of form components](./changelog/release-6-7-1-0/2025-06-30-align-error-styles-of-form-components.md)
 *  [#10051 - Added namespaces option for dal:validate command](./changelog/release-6-7-1-0/2025-06-02-added-namespaces-parameter-for-dal-validate.md) @OliverSkroblin

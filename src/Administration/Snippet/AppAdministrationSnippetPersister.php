@@ -12,22 +12,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleCollection;
-use Shopware\Core\System\Locale\LocaleException;
 
 /**
  * @internal
  */
 #[Package('discovery')]
-class AppAdministrationSnippetPersister
+readonly class AppAdministrationSnippetPersister
 {
     /**
      * @param EntityRepository<AppAdministrationSnippetCollection> $appAdministrationSnippetRepository
      * @param EntityRepository<LocaleCollection> $localeRepository
      */
     public function __construct(
-        private readonly EntityRepository $appAdministrationSnippetRepository,
-        private readonly EntityRepository $localeRepository,
-        private readonly CacheInvalidator $cacheInvalidator
+        private EntityRepository $appAdministrationSnippetRepository,
+        private EntityRepository $localeRepository,
+        private CacheInvalidator $cacheInvalidator
     ) {
     }
 
@@ -37,7 +36,7 @@ class AppAdministrationSnippetPersister
     public function updateSnippets(AppEntity $app, array $snippets, Context $context): void
     {
         $newOrUpdatedSnippets = [];
-        $existingSnippets = $this->getExistingSnippets($app->getId(), $context);
+        $existingAppSnippets = $this->getExistingAppSnippets($app->getId(), $context);
         $coreSnippets = $this->getCoreAdministrationSnippets();
 
         $firstLevelSnippetKeys = [];
@@ -55,22 +54,20 @@ class AppAdministrationSnippetPersister
             throw SnippetException::defaultLanguageNotGiven('en-GB');
         }
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('code', array_keys($snippets)));
-        $localeIds = $this->localeRepository->search($criteria, $context)->getEntities()->getElements();
-        $localeIds = array_column($localeIds, 'id', 'code');
+        $localeCodeToIdMapping = $this->mapLocaleCodesToIds(array_keys($snippets), $context);
 
         $existingLocales = [];
-        foreach ($existingSnippets as $snippetEntity) {
+        foreach ($existingAppSnippets as $snippetEntity) {
             $existingLocales[$snippetEntity->getLocaleId()] = $snippetEntity->getId();
         }
 
-        foreach ($snippets as $filename => $value) {
-            if (!\array_key_exists($filename, $localeIds)) {
-                throw LocaleException::localeDoesNotExists($filename);
+        foreach ($snippets as $snippetLocale => $snippet) {
+            if (!\array_key_exists($snippetLocale, $localeCodeToIdMapping)) {
+                // The locale for the given snippet does not exist.
+                continue;
             }
 
-            $localeId = $localeIds[$filename];
+            $localeId = $localeCodeToIdMapping[$snippetLocale];
             $id = Uuid::randomHex();
 
             if (\array_key_exists($localeId, $existingLocales)) {
@@ -80,9 +77,9 @@ class AppAdministrationSnippetPersister
 
             $newOrUpdatedSnippets[] = [
                 'id' => $id,
-                'value' => $value,
+                'value' => $snippet,
                 'appId' => $app->getId(),
-                'localeId' => $localeIds[$filename],
+                'localeId' => $localeCodeToIdMapping[$snippetLocale],
             ];
         }
 
@@ -95,7 +92,7 @@ class AppAdministrationSnippetPersister
         $this->cacheInvalidator->invalidate([CachedSnippetFinder::CACHE_TAG], true);
     }
 
-    private function getExistingSnippets(string $appId, Context $context): AppAdministrationSnippetCollection
+    private function getExistingAppSnippets(string $appId, Context $context): AppAdministrationSnippetCollection
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
@@ -129,5 +126,21 @@ class AppAdministrationSnippetPersister
         }
 
         $this->appAdministrationSnippetRepository->delete($data, $context);
+    }
+
+    /**
+     * @param list<string> $localeCodes
+     *
+     * @return array<string, string>
+     */
+    private function mapLocaleCodesToIds(array $localeCodes, Context $context): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('code', $localeCodes));
+        $criteria->addFields(['id', 'code']);
+
+        $locales = $this->localeRepository->search($criteria, $context)->getEntities()->getElements();
+
+        return array_column($locales, 'id', 'code');
     }
 }

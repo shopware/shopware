@@ -1,17 +1,15 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
-import path from 'path';
+import { setViewport } from '@shopware-ag/acceptance-test-suite';
 test('Visual: Administration settings page', { tag: '@Visual' }, async ({
     ShopAdmin,
     AdminSettingsListing,
-    GetScreenshotDimensions,
 }) => {
 
     await test.step('Creates a screenshot of the settings overview page.', async () => {
         await ShopAdmin.goesTo(AdminSettingsListing.url());
-        await GetScreenshotDimensions(AdminSettingsListing.page, {
+        await setViewport(AdminSettingsListing.page, {
           responseURL: 'api/search/sales-channel',
         });
-        await expect(AdminSettingsListing.page.locator('.sw-desktop__content'))
-            .toHaveScreenshot('Settings-Overview.png');
+        await expect(AdminSettingsListing.contentView).toHaveScreenshot('Settings-Overview.png');
     });
 });

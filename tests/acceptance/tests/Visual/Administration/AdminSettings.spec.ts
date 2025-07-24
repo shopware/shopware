@@ -1,5 +1,6 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 import { setViewport } from '@shopware-ag/acceptance-test-suite';
+
 test('Visual: Administration settings page', { tag: '@Visual' }, async ({
     ShopAdmin,
     AdminSettingsListing,

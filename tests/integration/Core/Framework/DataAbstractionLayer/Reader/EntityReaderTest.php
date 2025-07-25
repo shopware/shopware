@@ -429,6 +429,7 @@ class EntityReaderTest extends TestCase
                 'name' => 'en_sub',
                 'parentId' => Defaults::LANGUAGE_SYSTEM,
                 'localeId' => $this->getLocaleIdOfSystemLanguage(),
+                'active' => true,
             ],
         ], $context);
 
@@ -479,6 +480,7 @@ class EntityReaderTest extends TestCase
                 'name' => 'en_sub',
                 'parentId' => Defaults::LANGUAGE_SYSTEM,
                 'localeId' => $this->getLocaleIdOfSystemLanguage(),
+                'active' => true,
             ],
         ], $context);
 

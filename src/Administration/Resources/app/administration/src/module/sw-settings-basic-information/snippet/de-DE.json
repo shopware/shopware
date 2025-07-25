@@ -25,7 +25,7 @@
         "googleReCaptchaV3DescriptionThresholdScore": "reCAPTCHA v3 vergibt für jede Nutzeranfrage eine Punktzahl, ohne den Nutzer zu behelligen. Die Punktzahl errechnet sich aus den Interaktionen mit Deiner Seite und versetzt Dich in die Lage, eine für Deine Seite angemessene Aktion auszuführen. Die Grenzwertpunktzahl kann Werte zwischen 0.0 und 1.0 annehmen."
       },
       "basicCaptchaNoticeTitle": "Hinweis",
-      "basicCaptchaNotice": "Die Basic Captcha Lösung wird nicht als barrierefrei betrachtet. Wir empfehlen, eine Lösung zu verwenden, die keine Benutzerinteraktion benötigt."
+      "basicCaptchaNotice": "Die Basic-Captcha-Lösung wird nicht als barrierefrei betrachtet. Wir empfehlen, eine Lösung zu verwenden, die keine Benutzerinteraktion benötigt."
     }
   }
 }

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundExcep
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Elasticsearch\Product\SearchConfigLoader;
 
 #[Package('inventory')]
 class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterface
@@ -21,7 +22,8 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
      */
     public function __construct(
         private readonly TokenizerInterface $tokenizer,
-        private readonly AbstractTokenFilter $tokenFilter
+        private readonly AbstractTokenFilter $tokenFilter,
+        private readonly SearchConfigLoader $configLoader,
     ) {
     }
 
@@ -73,8 +75,12 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
      */
     private function tokenize(array $values, Context $context): array
     {
+        $config = $this->configLoader->load($context);
+
+        /** @phpstan-ignore arguments.count (This ignore should be removed when the deprecated method signature is updated) */
         $values = $this->tokenizer->tokenize(
-            implode(' ', $values)
+            implode(' ', $values),
+            $config[0]['min_search_length'] ?? null
         );
 
         return $this->tokenFilter->filter($values, $context);

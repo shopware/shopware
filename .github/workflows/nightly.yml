@@ -71,7 +71,8 @@ jobs:
     secrets: inherit
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
 
-  nightly-6-6-x:
+  # we need this for our LTS, because gh only runs scheduled for the default branch
+  nightly-other-branches:
     runs-on: ubuntu-24.04
     if: github.repository == 'shopware/shopware' && github.ref == 'refs/heads/trunk'
     permissions:
@@ -81,7 +82,7 @@ jobs:
       matrix:
         branch:
           - "6.6.x"
-          - "6.7.0.0"
+    name: Nightly ${{ matrix.branch }}
     steps:
       - name: Delay
         run: sleep 20m

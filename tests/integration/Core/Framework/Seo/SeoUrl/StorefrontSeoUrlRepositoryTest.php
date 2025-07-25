@@ -283,6 +283,7 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
         $languageRepo->upsert([[
             'id' => $id,
             'name' => $name,
+            'active' => true,
             'locale' => [
                 'id' => $id,
                 'code' => 'X-' . $name,

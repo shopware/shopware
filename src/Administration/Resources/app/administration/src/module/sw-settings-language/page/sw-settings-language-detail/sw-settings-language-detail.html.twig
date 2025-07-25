@@ -3,14 +3,10 @@
 
     {% block sw_settings_language_detail_header %}
     <template #smart-bar-header>
-        <h2
-            v-if="languageHasName"
-        >
+        <h2 v-if="languageHasName">
             {{ language.name }}
         </h2>
-        <h2
-            v-else
-        >
+        <h2 v-else>
             {{ $tc('sw-settings-language.detail.textHeadline') }}
         </h2>
     </template>
@@ -39,7 +35,7 @@
             variant="primary"
             @click.prevent="onSave"
         >
-            {{ $tc('sw-settings-language.detail.buttonSave') }}
+            {{ $tc('global.default.save') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -69,10 +65,10 @@
                     >
 
                         {% block sw_settings_language_detail_content_field_name %}
-
                         <mt-text-field
                             v-model="language.name"
                             name="sw-field--language-name"
+                            class="sw-settings-language-detail__name"
                             :disabled="!acl.can('language.editor') || undefined"
                             :label="$tc('sw-settings-language.detail.labelName')"
                             :placeholder="$tc('sw-settings-language.detail.placeholderName')"
@@ -82,6 +78,20 @@
                         />
                         {% endblock %}
 
+                        <mt-switch
+                            v-model="language.active"
+                            name="sw-field--language-active"
+                            class="sw-settings-language-detail__active"
+                            :disabled="isSystemDefaultLanguageId || !acl.can('language.editor') || undefined"
+                            :label="$tc('sw-settings-language.detail.labelActive')"
+                            bordered
+                        />
+                    </sw-container>
+
+                    <sw-container
+                        columns="repeat(auto-fit, minmax(250px, 1fr))"
+                        gap="0px 30px"
+                    >
                         {% block sw_settings_language_detail_content_field_localeId %}
                         <sw-entity-single-select
                             id="locales"
@@ -155,49 +165,49 @@
                                 </div>
                             </template>
                         </sw-entity-single-select>
-
-                        {% endblock %}
-
-                        {% block sw_settings_language_detail_content_field_parentId %}
-                        <sw-entity-single-select
-                            id="inherit"
-                            v-model:value="language.parentId"
-                            name="sw-field--language-parentId"
-                            class="sw-settings-language-detail__select-parent"
-                            :criteria="parentLanguageCriteria"
-                            :disabled="!acl.can('language.editor') || isSystemDefaultLanguageId || undefined"
-                            :label="$tc('sw-settings-language.detail.labelParent')"
-                            :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
-                            :help-text="inheritanceTooltipText"
-                            entity="language"
-                            show-clearable-button
-                            @update:value="onInputLanguage"
-                        >
-                            <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                                <sw-select-result
-                                    v-tooltip="{
-                                        showDelay: 300,
-                                        message: $tc('sw-settings-language.detail.textLanguageHasParent'),
-                                        disabled: !item.parentId
-                                    }"
-                                    :disabled="!!item.parentId || undefined"
-                                    :selected="isSelected(item)"
-                                    v-bind="{ item, index }"
-                                    @item-select="setValue"
-                                >
-                                    <sw-highlight-text
-                                        v-if="highlightSearchTerm"
-                                        :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                                        :search-term="searchTerm"
-                                    />
-                                    <template v-else>
-                                        {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                                    </template>
-                                </sw-select-result>
-                            </template>
-                        </sw-entity-single-select>
                         {% endblock %}
                     </sw-container>
+
+                    {% block sw_settings_language_detail_content_field_parentId %}
+                    <sw-entity-single-select
+                        id="inherit"
+                        v-model:value="language.parentId"
+                        name="sw-field--language-parentId"
+                        class="sw-settings-language-detail__select-parent"
+                        :criteria="parentLanguageCriteria"
+                        :disabled="!acl.can('language.editor') || isSystemDefaultLanguageId || undefined"
+                        :label="$tc('sw-settings-language.detail.labelParent')"
+                        :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
+                        :help-text="inheritanceTooltipText"
+                        entity="language"
+                        show-clearable-button
+                        @update:value="onInputLanguage"
+                    >
+                        <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                            <sw-select-result
+                                v-tooltip="{
+                                    showDelay: 300,
+                                    message: $tc('sw-settings-language.detail.textLanguageHasParent'),
+                                    disabled: !item.parentId
+                                }"
+                                :disabled="!!item.parentId || undefined"
+                                :selected="isSelected(item)"
+                                v-bind="{ item, index }"
+                                @item-select="setValue"
+                            >
+                                <sw-highlight-text
+                                    v-if="highlightSearchTerm"
+                                    :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                    :search-term="searchTerm"
+                                />
+                                <template v-else>
+                                    {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                </template>
+                            </sw-select-result>
+                        </template>
+                    </sw-entity-single-select>
+                    {% endblock %}
+
                     {% block sw_settings_language_detail_content_alert_change_parent %}
                     <mt-banner
                         v-if="showAlertForChangeParentLanguage"

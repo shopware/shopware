@@ -1,70 +1,59 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
+import { setViewport, hideElements, replaceElements } from '@shopware-ag/acceptance-test-suite';
 
-test('Visual: Order Detail Page', { tag: '@Visual' }, async ({ ShopAdmin, TestDataService, AdminOrderDetail, HideElementsForScreenshot }) => {
+test('Visual: Order Detail Page', { tag: '@Visual' }, async ({ 
+    ShopAdmin,
+    TestDataService,
+    AdminOrderDetail,
+    DefaultSalesChannel,
+}) => {
 
     await test.step('Creates a screenshot of the order detail page General tab.', async () => {
 
-        const product = await TestDataService.createBasicProduct({
-            name: 'Test Product',
-            productNumber: 'TEST-123',
-            description: null,
-            stock: 10,
-            price: [{
-                currencyId: (await TestDataService.getCurrency('EUR')).id,
-                gross: 100,
-                linked: false,
-                net: 84,
-            }],
-        });
-        const customer = await TestDataService.createCustomer({
-            firstName: 'John',
-            lastName: 'Doe',
-            email: 'john@doe.com',
-            customerNumber: 'CUST-123',
-            billingAddress: {
-                firstName: 'John',
-                lastName: 'Doe',
-                street: 'Test Street 1',
-                zipcode: '12345',
-                city: 'Test City',
-            },
-        });   
-        const order = await TestDataService.createOrder(
-            [{ product: product, quantity: 1 }],
-            customer
-        );
+        const product = await TestDataService.createBasicProduct();
+        const order = await TestDataService.createOrder([{ product, quantity: 1 }], DefaultSalesChannel.customer);
 
         await ShopAdmin.goesTo(AdminOrderDetail.url(order.id));
-        await AdminOrderDetail.page.setViewportSize({ width: 1440, height: 1600 }); 
+        await AdminOrderDetail.page.setViewportSize({ width: 1440, height: 1600 });
+        await ShopAdmin.expects(AdminOrderDetail.lineItemsTable).toBeVisible();
 
-        await HideElementsForScreenshot(AdminOrderDetail.page, [
-            '.sw-order-general-info__summary-sub',
+        await setViewport(AdminOrderDetail.page, {});
+
+        await replaceElements(AdminOrderDetail.page, [
+            'td.sw-data-grid__cell--label .sw-order-line-items-grid__item-label',
             '.sw-order-general-info__summary-main-header',
+            '.sw-order-general-info__summary-sub',
             '.smart-bar__header',
         ]);
 
-        await expect(AdminOrderDetail.page.locator('.sw-desktop__content')).toHaveScreenshot(); 
+        await expect(AdminOrderDetail.page.locator('.sw-desktop__content')).toHaveScreenshot('Order-Detail-General-Tab.png'); 
     });
-
 
     await test.step('Creates a screenshot of the product detail page Details tab.', async () => { 
         await AdminOrderDetail.detailsTabLink.click();
-        await ShopAdmin.expects((await AdminOrderDetail.page.waitForResponse(response=>response.url().includes('/api/search/custom-field-set'))).ok()).toBeTruthy();
-        await AdminOrderDetail.page.setViewportSize({ width: 1440, height: 2400 });
+        await ShopAdmin.expects((await AdminOrderDetail.page.waitForResponse(response=>response.url().includes('/api/search/custom-field-set'))).ok()).toBeTruthy();       
+        await setViewport(AdminOrderDetail.page, {});
 
-        await HideElementsForScreenshot(AdminOrderDetail.page,[
+        await replaceElements(AdminOrderDetail.page, [
+            'input[placeholder="Enter email address..."]',
             '.sw-order-general-info__summary-sub',
-            '.sw-single-select__selection-text',
-            '.dp__input_reg',  
+            'div.sw-field[label="Billing address"] .sw-single-select__selection-text',
+            'div.sw-field[label="Shipping address"] .sw-single-select__selection-text',
+        ]); 
+
+        await hideElements(AdminOrderDetail.page,[
+            '.dp__input_reg',
+            'input[aria-label="Email"]',
+            'div.sw-field[label="Sales channel"] .sw-entity-single-select__selection-text',
         ]);
 
-        await expect(AdminOrderDetail.page.locator('.sw-desktop__content')).toHaveScreenshot();  
+        await expect(AdminOrderDetail.page.locator('.sw-desktop__content')).toHaveScreenshot('Order-Detail-Details-Tab.png');  
     });
 
-        await test.step('Creates a screenshot of the product detail page Documents tab.', async () => { 
+    await test.step('Creates a screenshot of the product detail page Documents tab.', async () => { 
         await AdminOrderDetail.documentsTabLink.click();
         await ShopAdmin.expects((await AdminOrderDetail.page.waitForResponse(response=>response.url().includes('/api/search/document'))).ok()).toBeTruthy();
-        await AdminOrderDetail.page.setViewportSize({ width: 1440, height: 800 });
-        await expect(AdminOrderDetail.page.locator('.sw-desktop__content')).toHaveScreenshot();  
+        await setViewport(AdminOrderDetail.page, {});
+        await expect(AdminOrderDetail.page.locator('.sw-desktop__content')).toHaveScreenshot('Order-Detail-Documents-Tab.png');  
     });
 });

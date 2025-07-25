@@ -12,12 +12,11 @@ test('Visual: Order Detail Page', { tag: '@Visual' }, async ({
 
         const product = await TestDataService.createBasicProduct();
         const order = await TestDataService.createOrder([{ product, quantity: 1 }], DefaultSalesChannel.customer);
-
         await ShopAdmin.goesTo(AdminOrderDetail.url(order.id));
-        await AdminOrderDetail.page.setViewportSize({ width: 1440, height: 1600 });
-        await ShopAdmin.expects(AdminOrderDetail.lineItemsTable).toBeVisible();
 
-        await setViewport(AdminOrderDetail.page, {});
+        await setViewport(AdminOrderDetail.page, {
+            requestURL: 'api/search/user-config',
+        });
 
         await replaceElements(AdminOrderDetail.page, [
             'td.sw-data-grid__cell--label .sw-order-line-items-grid__item-label',
@@ -31,8 +30,9 @@ test('Visual: Order Detail Page', { tag: '@Visual' }, async ({
 
     await test.step('Creates a screenshot of the product detail page Details tab.', async () => { 
         await AdminOrderDetail.detailsTabLink.click();
-        await ShopAdmin.expects((await AdminOrderDetail.page.waitForResponse(response=>response.url().includes('/api/search/custom-field-set'))).ok()).toBeTruthy();       
-        await setViewport(AdminOrderDetail.page, {});
+        await setViewport(AdminOrderDetail.page, {
+            requestURL: '/api/search/custom-field-set',
+        });
 
         await replaceElements(AdminOrderDetail.page, [
             'input[placeholder="Enter email address..."]',
@@ -52,8 +52,9 @@ test('Visual: Order Detail Page', { tag: '@Visual' }, async ({
 
     await test.step('Creates a screenshot of the product detail page Documents tab.', async () => { 
         await AdminOrderDetail.documentsTabLink.click();
-        await ShopAdmin.expects((await AdminOrderDetail.page.waitForResponse(response=>response.url().includes('/api/search/document'))).ok()).toBeTruthy();
-        await setViewport(AdminOrderDetail.page, {});
+        await setViewport(AdminOrderDetail.page, {
+            requestURL: '/api/search/document',
+        });
         await expect(AdminOrderDetail.page.locator('.sw-desktop__content')).toHaveScreenshot('Order-Detail-Documents-Tab.png');  
     });
 });

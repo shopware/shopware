@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute;
@@ -509,10 +510,12 @@ class CartOrderRouteTest extends TestCase
         $this->createCustomerAndLogin();
         $response = $this->addProductToCart();
         $token = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertNotNull($token);
 
         // Manually acquire lock to simulate concurrent request
-        $lockKey = 'cart-order-route-' . $token;
-        $lock = $this->getContainer()->get('lock.factory')->createLock($lockKey, 30);
+        $cartLocker = $this->getContainer()->get(CartLocker::class);
+        $lockKey = $cartLocker->getLockKey($token);
+        $lock = $this->getContainer()->get('lock.factory')->createLock($lockKey, 5);
         $lock->acquire();
 
         // Try to create order while lock is held

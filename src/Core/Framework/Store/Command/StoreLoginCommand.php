@@ -102,6 +102,6 @@ class StoreLoginCommand extends Command
 
         $io->success('Successfully logged in.');
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 }

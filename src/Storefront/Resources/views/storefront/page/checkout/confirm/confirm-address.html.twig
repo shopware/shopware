@@ -91,7 +91,7 @@
 
                             {% block page_checkout_confirm_address_billing_data %}
                                 <div class="confirm-address-billing mb-3">
-                                    {% if billingAddress.id is same as(shippingAddress.id) %}
+                                    {% if billingAddress.id is same as(shippingAddress.id) and not page.isHideShippingAddress()%}
                                         {% block page_checkout_confirm_address_billing_data_equal %}
                                             <p>
                                                 {{ 'checkout.addressEqualText'|trans|sw_sanitize }}

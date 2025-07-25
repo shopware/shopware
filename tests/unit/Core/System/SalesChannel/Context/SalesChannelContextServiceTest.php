@@ -12,6 +12,8 @@ use Shopware\Core\Checkout\Cart\RuleLoaderResult;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -19,8 +21,10 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextCreatedEvent;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -213,5 +217,54 @@ class SalesChannelContextServiceTest extends TestCase
         yield 'esi request without cart => true' => [new Request(attributes: ['_sw_esi' => true]), false, true];
         yield 'no esi request but cart => true' => [new Request(), true, true];
         yield 'no esi request and no cart => true' => [new Request(), false, true];
+    }
+
+    public function testAddStatesFromOriginalContext(): void
+    {
+        $token = 'test-token';
+        $originalContext = new Context(new SystemSource());
+        $originalContext->addState(ElasticsearchEntitySearcher::EXPLAIN_MODE);
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('withPermissions')->willReturn($this->createMock(RuleLoaderResult::class));
+        $context->expects($this->once())
+            ->method('addState')
+            ->with(ElasticsearchEntitySearcher::EXPLAIN_MODE);
+        $session = [
+            'foo' => 'bar',
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
+            'originalContext' => $originalContext,
+        ];
+
+        $persister = $this->createMock(SalesChannelContextPersister::class);
+        $persister->method('load')->willReturn($session);
+
+        $factory = $this->createMock(SalesChannelContextFactory::class);
+        $factory->expects($this->once())
+            ->method('create')
+            ->with($token, TestDefaults::SALES_CHANNEL, $session)
+            ->willReturn($context);
+
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with(new SalesChannelContextCreatedEvent($context, $token, $session));
+
+        $service = new SalesChannelContextService(
+            $factory,
+            $this->createMock(CartRuleLoader::class),
+            $persister,
+            $this->createMock(CartService::class),
+            $dispatcher,
+            $this->requestStack,
+        );
+
+        $service->get(new SalesChannelContextServiceParameters(
+            TestDefaults::SALES_CHANNEL,
+            $token,
+            Defaults::LANGUAGE_SYSTEM,
+            null,
+            null,
+            $originalContext,
+        ));
     }
 }

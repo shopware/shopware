@@ -13,6 +13,8 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
+use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
@@ -285,7 +287,10 @@ class ProductListingLoader
         $mapping = array_combine($keys, $keys);
 
         $hasOptionFilter = $this->hasOptionFilter($criteria);
-        if (!$hasOptionFilter) {
+
+        $shouldLoadPreviews = $this->shouldLoadPreviews($hasOptionFilter, $criteria);
+
+        if ($shouldLoadPreviews) {
             $mapping = $this->extensions->publish(
                 name: LoadPreviewExtension::NAME,
                 extension: new LoadPreviewExtension($keys, $context),
@@ -297,6 +302,15 @@ class ProductListingLoader
         $this->dispatcher->dispatch($event);
 
         return $event->getMapping();
+    }
+
+    private function shouldLoadPreviews(bool $hasOptionFilter, Criteria $criteria): bool
+    {
+        if ($hasOptionFilter === true) {
+            return false;
+        }
+
+        return !$criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
     }
 
     /**

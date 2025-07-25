@@ -832,6 +832,10 @@
                     "type": ["integer", "null"],
                     "default": null
                 },
+                "soft_purge": {
+                    "type": "boolean",
+                    "default": false
+                },
                 "reverse_proxy": {
                     "type": "object",
                     "additionalProperties": false,

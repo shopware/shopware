@@ -48,11 +48,15 @@
             >
                 {{ $t('sw-import-export.activity.dryrun') }}
             </sw-label>
+            <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
             <a
                 href="#"
                 @click.prevent="onShowLog(item)"
             >
-                {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
+                <sw-time-ago
+                    :date="item.createdAt"
+                    :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                />
             </a>
         </template>
         {% endblock %}

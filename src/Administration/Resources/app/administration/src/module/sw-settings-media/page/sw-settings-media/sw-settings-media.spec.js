@@ -37,6 +37,7 @@ async function createWrapper() {
                     'sw-error-summary': true,
                     'mt-slider': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-notification-center': true,
                     'sw-help-center-v2': true,
                     'router-link': true,

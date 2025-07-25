@@ -31,7 +31,7 @@ export default {
         return {
             products: null,
             currencies: [],
-            sortBy: 'productNumber',
+            sortBy: 'createdAt',
             sortDirection: 'DESC',
             naturalSorting: false,
             isLoading: false,
@@ -240,6 +240,9 @@ export default {
             return Shopware.Filter.getByName('currency');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -441,7 +444,6 @@ export default {
                     property: 'createdAt',
                     label: this.$tc('sw-product.list.columnCreatedAt'),
                     allowResize: true,
-                    visible: false,
                 },
                 {
                     property: 'updatedAt',

@@ -159,7 +159,7 @@ class ChangelogProcessor
         [$superVersion, $majorVersion] = explode('.', $version);
 
         if (!is_numeric($superVersion) || !is_numeric($majorVersion)) {
-            FrameworkException::invalidArgumentException(\sprintf('Unable to generate next version number, supplied version seems invalid (%s)', $version));
+            throw FrameworkException::invalidArgumentException(\sprintf('Unable to generate next version number, supplied version seems invalid (%s)', $version));
         }
 
         $superVersion = (int) $superVersion;

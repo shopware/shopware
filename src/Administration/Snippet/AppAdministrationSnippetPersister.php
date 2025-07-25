@@ -92,7 +92,7 @@ class AppAdministrationSnippetPersister
         $deletedIds = array_values($existingLocales);
         $this->deleteSnippets($deletedIds, $context);
 
-        $this->cacheInvalidator->invalidate([CachedSnippetFinder::CACHE_TAG]);
+        $this->cacheInvalidator->invalidate([CachedSnippetFinder::CACHE_TAG], true);
     }
 
     private function getExistingSnippets(string $appId, Context $context): AppAdministrationSnippetCollection

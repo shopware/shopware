@@ -178,7 +178,7 @@ class AuthController extends StorefrontController
         } catch (CustomerAuthThrottledException $e) {
             $waitTime = $e->getWaitTime();
         } catch (BadCredentialsException|CustomerNotFoundException) {
-        } catch (PasswordPoliciesUpdatedException $e) {
+        } catch (PasswordPoliciesUpdatedException) {
             $this->addFlash(self::WARNING, $this->trans('account.passwordPoliciesUpdated'));
 
             return $this->forwardToRoute('frontend.account.recover.page');
@@ -229,9 +229,9 @@ class AuthController extends StorefrontController
             );
 
             $this->addFlash(self::SUCCESS, $this->trans('account.recoveryMailSend'));
-        } catch (CustomerNotFoundException $e) {
+        } catch (CustomerNotFoundException) {
             $this->addFlash(self::SUCCESS, $this->trans('account.recoveryMailSend'));
-        } catch (InconsistentCriteriaIdsException $e) {
+        } catch (InconsistentCriteriaIdsException) {
             $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         } catch (RateLimitExceededException $e) {
             $this->addFlash(self::INFO, $this->trans('error.rateLimitExceeded', ['%seconds%' => $e->getWaitTime()]));

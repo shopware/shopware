@@ -809,7 +809,13 @@
     "groupComfortFeaturesYoutubeVideo": "YouTube-Video",
     "groupMarketing": "Marketing",
     "groupMarketingDescription": "Erlaubt es Google, personenbezogene Daten für Online-Werbung und Marketing zu sammeln.",
-    "groupMarketingAdConsent": "Google Werbung und Marketing"
+    "groupMarketingAdConsent": "Google Werbung und Marketing",
+    "wishlist": {
+      "description": "Um die Merkzettel-Funktion nutzen zu können, müssen Sie den \"Merkzettel-Cookie\" akzeptieren oder sich in Ihr Konto einloggen.",
+      "title": "Fehlender Cookie",
+      "accept": "Cookie akzeptieren",
+      "login": "Anmelden"
+    }
   },
   "ellipsis": {
     "expandLabel": "mehr anzeigen",

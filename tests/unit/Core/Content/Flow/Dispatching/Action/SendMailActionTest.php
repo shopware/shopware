@@ -267,6 +267,7 @@ class SendMailActionTest extends TestCase
                 'mediaIds' => [],
                 'senderName' => null,
                 'languageId' => null,
+                'timezone' => null,
                 'attachmentsConfig' => new MailAttachmentsConfig(
                     Context::createDefaultContext(),
                     $this->mailTemplate,
@@ -441,6 +442,7 @@ class SendMailActionTest extends TestCase
                 'mediaIds' => [],
                 'senderName' => null,
                 'languageId' => $languageId,
+                'timezone' => 'UTC',
                 'attachmentsConfig' => new MailAttachmentsConfig(
                     Context::createDefaultContext(),
                     $this->mailTemplate,
@@ -472,6 +474,7 @@ class SendMailActionTest extends TestCase
         $flow->setData(MailAware::SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
         $flow->setData(OrderAware::ORDER_ID, $orderId);
         $flow->setData(LanguageAware::LANGUAGE_ID, $languageId);
+        $flow->setData(MailAware::TIMEZONE, 'UTC');
         $flow->setData(FlowMailVariables::CONTACT_FORM_DATA, [
             'email' => 'customer@example.com',
             'firstName' => 'Max',
@@ -512,6 +515,7 @@ class SendMailActionTest extends TestCase
                         'lastName' => 'Mustermann',
                     ],
                     'languageId' => $languageId,
+                    'timezone' => 'UTC',
                 ]
             );
 

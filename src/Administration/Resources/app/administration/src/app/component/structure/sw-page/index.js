@@ -173,10 +173,6 @@ export default {
                 'grid-row': rowNumber,
             };
         },
-
-        sidebars() {
-            return Shopware.Store.get('sidebar').sidebars;
-        },
     },
 
     created() {
@@ -253,10 +249,6 @@ export default {
             if (this.previousPath) {
                 this.previousRoute = this.$router.resolve({ path: this.previousPath }).name;
             }
-        },
-
-        setActiveSidebar(locationId) {
-            Shopware.Store.get('sidebar').setActiveSidebar(locationId);
         },
     },
 };

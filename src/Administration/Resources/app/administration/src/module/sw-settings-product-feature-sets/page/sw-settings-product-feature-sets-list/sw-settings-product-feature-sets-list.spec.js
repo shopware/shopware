@@ -47,6 +47,7 @@ async function createWrapper(additionalOptions = {}, privileges = []) {
                     i18n: true,
                     'sw-app-actions': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-help-center-v2': true,
                     'sw-bulk-edit-modal': true,
                     'sw-data-grid-column-boolean': true,

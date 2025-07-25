@@ -50,4 +50,33 @@ abstract class AbstractAdminIndexer
     {
         return $criteria;
     }
+
+    public function getSupportedSearchFields(): array
+    {
+        $supportedFields = [];
+
+        $mapping = $this->mapping([])['properties'] ?? [];
+        foreach ($mapping as $field => $type) {
+            if (array_key_exists('properties', $type) && !empty($type['properties'])) {
+                foreach (array_keys($type['properties']) as $property) {
+                    if ($property === '_count') {
+                        continue;
+                    }
+
+                    $supportedFields[] = $field . '.' . $property;
+
+                }
+
+                continue;
+            }
+
+            $supportedFields[] = $field;
+        }
+
+        foreach ($supportedFields as $field) {
+            $supportedFields[] = $this->getEntity() . '.' . $field;
+        }
+
+        return $supportedFields;
+    }
 }

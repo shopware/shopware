@@ -8,10 +8,16 @@ use OpenSearchDSL\Query\FullText\SimpleQueryStringQuery;
 use OpenSearchDSL\Search;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Elasticsearch\ElasticsearchException;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator;
+use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
 /**
  * @internal
@@ -25,8 +31,12 @@ class AdminSearcher
         private readonly Client $client,
         private readonly AdminSearchRegistry $registry,
         private readonly AdminElasticsearchHelper $adminEsHelper,
-        private readonly string $timeout = '5s',
-        private readonly int $termMaxLength = 300,
+        private readonly string $timeout,
+        private readonly int $termMaxLength,
+        private readonly string $searchType,
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
+        private readonly AbstractElasticsearchSearchHydrator $hydrator,
+        private readonly ElasticsearchHelper $esHelper
     ) {
     }
 
@@ -37,12 +47,9 @@ class AdminSearcher
      */
     public function search(string $term, array $entities, Context $context, int $limit = 5): array
     {
-        $term = mb_substr(trim($term), 0, $this->termMaxLength);
-
         $index = [];
-        $term = (string) mb_eregi_replace('\s(or)\s', '|', $term);
-        $term = (string) mb_eregi_replace('\s(and)\s', ' + ', $term);
-        $term = (string) mb_eregi_replace('\s(not)\s', ' -', $term);
+
+        $term = $this->extractTerm($term);
 
         foreach ($entities as $entityName) {
             if (!$context->isAllowed($entityName . ':' . AclRoleDefinition::PRIVILEGE_READ)) {
@@ -50,17 +57,15 @@ class AdminSearcher
             }
 
             try {
+<<<<<<< HEAD
                 $indexer = $this->registry->getIndexer($entityName);
             } catch (ElasticsearchException $e) {
+=======
+                $index = array_merge($index, $this->buildSearchPayload($entityName, $term, $limit));
+            } catch (ElasticsearchException) {
+>>>>>>> 5792f246b5d (feat: apply opensearch globally in admin)
                 continue;
             }
-
-            $alias = $this->adminEsHelper->getIndex($indexer->getName());
-            $index[] = ['index' => $alias];
-            $query = $indexer->globalCriteria($term, $this->buildSearch($term, $limit))->toArray();
-            $query['timeout'] = $this->timeout;
-
-            $index[] = $query;
         }
 
         if (empty($index)) {
@@ -69,8 +74,140 @@ class AdminSearcher
 
         $responses = $this->client->msearch(['body' => $index]);
 
+        $result = $this->parseResponse($responses);
+
+        $mapped = [];
+        foreach ($result as $index => $values) {
+            $entityName = $values['hits'][0]['entityName'];
+            $indexer = $this->registry->getIndexer($entityName);
+
+            $data = $indexer->globalData($values, $context);
+            $data['indexer'] = $indexer->getName();
+            $data['index'] = (string) $index;
+
+            $mapped[$indexer->getEntity()] = $data;
+        }
+
+        return $mapped;
+    }
+
+    public function searchIds(string $entityName, Criteria $criteria, Context $context): IdSearchResult
+    {
+        if (!$context->isAllowed($entityName . ':' . AclRoleDefinition::PRIVILEGE_READ)) {
+            throw ElasticsearchException::missingPrivilege([
+                $entityName . ':' . AclRoleDefinition::PRIVILEGE_READ,
+            ]);
+        }
+
+        $definition = $this->definitionInstanceRegistry->getByEntityName($entityName);
+        $indexer = $this->registry->getIndexer($entityName);
+        $query = new Search();
+
+        if ($criteria->getTerm()) {
+            $term = $this->extractTerm($criteria->getTerm());
+
+
+            $query = $indexer->globalCriteria($term, $this->buildSearch($term));
+        }
+
+        $query = $this->paginate($query, $criteria->getLimit(), $criteria->getOffset());
+
+        $this->esHelper->addPostFilters($definition, $criteria, $query, $context);
+        $this->esHelper->addFilters($definition, $criteria, $query, $context);
+        $this->esHelper->addQueries($definition, $criteria, $query, $context);
+        $this->esHelper->addSortings($definition, $criteria, $query, $context);
+        $this->esHelper->handleIds($definition, $criteria, $query, $context);
+        $this->esHelper->addAggregations($definition, $criteria, $query, $context);
+
+        $query = $query->toArray();
+        $query['timeout'] = $this->timeout;
+
+        $request = [
+            'index' => $this->adminEsHelper->getIndex($indexer->getName()),
+            'search_type' => $this->searchType,
+            'track_total_hits' => $criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT,
+            'body' => $query
+        ];
+
+        $result = $this->client->search($request);
+
+        return $this->hydrator->hydrate(
+            $this->definitionInstanceRegistry->getByEntityName($entityName),
+            $criteria,
+            $context,
+            $result
+        );
+    }
+
+    private function buildSearchPayload(string $entityName, string $term, int $limit): array
+    {
+        $indexer = $this->registry->getIndexer($entityName);
+
+        $alias = $this->adminEsHelper->getIndex($indexer->getName());
+
+        $index[] = [
+            'index' => $alias,
+            'search_type' => $this->searchType,
+            'allow_no_indices' => true,
+            'ignore_unavailable' => true,
+        ];
+        $query = $indexer->globalCriteria($term, $this->buildSearch($term, $limit))->toArray();
+        $query['timeout'] = $this->timeout;
+
+        $index[] = $query;
+
+        return $index;
+    }
+
+    private function buildSearch(string $term): Search
+    {
+        $search = new Search();
+        $splitTerms = explode(' ', $term);
+        $lastPart = end($splitTerms);
+
+        $ngramQuery = new MatchQuery('text.ngram', $term);
+        $search->addQuery($ngramQuery, BoolQuery::SHOULD);
+
+        // If the end of the search term is not a symbol, apply the prefix search query
+        if (preg_match('/^[\p{L}0-9]+$/u', $lastPart)) {
+            $term .= '*';
+        }
+
+        $query = new SimpleQueryStringQuery($term, [
+            'fields' => ['text'],
+            'lenient' => true,
+        ]);
+        $search->addQuery($query, BoolQuery::SHOULD);
+
+        return $search;
+    }
+
+    private function paginate(Search $search, int $limit, ?int $offset = null): Search
+    {
+        $search->setSize($limit);
+
+        if ($offset !== null) {
+            $search->setFrom($offset);
+        }
+
+        return $search;
+    }
+
+    private function extractTerm(string $rawTerm): string
+    {
+        $term = mb_substr(trim($rawTerm), 0, $this->termMaxLength);
+
+        $term = (string) mb_eregi_replace('\s(or)\s', '|', $term);
+        $term = (string) mb_eregi_replace('\s(and)\s', ' + ', $term);
+
+        return (string) mb_eregi_replace('\s(not)\s', ' -', $term);
+    }
+
+    private function parseResponse(array $rawResponse): array
+    {
         $result = [];
-        foreach ($responses['responses'] as $response) {
+
+        foreach ($rawResponse['responses'] as $response) {
             if (empty($response['hits']['hits'])) {
                 continue;
             }
@@ -92,6 +229,7 @@ class AdminSearcher
             }
         }
 
+<<<<<<< HEAD
         $mapped = [];
         foreach ($result as $index => $values) {
             $entityName = $values['hits'][0]['entityName'];
@@ -126,5 +264,8 @@ class AdminSearcher
         $search->setSize($limit);
 
         return $search;
+=======
+        return $result;
+>>>>>>> 5792f246b5d (feat: apply opensearch globally in admin)
     }
 }

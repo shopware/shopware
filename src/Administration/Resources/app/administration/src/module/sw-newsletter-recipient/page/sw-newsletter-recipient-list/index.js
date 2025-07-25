@@ -7,6 +7,7 @@ import './sw-newsletter-recipient-list.scss';
 
 const {
     Mixin,
+    Context,
     Data: { Criteria, EntityCollection },
 } = Shopware;
 
@@ -69,6 +70,14 @@ export default {
         emailIdnFilter() {
             return Shopware.Filter.getByName('decode-idn-email');
         },
+
+        adminEsEnable() {
+            if (!Shopware.Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                return false;
+            }
+
+            return Context.app.adminEsEnable ?? false;
+        },
     },
 
     created() {
@@ -105,7 +114,12 @@ export default {
                 criteria.addFilter(item);
             });
 
-            criteria = await this.addQueryScores(this.term, criteria);
+            if (this.adminEsEnable) {
+                criteria.setTerm(this.term);
+            } else {
+                criteria = await this.addQueryScores(this.term, criteria);
+            }
+
             if (!this.entitySearchable) {
                 this.isLoading = false;
                 this.total = 0;

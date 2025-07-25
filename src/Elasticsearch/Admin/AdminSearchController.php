@@ -32,7 +32,7 @@ final class AdminSearchController
     #[Route(path: '/api/_admin/es-search', name: 'api.admin.es-search', methods: ['POST'], defaults: ['_routeScope' => ['administration']])]
     public function elastic(Request $request, Context $context): Response
     {
-        if ($this->adminEsHelper->getEnabled() === false) {
+        if ($this->adminEsHelper->isEnabled() === false) {
             throw ElasticsearchAdminException::esNotEnabled();
         }
 

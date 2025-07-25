@@ -4,12 +4,14 @@ namespace Shopware\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -49,6 +51,23 @@ final class ProductStreamAdminSearchIndexer extends AbstractAdminIndexer
     public function getIterator(): IterableQuery
     {
         return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
+    }
+
+    public function getUpdatedIds(EntityWrittenContainerEvent $event): array
+    {
+        $ids = [];
+
+        $translations = $event->getPrimaryKeysWithPropertyChange(ProductStreamTranslationDefinition::ENTITY_NAME, [
+            'name',
+        ]);
+
+        foreach ($translations as $pks) {
+            if (isset($pks['productStreamId'])) {
+                $ids[] = $pks['productStreamId'];
+            }
+        }
+
+        return array_values(array_unique(array_filter($ids, '\is_string')));
     }
 
     public function globalData(array $result, Context $context): array

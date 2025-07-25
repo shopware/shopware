@@ -121,4 +121,18 @@ class CookieControllerTest extends TestCase
         static::assertCount(1, $response->filterXPath('//input[@id="cookie_Technically required"]'));
         static::assertCount(1, $response->filterXPath('//input[@id="cookie__GRECAPTCHA"]'));
     }
+
+    public function testConsentOffcanvasRouteRendersWithParameters(): void
+    {
+        $response = $this->browser->request(
+            'GET',
+            $_SERVER['APP_URL'] . '/cookie/consent-offcanvas?featureName=feature&cookieName=cookieName'
+        );
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+        $content = $this->browser->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertStringContainsString('cookie.feature.title', $content);
+        static::assertStringContainsString('js-wishlist-cookie-accept', $content);
+    }
 }

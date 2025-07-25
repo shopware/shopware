@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -67,5 +68,16 @@ class Migration1590408550AclResources extends MigrationStep
         $grouped = FetchModeHelper::group($roles);
 
         return $grouped;
+    }
+
+    private function tableExists(Connection $connection, string $table): bool
+    {
+        try {
+            $connection->fetchOne('SELECT 1 FROM ' . $table . ' LIMIT 1');
+        } catch (Exception) {
+            return false;
+        }
+
+        return true;
     }
 }

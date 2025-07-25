@@ -37,7 +37,7 @@ class Migration1752219159AddLanguageActive extends MigrationStep
                 SQL
             );
 
-            if (!$this->isInstallation() && $this->tableExists($connection, 'swag_language_pack_language')) {
+            if (!$this->isInstallation() && $connection->createSchemaManager()->tableExists('swag_language_pack_language')) {
                 $connection->executeStatement(
                     <<<'SQL'
                         UPDATE `language`

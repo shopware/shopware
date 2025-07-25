@@ -91,17 +91,6 @@ abstract class MigrationStep
         return !empty($exists);
     }
 
-    protected function tableExists(Connection $connection, string $table): bool
-    {
-        try {
-            $connection->fetchOne('SELECT 1 FROM ' . $table . ' LIMIT 1');
-        } catch (Exception) {
-            return false;
-        }
-
-        return true;
-    }
-
     protected function dropTableIfExists(Connection $connection, string $table): void
     {
         $sql = \sprintf('DROP TABLE IF EXISTS `%s`', $table);

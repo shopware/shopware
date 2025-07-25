@@ -53,6 +53,7 @@ async function createWrapper(route = productDetailRoute) {
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
                 'sw-app-topbar-button': true,
+                'sw-app-topbar-sidebar': true,
             },
             plugins: [router],
             mocks: {

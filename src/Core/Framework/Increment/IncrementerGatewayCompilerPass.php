@@ -34,7 +34,7 @@ class IncrementerGatewayCompilerPass implements CompilerPassInterface
             // If service is not registered directly in the container, try to resolve them using fallback gateway
             if (!$container->hasDefinition($active)) {
                 if (\array_key_exists('config', $service)) {
-                    $config = (array) $service['config'];
+                    $config = $service['config'];
                 }
 
                 $active = $this->resolveTypeDefinition($container, $pool, $type, $config);

@@ -166,6 +166,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         'sw-field-error': true,
                         'sw-base-field': true,
                         'sw-app-topbar-button': true,
+                        'sw-app-topbar-sidebar': true,
                         'sw-help-center-v2': true,
                         'sw-empty-state': true,
                         'sw-data-grid-column-boolean': true,

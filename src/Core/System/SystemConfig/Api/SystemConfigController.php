@@ -74,7 +74,7 @@ class SystemConfigController extends AbstractController
             $json = json_encode($values, \JSON_PRESERVE_ZERO_FRACTION);
         }
 
-        return new JsonResponse($json, 200, [], true);
+        return new JsonResponse($json, Response::HTTP_OK, [], true);
     }
 
     #[Route(path: '/api/_action/system-config', name: 'api.action.core.save.system-config', defaults: ['_acl' => ['system_config:update', 'system_config:create', 'system_config:delete']], methods: ['POST'])]

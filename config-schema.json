@@ -122,6 +122,9 @@
                 },
                 "product_stream": {
                     "$ref": "#/definitions/product_stream"
+                },
+                "flow": {
+                    "$ref": "#/definitions/flow"
                 }
             },
             "title": "Shopware"
@@ -1517,6 +1520,16 @@
                     }
                 }
             }
+        },
+        "flow": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "async": {
+                    "type": "boolean"
+                }
+            },
+            "title": "Flow"
         }
     }
 }

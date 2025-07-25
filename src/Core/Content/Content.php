@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Content;
 
+use Shopware\Core\Content\Flow\Dispatching\FlowExecutorCompilerPass;
 use Shopware\Core\Content\Mail\MailerConfigurationCompilerPass;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
@@ -44,6 +44,7 @@ class Content extends Bundle
         $loader->load('flow.xml');
         $loader->load('measurement_system.xml');
 
-        $container->addCompilerPass(new MailerConfigurationCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new MailerConfigurationCompilerPass());
+        $container->addCompilerPass(new FlowExecutorCompilerPass());
     }
 }

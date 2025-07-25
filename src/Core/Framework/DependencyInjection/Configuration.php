@@ -53,6 +53,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createTelemetrySection())
                 ->append($this->createRedisSection())
                 ->append($this->createProductStreamSection())
+                ->append($this->createFlowSection())
             ->end();
 
         return $treeBuilder;
@@ -1035,6 +1036,19 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('indexing')->defaultTrue()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createFlowSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('flow');
+        $rootNode = $treeBuilder->getRootNode();
+
+        $rootNode
+            ->children()
+            ->booleanNode('async')->defaultFalse()->end()
             ->end();
 
         return $rootNode;

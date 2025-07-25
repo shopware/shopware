@@ -7,7 +7,9 @@ use Doctrine\DBAL\Exception as DBALException;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Flow\Dispatching\Action\AsyncFlowAction;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowAction;
+use Shopware\Core\Content\Flow\Dispatching\Message\FlowActionMessage;
 use Shopware\Core\Content\Flow\Dispatching\Struct\ActionSequence;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\IfSequence;
@@ -23,6 +25,7 @@ use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal not intended for decoration or replacement
@@ -48,6 +51,7 @@ class FlowExecutor
         private readonly Connection $connection,
         private readonly ExtensionDispatcher $extensions,
         private readonly LoggerInterface $logger,
+        private readonly ?MessageBusInterface $messageBus = null,
         $actions
     ) {
         $this->actions = $actions instanceof \Traversable ? iterator_to_array($actions) : $actions;
@@ -199,6 +203,12 @@ class FlowExecutor
         $action = $this->actions[$sequence->action] ?? null;
 
         if (!$action instanceof FlowAction) {
+            return;
+        }
+
+        if ($this->messageBus !== null && $action instanceof AsyncFlowAction) {
+            $this->messageBus->dispatch(new FlowActionMessage($sequence->action, $event));
+
             return;
         }
 

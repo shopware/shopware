@@ -165,7 +165,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         StorefrontPluginConfigurationCollection $configurationCollection,
         string $themePrefix
     ): array {
-        $scriptsDist = $this->getScriptDistFolders($configurationCollection);
+        // We are doing clone as mutation happens, that corrupts the original collection
+        $scriptsDist = $this->getScriptDistFolders(clone $configurationCollection);
         $themePath = 'theme/' . $themePrefix;
         $distRelativePath = 'Resources/app/storefront/dist/storefront';
 

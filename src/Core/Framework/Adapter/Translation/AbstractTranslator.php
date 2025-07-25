@@ -12,6 +12,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[Package('framework')]
 abstract class AbstractTranslator implements TranslatorInterface, TranslatorBagInterface, LocaleAwareInterface, ResetInterface
 {
+    public bool $shouldResetInjection = false;
+    
     /**
      * @param string $cacheDir
      */

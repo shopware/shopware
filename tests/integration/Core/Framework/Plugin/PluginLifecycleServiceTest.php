@@ -760,6 +760,7 @@ class PluginLifecycleServiceTest extends TestCase
                     'id' => $id,
                     'name' => $iso,
                     'localeId' => $localeId,
+                    'active' => true,
                     'translationCode' => [
                         'id' => $localeId,
                         'code' => $iso,

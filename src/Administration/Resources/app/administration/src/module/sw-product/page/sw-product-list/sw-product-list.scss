@@ -1,8 +1,5 @@
 @import "~scss/variables";
 
-$sw-product-list-color-error: $color-crimson-500;
-$sw-product-list-color-success: $color-emerald-500;
-
 .sw-product-list {
     .sw-product-list__content {
         width: 100%;
@@ -15,21 +12,15 @@ $sw-product-list-color-success: $color-emerald-500;
             .is--inactive {
                 width: 16px;
                 height: 16px;
-                color: $sw-product-list-color-error;
-                padding-top: 3px;
-                padding-right: 3px;
-                padding-bottom: 3px;
-                padding-left: 3px;
+                color: var(--color-crimson-500);
+                padding: 3px;
             }
 
             .is--active {
                 width: 16px;
                 height: 16px;
-                color: $sw-product-list-color-success;
-                padding-top: 4px;
-                padding-right: 2px;
-                padding-bottom: 3px;
-                padding-left: 2px;
+                color: var(--color-emerald-500);
+                padding: 4px 2px 3px;
             }
         }
     }

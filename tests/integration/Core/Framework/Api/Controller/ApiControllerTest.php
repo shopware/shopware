@@ -1732,6 +1732,7 @@ EOF;
             'id' => $childId,
             'name' => 'Child Language',
             'localeId' => $this->getLocaleIdOfSystemLanguage(),
+            'active' => true,
             'parent' => [
                 'id' => $parentId,
                 'name' => 'Parent Language',
@@ -1745,6 +1746,7 @@ EOF;
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],
+                'active' => true,
             ],
         ];
 

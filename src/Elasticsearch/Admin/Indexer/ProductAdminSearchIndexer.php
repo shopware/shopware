@@ -16,12 +16,16 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SqlHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
+use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
+use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 
 #[Package('inventory')]
 final class ProductAdminSearchIndexer extends AbstractAdminIndexer
@@ -123,22 +127,74 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
 
         return $criteria;
     }
+    public function mapping(array $mapping): array
+    {
+        $override = [
+            'parentId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'available' => AbstractElasticsearchDefinition::BOOLEAN_FIELD,
+            'active' => AbstractElasticsearchDefinition::BOOLEAN_FIELD,
+            'sales' => AbstractElasticsearchDefinition::INT_FIELD,
+            'states' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'productNumber' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'manufacturerId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            'stock' => AbstractElasticsearchDefinition::INT_FIELD,
+            'releaseDate' => ElasticsearchFieldBuilder::datetime(),
+            'createdAt' => ElasticsearchFieldBuilder::datetime(),
+            'updatedAt' => ElasticsearchFieldBuilder::datetime(),
+            'categories' => ElasticsearchFieldBuilder::nested([
+                'versionId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+            ]),
+            'tags' => ElasticsearchFieldBuilder::nested(),
+            'manufacturer' => ElasticsearchFieldBuilder::nested(),
+            'visibilities' => ElasticsearchFieldBuilder::nested([
+                'id' => null,
+                'salesChannelId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'visibility' => AbstractElasticsearchDefinition::INT_FIELD,
+            ]),
+        ];
+
+        $mapping['properties'] ??= [];
+        $mapping['properties'] = array_merge($mapping['properties'], $override);
+
+        return $mapping;
+    }
 
     /**
      * @return array<string, array{id:string, textBoosted:string, text:string}>
      */
     public function fetch(array $ids): array
     {
-        $data = $this->connection->fetchAllAssociative(
-            '
+        $baseMapping = [
+            '#visibilities#' => SqlHelper::objectArray([
+                'visibility' => 'product_visibility.visibility',
+                'salesChannelId' => 'LOWER(HEX(product_visibility.sales_channel_id))',
+            ], 'visibilities'),
+        ];
+
+        $baseSql = <<<'SQL'
             SELECT LOWER(HEX(product.id)) as id,
                    GROUP_CONCAT(DISTINCT translation.name SEPARATOR " ") as name,
-                   CONCAT("[", GROUP_CONCAT(translation.custom_search_keywords), "]") as custom_search_keywords,
+                   CONCAT("[", GROUP_CONCAT(translation.custom_search_keywords), "]") as customSearchKeywords,
                    GROUP_CONCAT(DISTINCT tag.name SEPARATOR " ") as tags,
-                   product.product_number,
-                   product.ean,
-                   product.manufacturer_number
+                   GROUP_CONCAT(LOWER(HEX(tag.id)) SEPARATOR " ") as tagIds,
+                   IFNULL(product.active, parent.active) AS active,
+                   product.available AS available,
+                   product.parent_id as parentId,
+                   product.product_number as productNumber,
+                   product.sales as sales,
+                   product.states as states,
+                   LOWER(HEX(product.manufacturer)) AS manufacturerId,
+                   IFNULL(product.category_ids, parent.category_ids) AS categoryIds,
+                   product.stock as stock,
+                   IFNULL(product.release_date, parent.release_date) AS releaseDate,
+                   product.created_at as createdAt,
+                   product.updated_at as updatedAt,
+                   #visibilities#
             FROM product
+                LEFT JOIN product parent ON (product.parent_id = parent.id AND parent.version_id = :versionId)
+                LEFT JOIN product_visibility ON (product_visibility.product_id = product.visibilities AND product_visibility.product_version_id = product.version_id)
+                LEFT JOIN product_media ON (product_media.product_id = product.media AND product_media.product_version_id = product.version_id)
+
                 INNER JOIN product_translation AS translation
                     ON product.id = translation.product_id AND product.version_id = translation.product_version_id
                 LEFT JOIN product_tag
@@ -148,7 +204,10 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             WHERE product.id IN (:ids)
             AND product.version_id = :versionId
             GROUP BY product.id
-        ',
+SQL;
+
+        $data = $this->connection->fetchAllAssociative(
+            str_replace(array_keys($baseMapping), array_values($baseMapping), $baseSql),
             [
                 'ids' => Uuid::fromHexToBytesList($ids),
                 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
@@ -160,17 +219,55 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
 
         $mapped = [];
         foreach ($data as $row) {
-            $textBoosted = $row['name'] . ' ' . $row['product_number'];
+            $textBoosted = $row['name'] . ' ' . $row['productNumber'];
 
-            if ($row['custom_search_keywords']) {
-                $row['custom_search_keywords'] = json_decode((string) $row['custom_search_keywords'], true, 512, \JSON_THROW_ON_ERROR);
-                $textBoosted = $textBoosted . ' ' . implode(' ', array_unique(array_merge(...$row['custom_search_keywords'])));
+            if ($row['customSearchKeywords']) {
+                $row['customSearchKeywords'] = json_decode((string) $row['customSearchKeywords'], true, 512, \JSON_THROW_ON_ERROR);
+                $textBoosted = $textBoosted . ' ' . implode(' ', array_unique(array_merge(...$row['customSearchKeywords'])));
             }
 
             $id = (string) $row['id'];
-            unset($row['name'],  $row['product_number'], $row['custom_search_keywords']);
-            $text = \implode(' ', array_filter(array_unique(array_values($row))));
-            $mapped[$id] = ['id' => $id, 'textBoosted' => \strtolower($textBoosted), 'text' => \strtolower($text)];
+
+            $textRow = [
+                'tags' => $row['tags'] ?? '',
+                'id' => $id,
+            ];
+
+            $text = \implode(' ', array_filter(array_unique(array_values($textRow))));
+            $mapped[$id] = [
+                'id' => $id,
+                'textBoosted' => \strtolower($textBoosted),
+                'text' => \strtolower($text),
+                'parentId' => $row['parentId'] ?? null,
+                'productNumber' => $row['productNumber'] ?? null,
+                'manufacturerId' => $row['manufacturerId'] ?? null,
+                'sales' => (int) $row['sales'],
+                'active' => (bool) $row['active'],
+                'available' => (bool) $row['available'],
+                'stock' => (int) $row['stock'],
+                'states' => ElasticsearchIndexingUtils::parseJson($row, 'states'),
+                'categories' => array_map(function (string $categoryId) {
+                    return [
+                        'id' => $categoryId,
+                        'versionId' => Defaults::LIVE_VERSION,
+                        '_count' => 1
+                    ];
+                }, ElasticsearchIndexingUtils::parseJson($row, 'categoryIds')),
+                'visibilities' => array_map(function (array $visibility) {
+                    return array_merge([
+                        '_count' => 1,
+                    ], $visibility);
+                }, ElasticsearchIndexingUtils::parseJson($row, 'visibilities')),
+                'tags' => array_map(function (string $tagId) {
+                    return [
+                        'id' => $tagId,
+                        '_count' => 1
+                    ];
+                }, explode(' ', $row['tagIds'] ?? '')),
+                'createdAt' => $row['createdAt'] ?? isset($row['createdAt']) ? (new \DateTime($row['createdAt']))->format('c') : null,
+                'updatedAt' => $row['updatedAt'] ?? isset($row['updatedAt']) ? (new \DateTime($row['updatedAt']))->format('c') : null,
+                'releaseDate' => $row['releaseDate'] ?? isset($row['releaseDate']) ? (new \DateTime($row['releaseDate']))->format('c') : null,
+            ];
         }
 
         return $mapped;

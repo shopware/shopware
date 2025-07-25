@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Admin;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -15,7 +16,10 @@ class AdminElasticsearchHelper
     public function __construct(
         private bool $adminEsEnabled,
         private readonly bool $refreshIndices,
-        private readonly string $adminIndexPrefix
+        private readonly string $adminIndexPrefix,
+        private readonly string $environment,
+        private readonly bool $throwException,
+        private readonly LoggerInterface $logger
     ) {
     }
 
@@ -50,5 +54,16 @@ class AdminElasticsearchHelper
     public function getIndex(string $name): string
     {
         return $this->adminIndexPrefix . '-' . \strtolower(\str_replace(['_', ' '], '-', $name));
+    }
+
+    public function logAndThrowException(\Throwable $exception): bool
+    {
+        $this->logger->critical($exception->getMessage());
+
+        if ($this->environment === 'test' || $this->throwException) {
+            throw $exception;
+        }
+
+        return false;
     }
 }

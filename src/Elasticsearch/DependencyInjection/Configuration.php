@@ -70,6 +70,7 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('enabled')->end()
                         ->booleanNode('refresh_indices')->end()
                         ->scalarNode('index_prefix')->end()
+                        ->scalarNode('throw_exception')->end()
                         ->arrayNode('index_settings')->variablePrototype()->end()->end()
                         ->arrayNode('analysis')->performNoDeepMerging()->variablePrototype()->end()->end()
                         ->arrayNode('dynamic_templates')->performNoDeepMerging()->variablePrototype()->end()->end()

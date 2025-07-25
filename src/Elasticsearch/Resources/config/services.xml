@@ -381,6 +381,10 @@
             <argument>%elasticsearch.administration.enabled%</argument>
             <argument>%elasticsearch.administration.refresh_indices%</argument>
             <argument>%elasticsearch.administration.index_prefix%</argument>
+            <argument>%kernel.environment%</argument>
+            <argument>%elasticsearch.administration.throw_exception%</argument>
+            <argument type="service" id="shopware.elasticsearch.logger" />
+
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\AdminSearchController" public="true">
@@ -396,6 +400,10 @@
             <argument type="service" id="Shopware\Elasticsearch\Admin\AdminElasticsearchHelper"/>
             <argument>%elasticsearch.administration.search.timeout%</argument>
             <argument>%elasticsearch.administration.search.term_max_length%</argument>
+            <argument>%elasticsearch.administration.search.search_type%</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" />
+            <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator" />
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper" />
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\AdminSearchRegistry">
@@ -410,7 +418,7 @@
             <argument>%elasticsearch.administration.index.mapping%</argument>
 
             <tag name="kernel.event_subscriber"/>
-            <tag name="messenger.message_handler" />
+            <tag name="messenger.message_handler"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\CmsPageAdminSearchIndexer">
@@ -567,6 +575,16 @@
         <service id="Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage" />
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Admin\AdminElasticsearchEntitySearcher"
+                 decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"
+                 decoration-priority="500">
+
+            <argument type="service" id=".inner"/>
+            <argument type="service" id="Shopware\Elasticsearch\Admin\AdminSearchRegistry"/>
+            <argument type="service" id="Shopware\Elasticsearch\Admin\AdminElasticsearchHelper"/>
+            <argument type="service" id="Shopware\Elasticsearch\Admin\AdminSearcher"/>
         </service>
 
     </services>

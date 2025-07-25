@@ -14,6 +14,7 @@ elasticsearch:
         enabled: "%env(bool:SHOPWARE_ADMIN_ES_ENABLED)%"
         refresh_indices: "%env(bool:SHOPWARE_ADMIN_ES_REFRESH_INDICES)%"
         index_prefix: "%env(string:SHOPWARE_ADMIN_ES_INDEX_PREFIX)%"
+        throw_exception: "%env(string:SHOPWARE_ADMIN_ES_THROW_EXCEPTION)%"
         search:
             timeout: 5s
             term_max_length: 300
@@ -122,6 +123,7 @@ parameters:
     env(ADMIN_OPENSEARCH_URL): ""
     env(SHOPWARE_ADMIN_ES_INDEX_PREFIX): "sw-admin"
     env(SHOPWARE_ADMIN_ES_REFRESH_INDICES): ""
+    env(SHOPWARE_ADMIN_ES_THROW_EXCEPTION): "1"
     env(SHOPWARE_ES_INDEXING_BATCH_SIZE): "100"
     env(SHOPWARE_ES_EXCLUDE_SOURCE): "0"
     env(SHOPWARE_ES_NGRAM_MIN_GRAM): "4"

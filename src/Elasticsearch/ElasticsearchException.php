@@ -27,6 +27,8 @@ class ElasticsearchException extends HttpException
 
     public const OPERATOR_NOT_ALLOWED = 'ELASTICSEARCH__OPERATOR_NOT_ALLOWED';
 
+    public const MISSING_PRIVILEGE = 'CONTENT__IMPORT_EXPORT__MISSING_PRIVILEGE';
+
     public static function definitionNotFound(string $definition): self
     {
         return new self(
@@ -180,6 +182,19 @@ class ElasticsearchException extends HttpException
             self::OPERATOR_NOT_ALLOWED,
             'Operator {{ operator }} not allowed',
             ['operator' => $operator]
+        );
+    }
+
+    /**
+     * @param array<string> $privilege
+     */
+    public static function missingPrivilege(array $privilege): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::MISSING_PRIVILEGE,
+            'Missing privilege: {{ missingPrivileges }}',
+            ['missingPrivileges' => \json_encode($privilege)],
         );
     }
 }

@@ -33,9 +33,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class AdminSearchRegistry implements EventSubscriberInterface
 {
     /**
-     * @var array<string, AbstractAdminIndexer>
+     * @var iterable<AbstractAdminIndexer>
      */
-    private readonly array $indexer;
+    private readonly iterable $indexer;
 
     /**
      * @var array<string, mixed>
@@ -58,7 +58,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
         array $config,
         private readonly array $mapping
     ) {
-        $this->indexer = ($indexer instanceof \Traversable) ? iterator_to_array($indexer) : $indexer;
+        $this->indexer = $indexer;
 
         if (isset($config['settings']['index'])) {
             if (\array_key_exists('number_of_shards', $config['settings']['index']) && $config['settings']['index']['number_of_shards'] === null) {
@@ -95,8 +95,9 @@ class AdminSearchRegistry implements EventSubscriberInterface
             return;
         }
 
+        $indexers = $this->getIndexersArray();
         /** @var list<string> $entities */
-        $entities = array_keys($this->indexer);
+        $entities = array_keys($indexers);
 
         if ($indexingBehavior->getOnlyEntities()) {
             $entities = array_intersect($entities, $indexingBehavior->getOnlyEntities());
@@ -107,7 +108,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
         $indices = $this->createIndices($entities);
 
         foreach ($entities as $entityName) {
-            $indexer = $this->getIndexer($entityName);
+            $indexer = $indexers[$entityName];
             $iterator = $indexer->getIterator();
 
             $this->dispatcher->dispatch(new ProgressStartedEvent($indexer->getName(), $iterator->fetchCount()));
@@ -187,12 +188,20 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
     public function getIndexer(string $name): AbstractAdminIndexer
     {
-        $indexer = $this->indexer[$name] ?? null;
+        $indexers = $this->getIndexersArray();
+        $indexer = $indexers[$name] ?? null;
         if ($indexer) {
             return $indexer;
         }
 
         throw ElasticsearchException::indexingError([\sprintf('Indexer for name %s not found', $name)]);
+    }
+
+    public function hasIndexer(string $name): bool
+    {
+        $indexers = $this->getIndexersArray();
+
+        return isset($indexers[$name]);
     }
 
     public function updateMappings(): void
@@ -465,5 +474,17 @@ class AdminSearchRegistry implements EventSubscriberInterface
         ]);
 
         return array_merge_recursive($mapping, $this->mapping);
+    }
+
+    /**
+     * @return array<string, AbstractAdminIndexer>
+     */
+    private function getIndexersArray(): array
+    {
+        if ($this->indexer instanceof \Traversable) {
+            return iterator_to_array($this->indexer);
+        }
+
+        return $this->indexer;
     }
 }

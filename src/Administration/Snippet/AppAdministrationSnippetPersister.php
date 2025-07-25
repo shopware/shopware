@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleCollection;
-use Shopware\Core\System\Locale\LocaleException;
 
 /**
  * @internal
@@ -57,32 +56,32 @@ class AppAdministrationSnippetPersister
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('code', array_keys($snippets)));
-        $localeIds = $this->localeRepository->search($criteria, $context)->getEntities()->getElements();
-        $localeIds = array_column($localeIds, 'id', 'code');
+        $localeCodes = $this->localeRepository->search($criteria, $context)->getEntities()->getElements();
+        $localeCodes = array_column($localeCodes, 'code', 'code');
 
         $existingLocales = [];
         foreach ($existingSnippets as $snippetEntity) {
-            $existingLocales[$snippetEntity->getLocaleId()] = $snippetEntity->getId();
+            $existingLocales[$snippetEntity->getLocaleCode()] = $snippetEntity->getId();
         }
 
         foreach ($snippets as $filename => $value) {
-            if (!\array_key_exists($filename, $localeIds)) {
-                throw LocaleException::localeDoesNotExists($filename);
+            if (!\array_key_exists($filename, $localeCodes)) {
+                continue;
             }
 
-            $localeId = $localeIds[$filename];
+            $localeCode = $localeCodes[$filename];
             $id = Uuid::randomHex();
 
-            if (\array_key_exists($localeId, $existingLocales)) {
-                $id = $existingLocales[$localeId];
-                unset($existingLocales[$localeId]);
+            if (\array_key_exists($localeCode, $existingLocales)) {
+                $id = $existingLocales[$localeCode];
+                unset($existingLocales[$localeCode]);
             }
 
             $newOrUpdatedSnippets[] = [
                 'id' => $id,
                 'value' => $value,
                 'appId' => $app->getId(),
-                'localeId' => $localeIds[$filename],
+                'localeCode' => $localeCodes[$filename],
             ];
         }
 

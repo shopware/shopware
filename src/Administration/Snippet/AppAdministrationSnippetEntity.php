@@ -15,7 +15,7 @@ class AppAdministrationSnippetEntity extends Entity
 
     protected string $appId;
 
-    protected string $localeId;
+    protected string $localeCode;
 
     public function getValue(): string
     {
@@ -37,13 +37,13 @@ class AppAdministrationSnippetEntity extends Entity
         $this->appId = $appId;
     }
 
-    public function getLocaleId(): string
+    public function getLocaleCode(): string
     {
-        return $this->localeId;
+        return $this->localeCode;
     }
 
-    public function setLocaleId(string $localeId): void
+    public function setLocaleCode(string $localeCode): void
     {
-        $this->localeId = $localeId;
+        $this->localeCode = $localeCode;
     }
 }

@@ -12,9 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Locale\LocaleDefinition;
 
 #[Package('discovery')]
 class AppAdministrationSnippetDefinition extends EntityDefinition
@@ -45,10 +45,10 @@ class AppAdministrationSnippetDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new StringField('locale_code', 'localeCode'))->addFlags(new ApiAware(), new Required()),
             (new LongTextField('value', 'value'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING), new AllowEmptyString()),
 
             (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new ApiAware(), new Required()),
-            (new FkField('locale_id', 'localeId', LocaleDefinition::class))->addFlags(new ApiAware(), new Required()),
         ]);
     }
 }

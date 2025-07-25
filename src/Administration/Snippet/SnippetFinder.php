@@ -219,10 +219,9 @@ class SnippetFinder implements SnippetFinderInterface
     {
         $result = $this->connection->fetchAllAssociative(
             'SELECT app_administration_snippet.value
-             FROM locale
-             INNER JOIN app_administration_snippet ON locale.id = app_administration_snippet.locale_id
+             FROM app_administration_snippet
              INNER JOIN app ON app_administration_snippet.app_id = app.id
-             WHERE locale.code = :code AND app.active = 1;',
+             WHERE app_administration_snippet.locale_code = :code AND app.active = 1;',
             ['code' => $locale]
         );
 

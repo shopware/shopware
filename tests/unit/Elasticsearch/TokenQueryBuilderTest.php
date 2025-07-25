@@ -277,9 +277,18 @@ class TokenQueryBuilderTest extends TestCase
             ],
             'term' => '2023',
             'expected' => self::bool([
-                self::textMatch($prefixCfLang1 . 'evolvesText', '2023', 500, null, false),
-                self::term($prefixCfLang1 . 'evolvesInt', 2023, 400),
-                self::term($prefixCfLang1 . 'evolvesFloat', 2023.0, 500),
+                self::disMax([
+                    self::textMatch($prefixCfLang1 . 'evolvesText', '2023', 500, null, false),
+                    self::textMatch($prefixCfLang2 . 'evolvesText', '2023', 400, null, false),
+                ]),
+                self::disMax([
+                    self::term($prefixCfLang1 . 'evolvesInt', 2023, 400),
+                    self::term($prefixCfLang2 . 'evolvesInt', 2023, 320),
+                ]),
+                self::disMax([
+                    self::term($prefixCfLang1 . 'evolvesFloat', 2023.0, 500),
+                    self::term($prefixCfLang2 . 'evolvesFloat', 2023.0, 400),
+                ]),
                 self::nested('categories', self::term('categories.childCount', 2023, 500)),
             ]),
         ];
@@ -292,7 +301,10 @@ class TokenQueryBuilderTest extends TestCase
                 self::config(field: 'categories.childCount', ranking: 500),
             ],
             'term' => 'foo',
-            'expected' => self::textMatch($prefixCfLang1 . 'evolvesText', 'foo', 500, null, false),
+            'expected' => self::disMax([
+                self::textMatch($prefixCfLang1 . 'evolvesText', 'foo', 500, null, false),
+                self::textMatch($prefixCfLang2 . 'evolvesText', 'foo', 400, null, false),
+            ]),
         ];
     }
 

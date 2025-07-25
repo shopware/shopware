@@ -14,12 +14,16 @@ class TranslatedFieldTest extends TestCase
 {
     public function testInstantiate(): void
     {
+        $field = new TranslatedField('name');
+
+        static::assertFalse($field->useForSorting());
+
         $field = new TranslatedField(
             'name',
             true,
         );
 
         static::assertSame('name', $field->getPropertyName());
-        static::assertTrue($field->isPrefilledFallback());
+        static::assertTrue($field->useForSorting());
     }
 }

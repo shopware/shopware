@@ -128,50 +128,15 @@ class CriteriaParser
 
     public function parseSorting(FieldSorting $sorting, EntityDefinition $definition, Context $context): FieldSort
     {
-        if ($this->isCheapestPriceField($sorting->getField())) {
-            $scriptContent = $this->getScript('cheapest_price');
-
-            return new FieldSort('_script', $sorting->getDirection(), null, [
-                'type' => 'number',
-                'script' => array_merge($scriptContent, [
-                    'params' => $this->getCheapestPriceParameters($context),
-                ]),
-            ]);
-        }
-
-        if ($this->isCheapestPriceField($sorting->getField(), true)) {
-            $scriptContent = $this->getScript('cheapest_price_percentage');
-
-            return new FieldSort('_script', $sorting->getDirection(), null, [
-                'type' => 'number',
-                'script' => array_merge($scriptContent, [
-                    'params' => ['accessors' => $this->getCheapestPriceAccessors($context, true)],
-                ]),
-            ]);
-        }
-
-        $field = $this->helper->getField($sorting->getField(), $definition, $definition->getEntityName(), false);
-        $accessor = $this->buildAccessor($definition, $sorting->getField(), $context);
-
-        if ($field instanceof TranslatedField) {
-            if (!$field->isPrefilledFallback()) {
-                return $this->createTranslatedSorting($definition->getEntityName(), $sorting, $context);
-            }
-
-            $accessor = $this->getTranslatedFieldName($accessor, $context->getLanguageId());
-        }
-
-        if ($sorting instanceof CountSorting) {
-            return new CountSort($accessor, $sorting->getDirection());
-        }
+        $fieldSort = $this->buildFieldSort($sorting, $definition, $context);
 
         $path = $this->getNestedPath($definition, $sorting->getField());
 
         if ($path) {
-            return new FieldSort($accessor, $sorting->getDirection(), null, ['nested' => ['path' => $path]]);
+            $fieldSort->addParameter('nested', ['path' => $path]);
         }
 
-        return new FieldSort($accessor, $sorting->getDirection());
+        return $fieldSort;
     }
 
     public function parseAggregation(Aggregation $aggregation, EntityDefinition $definition, Context $context): ?AbstractAggregation
@@ -582,6 +547,7 @@ class CriteriaParser
         }
 
         $fieldName = $this->buildAccessor($definition, $filter->getField(), $context);
+        $contextLanguageFieldName = $this->getTranslatedFieldName($fieldName, $context->getLanguageId());
 
         $field = $this->getField($definition, $fieldName);
 
@@ -589,6 +555,10 @@ class CriteriaParser
             $query = new BoolQuery();
 
             if ($field instanceof TranslatedField) {
+                if ($field->useForSorting()) {
+                    $query->add(new ExistsQuery($contextLanguageFieldName), BoolQuery::MUST_NOT);
+                }
+
                 foreach ($context->getLanguageIdChain() as $languageId) {
                     $query->add(new ExistsQuery($this->getTranslatedFieldName($fieldName, $languageId)), BoolQuery::MUST_NOT);
                 }
@@ -603,15 +573,19 @@ class CriteriaParser
         $query = new TermQuery($fieldName, $value);
 
         if ($field instanceof TranslatedField) {
-            $multiMatchFields = [];
+            if ($field->useForSorting()) {
+                $query = new TermQuery($contextLanguageFieldName, $value);
+            } else {
+                $multiMatchFields = [];
 
-            foreach ($context->getLanguageIdChain() as $languageId) {
-                $multiMatchFields[] = $this->getTranslatedFieldName($fieldName, $languageId);
+                foreach ($context->getLanguageIdChain() as $languageId) {
+                    $multiMatchFields[] = $this->getTranslatedFieldName($fieldName, $languageId);
+                }
+
+                $query = new MultiMatchQuery($multiMatchFields, $value, [
+                    'type' => 'best_fields',
+                ]);
             }
-
-            $query = new MultiMatchQuery($multiMatchFields, $value, [
-                'type' => 'best_fields',
-            ]);
         }
 
         return $this->createNestedQuery($query, $definition, $filter->getField());
@@ -628,10 +602,15 @@ class CriteriaParser
         $query = $this->prepareTermsQueryWithNullSupport($fieldName, $value);
 
         if ($field instanceof TranslatedField) {
-            $query = new DisMaxQuery();
-            foreach ($context->getLanguageIdChain() as $languageId) {
-                $accessor = $this->getTranslatedFieldName($fieldName, $languageId);
-                $query->addQuery($this->prepareTermsQueryWithNullSupport($accessor, $value));
+            if ($field->useForSorting()) {
+                $fieldName = $this->getTranslatedFieldName($fieldName, $context->getLanguageId());
+                $query = $this->prepareTermsQueryWithNullSupport($fieldName, $value);
+            } else {
+                $query = new DisMaxQuery();
+                foreach ($context->getLanguageIdChain() as $languageId) {
+                    $accessor = $this->getTranslatedFieldName($fieldName, $languageId);
+                    $query->addQuery($this->prepareTermsQueryWithNullSupport($accessor, $value));
+                }
             }
         }
 
@@ -678,10 +657,14 @@ class CriteriaParser
         $query = new WildcardQuery($accessor, '*' . $value . '*');
 
         if ($field instanceof TranslatedField) {
-            $query = new DisMaxQuery();
-            foreach ($context->getLanguageIdChain() as $languageId) {
-                $fieldName = $this->getTranslatedFieldName($accessor, $languageId);
-                $query->addQuery(new WildcardQuery($fieldName, '*' . $value . '*'));
+            if ($field->useForSorting()) {
+                $query = new WildcardQuery($this->getTranslatedFieldName($accessor, $context->getLanguageId()), '*' . $value . '*');
+            } else {
+                $query = new DisMaxQuery();
+                foreach ($context->getLanguageIdChain() as $languageId) {
+                    $fieldName = $this->getTranslatedFieldName($accessor, $languageId);
+                    $query->addQuery(new WildcardQuery($fieldName, '*' . $value . '*'));
+                }
             }
         }
 
@@ -703,10 +686,14 @@ class CriteriaParser
         $query = new PrefixQuery($accessor, $value);
 
         if ($field instanceof TranslatedField) {
-            $query = new DisMaxQuery();
+            if ($field->useForSorting()) {
+                $query = new PrefixQuery($this->getTranslatedFieldName($accessor, $context->getLanguageId()), $value);
+            } else {
+                $query = new DisMaxQuery();
 
-            foreach ($context->getLanguageIdChain() as $languageId) {
-                $query->addQuery(new WildcardQuery($this->getTranslatedFieldName($accessor, $languageId), $value . '*'));
+                foreach ($context->getLanguageIdChain() as $languageId) {
+                    $query->addQuery(new WildcardQuery($this->getTranslatedFieldName($accessor, $languageId), $value . '*'));
+                }
             }
         }
 
@@ -728,10 +715,14 @@ class CriteriaParser
         $query = new WildcardQuery($accessor, '*' . $value);
 
         if ($field instanceof TranslatedField) {
-            $query = new DisMaxQuery();
-            foreach ($context->getLanguageIdChain() as $languageId) {
-                $fieldName = $this->getTranslatedFieldName($accessor, $languageId);
-                $query->addQuery(new WildcardQuery($fieldName, '*' . $value));
+            if ($field->useForSorting()) {
+                $query = new WildcardQuery($this->getTranslatedFieldName($accessor, $context->getLanguageId()), '*' . $value);
+            } else {
+                $query = new DisMaxQuery();
+                foreach ($context->getLanguageIdChain() as $languageId) {
+                    $fieldName = $this->getTranslatedFieldName($accessor, $languageId);
+                    $query->addQuery(new WildcardQuery($fieldName, '*' . $value));
+                }
             }
         }
 
@@ -776,10 +767,14 @@ class CriteriaParser
         $query = new RangeQuery($accessor, $value);
 
         if ($field instanceof TranslatedField) {
-            $query = new DisMaxQuery();
-            foreach ($context->getLanguageIdChain() as $languageId) {
-                $fieldName = $this->getTranslatedFieldName($accessor, $languageId);
-                $query->addQuery(new RangeQuery($fieldName, $value));
+            if ($field->useForSorting()) {
+                $query = new RangeQuery($this->getTranslatedFieldName($accessor, $context->getLanguageId()), $value);
+            } else {
+                $query = new DisMaxQuery();
+                foreach ($context->getLanguageIdChain() as $languageId) {
+                    $fieldName = $this->getTranslatedFieldName($accessor, $languageId);
+                    $query->addQuery(new RangeQuery($fieldName, $value));
+                }
             }
         }
 
@@ -1120,5 +1115,47 @@ class CriteriaParser
     private function constructScriptQuery(array $script, array $parameters): ScriptQuery
     {
         return new ScriptQuery($script['source'], $parameters);
+    }
+
+    private function buildFieldSort(FieldSorting $sorting, EntityDefinition $definition, Context $context): FieldSort
+    {
+        if ($this->isCheapestPriceField($sorting->getField())) {
+            $scriptContent = $this->getScript('cheapest_price');
+
+            return new FieldSort('_script', $sorting->getDirection(), null, [
+                'type' => 'number',
+                'script' => array_merge($scriptContent, [
+                    'params' => $this->getCheapestPriceParameters($context),
+                ]),
+            ]);
+        }
+
+        if ($this->isCheapestPriceField($sorting->getField(), true)) {
+            $scriptContent = $this->getScript('cheapest_price_percentage');
+
+            return new FieldSort('_script', $sorting->getDirection(), null, [
+                'type' => 'number',
+                'script' => array_merge($scriptContent, [
+                    'params' => ['accessors' => $this->getCheapestPriceAccessors($context, true)],
+                ]),
+            ]);
+        }
+
+        $field = $this->helper->getField($sorting->getField(), $definition, $definition->getEntityName(), false);
+        $accessor = $this->buildAccessor($definition, $sorting->getField(), $context);
+
+        if ($field instanceof TranslatedField) {
+            if (!$field->useForSorting()) {
+                return $this->createTranslatedSorting($definition->getEntityName(), $sorting, $context);
+            }
+
+            $accessor = $this->getTranslatedFieldName($accessor, $context->getLanguageId());
+        }
+
+        if ($sorting instanceof CountSorting) {
+            return new CountSort($accessor, $sorting->getDirection());
+        }
+
+        return new FieldSort($accessor, $sorting->getDirection());
     }
 }

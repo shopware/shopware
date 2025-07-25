@@ -197,7 +197,7 @@ class ProductDefinition extends EntityDefinition
             (new TranslatedField('metaTitle'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('packUnit'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('packUnitPlural'))->addFlags(new ApiAware(), new Inherited()),
-            (new TranslatedField('customFields', true))->addFlags(new ApiAware(), new Inherited()),
+            (new TranslatedField('customFields'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('slotConfig'))->addFlags(new Inherited()),
             (new TranslatedField('customSearchKeywords'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
 

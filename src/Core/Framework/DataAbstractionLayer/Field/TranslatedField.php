@@ -17,9 +17,9 @@ class TranslatedField extends Field
     private readonly string $foreignFieldName;
 
     /**
-     * @param bool $prefilledFallback - only relevant in OpenSearch context, if true, the translated field is filled with fallback value if no translation is available.
+     * @param bool $useForSorting - only relevant in OpenSearch context, if true, the translated field is filled with fallback value if no translation is available.
      */
-    public function __construct(string $propertyName, private readonly bool $prefilledFallback = false)
+    public function __construct(string $propertyName, private readonly bool $useForSorting = false)
     {
         $this->foreignClassName = LanguageDefinition::class;
         $this->foreignFieldName = 'id';
@@ -42,9 +42,9 @@ class TranslatedField extends Field
         return $this->foreignFieldName;
     }
 
-    public function isPrefilledFallback(): bool
+    public function useForSorting(): bool
     {
-        return $this->prefilledFallback;
+        return $this->useForSorting;
     }
 
     protected function getSerializerClass(): string

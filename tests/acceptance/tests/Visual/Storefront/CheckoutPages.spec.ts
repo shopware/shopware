@@ -1,5 +1,6 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
-import path from 'path';
+import { hideElements, replaceElements } from '@shopware-ag/acceptance-test-suite';
+
 
 test('Visual: storefront:checkout/finish.', { tag: '@Visual' }, async ({
     ShopCustomer,
@@ -23,11 +24,18 @@ test('Visual: storefront:checkout/finish.', { tag: '@Visual' }, async ({
         await ShopCustomer.attemptsTo(AddProductToCart(product));
         await StorefrontProductDetail.offCanvasCartGoToCheckoutButton.click();
         await ShopCustomer.expects(StorefrontCheckoutRegister.cartLineItemImages).toBeVisible();
+        
+        await hideElements(StorefrontCheckoutRegister.page, [
+            '.cookie-permission-container',
+        ]);
+        await replaceElements(StorefrontCheckoutRegister.page, [
+            '.line-item-label',
+            '.line-item-product-number',
+            '.line-item-delivery-date',
+        ]);
 
-        await StorefrontCheckoutFinish.page.setViewportSize({ width: 1280, height: 1440});
-
-        await expect(StorefrontCheckoutRegister.page).toHaveScreenshot({
-            stylePath: path.resolve('./tests/Visual/screenshot.css'),
+        await expect(StorefrontCheckoutRegister.page).toHaveScreenshot('Checkout-Register.png', {
+            fullPage: true,
         });
     });
 
@@ -36,10 +44,21 @@ test('Visual: storefront:checkout/finish.', { tag: '@Visual' }, async ({
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
         await ShopCustomer.attemptsTo(AddProductToCart(product));
         await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
-        await StorefrontCheckoutFinish.page.setViewportSize({ width: 1280, height: 1640});
+        
+        await hideElements(StorefrontCheckoutConfirm.page, [
+            '.cookie-permission-container',
+        ]);
 
-        await expect(StorefrontCheckoutConfirm.page).toHaveScreenshot({
-            stylePath: path.resolve('./tests/Visual/screenshot.css'),
+        await replaceElements(StorefrontCheckoutConfirm.page, [
+            '.line-item-label',
+            '.line-item-product-number',
+            '.line-item-delivery-date',
+            '.confirm-address-shipping',
+            '.confirm-address-billing',
+        ]);
+
+        await expect(StorefrontCheckoutConfirm.page).toHaveScreenshot('Checkout-Confirm.png', {
+            fullPage: true,
         });
     });
 
@@ -50,14 +69,22 @@ test('Visual: storefront:checkout/finish.', { tag: '@Visual' }, async ({
         await ShopCustomer.attemptsTo(SubmitOrder());
         const orderId = StorefrontCheckoutFinish.getOrderId();
         TestDataService.addCreatedRecord('order', orderId);
-
         await StorefrontCheckoutFinish.page.setViewportSize({ width: 1280, height: 1440});
+        
+        await hideElements(StorefrontCheckoutFinish.page, [
+            '.cookie-permission-container',
+        ]);
+        await replaceElements(StorefrontCheckoutFinish.page, [
+            '.line-item-label',
+            '.line-item-product-number',
+            '.line-item-delivery-date',
+            '.finish-ordernumber',
+            '.finish-address-shipping',
+            '.finish-address-billing',
+        ]);
 
-        await expect(StorefrontCheckoutFinish.page).toHaveScreenshot({
-            stylePath: path.resolve('./tests/Visual/screenshot.css'),
-            mask: [
-                StorefrontCheckoutFinish.page.locator('.finish-ordernumber'),
-            ],
+        await expect(StorefrontCheckoutFinish.page).toHaveScreenshot('Checkout-Finish.png', {
+            fullPage: true,
         });
     });
 });

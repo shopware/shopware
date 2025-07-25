@@ -763,7 +763,10 @@ class SendMailActionTest extends TestCase
         $order = $this->orderRepository->search($criteria, $context->getContext())->first();
         $event = new CheckoutOrderPlacedEvent($context, $order);
 
+        /** @var Translator $translator */
         $translator = static::getContainer()->get(Translator::class);
+        $flagDuringMailProcessing = null;
+
         $mailService = new TestEmailService(static::getContainer()->get(MailFactory::class));
         $subscriber = new SendMailAction(
             $mailService,
@@ -777,20 +780,17 @@ class SendMailActionTest extends TestCase
             true
         );
 
-        static::assertFalse($translator->shouldResetInjection);
+        static::getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, function () use ($translator, &$flagDuringMailProcessing): void {
+            $flagDuringMailProcessing = $translator->shouldResetInjection;
+        });
 
         $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
         $flow->setConfig($config);
 
-        $beforeHandleFlow = false;
-        static::getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, function () use ($translator, &$beforeHandleFlow): void {
-            $beforeHandleFlow = $translator->shouldResetInjection;
-        });
-
         $subscriber->handleFlow($flow);
 
-        static::assertTrue($beforeHandleFlow);
+        static::assertTrue($flagDuringMailProcessing);
         static::assertFalse($translator->shouldResetInjection);
     }
 

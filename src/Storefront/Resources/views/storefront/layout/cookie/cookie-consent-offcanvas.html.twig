@@ -1,0 +1,24 @@
+{% set feature = featureName|default('wishlist') %}
+{% set cookie = cookieName|default('wishlist-enabled') %}
+
+{% sw_extends '@Storefront/storefront/utilities/offcanvas.html.twig' %}
+
+{% block utilities_offcanvas_close_text %}
+    {{ ('cookie.' ~ feature ~ '.title')|trans }}
+{% endblock %}
+
+{% block utilities_offcanvas_content %}
+    <div class="offcanvas-cookie" data-offcanvas-feature-cookie="true">
+         <p class="offcanvas-cookie-description">
+             {{ ('cookie.' ~ feature ~ '.description')|trans({'%cookieName%': cookie}) }}
+         </p>
+        <div class="offcanvas-cookie-list">
+            <div class="d-grid gap-2 mb-2">
+                <button class="btn btn-primary js-wishlist-cookie-accept">{{ ('cookie.' ~ feature ~ '.accept')|trans }}</button>
+                <button class="btn btn-primary js-wishlist-login">{{ ('cookie.' ~ feature ~ '.login')|trans }}</button>
+                <button class="btn btn-secondary js-wishlist-cookie-offcanvas-cancel">{{ 'global.default.cancel'|trans }}</button>
+            </div>
+            <a href="#" class="js-wishlist-cookie-preferences text-center d-block mt-3">{{ 'cookie.headline'|trans }}</a>
+        </div>
+    </div>
+{% endblock %}

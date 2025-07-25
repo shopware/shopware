@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tag\TagEntity;
+use Shopware\Elasticsearch\Product\SearchConfigLoader;
 
 /**
  * @internal
@@ -44,7 +45,16 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         $tokenFilter = $this->createMock(TokenFilter::class);
         $tokenFilter->method('filter')->willReturnCallback(fn (array $tokens) => $tokens);
 
-        $analyzer = new ProductSearchKeywordAnalyzer($tokenizer, $tokenFilter);
+        $configLoader = $this->createMock(SearchConfigLoader::class);
+        $configLoader->method('load')
+            ->willReturn([
+                [
+                    'min_search_length' => 3,
+                ],
+            ]);
+
+        $analyzer = new ProductSearchKeywordAnalyzer($tokenizer, $tokenFilter, $configLoader);
+
         $analyzer = $analyzer->analyze($product, $this->context, $configFields);
         $analyzerResult = $analyzer->getKeys();
 
@@ -245,6 +255,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
     {
         $tokenizer = $this->createMock(TokenizerInterface::class);
         $tokenizer->method('tokenize')
+            ->with('value1 value2 value3', 3)
             ->willReturnCallback(function (string $text) {
                 return explode(' ', $text);
             });
@@ -253,7 +264,19 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         $tokenFilter->method('filter')
             ->willReturnArgument(0);
 
-        $analyzer = new ProductSearchKeywordAnalyzer($tokenizer, $tokenFilter);
+        $configLoader = $this->createMock(SearchConfigLoader::class);
+        $configLoader->method('load')
+            ->willReturn([
+                [
+                    'min_search_length' => 3,
+                ],
+            ]);
+
+        $analyzer = new ProductSearchKeywordAnalyzer(
+            $tokenizer,
+            $tokenFilter,
+            $configLoader
+        );
 
         $config = [
             [

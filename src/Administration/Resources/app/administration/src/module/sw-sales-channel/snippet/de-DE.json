@@ -217,7 +217,7 @@
         "messageAccessKeyChanged": "Der Zugangsschlüssel und die geänderte Export-URL werden erst nach dem Speichern aktiv.",
         "templates": {
           "label": "Template",
-          "placeholderSelectTemplate": "Wähle eine Template aus ...",
+          "placeholderSelectTemplate": "Wähle ein Template aus ...",
           "template-label": {
             "billiger-de": "billiger.de (CSV)",
             "idealo": "idealo.de (CSV)",

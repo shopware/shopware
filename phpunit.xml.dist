@@ -42,6 +42,7 @@
             <directory suffix=".php">src/Core/Migration/Test</directory>
             <directory suffix=".php">src/Elasticsearch/Test</directory>
             <directory suffix=".php">src/Storefront/Test</directory>
+            <directory suffix=".php">src/tests/unit/Core/System/Snippet/Mock</directory>
 
             <directory suffix="Definition.php">src/Core/</directory>
             <directory suffix="Entity.php">src/Core/</directory>

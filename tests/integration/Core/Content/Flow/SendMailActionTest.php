@@ -740,6 +740,60 @@ class SendMailActionTest extends TestCase
         }
     }
 
+    public function testTranslatorShouldResetInjectionFlag(): void
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+
+        $context = Generator::generateSalesChannelContext();
+
+        $customerId = $this->createCustomer($context->getContext());
+        $orderId = $this->createOrder($customerId, $context->getContext());
+
+        $mailTemplateId = $this->retrieveMailTemplateId();
+
+        $config = [
+            'mailTemplateId' => $mailTemplateId,
+            'recipient' => ['type' => 'customer'],
+        ];
+
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('transactions.stateMachineState');
+        /** @var OrderEntity $order */
+        $order = $this->orderRepository->search($criteria, $context->getContext())->first();
+        $event = new CheckoutOrderPlacedEvent($context, $order);
+
+        $translator = static::getContainer()->get(Translator::class);
+        $mailService = new TestEmailService(static::getContainer()->get(MailFactory::class));
+        $subscriber = new SendMailAction(
+            $mailService,
+            static::getContainer()->get('mail_template.repository'),
+            static::getContainer()->get('logger'),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('mail_template_type.repository'),
+            $translator,
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(LanguageLocaleCodeProvider::class),
+            true
+        );
+
+        static::assertFalse($translator->shouldResetInjection);
+
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
+        $flow = $flowFactory->create($event);
+        $flow->setConfig($config);
+
+        $beforeHandleFlow = false;
+        static::getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, function () use ($translator, &$beforeHandleFlow): void {
+            $beforeHandleFlow = $translator->shouldResetInjection;
+        });
+
+        $subscriber->handleFlow($flow);
+
+        static::assertTrue($beforeHandleFlow);
+        static::assertFalse($translator->shouldResetInjection);
+    }
+
     private function createCustomer(Context $context): string
     {
         $customerId = Uuid::randomHex();

@@ -23,6 +23,20 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
         );
     }
 
+    async function dragSidebarToWidth(wrapper, clientX) {
+        const resizeHandle = wrapper.find('.sw-sidebar-renderer__resize-handle');
+        expect(resizeHandle.exists()).toBe(true);
+
+        await resizeHandle.trigger('mousedown', { clientX: 100 });
+
+        await wrapper.vm.$nextTick();
+        expect(wrapper.vm.sidebarDisplayOptions.isResizing).toBe(true);
+        document.dispatchEvent(new MouseEvent('mousemove', { clientX }));
+        document.dispatchEvent(new MouseEvent('mouseup'));
+        await wrapper.vm.$nextTick();
+        expect(wrapper.vm.sidebarDisplayOptions.isResizing).toBe(false);
+    }
+
     beforeAll(() => {
         initializeSidebar();
 
@@ -89,7 +103,11 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
     });
 
     describe('resize functionality', () => {
+        const PAGE_WIDTH = 1920;
+        const MAIN_CONTENT_MIN_SIZE = 1400;
+
         beforeEach(() => {
+            window.innerWidth = PAGE_WIDTH;
             mockLocalStorage.getItem.mockClear();
             mockLocalStorage.setItem.mockClear();
         });
@@ -99,7 +117,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
 
             const wrapper = await createWrapper();
 
-            expect(wrapper.vm.sidebarWidth).toBe(600);
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('600px');
             expect(mockLocalStorage.getItem).toHaveBeenCalledWith('sw-sidebar-width');
         });
 
@@ -115,13 +133,9 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
 
             const resizeHandle = wrapper.find('.sw-sidebar-renderer__resize-handle');
 
-            Element.prototype.getBoundingClientRect = jest.fn(() => ({
-                right: 500,
-            }));
-
             await resizeHandle.trigger('mousedown', { clientX: 100 });
 
-            expect(wrapper.vm.isResizing).toBe(true);
+            expect(wrapper.vm.sidebarDisplayOptions.isResizing).toBe(true);
             expect(document.body.style.cursor).toBe('col-resize');
         });
 
@@ -135,24 +149,10 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             Shopware.Store.get('sidebar').sidebars[0].active = true;
             await wrapper.vm.$nextTick();
 
-            const mockElement = document.createElement('div');
-            mockElement.getBoundingClientRect = jest.fn(() => ({ right: 700 }));
-            document.querySelector = jest.fn(() => mockElement);
+            await dragSidebarToWidth(wrapper, 1300);
 
-            await wrapper.vm.startResize({ preventDefault: jest.fn(), clientX: 100 });
-
-            expect(wrapper.vm.isResizing).toBe(true);
-
-            const mouseMoveEvent = new MouseEvent('mousemove', { clientX: 200 });
-            document.dispatchEvent(mouseMoveEvent);
-
-            expect(wrapper.vm.sidebarWidth).toBe(500);
-
-            const mouseUpEvent = new MouseEvent('mouseup');
-            document.dispatchEvent(mouseUpEvent);
-
-            expect(wrapper.vm.isResizing).toBe(false);
-            expect(mockLocalStorage.setItem).toHaveBeenCalledWith('sw-sidebar-width', '500');
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`${PAGE_WIDTH - 1300}px`);
+            expect(mockLocalStorage.setItem).toHaveBeenCalledWith('sw-sidebar-width', `${PAGE_WIDTH - 1300}`);
         });
 
         it('should determine overlay mode based on threshold', async () => {
@@ -160,12 +160,46 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
 
             const wrapper = await createWrapper();
 
-            expect(wrapper.vm.isOverlayMode).toBe(false);
-
-            wrapper.vm.sidebarWidth = 600;
+            await ui.sidebar.add({
+                title: 'Test sidebar',
+                locationId: 'test-sidebar',
+            });
+            Shopware.Store.get('sidebar').sidebars[0].active = true;
             await wrapper.vm.$nextTick();
 
-            expect(wrapper.vm.isOverlayMode).toBe(true);
+            expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(false);
+
+            await dragSidebarToWidth(wrapper, 1000);
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(true);
+            expect(wrapper.vm.sidebarDisplayOptions.availableWidth).toBe(`${PAGE_WIDTH - MAIN_CONTENT_MIN_SIZE}px`);
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`${PAGE_WIDTH - 1000}px`);
+        });
+
+        it('should handle window resizing', async () => {
+            let eventListener = null;
+            window.addEventListener = jest.fn((event, callback) => {
+                if (event === 'resize') {
+                    eventListener = callback;
+                }
+            });
+
+            const wrapper = await createWrapper();
+
+            expect(wrapper.vm.sidebarDisplayOptions.availableWidth).toBe(`${PAGE_WIDTH - MAIN_CONTENT_MIN_SIZE}px`);
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`480px`);
+            expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(false);
+            expect(window.addEventListener).toHaveBeenCalledWith('resize', expect.any(Function));
+            expect(eventListener).toBeDefined();
+
+            window.innerWidth = 1400;
+            eventListener();
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.vm.sidebarDisplayOptions.availableWidth).toBe(`${1400 - MAIN_CONTENT_MIN_SIZE}px`);
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`480px`);
+            expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(true);
         });
     });
 });

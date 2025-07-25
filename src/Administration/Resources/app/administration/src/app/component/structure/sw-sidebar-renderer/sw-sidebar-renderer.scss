@@ -1,12 +1,32 @@
+.sw-sidebar-renderer-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 30%);
+    z-index: 999;
+    cursor: pointer;
+    animation: fadeIn 0.3s ease-in-out;
+
+    &.is-resizing {
+        cursor: col-resize;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+}
+
 .sw-sidebar-renderer {
-    min-width: 300px;
-    flex-direction: column;
-    border-left: 1px solid var(--color-border-primary-default);
     background: var(--color-elevation-surface-raised);
-    position: relative;
     transition: all 0.3s ease-in-out;
     will-change: width;
-    contain: layout style;
+    display: none;
+    z-index: 1000;
 
     iframe {
         width: 100%;
@@ -28,37 +48,28 @@
         }
     }
 
-    &.is-overlay {
+    &.is-active {
+        display: block;
+    }
+
+    &__overlay {
         position: fixed;
+        display: flex;
+        flex-direction: column;
         top: 0;
         right: 0;
         bottom: 0;
-        z-index: 1000;
+        border-left: 1px solid var(--color-border-primary-default);
+        height: 100%;
+        max-width: 90vw;
+        transition: all 0.3s ease-in-out;
+        overflow: hidden;
+    }
+
+    &.is-overlay .sw-sidebar-renderer__overlay {
         box-shadow: -4px 0 16px rgba(0, 0, 0, 15%);
         border-left: 1px solid var(--color-border-primary-default);
         border-radius: 8px 0 0 8px;
-    }
-
-    &__backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 30%);
-        z-index: 999;
-        cursor: pointer;
-        animation: fadeIn 0.3s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-
-        to {
-            opacity: 1;
-        }
     }
 
     &__resize-handle {

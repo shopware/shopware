@@ -49,7 +49,7 @@ Why does this matter? Because it enables:
 
 Every API response starts with this foundation:
 
-```json
+```json5
 {
   "storeTemplate": { /* Global store frame */ },
   "pageTemplate": { /* Page-specific content */ },
@@ -65,7 +65,7 @@ The separation between `storeTemplate` and `pageTemplate` at the root level imme
 
 The Store Template defines your application's persistent frame:
 
-```json
+```json5
 {
   "id": "uuid",
   "type": "store-template",
@@ -85,7 +85,7 @@ Notice the `content` section—it's deliberately minimal, containing only a plac
 
 Where Store Templates provide structure, Page Templates bring life:
 
-```json
+```json5
 {
   "id": "uuid",
   "type": "category-listing",
@@ -104,7 +104,7 @@ The `type` field here (`category-listing`) immediately tells smart renderers wha
 
 Every element adheres to a consistent pattern that balances flexibility with predictability:
 
-```json
+```json5
 {
   "id": "uuid",
   "type": "element-type",
@@ -112,7 +112,7 @@ Every element adheres to a consistent pattern that balances flexibility with pre
   "data": { /* Element configuration and data */ },
   "style": { /* Visual styling properties */ },
   "slots": { /* Named slots for nested elements */ },
-  "elements": [ /* Direct child elements */ },
+  "elements": [ /* Direct child elements */ ],
   "attributes": { /* HTML attributes (optional) */ }
 }
 ```
@@ -145,51 +145,68 @@ This escape hatch allows platform-specific metadata. Web renderers might use the
 
 ## Style Properties
 
-The style system deserves special attention for its pragmatic approach to cross-platform styling:
-
 ### Common Style Properties
 
-```json
+```json5
 {
   "style": {
     // Layout
-    "layout": "horizontal" | "vertical" | "grid" | "sidebar-content",
-    "alignment": "left" | "center" | "right" | "space-between",
-    "verticalAlignment": "top" | "center" | "bottom",
+    // layout: "horizontal" | "vertical" | "grid" | "sidebar-content"
+    "layout": "horizontal",
+    // alignment: "left" | "center" | "right" | "space-between"
+    "alignment": "left",
+    // verticalAlignment: "top" | "center" | "bottom"
+    "verticalAlignment": "top",
     
     // Sizing
-    "size": "small" | "medium" | "large" | "extra-large",
-    "width": "150" | "full" | "auto",
-    "height": "40" | "full" | "auto",
-    "maxWidth": "1200" | "full",
+    // size: "small" | "medium" | "large" | "extra-large"
+    "size": "small",
+    // width: "small" | "medium" | "large" | "extra-large"
+    "width": "150",
+    // height: "40" | "full" | "auto"
+    "height": "40",
+    // maxWidth: "1200" | "full"
+    "maxWidth": "1200",
     
     // Spacing
-    "padding": "small" | "medium" | "large",
+    // padding: "small" | "medium" | "large"
+    "padding": "small",
     "spacing": {
       "top": "small",
       "bottom": "medium",
       "horizontal": "large"
     },
-    "gap": "small" | "medium" | "large",
+    // gap: "small" | "medium" | "large"  
+    "gap": "small",
     
     // Visual
-    "background": "white" | "light-gray" | "dark-blue" | "#hexcode",
-    "textColor": "dark" | "gray" | "white",
-    "corners": "none" | "slightly-rounded" | "rounded" | "fully-rounded",
-    "shadow": "none" | "subtle" | "small" | "medium" | "large",
+    // background: "white" | "light-gray" | "dark-blue" | "#hexcode"  
+    "background": "white",
+    // textColor: "dark" | "gray" | "white"  
+    "textColor": "dark",
+    // corners: "none" | "slightly-rounded" | "rounded" | "fully-rounded"  
+    "corners": "none",
+    // shadow: "none" | "subtle" | "small" | "medium" | "large
+    "shadow": "none",
     
     // Typography
-    "weight": "normal" | "medium" | "semibold" | "bold",
-    "lineHeight": "tight" | "normal" | "relaxed",
+    // weight: "normal" | "medium" | "semibold" | "bold"
+    "weight": "normal",
+    // lineHeight: "tight" | "normal" | "relaxed"
+    "lineHeight": "tight",
     "truncate": {
       "lines": 2,
       "showEllipsis": true
     },
     
     // Effects
-    "hoverEffect": "none" | "lift" | "glow",
-    "clickable": true | false,
-    "sticky": true | false,
+    // hoverEffect: "none" | "lift" | "glow"
+    "hoverEffect": "none",
+    // clickable: true | false
+    "clickable": true,
+    // sticky: true | false
+    "sticky": true,
+    // stickyOffset: 100
     "stickyOffset": "100"
   }
 }
@@ -205,7 +222,7 @@ The API supports two distinct data loading strategies, each optimized for differ
 
 When performance allows and data size is reasonable, embedding complete data provides the best user experience:
 
-```json
+```json5
 {
   "type": "product-box",
   "data": {
@@ -223,7 +240,7 @@ When performance allows and data size is reasonable, embedding complete data pro
 
 For larger datasets or below-the-fold content, lazy loading preserves initial load performance:
 
-```json
+```json5
 {
   "slots": {
     "content": {
@@ -242,7 +259,7 @@ The choice between these patterns isn't just about performance—it's about user
 ### Container Elements
 
 **Grid**
-```json
+```json5
 {
   "type": "grid",
   "version": "2.0.0",
@@ -262,7 +279,7 @@ Grid elements demonstrate how responsive design translates across platforms. The
 ### Content Elements
 
 **Heading**
-```json
+```json5
 {
   "type": "heading",
   "version": "1.0.0",
@@ -276,7 +293,7 @@ Grid elements demonstrate how responsive design translates across platforms. The
 Even simple elements benefit from explicit versioning. Future versions might add text alignment or styling options without breaking existing renderers.
 
 **Button**
-```json
+```json5
 {
   "type": "button",
   "version": "1.0.0",
@@ -298,7 +315,7 @@ Buttons showcase the separation between data (what happens when clicked) and pre
 ### Complex Components
 
 **Product Box**
-```json
+```json5
 {
   "type": "product-box",
   "version": "2.3.0",
@@ -322,7 +339,7 @@ Complex components leverage both high-level data and granular slots. Smart rende
 
 Context provides the environmental information necessary for proper rendering:
 
-```json
+```json5
 {
   "context": {
     "salesChannelId": "uuid",
@@ -340,7 +357,7 @@ This isn't just metadata—it's essential rendering context. Prices display in t
 
 SEO remains crucial for web platforms, so page templates include comprehensive metadata:
 
-```json
+```json5
 {
   "seo": {
     "metaTitle": "Page Title",

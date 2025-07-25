@@ -70,7 +70,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
         $groupCriteria = new Criteria();
         $groupCriteria->addFilter(new EqualsFilter('filterable', true));
 
-        $chunkIds = array_chunk($ids, 500);
+        $chunkIds = array_chunk($ids, 1000);
         $groups = new PropertyGroupCollection();
         $previousIds = [];
 
@@ -94,15 +94,11 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
             $groups->fill($entities);
         }
 
-        foreach ($groups as $group) {
-            $group->setOptions(new PropertyGroupOptionCollection());
-        }
-
         $optionCriteria = new Criteria();
         $optionCriteria->addAssociation('media');
         $optionCriteria->setTitle('product-listing::property-filter');
 
-        $options = new PropertyGroupOptionCollection();
+        $options = [];
 
         foreach ($chunkIds as $chunk) {
             $cloned = clone $optionCriteria;
@@ -111,10 +107,14 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
 
             $entities = $this->optionRepository->search($cloned, $context->getContext());
 
-            $options->fill($entities->getElements());
+            $options = array_merge($options, $entities->getElements());
         }
 
-        foreach ($options->getIterator() as $option) {
+        foreach ($groups as $group) {
+            $group->setOptions(new PropertyGroupOptionCollection());
+        }
+
+        foreach ($options as $option) {
             $groups->get($option->getGroupId())->getOptions()?->add($option);
         }
 

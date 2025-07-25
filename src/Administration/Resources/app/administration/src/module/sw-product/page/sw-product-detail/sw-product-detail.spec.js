@@ -595,7 +595,42 @@ describe('module/sw-product/page/sw-product-detail', () => {
             message: 'sw-product.notification.notificationSaveErrorProductNoAlreadyExists',
         });
         expect(wrapper.vm.isSaveSuccessful).toBe(false);
-        expect(wrapper.vm.loadProduct).toHaveBeenCalled();
+        expect(wrapper.vm.loadProduct).not.toHaveBeenCalled();
+    });
+
+    it('should handle duplicate product number error when seo promises are empty', async () => {
+        wrapper.vm.updateSeoPromises = [];
+        wrapper.vm.isSaveSuccessful = false;
+        wrapper.vm.loadProduct = jest.fn();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        const duplicateErrorResponse = {
+            response: {
+                data: {
+                    errors: [
+                        {
+                            code: 'CONTENT__DUPLICATE_PRODUCT_NUMBER',
+                            meta: {
+                                parameters: {
+                                    number: 'SW-123',
+                                },
+                            },
+                        },
+                    ],
+                },
+            },
+        };
+
+        wrapper.vm.onSaveFinished(duplicateErrorResponse);
+
+        await flushPromises();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            title: 'global.default.error',
+            message: 'sw-product.notification.notificationSaveErrorProductNoAlreadyExists',
+        });
+        expect(wrapper.vm.isSaveSuccessful).toBe(false);
+        expect(wrapper.vm.loadProduct).not.toHaveBeenCalled();
     });
 
     it('should handle generic error with detail correctly', async () => {
@@ -623,7 +658,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             message: 'Custom error message',
         });
         expect(wrapper.vm.isSaveSuccessful).toBe(false);
-        expect(wrapper.vm.loadProduct).toHaveBeenCalled();
+        expect(wrapper.vm.loadProduct).not.toHaveBeenCalled();
     });
 
     it('should handle SEO promise rejection correctly', async () => {

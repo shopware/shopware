@@ -106,6 +106,29 @@
             </template>
             {% endblock %}
 
+            <template #column-active="{ item, isInlineEdit }">
+                <template v-if="isInlineEdit && !isDefault(item.id)">
+                    <mt-checkbox
+                        v-model:checked="item.active"
+                    />
+                </template>
+
+                <template v-else>
+                    <mt-icon
+                        v-if="item.active"
+                        name="regular-checkmark-xs"
+                        size="16px"
+                        class="is--active"
+                    />
+                    <mt-icon
+                        v-else
+                        name="regular-times-s"
+                        size="16px"
+                        class="is--inactive"
+                    />
+                </template>
+            </template>
+
             {% block sw_settings_language_list_content_list_column_locale %}
             <template #column-locale="{ item, column, compact, isInlineEdit }">
                 {{ item.locale.translated.name }}, {{ item.locale.translated.territory }}
@@ -118,7 +141,7 @@
                     v-if="isDefault(item.id)"
                     name="regular-checkmark-xs"
                     size="16px"
-                    class="is--default"
+                    class="is--active"
                 />
                 <div v-else></div>
             </template>

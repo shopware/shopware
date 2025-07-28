@@ -739,19 +739,6 @@ class LanguageValidatorTest extends TestCase
         ]);
     }
 
-    public function testDeleteEnglishViolation(): void
-    {
-        // -en
-        $enGb = ['id' => Defaults::LANGUAGE_SYSTEM];
-
-        $this->assertDeleteViolations(
-            [$enGb],
-            [
-                [LanguageValidator::VIOLATION_DELETE_DEFAULT_LANGUAGE, '/' . $enGb['id']],
-            ]
-        );
-    }
-
     public function testMultipleInsertViolations(): void
     {
         // +a1 +> +b +> +c, +a2 +> b

@@ -420,7 +420,7 @@ class SystemConfigService implements ResetInterface
             return;
         }
 
-        $this->setMultiple(array_fill_keys($configKeys, null));
+        $this->deleteConfigKeysAcrossAllSalesChannels($configKeys);
     }
 
     /**
@@ -458,6 +458,68 @@ class SystemConfigService implements ResetInterface
         $this->traces = [];
         $this->keys = ['all' => true];
         $this->appMapping = null;
+    }
+
+    /**
+     * Deletes configuration keys across all sales channels efficiently while maintaining BC by dispatching events
+     *
+     * @param array<string> $configKeys
+     */
+    private function deleteConfigKeysAcrossAllSalesChannels(array $configKeys): void
+    {
+        // First, fetch all existing entries to dispatch events
+        $existingEntries = $this->connection->fetchAllAssociative(
+            'SELECT configuration_key, sales_channel_id FROM system_config WHERE configuration_key IN (:keys)',
+            ['keys' => $configKeys],
+            ['keys' => ArrayParameterType::STRING]
+        );
+
+        if (empty($existingEntries)) {
+            return;
+        }
+
+        // Group by sales channel for event dispatching
+        $entriesBySalesChannel = [];
+        foreach ($existingEntries as $entry) {
+            $salesChannelId = $entry['sales_channel_id'] ? Uuid::fromBytesToHex($entry['sales_channel_id']) : null;
+            $entriesBySalesChannel[$salesChannelId][] = $entry['configuration_key'];
+        }
+
+        // Dispatch before events per sales channel
+        foreach ($entriesBySalesChannel as $salesChannelId => $keys) {
+            $salesChannelId = $salesChannelId === '' ? null : $salesChannelId;
+            $values = array_fill_keys($keys, null);
+
+            // Dispatch individual before events for BC
+            foreach ($keys as $key) {
+                $event = new BeforeSystemConfigChangedEvent($key, null, $salesChannelId);
+                $this->dispatcher->dispatch($event);
+            }
+
+            $this->dispatcher->dispatch(new BeforeSystemConfigMultipleChangedEvent($values, $salesChannelId));
+        }
+
+        // Bulk delete via SQL
+        $this->connection->executeStatement(
+            'DELETE FROM system_config WHERE configuration_key IN (:keys)',
+            ['keys' => $configKeys],
+            ['keys' => ArrayParameterType::STRING]
+        );
+
+        // Dispatch after events per sales channel
+        foreach ($entriesBySalesChannel as $salesChannelId => $keys) {
+            $salesChannelId = $salesChannelId === '' ? null : $salesChannelId;
+            $values = array_fill_keys($keys, null);
+
+            // Dispatch individual change events for BC
+            foreach ($keys as $key) {
+                $this->dispatcher->dispatch(new SystemConfigChangedEvent($key, null, $salesChannelId));
+            }
+
+            // Dispatch hook and multiple changed event
+            $this->dispatcher->dispatch(new SystemConfigChangedHook($values, $this->getAppMapping(), $salesChannelId));
+            $this->dispatcher->dispatch(new SystemConfigMultipleChangedEvent($values, $salesChannelId));
+        }
     }
 
     /**

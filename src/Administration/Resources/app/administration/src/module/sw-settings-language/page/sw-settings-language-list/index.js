@@ -73,24 +73,38 @@ export default {
                     label: 'sw-settings-language.list.columnName',
                     dataIndex: 'name',
                     inlineEdit: true,
+                    allowResize: true,
+                },
+                {
+                    property: 'id',
+                    label: 'sw-settings-language.list.columnDefault',
+                    align: 'center',
+                    allowResize: true,
+                },
+                {
+                    property: 'active',
+                    dataIndex: 'active',
+                    label: 'sw-settings-language.list.columnActive',
+                    inlineEdit: 'boolean',
+                    allowResize: true,
+                    align: 'center',
                 },
                 {
                     property: 'locale',
                     dataIndex: 'locale.id',
                     label: 'sw-settings-language.list.columnLocaleName',
+                    allowResize: true,
                 },
                 {
                     property: 'translationCode.code',
                     label: 'sw-settings-language.list.columnIsoCode',
+                    allowResize: true,
                 },
                 {
                     property: 'parent',
                     dataIndex: 'parent.id',
                     label: 'sw-settings-language.list.columnInherit',
-                },
-                {
-                    property: 'id',
-                    label: 'sw-settings-language.list.columnDefault',
+                    allowResize: true,
                 },
             ];
         },

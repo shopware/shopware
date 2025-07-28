@@ -92,7 +92,6 @@ use Shopware\Core\System\Unit\UnitDefinition;
 use Shopware\Core\System\Unit\UnitEntity;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -137,6 +136,11 @@ class ImportExportTest extends AbstractImportExportTestCase
 
     public function testExportEvents(): void
     {
+        $profilerNeedsToBeDisabledAgain = !self::getContainer()->get('profiler')->isEnabled();
+        if ($profilerNeedsToBeDisabledAgain) {
+            self::getContainer()->get('profiler')->enable();
+        }
+
         $this->listener->addSubscriber(new StockSubscriber());
 
         $productId = Uuid::randomHex();
@@ -153,10 +157,19 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         $csv = $this->getCsvContent($progress->getLogId());
         static::assertStringContainsString(\sprintf(';%s;', $newStock), $csv);
+
+        if ($profilerNeedsToBeDisabledAgain) {
+            self::getContainer()->get('profiler')->disable();
+        }
     }
 
     public function testImportEvents(): void
     {
+        $profilerNeedsToBeDisabledAgain = !self::getContainer()->get('profiler')->isEnabled();
+        if ($profilerNeedsToBeDisabledAgain) {
+            self::getContainer()->get('profiler')->enable();
+        }
+
         $this->listener->addSubscriber(new TestSubscriber());
         $this->importCategoryCsv();
         $events = array_column($this->listener->getCalledListeners(), 'event');
@@ -164,6 +177,10 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertContains(ImportExportBeforeImportRecordEvent::class, $events);
         static::assertContains(ImportExportAfterImportRecordEvent::class, $events);
         static::assertNotContains(ImportExportExceptionImportRecordEvent::class, $events);
+
+        if ($profilerNeedsToBeDisabledAgain) {
+            self::getContainer()->get('profiler')->disable();
+        }
     }
 
     public function testImportExport(): void
@@ -914,7 +931,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
             $importExportService,
             $logEntity,
             static::getContainer()->get('shopware.filesystem.private'),
-            $this->createMock(EventDispatcherInterface::class),
+            $this->listener,
             static::getContainer()->get(Connection::class),
             $this->createMock(EntityRepository::class),
             $pipe,
@@ -1292,16 +1309,14 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
         $mailSent = false;
 
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
-
         $listenerClosure = function () use (&$mailSent): void {
             $mailSent = true;
         };
 
-        $this->addEventListener($eventDispatcher, MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($this->listener, MailSentEvent::class, $listenerClosure);
 
         $progress = $this->import($context, CustomerDefinition::ENTITY_NAME, '/fixtures/customers.csv', 'customers.csv');
-        $eventDispatcher->removeListener(MailSentEvent::class, $listenerClosure);
+        $this->listener->removeListener(MailSentEvent::class, $listenerClosure);
 
         static::assertTrue($context->hasState(Context::SKIP_TRIGGER_FLOW));
         static::assertFalse($mailSent, 'The mail.sent Event did run');
@@ -1736,7 +1751,6 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         $pipeFactory = static::getContainer()->get(PipeFactory::class);
         $readerFactory = static::getContainer()->get(CsvReaderFactory::class);
         $writerFactory = static::getContainer()->get(CsvFileWriterFactory::class);
-        $eventDispatcher = static::getContainer()->get(EventDispatcherInterface::class);
 
         $mockRepository = new MockRepository(static::getContainer()->get(CustomerDefinition::class));
 
@@ -1744,14 +1758,14 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
             $importExportService,
             $logEntity,
             static::getContainer()->get('shopware.filesystem.private'),
-            static::getContainer()->get('event_dispatcher'),
+            $this->listener,
             static::getContainer()->get(Connection::class),
             $mockRepository,
             $pipeFactory->create($logEntity),
             $readerFactory->create($logEntity),
             $writerFactory->create($logEntity),
             static::getContainer()->get(FileService::class),
-            new BatchImportStrategy($eventDispatcher, $mockRepository),
+            new BatchImportStrategy($this->listener, $mockRepository),
             10,
             10
         );

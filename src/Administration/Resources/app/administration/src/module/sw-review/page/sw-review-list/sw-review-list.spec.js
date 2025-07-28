@@ -1,5 +1,5 @@
 /**
- * @sw-package inventory
+ * @sw-package after-sales
  */
 import { mount } from '@vue/test-utils';
 
@@ -70,46 +70,39 @@ async function createWrapper() {
 }
 
 describe('module/sw-review/page/sw-review-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to delete', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('sw-entity-listing-stub');
-        expect(deleteMenuItem.attributes()['allow-delete']).toBeFalsy();
+        expect(deleteMenuItem.attributes()['allow-delete']).toBe('false');
     });
 
     it('should be able to delete', async () => {
         global.activeAclRoles = ['review.deleter'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('sw-entity-listing-stub');
-        expect(deleteMenuItem.attributes()['allow-delete']).toBeTruthy();
+        expect(deleteMenuItem.attributes()['allow-delete']).toBe('true');
     });
 
     it('should not be able to edit', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('sw-entity-listing-stub');
-        expect(editMenuItem.attributes()['allow-edit']).toBeFalsy();
+        expect(editMenuItem.attributes()['allow-edit']).toBe('false');
     });
 
     it('should be able to edit', async () => {
         global.activeAclRoles = ['review.editor'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('sw-entity-listing-stub');
-        expect(editMenuItem.attributes()['allow-edit']).toBeTruthy();
+        expect(editMenuItem.attributes()['allow-edit']).toBe('true');
     });
 });

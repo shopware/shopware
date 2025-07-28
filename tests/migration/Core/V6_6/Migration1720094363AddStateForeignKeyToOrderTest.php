@@ -125,6 +125,6 @@ class Migration1720094363AddStateForeignKeyToOrderTest extends TestCase
         $manager = $this->connection->createSchemaManager();
         $columns = $manager->listTableForeignKeys('order');
 
-        return (bool) \array_filter($columns, static fn (ForeignKeyConstraint $column) => $column->getForeignTableName() === 'state_machine_state' && $column->getLocalColumns() === ['state_id'] && $column->getForeignColumns() === ['id']);
+        return (bool) \array_filter($columns, static fn (ForeignKeyConstraint $column) => $column->getReferencedTableName()->toString() === 'state_machine_state' && $column->getReferencingColumnNames()[0]->toString() === 'state_id' && $column->getReferencedColumnNames()[0]->toString() === 'id');
     }
 }

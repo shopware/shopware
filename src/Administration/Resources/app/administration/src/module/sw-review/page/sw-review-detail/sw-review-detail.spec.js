@@ -139,7 +139,7 @@ describe('module/sw-review/page/sw-review-detail', () => {
         const commentField = wrapper.find('.sw-review__comment-field');
 
         expect(languageField.attributes().disabled).toBe('false');
-        expect(activeField.attributes()).toHaveProperty('disabled');
+        expect(activeField.attributes()).not.toHaveProperty('disabled');
         expect(commentField.attributes().disabled).toBe('false');
     });
 

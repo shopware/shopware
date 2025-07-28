@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageDefinition;
 
 /**
  * Determines all associated data for a definition.
@@ -163,6 +164,13 @@ class EntityForeignKeyResolver
         }
 
         if (!$definition->getFields()->has('id')) {
+            return [];
+        }
+
+        // prevent cascade delete and set null foreign key check for language definition,
+        // otherwise all ids of language translations have to be checked
+        // RestrictDelete is processed as usual to enable foreign key checks
+        if (!$restrictDeleteOnlyFirstLevel && $definition->getClass() === LanguageDefinition::class) {
             return [];
         }
 

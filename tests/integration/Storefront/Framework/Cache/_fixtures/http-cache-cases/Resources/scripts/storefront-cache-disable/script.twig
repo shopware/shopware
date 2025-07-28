@@ -1,4 +1,0 @@
-{% set response = services.response.render('@Storefront/storefront/base.html.twig', { 'page': hook.page }) %}
-{% do response.cache.disable() %}
-
-{% do hook.setResponse(response) %}

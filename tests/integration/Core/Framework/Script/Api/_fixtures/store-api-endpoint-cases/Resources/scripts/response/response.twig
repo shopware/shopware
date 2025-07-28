@@ -1,5 +1,0 @@
-{% if hook.isInRouteScope('storefront') %}
-    {% if hook.routeName === 'frontend.home.page' %}
-        {% do hook.setHeader('X-Frame-Options', 'SAMEORIGIN') %}
-    {% endif %}
-{% endif %}

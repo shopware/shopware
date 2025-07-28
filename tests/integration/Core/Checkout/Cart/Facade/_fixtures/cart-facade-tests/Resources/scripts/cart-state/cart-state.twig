@@ -1,9 +1,0 @@
-{# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
-
-{% if not services.cart.states.has('my-custom-state') %}
-    {% do services.cart.states.add('my-custom-state') %}
-{% endif %}
-
-{% if services.cart.states.has('default-state') %}
-    {% do services.cart.states.remove('default-state') %}
-{% endif %}

@@ -1,5 +1,0 @@
-{% do hook.salesChannelContext.ensureLoggedIn(hook.query['allow-guest']|boolval) %}
-
-{% do hook.setResponse(
-    services.response.render('@MyApp/storefront/page/customer-greeting/index.html.twig', { 'page': hook.page, 'customer': hook.salesChannelContext.customer })
-) %}

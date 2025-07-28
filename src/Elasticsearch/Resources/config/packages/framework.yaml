@@ -1,8 +1,0 @@
-framework:
-    messenger:
-        serializer:
-            symfony_serializer:
-                context:
-                    default_constructor_arguments:
-                        Shopware\Elasticsearch\Framework\Indexing\IndexerOffset:
-                            mappingDefinitions: [ ]

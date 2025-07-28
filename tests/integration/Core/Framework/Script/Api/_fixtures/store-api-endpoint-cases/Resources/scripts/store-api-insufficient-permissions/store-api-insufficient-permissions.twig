@@ -1,7 +1,0 @@
-{% block response %}
-    {# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
-    {% set categories = services.repository.search('category', hook.request) %}
-
-    {% set response = services.response.json({ 'categories': categories }) %}
-    {% do hook.setResponse(response) %}
-{% endblock %}

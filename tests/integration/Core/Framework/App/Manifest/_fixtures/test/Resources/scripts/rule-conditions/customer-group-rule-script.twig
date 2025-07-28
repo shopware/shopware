@@ -1,5 +1,0 @@
-{% if scope.salesChannelContext.customer is not defined %}
-    {% return false %}
-{% endif %}
-
-{% return compare(operator, scope.salesChannelContext.customer.groupId, customerGroupIds) %}

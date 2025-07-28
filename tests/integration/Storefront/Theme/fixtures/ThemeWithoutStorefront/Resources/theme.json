@@ -1,9 +1,0 @@
-{
-  "name": "ThemeWithoutStorefront",
-  "author": "shopware AG",
-  "views": [
-    "@PayPal",
-    "@ThemeWithoutStorefront",
-    "@Plugins"
-  ]
-}

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Shopware\Core\System\SalesChannel\Event;
 
@@ -23,8 +25,7 @@ class SwitchContextEvent implements ShopwareSalesChannelEvent
         private readonly SalesChannelContext $salesChannelContext,
         private readonly DataValidationDefinition $dataValidationDefinition,
         private array $parameters,
-    ) {
-    }
+    ) {}
 
     public function getRequestData(): RequestDataBag
     {
@@ -57,5 +58,10 @@ class SwitchContextEvent implements ShopwareSalesChannelEvent
     public function addParameter(string $key, mixed $value): void
     {
         $this->parameters[$key] = $value;
+    }
+
+    public function getDeleteParameter(): ?bool
+    {
+        return isset($this->parameters['deleteParameter']) ? (bool) $this->parameters['delete'] : null;
     }
 }

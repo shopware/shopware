@@ -1,3 +1,0 @@
-id;promotion_id;scope;type;value;consider_advanced_rules;max_value;sorter_key;applier_key;usage_key;picker_key;discount_rules
-e01d370ce303405aa58855110a35cc9f;6081116ad83747b9b9ce086460e8569a;set;percentage;2.5;1;4;PRICE_DESC;1;1;VERTICAL;cb34dc6f20b6479aa975e1290f442e65
-d9cf0f7b1ded4a11ba9aeae27f24670e;6081116ad83747b9b9ce086460e8569a;cart;absolute;5;0;;PRICE_ASC;ALL;ALL;;

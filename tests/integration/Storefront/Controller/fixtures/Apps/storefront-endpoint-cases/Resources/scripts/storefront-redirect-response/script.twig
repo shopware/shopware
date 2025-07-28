@@ -1,4 +1,0 @@
-{% set productId = hook.query['product-id'] %}
-
-{% set response = services.response.redirect('frontend.detail.page', { 'productId': productId }) %}
-{% do hook.setResponse(response) %}

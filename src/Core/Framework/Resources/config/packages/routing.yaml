@@ -1,4 +1,0 @@
-framework:
-    router:
-        strict_requirements: ~
-        utf8: true

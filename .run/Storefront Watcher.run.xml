@@ -1,8 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Storefront Watcher" type="ComposerRunConfigurationType" factoryName="Composer Script">
-    <option name="commandLineParameters" value="" />
-    <option name="pathToComposerJson" value="$PROJECT_DIR$/composer.json" />
-    <option name="script" value="watch:storefront" />
-    <method v="2" />
-  </configuration>
-</component>

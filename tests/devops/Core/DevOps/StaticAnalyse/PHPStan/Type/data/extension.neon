@@ -1,5 +1,0 @@
-services:
-        -
-            class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\CollectionHasSpecifyingExtension
-            tags:
-                - phpstan.typeSpecifier.methodTypeSpecifyingExtension

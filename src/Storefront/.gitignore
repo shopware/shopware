@@ -1,7 +1,0 @@
-/vendor/
-composer.lock
-phpunit.xml
-Resources/app/storefront/build/artifacts
-Resources/app/storefront/vendor/*
-!Resources/app/storefront/vendor/Inter-3.5
-.tmp

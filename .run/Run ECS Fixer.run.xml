@@ -1,8 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Run ECS Fixer" type="ComposerRunConfigurationType" factoryName="Composer Script">
-    <option name="commandLineParameters" value="" />
-    <option name="pathToComposerJson" value="$PROJECT_DIR$/composer.json" />
-    <option name="script" value="ecs-fix" />
-    <method v="2" />
-  </configuration>
-</component>

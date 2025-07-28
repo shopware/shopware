@@ -1,3 +1,0 @@
-list_price_linked;list_price_gross;list_price_net;id;parent_id;product_number;active;stock;name;description;price_net;price_gross;tax_id;tax_rate;tax_name;
-0;5000;100;bf44b430d7cd47fcac93310edf4fe4e1;;SW10000;1;100;"My product";;100;100;073cf6ea03f34c798e733015876e28d9;19;"Standard rate";
-1;50;20;bf44b430d7cd47fcac93310edf4fe4e2;;SW10001;1;100;"Another product";;84;100;073cf6ea03f34c798e733015876e28d9;19;"Standard rate";

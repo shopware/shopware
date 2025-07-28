@@ -1,8 +1,0 @@
-{
-  "sw-extension-sdk": {
-    "general": {
-      "mainMenuItemGeneral": "Meine Erweiterungen",
-      "moduleDescription": "Modul zum Anzeigen von Erweiterungsinhalten"
-    }
-  }
-}

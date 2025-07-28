@@ -1,3 +1,0 @@
-framework:
-    translator:
-        default_path: "%storefrontRoot%/Resources/snippet"

@@ -1,8 +1,0 @@
-{# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
-{% do services.cart.products.add(hook.ids.get('p1')) %}
-
-{% do services.cart.products.remove(hook.ids.get('p1')) %}
-
-{% do services.cart.products.remove('do-not-throw-exception') %}
-
-{% do services.cart.products.add(hook.ids.get('v2.1')) %}

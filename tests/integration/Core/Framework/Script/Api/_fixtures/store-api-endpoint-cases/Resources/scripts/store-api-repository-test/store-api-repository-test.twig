@@ -1,7 +1,0 @@
-{% block response %}
-    {# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
-    {% set products = services.store.search('product', hook.request) %}
-
-    {% set response = services.response.json({ 'products': products }) %}
-    {% do hook.setResponse(response) %}
-{% endblock %}

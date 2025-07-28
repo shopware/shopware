@@ -1,3 +1,0 @@
-/*
- * Mock file for ThemeFileResolverTest
- */

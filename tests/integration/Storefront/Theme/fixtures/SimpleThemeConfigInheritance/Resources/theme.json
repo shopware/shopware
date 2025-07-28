@@ -1,8 +1,0 @@
-{
-  "name": "Simple theme",
-  "author": "Shopware AG",
-  "configInheritance": [
-    "@Storefront",
-    "@SimpleTheme"
-  ]
-}

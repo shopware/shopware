@@ -356,5 +356,9 @@
         <service id="Shopware\Core\Content\Media\SalesChannel\MediaRoute" public="true">
             <argument type="service" id="media.repository"/>
         </service>
+
+        <service id="Shopware\Core\Content\Media\MediaFolderConfigurationLoader" autowire="true"/>
+
+        <service id="Shopware\Core\Content\Media\CachedMediaFolderConfigurationLoader" autowire="true"/>
     </services>
 </container>

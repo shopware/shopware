@@ -4,10 +4,13 @@ namespace Shopware\Core\Content\Media\Core\Application;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
+use Shopware\Core\Content\Media\AbstractMediaFolderConfigurationLoader;
+use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
 use Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
@@ -35,6 +38,7 @@ class RemoteThumbnailLoader implements ResetInterface
         private readonly Connection $connection,
         private readonly FilesystemOperator $filesystem,
         private readonly ExtensionDispatcher $extensions,
+        private readonly AbstractMediaFolderConfigurationLoader $mediaFolderConfigurationLoader,
         private readonly string $pattern = ''
     ) {
     }
@@ -68,7 +72,11 @@ class RemoteThumbnailLoader implements ResetInterface
 
             $mediaEntity->assign(['url' => $urls[$mediaEntity->getUniqueIdentifier()]]);
 
-            $thumbnailSizes = $mediaThumbnailSizes[$mediaEntity->get('mediaFolderId')] ?? [];
+            $mediaFolderId = $mediaEntity->get('mediaFolderId');
+            $thumbnailSizes = $mediaThumbnailSizes[$mediaFolderId] ?? [];
+            $mediaFolderConfiguration = $mediaFolderId ? $this->mediaFolderConfigurationLoader->load(
+                $mediaEntity->get('mediaFolderId')
+            ) : null;
 
             if (empty($thumbnailSizes)) {
                 $mediaEntity->assign(['thumbnails' => new MediaThumbnailCollection()]);
@@ -76,16 +84,18 @@ class RemoteThumbnailLoader implements ResetInterface
                 continue;
             }
 
-            $path = $mediaEntity->get('path');
-            $updatedAt = $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt');
-
-            if (!($updatedAt instanceof \DateTimeInterface)) {
-                $updatedAt = null;
-            }
-
             $thumbnails = new MediaThumbnailCollection();
             foreach ($thumbnailSizes as $size) {
-                $url = $this->getUrl($baseUrl, $path, $size['width'], $size['height'], $updatedAt);
+                $url = $this->getUrl(
+                    $mediaEntity,
+                    $baseUrl,
+                    $size['width'],
+                    $size['height'],
+                    $mediaFolderConfiguration ?? null
+                );
+                if ($url === null) {
+                    continue;
+                }
 
                 $thumbnail = new MediaThumbnailEntity();
                 $thumbnail->assign([
@@ -178,25 +188,39 @@ class RemoteThumbnailLoader implements ResetInterface
         return \rtrim($this->filesystem->publicUrl(''), '/');
     }
 
-    private function getUrl(string $mediaUrl, string $mediaPath, string $width, string $height, ?\DateTimeInterface $mediaUpdatedAt): string
+    private function getUrl(MediaEntity $mediaEntity, string $mediaUrl, string $width, string $height, ?MediaFolderConfigurationEntity $mediaFolderConfiguration): ?string
     {
         return $this->extensions->publish(
             name: ResolveRemoteThumbnailUrlExtension::NAME,
             extension: new ResolveRemoteThumbnailUrlExtension(
+                $mediaEntity,
                 $mediaUrl,
-                $mediaPath,
                 $width,
                 $height,
-                $this->pattern,
-                $mediaUpdatedAt
+                $mediaFolderConfiguration,
+                $this->pattern
             ),
-            function: function (string $mediaUrl, string $mediaPath, string $width, string $height, string $pattern, ?\DateTimeInterface $mediaUpdatedAt) {
+            function: function (
+                MediaEntity $mediaEntity,
+                string $mediaUrl,
+                string $width,
+                string $height,
+                ?MediaFolderConfigurationEntity $mediaFolderConfiguration,
+                string $pattern
+            ) {
+                $mediaPath = $mediaEntity->get('path');
+                $updatedAt = $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt');
+
+                if (!($updatedAt instanceof \DateTimeInterface)) {
+                    $updatedAt = null;
+                }
+
                 $replacements = [
                     str_starts_with($mediaPath, 'http') ? '' : $mediaUrl,
                     $mediaPath,
                     $width,
                     $height,
-                    (string) $mediaUpdatedAt?->getTimestamp() ?: '',
+                    (string) $updatedAt?->getTimestamp() ?: '',
                 ];
 
                 $url = str_replace(
@@ -205,7 +229,7 @@ class RemoteThumbnailLoader implements ResetInterface
                     $pattern
                 );
 
-                return str_starts_with($mediaPath, 'http') ? ltrim($url, '/') : $url;
+                return str_starts_with($mediaUrl, 'http') ? ltrim($url, '/') : $url;
             }
         );
     }

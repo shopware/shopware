@@ -180,11 +180,17 @@ class ImportExportProfileEntity extends Entity
         $this->config = $config;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
     public function getTranslations(): ?ImportExportProfileTranslationCollection
     {
         return $this->translations;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
     public function setTranslations(ImportExportProfileTranslationCollection $translations): void
     {
         $this->translations = $translations;

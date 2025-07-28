@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\ImportExport;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed
+ */
 #[Package('fundamentals@after-sales')]
 class ImportExportProfileTranslationEntity extends TranslationEntity
 {

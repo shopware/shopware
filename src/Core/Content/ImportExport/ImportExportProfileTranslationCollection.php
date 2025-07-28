@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @deprecated tag:v6.8.0 - Will be removed
+ *
  * @extends EntityCollection<ImportExportProfileTranslationEntity>
  */
 #[Package('fundamentals@after-sales')]

@@ -5,11 +5,10 @@ namespace Shopware\Tests\Unit\Administration\Login\UserService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Login\Exception\LoginException;
+use Shopware\Administration\Login\LoginException;
 use Shopware\Administration\Login\UserService\Token;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -18,16 +17,19 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(Token::class)]
 class TokenTest extends TestCase
 {
-    public function testFromAndToJson(): void
+    public function testJsonSerializable(): void
     {
         $tokenValue = Uuid::randomHex();
         $refreshTokenValue = Uuid::randomHex();
-        $token = Token::fromJson(\sprintf('{"token": "%s", "refreshToken": "%s"}', $tokenValue, $refreshTokenValue));
+        $token = Token::fromArray([
+            'token' => $tokenValue,
+            'refreshToken' => $refreshTokenValue,
+        ]);
 
         static::assertSame($token->token, $tokenValue);
         static::assertSame($token->refreshToken, $refreshTokenValue);
 
-        $result = \json_decode($token->toJson(), true);
+        $result = \json_decode(\json_encode($token, \JSON_THROW_ON_ERROR), true);
         static::assertSame($tokenValue, $result['token']);
         static::assertSame($refreshTokenValue, $result['refreshToken']);
     }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\SsoUser;
+namespace Shopware\Core\Framework\Sso\SsoUser;
 
 use Shopware\Administration\Login\Config\LoginConfig;
 use Shopware\Administration\Login\Config\LoginConfigService;
@@ -112,7 +112,7 @@ class SsoUserInvitationMailService
         }
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', 'admin_saas_user_invite'));
+        $criteria->addFilter(new EqualsFilter('technicalName', 'admin_sso_user_invite'));
 
         $result = $this->mailTemplateTypeRepository->search($criteria, $newContext)->first();
         if (!$result instanceof MailTemplateTypeEntity) {

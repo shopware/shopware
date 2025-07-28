@@ -13,7 +13,7 @@ use Lcobucci\JWT\Validation\Validator;
 use Lcobucci\JWT\Validator as ValidatorInterface;
 use Shopware\Administration\Login\Config\LoginConfig;
 use Shopware\Administration\Login\Config\LoginConfigService;
-use Shopware\Administration\Login\Exception\LoginException;
+use Shopware\Administration\Login\LoginException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\ClockInterface;
 

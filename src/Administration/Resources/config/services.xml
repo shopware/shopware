@@ -32,8 +32,8 @@
         </service>
 
         <service id="Shopware\Administration\Controller\AdminSsoController" public="true">
-            <argument type="service" id="Shopware\Core\Content\SsoUser\SsoUserService"/>
-            <argument type="service" id="Shopware\Core\Content\SsoUser\SsoUserInvitationMailService"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\SsoUser\SsoUserService"/>
+            <argument type="service" id="Shopware\Core\Framework\Sso\SsoUser\SsoUserInvitationMailService"/>
             <argument type="service" id="Shopware\Core\Framework\Sso\SsoService"/>
 
             <call method="setContainer">
@@ -234,11 +234,11 @@
 
         <service id="Shopware\Administration\Login\StateValidator" />
 
-        <service id="Shopware\Core\Content\SsoUser\SsoUserService">
+        <service id="Shopware\Core\Framework\Sso\SsoUser\SsoUserService">
             <argument type="service" id="user.repository"/>
         </service>
 
-        <service id="Shopware\Core\Content\SsoUser\SsoUserInvitationMailService">
+        <service id="Shopware\Core\Framework\Sso\SsoUser\SsoUserInvitationMailService">
             <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
             <argument type="service" id="Shopware\Administration\Login\Config\LoginConfigService"/>

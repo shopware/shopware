@@ -103,7 +103,7 @@ class Migration1744203319MailTemplateTest extends TestCase
     private function getTemplateTypeId(): ?string
     {
         $result = $this->connection->fetchOne(
-            'SELECT `id` FROM `mail_template_type` WHERE `technical_name` LIKE "admin_saas_user_invite"'
+            'SELECT `id` FROM `mail_template_type` WHERE `technical_name` LIKE "admin_sso_user_invite"'
         );
 
         if (!$result) {

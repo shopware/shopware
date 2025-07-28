@@ -9,7 +9,7 @@ use Lcobucci\JWT\Token\Plain;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Login\Exception\LoginException;
+use Shopware\Administration\Login\LoginException;
 use Shopware\Administration\Login\TokenService\ParsedIdToken;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Integration\Administration\Login\Helper\FakeTokenGenerator;

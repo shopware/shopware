@@ -9,7 +9,7 @@ use Shopware\Administration\Events\PreResetExcludedSearchTermEvent;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollectorInterface;
 use Shopware\Administration\Login\Config\LoginConfig;
 use Shopware\Administration\Login\Config\LoginConfigService;
-use Shopware\Administration\Login\Exception\LoginException;
+use Shopware\Administration\Login\LoginException;
 use Shopware\Administration\Login\StateValidator;
 use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;

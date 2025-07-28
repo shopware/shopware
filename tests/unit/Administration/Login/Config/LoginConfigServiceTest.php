@@ -7,9 +7,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Login\Config\LoginConfig;
 use Shopware\Administration\Login\Config\LoginConfigService;
-use Shopware\Administration\Login\Exception\LoginException;
+use Shopware\Administration\Login\LoginException;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal

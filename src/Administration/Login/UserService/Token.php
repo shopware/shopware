@@ -2,7 +2,7 @@
 
 namespace Shopware\Administration\Login\UserService;
 
-use Shopware\Administration\Login\Exception\LoginException;
+use Shopware\Administration\Login\LoginException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -13,20 +13,12 @@ use Symfony\Component\Validator\Validation;
  * @internal
  */
 #[Package('framework')]
-final class Token
+final class Token implements \JsonSerializable
 {
     private function __construct(
         public readonly string $token,
         public readonly string $refreshToken
     ) {
-    }
-
-    public function toJson(): string
-    {
-        return \json_encode([
-            'token' => $this->token,
-            'refreshToken' => $this->refreshToken,
-        ], \JSON_THROW_ON_ERROR);
     }
 
     public static function fromJson(string $json): self
@@ -47,6 +39,14 @@ final class Token
             $data['token'],
             $data['refreshToken']
         );
+    }
+
+    public function jsonSerialize(): mixed
+    {
+        return [
+            'token' => $this->token,
+            'refreshToken' => $this->refreshToken,
+        ];
     }
 
     /**

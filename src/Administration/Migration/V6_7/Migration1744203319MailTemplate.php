@@ -44,7 +44,7 @@ class Migration1744203319MailTemplate extends MigrationStep
 
         $connection->insert('mail_template_type', [
             'id' => $mailTemplateTypeId,
-            'technical_name' => 'admin_saas_user_invite',
+            'technical_name' => 'admin_sso_user_invite',
             'available_entities' => '{}',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
@@ -63,7 +63,7 @@ class Migration1744203319MailTemplate extends MigrationStep
             $translations[] = [
                 'mail_template_type_id' => $mailTemplateTypeId,
                 'language_id' => $languages[self::ENGLISH_KEY],
-                'name' => 'Saas user invitation',
+                'name' => 'Sso user invitation',
                 'created_at' => $createdAt,
             ];
         }
@@ -72,7 +72,7 @@ class Migration1744203319MailTemplate extends MigrationStep
             $translations[] = [
                 'mail_template_type_id' => $mailTemplateTypeId,
                 'language_id' => $languages[self::GERMAN_KEY],
-                'name' => 'Saas Benutzer einladung',
+                'name' => 'Sso Benutzer einladung',
                 'created_at' => $createdAt,
             ];
         }
@@ -108,10 +108,10 @@ class Migration1744203319MailTemplate extends MigrationStep
         $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $translationContent = [
-            'html_en' => \file_get_contents(__DIR__ . '/assets/saas_user_invitation_mail.en-GB.html.twig'),
-            'text_en' => \file_get_contents(__DIR__ . '/assets/saas_user_invitation_mail.en-GB.txt'),
-            'html_de' => \file_get_contents(__DIR__ . '/assets/saas_user_invitation_mail.de-DE.html.twig'),
-            'text_de' => \file_get_contents(__DIR__ . '/assets/saas_user_invitation_mail.de-DE.txt'),
+            'html_en' => \file_get_contents(__DIR__ . '/assets/sso_user_invitation_mail.en-GB.html.twig'),
+            'text_en' => \file_get_contents(__DIR__ . '/assets/sso_user_invitation_mail.en-GB.txt'),
+            'html_de' => \file_get_contents(__DIR__ . '/assets/sso_user_invitation_mail.de-DE.html.twig'),
+            'text_de' => \file_get_contents(__DIR__ . '/assets/sso_user_invitation_mail.de-DE.txt'),
         ];
 
         foreach ($translationContent as $languageId => $content) {
@@ -127,7 +127,7 @@ class Migration1744203319MailTemplate extends MigrationStep
                 'language_id' => $languages[self::ENGLISH_KEY],
                 'sender_name' => 'Admin',
                 'subject' => '{{ nameOfInviter }} invited you to join {{ storeName }}',
-                'description' => 'Shopware Saas admin Invitation',
+                'description' => 'Shopware Sso admin Invitation',
                 'content_html' => $translationContent['html_en'],
                 'content_plain' => $translationContent['text_en'],
                 'created_at' => $createdAt,
@@ -140,7 +140,7 @@ class Migration1744203319MailTemplate extends MigrationStep
                 'language_id' => $languages[self::GERMAN_KEY],
                 'sender_name' => 'Admin',
                 'subject' => '{{ nameOfInviter }} hat dich eingeladen, {{ storeName }} beizutreten',
-                'description' => 'Shopware Saas Admin Einladung',
+                'description' => 'Shopware Sso Admin Einladung',
                 'content_html' => $translationContent['html_de'],
                 'content_plain' => $translationContent['text_de'],
                 'created_at' => $createdAt,
@@ -159,7 +159,7 @@ class Migration1744203319MailTemplate extends MigrationStep
     private function getMailTemplateTypeId(Connection $connection): string
     {
         $mailTemplateTypeId = $connection->fetchOne(
-            'SELECT `id` FROM `mail_template_type` WHERE `technical_name` = "admin_saas_user_invite"'
+            'SELECT `id` FROM `mail_template_type` WHERE `technical_name` = "admin_sso_user_invite"'
         );
 
         if (!$mailTemplateTypeId) {
@@ -172,7 +172,7 @@ class Migration1744203319MailTemplate extends MigrationStep
     private function mailTemplateTypeExists(Connection $connection): bool
     {
         return (bool) $connection->fetchOne(
-            'SELECT `id` FROM `mail_template_type` WHERE `technical_name` = "admin_saas_user_invite"'
+            'SELECT `id` FROM `mail_template_type` WHERE `technical_name` = "admin_sso_user_invite"'
         );
     }
 

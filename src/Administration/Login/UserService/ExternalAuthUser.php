@@ -3,7 +3,7 @@
 namespace Shopware\Administration\Login\UserService;
 
 use League\OAuth2\Server\Entities\UserEntityInterface;
-use Shopware\Administration\Login\Exception\LoginException;
+use Shopware\Administration\Login\LoginException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\Collection;

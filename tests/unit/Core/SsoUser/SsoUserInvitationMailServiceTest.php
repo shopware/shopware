@@ -11,10 +11,10 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTy
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
-use Shopware\Core\Content\SsoUser\SsoUserInvitationMailService;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Sso\SsoUser\SsoUserInvitationMailService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageDefinition;

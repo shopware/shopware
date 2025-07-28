@@ -41,11 +41,8 @@ final class LoginResponseService
             $email,
             $this->createTimeStamp(60),
             $redirectUrl,
-            null,
-            null,
-            false,
-            false,
-            Cookie::SAMESITE_STRICT
+            httpOnly: false,
+            sameSite: Cookie::SAMESITE_STRICT
         );
 
         $redirectResponse->headers->setCookie($cookie);
@@ -62,11 +59,8 @@ final class LoginResponseService
             \json_encode($cookieData, \JSON_THROW_ON_ERROR),
             (int) $cookieData['expiry'],
             $path,
-            null,
-            null,
-            false,
-            false,
-            Cookie::SAMESITE_STRICT
+            httpOnly: false,
+            sameSite: Cookie::SAMESITE_STRICT
         );
     }
 

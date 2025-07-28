@@ -2,7 +2,6 @@
 
 namespace Shopware\Administration\Login;
 
-use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\String\ByteString;
@@ -20,7 +19,7 @@ final class StateValidator
 {
     final public const SESSION_KEY = 'sw_sso_session_key';
 
-    public const RANDOM_LENGTH = 64;
+    private const RANDOM_LENGTH = 64;
 
     public function validateRequest(Request $request): void
     {

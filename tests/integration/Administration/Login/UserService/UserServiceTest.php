@@ -194,7 +194,7 @@ class UserServiceTest extends TestCase
         static::assertArrayHasKey('token', $result);
         static::assertArrayHasKey('expiry', $result);
 
-        $result['token'] = Token::fromJson($result['token']);
+        $result['token'] = Token::fromArray(\json_decode($result['token'], true));
 
         return $result;
     }

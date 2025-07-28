@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Administration\Login\TokenService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Login\Config\LoginConfigService;
-use Shopware\Administration\Login\Exception\LoginException;
+use Shopware\Administration\Login\LoginException;
 use Shopware\Administration\Login\TokenService\PublicKeyLoader;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;

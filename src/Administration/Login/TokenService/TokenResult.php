@@ -2,7 +2,7 @@
 
 namespace Shopware\Administration\Login\TokenService;
 
-use Shopware\Administration\Login\Exception\LoginException;
+use Shopware\Administration\Login\LoginException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;

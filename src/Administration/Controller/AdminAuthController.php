@@ -4,7 +4,7 @@ namespace Shopware\Administration\Controller;
 
 use League\OAuth2\Server\AuthorizationServer;
 use Shopware\Administration\Login\Config\LoginConfigService;
-use Shopware\Administration\Login\Exception\LoginException;
+use Shopware\Administration\Login\LoginException;
 use Shopware\Administration\Login\LoginResponseService;
 use Shopware\Administration\Login\StateValidator;
 use Shopware\Core\Framework\Log\Package;
@@ -42,7 +42,7 @@ class AdminAuthController extends AbstractController
     }
 
     #[Route(path: '/api/oauth/sso/code', name: 'api.oauth.sso.code', defaults: ['auth_required' => false], methods: ['GET'])]
-    public function callBackWithCode(Request $request): Response
+    public function callbackWithCode(Request $request): Response
     {
         $this->stateValidator->validateRequest($request);
 
@@ -51,7 +51,7 @@ class AdminAuthController extends AbstractController
 
         try {
             $response = $this->authorizationServer->respondToAccessTokenRequest($psr7Request, $psr7Response);
-            // @phpstan-ignore-next-line catch.neverThrown
+            // @phpstan-ignore catch.neverThrown LoginException is thrown inside an external library where we implemented an interface
         } catch (LoginException $loginException) {
             if ($loginException->getErrorCode() !== LoginException::LOGIN_USER_NOT_FOUND) {
                 throw $loginException;

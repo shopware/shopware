@@ -3,7 +3,7 @@
 namespace Shopware\Administration\Login\UserService;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Administration\Login\Exception\LoginException;
+use Shopware\Administration\Login\LoginException;
 use Shopware\Administration\Login\TokenService\IdTokenParser;
 use Shopware\Administration\Login\TokenService\ParsedIdToken;
 use Shopware\Administration\Login\TokenService\TokenResult;
@@ -141,7 +141,7 @@ final class UserService
                     'id' => Uuid::randomBytes(),
                     'user_id' => Uuid::fromHexToBytes($userSearchResult->userId),
                     'user_sub' => $userSearchResult->sub,
-                    'token' => $userSearchResult->token->toJson(),
+                    'token' => \json_encode($userSearchResult->token, \JSON_THROW_ON_ERROR),
                     'expiry' => $userSearchResult->expiry?->format(\DATE_RFC3339),
                     'created_at' => (new \DateTime())->format(\DATE_RFC3339),
                     'updated_at' => null,
@@ -154,7 +154,7 @@ final class UserService
         $this->connection->update(
             'oauth_user',
             [
-                'token' => $userSearchResult->token->toJson(),
+                'token' => \json_encode($userSearchResult->token, \JSON_THROW_ON_ERROR),
                 'expiry' => $userSearchResult->expiry?->format(\DATE_RFC3339),
                 'updated_at' => (new \DateTime())->format(\DATE_RFC3339),
             ],

@@ -151,7 +151,5 @@
     "/user/{userId}",
     "/user/{userId}/access-keys/{id}",
     "/user/{userId}/acl-roles/{roleId}",
-    "/v1/_info/version",
-    "/api/oauth/sso/config",
-    "/api/oauth/sso/code"
+    "/v1/_info/version"
 ]

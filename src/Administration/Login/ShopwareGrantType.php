@@ -10,7 +10,6 @@ use League\OAuth2\Server\RequestEvent;
 use League\OAuth2\Server\RequestRefreshTokenEvent;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Administration\Login\TokenService\ExternalTokenService;
 use Shopware\Administration\Login\UserService\ExternalAuthUser;
 use Shopware\Administration\Login\UserService\UserService;
@@ -22,7 +21,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class ShopwareGrantType extends AbstractGrant implements GrantTypeInterface
 {
-    private const TYPE = 'shopware_grant';
+    public const TYPE = 'shopware_grant';
 
     public function __construct(
         RefreshTokenRepositoryInterface $refreshTokenRepository,

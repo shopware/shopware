@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Clock\ClockInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -58,8 +59,8 @@ class ValidUserServiceCreator
 
     private function createClient(): HttpClientInterface
     {
-        $jwks = \file_get_contents(__DIR__ . '/../../../../unit/Administration/Login/TokenService/_fixtures/jwks.json');
-        \assert(\is_string($jwks));
+        $filesystem = new Filesystem();
+        $jwks = $filesystem->readFile(__DIR__ . '/../../../../unit/Administration/Login/TokenService/_fixtures/jwks.json');
 
         $response = $this->createMock(ResponseInterface::class);
         $response->method('getContent')->willReturn($jwks);

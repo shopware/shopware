@@ -4,11 +4,11 @@ namespace Shopware\Tests\Unit\Core\SsoUser;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\SsoUser\SsoUserService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Sso\SsoUser\SsoUserService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;

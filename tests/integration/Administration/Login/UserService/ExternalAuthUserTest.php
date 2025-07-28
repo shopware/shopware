@@ -5,7 +5,7 @@ namespace Shopware\Tests\Integration\Administration\Login\UserService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Login\Exception\LoginException;
+use Shopware\Administration\Login\LoginException;
 use Shopware\Administration\Login\UserService\ExternalAuthUser;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;

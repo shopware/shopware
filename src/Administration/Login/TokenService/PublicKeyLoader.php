@@ -6,7 +6,7 @@ use Lcobucci\JWT\Signer\Key\InMemory;
 use phpseclib3\Crypt\RSA\Formats\Keys\JWK;
 use Shopware\Administration\Login\Config\LoginConfig;
 use Shopware\Administration\Login\Config\LoginConfigService;
-use Shopware\Administration\Login\Exception\LoginException;
+use Shopware\Administration\Login\LoginException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -102,18 +102,12 @@ final class PublicKeyLoader
 
     private function loadPublicKeyString(LoginConfig $loginConfig): string
     {
-        return (string) $this->cache->get(self::CACHE_KEY, function () use ($loginConfig) {
-            $publicKeyString = $this->requestPublicKeys($loginConfig);
-
-            return $publicKeyString;
-        });
+        return (string) $this->cache->get(self::CACHE_KEY, fn (): string => $this->requestPublicKeys($loginConfig));
     }
 
     private function updateCache(string $publicKeyString): void
     {
         $this->cache->delete(self::CACHE_KEY);
-        $this->cache->get(self::CACHE_KEY, function () use ($publicKeyString) {
-            return $publicKeyString;
-        });
+        $this->cache->get(self::CACHE_KEY, fn (): string => $publicKeyString);
     }
 }

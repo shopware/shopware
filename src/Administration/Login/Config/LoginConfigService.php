@@ -2,7 +2,7 @@
 
 namespace Shopware\Administration\Login\Config;
 
-use Shopware\Administration\Login\Exception\LoginException;
+use Shopware\Administration\Login\LoginException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -19,7 +19,18 @@ use Symfony\Component\Validator\Validation;
 final class LoginConfigService
 {
     /**
-     * @param array{use_default: bool, client_id: non-empty-string, client_secret: non-empty-string, redirect_uri: non-empty-string, base_url: non-empty-string, authorize_path: non-empty-string, token_path: non-empty-string, jwks_path: non-empty-string, scope: non-empty-string, register_url: non-empty-string} $rawConfig
+     * @param array{
+     *     use_default: bool,
+     *     client_id: non-empty-string,
+     *     client_secret: non-empty-string,
+     *     redirect_uri: non-empty-string,
+     *     base_url: non-empty-string,
+     *     authorize_path: non-empty-string,
+     *     token_path: non-empty-string,
+     *     jwks_path: non-empty-string,
+     *     scope: non-empty-string,
+     *     register_url: non-empty-string
+     * } $rawConfig
      */
     public function __construct(
         private readonly array $rawConfig,
@@ -156,15 +167,10 @@ final class LoginConfigService
                     new Url(message: $invalidUrlMessage, requireTld: true),
                 ],
             ],
-            null,
-            null,
-            false,
-            false,
-            null,
-            'is missing'
+            allowExtraFields: true,
+            allowMissingFields: false,
+            missingFieldsMessage: 'is missing'
         );
-
-        $constraints->allowExtraFields = true;
 
         return $constraints;
     }

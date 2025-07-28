@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartContextHasher;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
@@ -28,7 +29,6 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -36,8 +36,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('checkout')]
 class CartOrderRoute extends AbstractCartOrderRoute
 {
-    private const LOCK_TTL = 30;
-
     /**
      * @internal
      */
@@ -52,7 +50,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
         private readonly TaxProviderProcessor $taxProviderProcessor,
         private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
         private readonly CartContextHasher $cartContextHasher,
-        private readonly LockFactory $lockFactory,
+        private readonly CartLocker $cartLocker,
     ) {
     }
 
@@ -70,15 +68,10 @@ class CartOrderRoute extends AbstractCartOrderRoute
             throw CartException::hashMismatch($cart->getToken());
         }
 
-        // we use this state in stock updater class, to prevent duplicate available stock updates
-        $context->addState('checkout-order-route');
+        return $this->cartLocker->locked($cart->getToken(), function () use ($cart, $context, $data) {
+            // we use this state in stock updater class, to prevent duplicate available stock updates
+            $context->addState('checkout-order-route');
 
-        $lock = $this->lockFactory->createLock('cart-order-route-' . $cart->getToken(), self::LOCK_TTL);
-        if (!$lock->acquire()) {
-            throw CartException::cartLocked($cart->getToken());
-        }
-
-        try {
             $calculatedCart = $this->cartCalculator->calculate($cart, $context);
 
             $response = $this->checkoutGatewayRoute->load(new Request($data->all(), $data->all()), $cart, $context);
@@ -139,11 +132,9 @@ class CartOrderRoute extends AbstractCartOrderRoute
                     throw CartException::invalidPaymentButOrderStored($orderId);
                 }
             });
-        } finally {
-            $lock->release();
-        }
 
-        return new CartOrderRouteResponse($orderEntity);
+            return new CartOrderRouteResponse($orderEntity);
+        });
     }
 
     private function addCustomerComment(Cart $cart, DataBag $data): void

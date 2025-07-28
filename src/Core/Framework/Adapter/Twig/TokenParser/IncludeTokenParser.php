@@ -23,7 +23,7 @@ final class IncludeTokenParser extends AbstractTokenParser
      */
     public function parse(Token $token)
     {
-        $expr = $this->parser->getExpressionParser()->parseExpression();
+        $expr = $this->parser->parseExpression();
         \assert($expr instanceof AbstractExpression);
 
         [$variables, $only, $ignoreMissing] = $this->parseArguments();
@@ -62,7 +62,7 @@ final class IncludeTokenParser extends AbstractTokenParser
 
         $variables = null;
         if ($stream->nextIf(Token::NAME_TYPE, 'with')) {
-            $variables = $this->parser->getExpressionParser()->parseExpression();
+            $variables = $this->parser->parseExpression();
         }
 
         $only = false;

@@ -94,7 +94,7 @@
         "ramsey/uuid": "^4.7",
         "setasign/fpdi": "^2.3.7",
         "setasign/tfpdf": "^1.33",
-        "shopware/conflicts": "0.5.0",
+        "shopware/conflicts": "0.5.1",
         "squirrelphp/twig-php-syntax": "^1.8.0",
         "symfony/asset": "~7.2.0",
         "symfony/cache": "~7.2.0",
@@ -150,7 +150,7 @@
         "tecnickcom/tcpdf": "^6.7.7",
         "twig/intl-extra": "^3.10.0",
         "twig/string-extra": "^3.10.0",
-        "twig/twig": "^3.19.0",
+        "twig/twig": "^3.21.1",
         "zircote/swagger-php": "^4.9.2"
     },
     "require-dev": {

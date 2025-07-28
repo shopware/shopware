@@ -371,6 +371,11 @@ class AppException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use `StoreException::jwksNotFound` instead
+     *
+     * @phpstan-ignore-next-line shopware.deprecatedClass - Deprecations for 6.8.0.0 should only be soft
+     */
     public static function jwksNotFound(?\Throwable $e = null): self
     {
         return new self(

@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('framework')]
 class CustomEntityException extends HttpException
 {
+    public const CUSTOM_ENTITY_ON_DELETE_PROPERTY_NOT_SUPPORTED = 'FRAMEWORK__CUSTOM_ENTITY_ON_DELETE_PROPERTY_NOT_SUPPORTED';
     public const CUSTOM_FIELDS_AWARE_NO_LABEL_PROPERTY = 'NO_LABEL_PROPERTY';
     public const CUSTOM_FIELDS_AWARE_LABEL_PROPERTY_NOT_DEFINED = 'LABEL_PROPERTY_NOT_DEFINED';
     public const CUSTOM_FIELDS_AWARE_LABEL_PROPERTY_WRONG_TYPE = 'LABEL_PROPERTY_WRONG_TYPE';
@@ -55,5 +56,15 @@ class CustomEntityException extends HttpException
         }
 
         return new CustomEntityXmlParsingException($file, $message);
+    }
+
+    public static function unsupportedOnDeletePropertyOnField(string $onDelete, string $name): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CUSTOM_ENTITY_ON_DELETE_PROPERTY_NOT_SUPPORTED,
+            'onDelete property {{ onDelete }} are not supported on field {{ name }}',
+            ['onDelete' => $onDelete, 'name' => $name]
+        );
     }
 }

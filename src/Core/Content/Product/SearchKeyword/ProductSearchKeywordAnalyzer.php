@@ -7,10 +7,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Elasticsearch\Product\SearchConfigLoader;
 
 #[Package('inventory')]
 class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterface

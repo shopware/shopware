@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -197,9 +198,14 @@ class SchemaBuilder
             return $field instanceof StorageAware;
         })->getElements();
 
-        $table->setPrimaryKey(array_map(function (StorageAware $field) {
-            return $field->getStorageName();
-        }, $primaryKeys));
+        $pk = PrimaryKeyConstraint::editor();
+        $pk->setUnquotedColumnNames(...array_values(array_map(function (StorageAware $field): string {
+            $name = $field->getStorageName();
+            \assert(!empty($name));
+
+            return $name;
+        }, $primaryKeys)));
+        $table->addPrimaryKeyConstraint($pk->create());
 
         $this->addForeignKeys($table, $definition);
 

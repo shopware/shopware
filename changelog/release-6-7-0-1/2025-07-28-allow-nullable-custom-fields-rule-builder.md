@@ -1,28 +1,8 @@
 ---
-title:
-issue:
-flag:
-author:
-author_email:
-author_github:
+title: Allow to check for null / empty custom fields inside the rule builder
+issue: #11429
+author: Aaron Sommer
+author_email: mails4sommer@gmail.com
 ---
 # Core
-*  
-___
-# API
-*  
-___
-# Administration
-*  
-___
-# Storefront
-*  
-___
-# Upgrade Information
-## Topic 1
-### Topic 1a
-### Topic 1b
-## Topic 2
-___
-# Next Major Version Changes
-## Topic 1
+*  Excluded custom field type `text` from being forced to have a value, therefore allowing for null / empty fields to be checked using the rule builder

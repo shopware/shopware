@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\ArrayNormalizer;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Elasticsearch\Product\SearchConfigLoader;
 
 #[Package('inventory')]
 class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterface
@@ -28,13 +29,18 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         private readonly TokenizerInterface $tokenizer,
         private readonly LoggerInterface $logger,
         private readonly AbstractTokenFilter $tokenFilter,
-        private readonly KeywordLoader $keywordLoader
+        private readonly KeywordLoader $keywordLoader,
+        private readonly SearchConfigLoader $configLoader,
     ) {
     }
 
     public function interpret(string $word, Context $context): SearchPattern
     {
-        $tokens = $this->tokenizer->tokenize($word);
+        $config = $this->configLoader->load($context);
+        $minSearchLength = $config[0]['min_search_length'] ?? null;
+
+        /** @phpstan-ignore arguments.count (This ignore should be removed when the deprecated method signature is updated) */
+        $tokens = $this->tokenizer->tokenize($word, $minSearchLength);
         $tokens = $this->tokenFilter->filter($tokens, $context);
         $originalTokens = $tokens;
 
@@ -59,7 +65,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         $pattern->setBooleanClause($this->getConfigBooleanClause($context));
         $pattern->setTokenTerms($matches);
 
-        $scoring = $this->score($tokens, $originalTokens, ArrayNormalizer::flatten($matches));
+        $scoring = $this->score($tokens, $originalTokens, ArrayNormalizer::flatten($matches), $minSearchLength);
         // only use the 8 best matches, otherwise the query might explode
         $scoring = \array_slice($scoring, 0, self::RELEVANT_KEYWORD_COUNT, true);
 
@@ -177,12 +183,13 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
      *
      * @return array<string, float>
      */
-    private function score(array $tokens, array $originalTokens, array $matches): array
+    private function score(array $tokens, array $originalTokens, array $matches, ?int $minSearchLength = null): array
     {
         $scoring = [];
 
         foreach ($matches as $match) {
-            $matchSegments = $this->tokenizer->tokenize($match);
+            /** @phpstan-ignore arguments.count (This ignore should be removed when the deprecated method signature is updated) */
+            $matchSegments = $this->tokenizer->tokenize($match, $minSearchLength);
             $exactMatch = \count($originalTokens) === \count($matchSegments)
                 && \count(array_diff($originalTokens, $matchSegments)) === 0;
             $exactTokenMatches = array_intersect($originalTokens, $matchSegments);

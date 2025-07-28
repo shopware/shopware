@@ -206,12 +206,25 @@ class CartRuleLoader implements ResetInterface
         }
 
         $country = $context->getShippingLocation()->getCountry();
+        $customer = $context->getCustomer();
 
-        $isReachedCustomerTaxFreeAmount = $country->getCustomerTax()->getEnabled() && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount);
-        $isReachedCompanyTaxFreeAmount = $this->taxDetector->isCompanyTaxFree($context, $country) && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount, CountryDefinition::TYPE_COMPANY_TAX_FREE);
+        // Check if customer is a B2B customer (has company)
+        $isB2BCustomer = $customer && !empty($customer->getCompany());
 
-        if ($isReachedCustomerTaxFreeAmount || $isReachedCompanyTaxFreeAmount) {
-            return CartPrice::TAX_STATE_FREE;
+        if ($isB2BCustomer) {
+            // For B2B customers, only check company tax settings
+            $isReachedCompanyTaxFreeAmount = $this->taxDetector->isCompanyTaxFree($context, $country) && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount, CountryDefinition::TYPE_COMPANY_TAX_FREE);
+            
+            if ($isReachedCompanyTaxFreeAmount) {
+                return CartPrice::TAX_STATE_FREE;
+            }
+        } else {
+            // For B2C customers (no company), only check customer tax settings
+            $isReachedCustomerTaxFreeAmount = $country->getCustomerTax()->getEnabled() && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount);
+            
+            if ($isReachedCustomerTaxFreeAmount) {
+                return CartPrice::TAX_STATE_FREE;
+            }
         }
 
         if ($this->taxDetector->useGross($context)) {

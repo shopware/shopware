@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -294,5 +295,16 @@ class CustomerExceptionTest extends TestCase
         static::assertSame(CustomerException::COUNTRY_NOT_FOUND, $exception->getErrorCode());
         static::assertSame('Country with id "id-1" not found.', $exception->getMessage());
         static::assertSame(['countryId' => 'id-1'], $exception->getParameters());
+    }
+
+    public function testUnsupportedOperator(): void
+    {
+        $exception = CustomerException::unsupportedOperator('$', 'testClass');
+
+        static::assertInstanceOf(UnsupportedOperatorException::class, $exception);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('CONTENT__RULE_OPERATOR_NOT_SUPPORTED', $exception->getErrorCode());
+        static::assertSame('Unsupported operator $ in testClass', $exception->getMessage());
+        static::assertSame(['operator' => '$', 'class' => 'testClass'], $exception->getParameters());
     }
 }

@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -105,6 +106,8 @@ class ShippingCountryRuleTest extends TestCase
     #[DataProvider('unsupportedOperators')]
     public function testUnsupportedOperators(string $operator): void
     {
+        $this->expectExceptionObject(RuleException::unsupportedOperator($operator, RuleComparison::class));
+
         $rule = (new ShippingCountryRule())
             ->assign([
                 'countryIds' => ['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'],
@@ -122,7 +125,6 @@ class ShippingCountryRuleTest extends TestCase
             ->method('getShippingLocation')
             ->willReturn(ShippingLocation::createFromCountry($country));
 
-        $this->expectException(UnsupportedOperatorException::class);
         $rule->match(new CartRuleScope($cart, $context));
     }
 
@@ -148,8 +150,8 @@ class ShippingCountryRuleTest extends TestCase
         try {
             $rule->match(new CartRuleScope($cart, $context));
         } catch (UnsupportedOperatorException $e) {
-            static::assertSame(ShippingCountryRule::OPERATOR_GTE, $e->getOperator());
-            static::assertSame(RuleComparison::class, $e->getClass());
+            static::assertSame(ShippingCountryRule::OPERATOR_GTE, $e->getParameter('operator'));
+            static::assertSame(RuleComparison::class, $e->getParameter('class'));
         }
     }
 

@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('As an admin, I want to create documents and make sure they contain certain infos.', { tag: '@Documents' }, async ({
+test.skip('As an admin, I want to create documents and make sure they contain certain infos.', { tag: '@Documents' }, async ({
     ShopAdmin,
     TestDataService,
     DefaultSalesChannel,

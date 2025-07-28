@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Util\ArrayComparator;
 use Shopware\Core\Framework\Util\Exception\ComparatorException;
+use Shopware\Core\Framework\Util\UtilException;
 
 /**
  * @internal
@@ -47,8 +48,8 @@ class ArrayComparatorTest extends TestCase
 
     public function testCompareThrowException(): void
     {
-        static::expectException(ComparatorException::class);
-        $this->expectExceptionMessage(ComparatorException::operatorNotSupported('>')->getMessage());
+        $this->expectException(ComparatorException::class);
+        $this->expectExceptionMessage(UtilException::operatorNotSupported('>')->getMessage());
 
         ArrayComparator::compare([1], [2], '>');
     }

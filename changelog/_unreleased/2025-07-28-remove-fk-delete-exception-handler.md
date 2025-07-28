@@ -34,7 +34,7 @@ Additionally, the following exception handlers don't throw any exceptions anymor
 * `ThemeExceptionHandler`
 ___
 # Next Major Version Changes
-## Deprecate FK delete exception handler
+## Remove FK delete exception handler
 All foreign key checks are now handled directly by the DAL, therefore the following exception handler did not any effect anymore and are removed:
 * `OrderExceptionHandler`
 * `NewsletterExceptionHandler`

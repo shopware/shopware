@@ -226,4 +226,47 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
 
         expect(wrapper.vm.previewUrl).toEqual(wrapper.vm.source);
     });
+
+    it('should return an empty string if trueSource has no thumbnails', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            trueSource: { thumbnails: [] },
+        });
+
+        expect(wrapper.vm.sourceSet).toBe('');
+    });
+
+    it('should return a formatted string of thumbnail sources', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            trueSource: {
+                thumbnails: [
+                    { url: 'https://example.com/image1.jpg', width: 200 },
+                    { url: 'https://example.com/image2.jpg', width: 400 },
+                ],
+            },
+        });
+
+        expect(wrapper.vm.sourceSet).toBe('https://example.com/image1.jpg 200w, https://example.com/image2.jpg 400w');
+    });
+
+    it('should return an empty string if trueSource is a file', async () => {
+        const wrapper = await createWrapper();
+        const trueSource = new File([''], 'example.jpg', { type: 'image/jpg' });
+        trueSource.thumbnails = [];
+
+        await wrapper.setData({ trueSource });
+
+        expect(wrapper.vm.sourceSet).toBe('');
+    });
+
+    it('should return an empty string if trueSource is a URL', async () => {
+        const wrapper = await createWrapper();
+        const trueSource = new URL('https://example.com/image.jpg');
+        trueSource.thumbnails = [];
+
+        await wrapper.setData({ trueSource });
+
+        expect(wrapper.vm.sourceSet).toBe('');
+    });
 });

@@ -42,7 +42,9 @@ test('As an admin, I want to create documents and make sure they contain certain
         await ShopAdmin.expects(AdminOrderDetail.contextMenu).toBeVisible();
         await AdminOrderDetail.contextMenuSendDocument.click();
         await ShopAdmin.expects(AdminOrderDetail.sendDocumentModal).toBeVisible();
+        await ShopAdmin.expects(AdminOrderDetail.page.locator('.sw-order-send-document-modal__mail-template-select')).toContainText('Invoice');
         await AdminOrderDetail.sendDocumentButton.click();
+        await ShopAdmin.expects(AdminOrderDetail.page.locator('.sw-skeleton-bar')).not.toBeVisible();
         await ShopAdmin.expects(AdminOrderDetail.sentCheckmark).toBeVisible();
         });
 

@@ -73,7 +73,7 @@ export default {
 
         propertyGroupCriteria() {
             const criteria = new Criteria(this.groupPage, 10);
-            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+            criteria.addSorting(Criteria.sort('name', 'ASC', true));
             criteria.setTotalCountMode(1);
 
             return criteria;
@@ -85,7 +85,7 @@ export default {
 
         propertyGroupOptionCriteria() {
             const criteria = new Criteria(this.optionPage, 10);
-            criteria.addSorting(Criteria.sort('name', 'ASC'));
+            criteria.addSorting(Criteria.sort('name', 'ASC', true));
 
             if (this.currentGroup) {
                 criteria.addFilter(Criteria.equals('groupId', this.currentGroup.id));

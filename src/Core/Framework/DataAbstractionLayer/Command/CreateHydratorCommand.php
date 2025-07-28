@@ -300,7 +300,7 @@ EOF;
 
     private function getClass(EntityDefinition $definition): string
     {
-        $parts = explode('_', (string) $definition->getEntityName());
+        $parts = explode('_', $definition->getEntityName());
 
         $parts = array_map('ucfirst', $parts);
 
@@ -336,7 +336,7 @@ class #class# extends EntityHydrator
 
 EOF;
 
-        $entity = explode('\\', (string) $definition->getEntityClass());
+        $entity = explode('\\', $definition->getEntityClass());
         $entity = array_pop($entity);
 
         $callTemplate = '';

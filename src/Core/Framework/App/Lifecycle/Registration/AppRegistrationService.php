@@ -181,7 +181,7 @@ class AppRegistrationService
      */
     private function signPayload(array $body, string $secret): string
     {
-        return hash_hmac('sha256', (string) json_encode($body, \JSON_THROW_ON_ERROR), $secret);
+        return hash_hmac('sha256', json_encode($body, \JSON_THROW_ON_ERROR), $secret);
     }
 
     private function getApp(string $id, Context $context): AppEntity

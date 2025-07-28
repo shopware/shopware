@@ -88,7 +88,7 @@ export default {
                     this.isSaveSuccessful = true;
                 })
                 .catch(() => {
-                    this.createNotificationSuccess({
+                    this.createNotificationError({
                         message: this.$tc(
                             'sw-newsletter-recipient.detail.messageSaveError',
                             {

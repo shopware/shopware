@@ -73,7 +73,7 @@ shopware.installer:
     database-configuration_fetch_error: 'Při načítání informací o databázi došlo k chybě'
     database-configuration_access_denied: 'Přístup odepřen, přihlašovací údaje jsou nesprávné'
     database-configuration_host_not_found: 'Nelze se připojit k databázovému serveru'
-    database-configuration_invalid_requirements: 'Shopware 6 vyžaduje minimálně MySQL 8.0.17 nebo MariaDB 10.11'
+    database-configuration_invalid_requirements: 'Shopware 6 vyžaduje minimálně MySQL 8.0.22 nebo MariaDB 10.11'
     database-configuration_refresh_databases: 'Obnovit databáze'
     database-import_header: Instalace
     database-import_skip_import: Přeskočit

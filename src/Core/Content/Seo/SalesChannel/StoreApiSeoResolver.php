@@ -115,6 +115,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
     {
         if ($struct instanceof Entity) {
             $definition = $this->definitionInstanceRegistry->getByEntityClass($struct) ?? $this->salesChannelDefinitionInstanceRegistry->getByEntityClass($struct);
+
             if ($definition && $definition->isSeoAware()) {
                 $data->add($definition->getEntityName(), $struct);
             }
@@ -155,16 +156,18 @@ class StoreApiSeoResolver implements EventSubscriberInterface
 
             /** @var SeoUrlEntity $url */
             foreach ($this->salesChannelRepository->search($criteria, $context) as $url) {
-                /** @var SalesChannelProductEntity|CategoryEntity $entity */
-                $entity = $data->get($definition, $url->getForeignKey());
+                /** @var array<SalesChannelProductEntity|CategoryEntity> $entities */
+                $entities = $data->getAll($definition, $url->getForeignKey());
 
-                if ($entity->getSeoUrls() === null) {
-                    $entity->setSeoUrls(new SeoUrlCollection());
+                foreach ($entities as $entity) {
+                    if ($entity->getSeoUrls() === null) {
+                        $entity->setSeoUrls(new SeoUrlCollection());
+                    }
+
+                    /** @var SeoUrlCollection $seoUrlCollection */
+                    $seoUrlCollection = $entity->getSeoUrls();
+                    $seoUrlCollection->add($url);
                 }
-
-                /** @var SeoUrlCollection $seoUrlCollection */
-                $seoUrlCollection = $entity->getSeoUrls();
-                $seoUrlCollection->add($url);
             }
         }
     }

@@ -3,13 +3,14 @@
 namespace Shopware\Core\Content\Seo\SalesChannel;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('inventory')]
 class SeoResolverData
 {
     /**
-     * @var array<string, mixed>
+     * @var array<string, array<string, array<string, Entity>>>
      */
     private array $entityMap = [];
 
@@ -19,7 +20,17 @@ class SeoResolverData
             $this->entityMap[$entityName] = [];
         }
 
-        $this->entityMap[$entityName][$entity->getUniqueIdentifier()] = $entity;
+        if (!isset($this->entityMap[$entityName][$entity->getUniqueIdentifier()])) {
+            $this->entityMap[$entityName][$entity->getUniqueIdentifier()] = [];
+        }
+
+        $hash = spl_object_hash($entity);
+
+        if (isset($this->entityMap[$entityName][$entity->getUniqueIdentifier()][$hash])) {
+            return;
+        }
+
+        $this->entityMap[$entityName][$entity->getUniqueIdentifier()][$hash] = $entity;
     }
 
     /**
@@ -38,7 +49,23 @@ class SeoResolverData
         return array_keys($this->entityMap[$entityName]);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - use getAll instead
+     */
     public function get(string $entityName, string $id): Entity
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0', 'getAll')
+        );
+
+        return array_values($this->getAll($entityName, $id))[0];
+    }
+
+    /**
+     * @return array<Entity>
+     */
+    public function getAll(string $entityName, string $id): array
     {
         return $this->entityMap[$entityName][$id];
     }

@@ -63,7 +63,7 @@ trait AdminApiTestBehaviour
         }
 
         $this->apiUsernames = [];
-        $this->kernelBrowser = null;
+        $this->resetBrowser();
     }
 
     /**

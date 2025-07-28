@@ -338,10 +338,10 @@ EOD;
         \assert(\is_string($keyStructure['TABLE_NAME']));
         $indexes = $this->schemaManager->listTableIndexes($keyStructure['TABLE_NAME']);
 
-        $indexedColumns = $indexes['primary']->getIndexedColumns();
+        $indexedColumns = $indexes['primary']->getIndexedColumns() ?? [];
         $indexedColumns = array_map(fn (IndexedColumn $column): string => $column->getColumnName()->toString(), $indexedColumns);
 
-        if (isset($indexes['primary']) && \count(array_intersect($indexedColumns, $keyStructure['COLUMN_NAME']))) {
+        if (\count(array_intersect($indexedColumns, $keyStructure['COLUMN_NAME']))) {
             return \sprintf(
                 self::MODIFY_PRIMARY_KEY_IN_RELATION,
                 $keyStructure['TABLE_NAME'],

@@ -224,6 +224,10 @@ export default function createSearchRankingService() {
      * @returns {Boolean}
      */
     function _isValidTerm(searchTerm) {
+        if (!searchTerm) {
+            return false;
+        }
+
         return searchTerm && searchTerm.trim().length >= minSearchTermLength;
     }
 

@@ -82,7 +82,9 @@ async function createWrapper({
                 ],
                 provide: {
                     searchRankingService: {
-                        isValidTerm: (term) => term && term.trim().length >= 1,
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
                     },
                 },
                 mocks: {

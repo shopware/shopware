@@ -129,6 +129,7 @@ class RedisCartPersisterTest extends TestCase
         yield 'invalid serialize' => ['abc', CartTokenNotFoundException::class];
         yield 'not cart serialize' => [\serialize(new \ArrayObject()), CartTokenNotFoundException::class];
         yield 'valid outer object, but invalid content' => [\serialize(['compressed' => false, 'content' => \serialize(new \ArrayObject())]), CartTokenNotFoundException::class];
+        yield 'valid outer object, but content with type error' => [\serialize(['compressed' => false, 'content' => []]), CartTokenNotFoundException::class];
         yield 'valid outer object, but not cart' => [serialize(['compressed' => false, 'content' => serialize(['cart' => ''])]), CartException::class];
     }
 

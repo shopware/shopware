@@ -58,7 +58,7 @@ class AdminProductStreamControllerTest extends TestCase
         $this->requestCriteriaBuilder->expects($this->once())->method('handleRequest')->willReturn(new Criteria());
 
         $this->salesChannelRepository->expects($this->once())->method('search')
-            ->willReturnCallback(function (Criteria &$criteria, SalesChannelContext $context) use ($collection) {
+            ->willReturnCallback(function (Criteria $criteria, SalesChannelContext $context) use ($collection) {
                 static::assertSame(Criteria::TOTAL_COUNT_MODE_EXACT, $criteria->getTotalCountMode());
                 static::assertTrue($criteria->hasAssociation('manufacturer'));
                 static::assertTrue($criteria->hasAssociation('options'));

@@ -161,8 +161,7 @@ export default {
             return this.profileRepository
                 .clone(item.id, behavior, Shopware.Context.api)
                 .then((clone) => {
-                    const criteria = new Criteria(1, 25)
-                        .setIds([clone.id]);
+                    const criteria = new Criteria(1, 25).setIds([clone.id]);
 
                     return this.profileRepository.search(criteria);
                 })
@@ -192,10 +191,7 @@ export default {
         },
 
         async onDownloadTemplate(profile) {
-            return window.open(
-                await this.importExport.getTemplateFileDownloadUrl(profile.id),
-                '_blank',
-            );
+            return window.open(await this.importExport.getTemplateFileDownloadUrl(profile.id), '_blank');
         },
 
         onDeleteProfile(id) {

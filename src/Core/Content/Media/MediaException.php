@@ -51,6 +51,7 @@ class MediaException extends HttpException
     public const MEDIA_INVALID_MIME_TYPE = 'CONTENT__MEDIA_INVALID_MIME_TYPE';
 
     public const MEDIA_THUMBNAIL_GENERATION_DISABLED = 'CONTENT__MEDIA_THUMBNAIL_GENERATION_DISABLED';
+    public const MEDIA_UNKNOWN_LOCATION_TYPE = 'CONTENT__MEDIA_UNKNOWN_LOCATION_TYPE';
 
     public static function cannotBanRequest(string $url, string $error, ?\Throwable $e = null): self
     {
@@ -424,6 +425,15 @@ class MediaException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::MEDIA_THUMBNAIL_GENERATION_DISABLED,
             'Remote thumbnails are enabled. Skipping thumbnail generation.'
+        );
+    }
+
+    public static function unknownLocationType(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MEDIA_UNKNOWN_LOCATION_TYPE,
+            'Unknown location type'
         );
     }
 }

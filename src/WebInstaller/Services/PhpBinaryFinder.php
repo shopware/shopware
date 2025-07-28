@@ -110,9 +110,9 @@ class PhpBinaryFinder
                 '{extra}',
             ],
             [
-                \PHP_MAJOR_VERSION,
-                \PHP_MINOR_VERSION,
-                \PHP_RELEASE_VERSION,
+                (string) \PHP_MAJOR_VERSION,
+                (string) \PHP_MINOR_VERSION,
+                (string) \PHP_RELEASE_VERSION,
                 \PHP_EXTRA_VERSION,
             ],
             $path

@@ -23,7 +23,7 @@ class FloatComparatorTest extends TestCase
 
     public function testCompareThrowException(): void
     {
-        static::expectException(ComparatorException::class);
+        $this->expectException(ComparatorException::class);
         $this->expectExceptionMessage(ComparatorException::operatorNotSupported('empty')->getMessage());
 
         FloatComparator::compare(1, 2, 'empty');

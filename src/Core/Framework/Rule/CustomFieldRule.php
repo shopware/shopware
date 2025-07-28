@@ -6,7 +6,6 @@ use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\MultiE
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\MultiSelectField;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Util\ArrayComparator;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
@@ -82,7 +81,7 @@ class CustomFieldRule
             Rule::OPERATOR_EQ => $actual === $expected,
             Rule::OPERATOR_GT => $actual > $expected,
             Rule::OPERATOR_LT => $actual < $expected,
-            default => throw new UnsupportedOperatorException($operator, self::class),
+            default => throw RuleException::unsupportedOperator($operator, self::class),
         };
     }
 

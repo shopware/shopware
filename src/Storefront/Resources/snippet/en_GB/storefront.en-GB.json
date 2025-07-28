@@ -809,7 +809,13 @@
     "groupComfortFeaturesYoutubeVideo": "YouTube video",
     "groupMarketing": "Marketing",
     "groupMarketingDescription": "Allows Google to collect personal data for online advertising and marketing.",
-    "groupMarketingAdConsent": "Google Advertising"
+    "groupMarketingAdConsent": "Google Advertising",
+    "wishlist": {
+      "description": "In order to use the wishlist functionality you need to accept the \"wishlist cookie\" or log in to your account.",
+      "title": "Missing cookie",
+      "accept": "Accept cookie",
+      "login": "Log In"
+    }
   },
   "ellipsis": {
     "expandLabel": "show more",

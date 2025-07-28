@@ -165,7 +165,11 @@ class ThemeCompiler implements ThemeCompilerInterface
         StorefrontPluginConfigurationCollection $configurationCollection,
         string $themePrefix
     ): array {
-        $scriptsDist = $this->getScriptDistFolders($configurationCollection);
+        // The "getScriptDistFolders" method removes script files from the file collections in the configurations.
+        // This can cause missing plugin script files in the theme configurations.
+        // As structs are overriding the object cloning with the "CloneTrait" and implement a deep copy mechanism,
+        // cloning the collection will prevent the mutation of the configurations and file collections inside as well.
+        $scriptsDist = $this->getScriptDistFolders(clone $configurationCollection);
         $themePath = 'theme/' . $themePrefix;
         $distRelativePath = 'Resources/app/storefront/dist/storefront';
 

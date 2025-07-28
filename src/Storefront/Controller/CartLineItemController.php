@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Error\Error;
-use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\LineItemFactoryInterface;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
@@ -39,7 +39,7 @@ class CartLineItemController extends StorefrontController
     public function __construct(
         private readonly CartService $cartService,
         private readonly PromotionItemBuilder $promotionItemBuilder,
-        private readonly ProductLineItemFactory $productLineItemFactory,
+        private readonly LineItemFactoryInterface $productLineItemFactory,
         private readonly HtmlSanitizer $htmlSanitizer,
         private readonly AbstractProductListRoute $productListRoute,
         private readonly LineItemFactoryRegistry $lineItemFactoryRegistry

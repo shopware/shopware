@@ -374,6 +374,7 @@ class ProductLoadedSubscriberTest extends TestCase
                     'id' => $languageId,
                     'name' => 'sub_en',
                     'parentId' => Defaults::LANGUAGE_SYSTEM,
+                    'active' => true,
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                 ],
             ], Context::createDefaultContext());

@@ -48,6 +48,8 @@ class AnnotationTagTest extends TestCase
         'Test/AnnotationTagTesterTest.php',
         // uses @experimental annotation check
         'Core/Framework/ApiRoutesHaveASchemaTest.php',
+        // copies DBAL code that don't use our deprecation policies
+        'Core/Framework/Adapter/Doctrine/Patch',
     ];
 
     private string $rootDir;

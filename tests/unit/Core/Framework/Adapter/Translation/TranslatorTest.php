@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -17,7 +18,6 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Snippet\SnippetService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Cache\CacheItem;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
@@ -79,7 +79,7 @@ class TranslatorTest extends TestCase
             $connection,
             $localeCodeProvider,
             $snippetServiceMock,
-            new EventDispatcher()
+            $this->createMock(CacheTagCollector::class),
         );
 
         $item = new CacheItem();
@@ -139,7 +139,7 @@ class TranslatorTest extends TestCase
             $connection,
             $this->createMock(LanguageLocaleCodeProvider::class),
             $this->createMock(SnippetService::class),
-            new EventDispatcher()
+            $this->createMock(CacheTagCollector::class),
         );
 
         $snippetSetId = $translator->getSnippetSetId($locale);
@@ -178,7 +178,7 @@ class TranslatorTest extends TestCase
             $connection,
             $this->createMock(LanguageLocaleCodeProvider::class),
             $snippetService,
-            new EventDispatcher()
+            $this->createMock(CacheTagCollector::class),
         );
 
         $translator->injectSettings(TestDefaults::SALES_CHANNEL, Defaults::LANGUAGE_SYSTEM, 'en-GB', Context::createDefaultContext());

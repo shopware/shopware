@@ -16,16 +16,37 @@ jobs:
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
+  cleanup-needs-triage:
+    runs-on: ubuntu-24.04
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+      - shell: bash
+        run: npm ci --prefix .github/bin/js/
+      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+        with:
+          script: |
+            const { cleanupNeedsTriage } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
+            await cleanupNeedsTriage({github, core, context}, false)
+
   apply-team-label:
     runs-on: ubuntu-24.04
-    if: github.event_name == 'issues' && ( github.event.action == 'opened' || github.event.action == 'reopened' )
+    if: github.event.act || github.event_name == 'issues'
+    needs: label
     env:
-      TEAM_LABEL: "domain/customer-support"
+      TEAM_LABEL: "customer-support"
+      CUSTOM_USERS: ${{ vars.ADDITIONAL_CUSTOMER_SUPPORT_USERS }}
     permissions:
       id-token: write
       issues: write
     steps:
       - id: sts
+        if: ${{ !github.event.act }}
         continue-on-error: true
         uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
         with:
@@ -35,12 +56,24 @@ jobs:
         id: actorTeams
         with:
           username: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ steps.sts.outputs.token }}
+          GITHUB_TOKEN: ${{ github.event.act && secrets.GITHUB_TOKEN || steps.sts.outputs.token }}
+      - name: Check if user is in custom list
+        id: customUserCheck
+        run: |
+          CUSTOM_USERS_ARRAY=(${CUSTOM_USERS//,/ })
+          for user in "${CUSTOM_USERS_ARRAY[@]}"; do
+            if [[ "$user" == "${{ github.actor }}" ]]; then
+              echo "is_custom_user=true" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          done
+          echo "is_custom_user=false" >> $GITHUB_OUTPUT
       - name: debug
         if: runner.debug
         run: |
           echo "${{ github.actor }} is member of teams: ${{ steps.actorTeams.outputs.teams }}"
-      - if: ${{ contains(steps.actorTeams.outputs.teams, 'customer-support') }}
+          echo "Is custom user: ${{ steps.customUserCheck.outputs.is_custom_user }}"
+      - if: ${{ contains(steps.actorTeams.outputs.teams, 'customer-support') || steps.customUserCheck.outputs.is_custom_user == 'true' }}
         uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
         with:
           script: |
@@ -85,7 +118,7 @@ jobs:
 
   mark-stale-issues:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.event.schedule == '0 1 * * *')
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     permissions:
       contents: read
       # TODO: Set to write when Dry Run gets disabled
@@ -106,7 +139,7 @@ jobs:
 
   close-stale-issues:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.event.schedule == '0 1 * * *')
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     needs: [mark-stale-issues]
     permissions:
       contents: read
@@ -124,3 +157,28 @@ jobs:
           script: |
             const { closeStaleIssues } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
             await closeStaleIssues({github, core, context}, process.env.DRY_RUN)
+
+  priority-sync:
+    runs-on: ubuntu-24.04
+    if: github.event_name == 'issues' && github.event.action == 'labeled' && startsWith(github.event.label.name, 'priority')
+    needs: label
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+      - id: sts
+        continue-on-error: true
+        uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
+        with:
+          scope: shopware
+          identity: ManageProjects
+      - shell: bash
+        run: npm ci --prefix .github/bin/js/
+      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+        with:
+          github-token: ${{ steps.sts.outputs.token }}
+          script: |
+            const { syncPriorities } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
+            await syncPriorities({github, core, context})

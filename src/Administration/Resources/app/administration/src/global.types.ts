@@ -26,8 +26,9 @@ import type DirectiveFactory from 'src/core/factory/directive.factory';
 import type EntityDefinitionFactory from 'src/core/factory/entity-definition.factory';
 import type FilterFactoryData from 'src/core/data/filter-factory.data';
 import type UserApiService from 'src/core/service/api/user.api.service';
+import type UserConfigService from 'src/core/service/api/user-config.api.service';
 import type ApiServiceFactory from 'src/core/factory/api-service.factory';
-import type { ComponentInternalInstance } from 'vue';
+import type { ComponentInternalInstance, PropType as VuePropType } from 'vue';
 import type { I18n } from 'vue-i18n';
 import type {
     Store,
@@ -114,6 +115,7 @@ import type { SettingsItems } from './app/store/settings-item.store';
 import type { ShopwareApps } from './app/store/shopware-apps.store';
 import type { System } from './app/store/system.store';
 import type { ModalsStore } from './app/store/modals.store';
+import type { MediaModalStore } from './app/store/media-modal.store';
 import type { SidebarStore } from './app/store/sidebar.store';
 import type { MenuItemStore } from './app/store/menu-item.store';
 import type { NotificationStore } from './app/store/notification.store';
@@ -277,6 +279,7 @@ declare global {
         userActivityService: UserActivityService;
         userRecoveryService: UserRecoveryApiService;
         userService: UserApiService;
+        userConfigService: UserConfigService;
         validationService: $TSFixMe;
     }
 
@@ -411,7 +414,10 @@ declare global {
         swPromotionDetail: SwPromotionDetailStore;
         swFlow: SwFlowStore;
         swBulkEdit: SwBulkStore;
+        mediaModal: MediaModalStore;
     }
+
+    type PropType<T> = VuePropType<T>;
 
     /**
      * define global Component

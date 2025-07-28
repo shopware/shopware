@@ -96,6 +96,8 @@ async function createWrapper(props) {
                     'sw-context-button': true,
                     'mt-checkbox': true,
                     'sw-product-variant-info': true,
+                    'sw-app-action-button': true,
+                    'sw-time-ago': true,
                 },
                 provide: {
                     repositoryFactory: {

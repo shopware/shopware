@@ -57,22 +57,22 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
 
     &.has--error {
         .sw-block-field__block {
-            background: $color-crimson-50;
-            border-color: $color-crimson-500;
+            background: var(--color-background-critical-default);
+            border-color: var(--color-border-critical-default);
 
             input,
             textarea,
             select {
-                background: $color-crimson-50;
+                background: var(--color-background-critical);
             }
         }
 
         .sw-field__addition {
-            border-left: 1px solid $color-crimson-500;
+            border-left: 1px solid var(--color-border-critical-default);
 
             &.is--prefix {
                 border-left: unset;
-                border-right: 1px solid $color-crimson-500;
+                border-right: 1px solid var(--color-border-critical-default);
             }
         }
     }

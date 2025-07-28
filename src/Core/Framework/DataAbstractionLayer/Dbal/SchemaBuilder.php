@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
 use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
+use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -117,6 +119,7 @@ class SchemaBuilder
         SlotConfigField::class => Types::JSON,
         FlowTemplateConfigField::class => Types::JSON,
         CheapestPriceField::class => Types::JSON,
+        MeasurementUnitsField::class => Types::JSON,
 
         ChildCountField::class => Types::INTEGER,
         IntField::class => Types::INTEGER,
@@ -195,9 +198,14 @@ class SchemaBuilder
             return $field instanceof StorageAware;
         })->getElements();
 
-        $table->setPrimaryKey(array_map(function (StorageAware $field) {
-            return $field->getStorageName();
-        }, $primaryKeys));
+        $pk = PrimaryKeyConstraint::editor();
+        $pk->setUnquotedColumnNames(...array_values(array_map(function (StorageAware $field): string {
+            $name = $field->getStorageName();
+            \assert(!empty($name));
+
+            return $name;
+        }, $primaryKeys)));
+        $table->addPrimaryKeyConstraint($pk->create());
 
         $this->addForeignKeys($table, $definition);
 

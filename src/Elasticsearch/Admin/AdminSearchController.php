@@ -18,13 +18,13 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  */
 #[Package('inventory')]
-final class AdminSearchController
+final readonly class AdminSearchController
 {
     public function __construct(
-        private readonly AdminSearcher $searcher,
-        private readonly DefinitionInstanceRegistry $definitionRegistry,
-        private readonly JsonEntityEncoder $entityEncoder,
-        private readonly AdminElasticsearchHelper $adminEsHelper
+        private AdminSearcher $searcher,
+        private DefinitionInstanceRegistry $definitionRegistry,
+        private JsonEntityEncoder $entityEncoder,
+        private AdminElasticsearchHelper $adminEsHelper
     ) {
     }
 

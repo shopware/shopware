@@ -234,7 +234,7 @@ export default {
                 scope: this,
             });
             if (this.$route.params.id) {
-                this.mailTemplateId = this.$route.params.id;
+                this.mailTemplateId = this.$route.params.id.toLowerCase();
                 this.loadEntityData();
             }
         },

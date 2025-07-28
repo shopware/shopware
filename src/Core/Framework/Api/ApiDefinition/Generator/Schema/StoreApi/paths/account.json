@@ -310,6 +310,51 @@
                 ]
             }
         },
+        "/account/convert-guest": {
+          "post": {
+            "tags": ["Profile"],
+            "summary": "Convert a guest customer to a registered customer",
+            "description": "Takes a password to convert a guest customer to a registered customer. The customer can then log in with the provided password in the future.",
+            "operationId": "convertGuest",
+            "requestBody": {
+              "required": true,
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "required": [
+                      "password"
+                    ],
+                    "properties": {
+                      "password": {
+                        "description": "New Password for the customer",
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "responses": {
+              "200": {
+                "description": "Returns a success response indicating a successful update.",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    }
+                  }
+                }
+              }
+            },
+            "security": [
+              {
+                "ApiKey": [],
+                "ContextToken": []
+              }
+            ]
+          }
+        },
         "/account/customer-recovery-is-expired": {
             "post": {
                 "tags": ["Profile"],
@@ -383,7 +428,7 @@
                             "schema": {
                                 "allOf": [
                                     {
-                                        "$ref": "#/components/schemas/Criteria"
+                                        "$ref": "#/components/schemas/NoneFieldsCriteria"
                                     }
                                 ]
                             }

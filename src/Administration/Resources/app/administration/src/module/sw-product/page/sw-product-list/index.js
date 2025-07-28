@@ -31,7 +31,7 @@ export default {
         return {
             products: null,
             currencies: [],
-            sortBy: 'productNumber',
+            sortBy: 'createdAt',
             sortDirection: 'DESC',
             naturalSorting: false,
             isLoading: false,
@@ -42,6 +42,7 @@ export default {
             productEntityVariantModal: false,
             filterCriteria: [],
             defaultFilters: [
+                'product-number-filter',
                 'active-filter',
                 'product-without-images-filter',
                 'release-date-filter',
@@ -126,6 +127,15 @@ export default {
 
         listFilterOptions() {
             return {
+                'product-number-filter': {
+                    property: 'productNumber',
+                    type: 'string-filter',
+                    label: this.$tc('sw-product.filters.productNumberFilter.label'),
+                    placeholder: this.$tc('sw-product.filters.productNumberFilter.placeholder'),
+                    valueProperty: 'key',
+                    labelProperty: 'key',
+                    criteriaFilterType: 'equals',
+                },
                 'active-filter': {
                     property: 'active',
                     label: this.$tc('sw-product.filters.activeFilter.label'),
@@ -230,6 +240,9 @@ export default {
             return Shopware.Filter.getByName('currency');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -431,7 +444,6 @@ export default {
                     property: 'createdAt',
                     label: this.$tc('sw-product.list.columnCreatedAt'),
                     allowResize: true,
-                    visible: false,
                 },
                 {
                     property: 'updatedAt',

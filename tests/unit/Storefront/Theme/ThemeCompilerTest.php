@@ -12,7 +12,6 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
-use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
@@ -111,13 +110,13 @@ class ThemeCompilerTest extends TestCase
 
     public function testThemeCompileExceptionIsThrownWhenFilesAreNotResolved(): void
     {
-        $this->themeFileResolver->method('resolveFiles')->willThrowException(new InvalidArgumentException());
+        $this->themeFileResolver->method('resolveFiles')->willThrowException(new \InvalidArgumentException());
         $compiler = $this->getThemeCompiler();
 
         $config = new StorefrontPluginConfiguration('test');
         $config->setName('faultyTheme');
 
-        static::expectExceptionObject(new ThemeCompileException('faultyTheme'));
+        $this->expectExceptionObject(new ThemeCompileException('faultyTheme'));
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,
             'test',
@@ -262,6 +261,11 @@ class ThemeCompilerTest extends TestCase
                         'type' => 'media',
                         'value' => [123],
                     ],
+                    'sw-custom-url' => [
+                        'name' => 'sw-custom-url',
+                        'type' => 'url',
+                        'value' => 'https://www.shopware.com',
+                    ],
                     'sw-custom-media' => [
                         'name' => 'sw-custom-media',
                         'type' => 'media',
@@ -309,6 +313,7 @@ class ThemeCompilerTest extends TestCase
 \$sw-custom-cart: 0;
 \$sw-custom-product-box: 1;
 \$sw-custom-textarea: '123';
+\$sw-custom-url: 'https://www.shopware.com';
 \$sw-custom-media: '456';
 \$sw-asset-theme-url: 'http://localhost';
 

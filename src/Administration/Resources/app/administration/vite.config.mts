@@ -21,6 +21,8 @@ console.log(colors.yellow('# Compiling Administration with Vite configuration'))
 process.env = { ...process.env, ...loadEnv('', process.cwd()) };
 process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || path.join(__dirname, '/../../../../../');
 
+process.env.SERVICE_REGISTRY_URL = process.env.SERVICE_REGISTRY_URL ?? 'https://registry.services.shopware.io';
+
 if (!process.env.APP_URL) {
     console.log(colors.yellowBright('APP_URL is not defined. Dev-Mode will not work.'));
 }
@@ -118,6 +120,7 @@ export default defineConfig(({ command }) => {
                         inject: {
                             data: {
                                 featureFlags: JSON.stringify(featureFlags),
+                                serviceRegistryUrl: process.env.SERVICE_REGISTRY_URL,
                             },
                         },
                     }),

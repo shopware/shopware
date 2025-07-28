@@ -124,6 +124,7 @@ class SendMailAction extends FlowAction implements DelayableAction
         $data->set('senderName', $mailTemplate->getTranslation('senderName'));
         $data->set('salesChannelId', $flow->getData(MailAware::SALES_CHANNEL_ID));
         $data->set('languageId', $flow->getData(LanguageAware::LANGUAGE_ID));
+        $data->set('timezone', $flow->getData(MailAware::TIMEZONE));
 
         $data->set('templateId', $mailTemplate->getId());
         $data->set('customFields', $mailTemplate->getCustomFields());

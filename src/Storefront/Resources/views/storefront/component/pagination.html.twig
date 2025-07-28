@@ -30,7 +30,7 @@
                 {% block component_pagination_first %}
                     <li class="page-item page-first{% if currentPage == 1 %} disabled{% endif %}">
                         {% block component_pagination_first_link_element %}
-                            <a href="{{ href ? '?' ~ pageParameter ~ '=1' ~ searchQuery : '#' }}" class="page-link" data-page="1" aria-label="{{ 'general.first'|trans|striptags }}" data-focus-id="first"{% if currentPage == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
+                            <a href="{{ href ? '?' ~ pageParameter ~ '=1' ~ searchQuery : '#' }}" class="page-link" data-page="1" aria-label="{{ 'general.pagination.first'|trans|striptags }}" data-focus-id="first"{% if currentPage == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
                                 {% block component_pagination_first_link_icon %}
                                     {% sw_icon 'arrow-medium-double-left' style { size: 'fluid', pack: 'solid' } %}
                                 {% endblock %}

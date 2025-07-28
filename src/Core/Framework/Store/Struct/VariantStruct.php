@@ -22,7 +22,7 @@ class VariantStruct extends StoreStruct
 
     protected bool $trialPhaseIncluded = false;
 
-    protected ?DiscountCampaignStruct $discountCampaign;
+    protected ?DiscountCampaignStruct $discountCampaign = null;
 
     /**
      * @return VariantStruct

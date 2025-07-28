@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
+use Shopware\Elasticsearch\Product\SearchConfigLoader;
 
 /**
  * @internal
@@ -26,8 +27,9 @@ class ProductSearchTermInterpreterTest extends TestCase
             static::createMock(Connection::class),
             new Tokenizer(3),
             static::createMock(LoggerInterface::class),
-            new TokenFilter(static::createMock(Connection::class)),
+            new TokenFilter(static::createMock(SearchConfigLoader::class)),
             static::createMock(KeywordLoader::class),
+            static::createMock(SearchConfigLoader::class),
         );
 
         $pattern = $interpreter->interpret($term, Context::createDefaultContext());
@@ -43,8 +45,9 @@ class ProductSearchTermInterpreterTest extends TestCase
             static::createMock(Connection::class),
             static::createMock(Tokenizer::class),
             static::createMock(LoggerInterface::class),
-            new TokenFilter(static::createMock(Connection::class)),
+            new TokenFilter(static::createMock(SearchConfigLoader::class)),
             static::createMock(KeywordLoader::class),
+            static::createMock(SearchConfigLoader::class),
         );
 
         $pattern = $interpreter->interpret($term, Context::createDefaultContext());
@@ -74,12 +77,16 @@ class ProductSearchTermInterpreterTest extends TestCase
                 return true;
             }));
 
+        $configLoader = static::createMock(SearchConfigLoader::class);
+        $configLoader->method('load')->willReturn([['min_search_length' => 3, 'excluded_terms' => []]]);
+
         $interpreter = new ProductSearchTermInterpreter(
             static::createMock(Connection::class),
             new Tokenizer(3),
             static::createMock(LoggerInterface::class),
-            new TokenFilter(static::createMock(Connection::class)),
+            new TokenFilter($configLoader),
             $keywordLoader,
+            $configLoader,
         );
 
         $interpreter->interpret($term, Context::createDefaultContext());
@@ -100,12 +107,15 @@ class ProductSearchTermInterpreterTest extends TestCase
                 ];
             });
 
+        $configLoader = static::createMock(SearchConfigLoader::class);
+        $configLoader->method('load')->willReturn([['min_search_length' => 3, 'excluded_terms' => []]]);
         $interpreter = new ProductSearchTermInterpreter(
             $this->createMock(Connection::class),
             new Tokenizer(3),
             $this->createMock(LoggerInterface::class),
-            new TokenFilter(static::createMock(Connection::class)),
+            new TokenFilter($configLoader),
             $keywordLoader,
+            $configLoader,
         );
 
         $actualScoring = $interpreter->interpret($term, Context::createDefaultContext());

@@ -285,6 +285,7 @@ class CategoryRouteTest extends TestCase
                 'territory' => 'TestGermany',
                 'code' => 'de-DE-test',
             ],
+            'active' => true,
             'translationCodeId' => $this->ids->get('locale-de'),
         ], [
             'id' => self::LANGUAGE_IDS['at'],
@@ -296,6 +297,7 @@ class CategoryRouteTest extends TestCase
                 'territory' => 'TestAustria',
                 'code' => 'de-AT-test',
             ],
+            'active' => true,
             'translationCodeId' => $this->ids->get('locale-at'),
         ]];
 
@@ -308,6 +310,7 @@ class CategoryRouteTest extends TestCase
             'id' => self::LANGUAGE_IDS['de'],
             'name' => 'TestGerman',
             'parentId' => self::LANGUAGE_IDS['en'],
+            'active' => true,
             'locale' => [
                 'id' => $this->ids->create('locale-de'),
                 'name' => 'TestGerman',

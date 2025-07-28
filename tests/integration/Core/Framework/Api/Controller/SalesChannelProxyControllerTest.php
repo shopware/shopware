@@ -1202,6 +1202,7 @@ class SalesChannelProxyControllerTest extends TestCase
                     'territory' => 'Test territory ' . $fallbackLocaleId,
                 ],
                 'translationCodeId' => $fallbackLocaleId,
+                'active' => true,
             ];
             $this->getBrowser()->request('POST', $baseUrl . '/language', [], [], [], json_encode($parentLanguageData, \JSON_THROW_ON_ERROR) ?: '');
             static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
@@ -1219,6 +1220,7 @@ class SalesChannelProxyControllerTest extends TestCase
                 'territory' => 'Test territory ' . $localeId,
             ],
             'translationCodeId' => $localeId,
+            'active' => true,
             'salesChannels' => [
                 ['id' => $salesChannelId],
             ],

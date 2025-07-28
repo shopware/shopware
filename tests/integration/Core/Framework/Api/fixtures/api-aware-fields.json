@@ -75,6 +75,7 @@
     "language.localeId",
     "language.translationCodeId",
     "language.name",
+    "language.active",
     "language.customFields",
     "language.parent",
     "language.locale",

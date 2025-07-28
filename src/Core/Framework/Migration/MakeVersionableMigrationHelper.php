@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index\IndexedColumn;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -165,11 +167,13 @@ EOD;
      */
     private function isEqualForeignKey(ForeignKeyConstraint $constraint, string $foreignTable, array $foreignFieldNames): bool
     {
-        if ($constraint->getForeignTableName() !== $foreignTable) {
+        if ($constraint->getReferencedTableName()->toString() !== $foreignTable) {
             return false;
         }
 
-        return \count(array_diff($constraint->getForeignColumns(), $foreignFieldNames)) === 0;
+        $referencedColumns = array_map(fn (UnqualifiedName $column): string => $column->toString(), $constraint->getReferencedColumnNames());
+
+        return \count(array_diff($referencedColumns, $foreignFieldNames)) === 0;
     }
 
     /**
@@ -241,10 +245,10 @@ EOD;
     {
         $pk = $this->schemaManager->listTableIndexes($tableName)['primary'];
 
-        if (\count($pk->getColumns()) !== 1) {
+        if (\count($pk->getIndexedColumns()) !== 1) {
             throw MigrationException::multiColumnPrimaryKey();
         }
-        $pkName = current($pk->getColumns());
+        $pkName = current($pk->getIndexedColumns())->getColumnName()->toString();
 
         return \sprintf(self::MODIFY_PRIMARY_KEY_IN_MAIN, $tableName, $newColumnName, $defaultValue, $pkName, $pkName, $newColumnName);
     }
@@ -279,7 +283,7 @@ EOD;
         $columnName = end($keyStructure['COLUMN_NAME']);
         \assert(\is_string($columnName));
 
-        $isNullable = $fk->getOption('onDelete') === 'SET NULL';
+        $isNullable = $fk->getOnDeleteAction()->value === 'SET NULL';
         if ($isNullable) {
             $addColumnSql = \sprintf(
                 self::ADD_NEW_COLUMN_NULLABLE,
@@ -322,7 +326,7 @@ EOD;
             $keyStructure['REFERENCED_TABLE_NAME'],
             $this->implodeColumns($keyStructure['REFERENCED_COLUMN_NAME']),
             $newColumnName,
-            (string) ($fk->getOption('onDelete') ?? 'RESTRICT')
+            $fk->getOnDeleteAction()->value ?? 'RESTRICT'
         );
     }
 
@@ -333,11 +337,15 @@ EOD;
     {
         \assert(\is_string($keyStructure['TABLE_NAME']));
         $indexes = $this->schemaManager->listTableIndexes($keyStructure['TABLE_NAME']);
-        if (isset($indexes['primary']) && \count(array_intersect($indexes['primary']->getColumns(), $keyStructure['COLUMN_NAME']))) {
+
+        $indexedColumns = $indexes['primary']->getIndexedColumns() ?? [];
+        $indexedColumns = array_map(fn (IndexedColumn $column): string => $column->getColumnName()->toString(), $indexedColumns);
+
+        if (\count(array_intersect($indexedColumns, $keyStructure['COLUMN_NAME']))) {
             return \sprintf(
                 self::MODIFY_PRIMARY_KEY_IN_RELATION,
                 $keyStructure['TABLE_NAME'],
-                $this->implodeColumns($indexes['primary']->getColumns()),
+                $this->implodeColumns($indexedColumns),
                 $foreignKeyColumnName
             );
         }

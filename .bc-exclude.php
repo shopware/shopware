@@ -13,6 +13,9 @@ return [
         '**src/Core/Framework/Script/ServiceStubs.php', // never intended to be extended
     ],
     'errors' => [
+        // Don't complain about doctrine library changes
+        'Doctrine\\\\DBAL',
+
         // Will be typed in Symfony 8 (maybe)
         preg_quote('Symfony\Component\Console\Command\Command#configure() changed from no type to void', '/'),
 

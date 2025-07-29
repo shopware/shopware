@@ -176,10 +176,8 @@ class ThemeRuntimeConfigServiceTest extends TestCase
 
         $this->themeFileResolver
             ->expects($this->once())
-            ->method('resolveFiles')
-            ->willReturn([
-                ThemeFileResolver::SCRIPT_FILES => $scriptFilesCollection,
-            ]);
+            ->method('resolveScriptFiles')
+            ->willReturn($scriptFilesCollection);
 
         // check that we save new config with resolved js files
         $this->storage
@@ -225,11 +223,9 @@ class ThemeRuntimeConfigServiceTest extends TestCase
 
         $this->themeFileResolver
             ->expects($this->once())
-            ->method('resolveFiles')
+            ->method('resolveScriptFiles')
             ->with($themeConfig, $configCollection, false)
-            ->willReturn([
-                ThemeFileResolver::SCRIPT_FILES => $scriptFilesCollection,
-            ]);
+            ->willReturn($scriptFilesCollection);
 
         $this->storage
             ->expects($this->once())
@@ -274,7 +270,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         // Make resolveJs throw an exception
         $this->themeFileResolver
             ->expects($this->once())
-            ->method('resolveFiles')
+            ->method('resolveScriptFiles')
             ->willThrowException(ThemeException::themeCompileException($technicalName, 'Failed to resolve js files'));
 
         $this->storage
@@ -309,7 +305,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         // Make resolveJs throw an exception
         $exception = ThemeException::themeCompileException($technicalName, 'Failed to resolve js files');
         $this->themeFileResolver
-            ->method('resolveFiles')
+            ->method('resolveScriptFiles')
             ->willThrowException($exception);
 
         $this->expectExceptionObject($exception);

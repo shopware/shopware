@@ -47,10 +47,6 @@ describe('src/app/mixin/salutation.mixin.ts', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should compute correct salutationFilter value', () => {
         const result = wrapper.vm.salutationFilter();
 

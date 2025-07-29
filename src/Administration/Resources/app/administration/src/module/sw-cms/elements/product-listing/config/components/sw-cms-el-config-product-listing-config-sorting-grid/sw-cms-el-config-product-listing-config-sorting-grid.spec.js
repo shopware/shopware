@@ -105,11 +105,6 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
 
 // eslint-disable-next-line max-len
 describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-sorting-grid', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should remove entry from product sortings on delete', async () => {
         const productSortings = new EntityCollection('', '', {}, {}, [
             { id: '1a2b3c', locked: false },

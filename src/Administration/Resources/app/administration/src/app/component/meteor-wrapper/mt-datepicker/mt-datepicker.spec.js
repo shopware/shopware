@@ -20,14 +20,6 @@ describe('src/app/component/meteor-wrapper/mt-datepicker', () => {
         Shopware.Store.get('session').setAdminLocale('de-DE');
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = mount(await wrapTestComponent('mt-datepicker', { sync: true }), {
-            props: {},
-            global: {},
-        });
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should use the user timeZone', async () => {
         const wrapper = mount(await wrapTestComponent('mt-datepicker', { sync: true }));
 

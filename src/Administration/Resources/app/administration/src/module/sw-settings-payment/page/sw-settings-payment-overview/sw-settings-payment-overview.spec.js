@@ -59,13 +59,6 @@ async function createWrapper(methods = [], cards = [], privileges = []) {
 }
 
 describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to create a new payment method', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

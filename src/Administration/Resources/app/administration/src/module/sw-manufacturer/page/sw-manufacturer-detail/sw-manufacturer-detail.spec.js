@@ -118,12 +118,6 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         global.activeAclRoles = [];
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to save edit', async () => {
         const wrapper = await createWrapper([
             'product_manufacturer.editor',

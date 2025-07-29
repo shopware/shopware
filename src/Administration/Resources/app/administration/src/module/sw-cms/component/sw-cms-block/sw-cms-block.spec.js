@@ -39,7 +39,7 @@ describe('module/sw-cms/component/sw-cms-block', () => {
         await setupCmsEnvironment();
     });
 
-    it('should be a Vue.js component', async () => {
+    it('should initialize component with default block properties', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();

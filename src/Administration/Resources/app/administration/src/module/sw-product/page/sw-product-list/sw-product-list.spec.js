@@ -377,13 +377,6 @@ describe('module/sw-product/page/sw-product-list', () => {
         router = data.router;
     });
 
-    it('should be a Vue.JS component', async () => {
-        await router.push({
-            name: 'sw.product.list',
-        });
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should sort grid when sorting for price', async () => {
         // load content of grid
         await wrapper.vm.getList();

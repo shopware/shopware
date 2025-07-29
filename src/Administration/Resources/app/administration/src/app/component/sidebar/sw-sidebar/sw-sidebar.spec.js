@@ -48,10 +48,6 @@ describe('src/app/component/sidebar/sw-sidebar/index.js', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should open the sidebar', async () => {
         // Check if the content of the first sidebar item is not visible
         let firstSidebarItemContent = await wrapper.find('.first-sidebar-item-content');

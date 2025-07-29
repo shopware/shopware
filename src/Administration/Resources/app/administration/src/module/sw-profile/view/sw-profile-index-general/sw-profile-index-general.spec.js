@@ -66,9 +66,9 @@ async function createWrapper(privileges = [], isSso = false) {
                 },
                 ssoSettingsService: {
                     isSso: () => {
-                        return Promise.resolve({ isSso: isSso})
-                    }
-                }
+                        return Promise.resolve({ isSso: isSso });
+                    },
+                },
             },
         },
         props: {

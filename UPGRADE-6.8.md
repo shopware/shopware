@@ -1,6 +1,12 @@
 # 6.8.0.0
 ## Introduced in 6.7.1.0
-For user interfaces that display only one delivery & transaction, there is now a new reference in the order for a `primaryOrderDelivery` or `primaryOrderTransaction`. If an extension modifies or adds new deliveries or transactions, this should be taken into account. By default, the reference will behave like default Shopware behavior, meaning `delivery.first()` and `transaction.last()`.
+## Use orders primary delivery and primary transaction
+For user interfaces that display only one delivery & transaction, there is now a new reference in the order for a `primaryOrderDelivery` or `primaryOrderTransaction`.
+If an extension modifies or adds new deliveries or transactions, this should be taken into account.
+To partly comply with old behaviour, primary deliveries are ordered first and primary transactions are ordered last wherever appropriate.
+
+* Replace delivery accesses like `order.deliveries.first()` or `order.deliveries[0]` with `order.primaryOrderDelivery`
+* Replace transaction accesses like `order.transactions.last()` or `order.transactions[length - 1]` with `order.primaryOrderDelivery`
 ## Payment: Removal of Payment Method "Debit Payment"
 The payment method `DebitPayment` has been removed as it did not fulfill its purpose.
 If the payment method is and was not used, it will be removed.

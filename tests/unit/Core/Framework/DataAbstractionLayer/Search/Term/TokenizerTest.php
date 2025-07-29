@@ -20,7 +20,7 @@ class TokenizerTest extends TestCase
     #[DataProvider('cases')]
     public function testInterpreter(string $term, array $expected, ?array $preservedChars = null): void
     {
-        $tokens = (new Tokenizer(2, $preservedChars ?? []))->tokenize($term);
+        $tokens = (new Tokenizer(2, $preservedChars ?? []))->tokenize($term, 2);
         static::assertSame($expected, $tokens);
     }
 

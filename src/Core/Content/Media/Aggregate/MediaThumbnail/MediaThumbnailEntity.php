@@ -30,13 +30,15 @@ class MediaThumbnailEntity extends Entity
 
     protected ?MediaEntity $media = null;
 
-    public function assign(array $options): void
+    public function assign(array $options)
     {
         parent::assign($options);
 
         if (!isset($this->mediaId) && Feature::isActive('v6.8.0.0')) {
             Feature::triggerDeprecationOrThrow('v6.8.0.0', '$mediaId must not be null');
         }
+
+        return $this;
     }
 
     public function getWidth(): int

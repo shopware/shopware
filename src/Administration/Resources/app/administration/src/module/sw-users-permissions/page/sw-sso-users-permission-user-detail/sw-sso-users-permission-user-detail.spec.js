@@ -153,6 +153,7 @@ async function createWrapper(user) {
                     'sw-user-sso-access-key-create-modal': await wrapTestComponent('sw-user-sso-access-key-create-modal'),
                     'sw-page': await wrapTestComponent('sw-page'),
                     'sw-app-topbar-button': await wrapTestComponent('sw-app-topbar-button'),
+                    'sw-app-topbar-sidebar': true,
                     'sw-notification-center': await wrapTestComponent('sw-notification-center'),
                     'sw-notification-center-item': await wrapTestComponent('sw-notification-center-item'),
                     'sw-context-button': await wrapTestComponent('sw-context-button'),

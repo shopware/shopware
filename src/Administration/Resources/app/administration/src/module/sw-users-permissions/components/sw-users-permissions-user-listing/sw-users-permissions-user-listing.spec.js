@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(privileges = [], isSso = { issso: false }) {
+async function createWrapper(privileges = [], isSso = { isSso: false }) {
     return mount(
         await wrapTestComponent('sw-users-permissions-user-listing', {
             sync: true,
@@ -30,7 +30,7 @@ async function createWrapper(privileges = [], isSso = { issso: false }) {
                     loginService: {},
                     searchRankingService: {},
                     ssoSettingsService: {
-                        issso: () => Promise.resolve(issso),
+                        isSso: () => Promise.resolve(isSso),
                     },
                 },
                 mocks: {
@@ -225,7 +225,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
     });
 
     it('should show the invite user button', async () => {
-        wrapper = await createWrapper(['users_and_permissions.creator'], { issso: true });
+        wrapper = await createWrapper(['users_and_permissions.creator'], { isSso: true });
         await flushPromises();
 
         const addUserButton = wrapper.find('.sw-users-permissions-user-listing__add-user-button');

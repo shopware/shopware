@@ -50,7 +50,7 @@ Module.register('sw-media', {
             props: {
                 default: (route) => {
                     return {
-                        routeFolderId: route.params.folderId,
+                        routeFolderId: route.params.folderId || null,
                     };
                 },
             },

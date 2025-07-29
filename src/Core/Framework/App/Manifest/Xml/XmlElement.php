@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
-use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
@@ -32,6 +32,7 @@ abstract class XmlElement extends Struct
 
     public static function fromXml(\DOMElement $element): static
     {
+        /** @phpstan-ignore new.staticInAbstractClassStaticMethod (the usage of "new static" is explicitly wanted) */
         return new static(static::parse($element));
     }
 
@@ -40,6 +41,7 @@ abstract class XmlElement extends Struct
      */
     public static function fromArray(array $data): static
     {
+        /** @phpstan-ignore new.staticInAbstractClassStaticMethod (the usage of "new static" is explicitly wanted) */
         return new static($data);
     }
 
@@ -94,7 +96,7 @@ abstract class XmlElement extends Struct
     {
         foreach ($requiredFields as $field) {
             if (!isset($data[$field])) {
-                throw new InvalidArgumentException($field . ' must not be empty');
+                throw AppException::invalidArgument($field . ' must not be empty');
             }
         }
     }

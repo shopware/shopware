@@ -47,12 +47,26 @@ class CustomFieldPersister
 
     private function upsertCustomFieldSets(?CustomFields $customFields, string $appId, Context $context): void
     {
-        $existingCustomFieldSets = Uuid::fromBytesToHexList(
-            $this->connection->fetchAllKeyValue(
-                'SELECT name, id FROM custom_field_set WHERE app_id = :appId',
-                ['appId' => Uuid::fromHexToBytes($appId)]
-            )
+        $allCustomFields = $this->connection->fetchAllKeyValue(
+            'SELECT id, name FROM custom_field_set WHERE app_id = :appId',
+            ['appId' => Uuid::fromHexToBytes($appId)]
         );
+
+        $groupedByName = [];
+        foreach ($allCustomFields as $id => $name) {
+            $groupedByName[$name][] = Uuid::fromBytesToHex($id);
+        }
+
+        $existingCustomFieldSets = [];
+        foreach ($groupedByName as $name => $ids) {
+            if (\count($ids) > 1) {
+                // If there are multiple custom field sets with the same name, we need to delete all the custom field sets
+                // as we can not map the fields to the correct set anymore, see https://github.com/shopware/shopware/issues/10738
+                $this->deleteObsoleteIds($ids, [], [], $context);
+            } else {
+                $existingCustomFieldSets[$name] = $ids[0];
+            }
+        }
 
         if (!$customFields || empty($customFields->getCustomFieldSets())) {
             if (!empty($existingCustomFieldSets)) {

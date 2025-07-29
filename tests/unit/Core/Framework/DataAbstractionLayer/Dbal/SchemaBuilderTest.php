@@ -107,7 +107,7 @@ class SchemaBuilderTest extends TestCase
 
         static::assertCount(4, $table->getColumns());
 
-        static::assertSame('id', $table->getPrimaryKey()?->getColumns()[0]);
+        static::assertSame('id', $table->getPrimaryKeyConstraint()?->getColumnNames()[0]->toString());
 
         static::assertTrue($table->hasColumn('id'));
         static::assertTrue($table->hasColumn('relation_id'));
@@ -127,7 +127,7 @@ class SchemaBuilderTest extends TestCase
 
         $table = $schemaBuilder->buildSchemaOfDefinition($definition);
 
-        static::assertSame('id', $table->getPrimaryKey()?->getColumns()[0]);
+        static::assertSame('id', $table->getPrimaryKeyConstraint()?->getColumnNames()[0]->toString());
 
         static::assertTrue($table->hasColumn('id'));
         static::assertSame(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumn('id')->getType()));
@@ -267,7 +267,7 @@ class SchemaBuilderTest extends TestCase
 
         $table = $schemaBuilder->buildSchemaOfDefinition($definition);
 
-        static::assertSame('id', $table->getPrimaryKey()?->getColumns()[0]);
+        static::assertSame('id', $table->getPrimaryKeyConstraint()?->getColumnNames()[0]->toString());
 
         static::assertTrue($table->hasColumn('id'));
         static::assertSame(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumn('id')->getType()));
@@ -302,33 +302,27 @@ class SchemaBuilderTest extends TestCase
 
         $associationFk = $table->getForeignKey('fk.test_entity_with_foreign_keys.association_id');
 
-        static::assertSame('association_id', $associationFk->getLocalColumns()[0]);
-        static::assertSame('test_association', $associationFk->getForeignTableName());
-        static::assertSame('id', $associationFk->getForeignColumns()[0]);
-        static::assertArrayHasKey('onUpdate', $associationFk->getOptions());
-        static::assertSame('CASCADE', $associationFk->getOptions()['onUpdate']);
-        static::assertArrayHasKey('onDelete', $associationFk->getOptions());
-        static::assertSame('SET NULL', $associationFk->getOptions()['onDelete']);
+        static::assertSame('association_id', $associationFk->getReferencingColumnNames()[0]->toString());
+        static::assertSame('test_association', $associationFk->getReferencedTableName()->toString());
+        static::assertSame('id', $associationFk->getReferencedColumnNames()[0]->toString());
+        static::assertSame('CASCADE', $associationFk->getOnUpdateAction()->value);
+        static::assertSame('SET NULL', $associationFk->getOnDeleteAction()->value);
 
         $associationFk2 = $table->getForeignKey('fk.test_entity_with_foreign_keys.association_id2');
 
-        static::assertSame('association_id2', $associationFk2->getLocalColumns()[0]);
-        static::assertSame('test_association', $associationFk2->getForeignTableName());
-        static::assertSame('id', $associationFk2->getForeignColumns()[0]);
-        static::assertArrayHasKey('onUpdate', $associationFk2->getOptions());
-        static::assertSame('CASCADE', $associationFk2->getOptions()['onUpdate']);
-        static::assertArrayHasKey('onDelete', $associationFk2->getOptions());
-        static::assertSame('CASCADE', $associationFk2->getOptions()['onDelete']);
+        static::assertSame('association_id2', $associationFk2->getReferencingColumnNames()[0]->toString());
+        static::assertSame('test_association', $associationFk2->getReferencedTableName()->toString());
+        static::assertSame('id', $associationFk2->getReferencedColumnNames()[0]->toString());
+        static::assertSame('CASCADE', $associationFk2->getOnUpdateAction()->value);
+        static::assertSame('CASCADE', $associationFk2->getOnDeleteAction()->value);
 
         $associationFk3 = $table->getForeignKey('fk.test_entity_with_foreign_keys.association_id3');
 
-        static::assertSame('association_id3', $associationFk3->getLocalColumns()[0]);
-        static::assertSame('test_association', $associationFk3->getForeignTableName());
-        static::assertSame('id', $associationFk3->getForeignColumns()[0]);
-        static::assertArrayHasKey('onUpdate', $associationFk3->getOptions());
-        static::assertSame('CASCADE', $associationFk3->getOptions()['onUpdate']);
-        static::assertArrayHasKey('onDelete', $associationFk3->getOptions());
-        static::assertSame('RESTRICT', $associationFk3->getOptions()['onDelete']);
+        static::assertSame('association_id3', $associationFk3->getReferencingColumnNames()[0]->toString());
+        static::assertSame('test_association', $associationFk3->getReferencedTableName()->toString());
+        static::assertSame('id', $associationFk3->getReferencedColumnNames()[0]->toString());
+        static::assertSame('CASCADE', $associationFk3->getOnUpdateAction()->value);
+        static::assertSame('RESTRICT', $associationFk3->getOnDeleteAction()->value);
     }
 
     public function testDefinitionMissingReferenceVersionField(): void

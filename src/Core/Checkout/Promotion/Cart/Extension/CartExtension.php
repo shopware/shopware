@@ -80,4 +80,27 @@ class CartExtension extends Struct
     {
         return \in_array($id, $this->blockedPromotionIds, true);
     }
+
+    /**
+     * @return array<string>
+     */
+    public function getBlockedPromotions(): array
+    {
+        return $this->blockedPromotionIds;
+    }
+
+    public function merge(self $extension): static
+    {
+        $new = clone $this;
+
+        foreach ($extension->getCodes() as $code) {
+            $new->addCode($code);
+        }
+
+        foreach ($extension->getBlockedPromotions() as $id) {
+            $new->blockPromotion($id);
+        }
+
+        return $new;
+    }
 }

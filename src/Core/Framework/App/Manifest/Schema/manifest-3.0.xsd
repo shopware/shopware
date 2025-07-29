@@ -71,6 +71,10 @@
                             Register custom-fields your app needs.
                         </xs:documentation>
                     </xs:annotation>
+                    <xs:unique name="uniqueCustomFieldSetName">
+                        <xs:selector xpath="custom-field-set"/>
+                        <xs:field xpath="name"/>
+                    </xs:unique>
                 </xs:element>
                 <xs:element name="webhooks" type="webhooks" minOccurs="0">
                     <xs:annotation>
@@ -136,6 +140,11 @@
                 </xs:element>
                 <xs:element name="gateways" type="gateways" minOccurs="0"/>
             </xs:all>
+            <xs:attribute name="validates-permissions" use="optional">
+                <xs:simpleType>
+                    <xs:restriction base="xs:boolean"/>
+                </xs:simpleType>
+            </xs:attribute>
         </xs:complexType>
     </xs:element>
     <xs:complexType name="meta">
@@ -491,6 +500,7 @@
     <xs:complexType name="gateways">
         <xs:sequence>
             <xs:element name="checkout" type="xs:anyURI" minOccurs="0"/>
+            <xs:element name="context" type="xs:anyURI" minOccurs="0"/>
             <xs:element name="inAppPurchases" type="xs:anyURI" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>

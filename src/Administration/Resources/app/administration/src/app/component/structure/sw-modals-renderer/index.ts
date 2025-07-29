@@ -1,5 +1,6 @@
 import type { buttonProps } from '@shopware-ag/meteor-admin-sdk/es/ui/modal';
 import type { ModalItemEntry } from 'src/app/store/modals.store';
+import DOMPurify from 'dompurify';
 import template from './sw-modals-renderer.html.twig';
 
 /**
@@ -24,7 +25,16 @@ export default Shopware.Component.wrapComponentConfig({
 
         buttonProps(button: buttonProps) {
             // eslint-disable-next-line max-len
-            type buttonVariantsWithFallback = 'ghost' | 'primary' | 'secondary' | 'critical' | 'action' | 'ghost-danger' | 'danger' | 'contrast' | 'context';
+            type buttonVariantsWithFallback =
+                | 'ghost'
+                | 'primary'
+                | 'secondary'
+                | 'critical'
+                | 'action'
+                | 'ghost-danger'
+                | 'danger'
+                | 'contrast'
+                | 'context';
 
             // Convert deprecated button variants to new ones
             const variantMap: Record<string, buttonVariantsWithFallback> = {
@@ -37,7 +47,10 @@ export default Shopware.Component.wrapComponentConfig({
 
             const originalVariant = button.variant ?? 'primary';
             const mappedVariant = variantMap[originalVariant] ?? originalVariant;
-            const isGhost = ['ghost', 'ghost-danger'].includes(originalVariant);
+            const isGhost = [
+                'ghost',
+                'ghost-danger',
+            ].includes(originalVariant);
 
             return {
                 method: button.method ?? ((): undefined => undefined),
@@ -47,6 +60,24 @@ export default Shopware.Component.wrapComponentConfig({
                 ghost: isGhost,
                 square: button.square ?? false,
             };
+        },
+
+        sanitizeTextContent(textContent: string): string {
+            return DOMPurify.sanitize(this.$t(textContent), {
+                ALLOWED_TAGS: [
+                    'a',
+                    'b',
+                    'strong',
+                    'i',
+                    'em',
+                    'u',
+                    's',
+                    'li',
+                    'ul',
+                    'img',
+                    'svg',
+                ],
+            });
         },
     },
 });

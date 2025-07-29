@@ -65,7 +65,7 @@ class AppStateService
         $this->scriptExecutor->execute(new AppActivatedHook($event));
     }
 
-    public function deactivateApp(string $appId, Context $context): void
+    public function deactivateApp(string $appId, Context $context, bool $deactivateForDeletion = false): void
     {
         $app = $this->appRepo->search(new Criteria([$appId]), $context)->getEntities()->first();
 
@@ -75,8 +75,8 @@ class AppStateService
         if (!$app->isActive()) {
             return;
         }
-        if (!$app->getAllowDisable()) {
-            throw new \RuntimeException(\sprintf('App %s can not be deactivated. You have to uninstall the app.', $app->getName()));
+        if (!$deactivateForDeletion && !$app->getAllowDisable()) {
+            throw AppException::restrictDeletePreventsDeactivation($app->getName());
         }
 
         $this->activeAppsLoader->reset();

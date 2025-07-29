@@ -104,6 +104,7 @@
     {% block sw_product_price_form_maintain_currencies_modal %}
     <sw-maintain-currencies-modal
         v-if="displayMaintainCurrencies"
+        variant="full"
         :currencies="currencies"
         :prices="product.price"
         :default-price="defaultPrice"

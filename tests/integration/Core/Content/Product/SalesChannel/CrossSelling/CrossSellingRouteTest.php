@@ -594,7 +594,9 @@ class CrossSellingRouteTest extends TestCase
         }
 
         $this->productRepository->create($products, $this->salesChannelContext->getContext());
-        $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
+        $lastProduct = end($products);
+        static::assertIsArray($lastProduct);
+        $this->addTaxDataToSalesChannel($this->salesChannelContext, $lastProduct['tax']);
 
         return $products;
     }
@@ -602,8 +604,14 @@ class CrossSellingRouteTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function getProductData(?string $id = null, ?string $manufacturerId = null, ?string $taxId = null, bool $withChild = false, int $stock = 1, bool $isCloseout = false): array
-    {
+    private function getProductData(
+        ?string $id = null,
+        ?string $manufacturerId = null,
+        ?string $taxId = null,
+        bool $withChild = false,
+        int $stock = 1,
+        bool $isCloseout = false
+    ): array {
         $price = random_int(0, 10);
 
         $product = [

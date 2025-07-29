@@ -12,7 +12,6 @@
       "tags": "Tags"
     },
     "detail": {
-      "messageSaveSuccess": "Data for \"{key}\" has been saved.",
       "messageSaveError": "Data for \"{key}\" could not be saved."
     },
     "list": {

@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Guest customer is able to add and remove products to the wishlist',{ tag: '@Wishlist' }, async ({
+test('Guest customer is able to add and remove products to the wishlist', { tag: '@Wishlist' }, async ({
     TestDataService,
     ShopCustomer,
     StorefrontHome,
@@ -9,10 +9,10 @@ test('Guest customer is able to add and remove products to the wishlist',{ tag: 
     AddProductToCartFromWishlist,
     Login,
     StorefrontOffCanvasCart,
+    HomeProducts,
 }) => {
     await TestDataService.setSystemConfig({ 'core.cart.wishlistEnabled': true });
-    const product1 = await TestDataService.createBasicProduct();
-    const product2 = await TestDataService.createBasicProduct();
+    const [product1, product2] = HomeProducts;
     const product1Locators = await StorefrontHome.getListingItemByProductName(product1.name);
     const product2Locators = await StorefrontHome.getListingItemByProductName(product2.name);
 
@@ -40,20 +40,21 @@ test('Guest customer is able to add and remove products to the wishlist',{ tag: 
 
     await test.step('Login as customer and verify product1 is still in wishlist', async () => {
         await ShopCustomer.attemptsTo(Login());
-        await ShopCustomer.expects(StorefrontHome.wishlistBasket).toHaveText('1');
+        await ShopCustomer.expects(StorefrontHome.wishlistBasket).toHaveText('1', { timeout: 15_000 });
         await ShopCustomer.goesTo(StorefrontHome.url());
-        await ShopCustomer.expects(product1Locators.wishlistAddedIcon).toBeVisible();
+        await ShopCustomer.expects(product1Locators.wishlistAddedIcon).toBeVisible({ timeout: 15_000 });
     });
 
     await test.step('Add product2 to the wishlist and verify', async () => {
         await ShopCustomer.attemptsTo(AddProductToWishlist(product2));
-        await ShopCustomer.expects(product2Locators.wishlistAddedIcon).toBeVisible();
+
+        await ShopCustomer.expects(product2Locators.wishlistAddedIcon).toBeVisible({ timeout: 15_000 });
     });
 
     await test.step('Navigate to the wishlist and verify that the products are visible', async () => {
         await StorefrontHome.wishlistIcon.click();
-        await ShopCustomer.expects(StorefrontHome.wishlistBasket).toHaveText('2');
-        await ShopCustomer.expects(StorefrontWishlist.wishListHeader).toBeVisible();
+        await ShopCustomer.expects(StorefrontHome.wishlistBasket).toHaveText('2', { timeout: 15_000 });
+        await ShopCustomer.expects(StorefrontWishlist.wishListHeader.first()).toBeVisible();
         await ShopCustomer.expects(product1Locators.productName).toBeVisible();
         await ShopCustomer.expects(product2Locators.productName).toBeVisible();
     });

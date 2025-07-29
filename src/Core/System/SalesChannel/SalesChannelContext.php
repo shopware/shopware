@@ -9,6 +9,8 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnitTypeEnum;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -33,6 +35,8 @@ class SalesChannelContext extends Struct
 
     protected ?string $imitatingUserId = null;
 
+    protected MeasurementUnits $measurementSystem;
+
     /**
      * @internal
      *
@@ -54,7 +58,15 @@ class SalesChannelContext extends Struct
         protected CashRoundingConfig $totalRounding,
         protected LanguageInfo $languageInfo,
         protected array $areaRuleIds = [],
+        ?MeasurementUnits $measurementSystem = null,
     ) {
+        $this->measurementSystem = $measurementSystem ?? new MeasurementUnits(
+            MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM,
+            [
+                MeasurementUnitTypeEnum::LENGTH->value => MeasurementUnits::DEFAULT_LENGTH_UNIT,
+                MeasurementUnitTypeEnum::WEIGHT->value => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
+            ]
+        );
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupEntity
@@ -379,6 +391,35 @@ class SalesChannelContext extends Struct
         return $result;
     }
 
+    /**
+     * Executed the callback function with the given permissions set in the SalesChannelContext. If the
+     * permissions are locked, the callback is called with the original permissions of the SalesChannelContext.
+     *
+     * @template TReturn of mixed
+     *
+     * @param array<string, bool> $permissions
+     * @param callable(SalesChannelContext): TReturn $callback
+     *
+     * @return TReturn the return value of the provided callback function
+     */
+    public function withPermissions(array $permissions, callable $callback): mixed
+    {
+        if ($this->permisionsLocked) {
+            return $callback($this);
+        }
+
+        $originalPermissions = $this->getPermissions();
+        $permissions = array_merge($originalPermissions, $permissions);
+
+        $this->setPermissions($permissions);
+
+        $result = $callback($this);
+
+        $this->setPermissions($originalPermissions);
+
+        return $result;
+    }
+
     public function getCountryId(): string
     {
         return $this->shippingLocation->getCountry()->getId();
@@ -397,5 +438,15 @@ class SalesChannelContext extends Struct
     public function setLanguageInfo(LanguageInfo $languageInfo): void
     {
         $this->languageInfo = $languageInfo;
+    }
+
+    public function getMeasurementSystem(): MeasurementUnits
+    {
+        return $this->measurementSystem;
+    }
+
+    public function setMeasurementSystem(MeasurementUnits $measurementSystem): void
+    {
+        $this->measurementSystem = $measurementSystem;
     }
 }

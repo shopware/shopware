@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
 import template from './sw-order-state-history-modal.html.twig';
@@ -17,6 +16,7 @@ interface StateMachineHistoryData {
     createdAt: string;
     user?: {
         username: string;
+        email: string;
     };
     integration?: {
         label: string;
@@ -49,15 +49,16 @@ export default Component.wrapComponentConfig({
             type: Object as PropType<Entity<'order'>>,
             required: true,
         },
+        /** @deprecated tag:v6.8.0 - will be removed without replacment */
         isLoading: {
             type: Boolean,
-            required: true,
+            required: false,
+            default: false,
         },
     },
 
     data(): {
         dataSource: StateMachineHistoryData[];
-        statesLoading: boolean;
         limit: number;
         page: number;
         total: number;
@@ -65,7 +66,6 @@ export default Component.wrapComponentConfig({
     } {
         return {
             dataSource: [],
-            statesLoading: true,
             limit: 10,
             page: 1,
             total: 0,
@@ -147,6 +147,18 @@ export default Component.wrapComponentConfig({
 
         hasMultipleTransactions(): boolean {
             return (this.order?.transactions?.filter((v, idx, a) => a.indexOf(v) === idx)?.length ?? 0) > 1;
+        },
+
+        statesLoading: {
+            get(): boolean {
+                return Shopware.Store.get('swOrderDetail').loading.states;
+            },
+            set(value: boolean): void {
+                Shopware.Store.get('swOrderDetail').setLoading([
+                    'states',
+                    value,
+                ]);
+            },
         },
     },
 
@@ -230,14 +242,18 @@ export default Component.wrapComponentConfig({
                     knownTransactionIds.push(entry.referencedId);
                 }
 
-                // @ts-expect-error - the entityName have to be order, order_transaction or order_delivery
+                // @ts-expect-error - the entityName has to be order, order_transaction or order_delivery
                 states[entry.entityName] = entry.toStateMachineState;
                 // @ts-expect-error - states exists
                 entries.push(this.createEntry(states, entry));
             });
 
             const lastTransaction = this.order.transactions?.last();
-            if (!!lastTransaction && !knownTransactionIds.includes(lastTransaction.id)) {
+            if (
+                !!lastTransaction &&
+                !knownTransactionIds.includes(lastTransaction.id) &&
+                (this.order.transactions?.length ?? 0) > 1
+            ) {
                 entries.push(
                     this.createEntry(
                         {
@@ -298,7 +314,7 @@ export default Component.wrapComponentConfig({
 
         getStateChangeAuthor(item: StateMachineHistoryData): string {
             if (item.user) {
-                return item.user.username;
+                return item.user.username || item.user.email;
             }
             if (item.integration) {
                 const integrationLabel = item.integration.label;

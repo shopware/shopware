@@ -182,6 +182,7 @@ export default {
 
         onDeletePropertyValue(propertyValue) {
             this.productProperties.remove(propertyValue.id);
+            this.getProperties();
         },
 
         onDeleteProperty(property) {

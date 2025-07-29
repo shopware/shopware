@@ -5,31 +5,112 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <parameters>
         <parameter key="shopware.installer.supportedLanguages" type="collection">
-            <parameter key="de">de-DE</parameter>
-            <parameter key="en">en-GB</parameter>
-            <parameter key="us">en-US</parameter>
-            <parameter key="cs">cs-CZ</parameter>
-            <parameter key="es">es-ES</parameter>
-            <parameter key="fr">fr-FR</parameter>
-            <parameter key="it">it-IT</parameter>
-            <parameter key="nl">nl-NL</parameter>
-            <parameter key="pl">pl-PL</parameter>
-            <parameter key="pt">pt-PT</parameter>
-            <parameter key="sv">sv-SE</parameter>
-            <parameter key="da">da-DK</parameter>
-            <parameter key="nb">nb-NO</parameter>
+            <parameter key="cs" type="collection">
+                <parameter key="id">cs-CZ</parameter>
+                <parameter key="label">Český</parameter>
+            </parameter>
+            <parameter key="da-DK" type="collection">
+                <parameter key="id">da-DK</parameter>
+                <parameter key="label">Dansk</parameter>
+            </parameter>
+            <parameter key="de" type="collection">
+                <parameter key="id">de-DE</parameter>
+                <parameter key="label">Deutsch</parameter>
+            </parameter>
+            <parameter key="en-US" type="collection">
+                <parameter key="id">en-US</parameter>
+                <parameter key="label">English (US)</parameter>
+            </parameter>
+            <parameter key="en" type="collection">
+                <parameter key="id">en-GB</parameter>
+                <parameter key="label">English (UK)</parameter>
+            </parameter>
+            <parameter key="es-ES" type="collection">
+                <parameter key="id">es-ES</parameter>
+                <parameter key="label">Español</parameter>
+            </parameter>
+            <parameter key="fr" type="collection">
+                <parameter key="id">fr-FR</parameter>
+                <parameter key="label">Français</parameter>
+            </parameter>
+            <parameter key="it" type="collection">
+                <parameter key="id">it-IT</parameter>
+                <parameter key="label">Italiano</parameter>
+            </parameter>
+            <parameter key="nl" type="collection">
+                <parameter key="id">nl-NL</parameter>
+                <parameter key="label">Nederlands</parameter>
+            </parameter>
+            <parameter key="no" type="collection">
+                <parameter key="id">no-NO</parameter>
+                <parameter key="label">Norsk</parameter>
+            </parameter>
+            <parameter key="pl" type="collection">
+                <parameter key="id">pl-PL</parameter>
+                <parameter key="label">Język polski</parameter>
+            </parameter>
+            <parameter key="pt-PT" type="collection">
+                <parameter key="id">pt-PT</parameter>
+                <parameter key="label">Português</parameter>
+            </parameter>
+            <parameter key="sv-SE" type="collection">
+                <parameter key="id">sv-SE</parameter>
+                <parameter key="label">Svenska</parameter>
+            </parameter>
         </parameter>
 
         <parameter key="shopware.installer.supportedCurrencies" type="collection">
-            <parameter>EUR</parameter>
-            <parameter>USD</parameter>
-            <parameter>GBP</parameter>
-            <parameter>PLN</parameter>
-            <parameter>CHF</parameter>
-            <parameter>SEK</parameter>
-            <parameter>DKK</parameter>
-            <parameter>NOK</parameter>
-            <parameter>CZK</parameter>
+            <parameter key="EUR">EUR</parameter>
+            <parameter key="USD">USD</parameter>
+            <parameter key="GBP">GBP</parameter>
+            <parameter key="PLN">PLN</parameter>
+            <parameter key="CHF">CHF</parameter>
+            <parameter key="SEK">SEK</parameter>
+            <parameter key="DKK">DKK</parameter>
+            <parameter key="NOK">NOK</parameter>
+            <parameter key="CZK">CZK</parameter>
+        </parameter>
+
+        <parameter key="shopware.installer.configurationPreselection" type="collection">
+            <parameter key="cs" type="collection">
+                <parameter key="currency">CZK</parameter>
+            </parameter>
+            <parameter key="da-DK" type="collection">
+                <parameter key="currency">DKK</parameter>
+            </parameter>
+            <parameter key="de" type="collection">
+                <parameter key="currency">EUR</parameter>
+            </parameter>
+            <parameter key="en-US" type="collection">
+                <parameter key="currency">USD</parameter>
+            </parameter>
+            <parameter key="en" type="collection">
+                <parameter key="currency">GBP</parameter>
+            </parameter>
+            <parameter key="es-ES" type="collection">
+                <parameter key="currency">EUR</parameter>
+            </parameter>
+            <parameter key="fr" type="collection">
+                <parameter key="currency">EUR</parameter>
+            </parameter>
+            <parameter key="it" type="collection">
+                <parameter key="currency">EUR</parameter>
+            </parameter>
+            <parameter key="nl" type="collection">
+                <parameter key="currency">EUR</parameter>
+            </parameter>
+            <parameter key="no" type="collection">
+                <parameter key="currency">NOK</parameter>
+            </parameter>
+            <parameter key="pl" type="collection">
+                <parameter key="currency">PLN</parameter>
+            </parameter>
+            <parameter key="pt-PT" type="collection">
+                <parameter key="currency">EUR</parameter>
+            </parameter>
+            <parameter key="sv-SE" type="collection">
+                <parameter key="currency">SEK</parameter>
+            </parameter>
         </parameter>
 
         <parameter key="shopware.installer.tosUrls" type="collection">
@@ -91,7 +172,7 @@
 
         </service>
 
-        <service id="Shopware\Core\Installer\Controller\SelectLanguagesController" public="true">
+        <service id="Shopware\Core\Installer\Controller\WelcomeController" public="true">
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -187,13 +268,6 @@
 
         <service id="Shopware\Core\Installer\Finish\SystemLocker">
             <argument type="string">%kernel.project_dir%</argument>
-        </service>
-
-        <service id="Shopware\Core\Installer\Finish\Notifier">
-            <argument type="string">https://api.shopware.com</argument>
-            <argument type="service" id="Shopware\Core\Installer\Finish\UniqueIdGenerator"/>
-            <argument type="service" id="GuzzleHttp\Client"/>
-            <argument type="string">%kernel.shopware_version%</argument>
         </service>
 
         <service id="Shopware\Core\Installer\Finish\UniqueIdGenerator">

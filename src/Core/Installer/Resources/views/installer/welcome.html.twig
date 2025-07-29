@@ -1,0 +1,24 @@
+{% extends '@Installer/installer/base.html.twig' %}
+
+{% block base_content %}
+    <div class="card__title">
+        <h2>{{ "shopware.installer.welcome_header"|trans }}</h2>
+    </div>
+
+    <div class="card__body is--align-center">
+
+        <div class="welcome-illustration">
+            <img src="{{ asset('bundles/installer/assets/images/welcome.svg', 'asset') }}" alt="">
+        </div>
+
+        <div class="welcome-container">
+            <h1 class="welcome-title">{{ "shopware.installer.welcome_title"|trans }}</h1>
+
+            <p class="welcome-intro-message">{{ "shopware.installer.welcome_message"|trans|raw }}</p>
+        </div>
+    </div>
+
+    <div class="card__footer flex-container">
+        <a href="{{ url('installer.requirements') }}" class="btn btn-primary flex-item flex-right">{{ "shopware.installer.forward"|trans }}</a>
+    </div>
+{% endblock %}

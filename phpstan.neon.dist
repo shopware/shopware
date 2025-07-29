@@ -86,6 +86,10 @@ parameters:
             paths:
                 - src/Core/Content/Test/ImportExport/MockRepository.php
                 - src/Core/Test/Stub/DataAbstractionLayer/StaticEntityRepository.php
+        -
+            message: '#.*extends @final class Shopware\\Core\\System\\SalesChannel\\Entity\\SalesChannelRepository.#'
+            paths:
+                - src/Core/Test/Stub/DataAbstractionLayer/StaticSalesChannelRepository.php
 
         # Route scopes for controllers
         -

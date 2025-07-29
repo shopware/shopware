@@ -31,6 +31,14 @@
         </input-field>
 
         <input-field type="bool">
+            <name>showVariantOptionInSearchSuggestionResult</name>
+            <label>Show variant options in the search suggestion results</label>
+            <label lang="de-DE">Anzeige von Variantenoptionen in den Suchvorschlägen</label>
+            <helpText>Allow the variant options to be displayed underneath the product name in the search suggestion results.</helpText>
+            <helpText lang="de-DE">Erlauben Sie die Anzeige der Variantenoptionen unterhalb des Produktnamens in den Suchvorschlägen.</helpText>
+        </input-field>
+
+        <input-field type="bool">
             <name>showReview</name>
             <label>Show reviews</label>
             <label lang="de-DE">Bewertungen anzeigen</label>

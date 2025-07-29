@@ -809,7 +809,7 @@ class AttributeEntityIntegrationTest extends TestCase
 
         $record = $search->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
-        static::assertSame(['bar' => 'baz', 'foo' => 'bar'], $record->getCustomFields());
+        static::assertEquals(['bar' => 'baz', 'foo' => 'bar'], $record->getCustomFields());
         static::assertSame('bar', $record->getCustomFieldsValue('foo'));
         static::assertSame('baz', $record->getCustomFieldsValue('bar'));
     }

@@ -73,7 +73,7 @@
     <template #column-releaseDate="{ item }">
         {% block sw_advanced_selection_product_list_grid_columns_release_date_content %}
         <template v-if="item.releaseDate">
-            {{ dateFilter(item.releaseDate) }}
+            {{ dateFilter(item.releaseDate, { month: '2-digit', day: '2-digit' }) }}
         </template>
         <template v-else>
             -

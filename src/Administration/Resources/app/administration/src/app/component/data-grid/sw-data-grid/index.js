@@ -689,8 +689,6 @@ export default {
         },
 
         selectAll(selected) {
-            this.selection = {};
-
             this.records.forEach((item) => {
                 if (this.isSelected(item[this.itemIdentifierProperty]) !== selected) {
                     this.selectItem(selected, item);

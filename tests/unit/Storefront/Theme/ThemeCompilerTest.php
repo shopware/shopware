@@ -110,7 +110,7 @@ class ThemeCompilerTest extends TestCase
 
     public function testThemeCompileExceptionIsThrownWhenFilesAreNotResolved(): void
     {
-        $this->themeFileResolver->method('resolveFiles')->willThrowException(new \InvalidArgumentException());
+        $this->themeFileResolver->method('resolveStyleFiles')->willThrowException(new \InvalidArgumentException());
         $compiler = $this->getThemeCompiler();
 
         $config = new StorefrontPluginConfiguration('test');
@@ -748,6 +748,43 @@ PHP_EOL,
         static::assertTrue($this->filesystem->fileExists($asyncMainJsInTheme));
         static::assertTrue($this->filesystem->fileExists($asyncAnotherJsFileInTheme));
         static::assertTrue($this->filesystem->fileExists($themeMainJsInTheme));
+    }
+
+    public function testKeepConfigurationCollectionWithGetScriptDistFolders(): void
+    {
+        $compiler = $this->getThemeCompiler();
+
+        $configurationFactory = new StorefrontPluginConfigurationFactory(
+            $this->createMock(KernelPluginLoader::class),
+            new StaticSourceResolver([])
+        );
+
+        $themePluginBundle = new TestTheme();
+        $testTheme = $configurationFactory->createFromBundle($themePluginBundle);
+
+        $configCollection = new StorefrontPluginConfigurationCollection();
+        $configCollection->add($testTheme);
+
+        $testTheme->setScriptFiles(
+            FileCollection::createFromArray([
+                'Resources/app/storefront/src/plugins/lorem-ipsum/plugin.js',
+                '@Storefront',
+            ])
+        );
+
+        $currentConfigCollection = clone $configCollection;
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'TestTheme',
+            $testTheme,
+            $configCollection,
+            true,
+            Context::createDefaultContext()
+        );
+
+        // There should be no side effects on the configuration collection
+        static::assertEquals($currentConfigCollection, $configCollection);
     }
 
     /**

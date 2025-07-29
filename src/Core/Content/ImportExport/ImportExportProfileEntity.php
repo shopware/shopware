@@ -19,6 +19,9 @@ class ImportExportProfileEntity extends Entity
 
     protected string $technicalName;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
     protected string $label;
 
     protected bool $systemDefault;
@@ -62,11 +65,17 @@ class ImportExportProfileEntity extends Entity
         $this->technicalName = $technicalName;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
     public function getLabel(): string
     {
         return $this->label;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
     public function setLabel(string $label): void
     {
         $this->label = $label;

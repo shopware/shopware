@@ -25,8 +25,7 @@ export default {
         inputValid() {
             return (
                 this.isFieldFilled(this.profile.sourceEntity) &&
-                this.isFieldFilled(this.profile.type) &&
-                this.isFieldFilled(this.profile.label)
+                this.isFieldFilled(this.profile.type)
             );
         },
     },

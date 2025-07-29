@@ -26,7 +26,6 @@ export default {
 
     computed: {
         ...mapPropertyErrors('profile', [
-            'name',
             'sourceEntity',
             'type',
         ]),

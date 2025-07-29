@@ -24,6 +24,10 @@ class SeoResolverData
             $this->entityMap[$entityName][$entity->getUniqueIdentifier()] = [];
         }
 
+        /**
+         * a same entity can be added multiple times, e.g. if a same product is assigned in multiple cross-selling groups
+         * we use the spl_object_hash to ensure that every entity can be added multiple times and hence we can enrich seoUrls for all these duplicated entities even they're in different extensions
+         */
         $hash = spl_object_hash($entity);
 
         if (isset($this->entityMap[$entityName][$entity->getUniqueIdentifier()][$hash])) {

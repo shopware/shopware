@@ -11,7 +11,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import symfonyPlugin from 'vite-plugin-symfony';
 import colors from 'picocolors';
-import { loadExtensions } from './build/vite-plugins/utils';
+import { isInsideDockerContainer, loadExtensions } from './build/vite-plugins/utils';
 import TwigPlugin from './build/vite-plugins/twigjs-plugin';
 import AssetPlugin from './build/vite-plugins/asset-plugin';
 import AssetPathPlugin from './build/vite-plugins/asset-path-plugin';
@@ -39,7 +39,7 @@ export default defineConfig(({ command }) => {
     const isDev = !isProd;
     const base = isProd ? '/bundles/administration/administration' : undefined;
     const useSourceMap = isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1';
-    const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1';
+    const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1' && !isInsideDockerContainer();
 
     if (isProd) {
         console.log(colors.yellow('# Production mode activated 🚀'));

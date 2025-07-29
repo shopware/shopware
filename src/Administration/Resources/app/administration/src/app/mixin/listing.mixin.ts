@@ -38,7 +38,6 @@ export default Shopware.Mixin.register(
             entitySearchable: boolean;
             freshSearchTerm: boolean;
             previousRouteName: string;
-            _cachedSearchRankingFields: any;
         } {
             return {
                 page: 1,
@@ -54,7 +53,6 @@ export default Shopware.Mixin.register(
                 entitySearchable: true,
                 freshSearchTerm: false,
                 previousRouteName: '',
-                _cachedSearchRankingFields: null,
             };
         },
 
@@ -87,11 +85,7 @@ export default Shopware.Mixin.register(
                     return {};
                 }
 
-                if (!this._cachedSearchRankingFields) {
-                    this._cachedSearchRankingFields = this.searchRankingService.getSearchFieldsByEntity(this.searchConfigEntity);
-                }
-
-                return this._cachedSearchRankingFields;
+                return this.searchRankingService.getSearchFieldsByEntity(this.searchConfigEntity);
             },
 
             currentSortBy() {
@@ -368,7 +362,7 @@ export default Shopware.Mixin.register(
                 if (!this.searchConfigEntity || !this.isValidTerm(term)) {
                     return originalCriteria;
                 }
-                const searchRankingFields = await this.searchRankingFields;
+                const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity(this.searchConfigEntity);
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 if (!searchRankingFields || Object.keys(searchRankingFields).length < 1) {
                     this.entitySearchable = false;

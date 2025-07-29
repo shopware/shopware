@@ -20,6 +20,7 @@ const allowUrlList = [
     '/search/order',
     '/search/customer',
     '/_info/me',
+    '/_info/config-me',
 ];
 
 /**
@@ -61,8 +62,10 @@ export default function cacheAdapterFactory(originalAdapter, requestCaches = {})
         ].includes(config?.method);
         const shouldFlushCache = flushCacheUrls.includes(config?.url);
 
-        // remove all caches when something gets changed
-        if (requestChangesData || shouldFlushCache) {
+        const isConfigEndpoint = config?.url?.includes('_info/');
+
+        // Clear cache when data is modified or config is updated
+        if (requestChangesData || shouldFlushCache || (config?.method === 'post' && isConfigEndpoint)) {
             Object.keys(requestCaches).forEach((key) => {
                 delete requestCaches[key];
             });
@@ -71,7 +74,10 @@ export default function cacheAdapterFactory(originalAdapter, requestCaches = {})
         }
 
         // ignore requests which are not in the allowedUrlList
-        const isNotInAllowList = !allowUrlList.includes(config?.url);
+        const isNotInAllowList = !allowUrlList.some((url) =>
+            config?.url?.replace(/^\//, '').startsWith(url.replace(/^\//, '')),
+        );
+
         if (isNotInAllowList) {
             return originalAdapter(config);
         }
@@ -97,12 +103,15 @@ export default function cacheAdapterFactory(originalAdapter, requestCaches = {})
         // create a new one with the original adapter
         requestCaches[requestHash] = originalAdapter(config);
 
-        // remove the request cache entry after 1.5 seconds
-        setTimeout(() => {
-            if (requestCaches[requestHash]) {
-                delete requestCaches[requestHash];
-            }
-        }, requestCacheTimeout);
+        // Only set timeout for non-config endpoints (config endpoints cached indefinitely)
+        if (!isConfigEndpoint) {
+            // remove the request cache entry after 1.5 seconds
+            setTimeout(() => {
+                if (requestCaches[requestHash]) {
+                    delete requestCaches[requestHash];
+                }
+            }, requestCacheTimeout);
+        }
 
         // return a clone of the created request from the request cache
         return cloneResponse(requestCaches[requestHash]);

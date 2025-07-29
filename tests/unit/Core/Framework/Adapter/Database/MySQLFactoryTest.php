@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Database;
 
+use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
@@ -41,9 +42,25 @@ class MySQLFactoryTest extends TestCase
 
         // If we get here, the connection was successful and we can test the parameters
         static::assertArrayHasKey('wrapperClass', $params);
+        static::assertSame(PrimaryReadReplicaConnection::class, $params['wrapperClass']);
         static::assertArrayHasKey('primary', $params);
         static::assertArrayHasKey('replica', $params);
         static::assertCount(2, $params['replica']);
+
+        // Check primary parameters
+        $primary = $params['primary'];
+        static::assertArrayHasKey('host', $primary);
+        static::assertSame('localhost', $primary['host']);
+        static::assertArrayHasKey('port', $primary);
+        static::assertSame(3306, $primary['port']);
+        static::assertArrayHasKey('user', $primary);
+        static::assertSame('user', $primary['user']);
+        static::assertArrayHasKey('password', $primary);
+        static::assertSame('pass', $primary['password']);
+        static::assertArrayHasKey('dbname', $primary);
+        static::assertSame('shopware', $primary['dbname']);
+        static::assertArrayHasKey('charset', $primary);
+        static::assertSame('utf8mb4', $primary['charset']);
 
         // Check first replica parameters
         $replica0 = $params['replica'][0];

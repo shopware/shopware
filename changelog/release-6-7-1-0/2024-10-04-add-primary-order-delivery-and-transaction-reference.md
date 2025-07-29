@@ -22,11 +22,20 @@ ___
   * `src/module/sw-order/view/sw-order-detail-general`
 ___
 # Upgrade Information
-Currently, there are multiple order deliveries and multiple order transactions per order. If only one, the "primary", order delivery and order transaction is displayed and used in the administration, there is now an easy way in version 6.8 using the `primaryOrderDelivery` and `primaryOrderTransaction`. All existing orders will be updated with a migration so that they also have the primary values.
-## Use `primaryOrderDelivery` 
-Get the first order delivery with `primaryOrderDelivery` so you should replace methods like `deliveries.first()` or `deliveries[0]`
-## Use `primaryOrderTransaction`
-Get the latest order transaction with `primaryOrderTransaction` so you should replace methods like `transaction.last()`
+## Add primary delivery and primary transaction to order
+Currently, there are multiple order deliveries and multiple order transactions per order.
+But normally, there is only one active transaction and one delivery containing all products.
+Now, orders contain a `primaryOrderDelivery` and `primaryOrderTransaction`, which is the easiest and in 6.8 recommended way to access them.
+All existing orders will be updated with a migration so that they also have the primary values.
+
+* Replace delivery accesses like `order.deliveries.first()` or `order.deliveries[0]` with `order.primaryOrderDelivery`
+* Replace transaction accesses like `order.transactions.last()` or `order.transactions[length - 1]` with `order.primaryOrderDelivery`
 ___
 # Next Major Version Changes
-For user interfaces that display only one delivery & transaction, there is now a new reference in the order for a `primaryOrderDelivery` or `primaryOrderTransaction`. If an extension modifies or adds new deliveries or transactions, this should be taken into account. By default, the reference will behave like default Shopware behavior, meaning `delivery.first()` and `transaction.last()`.
+## Use orders primary delivery and primary transaction
+For user interfaces that display only one delivery & transaction, there is now a new reference in the order for a `primaryOrderDelivery` or `primaryOrderTransaction`.
+If an extension modifies or adds new deliveries or transactions, this should be taken into account.
+To partly comply with old behaviour, primary deliveries are ordered first and primary transactions are ordered last wherever appropriate.
+
+* Replace delivery accesses like `order.deliveries.first()` or `order.deliveries[0]` with `order.primaryOrderDelivery`
+* Replace transaction accesses like `order.transactions.last()` or `order.transactions[length - 1]` with `order.primaryOrderDelivery`

@@ -87,10 +87,10 @@ describe('Administration meta tests', () => {
             // check if spec file exists but file is still in baseline
             expect(
                 isInBaseLine &&
-                (specFileExists ||
-                    specFileWithFolderNameExists ||
-                    specFileAlternativeExtensionExists ||
-                    specFileWithFolderNameAlternativeExtensionExists),
+                    (specFileExists ||
+                        specFileWithFolderNameExists ||
+                        specFileAlternativeExtensionExists ||
+                        specFileWithFolderNameAlternativeExtensionExists),
             ).toBe(false);
 
             expect(fileIsTested).toBeTruthy();
@@ -206,11 +206,9 @@ describe('Administration meta tests', () => {
 
             const forbiddenPattern = /(?:it|test)\(\s*['"`]should be a Vue\.js component['"`]\s*,/;
 
-            expect(
-                forbiddenPattern.test(content)
-            ).toBe(
+            expect(forbiddenPattern.test(content)).toBe(
                 false,
-                `Found forbidden Vue.js smoke-test in ${path.relative(process.cwd(), file)}`
+                `Found forbidden Vue.js smoke-test in ${path.relative(process.cwd(), file)}`,
             );
         });
     });

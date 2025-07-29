@@ -71,7 +71,7 @@ describe('module/sw-cms/elements/product-listing/component/index', () => {
 
     beforeEach(async () => {
         Shopware.Store.get('cmsPage').resetCmsPageState();
-    })
+    });
 
     it('should use demo products', async () => {
         const wrapper = await createWrapper();

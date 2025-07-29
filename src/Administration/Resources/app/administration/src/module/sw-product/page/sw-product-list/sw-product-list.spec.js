@@ -369,12 +369,10 @@ Shopware.Service().register('filterService', () => {
 
 describe('module/sw-product/page/sw-product-list', () => {
     let wrapper;
-    let router;
 
     beforeEach(async () => {
         const data = await createWrapper();
         wrapper = data.wrapper;
-        router = data.router;
     });
 
     it('should sort grid when sorting for price', async () => {

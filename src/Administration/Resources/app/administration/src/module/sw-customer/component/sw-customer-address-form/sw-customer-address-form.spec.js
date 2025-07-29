@@ -264,7 +264,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         await flushPromises();
 
-        expect (wrapper.vm.customer.company).toBe('bar');
+        expect(wrapper.vm.customer.company).toBe('bar');
     });
 
     it('should not change customer company for existing customer', async () => {
@@ -274,6 +274,6 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         await flushPromises();
 
-        expect (wrapper.vm.customer.company).toBe('foo');
+        expect(wrapper.vm.customer.company).toBe('foo');
     });
 });

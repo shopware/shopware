@@ -6,6 +6,7 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLog
 use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('fundamentals@after-sales')]
@@ -70,6 +71,11 @@ class ImportExportProfileEntity extends Entity
      */
     public function getLabel(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         return $this->label;
     }
 
@@ -78,6 +84,11 @@ class ImportExportProfileEntity extends Entity
      */
     public function setLabel(string $label): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $this->label = $label;
     }
 
@@ -194,6 +205,11 @@ class ImportExportProfileEntity extends Entity
      */
     public function getTranslations(): ?ImportExportProfileTranslationCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         return $this->translations;
     }
 
@@ -202,6 +218,11 @@ class ImportExportProfileEntity extends Entity
      */
     public function setTranslations(ImportExportProfileTranslationCollection $translations): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $this->translations = $translations;
     }
 

@@ -93,9 +93,7 @@ class FileService extends AbstractFileService
     {
         $extension = $profile->getFileType() === 'text/xml' ? 'xml' : 'csv';
         $timestamp = date('Ymd-His');
-
         $name = $profile->getTechnicalName();
-        \assert(\is_string($name));
 
         return \sprintf('%s_%s.%s', $name, $timestamp, $extension);
     }

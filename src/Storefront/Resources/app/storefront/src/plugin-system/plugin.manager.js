@@ -313,7 +313,7 @@ class PluginManagerSingleton {
         // Fetch all needed plugins
         try {
             fetchedPluginClasses = await Promise.all(queue.map((queueItem) => {
-                return queueItem.pluginClassPromise();
+                return queueItem.pluginClassPromise().catch(e => e);
             }));
         } catch (error) {
             console.error('An error occurred while fetching async JS-plugins', error);
@@ -321,6 +321,11 @@ class PluginManagerSingleton {
 
         // Set the fetched plugin classes to the registry, so they can be initialized later.
         queue.forEach((plugin, index) => {
+            if (!fetchedPluginClasses[index]) {
+                console.error(`The plugin "${plugin.name}" could not be fetched.`);
+                return;
+            }
+
             const pluginClass = fetchedPluginClasses[index].default;
             const pluginName = plugin.pluginName;
             const pluginFromRegistry = this._registry.get(pluginName);

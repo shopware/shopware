@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\CriteriaPartResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
@@ -50,7 +50,7 @@ class CriteriaQueryBuilder
         }
 
         if ($criteria->getTerm()) {
-            $pattern = $this->interpreter->interpret((string) $criteria->getTerm());
+            $pattern = $this->interpreter->interpret($criteria->getTerm(), $context);
             $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition->getEntityName(), $context);
             $criteria->addQuery(...$queries);
         }
@@ -271,7 +271,7 @@ class CriteriaQueryBuilder
     private function validateSortingDirection(string $direction): void
     {
         if (!\in_array(mb_strtoupper($direction), [FieldSorting::ASCENDING, FieldSorting::DESCENDING], true)) {
-            throw new InvalidSortingDirectionException($direction);
+            throw DataAbstractionLayerException::invalidSortingDirection($direction);
         }
     }
 }

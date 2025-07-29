@@ -2006,6 +2006,7 @@ class EntityReaderTest extends TestCase
 
     public function testReadRelationWithNestedToManyRelations(): void
     {
+        $ids = new IdsCollection();
         $context = Context::createDefaultContext();
 
         $data = [
@@ -2020,11 +2021,12 @@ class EntityReaderTest extends TestCase
             'cover' => [
                 'position' => 1,
                 'media' => [
+                    'id' => $ids->get('media'),
                     'name' => 'test-image',
                     'thumbnails' => [
-                        ['id' => Uuid::randomHex(), 'width' => 10, 'height' => 10, 'highDpi' => true],
-                        ['id' => Uuid::randomHex(), 'width' => 20, 'height' => 20, 'highDpi' => true],
-                        ['id' => Uuid::randomHex(), 'width' => 30, 'height' => 30, 'highDpi' => true],
+                        ['id' => Uuid::randomHex(), 'mediaId' => $ids->get('media'), 'width' => 10, 'height' => 10, 'highDpi' => true],
+                        ['id' => Uuid::randomHex(), 'mediaId' => $ids->get('media'), 'width' => 20, 'height' => 20, 'highDpi' => true],
+                        ['id' => Uuid::randomHex(), 'mediaId' => $ids->get('media'), 'width' => 30, 'height' => 30, 'highDpi' => true],
                     ],
                 ],
             ],

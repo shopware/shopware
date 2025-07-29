@@ -3,7 +3,6 @@
 namespace Shopware\Administration\Login;
 
 use League\OAuth2\Server\Grant\AbstractGrant;
-use League\OAuth2\Server\Grant\GrantTypeInterface;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\RequestAccessTokenEvent;
 use League\OAuth2\Server\RequestEvent;
@@ -19,7 +18,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-class ShopwareGrantType extends AbstractGrant implements GrantTypeInterface
+class ShopwareGrantType extends AbstractGrant
 {
     public const TYPE = 'shopware_grant';
 
@@ -40,9 +39,8 @@ class ShopwareGrantType extends AbstractGrant implements GrantTypeInterface
     {
         $client = $this->getClientEntityOrFail('administration', $request);
         $scopes = $this->validateScopes($this->getRequestParameter('scope', $request, $this->defaultScope));
-        $user = $this->validateUser($request);
 
-        $userIdentifier = $user->getIdentifier();
+        $userIdentifier = $this->validateUser($request)->getIdentifier();
 
         $finalizedScopes = $this->scopeRepository->finalizeScopes($scopes, $this->getIdentifier(), $client, $userIdentifier);
 

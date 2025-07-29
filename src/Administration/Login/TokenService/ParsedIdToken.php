@@ -14,15 +14,15 @@ use Symfony\Component\Validator\Validation;
  * @internal
  */
 #[Package('framework')]
-final class ParsedIdToken
+final readonly class ParsedIdToken
 {
     private function __construct(
-        public readonly string $sub,
-        public readonly string $email,
-        public readonly \DateTimeInterface $expiry,
-        public readonly string $username,
-        public readonly string $givenName,
-        public readonly string $familyName,
+        public string $sub,
+        public string $email,
+        public \DateTimeInterface $expiry,
+        public string $username,
+        public string $givenName,
+        public string $familyName,
     ) {
     }
 

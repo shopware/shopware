@@ -13,11 +13,11 @@ use Symfony\Component\Validator\Validation;
  * @internal
  */
 #[Package('framework')]
-final class Token implements \JsonSerializable
+final readonly class Token implements \JsonSerializable
 {
     private function __construct(
-        public readonly string $token,
-        public readonly string $refreshToken
+        public string $token,
+        public string $refreshToken
     ) {
     }
 

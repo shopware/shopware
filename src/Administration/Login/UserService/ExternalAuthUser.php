@@ -16,19 +16,19 @@ use Symfony\Component\Validator\Validation;
  * @internal
  */
 #[Package('framework')]
-final class ExternalAuthUser implements UserEntityInterface
+final readonly class ExternalAuthUser implements UserEntityInterface
 {
     /**
      * @param non-empty-string $userId
      */
     private function __construct(
-        public readonly string $id,
-        public readonly string $userId,
-        public readonly string $sub,
-        public readonly Token $token,
-        public readonly ?\DateTimeInterface $expiry,
-        public readonly string $email,
-        public readonly bool $isNew,
+        public string $id,
+        public string $userId,
+        public string $sub,
+        public Token $token,
+        public ?\DateTimeInterface $expiry,
+        public string $email,
+        public bool $isNew,
     ) {
     }
 

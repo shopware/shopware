@@ -8,7 +8,7 @@ use Shopware\Administration\Login\LoginException;
 use Shopware\Administration\Login\LoginResponseService;
 use Shopware\Administration\Login\StateValidator;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
+use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +24,7 @@ class AdminAuthController extends AbstractController
 {
     public function __construct(
         private readonly AuthorizationServer $authorizationServer,
-        private readonly PsrHttpFactory $psrHttpFactory,
+        private readonly HttpMessageFactoryInterface $psrHttpFactory,
         private readonly LoginConfigService $loginConfigService,
         private readonly LoginResponseService $loginResponseService,
         private readonly StateValidator $stateValidator,

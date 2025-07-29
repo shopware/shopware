@@ -1,6 +1,5 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { Manufacturer, Product, PropertyGroup } from '@shopware-ag/acceptance-test-suite';
-import { CheckVisibilityInHome } from '@tasks/ShopCustomer/Listing/CheckVisibilityInHome';
 
 test('Customer should see unavailable filter disabled based on selected filter', async ({
     ShopCustomer,
@@ -59,10 +58,6 @@ test('Customer should see unavailable filter disabled based on selected filter',
         freeShipProduct = await TestDataService.createBasicProduct({ shippingFree: true, manufacturerId: freeShipManufacturer.id });
         const basicProduct = await TestDataService.createBasicProduct({ name: 'Product without filters' });
 
-        await CheckVisibilityInHome(freeShipProduct.name)();
-        await CheckVisibilityInHome(parentProductColor.name)();
-        await CheckVisibilityInHome(parentProductSize.name)();
-
         variantProductColor = await TestDataService.createVariantProducts(parentProductColor, propertyGroupsColor, {
             description: 'Variant description',
         });
@@ -71,7 +66,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
         });
         await TestDataService.clearCaches();
 
-        await CheckVisibilityInHome(variantProductSize.at(0).name)();
+        await CheckVisibilityInHome(freeShipProduct.name)();
     });
 
     await test.step('Verify setup filters display', async () => {
@@ -104,7 +99,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
     await test.step('Reset all filters and verify that all filters are enabled', async () => {
         await StorefrontHome.manufacturerFilter.click();
         await ShopCustomer.expects(StorefrontHome.resetAllButton).toBeVisible();
-        await StorefrontHome.resetAllButton.click(); 
+        await StorefrontHome.resetAllButton.click();
         await StorefrontHome.loader.waitFor({ state: 'hidden' });
         await CheckVisibilityInHome(freeShipProduct.name)();
         await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled();
@@ -112,7 +107,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
         await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled();
         await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
         await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled();
-        
+
         const actualNames = await StorefrontHome.productItemNames.allTextContents();
         const expectedNames = [
             ...variantProductColor.map((product) => product.name),
@@ -173,7 +168,7 @@ test('Customer should see unavailable filter options disabled when filtering by 
     test.slow(InstanceMeta.isSaaS);
     await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
     const color = await TestDataService.createColorPropertyGroup();
-    const propertyGroupsColor: PropertyGroup[] = [ color ];
+    const propertyGroupsColor: PropertyGroup[] = [color];
     const colorManufacturer = await TestDataService.createBasicManufacturer({
         name: 'Color Manufacturer',
         description: 'Color Description Manufacturer',
@@ -194,6 +189,8 @@ test('Customer should see unavailable filter options disabled when filtering by 
     await CheckVisibilityInHome(productWithRating2.name)();
     const products = [productWithRating1, productWithRating2];
     await TestDataService.createBasicProduct({ name: 'Product without filters' });
+
+    await CheckVisibilityInHome(productWithRating2.name)();
 
     await test.step('Verify setup filters display', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());

@@ -21,15 +21,15 @@ use Shopware\Core\System\User\UserEntity;
  * @internal
  */
 #[Package('framework')]
-final class UserService
+final readonly class UserService
 {
     /**
      * @param EntityRepository<UserCollection> $userRepository
      */
     public function __construct(
-        private readonly Connection $connection,
-        private readonly IdTokenParser $idTokenParser,
-        private readonly EntityRepository $userRepository,
+        private Connection $connection,
+        private IdTokenParser $idTokenParser,
+        private EntityRepository $userRepository,
     ) {
     }
 
@@ -178,11 +178,9 @@ final class UserService
             )
         );
 
-        $user = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($criteria) {
+        return $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($criteria) {
             return $this->userRepository->search($criteria, $context)->first();
         });
-
-        return $user;
     }
 
     private function activateInvitedUser(Context $context, UserEntity $userEntity, ParsedIdToken $parsedIdToken): void

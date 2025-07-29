@@ -12,11 +12,11 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * @internal
  */
 #[Package('framework')]
-final class ExternalTokenService
+final readonly class ExternalTokenService
 {
     public function __construct(
-        private readonly HttpClientInterface $client,
-        private readonly LoginConfigService $loginConfigService,
+        private HttpClientInterface $client,
+        private LoginConfigService $loginConfigService,
     ) {
     }
 

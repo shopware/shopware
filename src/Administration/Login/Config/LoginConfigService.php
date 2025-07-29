@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Validation;
  * @internal
  */
 #[Package('framework')]
-final class LoginConfigService
+final readonly class LoginConfigService
 {
     /**
      * @param array{
@@ -33,9 +33,9 @@ final class LoginConfigService
      * } $rawConfig
      */
     public function __construct(
-        private readonly array $rawConfig,
-        private readonly string $appUrl,
-        private readonly string $adminPath,
+        private array $rawConfig,
+        private string $appUrl,
+        private string $adminPath,
     ) {
     }
 
@@ -86,8 +86,7 @@ final class LoginConfigService
 
     private function validate(): void
     {
-        $validator = Validation::createValidator();
-        $violations = $validator->validate($this->rawConfig, $this->createConstraint());
+        $violations = Validation::createValidator()->validate($this->rawConfig, $this->createConstraint());
         if ($violations->count() === 0) {
             return;
         }
@@ -108,7 +107,7 @@ final class LoginConfigService
         $invalidUrlMessage = 'is invalid URL';
         $invalidPath = 'is invalid path. Requires to start with "/"';
 
-        $constraints = new Collection(
+        return new Collection(
             [
                 'use_default' => [
                     new NotNull(null, $isNullMessage),
@@ -171,7 +170,5 @@ final class LoginConfigService
             allowMissingFields: false,
             missingFieldsMessage: 'is missing'
         );
-
-        return $constraints;
     }
 }

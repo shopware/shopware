@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-final class LoginConfig
+final readonly class LoginConfig
 {
     /**
      * @param non-empty-string $clientId
@@ -22,16 +22,16 @@ final class LoginConfig
      * @param non-empty-string $registerUrl
      */
     public function __construct(
-        public readonly bool $useDefault,
-        public readonly string $clientId,
-        public readonly string $clientSecret,
-        public readonly string $redirectUri,
-        public readonly string $baseUrl,
-        public readonly string $authorizePath,
-        public readonly string $tokenPath,
-        public readonly string $jwksPath,
-        public readonly string $scope,
-        public readonly string $registerUrl,
+        public bool $useDefault,
+        public string $clientId,
+        public string $clientSecret,
+        public string $redirectUri,
+        public string $baseUrl,
+        public string $authorizePath,
+        public string $tokenPath,
+        public string $jwksPath,
+        public string $scope,
+        public string $registerUrl,
     ) {
     }
 }

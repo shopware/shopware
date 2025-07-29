@@ -57,9 +57,7 @@ final class PublicKeyLoader
     {
         $publicKeysResponse = $this->client->request('GET', $loginConfig->baseUrl . $loginConfig->jwksPath);
 
-        $publicKeyString = $publicKeysResponse->getContent();
-
-        return $publicKeyString;
+        return $publicKeysResponse->getContent();
     }
 
     private function loadAndPreparePublicKey(LoginConfig $loginConfig, string $publicKeyId): ?InMemory
@@ -92,12 +90,12 @@ final class PublicKeyLoader
             return null;
         }
 
-        $publicKeyString = $publicKey->toString('pkcs8');
-        if (!\is_string($publicKeyString) || empty($publicKeyString)) {
+        $publicKeyToString = $publicKey->toString('pkcs8');
+        if (!\is_string($publicKeyToString) || empty($publicKeyToString)) {
             return null;
         }
 
-        return InMemory::plainText($publicKeyString);
+        return InMemory::plainText($publicKeyToString);
     }
 
     private function loadPublicKeyString(LoginConfig $loginConfig): string

@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Validation;
  * @internal
  */
 #[Package('framework')]
-final class TokenResult
+final readonly class TokenResult
 {
     /**
      * @param non-empty-string $idToken
@@ -21,11 +21,11 @@ final class TokenResult
      * @param non-empty-string $tokenType
      */
     private function __construct(
-        public readonly string $idToken,
-        public readonly string $accessToken,
-        public readonly string $refreshToken,
-        public readonly int $expiresIn,
-        public readonly string $tokenType,
+        public string $idToken,
+        public string $accessToken,
+        public string $refreshToken,
+        public int $expiresIn,
+        public string $tokenType,
     ) {
     }
 

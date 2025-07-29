@@ -19,16 +19,15 @@ const templateFiles = allFiles.filter((file) => {
     return file.match(/^.*\.html\.twig$/);
 });
 
+// eslint-disable-next-line no-undef
+const testFiles = globSync(path.join(adminPath, 'src/**/*.spec.{js,ts}'), {
+    ignore: ['**/node_modules/**'],
+});
+
 describe('Administration meta tests', () => {
     describe('check for test files', () => {
         it.each(testAbleFiles)('should have a spec file for "%s"', (file) => {
-            // Match 0 holds the whole file path
-            // Match 1 holds the last folder name e.g. "adapter"
-            // Match 2 holds the file name e.g. "view.adapter.ts"
-            // Match 3 holds the file name without extension e.g. "view.adapter"
-            // Match 4 holds the file extension e.g. "ts"
-            const regex = /^.*\/(.*)\/((.*)\.(js|ts))$/;
-
+            const regex = /^.*\/(.*)\/?((.*)\.(js|ts))$/;
             const [
                 whole,
                 lastFolder,
@@ -183,15 +182,20 @@ describe('Administration meta tests', () => {
                 `Breaking change detected! Previously registered blocks are missing: \n${removedBlocks.join(', ')}`,
             ).toHaveLength(0);
         });
+    });
 
-        it('should have new blocks in the blocks list', () => {
-            const blocks = extractBlocks(templateFiles);
-            const newBlocks = blocks.filter((block) => !blocksList.includes(block));
+    describe('forbidden Vue.js component smoke test', () => {
+        it.each(testFiles)('%s must not contain the generic Vue.js component smoke test', (file) => {
+            const content = fs.readFileSync(file, 'utf-8');
+
+            const forbiddenPattern = /(?:it|test)\(\s*['"`]should be a Vue\.js component['"`]\s*,/;
 
             expect(
-                newBlocks,
-                `New blocks have been added. Please run 'generate-block-list' script to add them to the blocks list: \n${newBlocks.join(', ')}`,
-            ).toHaveLength(0);
+                forbiddenPattern.test(content)
+            ).toBe(
+                false,
+                `Found forbidden Vue.js smoke-test in ${path.relative(process.cwd(), file)}`
+            );
         });
     });
 });

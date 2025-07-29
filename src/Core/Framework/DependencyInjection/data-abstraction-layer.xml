@@ -81,7 +81,7 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
-            <argument type="service" id="Shopware\Elasticsearch\Product\SearchConfigLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder"/>
@@ -92,7 +92,7 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter"/>
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\KeywordLoader"/>
-            <argument type="service" id="Shopware\Elasticsearch\Product\SearchConfigLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SearchKeyword\KeywordLoader">
@@ -104,6 +104,15 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter"/>
             <argument>%shopware.api.max_limit%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\CachedSearchConfigLoader" decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader" decoration-priority="-1000">
+            <argument type="service" id=".inner"/>
+            <argument type="service" id="cache.object"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter">

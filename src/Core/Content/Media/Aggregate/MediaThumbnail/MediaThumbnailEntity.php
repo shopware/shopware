@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaThumbnail;
 
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
@@ -29,6 +30,10 @@ class MediaThumbnailEntity extends Entity
     protected ?string $mediaId;
 
     protected ?MediaEntity $media = null;
+
+    protected string $mediaThumbnailSizeId;
+
+    protected ?MediaThumbnailSizeEntity $mediaThumbnailSize = null;
 
     public function assign(array $options)
     {
@@ -105,6 +110,26 @@ class MediaThumbnailEntity extends Entity
     public function setMedia(MediaEntity $media): void
     {
         $this->media = $media;
+    }
+
+    public function getMediaThumbnailSizeId(): string
+    {
+        return $this->mediaThumbnailSizeId;
+    }
+
+    public function setMediaThumbnailSizeId(string $mediaThumbnailSizeId): void
+    {
+        $this->mediaThumbnailSizeId = $mediaThumbnailSizeId;
+    }
+
+    public function getMediaThumbnailSize(): ?MediaThumbnailSizeEntity
+    {
+        return $this->mediaThumbnailSize;
+    }
+
+    public function setMediaThumbnailSize(MediaThumbnailSizeEntity $mediaThumbnailSize): void
+    {
+        $this->mediaThumbnailSize = $mediaThumbnailSize;
     }
 
     public function getIdentifier(): string

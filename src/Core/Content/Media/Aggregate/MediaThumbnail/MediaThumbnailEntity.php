@@ -83,6 +83,13 @@ class MediaThumbnailEntity extends Entity
 
     public function getMediaId(): string
     {
+        if (!Feature::isActive('v6.8.0.0')) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', '$mediaId must not be null');
+
+            if (!isset($this->mediaId)) {
+                return '';
+            };
+        }
         return $this->mediaId;
     }
 

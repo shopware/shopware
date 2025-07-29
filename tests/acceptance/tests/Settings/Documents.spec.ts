@@ -40,9 +40,8 @@ test('As an admin, I want to create documents and make sure they contain certain
         await ShopAdmin.expects(AdminOrderDetail.documentType).toContainText('Invoice');
         await AdminOrderDetail.contextMenuButton.click();
         await ShopAdmin.expects(AdminOrderDetail.contextMenu).toBeVisible();
-        await AdminOrderDetail.contextMenuSendDocument.click();
-        await ShopAdmin.expects(AdminOrderDetail.sendDocumentModal).toBeVisible();
-        await AdminOrderDetail.sendDocumentButton.click();
+        await AdminOrderDetail.page.locator('.sw-context-menu').getByText('Mark as sent').click();
+        await ShopAdmin.expects(AdminOrderDetail.contextMenu).not.toBeVisible();
         await ShopAdmin.expects(AdminOrderDetail.sentCheckmark).toBeVisible();
         });
 

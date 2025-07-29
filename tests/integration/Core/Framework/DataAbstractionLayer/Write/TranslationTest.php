@@ -271,6 +271,7 @@ class TranslationTest extends TestCase
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],
+                'active' => true,
             ]],
             $this->context
         );
@@ -370,6 +371,7 @@ class TranslationTest extends TestCase
             ],
             'localeId' => $this->getLocaleIdOfSystemLanguage(),
             'name' => 'nl-NL',
+            'active' => true,
         ];
 
         $this->languageRepository->create([$data], $this->context);
@@ -472,6 +474,7 @@ class TranslationTest extends TestCase
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],
+                'active' => true,
             ]],
             $this->context
         );
@@ -620,6 +623,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
                     'language' => [
                         'id' => Defaults::LANGUAGE_SYSTEM,
                         'name' => 'system',
+                        'active' => true,
                     ],
                 ],
             ],
@@ -1028,6 +1032,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
                     'territory' => 'language-locale',
                 ],
                 'translationCodeId' => $this->ids->get('language-locale'),
+                'active' => true,
             ],
             [
                 'id' => $this->ids->get('language-child'),
@@ -1035,6 +1040,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
                 'parentId' => $this->ids->get('language-parent'),
                 'localeId' => $this->ids->get('language-locale'),
                 'translationCodeId' => null,
+                'active' => true,
             ],
         ], $this->context);
 
@@ -1088,6 +1094,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
                     'territory' => 'language-locale',
                 ],
                 'translationCodeId' => $this->ids->get('language-locale'),
+                'active' => true,
             ],
             [
                 'id' => $this->ids->get('language-child'),
@@ -1095,6 +1102,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
                 'parentId' => $this->ids->get('language-parent'),
                 'localeId' => $this->ids->get('language-locale'),
                 'translationCodeId' => null,
+                'active' => true,
             ],
         ], $this->context);
 

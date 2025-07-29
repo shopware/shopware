@@ -88,8 +88,14 @@ class MediaThumbnailEntity extends Entity
 
             if (!isset($this->mediaId)) {
                 return '';
-            };
+            }
+
+            return $this->mediaId;
         }
+
+        /** @deprecated tag:v6.8.0 - Will be non-nullable */
+        \assert(\is_string($this->mediaId));
+
         return $this->mediaId;
     }
 

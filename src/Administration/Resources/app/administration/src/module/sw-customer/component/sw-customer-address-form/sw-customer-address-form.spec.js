@@ -3,6 +3,7 @@ import ShopwareError from 'src/core/data/ShopwareError';
 
 // eslint-disable-next-line import/named
 import CUSTOMER from '../../constant/sw-customer.constant';
+import Entity from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 
 /**
  * @sw-package checkout
@@ -29,14 +30,13 @@ async function createWrapper() {
 
     return mount(await wrapTestComponent('sw-customer-address-form', { sync: true }), {
         props: {
-            customer: {},
-            address: {
-                _isNew: true,
+            customer: new Entity('customerId', 'customer', {
+                company: 'foo',
+            }),
+            address: new Entity('1', 'customer_address', {
                 id: '1',
-                getEntityName: () => {
-                    return 'customer_address';
-                },
-            },
+                company: 'foo',
+            }),
         },
         global: {
             stubs: {
@@ -255,5 +255,26 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         expect(errorStore.removeApiError).toHaveBeenCalledWith(`${address.getEntityName()}.${address.id}.zipcode`);
         expect(errorStore.removeApiError).toHaveBeenCalledWith(`${address.getEntityName()}.${address.id}.countryStateId`);
+    });
+
+    it('should set customer company for new customer', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.customer.markAsNew();
+        wrapper.vm.address.company = 'bar';
+
+        await flushPromises();
+
+        expect (wrapper.vm.customer.company).toBe('bar');
+    });
+
+    it('should not change customer company for existing customer', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.address.company = 'bar';
+
+        await flushPromises();
+
+        expect (wrapper.vm.customer.company).toBe('foo');
     });
 });

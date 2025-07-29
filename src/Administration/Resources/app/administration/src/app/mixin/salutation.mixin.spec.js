@@ -31,8 +31,7 @@ describe('src/app/mixin/salutation.mixin.ts', () => {
     let wrapper;
 
     beforeEach(async () => {
-        jest.spyOn(Shopware.Filter, 'getByName')
-            .mockImplementation(() => jest.fn(() => 'Salutation filter result'));
+        jest.spyOn(Shopware.Filter, 'getByName').mockImplementation(() => jest.fn(() => 'Salutation filter result'));
 
         wrapper = await createWrapper();
         await flushPromises();

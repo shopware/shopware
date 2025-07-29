@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\SystemSource;
-use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Service\LifecycleManager;
@@ -26,11 +25,7 @@ class SystemUpdateSubscriberTest extends TestCase
             ->method('sync')
             ->with($context);
 
-        $activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
-        $activeAppsLoader->expects($this->once())
-            ->method('reset');
-
-        $subscriber = new SystemUpdateSubscriber($lifecycleManager, $this->createMock(LoggerInterface::class), $activeAppsLoader);
+        $subscriber = new SystemUpdateSubscriber($lifecycleManager, $this->createMock(LoggerInterface::class));
         $subscriber->sync(new UpdatePostFinishEvent($context, '6.7.0.0', '6.7.1.0'));
     }
 }

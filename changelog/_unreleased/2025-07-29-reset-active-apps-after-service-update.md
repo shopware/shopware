@@ -1,6 +1,6 @@
 ---
-title: Reset active apps after service update
+title: Reset active apps after app state change 
 issue: #11515
 ---
 # Core
-* Changed `\Shopware\Core\Service\Subscriber\SystemUpdateSubscriber` to reset the active app state, so that follow up steps during the system update run on the latest app state.
+* Changed `\Shopware\Core\Framework\App\ActiveAppsLoader` service definition to call `reset()` method on `AppActivatedEvent` and `AppDeactivatedEvent`.

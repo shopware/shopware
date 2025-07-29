@@ -165,6 +165,8 @@
 
             <tag name="kernel.reset" method="reset"/>
             <tag name="kernel.event_listener" event="console.terminate" method="reset"/>
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\App\Event\AppActivatedEvent" method="reset"/>
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\App\Event\AppDeactivatedEvent" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Template\TemplateStateService" public="true">

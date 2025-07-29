@@ -8,7 +8,6 @@ test('As an admin user, I want to create a new flow', { tag: '@Flow' }, async ({
     IdProvider,
     TestDataService,
     CreateFlow,
-
 }) => {
 
     const uniqueId = IdProvider.getIdPair().uuid;
@@ -36,19 +35,19 @@ test('As an admin user, I want to create a new flow', { tag: '@Flow' }, async ({
 
     await test.step('Confirm the flow exists and is structured correctly.', async () => {
         await ShopAdmin.goesTo(AdminFlowBuilderListing.url());
-        const flowListingRow = await AdminFlowBuilderListing.getLineItemByFlowName(`${testConfig.name}`);
+        const flowListingRow = await AdminFlowBuilderListing.getLineItemByFlowName(testConfig.name);
         await ShopAdmin.expects(flowListingRow.flowActiveCheckmark).toBeVisible();
         await flowListingRow.flowContextMenuButton.click();
         await AdminFlowBuilderListing.contextMenuEdit.click();
-        await ShopAdmin.expects(AdminFlowBuilderDetail.nameField).toHaveValue(`${testConfig.name}`);
-        await ShopAdmin.expects(AdminFlowBuilderDetail.descriptionField).toHaveValue(`${testConfig.description}`);
-        await ShopAdmin.expects(AdminFlowBuilderDetail.priorityField).toHaveValue(`${testConfig.priority}`);
+        await ShopAdmin.expects(AdminFlowBuilderDetail.nameField).toHaveValue(testConfig.name);
+        await ShopAdmin.expects(AdminFlowBuilderDetail.descriptionField).toHaveValue(testConfig.description);
+        await ShopAdmin.expects(AdminFlowBuilderDetail.priorityField).toHaveValue(testConfig.priority);
         await AdminFlowBuilderDetail.flowTab.click();
         const trigger = await AdminFlowBuilderDetail.getTooltipText(AdminFlowBuilderDetail.triggerSelectField);
         ShopAdmin.expects(trigger).toEqual(`${testConfig.triggerLabel}`);
-        await ShopAdmin.expects(AdminFlowBuilderDetail.conditionRule).toHaveText(`${testConfig.condition}`);
+        await ShopAdmin.expects(AdminFlowBuilderDetail.conditionRule).toHaveText(testConfig.condition);
         await ShopAdmin.expects(AdminFlowBuilderDetail.sequenceSeparator).toBeVisible();
-        await ShopAdmin.expects(AdminFlowBuilderDetail.trueBlockActionDescription).toContainText(`${testConfig.trueActionIdentifier}`);
-        await ShopAdmin.expects(AdminFlowBuilderDetail.falseBlockActionDescription).toContainText(`${testConfig.falseActionIdentifier}`);
+        await ShopAdmin.expects(AdminFlowBuilderDetail.trueBlockActionDescription).toContainText(testConfig.trueActionIdentifier);
+        await ShopAdmin.expects(AdminFlowBuilderDetail.falseBlockActionDescription).toContainText(testConfig.falseActionIdentifier);
     });
 });

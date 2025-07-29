@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\Api\Command;
 
+use PhpParser\Node;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\NullableType;
+use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\Return_;
@@ -11,6 +13,8 @@ use PhpParser\NodeFinder;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\ParserFactory;
+use PhpParser\PhpVersion;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
@@ -36,6 +40,8 @@ class DumpClassSchemaCommand extends Command
 
     /**
      * @internal
+     *
+     * @param array{Framework: array{path: string}} $bundles
      */
     public function __construct(array $bundles)
     {
@@ -96,6 +102,10 @@ class DumpClassSchemaCommand extends Command
         }
 
         $stmts = $this->parseFile($filePath);
+        if ($stmts === null) {
+            return null;
+        }
+
         $findNodes = (new NodeFinder())->findInstanceOf($stmts, ClassMethod::class);
 
         /** @var ClassMethod $findNode */
@@ -111,6 +121,7 @@ class DumpClassSchemaCommand extends Command
                 /** @var ClassConstFetch $classConst */
                 $classConst = $returnStatement->expr;
 
+                /** @phpstan-ignore cast.string (it can be either PhpParser\Node\Expr or PhpParser\Node\Name) */
                 return (string) $classConst->class;
             }
         }
@@ -118,6 +129,11 @@ class DumpClassSchemaCommand extends Command
         throw new \InvalidArgumentException(\sprintf('Invalid class given %s', $className));
     }
 
+    /**
+     * @param array <int, Stmt> $stmts
+     *
+     * @return array<int, Node>
+     */
     private function resolveNames(array $stmts): array
     {
         $nameResolver = new NameResolver();
@@ -127,15 +143,26 @@ class DumpClassSchemaCommand extends Command
         return $nodeTraverser->traverse($stmts);
     }
 
-    private function parseFile(string $filePath): array
+    /**
+     * @return array <int, Node>|null
+     */
+    private function parseFile(string $filePath): ?array
     {
-        $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
+        $parser = (new ParserFactory())->createForVersion(PhpVersion::fromString('8.2'));
 
-        return $this->resolveNames($parser->parse(file_get_contents($filePath)));
+        $names = $parser->parse((string) file_get_contents($filePath));
+
+        if ($names === null) {
+            return null;
+        }
+
+        return $this->resolveNames($names);
     }
 
     /**
      * @param class-string $entityClass
+     *
+     * @return array<string, mixed>|null
      */
     private function dumpProperties(string $entityClass, int $deep = 1): ?array
     {
@@ -143,8 +170,12 @@ class DumpClassSchemaCommand extends Command
             return null;
         }
 
-        $filePath = (new \ReflectionClass($entityClass))->getFileName();
+        $filePath = (string) (new \ReflectionClass($entityClass))->getFileName();
+
         $stmts = $this->parseFile($filePath);
+        if ($stmts === null) {
+            return null;
+        }
         $properties = (new NodeFinder())->findInstanceOf($stmts, Property::class);
         $methods = (new NodeFinder())->findInstanceOf($stmts, ClassMethod::class);
 
@@ -245,9 +276,9 @@ class DumpClassSchemaCommand extends Command
 
     private function getFilePath(string $className): string
     {
-        if (!file_exists($this->schemaPath)) {
+        if (!\is_dir($this->schemaPath)) {
             if (!mkdir($concurrentDirectory = $this->schemaPath, 0777, true) && !is_dir($concurrentDirectory)) {
-                throw new \RuntimeException(\sprintf('Directory "%s" was not created', $concurrentDirectory));
+                throw ApiException::directoryWasNotCreated($concurrentDirectory);
             }
         }
 

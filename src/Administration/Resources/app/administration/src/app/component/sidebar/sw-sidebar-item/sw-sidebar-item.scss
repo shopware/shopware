@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
-$sw-sidebar-item-headline-color: $color-darkgray-200;
-$sw-sidebar-item-color-border: $color-gray-300;
+$sw-sidebar-item-headline-color: var(--color-text-primary-default);
+$sw-sidebar-item-color-border: var(--color-border-primary-default);
 $sw-sidebar-item-width-navigation: 64px;
 $sw-sidebar-item-width-content: 400px;
 
@@ -26,19 +26,24 @@ $sw-sidebar-item-width-content: 400px;
     }
 
     .sw-sidebar-item__close-button {
-        color: $sw-sidebar-item-headline-color;
-        height: 24px;
-        width: 24px;
+        color: var(--color-icon-primary-default);
+        height: var(--scale-size-32);
+        width: var(--scale-size-32);
         justify-self: end;
         background: none;
         border: none;
         outline: none;
         cursor: pointer;
+        border-radius: var(--border-radius-button);
 
-        .mt-icon {
-            width: 20px;
-            height: 20px;
-            padding: 4px;
+        &:hover,
+        &:focus-visible {
+            background-color: var(--color-interaction-secondary-hover);
+        }
+
+        &:focus-visible {
+            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline-offset: var(--scale-size-2);
         }
     }
 

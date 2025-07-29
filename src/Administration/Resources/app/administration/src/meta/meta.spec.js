@@ -27,7 +27,13 @@ const testFiles = globSync(path.join(adminPath, 'src/**/*.spec.{js,ts}'), {
 describe('Administration meta tests', () => {
     describe('check for test files', () => {
         it.each(testAbleFiles)('should have a spec file for "%s"', (file) => {
-            const regex = /^.*\/(.*)\/?((.*)\.(js|ts))$/;
+            // Match 0 holds the whole file path
+            // Match 1 holds the last folder name e.g. "adapter"
+            // Match 2 holds the file name e.g. "view.adapter.ts"
+            // Match 3 holds the file name without extension e.g. "view.adapter"
+            // Match 4 holds the file extension e.g. "ts"
+            const regex = /^.*\/(.*)\/((.*)\.(js|ts))$/;
+
             const [
                 whole,
                 lastFolder,
@@ -81,10 +87,10 @@ describe('Administration meta tests', () => {
             // check if spec file exists but file is still in baseline
             expect(
                 isInBaseLine &&
-                    (specFileExists ||
-                        specFileWithFolderNameExists ||
-                        specFileAlternativeExtensionExists ||
-                        specFileWithFolderNameAlternativeExtensionExists),
+                (specFileExists ||
+                    specFileWithFolderNameExists ||
+                    specFileAlternativeExtensionExists ||
+                    specFileWithFolderNameAlternativeExtensionExists),
             ).toBe(false);
 
             expect(fileIsTested).toBeTruthy();
@@ -180,6 +186,16 @@ describe('Administration meta tests', () => {
             expect(
                 removedBlocks,
                 `Breaking change detected! Previously registered blocks are missing: \n${removedBlocks.join(', ')}`,
+            ).toHaveLength(0);
+        });
+
+        it('should have new blocks in the blocks list', () => {
+            const blocks = extractBlocks(templateFiles);
+            const newBlocks = blocks.filter((block) => !blocksList.includes(block));
+
+            expect(
+                newBlocks,
+                `New blocks have been added. Please run 'generate-block-list' script to add them to the blocks list: \n${newBlocks.join(', ')}`,
             ).toHaveLength(0);
         });
     });

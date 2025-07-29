@@ -63,13 +63,15 @@ class ThemeLifecycleService
         Context $context,
         ?StorefrontPluginConfigurationCollection $configurationCollection = null
     ): void {
+        $pluginConfigurationCollection = $this->pluginRegistry->getConfigurations();
+
         if ($configurationCollection === null) {
-            $configurationCollection = $this->pluginRegistry->getConfigurations()->getThemes();
+            $configurationCollection = $pluginConfigurationCollection->getThemes();
         }
 
         // iterate over all theme configs in the filesystem (plugins/bundles)
         foreach ($configurationCollection as $config) {
-            $this->refreshTheme($config, $context, $configurationCollection);
+            $this->refreshTheme($config, $context, $pluginConfigurationCollection);
         }
     }
 

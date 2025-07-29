@@ -35,6 +35,11 @@ class SearchKeywordUpdaterTest extends TestCase
         $this->productRepository = static::getContainer()->get('product.repository');
         $this->salesChannelLanguageRepository = static::getContainer()->get('sales_channel_language.repository');
         $this->connection = static::getContainer()->get(Connection::class);
+
+        // Guarantees a clean state for assertDictionary(), assertKeywords(), assertLanguageHasNoDictionary
+        $this->connection->executeStatement('DELETE FROM product');
+        $this->connection->executeStatement('DELETE FROM product_search_keyword');
+        $this->connection->executeStatement('DELETE FROM product_keyword_dictionary');
     }
 
     /**
@@ -68,8 +73,6 @@ class SearchKeywordUpdaterTest extends TestCase
     #[DataProvider('productKeywordProvider')]
     public function testItUpdatesKeywordsForAvailableLanguagesOnly(array $productData, IdsCollection $ids, array $englishKeywords, array $germanKeywords, array $additionalDictionaries = []): void
     {
-        $this->connection->executeStatement('DELETE FROM product');
-
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
@@ -133,6 +136,7 @@ class SearchKeywordUpdaterTest extends TestCase
                 'id' => $ids->get('language'),
                 'name' => 'Español',
                 'localeId' => $esLocale,
+                'active' => true,
                 'translationCodeId' => $esLocale,
             ],
         ], Context::createDefaultContext());

@@ -667,6 +667,7 @@ class TranslationTest extends TestCase
                     'territory' => 'Test territory ' . $fallbackLocaleId,
                 ],
                 'translationCodeId' => $fallbackLocaleId,
+                'active' => true,
             ];
             $this->getBrowser()->jsonRequest('POST', $baseUrl . '/language', $parentLanguageData);
             static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
@@ -684,6 +685,7 @@ class TranslationTest extends TestCase
                 'territory' => 'Test territory ' . $localeId,
             ],
             'translationCodeId' => $localeId,
+            'active' => true,
         ];
 
         $this->getBrowser()->jsonRequest('POST', $baseUrl . '/language', $languageData);

@@ -284,6 +284,7 @@ frame-ancestors 'none';
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader">
@@ -711,6 +712,9 @@ frame-ancestors 'none';
             <argument type="service" id="Shopware\Core\Framework\Routing\MaintenanceModeResolver"/>
             <argument>%session.storage.options%</argument>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
+            <argument type="service" id="http_kernel.cache.inner"/>
+            <argument>%shopware.http_cache.soft_purge%</argument>
+            <argument type="service" id="lock.factory"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator">
@@ -721,6 +725,15 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator">
             <argument>%shopware.cache.invalidation.http_cache%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Routing\ContextAwareCacheHeadersSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

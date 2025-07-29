@@ -3001,6 +3001,7 @@ class ElasticsearchProductTest extends TestCase
                     'name' => \sprintf('name-%s', $id),
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'parentId' => $parentId,
+                    'active' => true,
                     'translationCode' => [
                         'code' => Uuid::randomHex(),
                         'name' => 'Test locale',

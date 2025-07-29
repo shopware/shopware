@@ -41,7 +41,7 @@ class SsoServiceTest extends TestCase
 
     public function testIsSsoShouldReturnFalse(): void
     {
-        // @phpstan-ignore argument.type LoginConfigService expected an array with specific key-value pairs
+        // @phpstan-ignore argument.type (LoginConfigService expected an array with specific key-value pairs)
         $loginConfigService = new LoginConfigService([], 'local.host', '/admin');
 
         $ssoService = new SsoService($loginConfigService);

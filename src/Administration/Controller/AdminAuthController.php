@@ -51,7 +51,7 @@ class AdminAuthController extends AbstractController
 
         try {
             $response = $this->authorizationServer->respondToAccessTokenRequest($psr7Request, $psr7Response);
-            // @phpstan-ignore catch.neverThrown LoginException is thrown inside an external library where we implemented an interface
+            // @phpstan-ignore catch.neverThrown (LoginException is thrown inside an external library where we implemented an interface)
         } catch (LoginException $loginException) {
             if ($loginException->getErrorCode() !== LoginException::LOGIN_USER_NOT_FOUND) {
                 throw $loginException;

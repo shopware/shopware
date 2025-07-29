@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Sso\SsoException;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\LocaleCollection;
@@ -84,7 +85,7 @@ class SsoUserInvitationMailService
 
         $loginConfig = $this->loginConfigService->getConfig();
         if (!$loginConfig instanceof LoginConfig) {
-            throw SsoUserException::noLoginConfig();
+            throw SsoException::noLoginConfig();
         }
 
         $lang = $locale?->getCode() === 'de-DE' ? 'de' : 'en';
@@ -116,7 +117,7 @@ class SsoUserInvitationMailService
 
         $result = $this->mailTemplateTypeRepository->search($criteria, $newContext)->first();
         if (!$result instanceof MailTemplateTypeEntity) {
-            throw SsoUserException::mailTemplateNotFound();
+            throw SsoException::mailTemplateNotFound();
         }
 
         $criteria = new Criteria();

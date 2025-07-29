@@ -1,9 +1,8 @@
 import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
-
+import Entity from 'src/core/data/entity.data';
 // eslint-disable-next-line import/named
 import CUSTOMER from '../../constant/sw-customer.constant';
-import Entity from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 
 /**
  * @sw-package checkout

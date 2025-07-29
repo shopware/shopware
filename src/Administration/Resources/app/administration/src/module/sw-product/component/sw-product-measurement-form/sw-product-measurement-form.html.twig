@@ -1,4 +1,8 @@
+{% block sw_product_measurement_form %}
 <div class="sw-product-measurement-form">
+
+    {% block sw_product_measurement_form_extra_field_before %}
+    {% endblock %}
     <div class="sw-product-measurement-form__description-group">
         <i18n-t
             tag="p"
@@ -17,10 +21,12 @@
         </i18n-t>
     </div>
 
+    {% block sw_product_measurement_form_width_height_container %}
     <sw-container
         columns="1fr 1fr"
         gap="0 32px"
     >
+        {% block sw_product_measurement_form_width_field %}
         <sw-inherit-wrapper
             v-model:value="product.width"
             :has-parent="!!parentProduct.id"
@@ -48,7 +54,9 @@
 
             </template>
         </sw-inherit-wrapper>
+        {% endblock %}
 
+        {% block sw_product_measurement_form_height_field %}
         <sw-inherit-wrapper
             v-model:value="product.height"
             :has-parent="!!parentProduct.id"
@@ -76,12 +84,16 @@
 
             </template>
         </sw-inherit-wrapper>
+        {% endblock %}
     </sw-container>
+    {% endblock %}
 
+    {% block sw_product_measurement_form_length_weight_container %}
     <sw-container
         columns="1fr 1fr"
         gap="0 32px"
     >
+        {% block sw_product_measurement_form_length_field %}
         <sw-inherit-wrapper
             v-model:value="product.length"
             :has-parent="!!parentProduct.id"
@@ -109,7 +121,9 @@
 
             </template>
         </sw-inherit-wrapper>
+        {% endblock %}
 
+        {% block sw_product_measurement_form_weight_field %}
         <sw-inherit-wrapper
             v-model:value="product.weight"
             :has-parent="!!parentProduct.id"
@@ -137,5 +151,11 @@
 
             </template>
         </sw-inherit-wrapper>
+        {% endblock %}
     </sw-container>
+    {% endblock %}
+
+    {% block sw_product_measurement_form_extra_field_after %}
+    {% endblock %}
 </div>
+{% endblock %}

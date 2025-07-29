@@ -6,6 +6,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
@@ -22,9 +23,21 @@ class MediaThumbnailEntity extends Entity
 
     protected ?string $url = '';
 
-    protected string $mediaId;
+    /**
+     * @deprecated tag:v6.8.0 - Will be non-nullable
+     */
+    protected ?string $mediaId;
 
     protected ?MediaEntity $media = null;
+
+    public function assign(array $options): void
+    {
+        parent::assign($options);
+
+        if ($this->mediaId === null && Feature::isActive('v6.8.0.0')) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', '$mediaId must not be null');
+        }
+    }
 
     public function getWidth(): int
     {

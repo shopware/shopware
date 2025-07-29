@@ -53,13 +53,15 @@ async function createWrapper() {
                             if (entity === 'currency') {
                                 return {
                                     search: () =>
-                                        Promise.resolve(new EntityCollection('', 'currency', Shopware.Context.api, new Criteria(1, 25), [
-                                            {
-                                                id: 'currencyId',
-                                                isSystemDefault: true,
-                                                factor: 3,
-                                            },
-                                        ])),
+                                        Promise.resolve(
+                                            new EntityCollection('', 'currency', Shopware.Context.api, new Criteria(1, 25), [
+                                                {
+                                                    id: 'currencyId',
+                                                    isSystemDefault: true,
+                                                    factor: 3,
+                                                },
+                                            ]),
+                                        ),
                                 };
                             }
 
@@ -134,7 +136,12 @@ async function createWrapper() {
                     apiAlias: null,
                     id: 'discountId',
                     discountRules: new EntityCollection('', 'rule', Shopware.Context.api, new Criteria(1, 25)),
-                    promotionDiscountPrices: new EntityCollection('', 'promotion_discount_prices', Shopware.Context.api, new Criteria(1, 25)),
+                    promotionDiscountPrices: new EntityCollection(
+                        '',
+                        'promotion_discount_prices',
+                        Shopware.Context.api,
+                        new Criteria(1, 25),
+                    ),
                 },
             },
         },

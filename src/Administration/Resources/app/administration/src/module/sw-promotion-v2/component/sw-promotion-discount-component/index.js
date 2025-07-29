@@ -3,7 +3,7 @@ import template from './sw-promotion-discount-component.html.twig';
 import './sw-promotion-discount-component.scss';
 import DiscountHandler from './handler';
 
-const { Mixin, Utils } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const discountHandler = new DiscountHandler();
 

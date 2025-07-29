@@ -136,6 +136,7 @@ class SearchKeywordUpdaterTest extends TestCase
                 'id' => $ids->get('language'),
                 'name' => 'Español',
                 'localeId' => $esLocale,
+                'active' => true,
                 'translationCodeId' => $esLocale,
             ],
         ], Context::createDefaultContext());

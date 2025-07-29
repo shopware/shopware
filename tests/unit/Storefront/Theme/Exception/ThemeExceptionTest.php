@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme\Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(ThemeException::class)]
 class ThemeExceptionTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testThemeMediaStillInUse(): void
     {
         $exception = ThemeException::themeMediaStillInUse();

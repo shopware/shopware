@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
@@ -82,6 +83,46 @@ class AppAdministrationSnippetPersisterTest extends TestCase
         } finally {
             static::assertTrue($exceptionWasThrown, 'Expected exception with the following message to be thrown: ' . $expectedExceptionMessage);
         }
+    }
+
+    public function testSkipsSnippetsForNonExistingLocale(): void
+    {
+        /** @var StaticEntityRepository<AppAdministrationSnippetCollection> $snippetRepository */
+        $snippetRepository = new StaticEntityRepository([
+            new AppAdministrationSnippetCollection([
+                (new AppAdministrationSnippetEntity())->assign(['id' => 'snippet-id', 'localeId' => 'en-GB', 'appId' => 'app-id']),
+            ]),
+        ]);
+        /** @var StaticEntityRepository<LocaleCollection> $localeRepository */
+        $localeRepository = new StaticEntityRepository([
+            new LocaleCollection([
+                (new LocaleEntity())->assign(['id' => 'en-GB', 'code' => 'en-GB']),
+                (new LocaleEntity())->assign(['id' => 'de-DE', 'code' => 'de-DE']),
+            ]),
+        ]);
+
+        $persister = new AppAdministrationSnippetPersister(
+            $snippetRepository,
+            $localeRepository,
+            $this->createMock(CacheInvalidator::class),
+        );
+
+        $persister->updateSnippets(
+            self::getAppEntity('app-id'),
+            [
+                'en-GB' => \json_encode(['my' => 'snippets'], \JSON_THROW_ON_ERROR),
+                'non-existing-locale' => \json_encode(['my' => 'snippets'], \JSON_THROW_ON_ERROR),
+            ],
+            Context::createDefaultContext()
+        );
+
+        static::assertCount(1, $snippetRepository->upserts);
+        static::assertSame([
+            'id' => 'snippet-id',
+            'value' => '{"my":"snippets"}',
+            'appId' => 'app-id',
+            'localeId' => 'en-GB',
+        ], $snippetRepository->upserts[0][0]);
     }
 
     /**
@@ -238,21 +279,6 @@ class AppAdministrationSnippetPersisterTest extends TestCase
                 'de-DE' => \json_encode(['myCustomSnippetName' => 'newTranslation'], \JSON_THROW_ON_ERROR),
             ],
             'The following snippet file must always be provided when providing snippets: en-GB',
-        ];
-
-        yield 'Test it throws an exception when the locale does not exist' => [
-            [
-                [
-                    'id' => 'en-GB',
-                    'code' => 'en-GB',
-                ],
-            ],
-            self::getAppEntity('appId'),
-            [
-                'en-GB' => \json_encode(['myCustomSnippetName' => 'newTranslation'], \JSON_THROW_ON_ERROR),
-                'foo-bar' => \json_encode(['myCustomSnippetName' => 'newTranslation'], \JSON_THROW_ON_ERROR),
-            ],
-            'The locale foo-bar does not exist.',
         ];
     }
 

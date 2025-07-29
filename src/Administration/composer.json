@@ -29,7 +29,7 @@
     },
     "require": {
         "php": "~8.2.0 || ~8.3.0 || ~8.4.0",
-        "doctrine/dbal": "^4.2",
+        "doctrine/dbal": "^4.3.1",
         "pentatrion/vite-bundle": "^8.1",
         "shopware/core": "*",
         "symfony/framework-bundle": "~7.3.0",

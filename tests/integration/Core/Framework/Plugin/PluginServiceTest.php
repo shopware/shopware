@@ -339,6 +339,7 @@ class PluginServiceTest extends TestCase
                     'name' => $iso,
                     'localeId' => $localeId,
                     'translationCodeId' => $localeId,
+                    'active' => true,
                 ],
             ],
             Context::createDefaultContext()

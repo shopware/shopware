@@ -13,6 +13,9 @@ return [
         '**src/Core/Framework/Script/ServiceStubs.php', // never intended to be extended
     ],
     'errors' => [
+        // Don't complain about doctrine library changes
+        'Doctrine\\\\DBAL',
+
         // Will be typed in Symfony 8 (maybe)
         preg_quote('Symfony\Component\Console\Command\Command#configure() changed from no type to void', '/'),
 
@@ -55,5 +58,8 @@ return [
         // Widening the property type with null is necessary and not a BC break
         preg_quote('CHANGED: Type of property Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity#$type changed from Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity to Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity|null', '/'),
         preg_quote('CHANGED: Type of property Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#$url changed from string to string|null', '/'),
+
+        // The class has not been released
+        'REMOVED: Class Shopware\\\\Elasticsearch\\\\Product\\\\CachedSearchConfigLoader has been deleted',
     ],
 ];

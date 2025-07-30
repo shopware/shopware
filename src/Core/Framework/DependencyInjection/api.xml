@@ -149,11 +149,7 @@
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder"/>
             <argument>%kernel.bundles_metadata%</argument>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\CriteriaQueryParameterProvider"/>
         </service>
-
-        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\CriteriaQueryParameterProvider"/>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator">
         </service>

@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
-use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
@@ -47,8 +46,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         private readonly OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
         array $bundles,
         private readonly BundleSchemaPathCollection $bundleSchemaPathCollection,
-        private readonly ApiRouteInfoResolver $apiRouteInfoResolver,
-        private readonly CriteriaQueryParameterProvider $criteriaQueryParameterProvider
     ) {
         $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/StoreApi';
     }
@@ -105,7 +102,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         /** @var OpenApiSpec $finalSpecs */
         $finalSpecs = array_replace_recursive($data, $preFinalSpecs);
 
-        $this->addGetOperations($finalSpecs);
+        $this->resolveParameterGroups($finalSpecs);
 
         return $finalSpecs;
     }
@@ -237,79 +234,45 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @param OpenApiSpec $finalSpecs
+     * @param OpenApiSpec $specs
      */
-    private function addGetOperations(array &$finalSpecs): void
+    private function resolveParameterGroups(array &$specs): void
     {
-        $routes = $this->apiRouteInfoResolver->getApiRoutes(DefinitionService::STORE_API);
-        $prefix = OpenApiSchemaBuilder::API[DefinitionService::STORE_API]['url'];
-
-        foreach ($routes as $route) {
-            if (!\in_array('GET', $route->methods, true) || !\in_array('POST', $route->methods, true)) {
-                continue;
-            }
-
-            $path = $route->path;
-            if (str_starts_with($path, $prefix)) {
-                $path = substr($path, \strlen($prefix));
-            }
-
-            if (empty($path)) {
-                $path = '/';
-            }
-
-            // enrich those paths where GET is supported but not defined in the schema (don't overwrite existing definition)
-            if (!isset($finalSpecs['paths'][$path]['post']) || isset($finalSpecs['paths'][$path]['get'])) {
-                continue;
-            }
-
-            $finalSpecs['paths'][$path]['get'] = $this->convertPostToGet($finalSpecs['paths'][$path]['post']);
-        }
-    }
-
-    /**
-     * @param array<string, mixed> $postOperation
-     *
-     * @return array<string, mixed>
-     */
-    private function convertPostToGet(array $postOperation): array
-    {
-        $getOperation = $postOperation;
-        if (isset($getOperation['requestBody'])) {
-            unset($getOperation['requestBody']);
+        if (!isset($specs['paths']) || !\is_array($specs['paths'])) {
+            return;
         }
 
-        if (isset($getOperation['operationId'])) {
-            $getOperation['operationId'] = \sprintf('%s%s', $getOperation['operationId'], 'Get');
-        }
+        $parameterGroups = $specs['components']['x-parameter-groups'] ?? [];
+        unset($specs['components']['x-parameter-groups']);
 
-        if (isset($postOperation['requestBody']['content']['application/json']['schema']['allOf'])) {
-            $criteria = $this->findCriteria($postOperation['requestBody']['content']['application/json']['schema']['allOf']);
+        foreach ($specs['paths'] as &$pathDefinition) {
+            foreach ($pathDefinition as &$operation) {
+                if (!isset($operation['parameters']) || !\is_array($operation['parameters'])) {
+                    continue;
+                }
 
-            if ($criteria) {
-                $getOperation['parameters'] = array_merge(
-                    $getOperation['parameters'] ?? [],
-                    $this->criteriaQueryParameterProvider->getParameters()
-                );
+                $newParams = [];
+                $hasGroup = false;
+
+                foreach ($operation['parameters'] as $parameter) {
+                    if (isset($parameter['x-parameter-group'])) {
+                        $hasGroup = true;
+                        $groupNames = (array) $parameter['x-parameter-group'];
+
+                        foreach ($groupNames as $groupName) {
+                            if (isset($parameterGroups[$groupName])) {
+                                array_push($newParams, ...$parameterGroups[$groupName]);
+                            }
+                        }
+                    } else {
+                        $newParams[] = $parameter;
+                    }
+                }
+
+                if ($hasGroup) {
+                    $operation['parameters'] = $newParams;
+                }
             }
         }
-
-        return $getOperation;
-    }
-
-    /**
-     * @param array<int, array<string, string>> $allOf
-     *
-     * @return array<string, mixed>|null
-     */
-    private function findCriteria(array $allOf): ?array
-    {
-        foreach ($allOf as $schema) {
-            if (isset($schema['$ref']) && $schema['$ref'] === '#/components/schemas/Criteria') {
-                return $schema;
-            }
-        }
-
-        return null;
     }
 }

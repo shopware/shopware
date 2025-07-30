@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Framework;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
-use Shopware\Core\Framework\Api\ApiDefinition\Generator\CriteriaQueryParameterProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
 use Shopware\Core\Framework\Api\Controller\ApiController;
@@ -30,7 +29,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
     /**
      * Query parameters that are allowed for specific Store API routes
      */
-    private const WHITELISTED_QUERY_PARAMS = [
+    private const ALLOWED_QUERY_PARAMS = [
         '/store-api/shipping-method' => ['onlyAvailable' => true],
         '/store-api/checkout/cart/line-item' => ['ids' => true],
         '/store-api/product-listing/{categoryId}' => ['p' => true],
@@ -66,7 +65,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
             null
         );
 
-        $whitelistedQueryParams = $this->buildWhitelistedQueryParams($schema);
+        $whitelistedQueryParams = $this->buildAllowedQueryParams($schema);
 
         $schemaRoutes = $schema['paths'];
         $missingRoutes = [];
@@ -301,41 +300,18 @@ class ApiRoutesHaveASchemaTest extends TestCase
     }
 
     /**
-     * Build the complete whitelist of allowed query parameters by combining static params with Criteria params
+     * Build the complete list of allowed query parameters by combining static params with Criteria params
      *
      * @param array{paths: array<string, array<string, mixed>>} $schema
      *
      * @return array<string, array<string, true>>
      */
-    private function buildWhitelistedQueryParams(array $schema): array
+    private function buildAllowedQueryParams(array $schema): array
     {
-        $whitelistedQueryParams = self::WHITELISTED_QUERY_PARAMS;
+        $allowedQueryParams = self::ALLOWED_QUERY_PARAMS;
 
-        // Build criteria paths from schema
-        $criteriaPaths = [];
-        foreach ($schema['paths'] as $path => $operations) {
-            foreach ($operations as $operation) {
-                if (!isset($operation['requestBody']['content']['application/json']['schema']['allOf'])) {
-                    continue;
-                }
+        // todo: define a way to parse additional parameters like criteria (route + static list?)
 
-                foreach ($operation['requestBody']['content']['application/json']['schema']['allOf'] as $ref) {
-                    if (isset($ref['$ref']) && $ref['$ref'] === '#/components/schemas/Criteria') {
-                        $criteriaPaths[] = '/store-api' . $path;
-                    }
-                }
-            }
-        }
-
-        // Add Criteria parameters to whitelist for all criteria paths
-        $provider = $this->getContainer()->get(CriteriaQueryParameterProvider::class);
-        $criteriaParams = array_column($provider->getParameters(), 'name');
-        $criteriaParams = array_fill_keys($criteriaParams, true);
-
-        foreach ($criteriaPaths as $path) {
-            $whitelistedQueryParams[$path] = array_merge($whitelistedQueryParams[$path] ?? [], $criteriaParams);
-        }
-
-        return $whitelistedQueryParams;
+        return $allowedQueryParams;
     }
 }

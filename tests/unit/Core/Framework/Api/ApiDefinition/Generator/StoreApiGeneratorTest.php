@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
-use Shopware\Core\Framework\Api\ApiDefinition\Generator\CriteriaQueryParameterProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
@@ -42,8 +41,6 @@ class StoreApiGeneratorTest extends TestCase
                 'Framework' => ['path' => __DIR__ . '/_fixtures'],
             ],
             new BundleSchemaPathCollection([]),
-            $this->createMock(ApiRouteInfoResolver::class),
-            new CriteriaQueryParameterProvider()
         );
 
         $this->customBundleSchemas = new ShopwareBundleWithName();
@@ -56,8 +53,6 @@ class StoreApiGeneratorTest extends TestCase
                 'Framework' => ['path' => __DIR__ . '/_fixtures'],
             ],
             $customBundlePathCollection,
-            $this->createMock(ApiRouteInfoResolver::class),
-            new CriteriaQueryParameterProvider()
         );
         $this->definitionRegistry = new StaticDefinitionInstanceRegistry(
             [
@@ -159,8 +154,6 @@ class StoreApiGeneratorTest extends TestCase
                 'Framework' => ['path' => __DIR__ . '/_fixtures'],
             ],
             new BundleSchemaPathCollection([]),
-            $apiRouteInfoResolver,
-            new CriteriaQueryParameterProvider()
         );
 
         $schema = $generator->generate(

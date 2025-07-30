@@ -1,0 +1,189 @@
+{
+    "components": {
+        "x-parameter-groups": {
+            "criteria": [
+                {
+                    "name": "page",
+                    "in": "query",
+                    "description": "Search result page",
+                    "schema": {
+                        "type": "integer"
+                    }
+                },
+                {
+                    "name": "limit",
+                    "in": "query",
+                    "description": "Number of items per result page",
+                    "schema": {
+                        "type": "integer"
+                    }
+                },
+                {
+                    "name": "term",
+                    "in": "query",
+                    "description": "Search term",
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "filter",
+                    "in": "query",
+                    "description": "List of filters to restrict the search result. For more information, see [Search Queries > Filter](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#filter)",
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/SimpleFilter"
+                                },
+                                {
+                                    "$ref": "#/components/schemas/EqualsFilter"
+                                },
+                                {
+                                    "$ref": "#/components/schemas/MultiNotFilter"
+                                },
+                                {
+                                    "$ref": "#/components/schemas/RangeFilter"
+                                }
+                            ]
+                        }
+                    },
+                    "style": "deepObject",
+                    "explode": true
+                },
+                {
+                    "name": "ids",
+                    "in": "query",
+                    "description": "List of ids to search for",
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "style": "deepObject",
+                    "explode": true
+                },
+                {
+                    "name": "query",
+                    "in": "query",
+                    "description": "The query string to search for",
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "associations",
+                    "in": "query",
+                    "description": "",
+                    "schema": {
+                        "$ref": "#/components/schemas/Associations"
+                    },
+                    "style": "deepObject",
+                    "explode": true
+                },
+                {
+                    "name": "post-filter",
+                    "in": "query",
+                    "description": "Filters that applied without affecting aggregations. For more information, see [Search Queries > Post Filter](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#post-filter)",
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/SimpleFilter"
+                                },
+                                {
+                                    "$ref": "#/components/schemas/EqualsFilter"
+                                },
+                                {
+                                    "$ref": "#/components/schemas/MultiNotFilter"
+                                },
+                                {
+                                    "$ref": "#/components/schemas/RangeFilter"
+                                }
+                            ]
+                        }
+                    },
+                    "style": "deepObject",
+                    "explode": true
+                },
+                {
+                    "name": "sort",
+                    "in": "query",
+                    "description": "Sorting in the search result.",
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Sort"
+                        }
+                    },
+                    "style": "deepObject",
+                    "explode": true
+                },
+                {
+                    "name": "aggregations",
+                    "in": "query",
+                    "description": "",
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Aggregation"
+                        }
+                    },
+                    "style": "deepObject",
+                    "explode": true
+                },
+                {
+                    "name": "fields",
+                    "in": "query",
+                    "description": "Fields which should be returned in the search result.",
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "description": "Name of a field"
+                        }
+                    },
+                    "style": "deepObject",
+                    "explode": true
+                },
+                {
+                    "name": "grouping",
+                    "in": "query",
+                    "description": "Perform groupings over certain fields",
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "description": "Name of a field"
+                        }
+                    },
+                    "style": "deepObject",
+                    "explode": true
+                },
+                {
+                    "name": "total-count-mode",
+                    "in": "query",
+                    "description": "",
+                    "schema": {
+                        "$ref": "#/components/schemas/TotalCountMode"
+                    },
+                    "style": "deepObject",
+                    "explode": true
+                },
+                {
+                    "name": "includes",
+                    "in": "query",
+                    "description": "",
+                    "schema": {
+                        "$ref": "#/components/schemas/Includes"
+                    },
+                    "style": "deepObject",
+                    "explode": true
+                }
+            ]
+        }
+    }
+} 

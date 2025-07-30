@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaThumbnail;
 
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
@@ -22,9 +24,27 @@ class MediaThumbnailEntity extends Entity
 
     protected ?string $url = '';
 
-    protected string $mediaId;
+    /**
+     * @deprecated tag:v6.8.0 - Will be non-nullable
+     */
+    protected ?string $mediaId;
 
     protected ?MediaEntity $media = null;
+
+    protected string $mediaThumbnailSizeId;
+
+    protected ?MediaThumbnailSizeEntity $mediaThumbnailSize = null;
+
+    public function assign(array $options)
+    {
+        parent::assign($options);
+
+        if (!isset($this->mediaId)) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', '$mediaId must not be null');
+        }
+
+        return $this;
+    }
 
     public function getWidth(): int
     {
@@ -68,6 +88,12 @@ class MediaThumbnailEntity extends Entity
 
     public function getMediaId(): string
     {
+        if (!isset($this->mediaId)) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', '$mediaId must not be null');
+
+            return '';
+        }
+
         return $this->mediaId;
     }
 
@@ -84,6 +110,26 @@ class MediaThumbnailEntity extends Entity
     public function setMedia(MediaEntity $media): void
     {
         $this->media = $media;
+    }
+
+    public function getMediaThumbnailSizeId(): string
+    {
+        return $this->mediaThumbnailSizeId;
+    }
+
+    public function setMediaThumbnailSizeId(string $mediaThumbnailSizeId): void
+    {
+        $this->mediaThumbnailSizeId = $mediaThumbnailSizeId;
+    }
+
+    public function getMediaThumbnailSize(): ?MediaThumbnailSizeEntity
+    {
+        return $this->mediaThumbnailSize;
+    }
+
+    public function setMediaThumbnailSize(MediaThumbnailSizeEntity $mediaThumbnailSize): void
+    {
+        $this->mediaThumbnailSize = $mediaThumbnailSize;
     }
 
     public function getIdentifier(): string

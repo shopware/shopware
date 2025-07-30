@@ -167,6 +167,7 @@
         "symfony/browser-kit": "~7.3.0",
         "symfony/phpunit-bridge": "~7.3.0",
         "symfony/var-dumper": "~7.3.0",
+        "symfony/web-profiler-bundle": "~7.3.0",
         "symfony/dom-crawler": "~7.3.0",
         "shopware/dev-tools": "^1.3"
     },

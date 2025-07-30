@@ -33,8 +33,6 @@ trait EntityFixturesBase
 
     public static function getFixtureRepository(string $fixtureName): EntityRepository
     {
-        self::ensureATransactionIsActive();
-
         $container = KernelLifecycleManager::getKernel()->getContainer();
 
         if ($container->has('test.service_container')) {

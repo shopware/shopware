@@ -146,7 +146,11 @@ async function createWrapper() {
                             searchIds: jest.fn(() => Promise.resolve()),
                         }),
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
                 stubs: {
                     'sw-card-section': true,

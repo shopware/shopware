@@ -35,6 +35,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class StoreApiSeoResolver implements EventSubscriberInterface
 {
     /**
+     * @param SalesChannelRepository<SeoUrlCollection> $salesChannelRepository
+     *
      * @internal
      */
     public function __construct(
@@ -154,12 +156,14 @@ class StoreApiSeoResolver implements EventSubscriberInterface
             $criteria->addFilter(new EqualsFilter('languageId', $context->getLanguageId()));
             $criteria->addSorting(new FieldSorting('salesChannelId'));
 
-            /** @var SeoUrlEntity $url */
             foreach ($this->salesChannelRepository->search($criteria, $context) as $url) {
-                /** @var array<SalesChannelProductEntity|CategoryEntity> $entities */
                 $entities = $data->getAll($definition, $url->getForeignKey());
 
                 foreach ($entities as $entity) {
+                    if (!\method_exists($entity, 'getSeoUrls') || !\method_exists($entity, 'setSeoUrls')) {
+                        continue;
+                    }
+
                     if ($entity->getSeoUrls() === null) {
                         $entity->setSeoUrls(new SeoUrlCollection());
                     }

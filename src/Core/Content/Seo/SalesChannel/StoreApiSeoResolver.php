@@ -2,10 +2,7 @@
 
 namespace Shopware\Core\Content\Seo\SalesChannel;
 
-use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
-use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface as SeoUrlRouteConfigRoute;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -161,14 +158,17 @@ class StoreApiSeoResolver implements EventSubscriberInterface
 
                 foreach ($entities as $entity) {
                     if (!\method_exists($entity, 'getSeoUrls') || !\method_exists($entity, 'setSeoUrls')) {
-                        continue;
+                        break;
                     }
 
                     if ($entity->getSeoUrls() === null) {
                         $entity->setSeoUrls(new SeoUrlCollection());
                     }
 
-                    /** @var SeoUrlCollection $seoUrlCollection */
+                    if (!$entity->getSeoUrls() instanceof SeoUrlCollection) {
+                        break;
+                    }
+
                     $seoUrlCollection = $entity->getSeoUrls();
                     $seoUrlCollection->add($url);
                 }

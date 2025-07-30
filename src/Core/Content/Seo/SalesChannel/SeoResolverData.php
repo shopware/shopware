@@ -25,7 +25,7 @@ class SeoResolverData
         }
 
         /**
-         * The same entity can be added multiple times, e.g. if a same product is assigned in multiple cross-selling groups
+         * The same entity can be added multiple times, e.g. if the same product is assigned in multiple cross-selling groups
          * Using `spl_object_hash` to ensure that every entity can be added multiple times and hence allowing to enrich seoUrls for all these duplicated entities even if they're in different extensions
          */
         $hash = spl_object_hash($entity);

@@ -53,12 +53,10 @@ class PercentagePriceCalculator
                 $taxes,
                 $rules,
             );
-        } else {
-            $definition = new QuantityPriceDefinition($discount, $rules, 1);
-
-            return $this->priceCalculator->calculate($definition, $context);
         }
+        $definition = new QuantityPriceDefinition($discount, $rules, 1);
 
+        return $this->priceCalculator->calculate($definition, $context);
     }
 
     private function round(float $price, SalesChannelContext $context): float

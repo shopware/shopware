@@ -109,7 +109,6 @@ class PercentagePriceCalculatorTest extends TestCase
         static::assertSame(5.9, $price2->getTotalPrice());
         static::assertSame(0.39, $price2->getCalculatedTaxes()->getAmount());
 
-
         return new PercentageCalculation(
             -100,
             new CalculatedPrice(

@@ -3,7 +3,7 @@
 .sw-usage-data-consent-banner {
     background: $color-white;
     max-width: $content-width;
-    margin: 32px auto;
+    margin: 0 auto var(--scale-size-40);
     border-radius: $border-radius-lg;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 10%), 0 2px 1px 0 rgba(0, 0, 0, 6%), 0 1px 1px 0 rgba(0, 0, 0, 8%);
     position: relative;
@@ -237,7 +237,7 @@
     justify-content: space-between;
     align-items: center;
     max-width: $content-width;
-    margin: 32px auto;
+    margin: 0 auto var(--scale-size-40);
     border-radius: $border-radius-lg;
     border: 1px solid $color-gray-300;
     color: $color-darkgray-700;

@@ -73,6 +73,9 @@ async function createWrapper(privileges = []) {
                     buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                         return criteria;
                     },
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
                 },
             },
             stubs: {
@@ -107,6 +110,7 @@ async function createWrapper(privileges = []) {
                 'sw-sidebar-item': true,
                 'sw-sidebar-filter-panel': true,
                 'sw-sidebar': true,
+                'sw-time-ago': true,
             },
         },
     });

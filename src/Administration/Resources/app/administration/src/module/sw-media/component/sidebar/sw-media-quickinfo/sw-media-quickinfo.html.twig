@@ -163,6 +163,31 @@
                         @inheritance-remove="props.removeInheritance"
                         @update:model-value="props.updateCurrentValue"
                     />
+
+                </template>
+            </sw-inherit-wrapper>
+
+            <sw-inherit-wrapper
+                v-if="arReady"
+                v-model:value="arPlacement"
+                :inherited-value="defaultArPlacement"
+                @update:value="changeARPlacement"
+            >
+                <template #content="props">
+
+                    <mt-select
+                        :is-inheritance-field="props.isInheritField"
+                        :is-inherited="props.isInherited"
+                        :label="$tc('sw-media.sidebar.actions.arPlacement')"
+                        :help-text="$tc('sw-media.sidebar.actions.arPlacementHelpText')"
+                        :disabled="props.isInherited || !editable"
+                        :model-value="props.currentValue"
+                        :options="arPlacementOptions"
+                        @inheritance-restore="props.restoreInheritance"
+                        @inheritance-remove="props.removeInheritance"
+                        @update:model-value="props.updateCurrentValue"
+                    />
+
                 </template>
             </sw-inherit-wrapper>
         </template>

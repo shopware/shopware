@@ -221,6 +221,9 @@ export default {
             return Shopware.Filter.getByName('asset');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -293,7 +296,11 @@ export default {
 
         invoiceExists() {
             return this.documents.some((document) => {
-                return document.documentType.technicalName === 'invoice';
+                return (
+                    document.documentType.technicalName === 'invoice' ||
+                    document.documentType.technicalName === 'zugferd_invoice' ||
+                    document.documentType.technicalName === 'zugferd_embedded_invoice'
+                );
             });
         },
 

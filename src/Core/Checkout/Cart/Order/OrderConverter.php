@@ -211,15 +211,17 @@ class OrderConverter
         $idStruct = $cart->getExtensionOfType(self::ORIGINAL_ID, IdStruct::class);
         $data['id'] = $idStruct ? $idStruct->getId() : Uuid::randomHex();
 
-        $orderNumberStruct = $cart->getExtensionOfType(self::ORIGINAL_ORDER_NUMBER, IdStruct::class);
-        if ($orderNumberStruct !== null) {
-            $data['orderNumber'] = $orderNumberStruct->getId();
-        } else {
-            $data['orderNumber'] = $this->numberRangeValueGenerator->getValue(
-                OrderDefinition::ENTITY_NAME,
-                $context->getContext(),
-                $context->getSalesChannelId()
-            );
+        if ($conversionContext->shouldIncludeOrderNumber()) {
+            $orderNumberStruct = $cart->getExtensionOfType(self::ORIGINAL_ORDER_NUMBER, IdStruct::class);
+            if ($orderNumberStruct !== null) {
+                $data['orderNumber'] = $orderNumberStruct->getId();
+            } else {
+                $data['orderNumber'] = $this->numberRangeValueGenerator->getValue(
+                    OrderDefinition::ENTITY_NAME,
+                    $context->getContext(),
+                    $context->getSalesChannelId()
+                );
+            }
         }
 
         $data['ruleIds'] = $context->getRuleIds();

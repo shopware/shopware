@@ -3,15 +3,10 @@
 namespace Shopware\Core\Framework\Store\Subscriber;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Commercial\Licensing\License;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseProvider;
-use Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseUpdater;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
-use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
-use Shopware\Core\System\SystemConfig\Event\SystemConfigDomainLoadedEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -24,7 +19,6 @@ class LicenseHostChangedSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly Connection $connection,
-        private readonly InAppPurchaseUpdater $inAppPurchaseUpdater,
     ) {
     }
 
@@ -32,8 +26,6 @@ class LicenseHostChangedSubscriber implements EventSubscriberInterface
     {
         return [
             BeforeSystemConfigChangedEvent::class => 'onLicenseHostChanged',
-            SystemConfigChangedEvent::class => 'updateIapKey',
-            SystemConfigDomainLoadedEvent::class => 'removeIapInformationFromDomain',
         ];
     }
 
@@ -55,29 +47,5 @@ class LicenseHostChangedSubscriber implements EventSubscriberInterface
 
         // Log out all users to enforce re-authentication
         $this->connection->executeStatement('UPDATE user SET store_token = NULL');
-    }
-
-    public function updateIapKey(SystemConfigChangedEvent $event): void
-    {
-        if ($event->getKey() === StoreRequestOptionsProvider::CONFIG_KEY_STORE_SHOP_SECRET && $event->getValue() !== null) {
-            $this->inAppPurchaseUpdater->update(Context::createDefaultContext());
-        }
-    }
-
-    /**
-     * We have to remove the IAP key from the system config domain,
-     * otherwise it is exposed in the admin and the admin will overwrite it automatically,
-     * thus circumventing our reset logic on license host change.
-     */
-    public function removeIapInformationFromDomain(SystemConfigDomainLoadedEvent $event): void
-    {
-        if ($event->getDomain() !== 'core.store.') {
-            return;
-        }
-
-        $config = $event->getConfig();
-        unset($config[InAppPurchaseProvider::CONFIG_STORE_IAP_KEY]);
-
-        $event->setConfig($config);
     }
 }

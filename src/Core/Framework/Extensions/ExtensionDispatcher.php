@@ -6,13 +6,13 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[Package('framework')]
-final class ExtensionDispatcher
+final readonly class ExtensionDispatcher
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly EventDispatcherInterface $dispatcher
+        private EventDispatcherInterface $dispatcher
     ) {
     }
 

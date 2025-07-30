@@ -76,7 +76,11 @@ async function createWrapper(privileges = []) {
                     repositoryFactory: {
                         create: () => ({ search: () => Promise.resolve([]) }),
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
                 mocks: {
                     $route: { query: '' },

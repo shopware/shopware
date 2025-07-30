@@ -130,6 +130,7 @@ async function createWrapper() {
                 'sw-app-app-url-changed-modal': true,
                 'sw-sidebar-renderer': true,
                 'sw-error-boundary': true,
+                'sw-settings-services-grant-permissions-modal': true,
             },
             provide: {
                 appUrlChangeService: {

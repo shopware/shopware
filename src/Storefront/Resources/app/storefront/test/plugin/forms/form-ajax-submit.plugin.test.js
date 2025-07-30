@@ -20,6 +20,7 @@ describe('FormAjaxSubmitPlugin tests', () => {
 
         formAjaxSubmit = new FormAjaxSubmitPlugin(formElement, {
             replaceSelectors: ['.replace-me'],
+            submitOnChange: true,
         });
 
         global.fetch = jest.fn(() =>
@@ -86,6 +87,61 @@ describe('FormAjaxSubmitPlugin tests', () => {
         await new Promise(process.nextTick);
 
         expect(cb).toHaveBeenCalledTimes(1);
+    });
+
+    test('executes callback when submitting form via input change event', async () => {
+        const cb = jest.fn();
+        const formElement = document.querySelector('form');
+        const inputElement = formElement.querySelector('input');
+
+        formAjaxSubmit.addCallback(cb);
+        // native browser change event not cancelable
+        inputElement.dispatchEvent(new Event('change', { bubbles: true, cancelable: false }));
+        await new Promise(process.nextTick);
+
+        expect(cb).toHaveBeenCalledTimes(1);
+    });
+
+    test('calls _fireRequest when input matches submitOnChange selector', async () => {
+        const cb = jest.fn();
+        const formElement = document.querySelector('form');
+        const inputElement = formElement.querySelector('input');
+        inputElement.classList.add('trigger-me');
+
+        // Create plugin with submitOnChange as array
+        formAjaxSubmit = new FormAjaxSubmitPlugin(formElement, {
+            replaceSelectors: ['.replace-me'],
+            submitOnChange: ['.trigger-me'],
+        });
+
+        formAjaxSubmit.addCallback(cb);
+        // native browser change event not cancelable
+        inputElement.dispatchEvent(new Event('change', { bubbles: true }));
+        await new Promise(process.nextTick);
+
+        expect(cb).toHaveBeenCalledTimes(1);
+    });
+
+    test('stops checking further selectors once a match is found in submitOnChange', async () => {
+        const cb = jest.fn();
+        const formElement = document.querySelector('form');
+        const inputElement = formElement.querySelector('input');
+        inputElement.classList.add('match-me');
+
+        // Create plugin with submitOnChange as array
+        formAjaxSubmit = new FormAjaxSubmitPlugin(formElement, {
+            replaceSelectors: ['.replace-me'],
+            submitOnChange: ['.match-me', '.should-not-be-checked'],
+        });
+        const fireSpy = jest.spyOn(formAjaxSubmit, '_fireRequest');
+
+        formAjaxSubmit.addCallback(cb);
+        // native browser change event not cancelable
+        inputElement.dispatchEvent(new Event('change', { bubbles: true }));
+        await new Promise(process.nextTick);
+
+        expect(cb).toHaveBeenCalledTimes(1);
+        expect(fireSpy).toHaveBeenCalledTimes(1);
     });
 
     test('will log an error when submitting form via non-cancelable form submit event', () => {

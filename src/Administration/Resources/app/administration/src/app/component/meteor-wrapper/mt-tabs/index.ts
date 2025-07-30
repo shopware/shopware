@@ -1,5 +1,4 @@
 import { MtTabs } from '@shopware-ag/meteor-component-library';
-import type { PropType } from 'vue';
 import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/components/navigation/mt-tabs/mt-tabs';
 import template from './mt-tabs.html.twig';
 import type { TabItemEntry } from '../../../store/tabs.store';

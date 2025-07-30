@@ -14,7 +14,7 @@ use Symfony\Component\RateLimiter\Util\TimeUtil;
 #[Package('framework')]
 class TimeBackoff implements LimiterStateInterface
 {
-    private int $attempts;
+    private int $attempts = 0;
 
     private int $timer;
 
@@ -32,7 +32,6 @@ class TimeBackoff implements LimiterStateInterface
         private array $limits,
         ?int $timer = null
     ) {
-        $this->attempts = 0;
         $this->timer = $timer ?? time();
         $this->unthrottledAttempts = min(array_column($this->limits, 'limit')) ?: 0;
     }

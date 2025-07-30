@@ -1,0 +1,51 @@
+<mt-modal-root
+    :is-open="showGrantPermissionsModal"
+    @change="prepareRevisions"
+>
+    <mt-modal
+        :title="$t('sw-settings-services.general.title')"
+    >
+        <div class="sw-settings-services-grant-permissions-modal__content">
+            <img
+                :src="grantPermissionsBackground"
+                alt=""
+            >
+
+            <h2>{{ $t('sw-settings-services.grant-permissions.title') }}</h2>
+
+            <p>{{  $t('sw-settings-services.grant-permissions.description') }}</p>
+
+            <mt-link
+                type="external"
+                as="a"
+                target="_blank"
+                :disabled="feedbackLink === ''"
+                :href="feedbackLink"
+            >
+                {{ $t('sw-settings-services.grant-permissions.label-link-more-information') }}
+            </mt-link>
+        </div>
+
+        <template #footer>
+            <div class="sw-settings-services-grant-permissions-modal__footer">
+                <mt-modal-close
+                    as="mt-button"
+                    variant="secondary"
+                    size="small"
+                >
+                    {{ $t('global.default.cancel') }}
+                </mt-modal-close>
+
+                <mt-modal-action
+                    as="mt-button"
+                    variant="primary"
+                    size="small"
+                    :is-loading="isLoading"
+                    @click="grantPermissions"
+                >
+                    {{ $t('sw-settings-services.grant-permissions.label-button-grant-permissions') }}
+                </mt-modal-action>
+            </div>
+        </template>
+    </mt-modal>
+</mt-modal-root>

@@ -104,6 +104,7 @@ async function createWrapper(extension) {
                 'sw-loader-deprecated': true,
                 'i18n-t': true,
                 'sw-label': true,
+                'sw-time-ago': await wrapTestComponent('sw-time-ago', { sync: true }),
             },
             provide: {
                 extensionStoreActionService: Shopware.Service('extensionStoreActionService'),
@@ -212,7 +213,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         expect(wrapper.find('.sw-extension-card-base__info-name').text()).toBe('Sample Extension Label');
         expect(wrapper.find('.sw-extension-icon img').attributes('src')).toBe('https://example.com');
         expect(wrapper.find('.sw-extension-card-base__meta-info').text().replace(/\s/g, '')).toBe(
-            'sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021',
+            'sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021,02:30',
         );
     });
 
@@ -254,7 +255,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             'administration/administration/static/img/theme/default_theme_preview.jpg',
         );
         expect(wrapper.find('.sw-extension-card-base__meta-info').text().replace(/\s/g, '')).toBe(
-            'sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021',
+            'sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021,02:30',
         );
     });
 

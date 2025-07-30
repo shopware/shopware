@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\SalesChannel;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
+use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\AfterLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
@@ -30,7 +31,8 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
         private readonly AbstractCartPersister $cartPersister,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LineItemFactoryRegistry $lineItemFactory,
-        private readonly RateLimiter $rateLimiter
+        private readonly RateLimiter $rateLimiter,
+        private readonly CartLocker $cartLocker
     ) {
     }
 
@@ -45,35 +47,37 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
     #[Route(path: '/store-api/checkout/cart/line-item', name: 'store-api.checkout.cart.add', methods: ['POST'])]
     public function add(Request $request, Cart $cart, SalesChannelContext $context, ?array $items): CartResponse
     {
-        if ($items === null) {
-            $items = [];
+        return $this->cartLocker->locked($cart->getToken(), function () use ($request, $cart, $context, $items) {
+            if ($items === null) {
+                $items = [];
 
-            /** @var array<mixed> $item */
-            foreach ($request->request->all('items') as $item) {
-                $items[] = $this->lineItemFactory->create($item, $context);
-            }
-        }
-
-        foreach ($items as $item) {
-            if ($request->getClientIp() !== null) {
-                $cacheKey = ($item->getReferencedId() ?? $item->getId()) . '-' . $request->getClientIp();
-                $this->rateLimiter->ensureAccepted(RateLimiter::CART_ADD_LINE_ITEM, $cacheKey);
+                /** @var array<mixed> $item */
+                foreach ($request->request->all('items') as $item) {
+                    $items[] = $this->lineItemFactory->create($item, $context);
+                }
             }
 
-            $alreadyExists = $cart->has($item->getId());
-            $cart->add($item);
+            foreach ($items as $item) {
+                if ($request->getClientIp() !== null) {
+                    $cacheKey = ($item->getReferencedId() ?? $item->getId()) . '-' . $request->getClientIp();
+                    $this->rateLimiter->ensureAccepted(RateLimiter::CART_ADD_LINE_ITEM, $cacheKey);
+                }
 
-            $this->eventDispatcher->dispatch(new BeforeLineItemAddedEvent($item, $cart, $context, $alreadyExists));
-        }
+                $alreadyExists = $cart->has($item->getId());
+                $cart->add($item);
 
-        $cart->markModified();
+                $this->eventDispatcher->dispatch(new BeforeLineItemAddedEvent($item, $cart, $context, $alreadyExists));
+            }
 
-        $cart = $this->cartCalculator->calculate($cart, $context);
-        $this->cartPersister->save($cart, $context);
+            $cart->markModified();
 
-        $this->eventDispatcher->dispatch(new AfterLineItemAddedEvent($items, $cart, $context));
-        $this->eventDispatcher->dispatch(new CartChangedEvent($cart, $context));
+            $cart = $this->cartCalculator->calculate($cart, $context);
+            $this->cartPersister->save($cart, $context);
 
-        return new CartResponse($cart);
+            $this->eventDispatcher->dispatch(new AfterLineItemAddedEvent($items, $cart, $context));
+            $this->eventDispatcher->dispatch(new CartChangedEvent($cart, $context));
+
+            return new CartResponse($cart);
+        });
     }
 }

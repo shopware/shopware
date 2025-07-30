@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block utilities_offcanvas_close_text %}
-    {{ 'cookie.headline'|trans|sw_sanitize }}
+    {{ 'cookie.close'|trans|sw_sanitize }}
 {% endblock %}
 
 {% block utilities_offcanvas_content %}
@@ -24,11 +24,9 @@
                 })|raw }}
             </p>
 
-            <div class="row align-items-center h6 offcanvas-cookie-header">
-                <div class="col">
-                    {{ 'cookie.configuration'|trans|sw_sanitize }}
-                </div>
-            </div>
+            <h2 class="offcanvas-cookie-header h5" data-id="off-canvas-headline">
+                {{ 'cookie.headline'|trans|sw_sanitize }}
+            </h2>
         </div>
 
         <div class="offcanvas-cookie-list">

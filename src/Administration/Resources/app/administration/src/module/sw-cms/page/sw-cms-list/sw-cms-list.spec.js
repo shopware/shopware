@@ -105,6 +105,7 @@ async function createWrapper(
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
                     'sw-provide': true,
+                    'sw-time-ago': true,
                 },
                 mocks: {
                     $route: { query: '' },
@@ -135,6 +136,9 @@ async function createWrapper(
                         },
                         buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                             return criteria;
+                        },
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
                         },
                     },
                     systemConfigApiService: {

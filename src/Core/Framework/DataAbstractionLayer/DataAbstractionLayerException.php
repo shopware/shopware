@@ -23,6 +23,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Elasticsearch\Product\ElasticsearchProductException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -84,6 +85,7 @@ class DataAbstractionLayerException extends HttpException
     public const FRAMEWORK_DEPRECATED_DEFINITION_CALL = 'FRAMEWORK__DEPRECATED_DEFINITION_CALL';
     public const UNSUPPORTED_QUERY_FILTER = 'FRAMEWORK__UNSUPPORTED_QUERY_FILTER';
     public const INVALID_SORT_DIRECTION = 'FRAMEWORK__INVALID_SORT_DIRECTION';
+    public const PRODUCT_SEARCH_CONFIGURATION_NOT_FOUND = 'FRAMEWORK__PRODUCT_SEARCH_CONFIGURATION_NOT_FOUND';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -759,6 +761,22 @@ class DataAbstractionLayerException extends HttpException
             self::INVALID_SORT_DIRECTION,
             'The given sort direction "{{ direction }}" is invalid.',
             ['direction' => $direction]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function configNotFound(): self|ElasticsearchProductException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            throw ElasticsearchProductException::configNotFound();
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PRODUCT_SEARCH_CONFIGURATION_NOT_FOUND,
+            'Configuration for product search definition not found',
         );
     }
 }

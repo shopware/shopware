@@ -579,6 +579,7 @@ class EntityWriterTest extends TestCase
                 'name' => 'language 2',
                 'localeId' => $localeId,
                 'localeVersionId' => Defaults::LIVE_VERSION,
+                'active' => true,
                 'translationCode' => [
                     'code' => 'x-tst_' . Uuid::randomHex(),
                     'name' => 'test name',
@@ -876,6 +877,7 @@ class EntityWriterTest extends TestCase
                     'id' => $ids->create('language'),
                     'name' => 'test-language',
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
+                    'active' => true,
                     'translationCode' => [
                         'code' => Uuid::randomHex(),
                         'name' => 'Test locale',

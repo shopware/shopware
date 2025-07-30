@@ -32,7 +32,6 @@ class ImportExportServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public const TEST_PROFILE_NAME = 'Test Profile';
     public const TEST_PROFILE_TECHNICAL_NAME = 'test_profile';
 
     /**
@@ -177,7 +176,6 @@ class ImportExportServiceTest extends TestCase
         $profile = [
             'id' => Uuid::randomHex(),
             'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
-            'label' => self::TEST_PROFILE_NAME,
             'sourceEntity' => 'product',
             'fileType' => 'text/csv',
             'delimiter' => ';',
@@ -204,7 +202,7 @@ class ImportExportServiceTest extends TestCase
         static::assertSame($profile['enclosure'], $actualConfig->get('enclosure'));
         static::assertSame($profile['sourceEntity'], $actualConfig->get('sourceEntity'));
         static::assertSame($profile['fileType'], $actualConfig->get('fileType'));
-        static::assertSame($profile['label'], $actualConfig->get('profileName'));
+        static::assertSame($profile['technicalName'], $actualConfig->get('profileName'));
 
         $expectedMapping = MappingCollection::fromIterable($profile['mapping']);
         static::assertEquals($expectedMapping, $actualConfig->getMapping());
@@ -261,7 +259,7 @@ class ImportExportServiceTest extends TestCase
         }
 
         static::assertSame($profile['id'], $logEntity->getProfileId());
-        static::assertSame(self::TEST_PROFILE_NAME, $logEntity->getProfileName());
+        static::assertSame(self::TEST_PROFILE_TECHNICAL_NAME, $logEntity->getProfileName());
     }
 
     /**
@@ -274,7 +272,6 @@ class ImportExportServiceTest extends TestCase
                 [
                     'id' => Uuid::randomHex(),
                     'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
-                    'label' => self::TEST_PROFILE_NAME,
                     'sourceEntity' => 'product',
                     'type' => ImportExportProfileEntity::TYPE_EXPORT,
                     'fileType' => 'text/csv',
@@ -292,7 +289,6 @@ class ImportExportServiceTest extends TestCase
                 [
                     'id' => Uuid::randomHex(),
                     'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
-                    'label' => self::TEST_PROFILE_NAME,
                     'sourceEntity' => 'product',
                     'type' => ImportExportProfileEntity::TYPE_EXPORT,
                     'fileType' => 'text/csv',
@@ -310,7 +306,6 @@ class ImportExportServiceTest extends TestCase
                 [
                     'id' => Uuid::randomHex(),
                     'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
-                    'label' => self::TEST_PROFILE_NAME,
                     'sourceEntity' => 'product',
                     'type' => ImportExportProfileEntity::TYPE_IMPORT,
                     'fileType' => 'text/csv',
@@ -329,7 +324,6 @@ class ImportExportServiceTest extends TestCase
                 [
                     'id' => Uuid::randomHex(),
                     'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
-                    'label' => self::TEST_PROFILE_NAME,
                     'sourceEntity' => 'product',
                     'type' => ImportExportProfileEntity::TYPE_IMPORT_EXPORT,
                     'fileType' => 'text/csv',
@@ -347,7 +341,6 @@ class ImportExportServiceTest extends TestCase
                 [
                     'id' => Uuid::randomHex(),
                     'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
-                    'label' => self::TEST_PROFILE_NAME,
                     'sourceEntity' => 'product',
                     'type' => ImportExportProfileEntity::TYPE_IMPORT_EXPORT,
                     'fileType' => 'text/csv',
@@ -365,7 +358,6 @@ class ImportExportServiceTest extends TestCase
                 [
                     'id' => Uuid::randomHex(),
                     'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
-                    'label' => self::TEST_PROFILE_NAME,
                     'sourceEntity' => 'product',
                     'type' => ImportExportProfileEntity::TYPE_IMPORT,
                     'fileType' => 'text/csv',
@@ -383,7 +375,6 @@ class ImportExportServiceTest extends TestCase
                 [
                     'id' => Uuid::randomHex(),
                     'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
-                    'label' => self::TEST_PROFILE_NAME,
                     'sourceEntity' => 'product',
                     'type' => ImportExportProfileEntity::TYPE_IMPORT,
                     'fileType' => 'text/csv',

@@ -83,18 +83,11 @@ class MediaThumbnailEntity extends Entity
 
     public function getMediaId(): string
     {
-        if (!Feature::isActive('v6.8.0.0')) {
+        if (!isset($this->mediaId)) {
             Feature::triggerDeprecationOrThrow('v6.8.0.0', '$mediaId must not be null');
 
-            if (!isset($this->mediaId)) {
-                return '';
-            }
-
-            return $this->mediaId;
+            return '';
         }
-
-        /** @deprecated tag:v6.8.0 - Will be non-nullable */
-        \assert(\is_string($this->mediaId));
 
         return $this->mediaId;
     }

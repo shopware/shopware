@@ -81,7 +81,11 @@ async function createWrapper({
                     router,
                 ],
                 provide: {
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
                 mocks: {
                     ...mocks,
@@ -565,8 +569,9 @@ describe('src/app/mixin/listing.mixin.ts', () => {
         );
     });
 
-    it('should return true when isValidTerm is used with trimmed term over 1 length', async () => {
+    it('should return true when isValidTerm is used with trimmed term >= 1 length', async () => {
         expect(wrapper.vm.isValidTerm('test  ')).toBe(true);
+        expect(wrapper.vm.isValidTerm('9')).toBe(true);
     });
 
     it('should return false when isValidTerm is shorter than 1 length', async () => {

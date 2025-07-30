@@ -273,6 +273,9 @@ describe('src/app/component/structure/sw-search-bar', () => {
                                 },
                             };
                         },
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
                     },
                     recentlySearchService: customProviders.recentlySearchService || defaultProviders.recentlySearchService,
                     userActivityApiService:

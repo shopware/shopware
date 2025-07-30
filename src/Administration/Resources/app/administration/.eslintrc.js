@@ -256,6 +256,7 @@ module.exports = {
                 'sw-test-rules/await-async-functions': 'error',
                 'max-len': 0,
                 'sw-deprecation-rules/private-feature-declarations': 0,
+                'jest/no-truthy-falsy': 'error',
                 'jest/expect-expect': 'error',
                 'jest/no-duplicate-hooks': 'error',
                 'jest/no-test-return-statement': 'error',

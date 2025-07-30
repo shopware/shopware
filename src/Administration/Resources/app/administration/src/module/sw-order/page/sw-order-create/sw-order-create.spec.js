@@ -98,6 +98,7 @@ describe('src/module/sw-order/page/sw-order-create', () => {
             },
             'sw-order-create-invalid-promotion-modal': true,
             'sw-app-topbar-button': true,
+            'sw-app-topbar-sidebar': true,
             'sw-help-center-v2': true,
             'router-link': true,
             'sw-error-summary': true,

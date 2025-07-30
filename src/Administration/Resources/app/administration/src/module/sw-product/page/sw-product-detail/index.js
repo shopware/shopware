@@ -1018,13 +1018,41 @@ export default {
         },
 
         onSaveFinished(response) {
+            if (response !== 'success' && response !== 'empty') {
+                const errorCode = response?.response?.data?.errors?.[0]?.code;
+
+                if (errorCode === 'CONTENT__DUPLICATE_PRODUCT_NUMBER') {
+                    const titleSaveError = this.$tc('global.default.error');
+                    const messageSaveError = this.$t('sw-product.notification.notificationSaveErrorProductNoAlreadyExists', {
+                        productNo: response.response.data.errors[0].meta.parameters.number,
+                    });
+
+                    this.createNotificationError({
+                        title: titleSaveError,
+                        message: messageSaveError,
+                    });
+                    return;
+                }
+
+                const errorDetail = response?.response?.data?.errors?.[0]?.detail;
+                const titleSaveError = this.$tc('global.default.error');
+                const messageSaveError =
+                    errorDetail ?? this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid');
+
+                this.createNotificationError({
+                    title: titleSaveError,
+                    message: messageSaveError,
+                });
+                return;
+            }
+
             if (this.updateSeoPromises.length === 0) {
                 this.isSaveSuccessful = true;
 
                 return;
             }
 
-            if (response === 'empty' && this.updateSeoPromises.length > 0) {
+            if (response === 'empty') {
                 response = 'success';
             }
 
@@ -1052,34 +1080,6 @@ export default {
                         }
 
                         default: {
-                            const errorCode = response?.response?.data?.errors?.[0]?.code;
-
-                            if (errorCode === 'CONTENT__DUPLICATE_PRODUCT_NUMBER') {
-                                const titleSaveError = this.$tc('global.default.error');
-                                const messageSaveError = this.$t(
-                                    'sw-product.notification.notificationSaveErrorProductNoAlreadyExists',
-                                    {
-                                        productNo: response.response.data.errors[0].meta.parameters.number,
-                                    },
-                                );
-
-                                this.createNotificationError({
-                                    title: titleSaveError,
-                                    message: messageSaveError,
-                                });
-                                break;
-                            }
-
-                            const errorDetail = response?.response?.data?.errors?.[0]?.detail;
-                            const titleSaveError = this.$tc('global.default.error');
-                            const messageSaveError =
-                                errorDetail ??
-                                this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid');
-
-                            this.createNotificationError({
-                                title: titleSaveError,
-                                message: messageSaveError,
-                            });
                             break;
                         }
                     }

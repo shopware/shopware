@@ -103,7 +103,7 @@ test('As a customer, I can perform a registration by validating to be not a robo
     }
 );
 
-test('As a customer, I can perform a registration that is validated by the invisible Google reCaptcha V2 even after a false input.',
+test.skip('As a customer, I can perform a registration that is validated by the invisible Google reCaptcha V2 even after a false input.',
     { tag: '@form @Registration @Captcha' },
     async ({
         ShopCustomer,

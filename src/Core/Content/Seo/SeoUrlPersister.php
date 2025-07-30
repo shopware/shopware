@@ -198,6 +198,10 @@ class SeoUrlPersister
      */
     private function findInUseCanonicalSeoUrls(array $seoPathInfos): array
     {
+        if (empty($seoPathInfos)) {
+            return [];
+        }
+
         return $this->connection->fetchAllAssociative(
             'SELECT id, language_id languageId, sales_channel_id salesChannelId, foreign_key foreignKey, route_name routeName
             FROM seo_url

@@ -89,6 +89,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                     'sw-error-summary': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-help-center-v2': true,
                     'sw-context-button': true,
                     'sw-inheritance-switch': true,

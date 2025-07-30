@@ -46,63 +46,69 @@ class MySQLFactoryTest extends TestCase
         static::assertArrayHasKey('primary', $params);
         static::assertArrayHasKey('replica', $params);
         static::assertCount(2, $params['replica']);
+        static::assertArrayHasKey('driverOptions', $params);
 
         // Check primary parameters
-        $primary = $params['primary'];
-        static::assertArrayHasKey('host', $primary);
-        static::assertSame('localhost', $primary['host']);
-        static::assertArrayHasKey('port', $primary);
-        static::assertSame(3306, $primary['port']);
-        static::assertArrayHasKey('user', $primary);
-        static::assertSame('user', $primary['user']);
-        static::assertArrayHasKey('password', $primary);
-        static::assertSame('pass', $primary['password']);
-        static::assertArrayHasKey('dbname', $primary);
-        static::assertSame('shopware', $primary['dbname']);
-        static::assertArrayHasKey('charset', $primary);
-        static::assertSame('utf8mb4', $primary['charset']);
+        $this->assertConnectionParameters($params['primary'], [
+            'host' => 'localhost',
+            'port' => 3306,
+            'user' => 'user',
+            'password' => 'pass',
+            'dbname' => 'shopware',
+            'driver' => 'pdo_mysql',
+            'charset' => 'utf8mb4',
+            'driverOptions' => $params['driverOptions'],
+        ]);
 
         // Check first replica parameters
         $replica0 = $params['replica'][0];
-        static::assertArrayHasKey('host', $replica0);
-        static::assertSame('replica_host', $replica0['host']);
-        static::assertArrayHasKey('port', $replica0);
-        static::assertSame(3307, $replica0['port']);
-        static::assertArrayHasKey('user', $replica0);
-        static::assertSame('replica_user', $replica0['user']);
-        static::assertArrayHasKey('password', $replica0);
-        static::assertSame('replica_pass', $replica0['password']);
-        static::assertArrayHasKey('dbname', $replica0);
-        static::assertSame('replica_db', $replica0['dbname']);
-        static::assertArrayHasKey('charset', $replica0);
-        static::assertSame('utf8mb4', $replica0['charset']);
+        $this->assertConnectionParameters($replica0, [
+            'host' => 'replica_host',
+            'port' => 3307,
+            'user' => 'replica_user',
+            'password' => 'replica_pass',
+            'dbname' => 'replica_db',
+            'driver' => 'pdo_mysql',
+            'charset' => 'utf8mb4',
+            'driverOptions' => $params['driverOptions'],
+        ]);
 
         // Check second replica parameters
         $replica1 = $params['replica'][1];
-        static::assertArrayHasKey('host', $replica1);
-        static::assertSame('replica_host2', $replica1['host']);
-        static::assertArrayHasKey('port', $replica1);
-        static::assertSame(3308, $replica1['port']);
-        static::assertArrayHasKey('user', $replica1);
-        static::assertSame('replica_user2', $replica1['user']);
-        static::assertArrayHasKey('password', $replica1);
-        static::assertSame('replica_pass2', $replica1['password']);
-        static::assertArrayHasKey('dbname', $replica1);
-        static::assertSame('replica_db2', $replica1['dbname']);
-        static::assertArrayHasKey('charset', $replica1);
-        static::assertSame('utf8mb4', $replica1['charset']);
+        $this->assertConnectionParameters($replica1, [
+            'host' => 'replica_host2',
+            'port' => 3308,
+            'user' => 'replica_user2',
+            'password' => 'replica_pass2',
+            'dbname' => 'replica_db2',
+            'driver' => 'pdo_mysql',
+            'charset' => 'utf8mb4',
+            'driverOptions' => $params['driverOptions'],
+        ]);
+    }
 
-        // Verify that parameters are merged correctly
-        static::assertArrayHasKey('driver', $replica0);
-        static::assertSame('pdo_mysql', $replica0['driver']);
-        static::assertArrayHasKey('driverOptions', $params);
-        static::assertArrayHasKey('driverOptions', $replica0);
-        static::assertSame($replica0['driverOptions'], $params['driverOptions']);
-
-        static::assertArrayHasKey('driver', $replica1);
-        static::assertSame('pdo_mysql', $replica1['driver']);
-        static::assertArrayHasKey('driverOptions', $replica1);
-        static::assertSame($replica1['driverOptions'], $params['driverOptions']);
+    /**
+     * @param array<string, mixed> $actualParams
+     * @param array<string, mixed> $expectedParams
+     */
+    private function assertConnectionParameters(array $actualParams, array $expectedParams): void
+    {
+        static::assertArrayHasKey('host', $actualParams);
+        static::assertSame($expectedParams['host'], $actualParams['host']);
+        static::assertArrayHasKey('port', $actualParams);
+        static::assertSame($expectedParams['port'], $actualParams['port']);
+        static::assertArrayHasKey('user', $actualParams);
+        static::assertSame($expectedParams['user'], $actualParams['user']);
+        static::assertArrayHasKey('password', $actualParams);
+        static::assertSame($expectedParams['password'], $actualParams['password']);
+        static::assertArrayHasKey('dbname', $actualParams);
+        static::assertSame($expectedParams['dbname'], $actualParams['dbname']);
+        static::assertArrayHasKey('charset', $actualParams);
+        static::assertSame($expectedParams['charset'], $actualParams['charset']);
+        static::assertArrayHasKey('driverOptions', $actualParams);
+        static::assertSame($expectedParams['driverOptions'], $actualParams['driverOptions']);
+        static::assertArrayHasKey('driver', $actualParams);
+        static::assertSame($expectedParams['driver'], $actualParams['driver']);
     }
 }
 

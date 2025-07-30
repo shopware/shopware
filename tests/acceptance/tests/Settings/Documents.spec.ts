@@ -12,6 +12,7 @@ test('As an admin, I want to create documents and make sure they contain certain
     Login,
     AddCreditItem,
     CreateInvoice,
+    AdminCustomerDetail,
 
     }) => {
 
@@ -43,7 +44,8 @@ test('As an admin, I want to create documents and make sure they contain certain
         await AdminOrderDetail.page.locator('.sw-context-menu').getByText('Mark as sent').click();
         await ShopAdmin.expects(AdminOrderDetail.contextMenu).not.toBeVisible();
         await ShopAdmin.expects(AdminOrderDetail.sentCheckmark).toBeVisible();
-        });
+        await AdminOrderDetail.page.waitForResponse(response => response.url().includes('api/notification/message?limit=5'));
+    });
 
     await test.step('Log into customer account and check the order document', async () => {
         await ShopCustomer.attemptsTo(Login());

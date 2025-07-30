@@ -114,6 +114,8 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
                 );
 
                 $this->cartService->setCart($result->getCart());
+            } else {
+                $context->setRuleIds($this->cartService->getCart($token, $context)->getRuleIds());
             }
 
             return $context;

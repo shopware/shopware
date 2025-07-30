@@ -267,4 +267,50 @@ class SalesChannelContextServiceTest extends TestCase
             $originalContext,
         ));
     }
+
+    public function testESIRequestsCopyRulesFromCart(): void
+    {
+        $token = Uuid::randomHex();
+        $ruleIds = ['rule-1', 'rule-2', 'rule-3'];
+
+        $this->persister->method('load')->willReturn(['expired' => false, SalesChannelContextService::CUSTOMER_ID => Uuid::randomHex()]);
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $this->factory
+            ->expects($this->once())
+            ->method('create')
+            ->willReturn($context);
+
+        $this->cartService
+            ->expects($this->once())
+            ->method('hasCart')
+            ->with($token)
+            ->willReturn(true);
+
+        $cart = new Cart($token);
+        $cart->setRuleIds($ruleIds);
+
+        $this->cartService
+            ->expects($this->once())
+            ->method('getCart')
+            ->with($token, $context)
+            ->willReturn($cart);
+
+        $context
+            ->expects($this->once())
+            ->method('setRuleIds')
+            ->with($ruleIds);
+
+        $this->cartRuleLoader
+            ->expects($this->never())
+            ->method('loadByToken');
+        $this->cartService
+            ->expects($this->never())
+            ->method('setCart');
+
+        $esiRequest = new Request(attributes: ['_sw_esi' => true]);
+        $this->requestStack->push($esiRequest);
+
+        $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token, Defaults::LANGUAGE_SYSTEM));
+    }
 }

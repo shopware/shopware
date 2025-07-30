@@ -12,7 +12,6 @@ test('As an admin, I want to create documents and make sure they contain certain
     Login,
     AddCreditItem,
     CreateInvoice,
-    AdminCustomerDetail,
 
     }) => {
 

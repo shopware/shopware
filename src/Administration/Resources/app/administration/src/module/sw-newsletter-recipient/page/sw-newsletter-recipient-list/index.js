@@ -1,15 +1,14 @@
 import template from './sw-newsletter-recipient-list.html.twig';
 import './sw-newsletter-recipient-list.scss';
 
-/**
- * @sw-package after-sales
- */
-
 const {
     Mixin,
     Data: { Criteria, EntityCollection },
 } = Shopware;
 
+/**
+ * @sw-package after-sales
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -56,6 +55,10 @@ export default {
             return this.repositoryFactory.create('sales_channel');
         },
 
+        newsletterRecipientRepository() {
+            return this.repositoryFactory.create('newsletter_recipient');
+        },
+
         tagRepository() {
             return this.repositoryFactory.create('tag');
         },
@@ -77,40 +80,47 @@ export default {
     },
 
     methods: {
-        createdComponent() {
-            this.tagCollection = new EntityCollection('/tag', 'tag', Shopware.Context.api, new Criteria(1, 25));
+        async createdComponent() {
+            this.isLoading = true;
 
             const criteria = new Criteria(1, 100);
-            this.repositoryFactory
-                .create('language')
-                .search(criteria, Shopware.Context.api)
-                .then((items) => {
-                    this.languageFilters = items;
-                });
+            this.tagCollection = new EntityCollection('/tag', 'tag', Shopware.Context.api, new Criteria(1, 25));
 
-            this.salesChannelRepository.search(new Criteria(1, 100)).then((salesChannels) => {
+            try {
+                const [
+                    languages,
+                    salesChannels,
+                ] = await Promise.all([
+                    this.repositoryFactory.create('language').search(criteria, Shopware.Context.api),
+                    this.salesChannelRepository.search(new Criteria(1, 100)),
+                ]);
+
+                this.languageFilters = languages;
                 this.salesChannelFilters = salesChannels;
-            });
 
-            this.getList();
+                await this.getList();
+            } finally {
+                this.isLoading = false;
+            }
         },
 
         async getList() {
             this.isLoading = true;
-            let criteria = new Criteria(this.page, this.limit);
-            criteria.setTerm(this.term);
-            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
-            criteria.addAssociation('salesChannel');
+
+            let criteria = new Criteria(this.page, this.limit)
+                .setTerm(this.term)
+                .addSorting(Criteria.sort(this.sortBy, this.sortDirection))
+                .addAssociation('salesChannel');
 
             Object.values(this.internalFilters).forEach((item) => {
                 criteria.addFilter(item);
             });
 
             criteria = await this.addQueryScores(this.term, criteria);
-            if (!this.entitySearchable) {
-                this.isLoading = false;
-                this.total = 0;
 
+            if (!this.entitySearchable) {
+                this.total = 0;
+                this.isLoading = false;
                 return;
             }
 
@@ -118,18 +128,14 @@ export default {
                 criteria.resetSorting();
             }
 
-            this.repository = this.repositoryFactory.create('newsletter_recipient');
-            this.repository
-                .search(criteria)
-                .then((searchResult) => {
-                    this.items = searchResult;
-                    this.total = searchResult.total;
+            try {
+                const searchResult = await this.newsletterRecipientRepository.search(criteria);
 
-                    this.isLoading = false;
-                })
-                .catch(() => {
-                    this.isLoading = false;
-                });
+                this.items = searchResult;
+                this.total = searchResult.total;
+            } finally {
+                this.isLoading = false;
+            }
         },
 
         handleTagFilter(filter) {
@@ -168,25 +174,27 @@ export default {
             this.internalFilters[filter.group] = Criteria.equalsAny(filter.group, this[filter.group]);
         },
 
-        onChange(filter) {
+        async onChange(filter) {
             if (filter === null) {
                 filter = [];
             }
 
             if (Array.isArray(filter)) {
                 this.handleTagFilter(filter);
-                this.getList();
+                await this.getList();
+
                 return;
             }
 
             this.handleBooleanFilter(filter);
-            this.getList();
+            await this.getList();
         },
 
         closeContent() {
             if (this.filterSidebarIsOpen) {
                 this.$refs.filterSideBar.closeContent();
                 this.filterSidebarIsOpen = false;
+
                 return;
             }
 

@@ -122,39 +122,27 @@ class Kernel extends HttpKernel
 
     public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): Response
     {
-        if (!$this->booted) {
-            $this->boot();
-        }
+        $this->boot();
 
         return $this->getHttpKernel()->handle($request, $type, $catch);
     }
 
     public function boot(): void
     {
-        if ($this->booted) {
-            if ($this->debug) {
-                $this->startTime = microtime(true);
+        if (!$this->booted) {
+            if ($this->debug && !EnvironmentHelper::hasVariable('SHELL_VERBOSITY')) {
+                putenv('SHELL_VERBOSITY=1');
+                $_ENV['SHELL_VERBOSITY'] = 1;
+                $_SERVER['SHELL_VERBOSITY'] = 1;
             }
 
-            return;
-        }
-
-        if ($this->debug) {
-            $this->startTime = microtime(true);
-        }
-
-        if ($this->debug && !EnvironmentHelper::hasVariable('SHELL_VERBOSITY')) {
-            putenv('SHELL_VERBOSITY=1');
-            $_ENV['SHELL_VERBOSITY'] = 1;
-            $_SERVER['SHELL_VERBOSITY'] = 1;
-        }
-
-        try {
-            // initialize plugins before booting
-            $this->pluginLoader->initializePlugins($this->getProjectDir());
-        } catch (DBALException $e) {
-            if (\defined('\STDERR')) {
-                fwrite(\STDERR, 'Warning: Failed to load plugins. Message: ' . $e->getMessage() . \PHP_EOL);
+            try {
+                // initialize plugins before booting
+                $this->pluginLoader->initializePlugins($this->getProjectDir());
+            } catch (DBALException $e) {
+                if (\defined('\STDERR')) {
+                    fwrite(\STDERR, 'Warning: Failed to load plugins. Message: ' . $e->getMessage() . \PHP_EOL);
+                }
             }
         }
 

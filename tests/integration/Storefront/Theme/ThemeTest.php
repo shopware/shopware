@@ -516,7 +516,7 @@ class ThemeTest extends TestCase
             static::assertTrue($themeCompiled);
         } catch (ThemeCompileException $e) {
             // ignore files not found exception
-            if ($e->getMessage() !== 'Unable to compile the theme "Shopware default theme". Files could not be resolved with error: Unable to compile the theme "Storefront". Unable to load file "Resources/app/storefront/dist/storefront/storefront.js". Did you forget to build the theme? Try running ./bin/build-storefront.sh') {
+            if (!str_starts_with($e->getMessage(), 'Unable to compile the theme "Storefront - Theme-ID: ' . $childTheme->getId() . '". `~vendor/bootstrap/scss/functions` file not found for @import: src/Storefront/Resources/app/storefront/src/scss/variables.scss')) {
                 throw $e;
             }
         }
@@ -788,7 +788,7 @@ class ThemeTest extends TestCase
             );
         } catch (ThemeCompileException $e) {
             // ignore files not found exception
-            if ($e->getMessage() !== 'Unable to compile the theme "Shopware default theme". Files could not be resolved with error: Unable to compile the theme "Storefront". Unable to load file "Resources/app/storefront/dist/storefront/storefront.js". Did you forget to build the theme? Try running ./bin/build-storefront.sh') {
+            if (!str_starts_with($e->getMessage(), 'Unable to compile the theme "Storefront - Theme-ID: ' . $childTheme->getId() . '". `~vendor/bootstrap/scss/functions` file not found for @import: src/Storefront/Resources/app/storefront/src/scss/variables.scss')) {
                 throw $e;
             }
         }

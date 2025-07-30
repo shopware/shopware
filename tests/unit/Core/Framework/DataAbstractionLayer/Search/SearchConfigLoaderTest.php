@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Elasticsearch\Product;
+namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -9,10 +9,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Elasticsearch\Product\ElasticsearchProductException;
-use Shopware\Elasticsearch\Product\SearchConfigLoader;
 
 /**
  * @internal
@@ -53,8 +53,7 @@ class SearchConfigLoaderTest extends TestCase
 
     public function testLoadWithNoResult(): void
     {
-        static::expectExceptionObject(ElasticsearchProductException::configNotFound());
-        static::expectExceptionMessage('Configuration for product elasticsearch definition not found');
+        static::expectExceptionObject(DataAbstractionLayerException::configNotFound());
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())

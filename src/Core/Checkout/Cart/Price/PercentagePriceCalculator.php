@@ -7,6 +7,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -38,9 +40,25 @@ class PercentagePriceCalculator
 
         $rules = $this->percentageTaxRuleBuilder->buildCollectionRules($prices->getCalculatedTaxes(), $totalPrice);
 
-        $definition = new QuantityPriceDefinition($discount, $rules, 1);
+        if (Feature::isActive('v6.8.0.0')) {
+            $taxes = $context->getTaxState() !== CartPrice::TAX_STATE_FREE ? $prices->getCalculatedTaxes() : new CalculatedTaxCollection();
+            foreach ($taxes as $tax) {
+                $tax->setTax($this->round($tax->getTax() / 100 * $percentage, $context));
+                $tax->setPrice($this->round($tax->getPrice() / 100 * $percentage, $context));
+            }
 
-        return $this->priceCalculator->calculate($definition, $context);
+            return new CalculatedPrice(
+                $discount,
+                $discount,
+                $taxes,
+                $rules,
+            );
+        } else {
+            $definition = new QuantityPriceDefinition($discount, $rules, 1);
+
+            return $this->priceCalculator->calculate($definition, $context);
+        }
+
     }
 
     private function round(float $price, SalesChannelContext $context): float

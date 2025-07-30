@@ -54,6 +54,7 @@ export default function createLicenseViolationsService(storeService) {
             'vm',
             'next',
             'example',
+            'local',
         ];
 
         // if the user is on a allowlisted domain

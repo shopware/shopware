@@ -1,36 +1,42 @@
 @import "~scss/variables";
 
-$sw-context-menu-color-background-hover: lighten($color-shopware-brand-500, 40%);
-$sw-context-menu-color-text: $color-darkgray-200;
-$sw-context-menu-color-active: $color-shopware-brand-500;
-$sw-context-menu-color-danger: $color-crimson-500;
-$sw-context-menu-color-success: $color-emerald-500;
-$sw-context-menu-color-warning: $color-pumpkin-spice-500;
+$sw-context-menu-color-background-hover: var(--color-background-brand-default);
+$sw-context-menu-color-text: var(--color-text-primary-default);
+$sw-context-menu-color-active: var(--color-text-brand-default);
+$sw-context-menu-color-danger: var(--color-text-critical-default);
+$sw-context-menu-color-success: var(--color-text-positive-default);
+$sw-context-menu-color-warning: var(--color-text-attention-default);
 
 .sw-context-menu-item {
     display: block;
     position: relative;
-    border-radius: $border-radius-default;
+    border-radius: var(--border-radius-xs);
     margin: 0;
     width: 100%;
     text-align: start;
-    line-height: $line-height-xs;
-    padding: 4px 14px;
+    line-height: var(--font-line-height-xs);
+    padding: var(--scale-size-4) var(--scale-size-14);
     text-decoration: none;
     color: $sw-context-menu-color-text;
     outline: none;
     cursor: pointer;
 
+    &:focus-visible {
+        outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+        outline-offset: var(--scale-size-2);
+    }
+
     &.sw-context-menu-item--icon {
         display: grid;
-        grid-template-columns: 16px auto;
+        grid-template-columns: var(--scale-size-16) auto;
         align-items: center;
         justify-items: stretch;
         justify-content: stretch;
-        grid-gap: 12px;
+        grid-gap: var(--scale-size-12);
     }
 
-    &:hover {
+    &:hover,
+    &:focus-visible {
         background: $sw-context-menu-color-background-hover;
         color: $sw-context-menu-color-active;
 
@@ -46,8 +52,9 @@ $sw-context-menu-color-warning: $color-pumpkin-spice-500;
             color: $sw-context-menu-color-danger;
         }
 
-        &:hover {
-            background: lighten($sw-context-menu-color-danger, 42%);
+        &:hover,
+        &:focus-visible {
+            background: var(--color-background-critical-default);
 
             &.is--disabled {
                 color: $sw-context-menu-color-danger;
@@ -62,8 +69,9 @@ $sw-context-menu-color-warning: $color-pumpkin-spice-500;
             color: $sw-context-menu-color-success;
         }
 
-        &:hover {
-            background: lighten($sw-context-menu-color-success, 42%);
+        &:hover,
+        &:focus-visible {
+            background: var(--color-background-positive-default);
 
             &.is--disabled {
                 color: $sw-context-menu-color-success;
@@ -78,8 +86,9 @@ $sw-context-menu-color-warning: $color-pumpkin-spice-500;
             color: $sw-context-menu-color-warning;
         }
 
-        &:hover {
-            background: lighten($sw-context-menu-color-warning, 25%);
+        &:hover,
+        &:focus-visible {
+            background: var(--color-background-attention-default);
 
             &.is--disabled {
                 color: $sw-context-menu-color-warning;

@@ -43,16 +43,15 @@ class RedisCartPersister extends AbstractCartPersister
 
     public function load(string $token, SalesChannelContext $context): Cart
     {
-        /** @var string|bool|array<mixed> $value */
         $value = $this->redis->get(self::PREFIX . $token);
 
-        if ($value === false || !\is_string($value)) {
+        if (!\is_string($value)) {
             throw CartException::tokenNotFound($token);
         }
 
         try {
             $value = @\unserialize($value);
-        } catch (\Exception) {
+        } catch (\Throwable) {
             throw CartException::tokenNotFound($token);
         }
 
@@ -62,7 +61,7 @@ class RedisCartPersister extends AbstractCartPersister
 
         try {
             $content = $this->compressor->unserialize($value['content'], (int) $value['compressed']);
-        } catch (\Exception) {
+        } catch (\Throwable) {
             // When we can't decode it, we have to delete it
             throw CartException::tokenNotFound($token);
         }

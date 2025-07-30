@@ -124,8 +124,7 @@ class FlowExecutor
 
     public function executeAction(ActionSequence $sequence, StorableFlow $event): void
     {
-        $actionName = $sequence->action;
-        if (!$actionName) {
+        if (!$sequence->action) {
             return;
         }
 
@@ -141,13 +140,12 @@ class FlowExecutor
             return;
         }
 
-        $event->getFlowState()->currentSequence = $sequence;
-
-        /** @var ActionSequence $nextAction */
-        $nextAction = $sequence->nextAction;
-        if ($nextAction !== null) {
-            $this->executeAction($nextAction, $event);
+        if (!$sequence->nextAction instanceof ActionSequence) {
+            return;
         }
+
+        $event->getFlowState()->currentSequence = $sequence->nextAction;
+        $this->executeAction($sequence->nextAction, $event);
     }
 
     public function executeIf(IfSequence $sequence, StorableFlow $event): void

@@ -44,13 +44,15 @@ export default {
             this.salesChannel.typeId = this.$route.params.typeId;
             this.salesChannel.active = false;
 
-            this.setMeasurementUnits().catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('sw-sales-channel.detail.messageMeasurementUnitsSetError'),
+            this.setMeasurementUnits()
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-sales-channel.detail.messageMeasurementUnitsSetError'),
+                    });
+                })
+                .finally(() => {
+                    this.$super('createdComponent');
                 });
-            }).finally(() => {
-                this.$super('createdComponent');
-            });
         },
 
         async setMeasurementUnits() {

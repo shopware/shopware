@@ -84,7 +84,7 @@ async function createWrapper() {
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                     'sw-radio-field': await wrapTestComponent('sw-radio-field'),
-                    'mt-text-editor': true,
+                    'sw-text-editor': true,
                     'sw-search-bar': true,
                     'sw-highlight-text': true,
                     'sw-skeleton': true,

@@ -34,7 +34,7 @@ class MediaThumbnailEntity extends Entity
     {
         parent::assign($options);
 
-        if (!isset($this->mediaId) && Feature::isActive('v6.8.0.0')) {
+        if (!isset($this->mediaId)) {
             Feature::triggerDeprecationOrThrow('v6.8.0.0', '$mediaId must not be null');
         }
 

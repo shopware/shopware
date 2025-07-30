@@ -7,11 +7,8 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Migration\ColumnExistsTrait;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\V6_7\Migration1752499887UpdateAppRequestedPrivileges;
 use Shopware\Core\Migration\V6_7\Migration1753799632FixStateMachineHistoryIntegrationConstraint;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryDefinition;
 
@@ -32,7 +29,6 @@ class Migration1753799632FixStateMachineHistoryIntegrationConstraintTest extends
             $this->connection->executeStatement('
                 ALTER TABLE `state_machine_history` DROP FOREIGN KEY `fk.state_machine_history.integration_id`;
             ');
-
         } catch (\Throwable) {
         }
     }
@@ -43,8 +39,8 @@ class Migration1753799632FixStateMachineHistoryIntegrationConstraintTest extends
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $fks = $this->connection->createSchemaManager()->listTableForeignKeys(StateMachineHistoryDefinition::ENTITY_NAME);;
-        $fk = current(array_filter($fks, fn(ForeignKeyConstraint $fk) => $fk->getName() === 'fk.state_machine_history.integration_id'));
+        $fks = $this->connection->createSchemaManager()->listTableForeignKeys(StateMachineHistoryDefinition::ENTITY_NAME);
+        $fk = current(array_filter($fks, fn (ForeignKeyConstraint $fk) => $fk->getName() === 'fk.state_machine_history.integration_id'));
 
         static::assertInstanceOf(ForeignKeyConstraint::class, $fk);
         static::assertSame(ReferentialAction::SET_NULL, $fk->getOnDeleteAction());

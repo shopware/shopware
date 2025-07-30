@@ -39,11 +39,11 @@ foreach ($entities as $entity) {
 ___
 # Next Major Version Changes
 
-## Introduce new method Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::getAll
+## Remove method Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get
 
-The method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get` will be removed as it's no longer used because it only returns the first entity found, which can lead to inconsistencies when multiple items share the same entity and identifier.
-We will introduce a new method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::getAll` that returns all items with the given entity and identifier. This change ensures that all relevant items are considered, preventing potential seoUrls loss or misrepresentation.
-This will lead to the this change, if you use the method `get` in your code, you have to use the `getAll` method instead.
+The method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get` was removed as it's no longer used because it only returns the first entity found, which can lead to inconsistencies when multiple items share the same entity and identifier.
+A new method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::getAll` was introduced which returns all items with the given entity and identifier. This change ensures that all relevant items are considered, preventing potential seoUrls loss or misrepresentation.
+If you use the method `get` in your code, you have to use the `getAll` method instead.
 
 Before
 

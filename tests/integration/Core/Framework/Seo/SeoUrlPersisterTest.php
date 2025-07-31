@@ -425,6 +425,72 @@ class SeoUrlPersisterTest extends TestCase
         static::assertFalse($seoUrl->getIsDeleted());
     }
 
+    public function testUpdateSeoUrlForDifferentSalesChannelsWithSameSeoPathInfo(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $salesChannelAId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelAId, 'test a');
+
+        $salesChannelBId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelBId, 'test b');
+
+        $fk = Uuid::randomHex();
+
+        $seoUrlUpdates = [
+            [
+                'foreignKey' => $fk,
+                'salesChannelId' => $salesChannelAId,
+                'pathInfo' => 'normal/path',
+                'seoPathInfo' => 'fancy-path',
+                'isCanonical' => true,
+            ],
+        ];
+        $fks = array_column($seoUrlUpdates, 'foreignKey');
+        $this->seoUrlPersister->updateSeoUrls($context, 'r', $fks, $seoUrlUpdates, $this->salesChannel);
+
+        $seoUrlUpdates = [
+            [
+                'foreignKey' => $fk,
+                'salesChannelId' => $salesChannelBId,
+                'pathInfo' => 'normal/path',
+                'seoPathInfo' => 'fancy-path',
+                'isCanonical' => true,
+            ],
+        ];
+        $fks = array_column($seoUrlUpdates, 'foreignKey');
+        $this->seoUrlPersister->updateSeoUrls($context, 'r', $fks, $seoUrlUpdates, $this->salesChannel);
+
+        $seoUrlUpdates = [
+            [
+                'foreignKey' => $fk,
+                'salesChannelId' => $salesChannelAId,
+                'pathInfo' => 'normal/path',
+                'seoPathInfo' => 'fancy-path-2',
+                'isCanonical' => true,
+            ],
+        ];
+        $fks = array_column($seoUrlUpdates, 'foreignKey');
+        $this->seoUrlPersister->updateSeoUrls($context, 'r', $fks, $seoUrlUpdates, $this->salesChannel);
+
+        $seoUrlUpdates = [
+            [
+                'foreignKey' => $fk,
+                'salesChannelId' => $salesChannelBId,
+                'pathInfo' => 'normal/path',
+                'seoPathInfo' => 'fancy-path-2',
+                'isCanonical' => true,
+            ],
+        ];
+        $fks = array_column($seoUrlUpdates, 'foreignKey');
+        $this->seoUrlPersister->updateSeoUrls($context, 'r', $fks, $seoUrlUpdates, $this->salesChannel);
+
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('routeName', 'r'));
+        /** @var SeoUrlCollection $result */
+        $result = $this->seoUrlRepository->search($criteria, $context)->getEntities();
+        static::assertCount(4, $result);
+    }
+
     private function createCategory(bool $active): CategoryEntity
     {
         $id = Uuid::randomHex();

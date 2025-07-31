@@ -58,11 +58,11 @@ class ScriptRule extends Rule
         $lastModified = $this->lastModified ?? $scope->getCurrentTime();
         $name = $this->identifier ?? $this->getName();
 
-        $options = ['auto_reload' => true];
+        $twigOptions = ['auto_reload' => true];
         if (!$this->debug) {
-            $options['cache'] = new FilesystemCache($this->cacheDir . '/' . $name);
+            $twigOptions['cache'] = new FilesystemCache($this->cacheDir . '/' . $name);
         } else {
-            $options['debug'] = true;
+            $twigOptions['debug'] = true;
         }
 
         $script = new Script(
@@ -77,7 +77,7 @@ class ScriptRule extends Rule
             ', implode(', ', array_keys($context)), $this->script),
             $lastModified,
             null,
-            $options
+            $twigOptions,
         );
 
         $twig = new TwigEnvironment(

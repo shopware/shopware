@@ -217,7 +217,7 @@ class RemoteThumbnailLoader implements ResetInterface
                     $pattern
                 );
 
-                return str_starts_with($mediaUrl, 'http') ? ltrim($url, '/') : $url;
+                return str_starts_with($mediaPath, 'http') ? ltrim($url, '/') : $url;
             }
         );
     }

@@ -133,13 +133,12 @@ class ScriptLoader implements EventSubscriberInterface
             }, $includes);
 
             $executableScripts[$script['hook']][] = new Script(
-                $script['scriptName'],
-                $script['script'],
-                $lastModified,
-                $this->getAppInfo($script),
-                $includes,
-                [], // Twig options will be set outside of the cached scripts
-                (bool) $script['active'],
+                name: $script['scriptName'],
+                script: $script['script'],
+                lastModified: $lastModified,
+                scriptAppInformation: $this->getAppInfo($script),
+                twigOptions: $includes,
+                active: (bool) $script['active'],
             );
         }
 

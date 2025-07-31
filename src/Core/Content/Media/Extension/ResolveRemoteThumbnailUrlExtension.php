@@ -6,6 +6,7 @@ namespace Shopware\Core\Content\Media\Extension;
 
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Extensions\Extension;
 use Shopware\Core\Framework\Log\Package;
 
@@ -23,11 +24,10 @@ final class ResolveRemoteThumbnailUrlExtension extends Extension
      * @internal shopware owns the __constructor, but the properties are public API
      */
     public function __construct(
-        public MediaEntity $mediaEntity,
+        public PartialEntity|MediaEntity $mediaEntity,
         public string $mediaUrl,
         public string $width,
         public string $height,
-        public ?MediaFolderConfigurationEntity $mediaFolderConfiguration,
         public string $pattern
     ) {
     }

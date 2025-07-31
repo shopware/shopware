@@ -4,14 +4,13 @@ namespace Shopware\Core\Content\Media\Core\Application;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
-use Shopware\Core\Content\Media\AbstractMediaFolderConfigurationLoader;
-use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
 use Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -38,7 +37,6 @@ class RemoteThumbnailLoader implements ResetInterface
         private readonly Connection $connection,
         private readonly FilesystemOperator $filesystem,
         private readonly ExtensionDispatcher $extensions,
-        private readonly AbstractMediaFolderConfigurationLoader $mediaFolderConfigurationLoader,
         private readonly string $pattern = ''
     ) {
     }
@@ -74,9 +72,6 @@ class RemoteThumbnailLoader implements ResetInterface
 
             $mediaFolderId = $mediaEntity->get('mediaFolderId');
             $thumbnailSizes = $mediaThumbnailSizes[$mediaFolderId] ?? [];
-            $mediaFolderConfiguration = $mediaFolderId ? $this->mediaFolderConfigurationLoader->load(
-                $mediaEntity->get('mediaFolderId')
-            ) : null;
 
             if (empty($thumbnailSizes)) {
                 $mediaEntity->assign(['thumbnails' => new MediaThumbnailCollection()]);
@@ -90,8 +85,7 @@ class RemoteThumbnailLoader implements ResetInterface
                     $mediaEntity,
                     $baseUrl,
                     $size['width'],
-                    $size['height'],
-                    $mediaFolderConfiguration ?? null
+                    $size['height']
                 );
                 if ($url === null) {
                     continue;
@@ -188,7 +182,7 @@ class RemoteThumbnailLoader implements ResetInterface
         return \rtrim($this->filesystem->publicUrl(''), '/');
     }
 
-    private function getUrl(MediaEntity $mediaEntity, string $mediaUrl, string $width, string $height, ?MediaFolderConfigurationEntity $mediaFolderConfiguration): ?string
+    private function getUrl(PartialEntity|MediaEntity $mediaEntity, string $mediaUrl, string $width, string $height): ?string
     {
         return $this->extensions->publish(
             name: ResolveRemoteThumbnailUrlExtension::NAME,
@@ -197,15 +191,13 @@ class RemoteThumbnailLoader implements ResetInterface
                 $mediaUrl,
                 $width,
                 $height,
-                $mediaFolderConfiguration,
                 $this->pattern
             ),
             function: function (
-                MediaEntity $mediaEntity,
+                PartialEntity|MediaEntity $mediaEntity,
                 string $mediaUrl,
                 string $width,
                 string $height,
-                ?MediaFolderConfigurationEntity $mediaFolderConfiguration,
                 string $pattern
             ) {
                 $mediaPath = $mediaEntity->get('path');

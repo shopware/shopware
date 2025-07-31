@@ -42,6 +42,7 @@
                 {% block component_pagination_prev %}
                     <li class="page-item page-prev{% if currentPage == 1 %} disabled{% endif %}">
                         {% set prevPageNumber = currentPage <= 1 ? 1 : (currentPage - 1) %}
+
                         {% block component_pagination_prev_link_element %}
                             <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ prevPageNumber ~ searchQuery : '#' }}" class="page-link" data-page="{{ prevPageNumber }}" aria-label="{{ 'general.pagination.prev'|trans|striptags }}" data-focus-id="prev"{% if currentPage == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
                                 {% block component_pagination_prev_link_icon %}

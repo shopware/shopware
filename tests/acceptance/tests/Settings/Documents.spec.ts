@@ -43,6 +43,9 @@ test('As an admin, I want to create documents and make sure they contain certain
         await AdminOrderDetail.page.locator('.sw-context-menu').getByText('Mark as sent').click();
         await ShopAdmin.expects(AdminOrderDetail.contextMenu).not.toBeVisible();
         await ShopAdmin.expects(AdminOrderDetail.sentCheckmark).toBeVisible();
+        await AdminOrderDetail.page.keyboard.press('Alt+c');
+        await AdminOrderDetail.page.locator('.sw-modal').locator('.mt-button--primary').click();
+        await ShopAdmin.expects(AdminOrderDetail.page.locator('.mt-banner--positive')).toBeVisible();
         });
 
     await test.step('Log into customer account and check the order document', async () => {

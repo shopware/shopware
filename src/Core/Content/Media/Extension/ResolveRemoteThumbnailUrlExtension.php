@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Content\Media\Extension;
 
-use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Extensions\Extension;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @extends Extension<string>
+ * @extends Extension<null|string>
  *
  * @codeCoverageIgnore
  */

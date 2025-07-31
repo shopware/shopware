@@ -7,3 +7,4 @@ author_github: @scarbous
 # Core
 * Use `Shopware\Core\Content\Media\MediaEntity` in `Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension` to allow individual media handling.
 * add `mimeType` to `Shopware\Core\Content\Media\Core\Params\UrlParams` 
+* allow to skipp thumbnail by returning `null` as result through `Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension`

@@ -49,11 +49,26 @@ test('Customer gets a special product price depending on the amount of products 
     });
 
     await test.step('Testing product listing contains cheapest price @product', async () => {
-        await ShopCustomer.goesTo(StorefrontHome.url());
-        await ShopCustomer.expects(StorefrontHome.productListItems
-            .filter({ hasText: product.name })
-            .locator('.product-price-wrapper')
-        ).toContainText('From €70.00');
+        const timeoutMs = 10000;
+        const start = Date.now();
+        let found = false;
+
+        while (Date.now() - start < timeoutMs) {
+            await ShopCustomer.goesTo(StorefrontHome.url());
+            try {
+                await ShopCustomer.expects(StorefrontHome.productListItems
+                    .filter({ hasText: product.name })
+                    .locator('.product-price-wrapper')
+                ).toContainText('From €70.00');
+                found = true;
+                break;
+            } catch {
+                // Not found, will retry
+            }
+        }
+        if (!found) {
+            throw new Error('Product did not appear in listing within timeout');
+        }
         await ShopCustomer.expects(StorefrontHome.productListItems
             .filter({ hasText: product.name })
             .getByText('Details')

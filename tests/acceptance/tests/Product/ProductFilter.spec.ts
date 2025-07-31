@@ -9,6 +9,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
     CheckVisibilityInHome,
     InstanceMeta,
 }) => {
+    test.skip(InstanceMeta.isSaaS, 'See Github Issue #11628');
     test.slow(InstanceMeta.isSaaS);
     await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
     const color = await TestDataService.createColorPropertyGroup(
@@ -165,6 +166,7 @@ test('Customer should see unavailable filter options disabled when filtering by 
     CheckVisibilityInHome,
     InstanceMeta,
 }) => {
+    test.skip(InstanceMeta.isSaaS, 'See Github Issue #11628');
     test.slow(InstanceMeta.isSaaS);
     await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
     const color = await TestDataService.createColorPropertyGroup();

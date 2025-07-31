@@ -12,13 +12,14 @@ use Symfony\Component\HttpFoundation\Request;
 class AdministrationRouteScope extends AbstractRouteScope implements ApiContextRouteScopeDependant
 {
     final public const ID = 'administration';
+    final public const ALLOWED_PATH = 'admin';
 
     /**
      * @internal
      */
-    public function __construct(string $administrationPathName = 'admin')
+    public function __construct(string $administrationPathName = self::ALLOWED_PATH)
     {
-        $this->allowedPaths = [$administrationPathName, ApiRouteScope::ID];
+        $this->allowedPaths = [$administrationPathName, ApiRouteScope::ALLOWED_PATH];
     }
 
     public function isAllowed(Request $request): bool

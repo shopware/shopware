@@ -160,7 +160,7 @@ class AddWishlistProductRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $errors = $response['errors'][0];
         static::assertSame(404, $this->browser->getResponse()->getStatusCode());
-        static::assertSame('PRODUCT_PRODUCT_NOT_FOUND', $errors['code']);
+        static::assertSame('CONTENT__PRODUCT_NOT_FOUND', $errors['code']);
         static::assertSame('Not Found', $errors['title']);
         static::assertSame(\sprintf('Could not find product with id "%s"', $productId), $errors['detail']);
     }

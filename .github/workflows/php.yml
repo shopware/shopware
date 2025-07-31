@@ -274,12 +274,30 @@ jobs:
           php-version: "8.2"
 
       - name: Install Dependencies
-        run: |
-          composer install
+        run: composer install
 
       - name: Composer audit
-        run: |
-          composer audit
+        run: composer audit
+
+  composer-prefer-lowest:
+    runs-on: ubuntu-24.04
+    name: "Smoke test with lowest dependencies"
+    if: inputs.nightly == 'true'
+    steps:
+        - name: Setup Shopware
+          uses: shopware/setup-shopware@main
+          with:
+              shopware-version: ${{ github.ref }}
+              shopware-repository: ${{ github.repository }}
+
+        - name: Install lowest dependencies
+          run: composer update --prefer-lowest
+
+        - name: Generate Schema
+          run: composer run framework:schema:dump
+
+        - name: Run PHPStan as smoke test
+          run: composer phpstan
 
   php-check:
     if: always()

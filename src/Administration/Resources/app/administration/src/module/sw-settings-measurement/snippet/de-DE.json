@@ -1,29 +1,29 @@
 {
   "sw-settings-measurement": {
     "general": {
-      "mainMenuItemGeneral": "Maßeinheitensystem",
-      "description": "Modul zum Ändern der Standard-Maßeinheiten.",
-      "textHeadline": "Maßeinheitensystem"
+      "mainMenuItemGeneral": "Standard-Maße",
+      "description": "Lege Dein Maßsystem fest und definiere die für Dich am besten passenden Standard-Maßeinheiten.",
+      "textHeadline": "Standard-Maße"
     },
     "defaultUnits": {
       "title": "Standard-Einheiten",
-      "description": "Lege fest, welche Maßeinheiten standardmäßig in neuen Verkaufskanälen verwendet werden. Welche Einheiten Deine Kunden sehen, bestimmst Du in den {link}.",
-      "linkText": "Verkaufskanal-Einstellungen",
+      "description": "Hier legst Du die Standard-Maßeinheiten für neue Verkaufskanäle fest. Welche Einheiten Deine Kunden sehen, bestimmst Du in den {link} des jeweiligen Verkaufskanals.",
+      "linkText": "Grundeinstellungen",
       "config": {
-        "type": "Einheitensystem",
-        "lengthUnit": "Längeneinheit",
-        "weightUnit": "Gewichtseinheit"
+        "type": "Maßsystem",
+        "lengthUnit": "Standard-Längeneinheit",
+        "weightUnit": "Standard-Gewichtseinheit"
       }
     },
     "notification": {
-      "saveMeasurementSuccess": "Maßeinheitensystem-Einstellungen erfolgreich gespeichert",
-      "saveMeasurementError": "Fehler beim Speichern der Maßeinheitensystem-Einstellungen"
+      "saveMeasurementSuccess": "Maßeinheiten gespeichert.",
+      "saveMeasurementError": "Maßeinheiten konnten nicht gespeichert werden."
     }
   },
   "sw-privileges": {
     "permissions": {
       "measurement": {
-        "label": "Maßeinheitensystem"
+        "label": "Standard-Maße"
       }
     }
   }

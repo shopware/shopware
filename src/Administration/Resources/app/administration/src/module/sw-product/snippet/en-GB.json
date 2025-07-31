@@ -139,11 +139,11 @@
       "labelPurchaseSteps": "Purchase steps"
     },
     "measurementForm": {
-      "description": "Enter the product measurements using the units available to you. When displayed to your customers, they will be automatically converted based on the {link}.",
-      "linkText": "Sales Channel settings"
+      "description": "Enter the product measurements using the units available. The units displayed to your customers are automatically calculated according to the {link} of the respective Sales Channel.",
+      "linkText": "general settings"
     },
     "packagingForm": {
-      "description": "Define how the product is sold and packaged. This information is shown to customers in the storefront.",
+      "description": "Specify the package type and size for this product here. This information is displayed to your customers in the storefront.",
       "labelProductUnit": "Product unit",
       "placeholderSellingUnit": "e.g. 6...",
       "placeholderProductUnit": "Select product unit...",

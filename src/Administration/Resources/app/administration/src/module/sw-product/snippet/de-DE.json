@@ -139,11 +139,11 @@
       "labelPurchaseSteps": "Staffelung"
     },
     "measurementForm": {
-      "description": "Gib die Produktmaße in den Dir zur Verfügung stehenden Maßeinheiten ein. Die Anzeige für Deine Kunden wird automatisch gemäß den {link} umgerechnet.",
-      "linkText": "Verkaufskanal-Einstellungen"
+      "description": "Gib die Produktmaße in einer der zur Verfügung stehenden Maßeinheiten ein. Die Deinen Kunden angezeigten Einheiten werden automatisch gemäß den {link} des jeweiligen Verkaufskanals berechnet.",
+      "linkText": "Grundeinstellungen"
     },
     "packagingForm": {
-      "description": "Definiere, wie das Produkt verkauft und verpackt wird. Diese Informationen werden den Kunden in der Storefront angezeigt.",
+      "description": "Lege hier die Gebindeart und -größe für dieses Produkt fest. Diese Informationen werden Deinen Kunden in der Storefront angezeigt.",
       "labelProductUnit": "Produkteinheit",
       "placeholderSellingUnit": "z. B. 6 ...",
       "placeholderProductUnit": "Produkteinheit auswählen ...",

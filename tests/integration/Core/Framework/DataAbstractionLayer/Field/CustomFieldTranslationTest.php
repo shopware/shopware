@@ -568,6 +568,7 @@ class CustomFieldTranslationTest extends TestCase
                         'code' => 'x-' . $translationCodeId,
                         'territory' => $translationCodeId,
                     ],
+                    'active' => true,
                 ],
             ],
             Context::createDefaultContext()

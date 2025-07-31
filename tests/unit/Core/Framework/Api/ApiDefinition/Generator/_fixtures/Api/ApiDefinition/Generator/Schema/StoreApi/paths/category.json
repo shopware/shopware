@@ -3,7 +3,7 @@
     "info": [],
     "paths": {
         "/category": {
-            "post": {
+            "get": {
                 "tags": [
                     "Category",
                     "Endpoints supporting Criteria "
@@ -21,44 +21,35 @@
                             "type": "string",
                             "pattern": "^[0-9a-f]{32}$"
                         }
+                    },
+                    {
+                        "x-parameter-group": "test-parameter-group",
+                        "x-help": "This parameter will be replaced by the `x-parameter-groups` component content."
                     }
                 ],
-                "requestBody": {
-                    "required": false,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/Criteria"
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                },
                 "responses": {
                     "200": {
                         "description": "Entity search result containing categories.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "allOf": [
-                                        {
-                                            "type": "object",
-                                            "properties": {
-                                                "elements": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/Category"
-                                                    }
-                                                }
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": { "type": "string" },
+                                                    "name": { "type": "string" },
+                                                    "description": { "type": "string" }
+                                                },
+                                                "required": ["id", "name"]
                                             }
                                         },
-                                        {
-                                            "$ref": "#/components/schemas/EntitySearchResult"
-                                        }
-                                    ]
+                                        "total": { "type": "integer" }
+                                    },
+                                    "required": ["data", "total"]
                                 }
                             }
                         }

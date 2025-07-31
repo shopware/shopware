@@ -68,7 +68,8 @@
                         }
                     },
                     {
-                        "x-parameter-group": "criteria"
+                        "x-parameter-group": "criteria",
+                        "x-help": "This is a custom extension that will be replaced by the set of parameters defined in the components.x-parameter-groups.<groupName> (see components/parameters folder)."
                     }
                 ],
                 "responses": {

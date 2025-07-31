@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollecti
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
-use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
-use Shopware\Core\Framework\Api\Route\RouteInfo;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
@@ -137,35 +135,40 @@ class StoreApiGeneratorTest extends TestCase
         static::assertContains('apiAlias', $entities['Simple']['required']);
     }
 
-    public function testAddGetOperations(): void
+    public function testGroupsParametersParsing(): void
     {
-        $apiRouteInfoResolver = $this->createMock(ApiRouteInfoResolver::class);
-        $apiRouteInfoResolver->method('getApiRoutes')->willReturn([
-            new RouteInfo(
-                '/store-api/category',
-                ['GET', 'POST']
-            ),
-        ]);
-
-        $generator = new StoreApiGenerator(
-            new OpenApiSchemaBuilder('0.1.0'),
-            new OpenApiDefinitionSchemaBuilder(),
-            [
-                'Framework' => ['path' => __DIR__ . '/_fixtures'],
-            ],
-            new BundleSchemaPathCollection([]),
-        );
-
-        $schema = $generator->generate(
+        $schema = $this->generator->generate(
             $this->definitionRegistry->getDefinitions(),
             DefinitionService::STORE_API,
             DefinitionService::TYPE_JSON_API,
             null
         );
 
-        $paths = $schema['paths'];
+        // Assert that the schema does not contain 'x-parameter-groups' component
+        static::assertArrayHasKey('components', $schema);
+        static::assertArrayNotHasKey('x-parameter-groups', $schema['components']);
 
-        static::assertArrayHasKey('get', $paths['/category']);
-        static::assertArrayHasKey('post', $paths['/category']);
+        // Check schema
+        static::assertArrayHasKey('paths', $schema);
+        static::assertArrayHasKey('/category', $schema['paths']);
+        static::assertArrayHasKey('get', $schema['paths']['/category']);
+
+        $operation = $schema['paths']['/category']['get'];
+        static::assertArrayHasKey('parameters', $operation);
+        static::assertIsArray($operation['parameters']);
+
+        // Schema should contain all defined parameters
+        $parameterNames = array_column($operation['parameters'], 'name');
+        static::assertContains('sw-language-id', $parameterNames);
+        static::assertContains('page', $parameterNames);
+        static::assertContains('limit', $parameterNames);
+        // but not left-overs of replaced parameter groups
+        static::assertCount(3, $operation['parameters']);
+
+        foreach ($operation['parameters'] as $parameter) {
+            static::assertArrayHasKey('name', $parameter);
+            static::assertArrayHasKey('in', $parameter);
+            static::assertArrayHasKey('schema', $parameter);
+        }
     }
 }

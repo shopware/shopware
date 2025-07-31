@@ -1595,14 +1595,14 @@ class EntityRepositoryTest extends TestCase
             [
                 'id' => $ids->create('prop-1'),
                 'name' => 'test',
-                'options' => $options
-            ]
+                'options' => $options,
+            ],
         ];
 
         $repository = static::getContainer()->get('property_group.repository');
         $repository->create($data, Context::createDefaultContext());
 
-        $criteria = new Criteria([$ids->get('prop-1')]);;
+        $criteria = new Criteria([$ids->get('prop-1')]);
         $criteria->addAssociation('options');
 
         $result = $repository->search($criteria, Context::createDefaultContext());

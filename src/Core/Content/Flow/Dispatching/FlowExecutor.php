@@ -133,6 +133,7 @@ class FlowExecutor
         }
 
         $event->setConfig($sequence->config);
+        $event->getFlowState()->currentSequence = $sequence;
 
         $this->callHandle($sequence, $event);
 
@@ -144,7 +145,6 @@ class FlowExecutor
             return;
         }
 
-        $event->getFlowState()->currentSequence = $sequence->nextAction;
         $this->executeAction($sequence->nextAction, $event);
     }
 

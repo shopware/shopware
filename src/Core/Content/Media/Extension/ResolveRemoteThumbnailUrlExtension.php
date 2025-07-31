@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Content\Media\Extension;
 
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Extensions\Extension;
 use Shopware\Core\Framework\Log\Package;
@@ -23,7 +24,7 @@ final class ResolveRemoteThumbnailUrlExtension extends Extension
      * @internal shopware owns the __constructor, but the properties are public API
      */
     public function __construct(
-        public PartialEntity|MediaEntity $mediaEntity,
+        public Entity|PartialEntity|MediaEntity $mediaEntity,
         public string $mediaUrl,
         public string $width,
         public string $height,

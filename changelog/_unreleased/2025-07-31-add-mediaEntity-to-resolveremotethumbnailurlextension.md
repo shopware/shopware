@@ -1,5 +1,5 @@
 ---
-title: add mediaEntity to ResolveRemoteThumbnailUrlExtension
+title: Add MediaEntity to ResolveRemoteThumbnailUrlExtension
 author: Sascha Heilmeier
 author_email: sascha.heilmeier@netlogix.de
 author_github: @scarbous

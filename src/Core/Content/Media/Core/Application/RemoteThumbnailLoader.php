@@ -195,13 +195,13 @@ class RemoteThumbnailLoader implements ResetInterface
                 $mediaEntity,
             ),
             function: function (
-                Entity $mediaEntity,
                 string $mediaUrl,
                 string $mediaPath,
                 string $width,
                 string $height,
                 string $pattern,
-                ?\DateTimeInterface $mediaUpdatedAt
+                ?\DateTimeInterface $mediaUpdatedAt,
+                Entity $mediaEntity,
             ) {
                 $replacements = [
                     str_starts_with($mediaPath, 'http') ? '' : $mediaUrl,

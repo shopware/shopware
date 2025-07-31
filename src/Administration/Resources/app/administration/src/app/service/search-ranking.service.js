@@ -43,8 +43,11 @@ export default function createSearchRankingService() {
     const cacheModules = {};
     let cacheUserSearchConfiguration;
     let cacheDefaultUserSearchPreference;
+    let minSearchTermLength = 2;
 
     loginService.addOnLoginListener(clearCacheUserSearchConfiguration);
+
+    updateMinSearchTermLength();
 
     return {
         getSearchFieldsByEntity,
@@ -53,6 +56,8 @@ export default function createSearchRankingService() {
         buildGlobalSearchQueries,
         clearCacheUserSearchConfiguration,
         searchRankingPoint,
+        updateMinSearchTermLength,
+        isValidTerm,
     };
 
     /**
@@ -162,6 +167,21 @@ export default function createSearchRankingService() {
         cacheUserSearchConfiguration = undefined;
     }
 
+    async function updateMinSearchTermLength() {
+        try {
+            const response = await _getMinSearchTermLength();
+            minSearchTermLength = response;
+            return response;
+        } catch {
+            minSearchTermLength = 2;
+            return 2;
+        }
+    }
+
+    function isValidTerm(searchTerm) {
+        return _isValidTerm(searchTerm);
+    }
+
     /**
      * @private
      * @param {Object}
@@ -204,7 +224,11 @@ export default function createSearchRankingService() {
      * @returns {Boolean}
      */
     function _isValidTerm(searchTerm) {
-        return searchTerm && searchTerm.trim().length > 1;
+        if (!searchTerm) {
+            return false;
+        }
+
+        return searchTerm && searchTerm.trim().length >= minSearchTermLength;
     }
 
     /**
@@ -257,7 +281,7 @@ export default function createSearchRankingService() {
      */
     function _buildQueryScores(fieldScores, searchTerm) {
         let terms = searchTerm.split(' ').filter((term) => {
-            return term.length > 1;
+            return term.length >= minSearchTermLength;
         });
         terms = [...new Set(terms)];
 
@@ -350,5 +374,20 @@ export default function createSearchRankingService() {
         cacheModules[entityName] = module.manifest;
 
         return cacheModules[entityName];
+    }
+
+    /**
+     * @private
+     * @returns {Promise<number>}
+     */
+    async function _getMinSearchTermLength() {
+        const systemConfigApiService = Service('systemConfigApiService');
+
+        try {
+            const response = await systemConfigApiService.getValues('core.search');
+            return response['core.search.minSearchTermLength'] ?? 2;
+        } catch (error) {
+            return error;
+        }
     }
 }

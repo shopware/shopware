@@ -181,7 +181,7 @@ class RemoteThumbnailLoader implements ResetInterface
         return \rtrim($this->filesystem->publicUrl(''), '/');
     }
 
-    private function getUrl(Entity $mediaEntity, string $mediaUrl, string $width, string $height): ?string
+    private function getUrl(MediaEntity|PartialEntity $mediaEntity, string $mediaUrl, string $width, string $height): ?string
     {
         return $this->extensions->publish(
             name: ResolveRemoteThumbnailUrlExtension::NAME,

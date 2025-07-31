@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace Shopware\Core\Content\Media\Core\Application;
 
@@ -8,9 +9,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
 use Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension;
-use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -187,32 +186,29 @@ class RemoteThumbnailLoader implements ResetInterface
         return $this->extensions->publish(
             name: ResolveRemoteThumbnailUrlExtension::NAME,
             extension: new ResolveRemoteThumbnailUrlExtension(
-                $mediaEntity,
                 $mediaUrl,
+                $mediaEntity->get('path'),
                 $width,
                 $height,
-                $this->pattern
+                $this->pattern,
+                $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt'),
+                $mediaEntity,
             ),
             function: function (
-                Entity|PartialEntity|MediaEntity $mediaEntity,
+                Entity $mediaEntity,
                 string $mediaUrl,
+                string $mediaPath,
                 string $width,
                 string $height,
-                string $pattern
+                string $pattern,
+                ?\DateTimeInterface $mediaUpdatedAt
             ) {
-                $mediaPath = $mediaEntity->get('path');
-                $updatedAt = $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt');
-
-                if (!($updatedAt instanceof \DateTimeInterface)) {
-                    $updatedAt = null;
-                }
-
                 $replacements = [
                     str_starts_with($mediaPath, 'http') ? '' : $mediaUrl,
                     $mediaPath,
                     $width,
                     $height,
-                    (string) $updatedAt?->getTimestamp() ?: '',
+                    (string) $mediaUpdatedAt?->getTimestamp() ?: '',
                 ];
 
                 $url = str_replace(

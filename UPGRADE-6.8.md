@@ -1,4 +1,34 @@
 # 6.8.0.0
+## Introduced in 6.7.1.2
+## Remove method Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get
+
+The method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get` was removed as it's no longer used because it only returns the first entity found, which can lead to inconsistencies when multiple items share the same entity and identifier.
+A new method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::getAll` was introduced which returns all items with the given entity and identifier. This change ensures that all relevant items are considered, preventing potential seoUrls loss or misrepresentation.
+If you use the method `get` in your code, you have to use the `getAll` method instead.
+
+Before
+
+```php
+$url = 'https://example.com/cross-selling/product-123';
+// Only a single entity is retrieved
+$entity = $data->get($definition, $url->getForeignKey());
+$seoUrls = $entity->getSeoUrls();
+$seoUrls->add($url);
+```
+
+After
+
+```php
+$url = 'https://example.com/cross-selling/product-123'; 
+$entities = $data->getAll($definition, $url->getForeignKey());
+
+// Now you have to loop through all entities to add the SEO URL
+foreach ($entities as $entity) {
+    $seoUrls = $entity->getSeoUrls();
+    $seoUrls->add($url);
+}
+```
+
 ## Introduced in 6.7.1.0
 ## Use orders primary delivery and primary transaction
 For user interfaces that display only one delivery & transaction, there is now a new reference in the order for a `primaryOrderDelivery` or `primaryOrderTransaction`.

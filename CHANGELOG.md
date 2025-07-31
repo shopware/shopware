@@ -1,6 +1,19 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.7.1.2
+*  [#11371 - fix sorting order when search property values](./changelog/release-6-7-1-2/2025-07-24-fix-sorting-order-when-search-property-values.md)
+*  [#11377 - Use sw-text-editor instead of mt-text-editor](./changelog/release-6-7-1-2/2025-07-25-use-sw-text-editor-instead-of-mt-text-editor.md)
+*  [#11515 - Fix reset active apps after app deactivation](./changelog/release-6-7-1-2/2025-07-29-reset-active-apps-after-service-update.md)
+*  [#11521 - fix: improve check for visibility parameter check, fixes #11521 (backport: 6.7.1.0) (#11575)](https://github.com/shopware/shopware/issues/11521)
+*  [#11599 - Change createdComponent back to being sync](./changelog/release-6-7-1-2/2025-07-30-change-createdcomponent-back-to-being-sync.md)
+*  [10040 - Fix backward compatibility of MediaThumbnailEntity](./changelog/release-6-7-1-2/2025-07-29-fix-backward-compatibility-of-mediathumbnailentity.md)
+*  [11155 - Fix cart deserialization type error](./changelog/release-6-7-1-2/2025-07-29-fix-cart-deserialization-type-error.md)
+*  [11550 - Fix inconsistent seoUrls for cross-selling products](./changelog/release-6-7-1-2/2025-07-29-fix-inconsistent-seourls-for-cross-selling-products.md)
+*  [8018 - Move Search config loader class to Core bundle](./changelog/release-6-7-1-2/2025-07-28-move-search-config-loader-class-to-core-bundle.md)
+*  [8018 - Use minimal search term length in config tables](./changelog/release-6-7-1-2/2025-07-07-use-minimal-search-term-length-in-config-tables.md)
+*  [https://github.com/shopware/shopware/issues/11085 - Fix primary connection is not working when replica configured](./changelog/release-6-7-1-2/2025-07-29-fix-primary-connection-is-not-working-when-replica-configured.md)
+
 ## 6.7.1.1
 *  [#11483 - Don't check for canonical SEO Urls when no path info given during SEO URL creation](./changelog/release-6-7-1-1/2025-07-23-don-t-check-for-canonical-seo-urls-when-no-path-info-given.md) ([Marcus Müller](https://github.com/M-arcus))
 *  [#11513 - Fix ThemeLifecycleService refreshThemes being executed without plugin configurations](./changelog/release-6-7-1-1/2025-07-24-fix-theme-lifecycle-service-refresh-themes-without-plugins.md) ([Benjamin Wittwer](https://github.com/gecolay))

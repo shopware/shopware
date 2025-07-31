@@ -1,3 +1,34 @@
+# 6.7.1.2
+With this change, the minimal search term length is now loaded from the config table instead of being retrieved from the `.env` file.
+This allows for more flexible configuration management and ensures that the search functionality adheres to the settings defined in the database.
+## Deprecate method Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get
+
+In some occasions, the method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get` was used to retrieve a single item based on its entity and identifier. However, this method only returns the first item found, which can lead to inconsistencies when multiple items share the same entity and identifier.
+Because of this, we have introduced a new method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::getAll` that retrieves all items with the given entity and identifier. This change ensures that all relevant items are considered, preventing potential seoUrls loss or misrepresentation.
+
+Before
+
+```php
+$url = 'https://example.com/cross-selling/product-123';
+// Only a single entity is retrieved
+$entity = $data->get($definition, $url->getForeignKey());
+$seoUrls = $entity->getSeoUrls();
+$seoUrls->add($url);
+```
+
+After
+
+```php
+$url = 'https://example.com/cross-selling/product-123'; 
+$entities = $data->getAll($definition, $url->getForeignKey());
+
+// Now you have to loop through all entities to add the SEO URL
+foreach ($entities as $entity) {
+    $seoUrls = $entity->getSeoUrls();
+    $seoUrls->add($url);
+}
+```
+
 # 6.7.1.0
 
 ## Add primary delivery and primary transaction to order

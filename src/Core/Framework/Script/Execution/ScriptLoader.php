@@ -103,7 +103,7 @@ class ScriptLoader implements EventSubscriberInterface
                    `app`.`version` AS appVersion,
                    LOWER(HEX(`app`.`integration_id`)) AS integrationId,
                    IFNULL(`script`.`updated_at`, `script`.`created_at`) AS lastModified,
-                   IF(`script`.`active` AND `app`.`active`, 1, 0) AS active
+                   IF(`script`.`active` = 1 AND (`app`.id IS NULL OR `app`.`active` = 1), 1, 0) AS active
             FROM `script`
             LEFT JOIN `app` ON `script`.`app_id` = `app`.`id`
             ORDER BY `app`.`created_at`, `app`.`id`, `script`.`name`

@@ -48,6 +48,7 @@ new ViewportDetection();
 /*
 register plugins
 */
+PluginManager.register('BrokenTest', () => import('src/plugin/broken-test.plugin'), 'html');
 PluginManager.register('DateFormat', () => import('src/plugin/date-format/date-format.plugin'), '[data-date-format]');
 PluginManager.register('ScrollUp', () => import('src/plugin/scroll-up/scroll-up.plugin'), '[data-scroll-up]');
 PluginManager.register('SearchWidget', () => import('src/plugin/header/search-widget.plugin'), '[data-search-widget]');

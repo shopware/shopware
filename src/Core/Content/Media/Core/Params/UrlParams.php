@@ -25,7 +25,7 @@ class UrlParams extends Struct
             source: UrlParamsSource::MEDIA,
             path: $entity->get('path'),
             updatedAt: $entity->get('updatedAt') ?? $entity->get('createdAt'),
-            mimeType: $entity->get('mimeType') ?? null
+            mimeType: $entity->get('mimeType')
         );
     }
 

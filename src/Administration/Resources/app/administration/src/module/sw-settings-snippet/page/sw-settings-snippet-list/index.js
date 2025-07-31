@@ -433,7 +433,7 @@ export default {
         },
 
         /**
-         * @deprecated v6.8.0.0 - Will be removed without replacement
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         inlineSaveSuccessMessage(key) {
             const messageSaveSuccess = this.$tc('sw-settings-snippet.list.messageSaveSuccess', { key }, this.queryIdCount);
@@ -553,7 +553,7 @@ export default {
         },
 
         /**
-         * @deprecated v6.8.0.0 - Will be removed without replacement
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         createSuccessMessage(item) {
             const message = this.$t(

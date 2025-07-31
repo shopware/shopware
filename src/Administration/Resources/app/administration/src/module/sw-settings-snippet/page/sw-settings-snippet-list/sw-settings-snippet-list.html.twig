@@ -240,7 +240,7 @@
                                 class="sw-settings-snippet-list__delete-modal-delete-all-checkbox"
                                 :label="$t('sw-settings-snippet.list.checkboxDeleteAll', item.isCustomSnippet ? 1 : 0)"
                                 @update:checked="(checked) => modalDeleteAll = checked"
-                            ></mt-checkbox>
+                            />
 
                             {% block sw_settings_snippet_list_delete_modal_cancel %}
                             <mt-button

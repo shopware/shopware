@@ -176,4 +176,31 @@ class AppExceptionTest extends TestCase
         static::assertSame('FRAMEWORK__APP_MISSING_INTEGRATION', $e->getErrorCode());
         static::assertSame('Forbidden. Not a valid integration source.', $e->getMessage());
     }
+
+    public function testShopIdChangeSuggested(): void
+    {
+        $e = AppException::shopIdChangeSuggested(['foo', 'bar']);
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_SHOP_ID_CHANGE_SUGGESTED', $e->getErrorCode());
+        static::assertSame('Changes in your system were detected that suggest a change of the shop ID.', $e->getMessage());
+    }
+
+    public function testAppUrlNotConfigured(): void
+    {
+        $e = AppException::appUrlNotConfigured();
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_URL_NOT_CONFIGURED', $e->getErrorCode());
+        static::assertSame('The environment variable "APP_URL" is not set. Please set it to point the URL to your Admin API.', $e->getMessage());
+    }
+
+    public function testInvalidShopIdConfiguration(): void
+    {
+        $e = AppException::invalidShopIdConfiguration();
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_INVALID_SHOP_ID_CONFIGURATION', $e->getErrorCode());
+        static::assertSame('The configuration value for "core.app.shopId" in the system config is invalid.', $e->getMessage());
+    }
 }

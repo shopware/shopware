@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\Feature;
@@ -55,6 +56,9 @@ class AppException extends HttpException
     final public const REQUIRES_ADMIN_API_SOURCE = 'FRAMEWORK__APP_ACTION_REQUIRES_ADMIN_API_SOURCE';
     final public const MISSING_USER_IN_CONTEXT_SOURCE = 'FRAMEWORK__APP_MISSING_USER_IN_CONTEXT_SOURCE';
     final public const INTEGRATION_MISSING = 'FRAMEWORK__APP_MISSING_INTEGRATION';
+    final public const SHOP_ID_CHANGE_SUGGESTED = 'FRAMEWORK__APP_SHOP_ID_CHANGE_SUGGESTED';
+    final public const APP_URL_NOT_CONFIGURED = 'FRAMEWORK__APP_URL_NOT_CONFIGURED';
+    final public const INVALID_SHOP_ID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_SHOP_ID_CONFIGURATION';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -505,6 +509,32 @@ class AppException extends HttpException
             Response::HTTP_FORBIDDEN,
             self::INTEGRATION_MISSING,
             'Forbidden. Not a valid integration source.',
+        );
+    }
+
+    /**
+     * @param list<string> $mismatchingFingerprints
+     */
+    public static function shopIdChangeSuggested(array $mismatchingFingerprints): self
+    {
+        return new ShopIdChangeSuggestedException($mismatchingFingerprints);
+    }
+
+    public static function appUrlNotConfigured(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::APP_URL_NOT_CONFIGURED,
+            'The environment variable "APP_URL" is not set. Please set it to point the URL to your Admin API.'
+        );
+    }
+
+    public static function invalidShopIdConfiguration(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_SHOP_ID_CONFIGURATION,
+            'The configuration value for "core.app.shopId" in the system config is invalid.'
         );
     }
 }

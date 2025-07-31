@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\UsageData\Services;
 
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider as AppSystemShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -26,6 +27,6 @@ class ShopIdProvider
             return $this->shopIdProvider->getShopId();
         }
 
-        return $shopId['value'];
+        return ShopId::fromSystemConfig($shopId)->id;
     }
 }

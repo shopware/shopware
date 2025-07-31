@@ -263,7 +263,7 @@ export default {
                     }
                     this.createNotificationError({
                         message:
-                            this.$tc('sw-settings-snippet.detail.messageSaveError', { key: this.translationKey }, 0) +
+                            this.$t('sw-settings-snippet.detail.messageSaveError', { key: this.translationKey }) +
                             errormsg,
                     });
                 });
@@ -275,8 +275,8 @@ export default {
                 this.isInvalidKey = true;
                 return;
             }
-            this.isInvalidKey = false;
 
+            this.isInvalidKey = false;
             this.doChange();
         },
 

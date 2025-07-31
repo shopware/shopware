@@ -197,7 +197,7 @@ class RemoteThumbnailLoaderTest extends TestCase
         static::assertEmpty(ReflectionHelper::getPropertyValue($loader, 'mediaFolderThumbnailSizes'));
     }
 
-    public function testExtensionSkipThumbnail():void
+    public function testExtensionSkipThumbnail(): void
     {
         $ids = new IdsCollection();
         $filesystem = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
@@ -230,7 +230,7 @@ class RemoteThumbnailLoaderTest extends TestCase
 
         $dispatcher->addListener(
             ResolveRemoteThumbnailUrlExtension::NAME . '.pre',
-            function (ResolveRemoteThumbnailUrlExtension $event) {
+            function (ResolveRemoteThumbnailUrlExtension $event): void {
                 if ($event->width === '400') {
                     $event->result = null;
                     $event->stopPropagation();

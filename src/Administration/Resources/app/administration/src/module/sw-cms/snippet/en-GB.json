@@ -245,6 +245,8 @@
         "label": "Image",
         "config": {
           "label": {
+            "ariaLabel": "Link description",
+            "ariaLabelHelpText": "This text will be read out by screen readers as link text.",
             "minHeight": "Minimum height",
             "minHeightHelpText": "Enter the minimum height with your desired unit. For example: 200px",
             "isDecorative": "Mark images as decorative",

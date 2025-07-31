@@ -24,14 +24,14 @@ final class ResolveRemoteThumbnailUrlExtension extends Extension
     public function __construct(
         public string $mediaUrl,
         /**
-         * @deprecated tag:v6.8.0 - it is mandatory in future implementation, it could be extracted from mediaEntity in the extension function
+         * @deprecated tag:v6.8.0 - Will be removed, use the mediaEntity in the extension
          */
         public string $mediaPath,
         public string $width,
         public string $height,
         public string $pattern,
         /**
-         * @deprecated tag:v6.8.0 - it is mandatory in future implementation, it could be extracted from mediaEntity in the extension function
+         * @deprecated tag:v6.8.0 - Will be removed, use the mediaEntity in the extension
          */
         public ?\DateTimeInterface $mediaUpdatedAt,
         public Entity $mediaEntity,

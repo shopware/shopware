@@ -21,6 +21,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -1577,6 +1578,41 @@ class EntityRepositoryTest extends TestCase
                 'author' => 'test',
             ],
         ], Context::createDefaultContext());
+    }
+
+    public function testPropertyGroupOptionsBulkWrite(): void
+    {
+        $options = [];
+        for ($i = 0; $i < 100000; ++$i) {
+            $options[] = [
+                'id' => Uuid::randomHex(),
+                'name' => 'test',
+            ];
+        }
+
+        $ids = new IdsCollection();
+        $data = [
+            [
+                'id' => $ids->create('prop-1'),
+                'name' => 'test',
+                'options' => $options
+            ]
+        ];
+
+        $repository = static::getContainer()->get('property_group.repository');
+        $repository->create($data, Context::createDefaultContext());
+
+        $criteria = new Criteria([$ids->get('prop-1')]);;
+        $criteria->addAssociation('options');
+
+        $result = $repository->search($criteria, Context::createDefaultContext());
+        $group = $result->getEntities()->first();
+        static::assertInstanceOf(PropertyGroupEntity::class, $group);
+        static::assertCount($i, $group->getOptions());
+
+        $connection = static::getContainer()->get(Connection::class);
+        $dbCount = $connection->fetchOne('SELECT COUNT(*) FROM `property_group_option`');
+        static::assertSame($i, (int) $dbCount);
     }
 
     /**

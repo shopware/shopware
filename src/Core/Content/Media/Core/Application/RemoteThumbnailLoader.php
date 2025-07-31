@@ -23,7 +23,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class RemoteThumbnailLoader implements ResetInterface
 {
     /**
-     * @var ?array<string, array<array{width: string, height: string}>>
+     * @var ?array<string, array<array{media_thumbnail_size_id: string, width: string, height: string}>>
      */
     private ?array $mediaFolderThumbnailSizes = null;
 
@@ -144,7 +144,11 @@ class RemoteThumbnailLoader implements ResetInterface
 
         $entities = $this->connection->fetchAllAssociative(
             '
-            SELECT LOWER(HEX(mf.id)) as media_folder_id, LOWER(HEX(mts.id)) as media_thumbnail_size_id, mts.width, mts.height
+            SELECT
+                LOWER(HEX(mf.id)) as media_folder_id,
+                LOWER(HEX(mts.id)) as media_thumbnail_size_id,
+                mts.width,
+                mts.height
             FROM media_folder mf
             INNER JOIN media_folder_configuration mfc ON mf.media_folder_configuration_id = mfc.id
             INNER JOIN media_folder_configuration_media_thumbnail_size mfcmts ON mfcmts.media_folder_configuration_id = mfc.id

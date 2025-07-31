@@ -205,6 +205,15 @@ class RemoteThumbnailLoader implements ResetInterface
                 ?\DateTimeInterface $mediaUpdatedAt,
                 Entity $mediaEntity,
             ): string {
+                /**
+                 * @deprecated tag:v6.8.0 - remove the nullish coalescing assignment when the property $mediaPath is removed from the extension
+                 */
+                $mediaPath ??= $mediaEntity->get('path');
+                /**
+                 * @deprecated tag:v6.8.0 - remove the nullish coalescing assignment when the property $mediaUpdatedAt is removed from the extension
+                 */
+                $mediaUpdatedAt ??= $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt');
+
                 $replacements = [
                     str_starts_with($mediaPath, 'http') ? '' : $mediaUrl,
                     $mediaPath,

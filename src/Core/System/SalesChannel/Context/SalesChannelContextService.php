@@ -104,6 +104,8 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
             $this->eventDispatcher->dispatch(new SalesChannelContextCreatedEvent($context, $token, $session));
 
+            $requestSession = $this->requestStack->getMainRequest()?->hasSession() ? $this->requestStack->getMainRequest()->getSession() : null;
+
             // skip cart calculation on ESI sub-requests if it has already been done.
             $esiRequest = $this->requestStack->getCurrentRequest()?->attributes->has('_sw_esi') ?? false;
             if (!$this->cartService->hasCart($token) || !$esiRequest) {
@@ -114,8 +116,9 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
                 );
 
                 $this->cartService->setCart($result->getCart());
+                $requestSession?->set('sw-rule-ids', $result->getCart()->getRuleIds());
             } else {
-                $context->setRuleIds($this->cartService->getCart($token, $context)->getRuleIds());
+                $context->setRuleIds($requestSession?->get('sw-rule-ids') ?? []);
             }
 
             return $context;

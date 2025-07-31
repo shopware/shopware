@@ -583,12 +583,6 @@ parameters:
 			path: src/Core/Content/MailTemplate/Aggregate/MailTemplateType/MailTemplateTypeEntity.php
 
 		-
-			message: '#^Mixed variable in a `\$sliderItems\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 2
-			path: src/Core/Content/Media/Cms/Type/ImageSliderTypeDataResolver.php
-
-		-
 			message: '#^Method Shopware\\Core\\Content\\Media\\Event\\MediaFolderConfigurationIndexerEvent\:\:__construct\(\) has parameter \$ids with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1

@@ -63,6 +63,7 @@ class RemoteThumbnailLoaderTest extends TestCase
             foreach ($entity->get('thumbnails') as $thumbnail) {
                 static::assertInstanceOf(MediaThumbnailEntity::class, $thumbnail);
                 static::assertTrue(\in_array($thumbnail->get('url'), $expected['thumbnails'], true));
+                static::assertSame($ids->get('media'), $thumbnail->getMediaId());
             }
         }
     }

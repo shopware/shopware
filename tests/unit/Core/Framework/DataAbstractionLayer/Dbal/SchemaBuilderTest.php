@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateIntervalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -101,9 +102,7 @@ class SchemaBuilderTest extends TestCase
     {
         $definition = $this->registry->get(TestEntityWithSkippedFieldsDefinition::class);
 
-        $schemaBuilder = new SchemaBuilder();
-
-        $table = $schemaBuilder->buildSchemaOfDefinition($definition);
+        $table = (new SchemaBuilder())->buildSchemaOfDefinition($definition);
 
         static::assertCount(4, $table->getColumns());
 
@@ -117,15 +116,18 @@ class SchemaBuilderTest extends TestCase
 
         static::assertSame('utf8mb4', $table->getOption('charset'));
         static::assertSame('utf8mb4_unicode_ci', $table->getOption('collate'));
+
+        $pks = $table->getPrimaryKeyConstraint()->getColumnNames();
+        static::assertCount(1, $pks);
+        $firstPk = $pks[0];
+        static::assertSame('id', $firstPk->toString());
     }
 
     public function testDifferentFieldTypes(): void
     {
         $definition = $this->registry->get(TestEntityWithAllPossibleFieldsDefinition::class);
 
-        $schemaBuilder = new SchemaBuilder();
-
-        $table = $schemaBuilder->buildSchemaOfDefinition($definition);
+        $table = (new SchemaBuilder())->buildSchemaOfDefinition($definition);
 
         static::assertSame('id', $table->getPrimaryKeyConstraint()?->getColumnNames()[0]->toString());
 
@@ -263,9 +265,7 @@ class SchemaBuilderTest extends TestCase
     {
         $definition = $this->registry->get(TestEntityWithForeignKeysDefinition::class);
 
-        $schemaBuilder = new SchemaBuilder();
-
-        $table = $schemaBuilder->buildSchemaOfDefinition($definition);
+        $table = (new SchemaBuilder())->buildSchemaOfDefinition($definition);
 
         static::assertSame('id', $table->getPrimaryKeyConstraint()?->getColumnNames()[0]->toString());
 
@@ -331,7 +331,7 @@ class SchemaBuilderTest extends TestCase
 
         $schemaBuilder = new SchemaBuilder();
 
-        static::expectExceptionObject(DataAbstractionLayerException::versionFieldNotFound('product'));
+        $this->expectExceptionObject(DataAbstractionLayerException::versionFieldNotFound('product'));
         $schemaBuilder->buildSchemaOfDefinition($definition);
     }
 }
@@ -350,11 +350,25 @@ class TestEntityWithSkippedFieldsDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new NonStorageAwareField('id2'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('runtime', 'runtime'))->addFlags(new Runtime()),
             new FkField('relation_id', 'relationId', TestAssociationDefinition::class),
             new ManyToOneAssociationField('relation', 'relation_id', TestAssociationDefinition::class, 'id'),
             new TranslatedField('translated'),
+            new NonStorageAwareField('nonStorageAware'),
         ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class NonStorageAwareField extends Field
+{
+    protected function getSerializerClass(): string
+    {
+        /** @phpstan-ignore return.type (for test purpose) */
+        return '';
     }
 }
 

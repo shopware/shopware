@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\System\CustomEntity\Api\CustomEntityApiController;
@@ -38,6 +39,28 @@ class ApiRoutesHaveASchemaTest extends TestCase
         '/store-api/context/gateway' => ['data' => true],
     ];
 
+    /**
+     * @var array<class-string, string[]>
+     */
+    private const PARAMETER_TYPE_MAPPING = [
+        Criteria::class => [
+            'page',
+            'limit',
+            'term',
+            'filter',
+            'ids',
+            'query',
+            'associations',
+            'post-filter',
+            'sort',
+            'aggregations',
+            'fields',
+            'grouping',
+            'total-count-mode',
+            'includes',
+        ],
+    ];
+
     private RouteCollection $routes;
 
     protected function setUp(): void
@@ -65,7 +88,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
             null
         );
 
-        $whitelistedQueryParams = $this->buildAllowedQueryParams($schema);
+        $allowedQueryParams = $this->buildAllowedQueryParams();
 
         $schemaRoutes = $schema['paths'];
         $missingRoutes = [];
@@ -81,7 +104,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
             $path = \substr($path, \strlen('/store-api'));
             if (\array_key_exists($path, $schemaRoutes)) {
                 $this->checkExperimentalState($route, $schemaRoutes[$path]);
-                $this->checkQueryParameters($route, $schemaRoutes[$path], $whitelistedQueryParams);
+                $this->checkQueryParameters($route, $schemaRoutes[$path], $allowedQueryParams);
                 unset($schemaRoutes[$path]);
 
                 continue;
@@ -243,11 +266,11 @@ class ApiRoutesHaveASchemaTest extends TestCase
 
     /**
      * @param array<string, mixed> $schema
-     * @param array<string, array<string, true>> $whitelistedQueryParams
+     * @param array<string, array<string, true>> $allowedQueryParams
      */
-    private function checkQueryParameters(Route $route, array $schema, array $whitelistedQueryParams): void
+    private function checkQueryParameters(Route $route, array $schema, array $allowedQueryParams): void
     {
-        $allowedForRoute = $whitelistedQueryParams[$route->getPath()] ?? [];
+        $allowedForRoute = $allowedQueryParams[$route->getPath()] ?? [];
 
         foreach ($schema as $operation) {
             foreach ($operation['parameters'] ?? [] as $item) {
@@ -268,7 +291,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
                 }
 
                 static::fail(
-                    \sprintf('Route "%s" has a non-string query parameter "%s" which is not allowed. Please add it to the whitelist in ApiRoutesHaveASchemaTest.', $route->getPath(), $parameterName)
+                    \sprintf('Route "%s" has a non-string query parameter "%s" which is not allowed. Please add it to the allowed list in ApiRoutesHaveASchemaTest.', $route->getPath(), $parameterName)
                 );
             }
         }
@@ -300,17 +323,49 @@ class ApiRoutesHaveASchemaTest extends TestCase
     }
 
     /**
-     * Build the complete list of allowed query parameters by combining static params with Criteria params
-     *
-     * @param array{paths: array<string, array<string, mixed>>} $schema
+     * Build the complete list of allowed query parameters by combining static params with params from the routes.
      *
      * @return array<string, array<string, true>>
      */
-    private function buildAllowedQueryParams(array $schema): array
+    private function buildAllowedQueryParams(): array
     {
         $allowedQueryParams = self::ALLOWED_QUERY_PARAMS;
 
-        // todo: define a way to parse additional parameters like criteria (route + static list?)
+        foreach ($this->routes as $route) {
+            if (!$this->isStoreApi($route->getPath())) {
+                continue;
+            }
+
+            $controllerClass = strtok($route->getDefault('_controller') ?: '', ':');
+            $method = strtok(':');
+
+            if (!$controllerClass || !$method || !class_exists($controllerClass)) {
+                continue;
+            }
+
+            try {
+                $reflectionMethod = new \ReflectionMethod($controllerClass, $method);
+            } catch (\ReflectionException) {
+                continue;
+            }
+
+            foreach ($reflectionMethod->getParameters() as $parameter) {
+                $type = $parameter->getType();
+                if (!$type instanceof \ReflectionNamedType) {
+                    continue;
+                }
+
+                if (!isset(self::PARAMETER_TYPE_MAPPING[$type->getName()])) {
+                    continue;
+                }
+
+                $params = self::PARAMETER_TYPE_MAPPING[$type->getName()];
+
+                foreach ($params as $param) {
+                    $allowedQueryParams[$route->getPath()][$param] = true;
+                }
+            }
+        }
 
         return $allowedQueryParams;
     }

@@ -1,4 +1,4 @@
-import { test } from '@fixtures/AcceptanceTest';
+import { test, expect } from '@fixtures/AcceptanceTest';
 
 test('Customer gets a special product price depending on the amount of products bought.', {
     tag: ['@Product', '@Checkout'],
@@ -49,26 +49,14 @@ test('Customer gets a special product price depending on the amount of products 
     });
 
     await test.step('Testing product listing contains cheapest price @product', async () => {
-        const timeoutMs = 10000;
-        const start = Date.now();
-        let found = false;
-
-        while (Date.now() - start < timeoutMs) {
+        await expect(async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
-            try {
-                await ShopCustomer.expects(StorefrontHome.productListItems
-                    .filter({ hasText: product.name })
-                    .locator('.product-price-wrapper')
-                ).toContainText('From €70.00');
-                found = true;
-                break;
-            } catch {
-                // Not found, will retry
-            }
-        }
-        if (!found) {
-            throw new Error('Product did not appear in listing within timeout');
-        }
+            await ShopCustomer.expects(StorefrontHome.productListItems
+                .filter({ hasText: product.name })
+                .locator('.product-price-wrapper')
+            ).toContainText('From €70.00');
+        }).toPass();
+
         await ShopCustomer.expects(StorefrontHome.productListItems
             .filter({ hasText: product.name })
             .getByText('Details')

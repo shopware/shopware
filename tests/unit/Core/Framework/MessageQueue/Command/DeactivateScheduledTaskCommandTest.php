@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -19,7 +20,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(DeactivateScheduledTaskCommand::class)]
 class DeactivateScheduledTaskCommandTest extends TestCase
 {
-    private TaskRegistry $taskRegistry;
+    private MockObject&TaskRegistry $taskRegistry;
 
     private DeactivateScheduledTaskCommand $command;
 

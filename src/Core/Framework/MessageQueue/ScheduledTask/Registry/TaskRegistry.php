@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
@@ -102,10 +103,7 @@ class TaskRegistry
         $updates = [];
         foreach ($this->tasks as $task) {
             if (!$task instanceof ScheduledTask) {
-                throw new \RuntimeException(\sprintf(
-                    'Tried to register "%s" as scheduled task, but class does not extend ScheduledTask',
-                    $task::class
-                ));
+                throw MessageQueueException::missingExtends($task::class);
             }
 
             $registeredTask = $this->getAlreadyRegisteredTask($alreadyRegisteredTasks, $task);
@@ -242,10 +240,7 @@ class TaskRegistry
             ->first();
 
         if (!$scheduledTask instanceof ScheduledTaskEntity) {
-            throw new \RuntimeException(\sprintf(
-                'Tried to fetch "%s" scheduled task, but scheduled task does not exist',
-                $name
-            ));
+            throw MessageQueueException::notFound($name);
         }
 
         return $scheduledTask;

@@ -13,6 +13,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\Service\ResetInterface;
@@ -205,14 +206,10 @@ class RemoteThumbnailLoader implements ResetInterface
                 ?\DateTimeInterface $mediaUpdatedAt,
                 Entity $mediaEntity,
             ): string {
-                /**
-                 * @deprecated tag:v6.8.0 - remove the nullish coalescing assignment when the property $mediaPath is removed from the extension
-                 */
-                $mediaPath ??= $mediaEntity->get('path');
-                /**
-                 * @deprecated tag:v6.8.0 - remove the nullish coalescing assignment when the property $mediaUpdatedAt is removed from the extension
-                 */
-                $mediaUpdatedAt ??= $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt');
+                if (!Feature::isActive('v6.8.0.0')) {
+                    $mediaPath = $mediaEntity->get('path');
+                    $mediaUpdatedAt = $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt');
+                }
 
                 $replacements = [
                     str_starts_with($mediaPath, 'http') ? '' : $mediaUrl,

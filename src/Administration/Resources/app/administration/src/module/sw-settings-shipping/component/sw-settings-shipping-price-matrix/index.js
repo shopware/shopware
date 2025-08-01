@@ -157,14 +157,14 @@ export default {
         },
 
         quantityStepCurrencyColumns() {
-            return this.currencies.map((currency, index) => {
+            return this.currencies.map(currency => {
                 const label = currency.translated.name || currency.name;
                 return {
                     property: `quantity-step-price-${currency.isoCode}`,
                     label: this.$tc('sw-settings-shipping.priceMatrix.labelQuantityStepGrossNet', { currency: label }),
-                    visible: index === 0,
+                    visible: false,
                     allowResize: true,
-                    primary: !!currency.isSystemDefault,
+                    primary: false,
                     rawData: false,
                     width: '200px',
                 };
@@ -304,9 +304,10 @@ export default {
                 this.ruleColumns.push({
                     property: 'quantityStep',
                     label: 'sw-settings-shipping.priceMatrix.columnQuantityStep',
+                    visible: false,
                     allowResize: true,
                     rawData: true,
-                    primary: true,
+                    primary: false,
                     width: '130px',
                 });
 

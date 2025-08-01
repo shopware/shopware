@@ -132,7 +132,7 @@ class MediaApiService extends ApiService {
         });
     }
 
-    runUploads(tag) {
+    async runUploads(tag) {
         const affectedUploads = array.remove(this.uploads, (upload) => {
             return upload.uploadTag === tag;
         });
@@ -145,8 +145,13 @@ class MediaApiService extends ApiService {
         const totalUploads = affectedUploads.length;
         let successUploads = 0;
         let failureUploads = 0;
-        return Promise.all(
-            affectedUploads.map((task) => {
+        
+        const concurrentLimit = 5;
+        const results = [];
+        
+        for (let i = 0; i < affectedUploads.length; i += concurrentLimit) {
+            const chunk = affectedUploads.slice(i, i + concurrentLimit);
+            const chunkPromises = chunk.map((task) => {
                 if (task.running) {
                     return Promise.resolve();
                 }
@@ -178,8 +183,13 @@ class MediaApiService extends ApiService {
                             listener(this._createUploadEvent(UploadEvents.UPLOAD_FAILED, tag, task));
                         });
                     });
-            }),
-        );
+            });
+            
+            const chunkResults = await Promise.all(chunkPromises);
+            results.push(...chunkResults);
+        }
+        
+        return results;
     }
 
     _startUpload(task) {

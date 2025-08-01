@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.8.0 - Will be removed
+ * @deprecated tag:v6.8.0 - reason:remove-entity - Will be removed
  */
 #[Package('fundamentals@after-sales')]
 class ImportExportProfileTranslationDefinition extends EntityTranslationDefinition

@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\LanguageAware;
 use Shopware\Core\Framework\Event\MailAware;
@@ -127,6 +129,8 @@ class SendMailActionTest extends TestCase
         $context = Context::createDefaultContext();
 
         $connection = $this->createMock(Connection::class);
+        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder->method('encode')->willReturn(['encoded']);
 
         $action = new SendMailAction(
             $this->mailService,
@@ -137,7 +141,7 @@ class SendMailActionTest extends TestCase
             $this->translator,
             $connection,
             $this->languageLocaleProvider,
-            $this->createMock(JsonEntityEncoder::class),
+            $encoder,
             $this->createMock(DefinitionInstanceRegistry::class),
             $provider->updateMailTemplateTypeParam
         );
@@ -181,6 +185,12 @@ class SendMailActionTest extends TestCase
         $flow->setData(MailAware::MAIL_STRUCT, $templateData);
         $flow->setData(MailAware::SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
 
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        // needed so `_entityName` property is set correctly
+        $customer->getApiAlias();
+
+        $flow->setData(CustomerAware::CUSTOMER, $customer);
         $flow->setConfig($config);
 
         $this->entitySearchResult->expects($this->once())
@@ -231,6 +241,7 @@ class SendMailActionTest extends TestCase
                     'templateData' => [
                         'mailStruct' => $templateData,
                         'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                        'customer' => ['encoded'],
                     ],
                 ],
             ], $context);

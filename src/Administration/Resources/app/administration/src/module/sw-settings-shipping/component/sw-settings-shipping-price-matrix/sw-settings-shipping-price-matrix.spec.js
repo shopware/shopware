@@ -84,12 +84,6 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         ];
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not add conditions association', async () => {
         const wrapper = await createWrapper();
         const ruleFilterCriteria = wrapper.vm.ruleFilterCriteria;

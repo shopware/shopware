@@ -132,13 +132,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-country/page/sw-settings-country-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to view a country', async () => {
         const wrapper = await createWrapper([
             'country.viewer',

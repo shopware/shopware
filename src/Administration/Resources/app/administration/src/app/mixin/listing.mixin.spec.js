@@ -125,10 +125,6 @@ describe('src/app/mixin/listing.mixin.ts', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should call getList at created when route information are provided', async () => {
         await wrapper.unmount();
 

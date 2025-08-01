@@ -108,11 +108,6 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         privilegesService = new PrivilegesService();
     });
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not contain any privileges', async () => {
         wrapper = await createWrapper({
             privileges: [

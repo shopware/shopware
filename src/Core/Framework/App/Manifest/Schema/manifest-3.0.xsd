@@ -446,6 +446,8 @@
             <xs:element name="salutation" type="empty" minOccurs="0"/>
             <xs:element name="shipping_method" type="empty" minOccurs="0"/>
             <xs:element name="tax" type="empty" minOccurs="0"/>
+            <xs:element name="unit" type="empty" minOccurs="0"/>
+            <xs:element name="newsletter_recipient" type="empty" minOccurs="0"/>
         </xs:choice>
     </xs:complexType>
     <xs:complexType name="empty">

@@ -42,10 +42,6 @@ describe('components/data-grid/sw-data-grid-settings', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should change value of compact based on prop', async () => {
         const switchButton = wrapper.findAll('.mt-switch input');
         expect(switchButton[0].element.checked).toBe(true);

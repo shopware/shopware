@@ -103,7 +103,7 @@ class ReinstallAppsStrategyTest extends TestCase
         $appDir = __DIR__ . '/../Lifecycle/Registration/_fixtures/no-setup';
         $this->loadAppsFromDir($appDir);
 
-        $shopId = $this->changeAppUrl();
+        $shopId = $this->changeAppUrl(false);
 
         $registrationsService = $this->createMock(AppRegistrationService::class);
         $registrationsService->expects($this->never())
@@ -126,19 +126,20 @@ class ReinstallAppsStrategyTest extends TestCase
         static::assertNotSame($shopId, $this->shopIdProvider->getShopId());
     }
 
-    private function changeAppUrl(): string
+    private function changeAppUrl(bool $expectToThrow = true): string
     {
         $shopId = $this->shopIdProvider->getShopId();
 
         // create AppUrlChange
         $this->setEnvVars(['APP_URL' => 'https://test.new']);
+        $wasThrown = false;
 
         try {
             $this->shopIdProvider->getShopId();
-            static::fail('Expected exception AppUrlChangeDetectedException was not thrown');
         } catch (AppUrlChangeDetectedException) {
-            // exception is expected
+            $wasThrown = true;
         }
+        static::assertSame($expectToThrow, $wasThrown);
 
         return $shopId;
     }

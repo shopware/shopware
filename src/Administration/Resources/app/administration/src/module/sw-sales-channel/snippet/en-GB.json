@@ -44,6 +44,7 @@
       "messageSaveSuccess": "Sales Channel \"{name}\" saved.",
       "messageSaveError": "The Sales Channel \"{name}\" could not be saved. Please check your entries.",
       "messageActivateWithoutThemeError": "Sales Channel \"{name}\" could not be activated. Active Sales Channels need to have a theme associated.",
+      "messageMeasurementUnitsSetError": "Could not load system configuration for product measurements.",
       "activateDisable": "Please assign a theme before activating and saving the Sales Channel.",
       "buttonSave": "Save",
       "buttonCreateNewApiKeys": "Create new API key",

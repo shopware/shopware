@@ -66,10 +66,6 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('the card should contain the right title', async () => {
         const title = wrapper.findByText('h3', 'sw-users-permissions.roles.general.cardLabel');
         expect(title.exists()).toBe(true);

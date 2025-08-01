@@ -44,12 +44,6 @@ describe('app/plugins/deprecated.plugin', () => {
         await flushPromises();
     });
 
-    it('should test with a Vue.js component', async () => {
-        component = createComponent();
-
-        expect(component.vm).toBeTruthy();
-    });
-
     it('should not throw an error if the example component gets created', async () => {
         component = createComponent();
 

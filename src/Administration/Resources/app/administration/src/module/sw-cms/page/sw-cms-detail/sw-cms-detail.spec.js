@@ -273,13 +273,6 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         global.activeAclRoles = [];
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should disable all fields when ACL rights are missing', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

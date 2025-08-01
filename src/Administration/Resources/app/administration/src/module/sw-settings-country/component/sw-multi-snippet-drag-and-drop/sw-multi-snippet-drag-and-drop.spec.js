@@ -65,12 +65,6 @@ async function createWrapper(customPropsData = {}) {
 }
 
 describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-drop', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should emit `open-snippet-modal` when add new snippet', async () => {
         const wrapper = await createWrapper();
 

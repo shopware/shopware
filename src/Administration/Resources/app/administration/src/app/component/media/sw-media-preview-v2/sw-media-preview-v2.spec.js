@@ -38,11 +38,6 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
         );
     };
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render broken icon when file type is unknown', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({

@@ -26,14 +26,34 @@ class Migration1753191228AddMediaThumbnailSizeIdToMediaThumbnail extends Migrati
 
         $this->migrateMediaThumbnailRows($connection);
 
+        if (!$this->indexExists($connection, 'media_thumbnail', 'fk.media_thumbnail.media_thumbnail_size_id')) {
+            $connection->executeStatement('
+                ALTER TABLE `media_thumbnail`
+                ADD CONSTRAINT `fk.media_thumbnail.media_thumbnail_size_id`
+                FOREIGN KEY (`media_thumbnail_size_id`)
+                REFERENCES `media_thumbnail_size` (`id`)
+                ON DELETE SET NULL ON UPDATE CASCADE
+            ');
+        }
+
+        $this->registerIndexer($connection, 'media.indexer');
+    }
+
+    public function updateDestructive(Connection $connection): void
+    {
+        $this->migrateMediaThumbnailRows($connection);
+
+        if ($this->indexExists($connection, 'media_thumbnail', 'fk.media_thumbnail.media_thumbnail_size_id')) {
+            $connection->executeStatement('
+                ALTER TABLE `media_thumbnail`
+                DROP FOREIGN KEY `fk.media_thumbnail.media_thumbnail_size_id`
+            ');
+        }
+
         $connection->executeStatement('
             ALTER TABLE `media_thumbnail`
             MODIFY COLUMN `media_thumbnail_size_id` BINARY(16) NOT NULL
         ');
-
-        if ($this->indexExists($connection, 'media_thumbnail', 'fk.media_thumbnail.media_thumbnail_size_id')) {
-            return;
-        }
 
         $connection->executeStatement('
             ALTER TABLE `media_thumbnail`

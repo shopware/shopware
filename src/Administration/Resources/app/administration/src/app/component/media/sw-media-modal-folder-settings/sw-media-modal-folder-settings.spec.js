@@ -90,10 +90,6 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should get thumbnail sizes and unused thumbnail sizes with the correct criteria', async () => {
         const searchIds = jest.spyOn(wrapper.vm.mediaThumbnailSizeRepository, 'searchIds');
         const search = jest.spyOn(wrapper.vm.mediaThumbnailSizeRepository, 'search');

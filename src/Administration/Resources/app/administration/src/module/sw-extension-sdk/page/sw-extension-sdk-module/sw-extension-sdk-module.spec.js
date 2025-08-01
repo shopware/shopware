@@ -70,10 +70,6 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('@slow should time out without menu item after 7000ms', async () => {
         await new Promise((r) => {
             setTimeout(r, 7100);

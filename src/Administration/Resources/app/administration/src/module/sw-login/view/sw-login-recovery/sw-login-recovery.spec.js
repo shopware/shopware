@@ -76,10 +76,6 @@ describe('module/sw-login/recovery.spec.js', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should redirect on submit', async () => {
         await wrapper.get('input').setValue('test@example.com');
 

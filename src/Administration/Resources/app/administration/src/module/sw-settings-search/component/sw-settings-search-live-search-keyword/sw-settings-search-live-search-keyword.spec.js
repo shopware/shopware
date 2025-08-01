@@ -27,10 +27,6 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render no highlight keyword', async () => {
         await wrapper.setProps({
             searchTerm: 'made',

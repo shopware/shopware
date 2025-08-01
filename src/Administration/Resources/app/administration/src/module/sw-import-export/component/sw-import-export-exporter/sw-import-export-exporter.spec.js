@@ -113,10 +113,6 @@ describe('components/sw-import-export-exporter', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not show the warning when nothing is selected', async () => {
         expect(wrapper.find('.sw-import-export-exporter__variants-warning').exists()).toBeFalsy();
     });

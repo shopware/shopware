@@ -123,13 +123,6 @@ Shopware.Service().register('filterService', () => {
 });
 
 describe('module/sw-customer/page/sw-customer-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to create a new customer', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

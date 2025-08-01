@@ -91,22 +91,6 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper({
-            entityIconName: 'regular-shopping-basket',
-            entityIconColor: 'blue',
-            column: 1,
-            index: 1,
-            type: 'product',
-            item: {
-                id: 'productId',
-                name: 'Awesome Product',
-            },
-        });
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should add clicked search result into recently search stack', async () => {
         wrapper = await createWrapper({
             entityIconName: 'regular-shopping-basket',

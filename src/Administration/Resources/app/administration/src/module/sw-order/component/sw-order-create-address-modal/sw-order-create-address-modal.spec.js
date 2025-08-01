@@ -74,10 +74,6 @@ describe('src/module/sw-order/component/sw-order-create-address-modal', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should dispatch error with invalid company field', async () => {
         await wrapper.setData({
             addresses: [

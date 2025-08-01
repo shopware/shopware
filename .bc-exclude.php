@@ -27,6 +27,7 @@ return [
 
         // Incorrectly deprecated
         'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentException.* changed from self',
+        preg_quote('The return type of Shopware\Core\Content\Product\ProductException::productNotFound() changed from self|Shopware\Core\Content\Product\Exception\ProductNotFoundException to Shopware\Core\Content\Product\Exception\ProductNotFoundException', '/'),
 
         // Expected to be appended when new event is added
         preg_quote('Value of constant Shopware\Core\Framework\Webhook\Hookable', '/'),

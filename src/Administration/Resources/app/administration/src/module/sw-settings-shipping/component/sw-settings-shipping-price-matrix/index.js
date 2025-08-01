@@ -157,7 +157,7 @@ export default {
         },
 
         quantityStepCurrencyColumns() {
-            return this.currencies.map(currency => {
+            return this.currencies.map((currency) => {
                 const label = currency.translated.name || currency.name;
                 return {
                     property: `quantity-step-price-${currency.isoCode}`,

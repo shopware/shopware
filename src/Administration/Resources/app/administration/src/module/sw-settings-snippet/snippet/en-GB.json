@@ -27,6 +27,7 @@
       "labelNamespace": "Section",
       "labelNamespacePlaceholder": "Select section",
       "messageSaveError": "Snippets for \"{key}\" could not be saved.",
+      "messageSaveErrorNumericKey": "Exclusively numeric snippet keys are not allowed.",
       "messageSaveSuccess": "Snippet for \"{key}\" has been saved.",
       "textHeadline": "New snippet"
     },

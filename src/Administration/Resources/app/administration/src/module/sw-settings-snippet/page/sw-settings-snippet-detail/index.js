@@ -213,10 +213,19 @@ export default {
 
             this.isSaveable = this.checkIsSaveable();
 
+            if (!isNaN(this.translationKey)) {
+                this.isLoading = false;
+                this.createNotificationError({
+                    message: this.$t('sw-settings-snippet.detail.messageSaveErrorNumericKey'),
+                });
+
+                return;
+            }
+
             if (!this.isSaveable) {
                 this.isLoading = false;
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-snippet.detail.messageSaveError', { key: this.translationKey }, 0),
+                    message: this.$t('sw-settings-snippet.detail.messageSaveError', { key: this.translationKey }),
                 });
 
                 return;

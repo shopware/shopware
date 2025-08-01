@@ -245,7 +245,7 @@ class SendMailAction extends FlowAction implements DelayableAction
     private function sanitizeMailTemplateData(array $templateData): array
     {
         foreach ($templateData as $key => $value) {
-            if (!$value instanceof Entity || !$value->getInternalEntityName()) {
+            if (!$value instanceof Entity || empty($value->getInternalEntityName())) {
                 continue;
             }
 

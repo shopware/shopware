@@ -514,7 +514,6 @@ export default {
 
             if (this.showOnlyEdited || this.modalDeleteAll) {
                 items = Object.values(fullSelection).filter((item) => typeof item === 'object');
-                fullSelection.isCustomSnippet = true;
             } else if (this.snippetSelection !== undefined) {
                 items = Object.values(this.snippetSelection);
             } else {

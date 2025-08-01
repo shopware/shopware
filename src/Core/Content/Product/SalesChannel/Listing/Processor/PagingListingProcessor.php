@@ -71,6 +71,6 @@ class PagingListingProcessor extends AbstractListingProcessor
             $page = $request->request->has('p') ? $request->request->getInt('p') : null;
         }
 
-        return $page;
+        return $page > 0 ? $page : null;
     }
 }

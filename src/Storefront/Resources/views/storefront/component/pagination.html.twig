@@ -70,40 +70,15 @@
 
                 {% block component_pagination_prev %}
                     <li class="page-item page-prev{% if currentPage == 1 %} disabled{% endif %}">
-                        {# @deprecated tag:v6.7.0 - Pagination items will use anchor elements instead of radio inputs and labels. #}
-                        {% if feature('ACCESSIBILITY_TWEAKS') %}
-                            {% block component_pagination_prev_link_element %}
-                                <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ (currentPage - 1) ~ searchQuery : '#' }}" class="page-link" data-page="{{ currentPage - 1 }}" aria-label="{{ 'general.pagination.prev'|trans|striptags }}" data-focus-id="prev"{% if currentPage == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
-                                    {% block component_pagination_prev_link_icon %}
-                                        {% sw_icon 'arrow-medium-left' style { size: 'fluid', pack: 'solid', ariaHidden: true } %}
-                                    {% endblock %}
-                                </a>
-                            {% endblock %}
-                        {% else %}
-                            {# @deprecated tag:v6.7.0 - Block and radio input will be removed. Use new anchor element in block `component_pagination_prev_link_element` instead. #}
-                            {% block component_pagination_prev_input %}
-                                <input type="radio"
-                                       {% if currentPage == 1 %}disabled="disabled"{% endif %}
-                                       name="p"
-                                       id="p-prev{{ paginationSuffix }}"
-                                       value="{{ currentPage - 1 }}"
-                                       class="d-none"
-                                       title="pagination">
-                            {% endblock %}
+                        {% set prevPageNumber = currentPage <= 1 ? 1 : (currentPage - 1) %}
 
-                            {# @deprecated tag:v6.7.0 - Label element will be replaced by anchor element. Use block `component_pagination_prev_link_element` instead. #}
-                            {% block component_pagination_prev_label %}
-                                <label class="page-link" for="p-prev{{ paginationSuffix }}">
-                                    {# @deprecated tag:v6.7.0 - Label element will be replaced by anchor element. Use block `component_pagination_prev_link_element` instead. #}
-                                    {% block component_pagination_prev_link %}
-                                        {# @deprecated tag:v6.7.0 - Label element will be replaced by anchor element. Use block `component_pagination_prev_link_icon` instead. #}
-                                        {% block component_pagination_prev_icon %}
-                                            {% sw_icon 'arrow-medium-left' style {size: 'fluid', pack: 'solid'} %}
-                                        {% endblock %}
-                                    {% endblock %}
-                                </label>
-                            {% endblock %}
-                        {% endif %}
+                        {% block component_pagination_prev_link_element %}
+                            <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ prevPageNumber ~ searchQuery : '#' }}" class="page-link" data-page="{{ prevPageNumber }}" aria-label="{{ 'general.pagination.prev'|trans|striptags }}" data-focus-id="prev"{% if currentPage == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
+                                {% block component_pagination_prev_link_icon %}
+                                    {% sw_icon 'arrow-medium-left' style { size: 'fluid', pack: 'solid' } %}
+                                {% endblock %}
+                            </a>
+                        {% endblock %}
                     </li>
                 {% endblock %}
 
@@ -170,40 +145,14 @@
 
                 {% block component_pagination_next %}
                     <li class="page-item page-next{% if currentPage == totalPages %} disabled{% endif %}">
-                        {# @deprecated tag:v6.7.0 - Pagination items will use anchor elements instead of radio inputs and labels. #}
-                        {% if feature('ACCESSIBILITY_TWEAKS') %}
-                            {% block component_pagination_next_link_element %}
-                                <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ (currentPage + 1) ~ searchQuery : '#' }}" class="page-link" data-page="{{ currentPage + 1 }}" aria-label="{{ 'general.pagination.next'|trans|striptags }}" data-focus-id="next"{% if currentPage == totalPages %} tabindex="-1" aria-disabled="true"{% endif %}>
-                                    {% block component_pagination_next_link_icon %}
-                                        {% sw_icon 'arrow-medium-right' style { size: 'fluid', pack: 'solid', ariaHidden: true } %}
-                                    {% endblock %}
-                                </a>
-                            {% endblock %}
-                        {% else %}
-                            {# @deprecated tag:v6.7.0 - Block and radio input will be removed. Use new anchor element in block `component_pagination_next_link_element` instead. #}
-                            {% block component_pagination_next_input %}
-                                <input type="radio"
-                                       {% if currentPage == totalPages %}disabled="disabled"{% endif %}
-                                       name="p"
-                                       id="p-next{{ paginationSuffix }}"
-                                       value="{{ currentPage + 1 }}"
-                                       class="d-none"
-                                       title="pagination">
-                            {% endblock %}
-
-                            {# @deprecated tag:v6.7.0 - Label element will be replaced by anchor element. Use block `component_pagination_next_link_element` instead. #}
-                            {% block component_pagination_next_label %}
-                                <label class="page-link" for="p-next{{ paginationSuffix }}">
-                                    {# @deprecated tag:v6.7.0 - Label element will be replaced by anchor element. Use block `component_pagination_next_link_element` instead. #}
-                                    {% block component_pagination_next_link %}
-                                        {# @deprecated tag:v6.7.0 - Label element will be replaced by anchor element. Use block `component_pagination_next_link_icon` instead. #}
-                                        {% block component_pagination_next_icon %}
-                                            {% sw_icon 'arrow-medium-right' style { size: 'fluid', pack: 'solid'} %}
-                                        {% endblock %}
-                                    {% endblock %}
-                                </label>
-                            {% endblock %}
-                        {% endif %}
+                        {% block component_pagination_next_link_element %}
+                            {% set nextPageNumber = currentPage == totalPages ? totalPages : (currentPage + 1) %}
+                            <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ nextPageNumber ~ searchQuery : '#' }}" class="page-link" data-page="{{ nextPageNumber }}" aria-label="{{ 'general.pagination.next'|trans|striptags }}" data-focus-id="next"{% if currentPage == totalPages %} tabindex="-1" aria-disabled="true"{% endif %}>
+                                {% block component_pagination_next_link_icon %}
+                                    {% sw_icon 'arrow-medium-right' style { size: 'fluid', pack: 'solid' } %}
+                                {% endblock %}
+                            </a>
+                        {% endblock %}
                     </li>
                 {% endblock %}
 

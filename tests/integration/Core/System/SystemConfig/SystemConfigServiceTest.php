@@ -9,9 +9,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
-use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigMultipleChangedEvent;
-use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigMultipleChangedEvent;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
@@ -415,8 +413,7 @@ class SystemConfigServiceTest extends TestCase
         $eventDispatcher = $this->getContainer()->get('event_dispatcher');
 
         $listener = function (
-            BeforeSystemConfigChangedEvent|BeforeSystemConfigMultipleChangedEvent
-            |SystemConfigChangedEvent|SystemConfigMultipleChangedEvent|SystemConfigChangedHook $event
+            BeforeSystemConfigMultipleChangedEvent|SystemConfigMultipleChangedEvent|SystemConfigChangedHook $event
         ) use (&$dispatchedEvents): void {
             $eventClass = $event::class;
 
@@ -432,9 +429,7 @@ class SystemConfigServiceTest extends TestCase
             $dispatchedEvents[$eventClass][$scope][] = $event;
         };
 
-        $this->addEventListener($eventDispatcher, BeforeSystemConfigChangedEvent::class, $listener);
         $this->addEventListener($eventDispatcher, BeforeSystemConfigMultipleChangedEvent::class, $listener);
-        $this->addEventListener($eventDispatcher, SystemConfigChangedEvent::class, $listener);
         $this->addEventListener($eventDispatcher, SystemConfigMultipleChangedEvent::class, $listener);
         $this->addEventListener($eventDispatcher, SystemConfigChangedHook::class, $listener);
 
@@ -452,26 +447,22 @@ class SystemConfigServiceTest extends TestCase
         static::assertFalse($this->systemConfigService->getBool($configKey2, TestDefaults::SALES_CHANNEL));
 
         // Assert that the events were dispatched correctly for the global scope
-        static::assertCount(2, $dispatchedEvents[BeforeSystemConfigChangedEvent::class]['global']);
         static::assertCount(1, $dispatchedEvents[BeforeSystemConfigMultipleChangedEvent::class]['global']);
-        static::assertCount(2, $dispatchedEvents[SystemConfigChangedEvent::class]['global']);
         static::assertCount(1, $dispatchedEvents[SystemConfigMultipleChangedEvent::class]['global']);
         static::assertCount(1, $dispatchedEvents[SystemConfigChangedHook::class]['global']);
 
         // Assert that the events were dispatched correctly for the sales channel scope
-        static::assertCount(1, $dispatchedEvents[BeforeSystemConfigChangedEvent::class]['sales_channel']);
         static::assertCount(1, $dispatchedEvents[BeforeSystemConfigMultipleChangedEvent::class]['sales_channel']);
-        static::assertCount(1, $dispatchedEvents[SystemConfigChangedEvent::class]['sales_channel']);
         static::assertCount(1, $dispatchedEvents[SystemConfigMultipleChangedEvent::class]['sales_channel']);
         static::assertCount(1, $dispatchedEvents[SystemConfigChangedHook::class]['sales_channel']);
 
         // Assert content of bulk events
         $globalMultipleEvent = $dispatchedEvents[SystemConfigMultipleChangedEvent::class]['global'][0];
         static::assertInstanceOf(SystemConfigMultipleChangedEvent::class, $globalMultipleEvent);
-        static::assertEqualsCanonicalizing([$configKey1, $configKey2], array_keys($globalMultipleEvent->getConfig()));
+        static::assertEquals([$configKey1, $configKey2], array_keys($globalMultipleEvent->getConfig()));
 
         $salesChannelMultipleEvent = $dispatchedEvents[SystemConfigMultipleChangedEvent::class]['sales_channel'][0];
         static::assertInstanceOf(SystemConfigMultipleChangedEvent::class, $salesChannelMultipleEvent);
-        static::assertEquals([$configKey1], array_keys($salesChannelMultipleEvent->getConfig()));
+        static::assertEquals([$configKey1, $configKey2], array_keys($salesChannelMultipleEvent->getConfig()));
     }
 }

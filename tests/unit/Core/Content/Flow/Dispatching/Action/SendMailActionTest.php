@@ -21,7 +21,9 @@ use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
+use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
@@ -100,6 +102,8 @@ class SendMailActionTest extends TestCase
             $this->translator,
             $this->createMock(Connection::class),
             $this->languageLocaleProvider,
+            $this->createMock(JsonEntityEncoder::class),
+            $this->createMock(DefinitionInstanceRegistry::class),
             true
         );
     }
@@ -133,6 +137,8 @@ class SendMailActionTest extends TestCase
             $this->translator,
             $connection,
             $this->languageLocaleProvider,
+            $this->createMock(JsonEntityEncoder::class),
+            $this->createMock(DefinitionInstanceRegistry::class),
             $provider->updateMailTemplateTypeParam
         );
 

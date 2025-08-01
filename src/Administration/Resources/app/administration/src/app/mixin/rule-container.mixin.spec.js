@@ -68,10 +68,6 @@ describe('src/app/mixin/rule-container.mixin.ts', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should compute the correct containerRowClass with even level', () => {
         expect(wrapper.vm.containerRowClass).toEqual({
             'container-condition-level__is--even': true,

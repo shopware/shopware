@@ -70,10 +70,6 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('the data-grid should show the right columns', async () => {
         const swDataGrid = wrapper.findComponent('.sw-data-grid-stub');
         expect(swDataGrid.props().columns).toStrictEqual([

@@ -31,7 +31,10 @@ class MediaThumbnailEntity extends Entity
 
     protected ?MediaEntity $media = null;
 
-    protected string $mediaThumbnailSizeId;
+    /**
+     * @deprecated tag:v6.8.0 - Will be non-nullable
+     */
+    protected ?string $mediaThumbnailSizeId = null;
 
     protected ?MediaThumbnailSizeEntity $mediaThumbnailSize = null;
 
@@ -41,6 +44,10 @@ class MediaThumbnailEntity extends Entity
 
         if (!isset($this->mediaId)) {
             Feature::triggerDeprecationOrThrow('v6.8.0.0', '$mediaId must not be null');
+        }
+
+        if (!isset($this->mediaThumbnailSizeId)) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', '$mediaThumbnailSizeId must not be null');
         }
 
         return $this;
@@ -112,8 +119,17 @@ class MediaThumbnailEntity extends Entity
         $this->media = $media;
     }
 
-    public function getMediaThumbnailSizeId(): string
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be only string and condition will be removed
+     */
+    public function getMediaThumbnailSizeId(): ?string
     {
+        if (!isset($this->mediaThumbnailSizeId)) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', '$mediaThumbnailSizeId must not be null');
+
+            return null;
+        }
+
         return $this->mediaThumbnailSizeId;
     }
 

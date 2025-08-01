@@ -89,11 +89,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-settings-media/page/sw-settings-media', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should handle error on creation', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

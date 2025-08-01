@@ -61,6 +61,11 @@ return [
         preg_quote('CHANGED: Type of property Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#$url changed from string to string|null', '/'),
         preg_quote('CHANGED: Type of property Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#$mediaId changed from string to string|null', '/'),
 
+        // The media thumbnail size id changes have not been released
+        preg_quote('CHANGED: Type of property Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#$mediaThumbnailSizeId changed from string to string|null', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#getMediaThumbnailSizeId() changed from string to the non-covariant string|null', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#getMediaThumbnailSizeId() changed from string to string|null', '/'),
+
         // The class has not been released
         'REMOVED: Class Shopware\\\\Elasticsearch\\\\Product\\\\CachedSearchConfigLoader has been deleted',
     ],

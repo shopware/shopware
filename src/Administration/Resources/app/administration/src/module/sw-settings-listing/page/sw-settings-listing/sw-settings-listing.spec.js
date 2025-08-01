@@ -589,10 +589,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have a pagination', async () => {
         const pagination = wrapper.find('.sw-pagination');
 

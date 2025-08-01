@@ -50,11 +50,6 @@ describe('src/app/component/media/sw-media-field', () => {
         });
     }
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain the default folder in criteria', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({

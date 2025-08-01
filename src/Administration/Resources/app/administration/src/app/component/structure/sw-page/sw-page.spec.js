@@ -65,12 +65,6 @@ async function createWrapper(route = productDetailRoute) {
 }
 
 describe('src/app/component/structure/sw-page', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should use the header bottom-color specified with the headerBorderColor prop', async () => {
         const wrapper = await createWrapper({
             meta: {

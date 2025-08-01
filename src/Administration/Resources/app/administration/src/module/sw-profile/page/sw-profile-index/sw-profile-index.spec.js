@@ -74,6 +74,9 @@ async function createWrapper(privileges = []) {
                 },
                 searchRankingService: {
                     clearCacheUserSearchConfiguration: () => {},
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
                 },
                 userConfigService: {
                     upsert: () => {

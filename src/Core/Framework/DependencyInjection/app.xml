@@ -7,6 +7,7 @@
     <parameters>
         <parameter key="shopware.app_dir">%kernel.project_dir%/custom/apps</parameter>
     </parameters>
+
     <services>
         <service id="Shopware\Core\Framework\App\Manifest\ManifestFactory">
         </service>

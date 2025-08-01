@@ -8,7 +8,6 @@ use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
 use Shopware\Core\Content\Media\Core\Event\UpdateThumbnailPathEvent;
@@ -158,7 +157,7 @@ class ThumbnailService
 
         foreach ($toBeCreatedSizes as $thumbnailSize) {
             foreach ($toBeDeletedThumbnails as $thumbnail) {
-                if (!$this->isSameDimension($thumbnail, $thumbnailSize)) {
+                if ($thumbnailSize->getId() !== $thumbnail->getMediaThumbnailSizeId()) {
                     continue;
                 }
 
@@ -219,17 +218,17 @@ class ThumbnailService
             throw MediaException::mediaTypeNotLoaded($media->getId());
         }
 
-        $mapped = [];
         foreach ($sizes as $size) {
             $id = Uuid::randomHex();
 
-            $mapped[$size->getId()] = $id;
+            $thumbnailSize = $this->calculateThumbnailSize($imageSize, $size, $config);
 
             $records[] = [
                 'id' => $id,
                 'mediaId' => $media->getId(),
-                'width' => $size->getWidth(),
-                'height' => $size->getHeight(),
+                'mediaThumbnailSizeId' => $size->getId(),
+                'width' => $thumbnailSize['width'],
+                'height' => $thumbnailSize['height'],
             ];
         }
 
@@ -255,13 +254,12 @@ class ThumbnailService
         try {
             $event = new MediaPathChangedEvent($context);
 
-            foreach ($sizes as $size) {
-                $id = $mapped[$size->getId()];
-
-                $thumbnailSize = $this->calculateThumbnailSize($imageSize, $size, $config);
+            foreach ($records as $record) {
+                $thumbnailSize = ['width' => $record['width'], 'height' => $record['height']];
 
                 $thumbnail = $this->createNewImage($image, $type, $imageSize, $thumbnailSize);
 
+                $id = $record['id'];
                 $path = $paths[$id];
 
                 $this->writeThumbnail($thumbnail, $media, $path, $config->getThumbnailQuality());
@@ -514,11 +512,5 @@ class ThumbnailService
         }
 
         return $this->filesystemPublic;
-    }
-
-    private function isSameDimension(MediaThumbnailEntity $thumbnail, MediaThumbnailSizeEntity $thumbnailSize): bool
-    {
-        return $thumbnail->getWidth() === $thumbnailSize->getWidth()
-            && $thumbnail->getHeight() === $thumbnailSize->getHeight();
     }
 }

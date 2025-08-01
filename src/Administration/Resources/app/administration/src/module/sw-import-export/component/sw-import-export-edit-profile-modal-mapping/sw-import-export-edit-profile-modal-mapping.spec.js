@@ -128,13 +128,6 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper(getProfileMock());
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should sort mappings by their position', async () => {
         const mappingsInCorrectOrder = getDefaultMappingOrder();
 

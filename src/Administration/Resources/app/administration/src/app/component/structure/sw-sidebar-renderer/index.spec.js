@@ -40,12 +40,6 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render no sidebar when no sidebar is active', async () => {
         const wrapper = await createWrapper();
 

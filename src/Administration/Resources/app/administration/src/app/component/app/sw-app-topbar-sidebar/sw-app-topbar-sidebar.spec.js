@@ -26,11 +26,6 @@ const sidebar = {
 describe('sw-app-topbar-sidebar', () => {
     let wrapper = null;
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render button correctly', async () => {
         const store = Shopware.Store.get('sidebar');
         store.sidebars.push(sidebar);

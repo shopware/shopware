@@ -152,11 +152,6 @@ describe('components/data-grid/sw-data-grid', () => {
         jest.clearAllMocks();
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be in compact mode by default', async () => {
         const wrapper = await createWrapper();
 

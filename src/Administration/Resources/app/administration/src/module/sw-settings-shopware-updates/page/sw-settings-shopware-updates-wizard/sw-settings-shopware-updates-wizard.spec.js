@@ -188,10 +188,6 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         await flushPromises();
     });
 
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have three green color badges and one red one', async () => {
         const allGreenColorBadges = wrapper.findAll('.sw-color-badge.is--success');
         const allRedColorBadges = wrapper.findAll('.sw-color-badge.is--error');

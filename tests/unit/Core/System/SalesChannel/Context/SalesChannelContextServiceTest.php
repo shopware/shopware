@@ -28,6 +28,8 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySea
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 /**
  * @internal
@@ -89,7 +91,9 @@ class SalesChannelContextServiceTest extends TestCase
             )
             ->willReturn($context);
 
-        $result = new RuleLoaderResult(new Cart($expiredToken), new RuleCollection());
+        $cart = new Cart($expiredToken);
+        $cart->setRuleIds(['rule-1', 'rule-2']);
+        $result = new RuleLoaderResult($cart, new RuleCollection());
 
         $this->cartRuleLoader
             ->expects($this->once())
@@ -101,6 +105,8 @@ class SalesChannelContextServiceTest extends TestCase
             ->expects($this->once())
             ->method('setCart')
             ->with($result->getCart());
+
+        $this->setupSessionAndRequest();
 
         $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $expiredToken, Defaults::LANGUAGE_SYSTEM));
     }
@@ -127,7 +133,9 @@ class SalesChannelContextServiceTest extends TestCase
             )
             ->willReturn($context);
 
-        $result = new RuleLoaderResult(new Cart($noneExpiringToken), new RuleCollection());
+        $cart = new Cart($noneExpiringToken);
+        $cart->setRuleIds(['rule-3', 'rule-4']);
+        $result = new RuleLoaderResult($cart, new RuleCollection());
 
         $this->cartRuleLoader
             ->expects($this->once())
@@ -139,6 +147,8 @@ class SalesChannelContextServiceTest extends TestCase
             ->expects($this->once())
             ->method('setCart')
             ->with($result->getCart());
+
+        $this->setupSessionAndRequest();
 
         $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $noneExpiringToken, Defaults::LANGUAGE_SYSTEM));
     }
@@ -159,6 +169,8 @@ class SalesChannelContextServiceTest extends TestCase
         $this->eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(new SalesChannelContextCreatedEvent($context, $token, $session));
+
+        $this->setupSessionAndRequest();
 
         $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token));
     }
@@ -206,6 +218,7 @@ class SalesChannelContextServiceTest extends TestCase
                 ->method('setCart');
         }
 
+        $request->setSession(new Session(new MockArraySessionStorage()));
         $this->requestStack->push($request);
 
         $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token, Defaults::LANGUAGE_SYSTEM));
@@ -258,6 +271,8 @@ class SalesChannelContextServiceTest extends TestCase
             $this->requestStack,
         );
 
+        $this->setupSessionAndRequest();
+
         $service->get(new SalesChannelContextServiceParameters(
             TestDefaults::SALES_CHANNEL,
             $token,
@@ -266,5 +281,64 @@ class SalesChannelContextServiceTest extends TestCase
             null,
             $originalContext,
         ));
+    }
+
+    public function testESIRequestsCopyRulesFromSession(): void
+    {
+        $token = Uuid::randomHex();
+        $ruleIds = ['rule-1', 'rule-2', 'rule-3'];
+
+        $this->persister->method('load')->willReturn(['expired' => false, SalesChannelContextService::CUSTOMER_ID => Uuid::randomHex()]);
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $this->factory
+            ->expects($this->once())
+            ->method('create')
+            ->willReturn($context);
+
+        $this->cartService
+            ->expects($this->once())
+            ->method('hasCart')
+            ->with($token)
+            ->willReturn(true);
+
+        $context
+            ->expects($this->once())
+            ->method('setRuleIds')
+            ->with($ruleIds);
+
+        $this->cartRuleLoader
+            ->expects($this->never())
+            ->method('loadByToken');
+        $this->cartService
+            ->expects($this->never())
+            ->method('setCart');
+
+        $this->setupSessionAndRequest([
+            'sw-rule-ids' => $ruleIds,
+        ], [
+            '_sw_esi' => true,
+        ]);
+
+        $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token, Defaults::LANGUAGE_SYSTEM));
+    }
+
+    /**
+     * @param array<string, mixed> $sessionData
+     * @param array<string, mixed> $requestAttributes
+     */
+    private function setupSessionAndRequest(array $sessionData = [], array $requestAttributes = []): Request
+    {
+        $session = new Session(new MockArraySessionStorage());
+
+        foreach ($sessionData as $key => $value) {
+            $session->set($key, $value);
+        }
+
+        $request = new Request(attributes: $requestAttributes);
+        $request->setSession($session);
+        $this->requestStack->push($request);
+
+        return $request;
     }
 }

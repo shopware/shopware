@@ -177,12 +177,6 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         Shopware.Store.get('swProductDetail').$reset();
     });
 
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should update product main categories correctly', async () => {
         Shopware.Store.get('swProductDetail').product = { mainCategories: [] };
         const wrapper = await createWrapper();

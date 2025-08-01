@@ -49,7 +49,7 @@ class CartPersister extends AbstractCartPersister
 
         try {
             $cart = $this->compressor->unserialize($content['payload'], (int) $content['compressed']);
-        } catch (\Exception) {
+        } catch (\Throwable) {
             // When we can't decode it, we have to delete it
             throw CartException::tokenNotFound($token);
         }

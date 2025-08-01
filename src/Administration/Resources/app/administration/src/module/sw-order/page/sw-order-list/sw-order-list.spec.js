@@ -109,6 +109,9 @@ async function createWrapper() {
                     buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                         return criteria;
                     },
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
                 },
             },
             mocks: {
@@ -126,12 +129,6 @@ Shopware.Service().register('filterService', () => {
 
 describe('src/module/sw-order/page/sw-order-list', () => {
     let wrapper;
-
-    it('should be a Vue.js component', async () => {
-        global.activeAclRoles = [];
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
 
     it('should have an disabled add button', async () => {
         global.activeAclRoles = [];

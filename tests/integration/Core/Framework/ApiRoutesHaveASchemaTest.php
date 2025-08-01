@@ -9,12 +9,12 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\System\CustomEntity\Api\CustomEntityApiController;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
+use Shopware\Tests\Integration\Core\Framework\fixtures\QueryParameterAllowList;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
@@ -26,40 +26,6 @@ class ApiRoutesHaveASchemaTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SnapshotTesting;
-
-    /**
-     * Query parameters that are allowed for specific Store API routes
-     */
-    private const ALLOWED_QUERY_PARAMS = [
-        '/store-api/shipping-method' => ['onlyAvailable' => true],
-        '/store-api/checkout/cart/line-item' => ['ids' => true],
-        '/store-api/product-listing/{categoryId}' => ['p' => true],
-        '/store-api/search' => ['p' => true],
-        '/store-api/search-suggest' => ['p' => true],
-        '/store-api/context/gateway' => ['data' => true],
-    ];
-
-    /**
-     * @var array<class-string, string[]>
-     */
-    private const PARAMETER_TYPE_MAPPING = [
-        Criteria::class => [
-            'page',
-            'limit',
-            'term',
-            'filter',
-            'ids',
-            'query',
-            'associations',
-            'post-filter',
-            'sort',
-            'aggregations',
-            'fields',
-            'grouping',
-            'total-count-mode',
-            'includes',
-        ],
-    ];
 
     private RouteCollection $routes;
 
@@ -104,7 +70,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
             $path = \substr($path, \strlen('/store-api'));
             if (\array_key_exists($path, $schemaRoutes)) {
                 $this->checkExperimentalState($route, $schemaRoutes[$path]);
-                $this->checkQueryParameters($route, $schemaRoutes[$path], $allowedQueryParams);
+                $this->checkQueryParameters($route, $schemaRoutes[$path], $allowedQueryParams, $schema);
                 unset($schemaRoutes[$path]);
 
                 continue;
@@ -267,13 +233,24 @@ class ApiRoutesHaveASchemaTest extends TestCase
     /**
      * @param array<string, mixed> $schema
      * @param array<string, array<string, true>> $allowedQueryParams
+     * @param array<string, mixed> $fullSchema
      */
-    private function checkQueryParameters(Route $route, array $schema, array $allowedQueryParams): void
+    private function checkQueryParameters(Route $route, array $schema, array $allowedQueryParams, array $fullSchema): void
     {
         $allowedForRoute = $allowedQueryParams[$route->getPath()] ?? [];
 
         foreach ($schema as $operation) {
-            foreach ($operation['parameters'] ?? [] as $item) {
+            $parameters = $operation['parameters'] ?? [];
+            $resolvedParameters = [];
+            foreach ($parameters as $parameter) {
+                if (isset($parameter['$ref'])) {
+                    $resolvedParameters[] = $this->resolveRef($parameter['$ref'], $fullSchema);
+                } else {
+                    $resolvedParameters[] = $parameter;
+                }
+            }
+
+            foreach ($resolvedParameters as $item) {
                 if ($item['in'] !== 'query') {
                     continue;
                 }
@@ -329,44 +306,49 @@ class ApiRoutesHaveASchemaTest extends TestCase
      */
     private function buildAllowedQueryParams(): array
     {
-        $allowedQueryParams = self::ALLOWED_QUERY_PARAMS;
+        $allowList = QueryParameterAllowList::getQueryParameterAllowList();
 
-        foreach ($this->routes as $route) {
-            if (!$this->isStoreApi($route->getPath())) {
-                continue;
-            }
+        $groups = $allowList['groups'];
+        $routes = $allowList['allowedList'];
 
-            $controllerClass = strtok($route->getDefault('_controller') ?: '', ':');
-            $method = strtok(':');
-
-            if (!$controllerClass || !$method || !class_exists($controllerClass)) {
-                continue;
-            }
-
-            try {
-                $reflectionMethod = new \ReflectionMethod($controllerClass, $method);
-            } catch (\ReflectionException) {
-                continue;
-            }
-
-            foreach ($reflectionMethod->getParameters() as $parameter) {
-                $type = $parameter->getType();
-                if (!$type instanceof \ReflectionNamedType) {
-                    continue;
-                }
-
-                if (!isset(self::PARAMETER_TYPE_MAPPING[$type->getName()])) {
-                    continue;
-                }
-
-                $params = self::PARAMETER_TYPE_MAPPING[$type->getName()];
-
-                foreach ($params as $param) {
-                    $allowedQueryParams[$route->getPath()][$param] = true;
+        $allowedQueryParams = [];
+        foreach ($routes as $route => $params) {
+            $allowed = [];
+            foreach ($params as $param) {
+                if (str_starts_with($param, '@')) {
+                    $groupParams = $groups[substr($param, 1)];
+                    foreach ($groupParams as $p) {
+                        $allowed[$p] = true;
+                    }
+                } else {
+                    $allowed[$param] = true;
                 }
             }
+            $allowedQueryParams[$route] = $allowed;
         }
 
         return $allowedQueryParams;
+    }
+
+    /**
+     * @param array<string, mixed> $fullSchema
+     *
+     * @return array<string, mixed>
+     */
+    private function resolveRef(string $ref, array $fullSchema): array
+    {
+        $refPath = \str_replace('#/', '', $ref);
+        $parts = \explode('/', $refPath);
+
+        $current = $fullSchema;
+        foreach ($parts as $part) {
+            if (!\is_array($current) || !\array_key_exists($part, $current)) {
+                static::fail(\sprintf('Reference "%s" could not be resolved.', $ref));
+            }
+
+            $current = $current[$part];
+        }
+
+        return $current;
     }
 }

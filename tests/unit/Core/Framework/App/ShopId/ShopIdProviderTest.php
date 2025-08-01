@@ -2,10 +2,10 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\ShopId;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdChangedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdDeletedEvent;
@@ -27,7 +27,7 @@ class ShopIdProviderTest extends TestCase
         $shopIdProvider = new ShopIdProvider(
             $systemConfigService,
             $eventDispatcher,
-            $this->createMock(ActiveAppsLoader::class)
+            $this->createMock(Connection::class)
         );
 
         $shopId = $shopIdProvider->getShopId();
@@ -68,7 +68,7 @@ class ShopIdProviderTest extends TestCase
         $shopIdProvider = new ShopIdProvider(
             $systemConfigService,
             $eventDispatcher,
-            $this->createMock(ActiveAppsLoader::class)
+            $this->createMock(Connection::class)
         );
 
         $shopId = $shopIdProvider->getShopId();
@@ -89,13 +89,13 @@ class ShopIdProviderTest extends TestCase
             ],
         ]);
 
-        $activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
-        $activeAppsLoader->method('getActiveApps')->willReturn(['123']);
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchOne')->willReturn(1);
 
         $shopIdProvider = new ShopIdProvider(
             $systemConfigService,
             new CollectingEventDispatcher(),
-            $activeAppsLoader
+            $connection
         );
 
         static::expectException(AppUrlChangeDetectedException::class);
@@ -115,12 +115,15 @@ class ShopIdProviderTest extends TestCase
             ],
         ]);
 
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchOne')->willReturn(0);
+
         $eventDispatcher = new CollectingEventDispatcher();
 
         $shopIdProvider = new ShopIdProvider(
             $systemConfigService,
             $eventDispatcher,
-            $this->createMock(ActiveAppsLoader::class)
+            $connection,
         );
 
         $result = $shopIdProvider->getShopId();
@@ -159,7 +162,7 @@ class ShopIdProviderTest extends TestCase
         $shopIdProvider = new ShopIdProvider(
             $systemConfigService,
             $eventDispatcher,
-            $this->createMock(ActiveAppsLoader::class)
+            $this->createMock(Connection::class)
         );
 
         static::assertNotNull($systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));

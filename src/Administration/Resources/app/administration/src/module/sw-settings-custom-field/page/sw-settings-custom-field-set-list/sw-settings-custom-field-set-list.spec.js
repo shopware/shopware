@@ -76,7 +76,11 @@ async function createWrapper(privileges = []) {
                         Mixin.getByName('sw-inline-snippet'),
                         Mixin.getByName('discard-detail-page-changes')('set'),
                     ],
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
                 stubs: {
                     'sw-page': {

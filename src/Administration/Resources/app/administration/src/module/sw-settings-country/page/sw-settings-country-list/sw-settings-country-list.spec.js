@@ -66,7 +66,11 @@ async function createWrapper(privileges = []) {
                     feature: {
                         isActive: () => true,
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
 
                 stubs: {

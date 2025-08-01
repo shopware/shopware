@@ -280,6 +280,9 @@ async function createWrapper() {
                         buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                             return criteria;
                         },
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
                     },
                     filterFactory: {
                         create: () => [],

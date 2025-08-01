@@ -65,7 +65,11 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                             return privileges.includes(identifier);
                         },
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                     systemConfigApiService: {
                         getConfig: () =>
                             Promise.resolve({

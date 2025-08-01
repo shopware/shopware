@@ -79,7 +79,11 @@ async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5],
                     },
                 },
                 mediaService: {},
-                searchRankingService: {},
+                searchRankingService: {
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
             },
         },
     });

@@ -54,7 +54,11 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
         global: {
             provide: {
                 repositoryFactory: repositoryFactoryMock,
-                searchRankingService: {},
+                searchRankingService: {
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
                 configService: {
                     getConfig: () =>
                         Promise.resolve({

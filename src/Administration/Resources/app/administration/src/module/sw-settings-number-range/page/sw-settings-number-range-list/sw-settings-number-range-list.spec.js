@@ -38,7 +38,11 @@ async function createWrapper(privileges = []) {
                     acl: {
                         can: (key) => (key ? privileges.includes(key) : true),
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
                 stubs: {
                     'sw-page': {

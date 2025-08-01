@@ -210,6 +210,9 @@ async function createWrapper() {
                         buildSearchQueriesForEntity: () => {
                             return null;
                         },
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
                     },
                     mediaService: {
                         getDefaultFolderId: () => {

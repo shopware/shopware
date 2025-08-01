@@ -54,7 +54,11 @@ async function createWrapper(privileges = []) {
                         return allowEdit ? this.$tc('global.default.edit') : this.$tc('global.default.view');
                     },
 
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
                 stubs: {
                     'sw-page': {

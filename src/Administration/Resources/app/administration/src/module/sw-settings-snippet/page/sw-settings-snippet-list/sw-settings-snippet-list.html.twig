@@ -190,7 +190,7 @@
 
                         {% block sw_settings_snippet_list_delete_modal_grid %}
                         <sw-grid
-                            v-if="resetItems.length > 1 && !modalDeleteAll"
+                            v-if="resetItems.length > 0 && !modalDeleteAll"
                             class="sw-settings-snippet-list__delete-modal-grid"
                             :items="resetItems"
                             table

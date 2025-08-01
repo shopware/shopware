@@ -323,7 +323,7 @@ export default {
                 const content = items.reduce((acc, item) => {
                     item.resetTo = item.value;
                     acc[item.setId] = item;
-                    acc.isCustomSnippet = item.author.includes('user/');
+                    acc.isCustomSnippet = item.author.includes('user/') || item.author.length < 1;
                     return acc;
                 }, {});
                 content.id = items[0].translationKey;

@@ -537,18 +537,16 @@ export default {
                 item.isCustomSnippet = fullSelection.isCustomSnippet;
                 this.isLoading = true;
 
-                promises.push(this.snippetRepository
-                    .delete(item.id)
-                    .catch(() => {
+                promises.push(
+                    this.snippetRepository.delete(item.id).catch(() => {
                         this.createResetErrorNote(item);
                     }),
                 );
 
-                Promise.all(promises)
-                    .finally(() => {
-                        this.isLoading = false;
-                        this.getList();
-                    });
+                Promise.all(promises).finally(() => {
+                    this.isLoading = false;
+                    this.getList();
+                });
             });
         },
 

@@ -206,7 +206,7 @@ class RemoteThumbnailLoader implements ResetInterface
                 ?\DateTimeInterface $mediaUpdatedAt,
                 Entity $mediaEntity,
             ): string {
-                if (!Feature::isActive('v6.8.0.0')) {
+                if (Feature::isActive('v6.8.0.0')) {
                     $mediaPath = $mediaEntity->get('path');
                     $mediaUpdatedAt = $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt');
                 }

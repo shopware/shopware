@@ -213,6 +213,7 @@ export default {
 
             this.isSaveable = this.checkIsSaveable();
 
+            // eslint-disable-next-line no-restricted-globals
             if (!isNaN(this.translationKey)) {
                 this.isLoading = false;
                 this.createNotificationError({

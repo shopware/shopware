@@ -12,7 +12,6 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
-use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
@@ -111,13 +110,13 @@ class ThemeCompilerTest extends TestCase
 
     public function testThemeCompileExceptionIsThrownWhenFilesAreNotResolved(): void
     {
-        $this->themeFileResolver->method('resolveFiles')->willThrowException(new InvalidArgumentException());
+        $this->themeFileResolver->method('resolveStyleFiles')->willThrowException(new \InvalidArgumentException());
         $compiler = $this->getThemeCompiler();
 
         $config = new StorefrontPluginConfiguration('test');
         $config->setName('faultyTheme');
 
-        static::expectExceptionObject(new ThemeCompileException('faultyTheme'));
+        $this->expectExceptionObject(new ThemeCompileException('faultyTheme'));
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,
             'test',
@@ -749,6 +748,43 @@ PHP_EOL,
         static::assertTrue($this->filesystem->fileExists($asyncMainJsInTheme));
         static::assertTrue($this->filesystem->fileExists($asyncAnotherJsFileInTheme));
         static::assertTrue($this->filesystem->fileExists($themeMainJsInTheme));
+    }
+
+    public function testKeepConfigurationCollectionWithGetScriptDistFolders(): void
+    {
+        $compiler = $this->getThemeCompiler();
+
+        $configurationFactory = new StorefrontPluginConfigurationFactory(
+            $this->createMock(KernelPluginLoader::class),
+            new StaticSourceResolver([])
+        );
+
+        $themePluginBundle = new TestTheme();
+        $testTheme = $configurationFactory->createFromBundle($themePluginBundle);
+
+        $configCollection = new StorefrontPluginConfigurationCollection();
+        $configCollection->add($testTheme);
+
+        $testTheme->setScriptFiles(
+            FileCollection::createFromArray([
+                'Resources/app/storefront/src/plugins/lorem-ipsum/plugin.js',
+                '@Storefront',
+            ])
+        );
+
+        $currentConfigCollection = clone $configCollection;
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'TestTheme',
+            $testTheme,
+            $configCollection,
+            true,
+            Context::createDefaultContext()
+        );
+
+        // There should be no side effects on the configuration collection
+        static::assertEquals($currentConfigCollection, $configCollection);
     }
 
     /**

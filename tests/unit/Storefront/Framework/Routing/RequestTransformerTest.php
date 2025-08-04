@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\AbstractSeoResolver;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Storefront\Framework\Routing\AbstractDomainLoader;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
@@ -66,58 +67,58 @@ class RequestTransformerTest extends TestCase
     public static function notRequiredSalesChannelProvider(): iterable
     {
         yield 'Default case' => [
-            'registeredApiPrefixes' => ['api'],
+            'registeredApiPrefixes' => [ApiRouteScope::ID],
             'requestUri' => 'http://shopware.com/api',
         ];
 
         yield 'Case with trailing slash' => [
-            'registeredApiPrefixes' => ['api'],
+            'registeredApiPrefixes' => [ApiRouteScope::ID],
             'requestUri' => 'http://shopware.com/api/',
         ];
 
         yield 'Case with double leading slashes' => [
-            'registeredApiPrefixes' => ['api'],
+            'registeredApiPrefixes' => [ApiRouteScope::ID],
             'requestUri' => 'http://shopware.com//api',
         ];
 
         yield 'Case with double trailing slashes' => [
-            'registeredApiPrefixes' => ['api'],
+            'registeredApiPrefixes' => [ApiRouteScope::ID],
             'requestUri' => 'http://shopware.com/api//',
         ];
 
         yield 'Case with double leading and trailing slashes' => [
-            'registeredApiPrefixes' => ['api'],
+            'registeredApiPrefixes' => [ApiRouteScope::ID],
             'requestUri' => 'http://shopware.com//api//',
         ];
 
         // Allowedlist paths:
         yield '_wdt case' => [
-            'registeredApiPrefixes' => ['api'],
+            'registeredApiPrefixes' => [ApiRouteScope::ID],
             'requestUri' => 'http://shopware.com/_wdt/',
         ];
 
         yield '_profiler case' => [
-            'registeredApiPrefixes' => ['api'],
+            'registeredApiPrefixes' => [ApiRouteScope::ID],
             'requestUri' => 'http://shopware.com/_profiler/',
         ];
 
         yield '_error case' => [
-            'registeredApiPrefixes' => ['api'],
+            'registeredApiPrefixes' => [ApiRouteScope::ID],
             'requestUri' => 'http://shopware.com/_error/',
         ];
 
         yield 'payment finalize-transaction case' => [
-            'registeredApiPrefixes' => ['api'],
+            'registeredApiPrefixes' => [ApiRouteScope::ID],
             'requestUri' => 'http://shopware.com/payment/finalize-transaction/',
         ];
 
         yield 'installer case' => [
-            'registeredApiPrefixes' => ['api'],
+            'registeredApiPrefixes' => [ApiRouteScope::ID],
             'requestUri' => 'http://shopware.com/installer',
         ];
 
         yield '_fragment case' => [
-            'registeredApiPrefixes' => ['api'],
+            'registeredApiPrefixes' => [ApiRouteScope::ID],
             'requestUri' => 'http://shopware.com/_fragment/',
         ];
     }

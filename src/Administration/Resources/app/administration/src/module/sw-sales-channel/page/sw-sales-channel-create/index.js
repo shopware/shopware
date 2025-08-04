@@ -31,12 +31,10 @@ export default {
     },
 
     methods: {
-        async createdComponent() {
+        createdComponent() {
             if (!this.$route.params.typeId) {
                 return;
             }
-
-            const measurementUnits = await this.getMeasurementUnits();
 
             if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
                 Shopware.Store.get('context').resetLanguageToDefault();
@@ -45,6 +43,21 @@ export default {
             this.salesChannel = this.salesChannelRepository.create();
             this.salesChannel.typeId = this.$route.params.typeId;
             this.salesChannel.active = false;
+
+            this.setMeasurementUnits()
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-sales-channel.detail.messageMeasurementUnitsSetError'),
+                    });
+                })
+                .finally(() => {
+                    this.$super('createdComponent');
+                });
+        },
+
+        async setMeasurementUnits() {
+            const measurementUnits = await this.getMeasurementUnits();
+
             this.salesChannel.measurementUnits = {
                 system: measurementUnits['core.measurementUnits.system'],
                 units: {
@@ -52,8 +65,6 @@ export default {
                     weight: measurementUnits['core.measurementUnits.weight'],
                 },
             };
-
-            this.$super('createdComponent');
         },
 
         saveFinish() {

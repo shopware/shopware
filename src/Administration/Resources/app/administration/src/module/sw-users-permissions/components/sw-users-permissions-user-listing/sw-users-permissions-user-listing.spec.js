@@ -28,7 +28,11 @@ async function createWrapper(privileges = []) {
                         }),
                     },
                     loginService: {},
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
                 mocks: {
                     $route: { query: '' },
@@ -64,10 +68,6 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('the data-grid should show the right columns', async () => {

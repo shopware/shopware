@@ -110,7 +110,7 @@ class ThemeRuntimeConfigService
         $scriptFiles = null;
         try {
             // will throw an exception if theme was not built yet
-            $scriptFiles = $this->resolveJs($themeConfig, $configCollection);
+            $scriptFiles = $this->themeFileResolver->resolveScriptFiles($themeConfig, $configCollection, false)->getPublicPaths('js');
         } catch (ThemeCompileException|AppException $e) {
             $failOnFileResolveError && throw $e;
         }
@@ -217,16 +217,6 @@ class ThemeRuntimeConfigService
         }
 
         return $iconConfig;
-    }
-
-    /**
-     * @return array<string>
-     */
-    private function resolveJs(StorefrontPluginConfiguration $themeConfig, StorefrontPluginConfigurationCollection $configCollection): array
-    {
-        $resolvedFiles = $this->themeFileResolver->resolveFiles($themeConfig, $configCollection, false);
-
-        return $resolvedFiles[ThemeFileResolver::SCRIPT_FILES]->getPublicPaths('js');
     }
 
     private function generateRuntimeConfigById(string $themeId, bool $failOnFileResolve = false): ?ThemeRuntimeConfig

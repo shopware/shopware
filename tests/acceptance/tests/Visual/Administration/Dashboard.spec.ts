@@ -1,25 +1,23 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
+import { replaceElements, hideElements, setViewport } from '@shopware-ag/acceptance-test-suite';
 
-test('Administration dashboard', { tag: '@Visual' }, async ({ 
-    ShopAdmin, 
+test('Administration dashboard', { tag: '@Visual' }, async ({
+    ShopAdmin,
     AdminDashboard,
-    ReplaceElementsForScreenshot,
-    HideElementsForScreenshot,
  }) => {
     await test.step('Creates a screenshot of the Administration dashboard.', async () => {
-        await ShopAdmin.goesTo(AdminDashboard.url()),
-        await AdminDashboard.page.waitForLoadState('load');
-        await AdminDashboard.page.setViewportSize({ width: 1440, height: 2300 });
-
-        await ReplaceElementsForScreenshot(AdminDashboard.page, [
-            '.sw-dashboard-index__welcome-text',
-            '.mt-card__subtitle',
+        await ShopAdmin.goesTo(AdminDashboard.url());
+        await setViewport(AdminDashboard.page, {
+            contentHeight: 2646,
+        });
+        await replaceElements(AdminDashboard.page, [
+            AdminDashboard.welcomeHeadline,
+            AdminDashboard.welcomeMessage,
+            AdminDashboard.statisticsDateRange,
         ]);
-
-        await HideElementsForScreenshot(AdminDashboard.page, [
-            '.apexcharts-xaxis-texts-g',
+        await hideElements(AdminDashboard.page, [
+            AdminDashboard.statisticsChart,
         ]);
-
-        await expect(AdminDashboard.page.locator('.sw-desktop__content')).toHaveScreenshot('Dashboard.png');
-    }); 
+        await expect(AdminDashboard.contentView).toHaveScreenshot('Dashboard.png');
+    });
 });

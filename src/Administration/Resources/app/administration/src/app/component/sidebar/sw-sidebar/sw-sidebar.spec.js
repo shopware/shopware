@@ -76,7 +76,7 @@ describe('src/app/component/sidebar/sw-sidebar/index.js', () => {
         expect(firstSidebarItemContent.text()).toBe('The content of the first sidebar item');
 
         // Close the sidebar
-        const closeButton = await wrapper.find('button[aria-label="closeContent"]');
+        const closeButton = await wrapper.find('button[aria-label="sw-sidebar.ariaLabelButtonClose"]');
         await closeButton.trigger('click');
 
         // Check if the content of the first sidebar item is not visible

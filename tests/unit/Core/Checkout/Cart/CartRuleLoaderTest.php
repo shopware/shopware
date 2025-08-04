@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartFactory;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\Extension\CheckoutCartRuleLoaderExtension;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\RuleLoader;
@@ -21,11 +22,13 @@ use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**
@@ -77,6 +80,12 @@ class CartRuleLoaderTest extends TestCase
             ->with($salesChannelContext->getContext())
             ->willReturn(new RuleCollection());
 
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher
+            ->expects($this->exactly(2))
+            ->method('dispatch')
+            ->with(static::isInstanceOf(CheckoutCartRuleLoaderExtension::class));
+
         $cartRuleLoader = new CartRuleLoader(
             $persister,
             $processor,
@@ -86,6 +95,7 @@ class CartRuleLoaderTest extends TestCase
             $this->createMock(TaxDetector::class),
             $this->createMock(Connection::class),
             $factory,
+            new ExtensionDispatcher($dispatcher),
         );
 
         static::assertSame($calculatedCart, $cartRuleLoader->loadByToken($salesChannelContext, $salesChannelContext->getToken())->getCart());
@@ -146,6 +156,12 @@ class CartRuleLoaderTest extends TestCase
             }), static::isInstanceOf(CartBehavior::class))
         ;
 
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher
+            ->expects($this->exactly(2))
+            ->method('dispatch')
+            ->with(static::isInstanceOf(CheckoutCartRuleLoaderExtension::class));
+
         $cartRuleLoader = new CartRuleLoader(
             $this->createMock(AbstractCartPersister::class),
             $processor,
@@ -155,6 +171,7 @@ class CartRuleLoaderTest extends TestCase
             $this->createMock(TaxDetector::class),
             $this->createMock(Connection::class),
             $this->createMock(CartFactory::class),
+            new ExtensionDispatcher($dispatcher),
         );
 
         $cart = new Cart('test');

@@ -29,7 +29,7 @@
         <service id="Shopware\Core\Framework\App\ShopId\ShopIdProvider" public="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Manifest\ModuleLoader">

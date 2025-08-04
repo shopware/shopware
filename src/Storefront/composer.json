@@ -56,6 +56,6 @@
     },
     "require-dev": {
         "symfony/css-selector": "~7.3.0",
-        "phpunit/phpunit": "^11.5.17"
+        "phpunit/phpunit": "^11.5.19"
     }
 }

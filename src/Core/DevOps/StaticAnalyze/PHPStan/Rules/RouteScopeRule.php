@@ -5,6 +5,9 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 use PhpParser\Node;
 use PhpParser\Node\ArrayItem;
 use PhpParser\Node\Expr\Array_;
+use PhpParser\Node\Expr\ClassConstFetch;
+use PhpParser\Node\Identifier;
+use PhpParser\Node\Name;
 use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
 use PHPStan\BetterReflection\Reflection\Adapter\FakeReflectionAttribute;
@@ -128,6 +131,19 @@ class RouteScopeRule implements Rule
     {
         $key = $item->key;
 
-        return $key instanceof String_ && $key->value === PlatformRequest::ATTRIBUTE_ROUTE_SCOPE;
+        if ($key instanceof String_ && $key->value === PlatformRequest::ATTRIBUTE_ROUTE_SCOPE) {
+            return true;
+        }
+
+        if ($key instanceof ClassConstFetch
+            && $key->class instanceof Name
+            && $key->class->name === PlatformRequest::class
+            && $key->name instanceof Identifier
+            && $key->name->name === 'ATTRIBUTE_ROUTE_SCOPE'
+        ) {
+            return true;
+        }
+
+        return false;
     }
 }

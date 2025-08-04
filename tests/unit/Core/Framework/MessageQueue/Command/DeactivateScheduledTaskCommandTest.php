@@ -46,7 +46,7 @@ class DeactivateScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::SUCCESS, $exitCode);
-        static::assertStringContainsStringIgnoringLineEndings('Scheduled task "test.task" was deactivated.', $this->commandTester->getDisplay());
+        static::assertStringContainsStringIgnoringLineEndings($this->compressString('Scheduled task "test.task" was deactivated.'), $this->getCompressedCommandDisplay());
     }
 
     public function testDeactivationWithForceOption(): void
@@ -63,7 +63,7 @@ class DeactivateScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::SUCCESS, $exitCode);
-        static::assertStringContainsStringIgnoringLineEndings('Scheduled task "test.task" was deactivated.', $this->commandTester->getDisplay());
+        static::assertStringContainsStringIgnoringLineEndings($this->compressString('Scheduled task "test.task" was deactivated.'), $this->getCompressedCommandDisplay());
     }
 
     public function testFailureWhenTaskIsQueued(): void
@@ -79,7 +79,7 @@ class DeactivateScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::FAILURE, $exitCode);
-        static::assertStringContainsStringIgnoringLineEndings('Scheduled task "test.task" is marked as currently "queued", use --force to force deactivation.', $this->commandTester->getDisplay());
+        static::assertStringContainsStringIgnoringLineEndings($this->compressString('Scheduled task "test.task" is marked as currently "queued", use --force to force deactivation.'), $this->getCompressedCommandDisplay());
     }
 
     public function testFailureWhenTaskIsRunning(): void
@@ -95,7 +95,7 @@ class DeactivateScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::FAILURE, $exitCode);
-        static::assertStringContainsStringIgnoringLineEndings('Scheduled task "test.task" is marked as currently "running", use --force to force deactivation.', $this->commandTester->getDisplay());
+        static::assertStringContainsStringIgnoringLineEndings($this->compressString('Scheduled task "test.task" is marked as currently "running", use --force to force deactivation.'), $this->getCompressedCommandDisplay());
     }
 
     public function testFailureWhenTaskIsFailed(): void
@@ -111,7 +111,7 @@ class DeactivateScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::FAILURE, $exitCode);
-        static::assertStringContainsStringIgnoringLineEndings('Could not deactivate task "test.task", task has unexpected state: failed', $this->commandTester->getDisplay());
+        static::assertStringContainsStringIgnoringLineEndings($this->compressString('Could not deactivate task "test.task", task has unexpected state: failed'), $this->getCompressedCommandDisplay());
     }
 
     public function testFailureWhenTaskIsScheduled(): void
@@ -127,7 +127,7 @@ class DeactivateScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::FAILURE, $exitCode);
-        static::assertStringContainsStringIgnoringLineEndings('Could not deactivate task "test.task", task has unexpected state: scheduled', $this->commandTester->getDisplay());
+        static::assertStringContainsStringIgnoringLineEndings($this->compressString('Could not deactivate task "test.task", task has unexpected state: scheduled'), $this->getCompressedCommandDisplay());
     }
 
     public function testFailureWhenTaskIsSkipped(): void
@@ -143,7 +143,7 @@ class DeactivateScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::FAILURE, $exitCode);
-        static::assertStringContainsStringIgnoringLineEndings('Could not deactivate task "test.task", task has unexpected state: skipped', $this->commandTester->getDisplay());
+        static::assertStringContainsStringIgnoringLineEndings($this->compressString('Could not deactivate task "test.task", task has unexpected state: skipped'), $this->getCompressedCommandDisplay());
     }
 
     public function testFailureWithUnknownStatus(): void
@@ -159,6 +159,16 @@ class DeactivateScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::FAILURE, $exitCode);
-        static::assertStringContainsStringIgnoringLineEndings('Could not deactivate task "test.task", task has unexpected state: unknown_status', $this->commandTester->getDisplay());
+        static::assertStringContainsStringIgnoringLineEndings($this->compressString('Could not deactivate task "test.task", task has unexpected state: unknown_status'), $this->getCompressedCommandDisplay());
+    }
+
+    private function compressString(string $string): string
+    {
+        return (string) str_replace(' ', '', $string);
+    }
+
+    private function getCompressedCommandDisplay(): string
+    {
+        return (string) str_replace(["\n\r", "\n", "\r", ' '], '', $this->commandTester->getDisplay(true));
     }
 }

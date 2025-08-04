@@ -198,14 +198,6 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         });
     });
 
-    it('should be a Vue.JS component', async () => {
-        global.activeAclRoles = [];
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should get group ids successful', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();

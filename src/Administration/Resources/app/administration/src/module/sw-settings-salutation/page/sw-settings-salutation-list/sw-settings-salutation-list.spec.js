@@ -124,13 +124,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to create a new salutation if have a creator privilege', async () => {
         const wrapper = await createWrapper([
             'salutation.creator',

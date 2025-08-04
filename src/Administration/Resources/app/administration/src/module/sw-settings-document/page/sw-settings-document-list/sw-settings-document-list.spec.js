@@ -91,11 +91,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-settings-document/page/sw-settings-document-list/', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have an enabled create button', async () => {
         const wrapper = await createWrapper(['document.creator']);
         const addButton = wrapper.find('.sw-settings-document-list__add-document');

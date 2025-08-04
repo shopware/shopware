@@ -213,10 +213,20 @@ export default {
 
             this.isSaveable = this.checkIsSaveable();
 
+            // eslint-disable-next-line no-restricted-globals
+            if (!isNaN(this.translationKey)) {
+                this.isLoading = false;
+                this.createNotificationError({
+                    message: this.$t('sw-settings-snippet.detail.messageSaveErrorNumericKey'),
+                });
+
+                return;
+            }
+
             if (!this.isSaveable) {
                 this.isLoading = false;
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-snippet.detail.messageSaveError', { key: this.translationKey }, 0),
+                    message: this.$t('sw-settings-snippet.detail.messageSaveError', { key: this.translationKey }),
                 });
 
                 return;
@@ -256,15 +266,19 @@ export default {
                     this.isSaveSuccessful = true;
                 })
                 .catch((error) => {
-                    let errormsg = '';
                     this.isLoading = false;
+
+                    const errorSnippet = this.$t('sw-settings-snippet.detail.messageSaveError', {
+                        key: this.translationKey,
+                    });
+
+                    let errorMessage = '';
                     if (error.response.data.errors.length > 0) {
-                        errormsg = `<br/>Error Message: "${error.response.data.errors[0].detail}"`;
+                        errorMessage = `<br/>Error Message: "${error.response.data.errors[0].detail}"`;
                     }
+
                     this.createNotificationError({
-                        message:
-                            this.$tc('sw-settings-snippet.detail.messageSaveError', { key: this.translationKey }, 0) +
-                            errormsg,
+                        message: errorSnippet + errorMessage,
                     });
                 });
         },
@@ -275,8 +289,8 @@ export default {
                 this.isInvalidKey = true;
                 return;
             }
-            this.isInvalidKey = false;
 
+            this.isInvalidKey = false;
             this.doChange();
         },
 

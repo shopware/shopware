@@ -158,10 +158,6 @@ describe('src/module/sw-order/page/sw-order-create', () => {
         Shopware.Store.register(contextState);
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should open remind payment modal on save order', async () => {
         await wrapper.find('.sw-button-process').trigger('click');
         await wrapper.vm.$nextTick();

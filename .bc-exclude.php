@@ -68,8 +68,5 @@ return [
 
         // The class has not been released
         'REMOVED: Class Shopware\\\\Elasticsearch\\\\Product\\\\CachedSearchConfigLoader has been deleted',
-
-        // Probably a false positive
-        preg_quote('CHANGED: Property Shopware\Core\Framework\ShopwareHttpException#$parameters changed default value from array () to NULL', '/'),
     ],
 ];

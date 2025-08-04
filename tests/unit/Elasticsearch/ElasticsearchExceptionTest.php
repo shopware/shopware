@@ -126,4 +126,11 @@ class ElasticsearchExceptionTest extends TestCase
         static::assertSame('Could not get AWS credentials', $exception->getMessage());
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
+
+    public function testOperatorNotAllowed(): void
+    {
+        $exception = ElasticsearchException::operatorNotAllowed('foo');
+        static::assertInstanceOf(\InvalidArgumentException::class, $exception);
+        static::assertSame('Operator foo not allowed', $exception->getMessage());
+    }
 }

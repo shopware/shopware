@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -59,6 +60,7 @@ class CustomerException extends HttpException
     public const CUSTOMER_CHANGE_PAYMENT_ERROR = 'CHECKOUT__CUSTOMER_CHANGE_PAYMENT_METHOD_NOT_FOUND';
     public const CUSTOMER_GUEST_AUTH_INVALID = 'CHECKOUT__CUSTOMER_AUTH_INVALID';
     public const IMITATE_CUSTOMER_INVALID_TOKEN = 'CHECKOUT__IMITATE_CUSTOMER_INVALID_TOKEN';
+    public const OPERATOR_NOT_SUPPORTED = 'CHECKOUT__CUSTOMER_RULE_OPERATOR_NOT_SUPPORTED';
 
     public static function customerGroupNotFound(string $id): self
     {
@@ -305,5 +307,22 @@ class CustomerException extends HttpException
     public static function invalidImitationToken(string $token): InvalidImitateCustomerTokenException
     {
         return new InvalidImitateCustomerTokenException($token);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function unsupportedOperator(string $operator, string $class): self|UnsupportedOperatorException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new UnsupportedOperatorException($operator, $class);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::OPERATOR_NOT_SUPPORTED,
+            'Unsupported operator {{ operator }} in {{ class }}',
+            ['operator' => $operator, 'class' => $class]
+        );
     }
 }

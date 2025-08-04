@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Elasticsearch\Product\ElasticsearchProductException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -265,5 +266,30 @@ class DataAbstractionLayerExceptionTest extends TestCase
             'A value for the field "test_field" is required, but it is missing or `null`.',
             $exception->getMessage()
         );
+    }
+
+    public function testUnsupportedQueryFilter(): void
+    {
+        $exception = DataAbstractionLayerException::unsupportedQueryFilter('foo');
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::UNSUPPORTED_QUERY_FILTER, $exception->getErrorCode());
+        static::assertSame('Unsupported query foo', $exception->getMessage());
+    }
+
+    public function testInvalidSortingDirection(): void
+    {
+        $e = DataAbstractionLayerException::invalidSortingDirection('foo');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__INVALID_SORT_DIRECTION', $e->getErrorCode());
+        static::assertSame('The given sort direction "foo" is invalid.', $e->getMessage());
+    }
+
+    public function testConfigNotFound(): void
+    {
+        $this->expectException(ElasticsearchProductException::class);
+        $this->expectExceptionMessage('Configuration for product elasticsearch definition not found');
+        DataAbstractionLayerException::configNotFound();
     }
 }

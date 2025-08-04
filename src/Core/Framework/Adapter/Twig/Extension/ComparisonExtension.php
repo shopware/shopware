@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Twig\Extension\AbstractExtension;
@@ -46,6 +46,9 @@ class ComparisonExtension extends AbstractExtension
         return $this->compareMixed($operator, $value, $comparable);
     }
 
+    /**
+     * @param array<mixed> $comparable
+     */
     private function compareArray(string $operator, mixed $value, array $comparable): bool
     {
         if (!\is_array($value)) {
@@ -57,7 +60,7 @@ class ComparisonExtension extends AbstractExtension
         return match ($operator) {
             Rule::OPERATOR_EQ => !empty($matches),
             Rule::OPERATOR_NEQ => empty($matches),
-            default => throw new UnsupportedOperatorException($operator, self::class),
+            default => throw throw AdapterException::unsupportedOperator($operator, self::class),
         };
     }
 
@@ -70,7 +73,7 @@ class ComparisonExtension extends AbstractExtension
             Rule::OPERATOR_LTE => $value <= $comparable,
             Rule::OPERATOR_GT => $value > $comparable,
             Rule::OPERATOR_LT => $value < $comparable,
-            default => throw new UnsupportedOperatorException($operator, self::class),
+            default => throw throw AdapterException::unsupportedOperator($operator, self::class),
         };
     }
 
@@ -83,7 +86,7 @@ class ComparisonExtension extends AbstractExtension
             Rule::OPERATOR_LTE => FloatComparator::lessThanOrEquals($value, $comparable),
             Rule::OPERATOR_GT => FloatComparator::greaterThan($value, $comparable),
             Rule::OPERATOR_LT => FloatComparator::lessThan($value, $comparable),
-            default => throw new UnsupportedOperatorException($operator, self::class),
+            default => throw throw AdapterException::unsupportedOperator($operator, self::class),
         };
     }
 }

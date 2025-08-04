@@ -12,8 +12,6 @@ abstract class AbstractCheckoutGatewayCommand extends Struct
 
     /**
      * @param array<array-key, mixed> $payload
-     *
-     * @throws \Error
      */
     public static function createFromPayload(array $payload): static
     {

@@ -172,7 +172,7 @@ class RemoteThumbnailLoader implements ResetInterface
             $mediaPath,
             $width,
             $height,
-            $mediaUpdatedAt?->getTimestamp() ?: '',
+            (string) $mediaUpdatedAt?->getTimestamp() ?: '',
         ];
 
         $url = str_replace(

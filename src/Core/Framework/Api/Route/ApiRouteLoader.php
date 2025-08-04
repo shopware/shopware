@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;
@@ -47,7 +48,7 @@ class ApiRouteLoader extends Loader
 
     public function supports($resource, ?string $type = null): bool
     {
-        return $type === 'api';
+        return $type === ApiRouteScope::ID;
     }
 
     private function loadAdminRoutes(RouteCollection $routes): void
@@ -72,7 +73,7 @@ class ApiRouteLoader extends Loader
             $route->setMethods(['GET']);
             $route->setDefault('_controller', $class . '::detail');
             $route->setDefault('entityName', $resourceName);
-            $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['api']);
+            $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
             $route->addRequirements(['path' => $detailSuffix, 'version' => '\d+']);
             $route->setOption(self::DYNAMIC_RESOURCE_ROOT_PATH, '/api/' . $resourceName . '/{id}');
             $routes->add('api.' . $entityName . '.detail', $route);
@@ -81,7 +82,7 @@ class ApiRouteLoader extends Loader
             $route->setMethods(['PATCH']);
             $route->setDefault('_controller', $class . '::update');
             $route->setDefault('entityName', $resourceName);
-            $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['api']);
+            $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
             $route->addRequirements(['path' => $detailSuffix, 'version' => '\d+']);
             $route->setOption(self::DYNAMIC_RESOURCE_ROOT_PATH, '/api/' . $resourceName . '/{id}');
             $routes->add('api.' . $entityName . '.update', $route);
@@ -90,7 +91,7 @@ class ApiRouteLoader extends Loader
             $route->setMethods(['DELETE']);
             $route->setDefault('_controller', $class . '::delete');
             $route->setDefault('entityName', $resourceName);
-            $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['api']);
+            $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
             $route->addRequirements(['path' => $detailSuffix, 'version' => '\d+']);
             $route->setOption(self::DYNAMIC_RESOURCE_ROOT_PATH, '/api/' . $resourceName . '/{id}');
             $routes->add('api.' . $entityName . '.delete', $route);
@@ -100,7 +101,7 @@ class ApiRouteLoader extends Loader
             $route->setMethods(['GET']);
             $route->setDefault('_controller', $class . '::list');
             $route->setDefault('entityName', $resourceName);
-            $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['api']);
+            $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
             $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
             $route->setOption(self::DYNAMIC_RESOURCE_ROOT_PATH, '/api/' . $resourceName);
             $routes->add('api.' . $entityName . '.list', $route);
@@ -109,7 +110,7 @@ class ApiRouteLoader extends Loader
             $route->setMethods(['POST']);
             $route->setDefault('_controller', $class . '::search');
             $route->setDefault('entityName', $resourceName);
-            $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['api']);
+            $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
             $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
             $route->setOption(self::DYNAMIC_RESOURCE_ROOT_PATH, '/api/search/' . $resourceName);
             $routes->add('api.' . $entityName . '.search', $route);
@@ -118,7 +119,7 @@ class ApiRouteLoader extends Loader
             $route->setMethods(['POST']);
             $route->setDefault('_controller', $class . '::searchIds');
             $route->setDefault('entityName', $resourceName);
-            $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['api']);
+            $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
             $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
             $route->setOption(self::DYNAMIC_RESOURCE_ROOT_PATH, '/api/search-ids/' . $resourceName);
             $routes->add('api.' . $entityName . '.search-ids', $route);
@@ -127,7 +128,7 @@ class ApiRouteLoader extends Loader
             $route->setMethods(['POST']);
             $route->setDefault('_controller', $class . '::aggregate');
             $route->setDefault('entityName', $resourceName);
-            $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['api']);
+            $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
             $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
             $route->setOption(self::DYNAMIC_RESOURCE_ROOT_PATH, '/api/aggregate/' . $resourceName);
             $routes->add('api.' . $entityName . '.aggregate', $route);
@@ -136,7 +137,7 @@ class ApiRouteLoader extends Loader
             $route->setMethods(['POST']);
             $route->setDefault('_controller', $class . '::create');
             $route->setDefault('entityName', $resourceName);
-            $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['api']);
+            $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
             $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
             $route->setOption(self::DYNAMIC_RESOURCE_ROOT_PATH, '/api/' . $resourceName);
             $routes->add('api.' . $entityName . '.create', $route);

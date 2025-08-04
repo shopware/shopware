@@ -209,7 +209,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
         const wrapper = await createWrapper(roles);
         await wrapper.setData({ isLoading: false });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createSnippetButton = wrapper.findByText('button', 'sw-settings-snippet.list.buttonAdd');
 

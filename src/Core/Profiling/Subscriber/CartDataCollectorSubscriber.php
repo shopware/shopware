@@ -85,7 +85,7 @@ class CartDataCollectorSubscriber extends AbstractDataCollector implements Event
 
     private function getCartData(): ?Cart
     {
-        if (empty($this->cartToken)) {
+        if ($this->cartToken === null || $this->salesChannelContext === null) {
             return null;
         }
 

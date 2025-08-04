@@ -81,9 +81,9 @@ class CartDataCollectorSubscriberTest extends TestCase
         $subscriber->collect(new Request(), new Response());
 
         static::assertEquals($cart, $subscriber->getCart());
-        static::assertEquals(1, $subscriber->getItemCount());
-        static::assertEquals(200.00, $subscriber->getCartTotal());
-        static::assertEquals('EUR', $subscriber->getCurrency());
+        static::assertSame(1, $subscriber->getItemCount());
+        static::assertSame(200.00, $subscriber->getCartTotal());
+        static::assertSame('EUR', $subscriber->getCurrency());
     }
 
     public function testEmptyCart(): void
@@ -107,9 +107,9 @@ class CartDataCollectorSubscriberTest extends TestCase
         $subscriber->onContextResolved($event);
         $subscriber->collect(new Request(), new Response());
         static::assertEquals($cart, $subscriber->getCart());
-        static::assertEquals(0, $subscriber->getItemCount());
-        static::assertEquals(0, $subscriber->getCartTotal());
-        static::assertEquals('EUR', $subscriber->getCurrency());
+        static::assertSame(0, $subscriber->getItemCount());
+        static::assertSame(0.0, $subscriber->getCartTotal());
+        static::assertSame('EUR', $subscriber->getCurrency());
     }
 
     public function testReset(): void

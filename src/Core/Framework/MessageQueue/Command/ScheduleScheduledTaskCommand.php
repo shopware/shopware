@@ -20,6 +20,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('framework')]
 class ScheduleScheduledTaskCommand extends Command
 {
+    private const STATUSES_SUCCESS = [
+        ScheduledTaskDefinition::STATUS_SCHEDULED,
+        ScheduledTaskDefinition::STATUS_SKIPPED,
+    ];
+
+    private const STATUSES_FORCE_NEEDED = [
+        ScheduledTaskDefinition::STATUS_QUEUED,
+        ScheduledTaskDefinition::STATUS_RUNNING,
+    ];
+
     /**
      * @internal
      */
@@ -31,8 +41,8 @@ class ScheduleScheduledTaskCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('taskName', InputArgument::REQUIRED, 'Scheduled task name like log_entry.cleanup');
-        $this->addOption('force', 'f', null, 'Force scheduling of scheduled task');
-        $this->addOption('immediately', 'i', null, 'Set next execution time to now');
+        $this->addOption('force', 'f', null, 'Force the scheduling of the scheduled task');
+        $this->addOption('immediately', 'i', null, 'Set the next execution time to now');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -40,30 +50,24 @@ class ScheduleScheduledTaskCommand extends Command
         $io = new ShopwareStyle($input, $output);
 
         $taskName = $input->getArgument('taskName');
-        $immediately = $input->getOption('immediately');
+        $immediately = (bool) $input->getOption('immediately');
         $force = $input->getOption('force');
 
         $status = $this->taskRegistry->scheduleTask($taskName, $immediately, $force, Context::createCLIContext());
 
-        switch ($status) {
-            case ScheduledTaskDefinition::STATUS_SCHEDULED:
-            case ScheduledTaskDefinition::STATUS_SKIPPED:
-                $io->success('Scheduled task "' . $taskName . '" was scheduled.');
+        if (\in_array($status, self::STATUSES_SUCCESS, true)) {
+            $io->success('Scheduled task "' . $taskName . '" was scheduled' . ($immediately ? ' to now' : '') . '.');
 
-                return self::SUCCESS;
-            case ScheduledTaskDefinition::STATUS_QUEUED:
-            case ScheduledTaskDefinition::STATUS_RUNNING:
-                $io->warning('Scheduled task "' . $taskName . '" is marked as currently running, use --force to force scheduling.');
-
-                return self::FAILURE;
-            case ScheduledTaskDefinition::STATUS_FAILED:
-            case ScheduledTaskDefinition::STATUS_INACTIVE:
-                $io->error('Scheduled task "' . $taskName . '" could not be scheduled.');
-
-                return self::FAILURE;
+            return self::SUCCESS;
         }
 
-        $io->error('Scheduled task "' . $taskName . '" was set to an unknown state: ' . $status);
+        if (\in_array($status, self::STATUSES_FORCE_NEEDED, true)) {
+            $io->warning('Scheduled task "' . $taskName . '" is marked as currently running, use --force to force scheduling.');
+
+            return self::FAILURE;
+        }
+
+        $io->error('Could not schedule task "' . $taskName . '", task has unexpected state: ' . $status);
 
         return self::FAILURE;
     }

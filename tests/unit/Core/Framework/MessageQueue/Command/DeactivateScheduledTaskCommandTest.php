@@ -46,7 +46,7 @@ class DeactivateScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::SUCCESS, $exitCode);
-        static::assertStringContainsString('Scheduled task "test.task" was deactivated.', $this->commandTester->getDisplay());
+        static::assertStringContainsString('Scheduled task "test.task" was deactivated.', $this->getCommandDisplay());
     }
 
     public function testDeactivationWithForceOption(): void
@@ -63,7 +63,7 @@ class DeactivateScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::SUCCESS, $exitCode);
-        static::assertStringContainsString('Scheduled task "test.task" was deactivated.', $this->commandTester->getDisplay());
+        static::assertStringContainsString('Scheduled task "test.task" was deactivated.', $this->getCommandDisplay());
     }
 
     public function testFailureWhenTaskIsQueued(): void
@@ -79,7 +79,7 @@ class DeactivateScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::FAILURE, $exitCode);
-        static::assertStringContainsString('Scheduled task "test.task" is marked as currently running, use --force to force deactivation.', $this->commandTester->getDisplay());
+        static::assertStringContainsString('Scheduled task "test.task" is marked as currently "queued", use --force to force deactivation.', $this->getCommandDisplay());
     }
 
     public function testFailureWhenTaskIsRunning(): void
@@ -95,7 +95,7 @@ class DeactivateScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::FAILURE, $exitCode);
-        static::assertStringContainsString('Scheduled task "test.task" is marked as currently running, use --force to force deactivation.', $this->commandTester->getDisplay());
+        static::assertStringContainsString('Scheduled task "test.task" is marked as currently "running", use --force to force deactivation.', $this->commandTester->getDisplay());
     }
 
     public function testFailureWhenTaskIsFailed(): void
@@ -111,7 +111,7 @@ class DeactivateScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::FAILURE, $exitCode);
-        static::assertStringContainsString('Scheduled task "test.task" could not be deactivated.', $this->commandTester->getDisplay());
+        static::assertStringContainsString('Could not deactivate task "test.task", task has unexpected state: failed', $this->getCommandDisplay());
     }
 
     public function testFailureWhenTaskIsScheduled(): void
@@ -127,7 +127,7 @@ class DeactivateScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::FAILURE, $exitCode);
-        static::assertStringContainsString('Scheduled task "test.task" could not be deactivated.', $this->commandTester->getDisplay());
+        static::assertStringContainsString('Could not deactivate task "test.task", task has unexpected state: scheduled', $this->getCommandDisplay());
     }
 
     public function testFailureWhenTaskIsSkipped(): void
@@ -143,7 +143,7 @@ class DeactivateScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::FAILURE, $exitCode);
-        static::assertStringContainsString('Scheduled task "test.task" could not be deactivated.', $this->commandTester->getDisplay());
+        static::assertStringContainsString('Could not deactivate task "test.task", task has unexpected state: skipped', $this->getCommandDisplay());
     }
 
     public function testFailureWithUnknownStatus(): void
@@ -159,6 +159,11 @@ class DeactivateScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::FAILURE, $exitCode);
-        static::assertStringContainsString('Scheduled task "test.task" was set to an unknown state: unknown_status', $this->commandTester->getDisplay());
+        static::assertStringContainsString('Could not deactivate task "test.task", task has unexpected state: unknown_status', $this->getCommandDisplay());
+    }
+
+    private function getCommandDisplay(): string
+    {
+        return (string) str_replace(["\n\r", "\n", "\r"], '', $this->commandTester->getDisplay(true));
     }
 }

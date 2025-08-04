@@ -20,6 +20,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('framework')]
 class DeactivateScheduledTaskCommand extends Command
 {
+    private const STATUSES_SUCCESS = [
+        ScheduledTaskDefinition::STATUS_INACTIVE,
+    ];
+
+    private const STATUSES_FORCE_NEEDED = [
+        ScheduledTaskDefinition::STATUS_QUEUED,
+        ScheduledTaskDefinition::STATUS_RUNNING,
+    ];
+
     /**
      * @internal
      */
@@ -31,7 +40,7 @@ class DeactivateScheduledTaskCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('taskName', InputArgument::REQUIRED, 'Scheduled task name like log_entry.cleanup');
-        $this->addOption('force', 'f', null, 'Force deactivation of schedule task');
+        $this->addOption('force', 'f', null, 'Force the deactivation of the scheduled task');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -45,25 +54,19 @@ class DeactivateScheduledTaskCommand extends Command
 
         $status = $this->taskRegistry->deactivateTask($taskName, $force, Context::createCLIContext());
 
-        switch ($status) {
-            case ScheduledTaskDefinition::STATUS_INACTIVE:
-                $io->success('Scheduled task "' . $taskName . '" was deactivated.');
+        if (\in_array($status, self::STATUSES_SUCCESS, true)) {
+            $io->success('Scheduled task "' . $taskName . '" was deactivated.');
 
-                return self::SUCCESS;
-            case ScheduledTaskDefinition::STATUS_QUEUED:
-            case ScheduledTaskDefinition::STATUS_RUNNING:
-                $io->warning('Scheduled task "' . $taskName . '" is marked as currently running, use --force to force deactivation.');
-
-                return self::FAILURE;
-            case ScheduledTaskDefinition::STATUS_FAILED:
-            case ScheduledTaskDefinition::STATUS_SCHEDULED:
-            case ScheduledTaskDefinition::STATUS_SKIPPED:
-                $io->error('Scheduled task "' . $taskName . '" could not be deactivated.');
-
-                return self::FAILURE;
+            return self::SUCCESS;
         }
 
-        $io->error('Scheduled task "' . $taskName . '" was set to an unknown state: ' . $status);
+        if (\in_array($status, self::STATUSES_FORCE_NEEDED, true)) {
+            $io->warning('Scheduled task "' . $taskName . '" is marked as currently "' . $status . '", use --force to force deactivation.');
+
+            return self::FAILURE;
+        }
+
+        $io->error('Could not deactivate task "' . $taskName . '", task has unexpected state: ' . $status);
 
         return self::FAILURE;
     }

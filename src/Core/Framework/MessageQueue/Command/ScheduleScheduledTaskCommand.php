@@ -51,7 +51,7 @@ class ScheduleScheduledTaskCommand extends Command
 
         $taskName = $input->getArgument('taskName');
         $immediately = (bool) $input->getOption('immediately');
-        $force = $input->getOption('force');
+        $force = (bool) $input->getOption('force');
 
         $status = $this->taskRegistry->scheduleTask($taskName, $immediately, $force, Context::createCLIContext());
 

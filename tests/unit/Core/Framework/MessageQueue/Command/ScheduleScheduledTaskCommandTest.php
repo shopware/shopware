@@ -46,7 +46,7 @@ class ScheduleScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::SUCCESS, $exitCode);
-        static::assertStringContainsString('Scheduled task "test.task" was scheduled.', $this->getCommandDisplay());
+        static::assertStringContainsStringIgnoringLineEndings('Scheduled task "test.task" was scheduled.', $this->commandTester->getDisplay());
     }
 
     public function testSuccessfulSchedulingWithSkippedStatus(): void
@@ -62,7 +62,7 @@ class ScheduleScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::SUCCESS, $exitCode);
-        static::assertStringContainsString('Scheduled task "test.task" was scheduled.', $this->getCommandDisplay());
+        static::assertStringContainsStringIgnoringLineEndings('Scheduled task "test.task" was scheduled.', $this->commandTester->getDisplay());
     }
 
     public function testSchedulingWithImmediatelyOption(): void
@@ -79,7 +79,7 @@ class ScheduleScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::SUCCESS, $exitCode);
-        static::assertStringContainsString('Scheduled task "test.task" was scheduled to now.', $this->getCommandDisplay());
+        static::assertStringContainsStringIgnoringLineEndings('Scheduled task "test.task" was scheduled to now.', $this->commandTester->getDisplay());
     }
 
     public function testSchedulingWithForceOption(): void
@@ -96,7 +96,7 @@ class ScheduleScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::SUCCESS, $exitCode);
-        static::assertStringContainsString('Scheduled task "test.task" was scheduled.', $this->getCommandDisplay());
+        static::assertStringContainsStringIgnoringLineEndings('Scheduled task "test.task" was scheduled.', $this->commandTester->getDisplay());
     }
 
     public function testSchedulingWithBothOptions(): void
@@ -114,7 +114,7 @@ class ScheduleScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::SUCCESS, $exitCode);
-        static::assertStringContainsString('Scheduled task "test.task" was scheduled to now.', $this->getCommandDisplay());
+        static::assertStringContainsStringIgnoringLineEndings('Scheduled task "test.task" was scheduled to now.', $this->commandTester->getDisplay());
     }
 
     public function testFailureWhenTaskIsQueued(): void
@@ -130,7 +130,7 @@ class ScheduleScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::FAILURE, $exitCode);
-        static::assertStringContainsString('Scheduled task "test.task" is marked as currently running, use --force to force scheduling.', $this->getCommandDisplay());
+        static::assertStringContainsStringIgnoringLineEndings('Scheduled task "test.task" is marked as currently running, use --force to force scheduling.', $this->commandTester->getDisplay());
     }
 
     public function testFailureWhenTaskIsRunning(): void
@@ -146,7 +146,7 @@ class ScheduleScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::FAILURE, $exitCode);
-        static::assertStringContainsString('Scheduled task "test.task" is marked as currently running, use --force to force scheduling.', $this->getCommandDisplay());
+        static::assertStringContainsStringIgnoringLineEndings('Scheduled task "test.task" is marked as currently running, use --force to force scheduling.', $this->commandTester->getDisplay());
     }
 
     public function testFailureWhenTaskIsFailed(): void
@@ -162,7 +162,7 @@ class ScheduleScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::FAILURE, $exitCode);
-        static::assertStringContainsString('Could not schedule task "test.task", task has unexpected state: failed', $this->getCommandDisplay());
+        static::assertStringContainsStringIgnoringLineEndings('Could not schedule task "test.task", task has unexpected state: failed', $this->commandTester->getDisplay());
     }
 
     public function testFailureWhenTaskIsInactive(): void
@@ -178,7 +178,7 @@ class ScheduleScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::FAILURE, $exitCode);
-        static::assertStringContainsString('Could not schedule task "test.task", task has unexpected state: inactive', $this->getCommandDisplay());
+        static::assertStringContainsStringIgnoringLineEndings('Could not schedule task "test.task", task has unexpected state: inactive', $this->commandTester->getDisplay());
     }
 
     public function testFailureWithUnknownStatus(): void
@@ -194,11 +194,6 @@ class ScheduleScheduledTaskCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::FAILURE, $exitCode);
-        static::assertStringContainsString('Could not schedule task "test.task", task has unexpected state: unknown_status', $this->getCommandDisplay());
-    }
-
-    private function getCommandDisplay(): string
-    {
-        return (string) str_replace(["\n\r", "\n", "\r"], '', $this->commandTester->getDisplay(true));
+        static::assertStringContainsStringIgnoringLineEndings('Could not schedule task "test.task", task has unexpected state: unknown_status', $this->commandTester->getDisplay());
     }
 }

@@ -50,7 +50,7 @@ class DeactivateScheduledTaskCommand extends Command
         $io->warning('Be aware that this command will not cancel a running task execution (e.g. via the queue worker), only disable its scheduling.');
 
         $taskName = $input->getArgument('taskName');
-        $force = $input->getOption('force');
+        $force = (bool) $input->getOption('force');
 
         $status = $this->taskRegistry->deactivateTask($taskName, $force, Context::createCLIContext());
 

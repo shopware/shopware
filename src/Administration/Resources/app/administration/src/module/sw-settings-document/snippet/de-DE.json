@@ -36,6 +36,7 @@
       "labelPageSize": "Seitenformat",
       "labelItemsPerPage": "Positionen pro Seite",
       "labelDisplayCompanyAddress": "Geschäftsadresse anzeigen",
+      "labelDisplayReturnAddress": "Absenderadresse anzeigen",
       "labelCompanyCity": "Stadt",
       "labelCompanyCountry": "Land",
       "labelCompanyName": "Geschäftsname",

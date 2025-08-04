@@ -180,6 +180,15 @@ export default {
             ],
             companyFormFields: [
                 {
+                    name: 'displayReturnAddress',
+                    type: 'bool',
+                    config: {
+                        type: 'checkbox',
+                        label: this.$tc('sw-settings-document.detail.labelDisplayReturnAddress'),
+                        class: 'sw-settings-document-detail__return-address-checkbox',
+                    },
+                },
+                {
                     name: 'displayCompanyAddress',
                     type: 'bool',
                     config: {

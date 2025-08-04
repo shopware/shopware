@@ -36,6 +36,7 @@
       "labelPageSize": "Page format",
       "labelItemsPerPage": "Items per page",
       "labelDisplayCompanyAddress": "Display company address",
+      "labelDisplayReturnAddress": "Display return address",
       "labelCompanyCity": "City",
       "labelCompanyCountry": "Country",
       "labelCompanyName": "Name",

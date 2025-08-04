@@ -13,14 +13,20 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 abstract class ShopwareHttpException extends HttpException implements ShopwareException
 {
     /**
+     * @var array<string, mixed>
+     */
+    protected array $parameters = [];
+
+    /**
      * @param array<string, mixed> $parameters
      */
     public function __construct(
         string $message,
-        protected array $parameters = [],
+        array $parameters = [],
         ?\Throwable $e = null
     ) {
-        $message = $this->parse($message, $this->parameters);
+        $this->parameters = $parameters;
+        $message = $this->parse($message, $parameters);
 
         parent::__construct($this->getStatusCode(), $message, $e);
     }

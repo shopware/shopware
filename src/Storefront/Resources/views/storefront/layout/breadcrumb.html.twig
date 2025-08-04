@@ -11,53 +11,61 @@
     {% endif %}
 
     {% if breadcrumbCategories|length > 0 %}
+        {# @deprecated tag:v6.8.0 - Variable `breadcrumbKeys` will be removed #}
         {% set breadcrumbKeys = breadcrumbCategories|keys %}
 
-        <nav aria-label="breadcrumb">
-            {% block layout_breadcrumb_list %}
-                <ol class="breadcrumb"
-                    itemscope
-                    itemtype="https://schema.org/BreadcrumbList">
-                    {% for breadcrumbCategory in breadcrumbCategories %}
-                        {% set key = breadcrumbCategory.id %}
-                        {% set name = breadcrumbCategory.translated.name %}
-                        {% set categoryUrl = breadcrumbCategory.seoUrl %}
+        {% set breadcrumbDivider = 'url(data:image/svg+xml,' ~ source('@Storefront/assets/icon/solid/arrow-medium-right.svg')|url_encode ~ ')' %}
 
-                        {% block layout_breadcrumb_list_item %}
-                            <li class="breadcrumb-item"
-                                {% if key is same as(categoryId) %}aria-current="page"{% endif %}
-                                itemprop="itemListElement"
-                                itemscope
-                                itemtype="https://schema.org/ListItem">
-                                {% if breadcrumbCategory.type == 'folder' %}
-                                    <div itemprop="item">
-                                        <div itemprop="name">{{ name }}</div>
-                                    </div>
-                                {% else %}
-                                    <a href="{{ categoryUrl }}"
-                                       class="breadcrumb-link {% if key is same as(categoryId) %} is-active{% endif %}"
-                                       title="{{ name }}"
-                                       {% if breadcrumbCategory.shouldOpenInNewTab %}target="_blank"{% endif %}
-                                       itemprop="item">
-                                        <link itemprop="url"
-                                              href="{{ categoryUrl }}">
-                                        <span class="breadcrumb-title" itemprop="name">{{ name }}</span>
-                                    </a>
-                                {% endif %}
-                                <meta itemprop="position" content="{{ loop.index }}">
-                            </li>
-                        {% endblock %}
+        {% block layout_breadcrumb_container %}
+            <nav aria-label="breadcrumb"{% if feature('v6.8.0.0') %} style="--bs-breadcrumb-divider: {{ breadcrumbDivider }};"{% endif %}>
+                {% block layout_breadcrumb_list %}
+                    <ol class="breadcrumb"
+                        itemscope
+                        itemtype="https://schema.org/BreadcrumbList">
+                        {% for breadcrumbCategory in breadcrumbCategories %}
+                            {% set key = breadcrumbCategory.id %}
+                            {% set name = breadcrumbCategory.translated.name %}
+                            {% set categoryUrl = breadcrumbCategory.seoUrl %}
 
-                        {% block layout_breadcrumb_placeholder %}
-                            {% if key != breadcrumbKeys|last %}
-                                <div class="breadcrumb-placeholder">
-                                    {% sw_icon 'arrow-medium-right' style { size: 'fluid', pack: 'solid' } %}
-                                </div>
+                            {% block layout_breadcrumb_list_item %}
+                                <li class="breadcrumb-item"
+                                    {% if key is same as(categoryId) %}aria-current="page"{% endif %}
+                                    itemprop="itemListElement"
+                                    itemscope
+                                    itemtype="https://schema.org/ListItem">
+                                    {% if breadcrumbCategory.type == 'folder' %}
+                                        <div itemprop="item">
+                                            <div itemprop="name">{{ name }}</div>
+                                        </div>
+                                    {% else %}
+                                        <a href="{{ categoryUrl }}"
+                                           class="breadcrumb-link {% if key is same as(categoryId) %} is-active{% endif %}"
+                                           title="{{ name }}"
+                                           {% if breadcrumbCategory.shouldOpenInNewTab %}target="_blank"{% endif %}
+                                           itemprop="item">
+                                            <link itemprop="url"
+                                                  href="{{ categoryUrl }}">
+                                            <span class="breadcrumb-title" itemprop="name">{{ name }}</span>
+                                        </a>
+                                    {% endif %}
+                                    <meta itemprop="position" content="{{ loop.index }}">
+                                </li>
+                            {% endblock %}
+
+                            {% if not feature('v6.8.0.0') %}
+                                {# @deprecated tag:v6.8.0 - Block will be removed, the separator has been moved to a CSS only solution - Extend the `layout_breadcrumb_list_item` block if needed #}
+                                {% block layout_breadcrumb_placeholder %}
+                                    {% if key != breadcrumbKeys|last %}
+                                        <div class="breadcrumb-placeholder" aria-hidden="true">
+                                            {% sw_icon 'arrow-medium-right' style { size: 'fluid', pack: 'solid' } %}
+                                        </div>
+                                    {% endif %}
+                                {% endblock %}
                             {% endif %}
-                        {% endblock %}
-                    {% endfor %}
-                </ol>
-            {% endblock %}
-        </nav>
+                        {% endfor %}
+                    </ol>
+                {% endblock %}
+            </nav>
+        {% endblock %}
     {% endif %}
 {% endblock %}

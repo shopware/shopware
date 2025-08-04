@@ -82,7 +82,7 @@ export default {
                     return this.liveOrder.updatedBy;
                 }
 
-                if (this.liveOrder.createdBy) {
+                if (this.liveOrder.createdBy && !this.liveOrder.updatedAt) {
                     return this.liveOrder.createdBy;
                 }
             }

@@ -28,10 +28,6 @@ describe('src/app/asyncComponent/feedback/sw-ai-copilot-badge/index.ts', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show the label by default', () => {
         expect(wrapper.find('.sw-ai-copilot-badge__label').exists()).toBe(true);
     });

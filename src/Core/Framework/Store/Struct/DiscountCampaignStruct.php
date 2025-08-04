@@ -20,7 +20,7 @@ class DiscountCampaignStruct extends StoreStruct
 
     protected float $discountedPrice;
 
-    protected ?int $discountAppliesForMonths;
+    protected ?int $discountAppliesForMonths = null;
 
     /**
      * @return DiscountCampaignStruct

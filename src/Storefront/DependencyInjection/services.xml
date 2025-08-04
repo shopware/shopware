@@ -63,7 +63,7 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\RequestTransformer"
-                 decorates="Shopware\Core\Framework\Routing\RequestTransformerInterface">
+                 decorates="Shopware\Core\Framework\Routing\RequestTransformerInterface" public="true">
 
             <argument type="service" id="Shopware\Storefront\Framework\Routing\RequestTransformer.inner"/>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoResolver"/>
@@ -101,7 +101,7 @@
 
         <service id="Shopware\Storefront\Theme\ThemeConfigValueAccessor">
             <argument type="service" id="Shopware\Storefront\Theme\ResolvedConfigLoader"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Twig\Extension\ConfigExtension">

@@ -973,6 +973,55 @@ class DocumentGeneratorTest extends TestCase
         ];
     }
 
+    public function testReadDocumentWithCapsMediaFileExtension(): void
+    {
+        $documentId = Uuid::randomHex();
+        $mediaId = Uuid::randomHex();
+
+        $fileSystem = static::getContainer()->get('shopware.filesystem.private');
+        $documentType = static::getContainer()
+            ->get('document_type.repository')
+            ->search(
+                (new Criteria())->addFilter(new EqualsFilter('technicalName', InvoiceRenderer::TYPE)),
+                $this->context
+            )
+            ->first();
+        static::assertInstanceOf(DocumentTypeEntity::class, $documentType);
+
+        $this->documentRepository->create([[
+            'id' => $documentId,
+            'documentTypeId' => $documentType->getId(),
+            'fileType' => PdfRenderer::FILE_EXTENSION,
+            'orderId' => $this->orderId,
+            'orderVersionId' => Defaults::LIVE_VERSION,
+            'config' => ['documentNumber' => '1001'],
+            'deepLinkCode' => 'dfr',
+            'static' => true,
+            'documentMediaFile' => [
+                'id' => $mediaId,
+                'mimeType' => 'application/pdf',
+                'fileExtension' => 'PDF',
+                'fileName' => 'textFileWithExtension',
+                'fileSize' => 1024,
+                'private' => true,
+                'mediaType' => new BinaryType(),
+                'uploadedAt' => new \DateTimeImmutable('2011-01-01T15:03:01.012345Z'),
+            ],
+        ]], $this->context);
+
+        $criteria = (new Criteria([$documentId]))->addAssociation('documentMediaFile');
+        $document = $this->documentRepository->search($criteria, $this->context)->get($documentId);
+
+        static::assertInstanceOf(DocumentEntity::class, $document);
+        static::assertNotNull($document->getDocumentMediaFile());
+
+        $filePath = $document->getDocumentMediaFile()->getPath();
+        $fileSystem->write($filePath, 'test123');
+        static::assertTrue($fileSystem->has($filePath));
+
+        static::assertNotNull($this->documentGenerator->readDocument($document->getId(), $this->context));
+    }
+
     private function createDocumentWithFile(): DocumentEntity
     {
         $operation = new DocumentGenerateOperation($this->orderId, PdfRenderer::FILE_EXTENSION);

@@ -92,12 +92,5 @@ class SalesChannelExceptionTest extends TestCase
             'errorCode' => 'CHECKOUT__UNKNOWN_PAYMENT_METHOD',
             'message' => 'Could not find payment method with id "myCustomPaymentMethod"',
         ];
-
-        yield SalesChannelException::SALES_CHANNEL_DOMAIN_IN_USE => [
-            'exception' => SalesChannelException::salesChannelDomainInUse(),
-            'statusCode' => Response::HTTP_BAD_REQUEST,
-            'errorCode' => SalesChannelException::SALES_CHANNEL_DOMAIN_IN_USE,
-            'message' => 'The sales channel domain cannot be deleted because it is still referenced in product exports.',
-        ];
     }
 }

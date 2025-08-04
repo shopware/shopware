@@ -16,14 +16,20 @@ class Progress extends Struct
 
     protected ?string $invalidRecordsLogId = null;
 
+    protected int $offset = 0;
+
+    protected ?int $total = null;
+
     protected int $processedRecords = 0;
 
     public function __construct(
         protected string $logId,
         protected string $state,
-        protected int $offset = 0,
-        protected ?int $total = null,
+        int $offset = 0,
+        ?int $total = null
     ) {
+        $this->offset = $offset;
+        $this->total = $total;
     }
 
     public function addProcessedRecords(int $processedRecords): void

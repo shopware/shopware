@@ -1,5 +1,5 @@
 ---
-title: Document styling
+title: Fixing document squished line item listing
 issue: 11654
 author: Simon Fiebranz
 author_email: s.fiebranz@shopware.com

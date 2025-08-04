@@ -74,6 +74,7 @@ class PromotionExceptionTest extends TestCase
         static::assertSame(['ids' => 'promotion-123, promotion-456'], $exception->getParameters());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testDiscountsNotFound(): void
     {
         $exception = PromotionException::discountsNotFound(['promotion-123', 'promotion-456']);
@@ -130,6 +131,7 @@ class PromotionExceptionTest extends TestCase
         static::assertSame(['id' => 'fooGroupId'], $exception->getParameters());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testDiscountCalculatorNotFound(): void
     {
         $exception = PromotionException::discountCalculatorNotFound('type-123');
@@ -141,6 +143,7 @@ class PromotionExceptionTest extends TestCase
         static::assertSame(['type' => 'type-123'], $exception->getParameters());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testInvalidScopeDefinition(): void
     {
         $exception = PromotionException::invalidScopeDefinition('bad-scope');

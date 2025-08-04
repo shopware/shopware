@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Error\GenericCartError;
 use Shopware\Core\Checkout\Shipping\ShippingException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -43,6 +44,7 @@ class CartExceptionTest extends TestCase
         static::assertSame('Could not find shipping method with id "shipping-method-id"', $e->getMessage());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testUnsupportedOperator(): void
     {
         $e = CartException::unsupportedOperator('$', 'testClass');

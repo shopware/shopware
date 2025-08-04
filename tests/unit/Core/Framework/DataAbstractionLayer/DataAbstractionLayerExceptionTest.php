@@ -286,6 +286,7 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertSame('The given sort direction "foo" is invalid.', $e->getMessage());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testConfigNotFound(): void
     {
         $this->expectException(ElasticsearchProductException::class);

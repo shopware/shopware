@@ -17,7 +17,7 @@ jobs:
         - name: Checkout repository
           uses: actions/checkout@v4
 
-        - uses: denoland/setup-deno@v1
+        - uses: denoland/setup-deno@v2
           with:
             deno-version: 1.29.1
 

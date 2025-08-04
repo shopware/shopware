@@ -37,7 +37,7 @@ class SwMacroFunctionTokenParser extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
         $this->parser->pushLocalScope();
-        $body = $this->parser->subparse([$this, 'decideBlockEnd'], true);
+        $body = $this->parser->subparse($this->decideBlockEnd(...), true);
         if ($token = $stream->nextIf(Token::NAME_TYPE)) {
             $value = $token->getValue();
 

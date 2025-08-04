@@ -32,8 +32,6 @@ class SitemapHandle implements SitemapHandleInterface
 
     private ?string $domainName = null;
 
-    private ?string $domainId;
-
     /**
      * @internal
      */
@@ -42,10 +40,8 @@ class SitemapHandle implements SitemapHandleInterface
         private readonly SalesChannelContext $context,
         private readonly EventDispatcherInterface $eventDispatcher,
         ?string $domain = null,
-        ?string $domainId = null
+        private ?string $domainId = null,
     ) {
-        $this->domainId = $domainId;
-
         $this->setDomainName($domain);
 
         $filePath = $this->getTmpFilePath($context);

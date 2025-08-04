@@ -98,7 +98,7 @@ class CartRuleLoader implements ResetInterface
 
             $result = $this->extensions->publish(
                 name: CheckoutCartRuleLoaderExtension::NAME,
-                extension: new CheckoutCartRuleLoaderExtension($cart, $context, $behaviorContext, $new),
+                extension: new CheckoutCartRuleLoaderExtension($context, $cart, $behaviorContext, $new),
                 function: $this->_load(...),
             );
 
@@ -115,9 +115,9 @@ class CartRuleLoader implements ResetInterface
         });
     }
 
-    private function _load(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext, bool $new): RuleLoaderResult
+    private function _load(SalesChannelContext $salesChannelContext, Cart $originalCart, CartBehavior $cartBehavior, bool $new): RuleLoaderResult
     {
-        $rules = $this->loadRules($context->getContext());
+        $rules = $this->loadRules($salesChannelContext->getContext());
 
         // save all rules for later usage
         $all = $rules;
@@ -125,16 +125,16 @@ class CartRuleLoader implements ResetInterface
         // For existing carts filter rules to only contain the rules from the current cart
         if ($new === false) {
             $rules = $rules->filter(
-                fn (RuleEntity $rule) => \in_array($rule->getId(), $cart->getRuleIds(), true)
+                fn (RuleEntity $rule) => \in_array($rule->getId(), $originalCart->getRuleIds(), true)
             );
         }
 
         // update rules in current context
-        $context->setRuleIds($rules->getIds());
-        $context->setAreaRuleIds($rules->getIdsByArea());
+        $salesChannelContext->setRuleIds($rules->getIds());
+        $salesChannelContext->setAreaRuleIds($rules->getIdsByArea());
 
         // start first cart calculation to have all objects enriched
-        $cart = $this->processor->process($cart, $context, $behaviorContext);
+        $cart = $this->processor->process($originalCart, $salesChannelContext, $cartBehavior);
 
         $iteration = 1;
         do {
@@ -145,20 +145,20 @@ class CartRuleLoader implements ResetInterface
             }
 
             // filter rules which matches to current scope
-            $rules = $rules->filterMatchingRules($cart, $context);
+            $rules = $rules->filterMatchingRules($cart, $salesChannelContext);
 
             // update matching rules in context
-            $context->setRuleIds($rules->getIds());
-            $context->setAreaRuleIds($rules->getIdsByArea());
+            $salesChannelContext->setRuleIds($rules->getIds());
+            $salesChannelContext->setAreaRuleIds($rules->getIdsByArea());
 
             // calculate cart again
-            $cart = $this->processor->process($cart, $context, $behaviorContext);
+            $cart = $this->processor->process($cart, $salesChannelContext, $cartBehavior);
 
             // check if the cart changed, in this case we have to recalculate the cart again
             $recalculate = $this->cartChanged($cart, $compare);
 
             // check if rules changed for the last calculated cart, in this case we have to recalculate
-            $ruleCompare = $all->filterMatchingRules($cart, $context);
+            $ruleCompare = $all->filterMatchingRules($cart, $salesChannelContext);
 
             if (!$rules->equals($ruleCompare)) {
                 $recalculate = true;
@@ -168,7 +168,7 @@ class CartRuleLoader implements ResetInterface
             ++$iteration;
         } while ($recalculate);
 
-        $cart = $this->validateTaxFree($context, $cart, $behaviorContext);
+        $cart = $this->validateTaxFree($salesChannelContext, $cart, $cartBehavior);
 
         $index = 0;
         foreach ($rules as $rule) {
@@ -178,8 +178,8 @@ class CartRuleLoader implements ResetInterface
             );
         }
 
-        $context->setRuleIds($rules->getIds());
-        $context->setAreaRuleIds($rules->getIdsByArea());
+        $salesChannelContext->setRuleIds($rules->getIds());
+        $salesChannelContext->setAreaRuleIds($rules->getIdsByArea());
 
         return new RuleLoaderResult($cart, $rules);
     }

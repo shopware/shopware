@@ -23,9 +23,9 @@ final class CheckoutCartRuleLoaderExtension extends Extension
      * @internal shopware owns the __constructor, but the properties are public API
      */
     public function __construct(
-        public readonly Cart $cart,
-        public readonly SalesChannelContext $context,
-        public readonly CartBehavior $behaviorContext,
+        public readonly SalesChannelContext $salesChannelContext,
+        public readonly Cart $originalCart,
+        public readonly CartBehavior $cartBehavior,
         protected readonly bool $new,
     ) {
     }

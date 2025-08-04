@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
@@ -322,6 +323,46 @@ class CreditNoteRendererTest extends TestCase
         );
 
         static::assertTrue($this->orderVersionExists($orderId, $operationCreditNote->getOrderVersionId()));
+    }
+
+    public function testUsingCreditItemAddedAfterInvoiceCreation(): void
+    {
+        $cart = $this->generateDemoCart([7]);
+        $orderId = $this->persistCart($cart);
+
+        $invoiceConfig = new DocumentConfiguration();
+        $invoiceConfig->setDocumentNumber('1001');
+
+        $operationInvoice = new DocumentGenerateOperation($orderId, FileTypes::PDF, $invoiceConfig->jsonSerialize());
+
+        $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->getSuccess()->first();
+        static::assertNotNull($result);
+
+        // create a new version for the order
+        $versionContext = $this->context->createWithVersionId(
+            $this->getContainer()->get('order.repository')->createVersion($orderId, $this->context, 'DRAFT')
+        );
+
+        // add credit line item to order
+        $creditLineItem = new LineItem(Uuid::randomHex(), LineItem::CREDIT_LINE_ITEM_TYPE, null, 1);
+        $creditLineItem->setLabel('credit item');
+        $creditLineItem->setPriceDefinition(new AbsolutePriceDefinition(-10.0));
+        $this->getContainer()->get(RecalculationService::class)->addCustomLineItem(
+            $orderId,
+            $creditLineItem,
+            $versionContext,
+        );
+
+        $operationCreditNote = new DocumentGenerateOperation($orderId);
+
+        $processedTemplate = $this->creditNoteRenderer->render(
+            [$orderId => $operationCreditNote],
+            $versionContext,
+            new DocumentRendererConfig()
+        );
+
+        static::assertNotEmpty($processedTemplate->getSuccess());
+        static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
     }
 
     /**

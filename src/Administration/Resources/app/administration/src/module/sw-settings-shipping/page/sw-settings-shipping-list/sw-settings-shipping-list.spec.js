@@ -49,6 +49,9 @@ async function createWrapper(privileges = []) {
                         buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                             return criteria;
                         },
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
                     },
                 },
                 stubs: {

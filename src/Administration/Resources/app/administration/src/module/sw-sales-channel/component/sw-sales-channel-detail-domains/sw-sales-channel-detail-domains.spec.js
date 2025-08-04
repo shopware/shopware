@@ -46,6 +46,7 @@ async function createWrapper(customProps = {}, domains = []) {
                     'sw-select-result': true,
                     'sw-provide': { template: `<slot/>`, inheritAttrs: false },
                     'mt-url-field': MtUrlField,
+                    'sw-sales-channel-measurement': true,
                 },
                 provide: {
                     repositoryFactory: {
@@ -56,6 +57,24 @@ async function createWrapper(customProps = {}, domains = []) {
                                     isNew: () => true,
                                 };
                             },
+
+                            search: () =>
+                                Promise.resolve(
+                                    new EntityCollection(null, null, Context.api, null, [
+                                        {
+                                            id: 'metric',
+                                            name: 'Metric system',
+                                            translated: { name: 'Metric system' },
+                                            technicalName: 'metric',
+                                        },
+                                        {
+                                            id: 'imperial',
+                                            name: 'Imperial system',
+                                            translated: { name: 'Imperial system' },
+                                            technicalName: 'imperial',
+                                        },
+                                    ]),
+                                ),
                         }),
                     },
                     shortcutService: {
@@ -91,6 +110,9 @@ function getExampleDomains() {
             snippetSet: {
                 name: 'BASE de-DE',
             },
+            measurementUnits: {
+                system: 'metric',
+            },
             isNew: () => false,
         },
         {
@@ -107,6 +129,9 @@ function getExampleDomains() {
             },
             snippetSet: {
                 name: 'BASE de-DE',
+            },
+            measurementUnits: {
+                system: 'metric',
             },
             isNew: () => false,
         },
@@ -346,6 +371,9 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
                         name: 'Euro',
                     },
                 },
+                measurementUnits: {
+                    system: 'metric',
+                },
                 snippetSet: {
                     name: 'BASE de-DE',
                 },
@@ -388,6 +416,9 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
                         name: 'Euro',
                     },
                 },
+                measurementUnits: {
+                    system: 'metric',
+                },
                 snippetSet: {
                     name: 'BASE de-DE',
                 },
@@ -413,5 +444,48 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         const domainExists = wrapper.vm.salesChannel.domains.some((domain) => domain.id === domainToDelete.id);
 
         expect(domainExists).toBe(true);
+    });
+
+    it('should display name measurement system with translate', async () => {
+        const domains = new EntityCollection('/sales-channel-domain', 'sales_channel_domain', Context.api, null, [
+            {
+                id: 'domain-1',
+                url: 'http://firstExample.com',
+                productExports: [{}],
+                language: {
+                    name: 'Deutsch',
+                },
+                currency: {
+                    name: 'Euro',
+                    translated: {
+                        name: 'Euro',
+                    },
+                },
+                measurementUnits: {
+                    system: 'metric',
+                },
+                snippetSet: {
+                    name: 'BASE de-DE',
+                },
+                isNew: () => false,
+            },
+        ]);
+
+        const wrapper = await createWrapper(
+            {
+                salesChannel: {
+                    languages: [],
+                    currencies: [],
+                    domains: domains,
+                },
+            },
+            [],
+        );
+
+        const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        const expectedRow = rows.at(0);
+        expect(expectedRow.find('.sw-data-grid__cell--measurementSystemName .sw-data-grid__cell-content').text()).toBe(
+            'Metric system',
+        );
     });
 });

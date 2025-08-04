@@ -50,7 +50,14 @@ $sw-order-line-item-border: $color-gray-300;
     .sw-order-line-items-grid__item-payload-options {
         .sw-product-variant-info {
             text-overflow: unset;
+            white-space: normal;
+            min-width: 192px;
         }
+    }
+
+    .sw-order-detail-general__line-item-grid-card .sw-order-line-items-grid__item-label {
+        white-space: normal;
+        min-width: 192px;
     }
 
     .sw-entity-single-select__selection-text .sw-product-variant-info {

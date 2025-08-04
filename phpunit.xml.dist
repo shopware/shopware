@@ -42,6 +42,7 @@
             <directory suffix=".php">src/Core/Migration/Test</directory>
             <directory suffix=".php">src/Elasticsearch/Test</directory>
             <directory suffix=".php">src/Storefront/Test</directory>
+            <directory suffix=".php">src/tests/unit/Core/System/Snippet/Mock</directory>
 
             <directory suffix="Definition.php">src/Core/</directory>
             <directory suffix="Entity.php">src/Core/</directory>
@@ -121,7 +122,6 @@
             <directory>tests/integration/Core/Framework/Adapter</directory>
             <directory>tests/integration/Core/Framework/Api</directory>
             <directory>tests/integration/Core/Framework/App</directory>
-            <directory>tests/integration/Core/Framework/Cache</directory>
             <directory>tests/integration/Core/Framework/Changelog</directory>
             <directory>tests/integration/Core/Framework/CustomField</directory>
         </testsuite>

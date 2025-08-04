@@ -19,8 +19,8 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
      * @internal
      */
     public function __construct(
-        private Configuration $configuration,
-        private readonly Connection $connection
+        private readonly Configuration $configuration,
+        private readonly Connection $connection,
     ) {
     }
 

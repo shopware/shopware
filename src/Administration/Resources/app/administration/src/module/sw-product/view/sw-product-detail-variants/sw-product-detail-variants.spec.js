@@ -190,17 +190,6 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         store.creationStates = 'is-physical';
     });
 
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        await wrapper.vm.$nextTick();
-        await wrapper.setData({
-            isLoading: false,
-        });
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should display a customized empty state if there are neither variants nor properties', async () => {
         const wrapper = await createWrapper();
 

@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Storefront\Page\Product\QuickView;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\ProductException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageCriteriaEvent;
@@ -35,7 +37,12 @@ class MinimalQuickViewPageTest extends TestCase
         $request = new Request([], [], ['productId' => '99999911ffff4fffafffffff19830531']);
         $context = $this->createSalesChannelContext();
 
-        $this->expectException(ProductNotFoundException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(ProductNotFoundException::class);
+        } else {
+            $this->expectException(ProductException::class);
+        }
+
         $this->getPageLoader()->load($request, $context);
     }
 
@@ -47,7 +54,12 @@ class MinimalQuickViewPageTest extends TestCase
         $event = null;
         $this->catchEvent(MinimalQuickViewPageLoadedEvent::class, $event);
 
-        $this->expectException(ProductNotFoundException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(ProductNotFoundException::class);
+        } else {
+            $this->expectException(ProductException::class);
+        }
+
         $this->getPageLoader()->load($request, $context);
     }
 

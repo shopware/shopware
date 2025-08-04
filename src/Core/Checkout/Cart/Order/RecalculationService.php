@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -109,7 +110,7 @@ class RecalculationService
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', __CLASS__ . '::recalculate')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', self::class . '::recalculate')
         );
 
         $this->recalculate($orderId, $context, $salesChannelContextOptions);
@@ -210,7 +211,7 @@ class RecalculationService
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', __CLASS__ . '::applyAutomaticPromotions')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', self::class . '::applyAutomaticPromotions')
         );
 
         $order = $this->fetchOrder($orderId, $context);
@@ -343,7 +344,14 @@ class RecalculationService
 
     private function addLineItemToDeliveryPosition(LineItem $item, Cart $cart): void
     {
-        $delivery = $cart->getDeliveries()->first();
+        $delivery = $cart->getDeliveries()->getPrimaryDelivery(
+            $cart->getExtensionOfType(OrderConverter::ORIGINAL_PRIMARY_ORDER_DELIVERY, IdStruct::class)?->getId()
+        );
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $delivery = $cart->getDeliveries()->first();
+        }
+
         if (!$delivery) {
             return;
         }

@@ -290,6 +290,7 @@ class ExtensionLoader
             'iconRaw' => $app->getIcon(),
             'installedAt' => $app->getCreatedAt(),
             'permissions' => $app->getAclRole() !== null ? Utils::makePermissions($app->getAclRole()->getPrivileges()) : [],
+            'requestedPermissions' => Utils::makePermissions($app->getRequestedPrivileges()),
             'active' => $app->isActive(),
             'languages' => [],
             'type' => ExtensionStruct::EXTENSION_TYPE_APP,
@@ -324,6 +325,7 @@ class ExtensionLoader
             'images' => ImageCollection::class,
             'categories' => StoreCategoryCollection::class,
             'permissions' => PermissionCollection::class,
+            'requestedPermissions' => PermissionCollection::class,
         ];
 
         foreach ($replacements as $key => $collectionClass) {

@@ -16,6 +16,7 @@
         {% set real = cheapest %}
         {% set totalVariants = product.cheapestPriceContainer.value %}
         {% set hasDifferentPrice = totalVariants|filter(variant => variant.default != null)|length > 0 %}
+        {% set hasRange = product.cheapestPrice.hasRange %}
     {% endif %}
 
     <div class="product-price-info">
@@ -78,7 +79,7 @@
                     The product is not directly buy-able from the listing.
                     Example: "From $120.00"
                 #}
-                {% if displayFrom or (displayParent and hasDifferentPrice and totalVariants|length > 1) %}
+                {% if displayFrom or (displayParent and hasDifferentPrice and hasRange and totalVariants|length > 1) %}
                     {{ 'listing.listingTextFrom'|trans|sw_sanitize }}
                 {% endif %}
 

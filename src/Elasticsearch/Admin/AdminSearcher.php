@@ -51,7 +51,7 @@ class AdminSearcher
 
             try {
                 $indexer = $this->registry->getIndexer($entityName);
-            } catch (ElasticsearchException $e) {
+            } catch (ElasticsearchException) {
                 continue;
             }
 

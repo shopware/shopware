@@ -2,10 +2,10 @@
 @import "~scss/mixins";
 
 $sw-search-bar-item-border-radius: $border-radius-default;
-$sw-search-bar-item-color-label: $color-darkgray-200;
-$sw-search-bar-item-color-type: darken($color-gray-100, 25%);
-$sw-search-bar-item-hover-color-background: lighten($color-shopware-brand-500, 40%);
-$sw-search-bar-item-label-hover-color-text: $color-shopware-brand-500;
+$sw-search-bar-item-color-label: var(--color-text-primary-default);
+$sw-search-bar-item-color-type: var(--color-text-primary-default);
+$sw-search-bar-item-hover-color-background: var(--color-background-brand-default);
+$sw-search-bar-item-label-hover-color-text: var(--color-text-brand-default);
 
 .sw-search-bar-item {
     border-radius: $sw-search-bar-item-border-radius;
@@ -17,6 +17,11 @@ $sw-search-bar-item-label-hover-color-text: $color-shopware-brand-500;
         display: flex;
         text-decoration: none;
         line-height: $line-height-sm;
+
+        &:focus-visible {
+            outline-offset: var(--scale-size-2);
+            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+        }
     }
 
     .mt-icon {

@@ -316,6 +316,17 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'customSearchKeywords' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
                 'states' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'manufacturerId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'deliveryTimeId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'deliveryTime' => [
+                    'type' => 'nested',
+                    'properties' => [
+                        'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                        'name' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
+                        '_count' => [
+                            'type' => 'long',
+                        ],
+                    ],
+                ],
             ],
             'dynamic_templates' => [
                 ['cheapest_price' => [
@@ -737,6 +748,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                         'height' => 4,
                         'length' => 4,
                         'productManufacturerId' => null,
+                        'deliveryTimeId' => null,
                         'manufacturerNumber' => null,
                         'taxId' => 'tax',
                         'displayGroup' => '1',

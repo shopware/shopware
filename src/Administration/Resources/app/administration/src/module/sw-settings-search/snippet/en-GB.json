@@ -102,6 +102,7 @@
       "textDescription": "Test your custom search settings below.",
       "labelSalesChannelSelect": "Sales Channel",
       "textPlaceholderSalesChannel": "Select a Sales Channel...",
+      "textPlaceholderSorting": "Select sorting...",
       "linkRebuildSearchIndex": "Rebuild search index",
       "labelName": "Search result",
       "labelScore": "Ranking score",

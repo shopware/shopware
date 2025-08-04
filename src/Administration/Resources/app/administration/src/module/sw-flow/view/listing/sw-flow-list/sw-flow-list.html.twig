@@ -108,9 +108,7 @@
                     @modal-close="onCloseDeleteModal"
                 >
                     {% block sw_flow_list_grid_action_modal_confirm_delete_text %}
-                    <mt-banner variant="attention">
-                        {{ deleteWarningMessage() }}
-                    </mt-banner>
+                    <p>{{ deleteWarningMessage() }}</p>
                     {% endblock %}
 
                     <template #modal-footer>

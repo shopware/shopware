@@ -17,29 +17,29 @@ class StorePluginStruct extends Struct
 
     protected string $shortDescription;
 
-    protected ?string $iconPath;
+    protected ?string $iconPath = null;
 
-    protected ?string $version;
+    protected ?string $version = null;
 
-    protected ?string $description;
+    protected ?string $description = null;
 
-    protected ?string $changelog;
+    protected ?string $changelog = null;
 
-    protected ?\DateTimeInterface $releaseDate;
+    protected ?\DateTimeInterface $releaseDate = null;
 
     protected bool $installed = false;
 
     protected bool $active = false;
 
-    protected ?string $language;
+    protected ?string $language = null;
 
-    protected ?string $region;
+    protected ?string $region = null;
 
-    protected ?string $category;
+    protected ?string $category = null;
 
-    protected ?string $manufacturer;
+    protected ?string $manufacturer = null;
 
-    protected ?int $position;
+    protected ?int $position = null;
 
     protected bool $isCategoryLead;
 

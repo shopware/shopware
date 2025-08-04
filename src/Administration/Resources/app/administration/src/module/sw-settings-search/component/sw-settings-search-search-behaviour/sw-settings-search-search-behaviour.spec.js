@@ -61,13 +61,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-search-behaviour', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to change the behaviour search which includes and, or', async () => {
         const wrapper = await createWrapper([
             'product_search_config.viewer',

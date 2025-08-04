@@ -114,10 +114,6 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it("should keep the customer's account type as private even when the company field is set", async () => {
         expect(wrapper.vm).toBeTruthy();
 

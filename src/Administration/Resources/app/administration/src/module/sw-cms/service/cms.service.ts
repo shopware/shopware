@@ -57,6 +57,7 @@ type CmsElementConfig = {
     appData?: {
         baseUrl: string;
     };
+    hover?: boolean;
 };
 
 type CmsBlockConfig = {

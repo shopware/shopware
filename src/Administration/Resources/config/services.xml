@@ -47,6 +47,7 @@
             <argument type="service" id="parameter_bag"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="shopware.filesystem.asset"/>
+            <argument type="string">%env(SERVICE_REGISTRY_URL)%</argument>
             <argument type="string">%shopware.api.refresh_token_ttl%</argument>
 
             <call method="setContainer">
@@ -173,6 +174,13 @@
             <argument type="service" id="shopware.asset.asset"/>
             <argument type="service" id="kernel"/>
             <argument type="service" id="filesystem"/>
+        </service>
+
+        <service id="Shopware\Administration\Framework\App\Subscriber\SystemLanguageChangedSubscriber">
+            <argument type="service" id="locale.repository"/>
+            <argument type="service" id="app_administration_snippet.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

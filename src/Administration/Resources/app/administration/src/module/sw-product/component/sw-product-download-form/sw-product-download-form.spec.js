@@ -110,14 +110,6 @@ describe('module/sw-product/component/sw-product-download-form', () => {
         Shopware.Store.get('error').api = {};
     });
 
-    it('should be a Vue.JS component', async () => {
-        global.activeAclRoles = [];
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show the sw-media-upload-v2 component', async () => {
         global.activeAclRoles = ['product.editor'];
         const wrapper = await createWrapper();

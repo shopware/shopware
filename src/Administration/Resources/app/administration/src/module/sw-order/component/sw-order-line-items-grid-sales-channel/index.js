@@ -44,6 +44,18 @@ export default {
             type: Boolean,
             default: false,
         },
+
+        title: {
+            type: String,
+            required: false,
+            default: '',
+        },
+
+        positionIdentifier: {
+            type: String,
+            required: false,
+            default: 'sw-order-line-items-grid-sales-channel',
+        },
     },
 
     data() {

@@ -153,7 +153,6 @@ class TaxProviderPersisterTest extends TestCase
 
         $childElementLabel = $domDocument->createElement('label', 'label value');
         $childElementName = $domDocument->createElement('name', self::META_APP_NAME);
-        $childElementUrl = $domDocument->createElement('url', 'url value');
         $childElementAuthor = $domDocument->createElement('author', 'author value');
         $childElementCopyright = $domDocument->createElement('copyright', 'copyright value');
         $childElementLicense = $domDocument->createElement('license', 'license value');
@@ -161,7 +160,6 @@ class TaxProviderPersisterTest extends TestCase
 
         $domElement->appendChild($childElementLabel);
         $domElement->appendChild($childElementName);
-        $domElement->appendChild($childElementUrl);
         $domElement->appendChild($childElementAuthor);
         $domElement->appendChild($childElementCopyright);
         $domElement->appendChild($childElementLicense);

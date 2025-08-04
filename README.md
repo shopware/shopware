@@ -1,6 +1,6 @@
 <div align="center">
 
-[![Build Status](https://github.com/shopware/shopware/actions/workflows/php.yml/badge.svg)](https://github.com/shopware/shopware/actions/workflows/php.yml)
+[![Nightly Build Status](https://github.com/shopware/shopware/actions/workflows/nightly.yml/badge.svg?event=schedule&branch=trunk)](https://github.com/shopware/shopware/actions/workflows/nightly.yml?query=event%3Aschedule+branch%3Atrunk)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/shopware/platform/badges/quality-score.png)](https://scrutinizer-ci.com/g/shopware/platform/)
 [![Latest Stable Version](https://poser.pugx.org/shopware/platform/v/stable)](https://packagist.org/packages/shopware/platform)
 [![Total Downloads](https://poser.pugx.org/shopware/platform/downloads)](https://packagist.org/packages/shopware/platform)
@@ -28,7 +28,7 @@ If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on GitHub!
 
 * 🙋‍♂️ &nbsp;[Be part of shopware!](https://www.shopware.com/en/jobs/) ‍&nbsp;We are hiring!  🙋
 * 🌎 &nbsp;Discover our [website](https://www.shopware.com/en/)
-* 🧩 &nbsp;Browse more than [5,200 extensions](https://store.shopware.com/en/) in our community store
+* 🧩 &nbsp;Browse more than [3,100 extensions](https://store.shopware.com/en/) in our community store
 * 📖 &nbsp;Learn how to [develop extensions](https://developer.shopware.com) and everything else about the tech behind Shopware
 * 🉐 &nbsp;[Translate](https://translate.shopware.com) Shopware or help by contributing to existing languages
 * 🛠 &nbsp;[Report bugs](https://github.com/shopware/shopware/issues) in our issue tracker

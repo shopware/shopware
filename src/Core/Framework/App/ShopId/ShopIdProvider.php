@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\App\ShopId;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
@@ -23,7 +23,7 @@ class ShopIdProvider
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly ActiveAppsLoader $activeAppsLoader
+        private readonly Connection $connection,
     ) {
     }
 
@@ -43,7 +43,7 @@ class ShopIdProvider
 
         $appUrl = EnvironmentHelper::getVariable('APP_URL');
         if (\is_string($appUrl) && $appUrl !== ($shopId['app_url'] ?? '')) {
-            if ($this->activeAppsLoader->getActiveApps()) {
+            if ($this->hasAppsRegisteredAtAppServers()) {
                 throw new AppUrlChangeDetectedException($shopId['app_url'], $appUrl, $shopId['value']);
             }
 
@@ -79,5 +79,10 @@ class ShopIdProvider
     private function generateShopId(): string
     {
         return Random::getAlphanumericString(16);
+    }
+
+    private function hasAppsRegisteredAtAppServers(): bool
+    {
+        return (int) $this->connection->fetchOne('SELECT COUNT(id) FROM app WHERE app_secret IS NOT NULL') > 0;
     }
 }

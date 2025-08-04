@@ -759,4 +759,139 @@ class FlowExecutorTest extends TestCase
 
         $this->flowExecutor->execute($flow, $storableFlow);
     }
+
+    public function testExitActionExecutionIfSequenceActionIsNotSet(): void
+    {
+        $ids = new IdsCollection();
+        $actionSequence = new ActionSequence();
+        $actionSequence->sequenceId = $ids->get('test-sequence');
+        $actionSequence->config = ['test' => 'value'];
+        $actionSequence->action = '';
+
+        $flow = new StorableFlow('some-flow', Context::createCLIContext());
+        $flow->setFlowState(new FlowState());
+
+        $this->flowExecutor->executeAction($actionSequence, $flow);
+
+        static::assertEmpty($flow->getConfig());
+    }
+
+    public function testExitActionExecutionIfFlowStopIsSet(): void
+    {
+        $ids = new IdsCollection();
+        $actionSequence = new ActionSequence();
+        $actionSequence->sequenceId = $ids->get('test-sequence');
+        $actionSequence->config = ['test' => 'value'];
+        $actionSequence->action = 'test.action';
+
+        $flow = new StorableFlow('some-flow', Context::createCLIContext());
+        $flow->setFlowState(new FlowState());
+        $flow->getFlowState()->stop = true;
+
+        $this->flowExecutor->executeAction($actionSequence, $flow);
+
+        static::assertEmpty($flow->getConfig());
+    }
+
+    public function testExitActionExecutionIfFlowIsDelayed(): void
+    {
+        $ids = new IdsCollection();
+        $actionSequence = new ActionSequence();
+        $actionSequence->sequenceId = $ids->get('test-sequence');
+        $actionSequence->config = ['test' => 'value'];
+        $actionSequence->action = 'test.action';
+
+        $actionSequence2 = new ActionSequence();
+        $actionSequence2->sequenceId = $ids->get('next-sequence');
+        $actionSequence2->config = ['next' => 'value'];
+        $actionSequence2->action = AddOrderTagAction::getName();
+        $actionSequence->nextAction = $actionSequence2;
+
+        $flow = new StorableFlow('some-flow', Context::createCLIContext());
+        $flow->setFlowState(new FlowState());
+        $flow->getFlowState()->delayed = true;
+
+        $this->addOrderTagActionMock
+            ->expects($this->never())
+            ->method('handleFlow');
+
+        $this->flowExecutor->executeAction($actionSequence, $flow);
+
+        static::assertNotEmpty($flow->getConfig());
+    }
+
+    public function testExitActionExecutionIfNextActionIsNull(): void
+    {
+        $ids = new IdsCollection();
+        $actionSequence = new ActionSequence();
+        $actionSequence->sequenceId = $ids->get('test-sequence');
+        $actionSequence->config = ['test' => 'value'];
+        $actionSequence->action = 'test.action';
+
+        $actionSequence2 = new ActionSequence();
+        $actionSequence2->sequenceId = $ids->get('next-sequence');
+        $actionSequence2->config = ['next' => 'value'];
+        $actionSequence2->action = AddOrderTagAction::getName();
+        $actionSequence->nextAction = $actionSequence2;
+
+        $flow = new StorableFlow('some-flow', Context::createCLIContext());
+        $flow->setFlowState(new FlowState());
+
+        $this->addOrderTagActionMock
+            ->expects($this->once())
+            ->method('handleFlow');
+
+        $this->flowExecutor->executeAction($actionSequence, $flow);
+
+        static::assertNotEmpty($flow->getConfig());
+    }
+
+    public function testSetCurrentSequenceInFlowStateForActionExecution(): void
+    {
+        $ids = new IdsCollection();
+        $actionSequence = new ActionSequence();
+        $actionSequence->sequenceId = $ids->get('first-sequence');
+        $actionSequence->config = ['first' => 'value'];
+        $actionSequence->action = AddOrderTagAction::getName();
+
+        $actionSequence2 = new ActionSequence();
+        $actionSequence2->sequenceId = $ids->get('second-sequence');
+        $actionSequence2->config = ['second' => 'value'];
+        $actionSequence2->action = AddOrderTagAction::getName();
+        $actionSequence->nextAction = $actionSequence2;
+
+        $actionSequence3 = new ActionSequence();
+        $actionSequence3->sequenceId = $ids->get('third-sequence');
+        $actionSequence3->config = ['third' => 'value'];
+        $actionSequence3->action = AddOrderTagAction::getName();
+        $actionSequence2->nextAction = $actionSequence3;
+
+        $flow = new StorableFlow('some-flow', Context::createCLIContext());
+        $flowState = new FlowState();
+        $flowState->currentSequence = $actionSequence;
+        $flow->setFlowState($flowState);
+
+        $callCount = 0;
+        $idSequence = [
+            $ids->get('first-sequence'),
+            $ids->get('second-sequence'),
+            $ids->get('third-sequence'),
+        ];
+
+        $this->addOrderTagActionMock
+            ->expects($this->exactly(3))
+            ->method('handleFlow')
+            ->willReturnCallback(function (StorableFlow $flow) use (&$callCount, $idSequence): void {
+                static::assertSame(
+                    $idSequence[$callCount],
+                    $flow->getFlowState()->currentSequence->sequenceId
+                );
+
+                ++$callCount;
+            });
+
+        $this->flowExecutor->executeAction($actionSequence, $flow);
+
+        static::assertNotEmpty($flow->getConfig());
+    }
 }

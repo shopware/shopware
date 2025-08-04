@@ -3,11 +3,15 @@
 namespace Shopware\Core\Content\Test\Media;
 
 use PHPUnit\Framework\Attributes\Before;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\BinaryType;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\Traits\EntityFixturesBase;
 
@@ -23,11 +27,25 @@ trait MediaFixtures
      */
     public array $mediaFixtures;
 
+    public string $thumbnailSize150Id;
+
+    public string $thumbnailSize200Id;
+
+    public string $thumbnailSize300Id;
+
     #[Before]
     public function initializeMediaFixtures(): void
     {
-        $thumbnailSize150Id = Uuid::randomHex();
-        $thumbnailSize300Id = Uuid::randomHex();
+        $this->thumbnailSize150Id = Uuid::randomHex();
+        $this->thumbnailSize300Id = Uuid::randomHex();
+
+        // Media thumbnail size 200 is a default size which already exists in the database, to prevent duplicate entries we use the existing one.
+        /** @var EntityRepository<MediaThumbnailSizeCollection> */
+        $mediaThumbnailSizeRepository = static::getFixtureRepository('media_thumbnail_size');
+        $mediaThumbnailSizes = $mediaThumbnailSizeRepository->search(new Criteria(), $this->entityFixtureContext)->getEntities();
+        $this->thumbnailSize200Id = $mediaThumbnailSizes->filter(
+            static fn (MediaThumbnailSizeEntity $size) => $size->getWidth() === 200 && $size->getHeight() === 200
+        )->first()?->getId() ?? Uuid::randomHex();
 
         $this->mediaFixtures = [
             'NamedEmpty' => [
@@ -85,6 +103,7 @@ trait MediaFixtures
                         'width' => 200,
                         'height' => 200,
                         'highDpi' => false,
+                        'mediaThumbnailSizeId' => $this->thumbnailSize200Id,
                     ],
                 ],
             ],
@@ -143,12 +162,12 @@ trait MediaFixtures
                         'thumbnailQuality' => 80,
                         'mediaThumbnailSizes' => [
                             [
-                                'id' => $thumbnailSize150Id,
+                                'id' => $this->thumbnailSize150Id,
                                 'width' => 150,
                                 'height' => 150,
                             ],
                             [
-                                'id' => $thumbnailSize300Id,
+                                'id' => $this->thumbnailSize300Id,
                                 'width' => 300,
                                 'height' => 300,
                             ],
@@ -173,12 +192,12 @@ trait MediaFixtures
                         'thumbnailQuality' => 80,
                         'mediaThumbnailSizes' => [
                             [
-                                'id' => $thumbnailSize150Id,
+                                'id' => $this->thumbnailSize150Id,
                                 'width' => 150,
                                 'height' => 150,
                             ],
                             [
-                                'id' => $thumbnailSize300Id,
+                                'id' => $this->thumbnailSize300Id,
                                 'width' => 300,
                                 'height' => 300,
                             ],
@@ -202,7 +221,6 @@ trait MediaFixtures
                     ],
                 ],
             ],
-
             'NamedMimePngEtxPngWithFolderHugeThumbnails' => [
                 'id' => Uuid::randomHex(),
                 'mimeType' => 'image/png',
@@ -221,12 +239,12 @@ trait MediaFixtures
                         'thumbnailQuality' => 80,
                         'mediaThumbnailSizes' => [
                             [
-                                'id' => $thumbnailSize150Id,
+                                'id' => $this->thumbnailSize150Id,
                                 'width' => 1500,
                                 'height' => 1500,
                             ],
                             [
-                                'id' => $thumbnailSize300Id,
+                                'id' => $this->thumbnailSize300Id,
                                 'width' => 3000,
                                 'height' => 3000,
                             ],

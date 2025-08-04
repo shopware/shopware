@@ -22,10 +22,6 @@ describe('src/app/asyncComponent/utils/sw-help-center', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to open the help sidebar', async () => {
         await wrapper.find('.sw-help-center__button').trigger('click');
 

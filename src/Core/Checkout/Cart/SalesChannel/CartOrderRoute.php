@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartContextHasher;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Extension\CheckoutPlaceOrderExtension;
@@ -25,21 +26,20 @@ use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
 class CartOrderRoute extends AbstractCartOrderRoute
 {
-    private const LOCK_TTL = 30;
-
     /**
      * @internal
      *
@@ -55,8 +55,8 @@ class CartOrderRoute extends AbstractCartOrderRoute
         private readonly TaxProviderProcessor $taxProviderProcessor,
         private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
         private readonly CartContextHasher $cartContextHasher,
-        private readonly LockFactory $lockFactory,
         private readonly ExtensionDispatcher $extensions,
+        private readonly CartLocker $cartLocker
     ) {
     }
 
@@ -74,12 +74,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
             throw CartException::hashMismatch($cart->getToken());
         }
 
-        $lock = $this->lockFactory->createLock('cart-order-route-' . $cart->getToken(), self::LOCK_TTL);
-        if (!$lock->acquire()) {
-            throw CartException::cartLocked($cart->getToken());
-        }
-
-        try {
+        return $this->cartLocker->locked($cart->getToken(), function () use ($cart, $context, $data) {
             // we use this state in stock updater class, to prevent duplicate available stock updates
             $context->addState('checkout-order-route');
 
@@ -92,7 +87,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
             $orderId = $placed->orderId;
 
             if (Feature::isActive('v6.8.0.0')) {
-                // @deprecated tag:v6.8.0 - move the finally block to after this statement, after the cart is deleted, order persisting can be unlocked again
+                // @deprecated tag:v6.8.0 - After the cart is deleted, the lock is no longer needed. The following operations should be moved outside the locked closure.
                 $this->cartPersister->delete($context->getToken(), $context);
             }
 
@@ -137,11 +132,9 @@ class CartOrderRoute extends AbstractCartOrderRoute
                 // cart will delete immediately after order is created to avoid inconsistencies.
                 $this->cartPersister->delete($context->getToken(), $context);
             }
-        } finally {
-            $lock->release();
-        }
 
-        return new CartOrderRouteResponse($orderEntity);
+            return new CartOrderRouteResponse($orderEntity);
+        });
     }
 
     private function addCustomerComment(Cart $cart, DataBag $data): void

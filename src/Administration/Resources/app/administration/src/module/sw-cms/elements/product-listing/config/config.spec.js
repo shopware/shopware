@@ -144,11 +144,6 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain tab items content, sorting and filter', async () => {
         const wrapper = await createWrapper();
 

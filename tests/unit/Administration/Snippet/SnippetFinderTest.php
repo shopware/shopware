@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Storefront\Storefront;
+use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
 
 /**
  * @internal
@@ -22,6 +23,8 @@ use Shopware\Storefront\Storefront;
 #[CoversClass(SnippetFinder::class)]
 class SnippetFinderTest extends TestCase
 {
+    use SnippetFileTrait;
+
     public function testFindSnippetsFromAppNoSnippetsAdded(): void
     {
         $snippetFinder = new SnippetFinder(
@@ -205,11 +208,12 @@ class SnippetFinderTest extends TestCase
         array $activePluginPaths = [],
         array $bundlePaths = []
     ): Kernel&MockObject {
-        $getBundleMockByPath = function (string $path): Plugin&MockObject {
-            $plugin = $this->createMock(Plugin::class);
-            $plugin
-                ->method('getPath')
-                ->willReturn(__DIR__ . '/fixtures/' . $path);
+        $getBundleMockByPath = function (string $path): Plugin {
+            $path = __DIR__ . '/fixtures/' . $path;
+
+            $plugin = new TestPlugin(true, $path);
+            $plugin->setName('activePlugin');
+            $plugin->setPath($path);
 
             return $plugin;
         };
@@ -263,6 +267,41 @@ class SnippetFinderTest extends TestCase
             ->willReturn($bundles);
 
         return $kernelMock;
+    }
+
+    public function testFindInstalledSnippetsWithoutPluginsActive(): void
+    {
+        $this->createSnippetFiles();
+
+        $snippetFinder = new SnippetFinder(
+            $this->getKernelMock(),
+            $this->getConnectionMock('es-ES', [])
+        );
+
+        $snippets = $snippetFinder->findSnippets('es-ES');
+
+        static::assertEquals(['shop' => 'Demo Shop'], $snippets);
+
+        $this->cleanupSnippetFiles();
+    }
+
+    public function testFindInstalledSnippetsWithActivePlugin(): void
+    {
+        $this->createSnippetFiles();
+
+        $snippetFinder = new SnippetFinder(
+            $this->getKernelMock(pluginPaths: ['activePlugin'], activePluginPaths: ['activePlugin']),
+            $this->getConnectionMock('es-ES', [])
+        );
+
+        $snippets = $snippetFinder->findSnippets('es-ES');
+
+        static::assertEquals([
+            'plugin' => 'activePlugin',
+            'shop' => 'Demo Shop',
+        ], $snippets);
+
+        $this->cleanupSnippetFiles();
     }
 
     /**

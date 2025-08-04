@@ -44,6 +44,7 @@
       "messageSaveSuccess": "Sales Channel \"{name}\" saved.",
       "messageSaveError": "The Sales Channel \"{name}\" could not be saved. Please check your entries.",
       "messageActivateWithoutThemeError": "Sales Channel \"{name}\" could not be activated. Active Sales Channels need to have a theme associated.",
+      "messageMeasurementUnitsSetError": "Could not load system configuration for product measurements.",
       "activateDisable": "Please assign a theme before activating and saving the Sales Channel.",
       "buttonSave": "Save",
       "buttonCreateNewApiKeys": "Create new API key",
@@ -217,7 +218,7 @@
         "messageAccessKeyChanged": "Access key and export URL are active only after saving the Sales Channel.",
         "templates": {
           "label": "Template",
-          "placeholderSelectTemplate": "Do not use a template...",
+          "placeholderSelectTemplate": "Select a template...",
           "template-label": {
             "billiger-de": "billiger.de (CSV)",
             "idealo": "idealo.de (CSV)",

@@ -95,7 +95,7 @@ class AttributeEntityCompiler
         OneToOne::class,
     ];
 
-    private CamelCaseToSnakeCaseNameConverter $converter;
+    private readonly CamelCaseToSnakeCaseNameConverter $converter;
 
     public function __construct()
     {

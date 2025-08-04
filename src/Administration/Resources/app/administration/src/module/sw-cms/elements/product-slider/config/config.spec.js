@@ -122,12 +122,6 @@ describe('module/sw-cms/elements/product-slider/config', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render product assignment type select', async () => {
         const wrapper = await createWrapper();
 
@@ -249,5 +243,40 @@ describe('module/sw-cms/elements/product-slider/config', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('sw-product-stream-modal-preview-stub').exists()).toBeTruthy();
+    });
+
+    it('should update product ids in element config and translated element config if available', async () => {
+        const expectedProductIds = productMock.map((product) => product.id);
+
+        const wrapper = await createWrapper({
+            products: {
+                value: [],
+                source: 'static',
+            },
+        });
+
+        wrapper.vm.productCollection = new Shopware.Data.EntityCollection('/product', 'product', {}, null, productMock);
+
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.onProductsChange();
+
+        expect(Array.from(wrapper.vm.element.config.products.value)).toStrictEqual(expectedProductIds);
+        expect(wrapper.vm.element.translated).toBeUndefined();
+
+        wrapper.vm.element.translated = {
+            config: {
+                products: {
+                    value: [],
+                    source: 'static',
+                },
+            },
+        };
+
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.onProductsChange();
+
+        expect(Array.from(wrapper.vm.element.translated.config.products.value)).toStrictEqual(expectedProductIds);
     });
 });

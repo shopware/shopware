@@ -37,6 +37,7 @@ class AdapterException extends HttpException
     final public const DUPLICATE_FILESYSTEM_FACTORY = 'FRAMEWORK__DUPLICATE_FILESYSTEM_FACTORY';
     final public const OPERATOR_NOT_SUPPORTED = 'FRAMEWORK__OPERATOR_NOT_SUPPORTED';
     final public const MISSING_REQUIRED_PARAMETER = 'FRAMEWORK__MISSING_REQUIRED_PARAMETER';
+    final public const CIRCULAR_REFERENCE_ESI = 'FRAMEWORK__CIRCULAR_REFERENCE_ESI';
 
     /**
      * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
@@ -287,6 +288,21 @@ class AdapterException extends HttpException
             self::MISSING_REQUIRED_PARAMETER,
             'Parameter "{{ parameter }}" is required but not found in the container.',
             ['parameter' => $parameter],
+        );
+    }
+
+    /**
+     * @param array<string> $paths
+     */
+    public static function circularReferenceEsi(array $paths): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CIRCULAR_REFERENCE_ESI,
+            'Circular ESI request detected: Request call stack: {{ paths }}',
+            [
+                'paths' => implode(', ', $paths),
+            ]
         );
     }
 }

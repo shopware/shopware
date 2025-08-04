@@ -198,7 +198,9 @@ export default {
 
         loadCurrencies() {
             this.currenciesLoading = true;
-            this.currencyRepository.search(new Criteria(1, 500), Context.api).then((currencyResponse) => {
+            const criteria = new Criteria(1, 500);
+            criteria.addAssociation('salesChannels');
+            this.currencyRepository.search(criteria, Context.api).then((currencyResponse) => {
                 Shopware.Store.get('swShippingDetail').currencies = this.sortCurrencies(currencyResponse);
                 this.currenciesLoading = false;
             });

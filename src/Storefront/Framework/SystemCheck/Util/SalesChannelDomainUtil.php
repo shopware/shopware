@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\SystemCheck\Util;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
@@ -25,6 +26,7 @@ readonly class SalesChannelDomainUtil
         private RouterInterface $router,
         private RequestStack $requestStack,
         private KernelInterface $kernel,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -96,7 +98,16 @@ readonly class SalesChannelDomainUtil
 
         while ($redirectCount <= self::MAX_REDIRECTS) {
             $requestStart = microtime(true);
-            $response = $this->kernel->handle($currentRequest);
+            try {
+                // don't let the kernel catch errors, so we can handle them ourselves
+                $response = $this->kernel->handle($currentRequest, catch: false);
+            } catch (\Exception $e) {
+                $responseTime += microtime(true) - $requestStart;
+
+                $this->logger->error(\sprintf('Error during systemcheck: "%s"', $e->getMessage()), ['exception' => $e, 'request' => $currentRequest]);
+
+                return StorefrontHealthCheckResult::create($currentRequest->getUri(), Response::HTTP_BAD_REQUEST, $responseTime, $e->getMessage());
+            }
             $responseTime += microtime(true) - $requestStart;
 
             if (!($response instanceof RedirectResponse)) {

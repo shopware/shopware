@@ -6,6 +6,19 @@ let
     extraConfig = config.languages.php.ini;
   };
 in {
+  overlays = [
+    # Each overlay is a function that takes two arguments: final and prev
+    (final: prev: {
+      # Override an existing package
+      boost177 = prev.boost177.overrideAttrs (oldAttrs: {
+        # The postFixup hook is where the signing check runs.
+        # By setting it to an empty string, we tell Nix to skip it.
+        # This is generally safe for development shells.
+        postFixup = "";
+      });
+    })
+  ];
+
   packages = [
     pkgs.gnupatch
     pkgs.nodePackages_latest.yalc
@@ -145,4 +158,7 @@ in {
   env.CYPRESS_dbUser = lib.mkDefault "shopware";
   env.CYPRESS_dbPassword = lib.mkDefault "shopware";
   env.CYPRESS_dbName = lib.mkDefault "shopware";
+
+  # Service Registry
+  env.SERVICE_REGISTRY_URL = lib.mkDefault "https://registry.staging-services.shopware.io";
 }

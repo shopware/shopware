@@ -110,7 +110,7 @@ class RecalculationService
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', __CLASS__ . '::recalculate')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', self::class . '::recalculate')
         );
 
         $this->recalculate($orderId, $context, $salesChannelContextOptions);
@@ -211,7 +211,7 @@ class RecalculationService
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', __CLASS__ . '::applyAutomaticPromotions')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', self::class . '::applyAutomaticPromotions')
         );
 
         $order = $this->fetchOrder($orderId, $context);

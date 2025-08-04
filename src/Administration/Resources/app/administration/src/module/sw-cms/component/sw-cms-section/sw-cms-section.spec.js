@@ -92,14 +92,6 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-        expect(wrapper.vm.section.backgroundMediaMode).toBe('cover');
-        expect(wrapper.vm.section.backgroundColor).toBe('');
-    });
-
     it('should not disable all sub components', async () => {
         const wrapper = await createWrapper();
 

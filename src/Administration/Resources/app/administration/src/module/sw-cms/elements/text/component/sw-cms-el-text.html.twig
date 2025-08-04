@@ -6,12 +6,18 @@
         v-html="$sanitize(demoValue)"
     ></div>
 
-    <mt-text-editor
+    <sw-text-editor
         v-else
-        :model-value="element.config.content.value"
-        :custom-buttons="customTextEditorButtons"
-        is-inline-edit
-        @update:model-value="onInput"
+        v-model:value="element.config.content.value"
+        :disabled="disabled"
+        :vertical-align="element.config.verticalAlign.value"
+        :allow-inline-data-mapping="true"
+        :is-inline-edit="true"
+        sanitize-input
+        sanitize-field-name="app_cms_block.template"
+        enable-transparent-background
+        @blur="onBlur"
+        @update:value="onInput"
     />
 </div>
 {% endblock %}

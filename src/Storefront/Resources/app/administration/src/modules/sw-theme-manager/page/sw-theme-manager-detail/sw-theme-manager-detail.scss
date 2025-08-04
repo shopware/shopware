@@ -179,7 +179,11 @@
     }
 
     .sw-field--switch {
-        margin: 0 0 22px 0;
+        margin: 0;
+    }
+
+    .mt-field {
+        margin-bottom: 0;
     }
 
     .sw-field-id-sw-default-switch,

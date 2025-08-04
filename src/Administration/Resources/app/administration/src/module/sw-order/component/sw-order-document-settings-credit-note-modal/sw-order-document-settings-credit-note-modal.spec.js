@@ -153,10 +153,6 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should compute highlightedItems correctly', async () => {
         await wrapper.setProps({
             order: {

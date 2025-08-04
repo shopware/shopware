@@ -19,10 +19,6 @@ describe('src/module/sw-privilege-error/page/sw-privilege-error', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show a back button', async () => {
         const backButton = wrapper.find('.sw-privilege-error__back-button');
 

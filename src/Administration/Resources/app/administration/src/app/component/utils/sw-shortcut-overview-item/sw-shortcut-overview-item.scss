@@ -5,9 +5,9 @@
 
     kbd span {
         font-size: $font-size-xs;
-        color: $color-darkgray-200;
-        border: 1px solid $color-gray-300;
-        background-color: $color-white;
+        color: var(--color-text-primary-default);
+        border: 1px solid var(--color-border-primary-default);
+        background-color: var(--color-background-primary-disabled);
         padding: 4px 6px;
         margin-right: 8px;
         cursor: default;

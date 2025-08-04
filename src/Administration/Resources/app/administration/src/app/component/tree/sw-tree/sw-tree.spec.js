@@ -59,12 +59,6 @@ async function createWrapper(
 }
 
 describe('src/app/component/tree/sw-tree', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render tree correctly with only the main item', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

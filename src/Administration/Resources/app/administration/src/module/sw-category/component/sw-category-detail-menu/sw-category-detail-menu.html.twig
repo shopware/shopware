@@ -49,9 +49,9 @@
     {% endblock %}
 
     {% block sw_category_detail_menu_description %}
-    <mt-text-editor
+    <sw-text-editor
         :key="category.id + 'description'"
-        v-model="category.description"
+        v-model:value="category.description"
         class="sw-category-detail-base__description"
         type="textarea"
         :disabled="!acl.can('category.editor')"

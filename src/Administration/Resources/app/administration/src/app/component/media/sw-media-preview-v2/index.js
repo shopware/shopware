@@ -287,8 +287,12 @@ export default {
             this.trueSource.thumbnails.forEach((thumbnail) => {
                 const url = thumbnail.url;
 
-                const encoded = encodeURI(url);
-                sources.push(`${encoded} ${thumbnail.width}w`);
+                if (this.feature.isActive('v6.8.0.0')) {
+                    sources.push(`${url} ${thumbnail.width}w`);
+                } else {
+                    const encoded = encodeURI(url);
+                    sources.push(`${encoded} ${thumbnail.width}w`);
+                }
             });
 
             return sources.join(', ');

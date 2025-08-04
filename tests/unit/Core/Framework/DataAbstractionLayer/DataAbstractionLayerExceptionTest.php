@@ -12,6 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Elasticsearch\Product\ElasticsearchProductException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -237,5 +239,27 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame('FRAMEWORK__INVALID_SORT_DIRECTION', $e->getErrorCode());
         static::assertSame('The given sort direction "foo" is invalid.', $e->getMessage());
+    }
+
+    public function testConfigNotFound(): void
+    {
+        $e = DataAbstractionLayerException::configNotFound();
+
+        static::assertSame('Configuration for product search definition not found', $e->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__PRODUCT_SEARCH_CONFIGURATION_NOT_FOUND', $e->getErrorCode());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed. testConfigNotFound will cover the new behavior
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testConfigNotFoundDeprecated(): void
+    {
+        $e = ElasticsearchProductException::configNotFound();
+
+        static::assertSame('Configuration for product elasticsearch definition not found', $e->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame('ELASTICSEARCH_PRODUCT__CONFIGURATION_NOT_FOUND', $e->getErrorCode());
     }
 }

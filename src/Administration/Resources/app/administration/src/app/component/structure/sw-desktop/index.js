@@ -37,7 +37,7 @@ export default {
         },
 
         isStaging() {
-            return Shopware.Store.get('context').app.config.settings.enableStagingMode === true;
+            return Shopware.Store.get('context').app.config.settings?.enableStagingMode === true;
         },
     },
 
@@ -77,7 +77,7 @@ export default {
         },
 
         updateShowUrlChangedModal() {
-            if (!Shopware.Store.get('context').app.config.settings.appsRequireAppUrl) {
+            if (!Shopware.Store.get('context').app.config.settings?.appsRequireAppUrl) {
                 this.urlDiff = null;
                 return;
             }

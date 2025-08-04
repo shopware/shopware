@@ -175,5 +175,12 @@
             <argument type="service" id="kernel"/>
             <argument type="service" id="filesystem"/>
         </service>
+
+        <service id="Shopware\Administration\Framework\App\Subscriber\SystemLanguageChangedSubscriber">
+            <argument type="service" id="locale.repository"/>
+            <argument type="service" id="app_administration_snippet.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

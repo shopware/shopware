@@ -1,7 +1,6 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
-import path from 'path';
 import { FlowConfig } from '@shopware-ag/acceptance-test-suite';
-import { setViewport, replaceElements } from '@shopware-ag/acceptance-test-suite';
+import { setViewport, replaceElements, hideElements } from '@shopware-ag/acceptance-test-suite';
 
 test('Visual: Administration Flow Builder', { tag: '@Visual' }, async ({
     ShopAdmin,
@@ -35,30 +34,32 @@ test('Visual: Administration Flow Builder', { tag: '@Visual' }, async ({
         await ShopAdmin.goesTo(AdminFlowBuilderListing.url());
         await ShopAdmin.attemptsTo(CreateFlow(testConfig as FlowConfig));
         await ShopAdmin.expects(AdminFlowBuilderDetail.page.locator('.sw-skeleton').first()).not.toBeVisible();
-
+        await ShopAdmin.expects(AdminFlowBuilderDetail.page.locator('.mt-banner--positive')).toBeVisible();
+        await AdminFlowBuilderDetail.page.locator('.mt-banner__close').click();
         await setViewport(AdminFlowBuilderDetail.page, {
-            //todo: use working requestURL
-        });
+            //requestURL: 'api/search/sales-channel-type',
+        })
         await replaceElements(AdminFlowBuilderDetail.page, [
             AdminFlowBuilderDetail.header,
+        ]);
+        await hideElements(AdminFlowBuilderDetail.page, [
             AdminFlowBuilderDetail.nameField,
         ]);
-        await expect(AdminFlowBuilderDetail.page.locator('.sw-desktop__content')).toHaveScreenshot({
+        await expect(AdminFlowBuilderDetail.contentView).toHaveScreenshot({
         });
     });
 
     await test.step('Create a screenshot of the actual flow.', async () => {
         await AdminFlowBuilderDetail.flowTab.click();
         await ShopAdmin.expects(AdminFlowBuilderDetail.triggerSelectField).toBeVisible();
-
         await setViewport(AdminFlowBuilderDetail.page, {
-            //todo: use working requestURL
+           //requestURL: 'api/search/sales-channel-type',
         });
         await replaceElements(AdminFlowBuilderDetail.page, [
             AdminFlowBuilderDetail.header,
             AdminFlowBuilderDetail.actionContentTag,
         ]);
-        await expect(AdminFlowBuilderDetail.page.locator('.sw-desktop__content')).toHaveScreenshot({
+        await expect(AdminFlowBuilderDetail.contentView).toHaveScreenshot({
         });
     });
 });

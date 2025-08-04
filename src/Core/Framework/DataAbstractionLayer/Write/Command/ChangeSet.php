@@ -8,10 +8,20 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class ChangeSet extends Struct
 {
+    /**
+     * @var array<string, mixed>
+     */
     protected array $state = [];
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $after = [];
 
+    /**
+     * @param array<string, mixed> $state
+     * @param array<string, mixed> $payload
+     */
     public function __construct(
         array $state,
         array $payload,

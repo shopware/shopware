@@ -2,7 +2,7 @@
   "sw-settings-units": {
     "detail": {
       "fieldLabels": {
-        "name": "Name der Produkteinheit",
+        "name": "Name",
         "shortCode": "Kurzform"
       }
     },

@@ -143,7 +143,7 @@
       "linkText": "general settings"
     },
     "packagingForm": {
-      "description": "Specify the package type and size for this product here. This information is displayed to your customers in the storefront.",
+      "description": "Specify the package type and size for this product here. This information is displayed in the storefront.",
       "labelProductUnit": "Product unit",
       "placeholderSellingUnit": "e.g. 6...",
       "placeholderProductUnit": "Select product unit...",

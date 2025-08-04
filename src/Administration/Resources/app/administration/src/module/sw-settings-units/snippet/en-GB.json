@@ -2,15 +2,15 @@
   "sw-settings-units": {
     "detail": {
       "fieldLabels": {
-        "name": "Product unit name",
-        "shortCode": "Short code"
+        "name": "Name",
+        "shortCode": "Shorthand"
       }
     },
     "general": {
       "mainMenuItemGeneral": "Product units",
       "placeholderSearchBar": "Search product units...",
       "createNewUnit": "Add product unit",
-      "disableAddNewUnitMessage": "New product units can only be added in the system default language."
+      "disableAddNewUnitMessage": "New product units can only be created in the system default language."
     },
     "grid": {
       "columnName": "Product unit",

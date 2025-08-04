@@ -8,19 +8,23 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class ChangeSet extends Struct
 {
+    protected array $state = [];
+
     protected array $after = [];
 
     public function __construct(
-        protected array $state = [],
+        array $state,
         array $payload,
-        protected bool $isDelete,
+        protected bool $isDelete
     ) {
+        $this->state = $state;
+
         // calculate changes
-        $changes = array_intersect_key($payload, $this->state);
+        $changes = array_intersect_key($payload, $state);
 
         // validate data types
         foreach ($changes as $property => $after) {
-            $before = (string) $this->state[$property];
+            $before = (string) $state[$property];
             $string = (string) $after;
             if ($string === $before) {
                 continue;

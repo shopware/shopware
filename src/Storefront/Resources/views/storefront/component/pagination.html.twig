@@ -41,8 +41,10 @@
 
                 {% block component_pagination_prev %}
                     <li class="page-item page-prev{% if currentPage == 1 %} disabled{% endif %}">
+                        {% set prevPageNumber = currentPage <= 1 ? 1 : (currentPage - 1) %}
+
                         {% block component_pagination_prev_link_element %}
-                            <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ (currentPage - 1) ~ searchQuery : '#' }}" class="page-link" data-page="{{ currentPage - 1 }}" aria-label="{{ 'general.pagination.prev'|trans|striptags }}" data-focus-id="prev"{% if currentPage == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
+                            <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ prevPageNumber ~ searchQuery : '#' }}" class="page-link" data-page="{{ prevPageNumber }}" aria-label="{{ 'general.pagination.prev'|trans|striptags }}" data-focus-id="prev"{% if currentPage == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
                                 {% block component_pagination_prev_link_icon %}
                                     {% sw_icon 'arrow-medium-left' style { size: 'fluid', pack: 'solid' } %}
                                 {% endblock %}
@@ -87,7 +89,8 @@
                 {% block component_pagination_next %}
                     <li class="page-item page-next{% if currentPage == totalPages %} disabled{% endif %}">
                         {% block component_pagination_next_link_element %}
-                            <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ (currentPage + 1) ~ searchQuery : '#' }}" class="page-link" data-page="{{ currentPage + 1 }}" aria-label="{{ 'general.pagination.next'|trans|striptags }}" data-focus-id="next"{% if currentPage == totalPages %} tabindex="-1" aria-disabled="true"{% endif %}>
+                            {% set nextPageNumber = currentPage == totalPages ? totalPages : (currentPage + 1) %}
+                            <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ nextPageNumber ~ searchQuery : '#' }}" class="page-link" data-page="{{ nextPageNumber }}" aria-label="{{ 'general.pagination.next'|trans|striptags }}" data-focus-id="next"{% if currentPage == totalPages %} tabindex="-1" aria-disabled="true"{% endif %}>
                                 {% block component_pagination_next_link_icon %}
                                     {% sw_icon 'arrow-medium-right' style { size: 'fluid', pack: 'solid' } %}
                                 {% endblock %}

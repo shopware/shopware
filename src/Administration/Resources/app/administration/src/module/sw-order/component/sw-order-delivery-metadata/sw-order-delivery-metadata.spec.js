@@ -60,11 +60,6 @@ async function createWrapper() {
 describe('module/sw-order/component/sw-order-delivery-metadata', () => {
     let wrapper;
 
-    it('should be a Vue.JS component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render formatting address for delivery address', async () => {
         wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

@@ -79,11 +79,6 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         };
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not call signIframeSrc for plugins', async () => {
         Shopware.Store.get('extensions').addExtension({
             name: 'foo',

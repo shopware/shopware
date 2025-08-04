@@ -5,5 +5,5 @@ author_email: n.haberkamp@shopware.com
 author_github: @Haberkamp
 ---
 # Administration
-* Added Dark Mode support to the sidebar
+* Added Meteor Color Tokens to the sidebar component
 * Added proper a11y label to sidebar close button

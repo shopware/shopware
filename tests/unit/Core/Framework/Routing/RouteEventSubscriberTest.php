@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Routing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\RouteEventSubscriber;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -84,7 +86,7 @@ class RouteEventSubscriberTest extends TestCase
     {
         $request = new Request();
         $request->attributes->set('_route', 'frontend.home.page');
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['storefront', 'api']);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StorefrontRouteScope::ID, ApiRouteScope::ID]);
 
         $event = new RequestEvent($this->createMock(Kernel::class), $request, HttpKernelInterface::MAIN_REQUEST);
 
@@ -128,7 +130,7 @@ class RouteEventSubscriberTest extends TestCase
     {
         $request = new Request();
         $request->attributes->set('_route', 'frontend.home.page');
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['storefront', 'api']);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StorefrontRouteScope::ID, ApiRouteScope::ID]);
 
         $event = new ControllerEvent(
             $this->createMock(Kernel::class),
@@ -160,7 +162,7 @@ class RouteEventSubscriberTest extends TestCase
 
         $request = new Request();
         $request->attributes->set('_route', 'frontend.home.page');
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['storefront', 'api']);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StorefrontRouteScope::ID, ApiRouteScope::ID]);
 
         $event = new StorefrontRenderEvent('', [], $request, $this->createMock(SalesChannelContext::class));
 
@@ -182,7 +184,7 @@ class RouteEventSubscriberTest extends TestCase
     {
         $request = new Request();
         $request->attributes->set('_route', 'frontend.home.page');
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['storefront', 'api']);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StorefrontRouteScope::ID, ApiRouteScope::ID]);
 
         $event = new ResponseEvent(
             $this->createMock(Kernel::class),

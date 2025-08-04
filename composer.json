@@ -42,6 +42,11 @@
         "branch-alias": {
             "dev-master": "6.7.x-dev",
             "dev-trunk": "6.7.x-dev"
+        },
+        "phpstan/extension-installer": {
+            "ignore": [
+                "composer/pcre"
+            ]
         }
     },
     "config": {
@@ -92,7 +97,7 @@
         "horstoeko/zugferd": "^1.0.104",
         "lcobucci/clock": "^3.1.0",
         "lcobucci/jwt": "^5.5",
-        "league/flysystem": "^3.10.3",
+        "league/flysystem": "^3.13.0",
         "league/flysystem-local": "^3.29.0",
         "league/flysystem-memory": "^3.10.3",
         "league/mime-type-detection": "^1.13.0",
@@ -114,7 +119,7 @@
         "setasign/tfpdf": "^1.33",
         "shopware/conflicts": "0.6.0",
         "shyim/opensearch-php-dsl": "^1.0.5",
-        "squirrelphp/twig-php-syntax": "^1.8.0",
+        "squirrelphp/twig-php-syntax": "^1.13.0",
         "symfony/asset": "~7.3.0",
         "symfony/cache": "~7.3.0",
         "symfony/cache-contracts": "~3.6.0",
@@ -194,7 +199,7 @@
         "phpstan/phpstan-phpunit": "2.0.6",
         "phpstan/phpstan-strict-rules": "2.0.4",
         "phpstan/phpstan-symfony": "2.0.6",
-        "phpunit/phpunit": "^11.5.17",
+        "phpunit/phpunit": "^11.5.19",
         "predis/predis": "^2.2",
         "rector/type-perfect": "2.1.0",
         "shopware/dev-tools": "^1.3",

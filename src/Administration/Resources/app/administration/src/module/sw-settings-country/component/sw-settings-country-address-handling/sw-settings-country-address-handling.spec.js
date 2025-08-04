@@ -205,12 +205,6 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         Shopware.Store.get('session').setCurrentUser({});
     });
 
-    it('should be a Vue.JS component', async () => {
-        wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to edit the address handling tab', async () => {
         wrapper = await createWrapper(
             [

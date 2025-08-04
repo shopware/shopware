@@ -209,13 +209,6 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show the right list of pageTypes for the filters', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

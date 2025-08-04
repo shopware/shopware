@@ -90,10 +90,6 @@ describe('components/utils/sw-duplicated-media-v2', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should upload the renamed file', async () => {
         await wrapper.vm.renameFile(uploadTaskMock);
 

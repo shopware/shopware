@@ -8,7 +8,7 @@ let
 in {
   overlays = [
     # Each overlay is a function that takes two arguments: final and prev
-    (final: prev: {
+    (final: prev: lib.optionalAttrs prev.stdenv.isDarwin {
       # Override an existing package
       boost177 = prev.boost177.overrideAttrs (oldAttrs: {
         # The postFixup hook is where the signing check runs.

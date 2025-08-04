@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,22 +14,23 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class CmsPageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
+    protected Request $request;
+
+    protected CmsPageCollection $result;
+
+    protected SalesChannelContext $salesChannelContext;
+
     /**
-     * @deprecated tag:v6.8.0 - $result type will be changed from EntityCollection to CmsPageCollection
-     *
      * @param CmsPageCollection $result
      */
     public function __construct(
-        protected Request $request,
-        protected EntityCollection $result,
-        protected SalesChannelContext $salesChannelContext,
+        Request $request,
+        EntityCollection $result,
+        SalesChannelContext $salesChannelContext
     ) {
-        if (!$this->result instanceof CmsPageCollection) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.8.0.0',
-                '$result should be of type `Shopware\Core\Content\Cms\CmsPageCollection`'
-            );
-        }
+        $this->request = $request;
+        $this->result = $result;
+        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getRequest(): Request
@@ -39,8 +39,6 @@ class CmsPageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEven
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be changed from EntityCollection to CmsPageCollection
-     *
      * @return CmsPageCollection
      */
     public function getResult(): EntityCollection

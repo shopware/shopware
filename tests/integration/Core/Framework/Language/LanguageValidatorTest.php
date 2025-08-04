@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Language;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -822,6 +823,20 @@ class LanguageValidatorTest extends TestCase
 
     public function testDeleteEnglishViolation(): void
     {
+        $newLanguage = ['id' => Uuid::randomHex(), 'name' => 'new', 'active' => true];
+        $this->addLanguagesWithDefaultLocales([$newLanguage]);
+
+        // unassign default language from restrict delete associations
+        $connection = static::getContainer()->get(Connection::class);
+        $connection->executeStatement('UPDATE sales_channel SET language_id = :newId WHERE language_id = :default', [
+            'newId' => Uuid::fromHexToBytes($newLanguage['id']),
+            'default' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+        ]);
+        $connection->executeStatement('UPDATE sales_channel_domain SET language_id = :newId WHERE language_id = :default', [
+            'newId' => Uuid::fromHexToBytes($newLanguage['id']),
+            'default' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+        ]);
+
         // -en
         $enGb = ['id' => Defaults::LANGUAGE_SYSTEM, 'active' => true];
 

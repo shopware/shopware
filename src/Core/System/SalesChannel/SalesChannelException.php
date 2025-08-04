@@ -6,15 +6,13 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('discovery')]
 class SalesChannelException extends HttpException
 {
@@ -149,8 +147,21 @@ class SalesChannelException extends HttpException
         return PaymentException::unknownPaymentMethodById($paymentMethodId);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed, as the exception is no longer needed, use RestrictDeleteViolationException instead
+     */
     public static function salesChannelDomainInUse(?\Throwable $previous = null): ShopwareHttpException
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(
+                __CLASS__,
+                __METHOD__,
+                'v6.8.0.0',
+                RestrictDeleteViolationException::class
+            )
+        );
+
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SALES_CHANNEL_DOMAIN_IN_USE,

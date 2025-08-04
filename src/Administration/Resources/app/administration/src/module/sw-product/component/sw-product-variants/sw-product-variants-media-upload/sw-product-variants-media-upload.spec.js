@@ -87,10 +87,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         );
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain the default accept value', async () => {
         const fileInput = wrapper.find('.sw-media-upload-v2__file-input');
 

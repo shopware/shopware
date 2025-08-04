@@ -2,26 +2,31 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\FindVariant;
 
-use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('inventory')]
 class FindProductVariantRoute extends AbstractFindProductVariantRoute
 {
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<ProductCollection> $productRepository
      */
-    public function __construct(private readonly SalesChannelRepository $productRepository)
-    {
+    public function __construct(
+        private readonly SalesChannelRepository $productRepository,
+    ) {
     }
 
     public function getDecorated(): AbstractFindProductVariantRoute
@@ -29,10 +34,14 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/product/{productId}/find-variant', name: 'store-api.product.find-variant', methods: ['POST'], defaults: ['_entity' => 'product'])]
+    #[Route(
+        path: '/store-api/product/{productId}/find-variant',
+        name: 'store-api.product.find-variant',
+        defaults: ['_entity' => 'product'],
+        methods: ['POST']
+    )]
     public function load(string $productId, Request $request, SalesChannelContext $context): FindProductVariantRouteResponse
     {
-        /** @var string|null $switchedGroup */
         $switchedGroup = $request->get('switchedGroup');
 
         $options = $request->get('options') ? $request->get('options', []) : [];
@@ -65,7 +74,7 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
             }
         }
 
-        throw new VariantNotFoundException($productId, $options);
+        throw ProductException::variantNotFound($productId, $options);
     }
 
     /**

@@ -191,13 +191,6 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         global.activeAclRoles = [];
     });
 
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to delete', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

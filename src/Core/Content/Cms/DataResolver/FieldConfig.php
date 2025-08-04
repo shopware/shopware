@@ -14,20 +14,14 @@ class FieldConfig extends Struct
     final public const SOURCE_DEFAULT = 'default';
     final public const SOURCE_PRODUCT_STREAM = 'product_stream';
 
-    protected string $name;
-
-    protected string $source;
-
     /**
      * @param array<mixed>|bool|float|int|string|null $value
      */
     public function __construct(
-        string $name,
-        string $source,
-        protected mixed $value
+        protected string $name,
+        protected string $source,
+        protected mixed $value,
     ) {
-        $this->name = $name;
-        $this->source = $source;
     }
 
     public function getName(): string

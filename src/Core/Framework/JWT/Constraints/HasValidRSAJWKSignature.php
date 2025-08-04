@@ -22,11 +22,8 @@ final class HasValidRSAJWKSignature implements Constraint
 {
     private const ALGORITHMS = ['RS256', 'RS384', 'RS512'];
 
-    private JWKCollection $jwks;
-
-    public function __construct(JWKCollection $jwks)
+    public function __construct(private JWKCollection $jwks)
     {
-        $this->jwks = $jwks;
     }
 
     /**

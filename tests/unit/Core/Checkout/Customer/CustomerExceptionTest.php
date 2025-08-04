@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -297,6 +298,7 @@ class CustomerExceptionTest extends TestCase
         static::assertSame(['countryId' => 'id-1'], $exception->getParameters());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testUnsupportedOperator(): void
     {
         $exception = CustomerException::unsupportedOperator('$', 'testClass');

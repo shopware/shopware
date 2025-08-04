@@ -89,6 +89,10 @@ class CartDataCollectorSubscriber extends AbstractDataCollector implements Event
             return null;
         }
 
-        return $this->cartPersister->load($this->cartToken, $this->salesChannelContext);
+        try {
+            return $this->cartPersister->load($this->cartToken, $this->salesChannelContext);
+        } catch (\Exception) {
+            return null;
+        }
     }
 }

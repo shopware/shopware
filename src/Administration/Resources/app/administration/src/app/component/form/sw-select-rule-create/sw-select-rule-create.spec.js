@@ -98,11 +98,6 @@ describe('components/sw-select-rule-create', () => {
         });
     }
 
-    it('should be a vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should disable restricted rules', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

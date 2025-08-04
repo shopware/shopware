@@ -117,10 +117,6 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should emit `preview-show` event when click on Preview button', async () => {
         const previewButton = wrapper.find('.sw-order-document-settings-modal__preview-button');
 

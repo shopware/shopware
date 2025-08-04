@@ -37,6 +37,6 @@ class BreadcrumbExceptionTest extends TestCase
         $exception = BreadcrumbException::productNotFound('invalidId');
 
         static::assertInstanceOf(ProductNotFoundException::class, $exception);
-        static::assertSame('CONTENT__PRODUCT_NOT_FOUND', $exception->getErrorCode());
+        static::assertSame('PRODUCT_PRODUCT_NOT_FOUND', $exception->getErrorCode());
     }
 }

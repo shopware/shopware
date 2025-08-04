@@ -93,12 +93,6 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
         });
     });
 
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to edit a review', async () => {
         const wrapper = await createWrapper([
             'product.editor',

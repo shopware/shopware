@@ -278,12 +278,6 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         global.activeAclRoles = [];
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     const showDefaultLayoutSelectionDataProvider = [
         [
             'show the default layout selection, when "product_list" page is no default layout',

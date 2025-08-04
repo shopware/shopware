@@ -42,10 +42,6 @@ describe('src/app/component/form/sw-file-input', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('upload button should be enabled', async () => {
         const uploadButton = wrapper.find('.sw-file-input__button');
         expect(uploadButton.attributes().disabled).toBeUndefined();

@@ -204,10 +204,6 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         Shopware.Store.get('session').languageId = '';
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain all fields', async () => {
         await wrapper.setData({ isLoading: false });
         await flushPromises();

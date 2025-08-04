@@ -122,12 +122,6 @@ describe('module/sw-cms/elements/product-slider/config', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render product assignment type select', async () => {
         const wrapper = await createWrapper();
 

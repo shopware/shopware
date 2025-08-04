@@ -153,6 +153,9 @@ export default {
             return `${this.sidebarOffset + this.scrollbarOffset}px`;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 -- There's no replacement
+         */
         headerStyles() {
             return {
                 'border-bottom-color': this.pageColor,

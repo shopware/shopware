@@ -176,13 +176,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should fetch all and assigned entities', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

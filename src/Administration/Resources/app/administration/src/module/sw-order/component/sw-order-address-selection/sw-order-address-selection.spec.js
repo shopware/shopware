@@ -165,10 +165,6 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to edit address', async () => {
         expect(wrapper.vm.currentAddress).toBeNull();
 

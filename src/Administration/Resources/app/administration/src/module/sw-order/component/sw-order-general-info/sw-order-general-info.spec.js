@@ -179,10 +179,6 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
         jest.clearAllMocks();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show correct summary header', async () => {
         const summary = wrapper.find('.sw-order-general-info__summary-main-header');
         const link = wrapper.find('.sw-order-general-info__summary-main-header-link');

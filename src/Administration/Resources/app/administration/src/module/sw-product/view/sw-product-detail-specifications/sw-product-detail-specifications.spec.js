@@ -116,11 +116,6 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         Shopware.Store.get('swProductDetail').customFieldSets = [];
     });
 
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show item fields in Selling Packaging card', async () => {
         const wrapper = await createWrapper();
 

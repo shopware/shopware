@@ -13,8 +13,9 @@ use Symfony\Component\HttpFoundation\Request;
 class ApiRouteScope extends AbstractRouteScope implements ApiContextRouteScopeDependant
 {
     final public const ID = 'api';
+    final public const ALLOWED_PATH = 'api';
 
-    protected array $allowedPaths = ['api', 'sw-domain-hash.html'];
+    protected array $allowedPaths = [self::ALLOWED_PATH, 'sw-domain-hash.html'];
 
     public function isAllowed(Request $request): bool
     {

@@ -564,6 +564,7 @@
     "media_default_folder.updatedAt",
     "media_thumbnail.id",
     "media_thumbnail.mediaId",
+    "media_thumbnail.mediaThumbnailSizeId",
     "media_thumbnail.width",
     "media_thumbnail.height",
     "media_thumbnail.url",

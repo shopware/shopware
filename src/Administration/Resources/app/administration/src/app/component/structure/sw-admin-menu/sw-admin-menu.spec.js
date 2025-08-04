@@ -130,10 +130,6 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show the snippet for the admin title', async () => {
         Shopware.Store.get('session').setCurrentUser({
             admin: true,

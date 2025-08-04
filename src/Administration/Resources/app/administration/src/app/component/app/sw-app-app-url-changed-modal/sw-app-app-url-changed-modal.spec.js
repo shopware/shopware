@@ -76,11 +76,6 @@ describe('sw-app-app-url-changed-modal', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-        await wrapper.vm.$nextTick();
-    });
-
     it('should select the first strategy by default', async () => {
         const strategyButtons = wrapper.findAll('.sw-app-app-url-changed-modal__button-strategy');
         expect(strategyButtons).toHaveLength(3);

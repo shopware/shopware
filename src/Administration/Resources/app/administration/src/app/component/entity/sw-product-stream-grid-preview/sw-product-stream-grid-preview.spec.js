@@ -116,10 +116,6 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render empty state when no filter is set', async () => {
         expect(wrapper.find('.sw-empty-state').exists()).toBeTruthy();
     });

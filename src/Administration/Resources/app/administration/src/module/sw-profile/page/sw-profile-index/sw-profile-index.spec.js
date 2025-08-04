@@ -104,13 +104,6 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to save own user', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

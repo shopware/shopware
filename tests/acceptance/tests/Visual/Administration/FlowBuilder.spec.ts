@@ -2,7 +2,33 @@ import { test, expect } from '@fixtures/AcceptanceTest';
 import { FlowConfig } from '@shopware-ag/acceptance-test-suite';
 import { setViewport, replaceElements, hideElements } from '@shopware-ag/acceptance-test-suite';
 
-test('Visual: Administration Flow Builder', { tag: '@Visual' }, async ({
+test('Visual: Flow Builder listing', { tag: '@Visual' }, async ({
+ShopAdmin,
+AdminFlowBuilderListing,
+}) => {
+    await test.step('Create a screenshot of the flow listing.', async () => {
+        await ShopAdmin.goesTo(AdminFlowBuilderListing.url());
+        await setViewport(AdminFlowBuilderListing.page, {
+            requestURL: 'api/search/sales-channel-type',
+        })
+        await replaceElements(AdminFlowBuilderListing.page, [
+            AdminFlowBuilderListing.firstFlowName,
+            ]);
+        await expect(AdminFlowBuilderListing.contentView).toHaveScreenshot('Flow-Builder-Listing.png', {
+        });
+    });
+
+    await test.step('Create a screenshot of the flow templates listing.', async () => {
+        await AdminFlowBuilderListing.page.locator('.sw-tabs-item').getByText('Flow templates').click();
+        await setViewport(AdminFlowBuilderListing.page, {
+            waitForSelector: AdminFlowBuilderListing.page.locator('.sw-pagination'),
+        })
+        await expect(AdminFlowBuilderListing.contentView).toHaveScreenshot('Flow-Builder-Templates-Listing.png', {
+        });
+    });
+});
+
+test('Visual: Flow Builder detail page', { tag: '@Visual' }, async ({
     ShopAdmin,
     TestDataService,
     IdProvider,
@@ -37,7 +63,7 @@ test('Visual: Administration Flow Builder', { tag: '@Visual' }, async ({
         await ShopAdmin.expects(AdminFlowBuilderDetail.page.locator('.mt-banner--positive')).toBeVisible();
         await AdminFlowBuilderDetail.page.locator('.mt-banner__close').click();
         await setViewport(AdminFlowBuilderDetail.page, {
-            //requestURL: 'api/search/sales-channel-type',
+            waitForSelector: AdminFlowBuilderDetail.activeSwitch,
         })
         await replaceElements(AdminFlowBuilderDetail.page, [
             AdminFlowBuilderDetail.header,
@@ -45,7 +71,7 @@ test('Visual: Administration Flow Builder', { tag: '@Visual' }, async ({
         await hideElements(AdminFlowBuilderDetail.page, [
             AdminFlowBuilderDetail.nameField,
         ]);
-        await expect(AdminFlowBuilderDetail.contentView).toHaveScreenshot({
+        await expect(AdminFlowBuilderDetail.contentView).toHaveScreenshot('Flow-Builder-Detail-General-Tab.png', {
         });
     });
 
@@ -53,13 +79,13 @@ test('Visual: Administration Flow Builder', { tag: '@Visual' }, async ({
         await AdminFlowBuilderDetail.flowTab.click();
         await ShopAdmin.expects(AdminFlowBuilderDetail.triggerSelectField).toBeVisible();
         await setViewport(AdminFlowBuilderDetail.page, {
-           //requestURL: 'api/search/sales-channel-type',
+            waitForSelector: AdminFlowBuilderDetail.falseBlock,
         });
         await replaceElements(AdminFlowBuilderDetail.page, [
             AdminFlowBuilderDetail.header,
             AdminFlowBuilderDetail.actionContentTag,
         ]);
-        await expect(AdminFlowBuilderDetail.contentView).toHaveScreenshot({
+        await expect(AdminFlowBuilderDetail.contentView).toHaveScreenshot('Flow-Builder-Detail-Flow-Tab.png', {
         });
     });
 });

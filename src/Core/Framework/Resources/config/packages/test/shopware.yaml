@@ -11,6 +11,10 @@ shopware:
             config:
                 root: ~
 
+    cache:
+        invalidation:
+            delay: false
+
     increment:
         user_activity:
             type: 'array'

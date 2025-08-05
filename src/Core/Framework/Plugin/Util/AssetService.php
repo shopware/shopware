@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Util;
 
+use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\Visibility;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
@@ -275,12 +276,9 @@ class AssetService
         }
 
         $hashes = [];
-        if ($this->privateFilesystem->fileExists('asset-manifest.json')) {
-            $hashes = json_decode(
-                $this->privateFilesystem->read('asset-manifest.json'),
-                true,
-                \JSON_THROW_ON_ERROR
-            );
+        try {
+            $hashes = json_decode($this->privateFilesystem->read('asset-manifest.json'), true, flags: \JSON_THROW_ON_ERROR);
+        } catch (FilesystemException $e) {
         }
 
         return $hashes;

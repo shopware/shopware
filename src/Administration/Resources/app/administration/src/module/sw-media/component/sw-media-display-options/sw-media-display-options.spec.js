@@ -10,12 +10,6 @@ const createWrapper = async (customOptions) => {
 };
 
 describe('src/module/sw-media/component/sw-media-display-options', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should return the correct presentationOptions', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

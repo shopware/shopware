@@ -40,11 +40,6 @@ describe('src/module/sw-login/page/index/index.js', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render the component', async () => {
         wrapper = await createWrapper();
         expect(wrapper.find('.sw-login').attributes('style')).toBeUndefined();

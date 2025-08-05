@@ -74,7 +74,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
             $config[$name] = $clone;
         }
 
-        return json_decode((string) json_encode($config, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        return json_decode(json_encode($config, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
     }
 
     /**

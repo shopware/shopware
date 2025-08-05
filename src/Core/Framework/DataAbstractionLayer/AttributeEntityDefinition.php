@@ -16,7 +16,6 @@ class AttributeEntityDefinition extends EntityDefinition
      */
     public function __construct(private readonly array $meta = [])
     {
-        parent::__construct();
     }
 
     public function since(): ?string

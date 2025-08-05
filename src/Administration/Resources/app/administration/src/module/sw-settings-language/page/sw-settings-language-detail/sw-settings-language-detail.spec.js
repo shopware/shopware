@@ -151,13 +151,6 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
 }
 
 describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should return identifier', async () => {
         const wrapper = await createWrapper();
 

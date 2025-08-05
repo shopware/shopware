@@ -9,6 +9,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
@@ -245,6 +246,7 @@ class ThumbnailExtensionTest extends TestCase
         $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));
         $twig->getExtension(NodeExtension::class)->getFinder();
         $twig->addExtension(new ThumbnailExtension($templateFinder));
+        $twig->addExtension(new FeatureFlagExtension());
 
         // url encoder and theme_config are used inside the thumbnail.html.twig template
         $twig->addExtension(new ConfigExtension($templateConfigAccessor));

@@ -298,7 +298,7 @@ export default {
         },
 
         isValidTerm(term) {
-            return term?.trim()?.length > 1;
+            return this.searchRankingService.isValidTerm(term);
         },
 
         loadNextItems() {

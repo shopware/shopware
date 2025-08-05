@@ -68,3 +68,6 @@ rules:
     # naming rules
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule
     - Symplify\PHPStanRules\Rules\UppercaseConstantRule
+
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PublicServiceDecoratorRule
+

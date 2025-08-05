@@ -63,7 +63,7 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\RequestTransformer"
-                 decorates="Shopware\Core\Framework\Routing\RequestTransformerInterface">
+                 decorates="Shopware\Core\Framework\Routing\RequestTransformerInterface" public="true">
 
             <argument type="service" id="Shopware\Storefront\Framework\Routing\RequestTransformer.inner"/>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoResolver"/>
@@ -74,6 +74,7 @@
         <service id="Shopware\Storefront\Framework\Routing\Router" decorates="router">
             <argument type="service" id="Shopware\Storefront\Framework\Routing\Router.inner"/>
             <argument type="service" id="request_stack"/>
+            <argument>%storefront.router.allowed_routes%</argument>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver">
@@ -290,6 +291,7 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader">

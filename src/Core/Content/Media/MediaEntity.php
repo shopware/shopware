@@ -33,6 +33,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
+use Shopware\Storefront\Theme\ThemeCollection;
 
 /**
  * @phpstan-type MediaConfig array{'spatialObject': array{'arReady': bool, 'arPlacement': string}}
@@ -80,6 +81,8 @@ class MediaEntity extends Entity
     protected ?MediaTranslationCollection $translations = null;
 
     protected ?CategoryCollection $categories = null;
+
+    protected ?ThemeCollection $themes = null;
 
     protected ?ProductManufacturerCollection $productManufacturers = null;
 
@@ -284,6 +287,16 @@ class MediaEntity extends Entity
     public function setCategories(CategoryCollection $categories): void
     {
         $this->categories = $categories;
+    }
+
+    public function getThemes(): ?ThemeCollection
+    {
+        return $this->themes;
+    }
+
+    public function setThemes(ThemeCollection $themes): void
+    {
+        $this->themes = $themes;
     }
 
     public function getProductManufacturers(): ?ProductManufacturerCollection

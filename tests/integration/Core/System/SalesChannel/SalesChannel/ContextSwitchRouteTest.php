@@ -244,6 +244,7 @@ class ContextSwitchRouteTest extends TestCase
                         'id' => $id,
                         'name' => 'Testlanguage',
                         'localeId' => $this->getLocaleIdOfSystemLanguage(),
+                        'active' => true,
                         'parentId' => Defaults::LANGUAGE_SYSTEM,
                     ],
                     'currencyId' => Defaults::CURRENCY,

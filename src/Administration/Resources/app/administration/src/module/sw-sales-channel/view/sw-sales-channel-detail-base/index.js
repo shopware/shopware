@@ -170,6 +170,14 @@ export default {
             return criteria;
         },
 
+        languageCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addFilter(Criteria.equals('active', true));
+
+            return criteria;
+        },
+
         disabledCountries() {
             return this.salesChannel?.countries?.filter((country) => country.active === false) ?? [];
         },

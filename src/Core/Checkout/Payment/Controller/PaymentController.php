@@ -40,7 +40,18 @@ class PaymentController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/payment/finalize-transaction', name: 'payment.finalize.transaction', methods: ['GET', 'POST'])]
+    /**
+     * The route scope could not be defined as this route is called from external.
+     * An API route scope would normally imply an authentication, which external callers could not provide.
+     * Only a storefront route scope could also not be used, as it also needs to work on headless environments.
+     *
+     * @phpstan-ignore shopware.routeScope
+     */
+    #[Route(
+        path: '/payment/finalize-transaction',
+        name: 'payment.finalize.transaction',
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
+    )]
     public function finalizeTransaction(Request $request): Response
     {
         $paymentToken = $request->get('_sw_payment_token');

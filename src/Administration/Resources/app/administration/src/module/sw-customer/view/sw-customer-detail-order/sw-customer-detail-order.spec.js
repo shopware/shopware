@@ -72,10 +72,6 @@ describe('module/sw-customer/view/sw-customer-detail-order.spec.js', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show empty state', async () => {
         const emptyState = wrapper.find('sw-empty-state-stub');
         const cardFilter = wrapper.find('.sw-card-filter');

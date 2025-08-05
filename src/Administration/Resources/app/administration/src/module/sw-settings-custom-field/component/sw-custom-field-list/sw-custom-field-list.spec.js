@@ -134,11 +134,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-settings-custom-field/component/sw-custom-field-list/sw-custom-field-list', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should always have a pagination', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

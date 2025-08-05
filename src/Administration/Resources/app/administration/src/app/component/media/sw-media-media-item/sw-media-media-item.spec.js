@@ -69,11 +69,6 @@ async function createWrapper(mediaServiceFunctions = {}, props = {}) {
 }
 
 describe('components/media/sw-media-media-item', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should throw error if new file name is too long', async () => {
         global.activeAclRoles = ['media.editor'];
         const error = {

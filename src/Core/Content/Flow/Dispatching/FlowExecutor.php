@@ -205,7 +205,7 @@ class FlowExecutor
         }
 
         if ($this->messageBus !== null && $action instanceof AsyncFlowAction) {
-            $this->messageBus->dispatch(new FlowActionMessage($sequence->action, $event));
+            $this->messageBus->dispatch(new FlowActionMessage($sequence, $event, $event->getContext()));
 
             return;
         }

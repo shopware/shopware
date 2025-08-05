@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Flow\Dispatching\Message;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DBALException;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowAction;
+use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\TransactionalAction;
 use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Log\Package;
@@ -27,6 +28,7 @@ final readonly class FlowActionHandler
      */
     public function __construct(
         private readonly Connection $connection,
+        private readonly FlowFactory $flowFactory,
         $actions
     ) {
         $this->actions = $actions instanceof \Traversable ? iterator_to_array($actions) : $actions;
@@ -34,13 +36,17 @@ final readonly class FlowActionHandler
 
     public function __invoke(FlowActionMessage $message): void
     {
-        $action = $this->actions[$message->actionName] ?? null;
+        $action = $this->actions[$message->sequence->action] ?? null;
 
         if (!$action instanceof FlowAction) {
             return;
         }
 
         $event = $message->event;
+
+        $event = $this->flowFactory->restore($event->getName(), $message->context, $event->stored(), $event->data());
+
+        $event->setConfig($message->sequence->config);
 
         if (!$action instanceof TransactionalAction) {
             $action->handleFlow($event);

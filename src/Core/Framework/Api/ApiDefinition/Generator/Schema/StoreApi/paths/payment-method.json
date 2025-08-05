@@ -78,20 +78,6 @@
                         "x-parameter-group": "criteria"
                     }
                 ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/Criteria"
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                },
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/PaymentMethodListResponse"

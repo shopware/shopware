@@ -6,8 +6,8 @@ $sw-page-divider-background-color: var(--color-border-primary-default);
 $sw-page-smart-bar-background-color: var(--color-elevation-surface-default);
 $sw-page-smart-bar-headline-color: var(--color-text-primary-default);
 $sw-page-side-content-default-width: 440px;
-$sw-page-smart-bar-headline-font-size: $font-size-m;
-$sw-page-smart-bar-headline-font-weight: $font-weight-semi-bold;
+$sw-page-smart-bar-headline-font-size: var(--font-size-m);
+$sw-page-smart-bar-headline-font-weight: var(--font-weight-semibold);
 $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
 
 .sw-page {
@@ -24,7 +24,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
     .sw-page__head-area {
         position: relative;
         display: grid;
-        grid-column-gap: 8px;
+        grid-column-gap: var(--scale-size-8);
         /* stylelint-disable-next-line max-line-length */
         grid-template-columns: [head-start back-btn-start] 1fr [back-btn-end header-content-start] minmax(0, $content-width) [header-content-end] 1fr [smart-bar-end];
         align-items: center;
@@ -46,12 +46,12 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
     .sw-page__top-bar-actions {
         grid-row: 1;
         grid-column: header-content-end / smart-bar-end;
-        padding-right: 32px;
+        padding-right: var(--scale-size-32);
         display: flex;
         align-content: flex-end;
         justify-content: flex-end;
         align-items: center;
-        gap: 4px;
+        gap: var(--scale-size-4);
     }
 
     .sw-page__smart-bar-divider {
@@ -69,10 +69,10 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
 
     .smart-bar__back-btn {
         width: 54px;
-        height: 24px;
+        height: var(--scale-size-24);
         line-height: $line-height-md;
         display: grid;
-        grid-template-columns: 30px 24px;
+        grid-template-columns: 30px var(--scale-size-24);
         align-items: center;
         margin-left: 20px;
 
@@ -131,7 +131,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         .mt-button,
         .sw-button-group,
         .sw-tooltip--wrapper {
-            margin-left: 8px;
+            margin-left: var(--scale-size-8);
 
             &:first-child {
                 margin-left: 0;

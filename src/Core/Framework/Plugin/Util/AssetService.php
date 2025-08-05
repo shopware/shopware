@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\Plugin\Util;
 
-use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToReadFile;
 use League\Flysystem\Visibility;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
@@ -278,7 +278,7 @@ class AssetService
         $hashes = [];
         try {
             $hashes = json_decode($this->privateFilesystem->read('asset-manifest.json'), true, flags: \JSON_THROW_ON_ERROR);
-        } catch (FilesystemException $e) {
+        } catch (UnableToReadFile) {
         }
 
         return $hashes;

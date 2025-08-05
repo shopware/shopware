@@ -26,7 +26,7 @@
                 }
             },
             "criteriaFilter": {
-                "name": "filter",
+                "name": "filter[]",
                 "in": "query",
                 "description": "List of filters to restrict the search result. For more information, see [Search Queries > Filter](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#filter)",
                 "schema": {
@@ -47,12 +47,10 @@
                             }
                         ]
                     }
-                },
-                "style": "deepObject",
-                "explode": true
+                }
             },
             "criteriaIds": {
-                "name": "ids",
+                "name": "ids[]",
                 "in": "query",
                 "description": "List of ids to search for",
                 "schema": {
@@ -60,9 +58,7 @@
                     "items": {
                         "type": "string"
                     }
-                },
-                "style": "deepObject",
-                "explode": true
+                }
             },
             "criteriaQuery": {
                 "name": "query",
@@ -83,7 +79,7 @@
                 "explode": true
             },
             "criteriaPostFilter": {
-                "name": "post-filter",
+                "name": "post-filter[]",
                 "in": "query",
                 "description": "Filters that applied without affecting aggregations. For more information, see [Search Queries > Post Filter](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#post-filter)",
                 "schema": {
@@ -104,12 +100,10 @@
                             }
                         ]
                     }
-                },
-                "style": "deepObject",
-                "explode": true
+                }
             },
             "criteriaSort": {
-                "name": "sort",
+                "name": "sort[]",
                 "in": "query",
                 "description": "Sorting in the search result.",
                 "schema": {
@@ -117,12 +111,10 @@
                     "items": {
                         "$ref": "#/components/schemas/Sort"
                     }
-                },
-                "style": "deepObject",
-                "explode": true
+                }
             },
             "criteriaAggregations": {
-                "name": "aggregations",
+                "name": "aggregations[]",
                 "in": "query",
                 "description": "",
                 "schema": {
@@ -130,12 +122,10 @@
                     "items": {
                         "$ref": "#/components/schemas/Aggregation"
                     }
-                },
-                "style": "deepObject",
-                "explode": true
+                }
             },
             "criteriaFields": {
-                "name": "fields",
+                "name": "fields[]",
                 "in": "query",
                 "description": "Fields which should be returned in the search result.",
                 "schema": {
@@ -144,12 +134,10 @@
                         "type": "string",
                         "description": "Name of a field"
                     }
-                },
-                "style": "deepObject",
-                "explode": true
+                }
             },
             "criteriaGrouping": {
-                "name": "grouping",
+                "name": "grouping[]",
                 "in": "query",
                 "description": "Perform groupings over certain fields",
                 "schema": {
@@ -158,9 +146,7 @@
                         "type": "string",
                         "description": "Name of a field"
                     }
-                },
-                "style": "deepObject",
-                "explode": true
+                }
             },
             "criteriaTotalCountMode": {
                 "name": "total-count-mode",
@@ -168,9 +154,7 @@
                 "description": "",
                 "schema": {
                     "$ref": "#/components/schemas/TotalCountMode"
-                },
-                "style": "deepObject",
-                "explode": true
+                }
             },
             "criteriaIncludes": {
                 "name": "includes",

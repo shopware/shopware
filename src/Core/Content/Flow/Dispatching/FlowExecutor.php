@@ -51,8 +51,8 @@ class FlowExecutor
         private readonly Connection $connection,
         private readonly ExtensionDispatcher $extensions,
         private readonly LoggerInterface $logger,
+        $actions,
         private readonly ?MessageBusInterface $messageBus = null,
-        $actions
     ) {
         $this->actions = $actions instanceof \Traversable ? iterator_to_array($actions) : $actions;
     }

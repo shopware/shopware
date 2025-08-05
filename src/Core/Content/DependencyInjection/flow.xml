@@ -58,8 +58,8 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
             <argument type="service" id="logger"/>
-            <argument type="service" id="messenger.default_bus"/>
             <argument type="tagged_iterator" tag="flow.action" index-by="key" />
+            <argument type="service" id="messenger.default_bus"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction">

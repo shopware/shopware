@@ -58,6 +58,7 @@ class ContentTest extends TestCase
             'measurement_system',
             'installed.json',
             'MailerConfigurationCompilerPass.php',
+            'FlowExecutorCompilerPass.php',
         ];
 
         static::assertSame($expectedResources, $resourceFiles);

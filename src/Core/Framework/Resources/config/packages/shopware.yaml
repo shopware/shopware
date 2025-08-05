@@ -564,4 +564,4 @@ shopware:
         indexing: true
 
     flow:
-        async: true
+        async: false

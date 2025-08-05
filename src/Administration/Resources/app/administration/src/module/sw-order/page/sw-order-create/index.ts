@@ -124,7 +124,7 @@ export default Shopware.Component.wrapComponentConfig({
                     this.openInvalidCodeModal();
                 }
 
-                this.showError();
+                this.showError(new Error(this.orderValidateErrorMessage));
                 return;
             }
 
@@ -145,7 +145,7 @@ export default Shopware.Component.wrapComponentConfig({
                 const [transaction] = data?.transactions || [];
 
                 if (!transaction) {
-                    throw new Error('No transaction returned for the order.');
+                    throw new Error(this.$tc('sw-order.create.saveError.noTransactionReturned'));
                 }
 
                 this.orderId = data?.id;

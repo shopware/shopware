@@ -66,6 +66,7 @@
         "noCart": "Order could not be saved. No cart found.",
         "noLineItems": "Order could not be saved. No line items found.",
         "invalidPromotionCodes": "Order could not be saved. Invalid promotion codes.",
+        "noTransactionReturned": "No transaction returned for the order.",
         "general": "Order could not be saved."
       }
     },

@@ -66,6 +66,7 @@
         "noCart": "Bestellung konnte nicht gespeichert werden. Kein Warenkorb gefunden.",
         "noLineItems": "Bestellung konnte nicht gespeichert werden. Keine Bestellposition gefunden.",
         "invalidPromotionCodes": "Bestellung konnte nicht gespeichert werden. Ungültige Aktionscodes.",
+        "noTransactionReturned": "Für die Bestellung wurde keine Transaktion zurückgegeben.",
         "general": "Bestellung konnte nicht gespeichert werden."
       }
     },

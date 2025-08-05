@@ -8,6 +8,8 @@ author_github: @mitelg
 * Added the possibility to add the route name to the `storefront.router.allowed_routes` configuration in `storefront.yaml`.
   This allows the usage of routes without the `frontend`, `widgets` or `payment` prefix.
 
+___
+
 # Upgrade Information
 
 ## Allow custom route names for Storefront controllers

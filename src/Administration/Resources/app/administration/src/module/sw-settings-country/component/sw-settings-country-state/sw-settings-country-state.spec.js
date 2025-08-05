@@ -111,13 +111,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-country/component/sw-settings-country-state', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show empty state', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.find('sw-empty-state-stub').exists()).toBeTruthy();

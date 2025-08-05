@@ -9,13 +9,13 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SearchKeyword\AnalyzedKeyword;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tag\TagEntity;
-use Shopware\Elasticsearch\Product\SearchConfigLoader;
 
 /**
  * @internal

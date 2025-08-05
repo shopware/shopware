@@ -3,6 +3,8 @@
 namespace Shopware\Core\System\SalesChannel\Entity;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
@@ -30,6 +32,9 @@ class DefinitionRegistryChain
         return $this->core->get($class);
     }
 
+    /**
+     * @return EntityRepository<EntityCollection<Entity>>|SalesChannelRepository<EntityCollection<Entity>>
+     */
     public function getRepository(string $entity): EntityRepository|SalesChannelRepository
     {
         try {

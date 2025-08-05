@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\UsageData\Consent;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -31,6 +32,7 @@ class BannerServiceTest extends TestCase
         $userId = '018a93bbe90570eda0d89c600de7dd19';
         $context = Context::createDefaultContext(new AdminApiSource($userId));
 
+        /** @var StaticEntityRepository<UserConfigCollection> */
         $userConfigRepository = new StaticEntityRepository([
             new UserConfigCollection([]),
         ]);
@@ -55,6 +57,7 @@ class BannerServiceTest extends TestCase
             '_value' => true,
         ]);
 
+        /** @var StaticEntityRepository<UserConfigCollection> */
         $userConfigRepository = new StaticEntityRepository([
             new UserConfigCollection([$userConfig]),
         ]);
@@ -75,6 +78,7 @@ class BannerServiceTest extends TestCase
         $criteria->addFilter(new EqualsFilter('userId', $userId));
         $criteria->addFilter(new EqualsFilter('key', BannerService::USER_CONFIG_KEY_HIDE_CONSENT_BANNER));
 
+        /** @var StaticEntityRepository<UserConfigCollection> */
         $userConfigRepository = new StaticEntityRepository([
             new IdSearchResult(
                 0,
@@ -112,6 +116,7 @@ class BannerServiceTest extends TestCase
         $criteria->addFilter(new EqualsFilter('userId', $userId));
         $criteria->addFilter(new EqualsFilter('key', BannerService::USER_CONFIG_KEY_HIDE_CONSENT_BANNER));
 
+        /** @var StaticEntityRepository<UserConfigCollection> */
         $userConfigRepository = new StaticEntityRepository([
             new IdSearchResult(
                 1,
@@ -147,6 +152,7 @@ class BannerServiceTest extends TestCase
 
         $userConfigCollection = $this->createUserConfigEntities($idsCollection, 10);
 
+        /** @var EntityRepository<UserConfigCollection>&MockObject */
         $userConfigRepository = $this->createMock(EntityRepository::class);
         $userConfigRepository->method('search')
             ->with($criteria, $context)

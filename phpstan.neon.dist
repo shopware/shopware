@@ -179,11 +179,9 @@ parameters:
                 - src/Core/Maintenance/**
                 - src/Core/Profiling/**
                 - src/Core/Service/**
-                - src/Core/System/**
                 - src/Core/Test/**
                 - tests/integration/Core/Content/**
                 - tests/integration/Core/Framework/**
-                - tests/integration/Core/System/**
                 - tests/unit/Core/**
 
         - # WIP implementation (See NEXT-29041 - https://github.com/shopware/shopware/issues/6175)

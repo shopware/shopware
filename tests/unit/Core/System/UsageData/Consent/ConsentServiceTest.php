@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigEntity;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\Consent\ConsentState;
@@ -33,9 +34,12 @@ class ConsentServiceTest extends TestCase
             ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
         ]);
 
+        /** @var StaticEntityRepository<SystemConfigCollection> */
+        $repository = new StaticEntityRepository([]);
+
         $consentService = new ConsentService(
             $systemConfig,
-            new StaticEntityRepository([]),
+            $repository,
             new CollectingEventDispatcher(),
             new MockClock(),
         );
@@ -49,9 +53,12 @@ class ConsentServiceTest extends TestCase
 
     public function testIsApprovalGivenIsFalseIfConfigValueIsNotSet(): void
     {
+        /** @var StaticEntityRepository<SystemConfigCollection> */
+        $repository = new StaticEntityRepository([]);
+
         $consentService = new ConsentService(
             new StaticSystemConfigService(),
-            new StaticEntityRepository([]),
+            $repository,
             new CollectingEventDispatcher(),
             new MockClock(),
         );

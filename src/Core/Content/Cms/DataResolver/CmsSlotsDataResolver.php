@@ -34,9 +34,9 @@ class CmsSlotsDataResolver
 
     /**
      * @internal
-     *
+     * 
      * @param iterable<CmsElementResolverInterface> $resolvers
-     * @param array<string, SalesChannelRepository> $repositories
+     * @param array<string, SalesChannelRepository<covariant EntityCollection<covariant Entity>>> $repositories
      */
     public function __construct(
         iterable $resolvers,
@@ -277,11 +277,17 @@ class CmsSlotsDataResolver
         return true;
     }
 
+    /**
+     * @return EntityRepository<covariant EntityCollection<covariant Entity>>
+     */
     private function getApiRepository(EntityDefinition $definition): EntityRepository
     {
         return $this->definitionRegistry->getRepository($definition->getEntityName());
     }
 
+    /**
+     * @return ?SalesChannelRepository<covariant EntityCollection<covariant Entity>>
+     */
     private function getSalesChannelApiRepository(EntityDefinition $definition): ?SalesChannelRepository
     {
         return $this->repositories[$definition->getEntityName()] ?? null;

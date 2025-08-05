@@ -36,6 +36,8 @@ class NavigationRoute extends AbstractNavigationRoute
 
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<CategoryCollection> $categoryRepository
      */
     public function __construct(
         private readonly Connection $connection,
@@ -110,10 +112,7 @@ class NavigationRoute extends AbstractNavigationRoute
         $criteria->addAssociation('media');
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
-        /** @var CategoryCollection $missing */
-        $missing = $this->categoryRepository->search($criteria, $context)->getEntities();
-
-        return $missing;
+        return $this->categoryRepository->search($criteria, $context)->getEntities();
     }
 
     private function loadLevels(string $rootId, int $rootLevel, SalesChannelContext $context, Criteria $criteria, int $depth = 2): CategoryCollection
@@ -131,7 +130,6 @@ class NavigationRoute extends AbstractNavigationRoute
         $criteria->setLimit(null);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
-        /** @var CategoryCollection $levels */
         $levels = $this->categoryRepository->search($criteria, $context)->getEntities();
 
         $this->addVisibilityCounts($rootId, $rootLevel, $depth, $levels, $context);

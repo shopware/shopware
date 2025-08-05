@@ -44,7 +44,7 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductDetailRouteTest extends TestCase
 {
     /**
-     * @var MockObject&SalesChannelRepository
+     * @var MockObject&SalesChannelRepository<ProductCollection>
      */
     private SalesChannelRepository $productRepository;
 

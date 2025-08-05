@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -24,6 +25,9 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(FindProductVariantRoute::class)]
 class FindProductVariantRouteTest extends TestCase
 {
+    /**
+     * @var MockObject&SalesChannelRepository<SalesChannelProductCollection>
+     */
     private MockObject&SalesChannelRepository $productRepositoryMock;
 
     private FindProductVariantRoute $route;

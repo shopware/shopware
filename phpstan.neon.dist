@@ -184,14 +184,6 @@ parameters:
                 - tests/integration/Core/Framework/**
                 - tests/unit/Core/**
 
-        - # WIP implementation (See NEXT-29041 - https://github.com/shopware/shopware/issues/6175)
-            message: '#.* generic class Shopware\\Core\\System\\SalesChannel\\Entity\\SalesChannelRepository.*not specify its types: TEntityCollection#'
-            paths:
-                - src/Core/Content/**
-                - src/Core/System/**
-                - tests/integration/Core/**
-                - tests/unit/Core/Content/**
-
         - # No need to fix for now, as the facades are only used in twig context
             message: '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult.*does not specify its types: TEntityCollection#'
             paths:

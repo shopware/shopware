@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -25,6 +26,9 @@ class SalesChannelMaintenanceEnableCommand extends Command
 {
     protected bool $setMaintenanceMode = true;
 
+    /**
+     * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
+     */
     public function __construct(
         private readonly EntityRepository $salesChannelRepository
     ) {

@@ -176,9 +176,6 @@ parameters:
             paths:
                 - src/Core/Content/**
                 - src/Core/Framework/**
-                - src/Core/Maintenance/**
-                - src/Core/Profiling/**
-                - src/Core/Service/**
                 - src/Core/Test/**
                 - tests/integration/Core/Content/**
                 - tests/integration/Core/Framework/**

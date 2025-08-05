@@ -15,7 +15,11 @@ use Twig\Cache\FilesystemCache;
 class Script extends Struct
 {
     /**
-     * @param TwigOptions $twigOptions
+     * @var TwigOptions
+     */
+    private array $twigOptions = [];
+
+    /**
      * @param array<Script> $includes
      */
     public function __construct(
@@ -23,7 +27,6 @@ class Script extends Struct
         protected string $script,
         protected \DateTimeInterface $lastModified,
         private readonly ?ScriptAppInformation $scriptAppInformation = null,
-        protected array $twigOptions = [],
         protected array $includes = [],
         private readonly bool $active = true,
     ) {

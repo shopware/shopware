@@ -124,21 +124,22 @@ class ScriptLoader implements EventSubscriberInterface
 
             $includes = array_map(function (array $include): Script {
                 return new Script(
-                    name: $include['scriptName'],
-                    script: $include['script'],
-                    lastModified: new \DateTimeImmutable($include['lastModified']),
-                    scriptAppInformation: $this->getAppInfo($include),
-                    active: (bool) $include['active'],
+                    $include['scriptName'],
+                    $include['script'],
+                    new \DateTimeImmutable($include['lastModified']),
+                    $this->getAppInfo($include),
+                    [],
+                    (bool) $include['active'],
                 );
             }, $includes);
 
             $executableScripts[$script['hook']][] = new Script(
-                name: $script['scriptName'],
-                script: $script['script'],
-                lastModified: $lastModified,
-                scriptAppInformation: $this->getAppInfo($script),
-                twigOptions: $includes,
-                active: (bool) $script['active'],
+                $script['scriptName'],
+                $script['script'],
+                $lastModified,
+                $this->getAppInfo($script),
+                $includes,
+                (bool) $script['active'],
             );
         }
 

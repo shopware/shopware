@@ -92,6 +92,7 @@ class CountryStateControllerTest extends TestCase
             'id' => $appId,
             'name' => 'Test',
             'path' => __DIR__ . '/../Manifest/_fixtures/test',
+            'active' => true,
             'version' => '0.0.1',
             'label' => 'test',
             'accessToken' => 'test',

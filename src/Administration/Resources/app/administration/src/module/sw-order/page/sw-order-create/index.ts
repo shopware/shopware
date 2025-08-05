@@ -124,7 +124,7 @@ export default Shopware.Component.wrapComponentConfig({
                     this.openInvalidCodeModal();
                 }
 
-                this.showError(new Error(this.orderValidateErrorMessage));
+                this.showError(this.orderValidateErrorMessage);
                 return;
             }
 

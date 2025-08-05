@@ -34,7 +34,7 @@ class CmsSlotsDataResolver
 
     /**
      * @internal
-     * 
+     *
      * @param iterable<CmsElementResolverInterface> $resolvers
      * @param array<string, SalesChannelRepository<covariant EntityCollection<covariant Entity>>> $repositories
      */

@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
@@ -302,6 +303,22 @@ class MatchAllLineItemsRuleTest extends TestCase
         ));
 
         static::assertTrue($match);
+    }
+
+    public function testRuleConstraints(): void
+    {
+        $rule = new MatchAllLineItemsRule();
+
+        $constraints = $rule->getConstraints();
+
+        static::assertArrayHasKey('minimumShouldMatch', $constraints);
+        static::assertArrayHasKey('types', $constraints);
+
+        static::assertCount(1, $constraints['minimumShouldMatch']);
+        static::assertCount(1, $constraints['types']);
+
+        static::assertInstanceOf(Type::class, $constraints['minimumShouldMatch'][0]);
+        static::assertInstanceOf(Type::class, $constraints['types'][0]);
     }
 
     /**

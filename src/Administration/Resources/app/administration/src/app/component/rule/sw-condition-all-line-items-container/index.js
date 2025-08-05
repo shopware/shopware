@@ -89,7 +89,12 @@ export default {
             }
 
             if (this.children.first().type !== 'cartLineItemOfType') {
-                this.condition.value = { types: ['product', 'custom'] };
+                this.condition.value = {
+                    types: [
+                        'product',
+                        'custom',
+                    ],
+                };
             }
         },
 

@@ -59,7 +59,7 @@ export default Shopware.Component.wrapComponentConfig({
             return Store.get('swOrder').invalidPromotionCodes;
         },
 
-        orderValidateMessage(): string | null {
+        orderValidateErrorMessage(): string | null {
             if (!this.customer) {
                 return this.$tc('sw-order.create.saveError.noCustomer');
             }
@@ -119,16 +119,11 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async onSaveOrder(): Promise<void> {
-            if (this.orderValidateMessage) {
+            if (this.orderValidateErrorMessage) {
                 if (this.invalidPromotionCodes.length) {
                     this.openInvalidCodeModal();
                 }
 
-                this.showError();
-                return;
-            }
-
-            if (!this.customer) {
                 this.showError();
                 return;
             }
@@ -138,7 +133,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             try {
                 const { data } = (await Store.get('swOrder').saveOrder({
-                    salesChannelId: this.customer?.salesChannelId,
+                    salesChannelId: this.customer!.salesChannelId,
                     contextToken: this.cart.token,
                 })) as {
                     data: {

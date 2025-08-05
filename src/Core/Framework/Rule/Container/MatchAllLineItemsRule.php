@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @final
  *
- * MatchAllLineItemsRule returns true, if all rules are true for all line items
+ * MatchAllLineItemsRule returns true if all rules are true for all line items
  */
 #[Package('fundamentals@after-sales')]
 class MatchAllLineItemsRule extends Container

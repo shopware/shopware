@@ -68,5 +68,8 @@ return [
 
         // The class has not been released
         'REMOVED: Class Shopware\\\\Elasticsearch\\\\Product\\\\CachedSearchConfigLoader has been deleted',
+
+        // The rule class is declared @final, and its constructor is marked as @internal.
+        'REMOVED: Property Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule#$type was removed',
     ],
 ];

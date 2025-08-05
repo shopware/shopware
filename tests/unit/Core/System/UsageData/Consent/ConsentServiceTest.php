@@ -271,11 +271,12 @@ class ConsentServiceTest extends TestCase
 
         $updatedAt = new \DateTimeImmutable('2021-01-01 00:00:00');
         $systemConfigEntity = new SystemConfigEntity();
+        $systemConfigEntity->setId('test-id');
         $systemConfigEntity->setUpdatedAt($updatedAt);
 
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
-        $entitySearchResult->method('first')
-            ->willReturn($systemConfigEntity);
+        $entitySearchResult->method('getEntities')
+            ->willReturn(new SystemConfigCollection([$systemConfigEntity]));
 
         $systemConfigRepository = $this->createMock(EntityRepository::class);
         $systemConfigRepository->method('search')

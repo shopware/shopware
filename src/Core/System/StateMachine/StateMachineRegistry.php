@@ -238,7 +238,10 @@ class StateMachineRegistry implements ResetInterface
         $transitions = [];
         foreach ($stateMachineTransitions as $transition) {
             $fromState = $transition->getFromStateMachineState();
-            \assert($fromState !== null);
+            if (!$fromState) {
+                continue;
+            }
+
             if ($fromState->getId() === $fromStateId) {
                 $transitions[] = $transition;
             }
@@ -261,11 +264,13 @@ class StateMachineRegistry implements ResetInterface
         \assert($stateMachineTransitions !== null);
 
         foreach ($stateMachineTransitions as $transition) {
-            $toState = $transition->getToStateMachineState();
-            \assert($toState !== null);
-
             // Not the transition that was requested step over
             if ($transition->getActionName() !== $transitionName) {
+                continue;
+            }
+
+            $toState = $transition->getToStateMachineState();
+            if (!$toState) {
                 continue;
             }
 
@@ -275,7 +280,9 @@ class StateMachineRegistry implements ResetInterface
             }
 
             $fromState = $transition->getFromStateMachineState();
-            \assert($fromState !== null);
+            if (!$fromState) {
+                continue;
+            }
 
             // Desired transition found
             if ($fromState->getId() === $fromStateId) {

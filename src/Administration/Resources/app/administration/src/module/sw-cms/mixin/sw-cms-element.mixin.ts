@@ -1,6 +1,5 @@
 import { defineComponent } from 'vue';
-import { type RuntimeSlot } from '../service/cms.service';
-import '../../sw-category/page/sw-category-detail/store';
+import { type EnrichedSlotData, type RuntimeSlot, type CmsSlotConfig } from '../service/cms.service';
 
 const { Mixin } = Shopware;
 const { types } = Shopware.Utils;
@@ -9,8 +8,16 @@ const { cloneDeep, merge } = Shopware.Utils.object;
 interface Translation {
     languageId: string;
 }
+
+interface TranslationWithSlotConfig extends Translation {
+    slotConfig?: {
+        [slotId: string]: CmsSlotConfig;
+    };
+}
+
 interface Entity {
     translations: Translation[];
+    translated?: TranslationWithSlotConfig;
 }
 
 /**
@@ -50,33 +57,44 @@ export default Mixin.register(
                 return this.cmsService.getCmsElementRegistry();
             },
 
-            category(): EntitySchema.Entities['category'] {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                return Shopware.Store.get('swCategoryDetail')?.category as EntitySchema.Entities['category'];
+            category(): Entity | null {
+                try {
+                    return Shopware.Store.get('swCategoryDetail')?.category as Entity;
+                } catch {
+                    return null;
+                }
+            },
+
+            product(): Entity | null {
+                try {
+                    return Shopware.Store.get('swProductDetail')?.product as Entity;
+                } catch {
+                    return null;
+                }
+            },
+
+            configOverride(): EnrichedSlotData {
+                return (
+                    this.getEntitySlotConfig() ??
+                    this.element?.translated?.config ??
+                    this.element?.config ??
+                    {}
+                ) as EnrichedSlotData;
             },
         },
 
         methods: {
             initElementConfig(elementName: string) {
                 let defaultConfig = this.defaultConfig;
+
                 if (!defaultConfig) {
                     const elementConfig = this.cmsElements[elementName];
                     defaultConfig = elementConfig?.defaultConfig || {};
                 }
 
-                let fallbackCategoryConfig = {};
-                if (this.category?.translations) {
-                    // @ts-expect-error
-                    // eslint-disable-next-line max-len
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-                    fallbackCategoryConfig = this.getDefaultTranslations(this.category)?.slotConfig?.[this.element.id];
-                }
-
                 this.element.config = merge(
                     cloneDeep(defaultConfig),
-                    this.element?.translated?.config || {},
-                    fallbackCategoryConfig || {},
-                    this.element?.config || {},
+                    this.configOverride,
                 );
             },
 
@@ -94,8 +112,23 @@ export default Mixin.register(
                 return this.cmsService.getPropertyByMappingPath(this.cmsPageState.currentDemoEntity, mappingPath);
             },
 
+            getEntitySlotConfig() {
+                const entity = this.category ?? this.product;
+
+                if (!entity) {
+                    return null;
+                }
+
+                const translation = (
+                    entity.translated ??
+                    this.getDefaultTranslations(entity)
+                ) as TranslationWithSlotConfig;
+
+                return translation?.slotConfig?.[this.element.id] ?? null;
+            },
+
             getDefaultTranslations(entity: Entity) {
-                return entity.translations.find((translation) => {
+                return entity.translations?.find((translation) => {
                     return translation.languageId === Shopware.Context.api.systemLanguageId;
                 });
             },

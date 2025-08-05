@@ -320,11 +320,10 @@ export default {
                 scope: this,
             });
             Shopware.Store.get('adminMenu').collapseSidebar();
+            this.resetRelatedStores();
 
             const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
             this.cmsPageState.setIsSystemDefaultLanguage(isSystemDefaultLanguage);
-
-            this.resetCmsPageState();
 
             if (this.$route.params.id) {
                 this.pageId = this.$route.params.id.toLowerCase();
@@ -351,12 +350,19 @@ export default {
             this.setPageContext();
         },
 
+        beforeDestroyedComponent() {
+            this.resetRelatedStores();
+        },
+
         setPageContext() {
             this.getDefaultFolderId().then((folderId) => {
                 this.cmsPageState.setDefaultMediaFolderId(folderId);
             });
         },
 
+        /**
+         * @deprecated: v6.8.0 - Replaced by "resetRelatedStores" method
+         */
         resetCmsPageState() {
             this.cmsPageState.resetCmsPageState();
         },
@@ -376,12 +382,6 @@ export default {
             });
         },
 
-        beforeDestroyedComponent() {
-            const store = this.cmsPageState;
-            store.removeCurrentPage();
-            store.removeSelectedBlock();
-            store.removeSelectedSection();
-        },
 
         loadPage(pageId) {
             this.isLoading = true;
@@ -1163,6 +1163,18 @@ export default {
             } else {
                 await this.$router.push({ name: 'sw.cms.index' });
             }
+        },
+
+        resetRelatedStores() {
+            const stores = ['cmsPage', 'swCategoryDetail', 'swProductDetail'];
+
+            stores.forEach((name) => {
+                try {
+                    Shopware.Store.get(name).$reset();
+                } catch {
+                    // Not all stores are always registered. We can safely ignore errors here.
+                }
+            });
         },
     },
 };

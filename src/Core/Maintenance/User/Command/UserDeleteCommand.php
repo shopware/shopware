@@ -41,7 +41,7 @@ class UserDeleteCommand extends Command
 
         $userId = $input->getArgument('user_id');
 
-        $findUserById = $this->userRepository->search(new Criteria(['id' => $userId]), $context)->first();
+        $findUserById = $this->userRepository->search(new Criteria([$userId]), $context)->first();
         if (!$findUserById) {
             $io->error(sprintf('User with the ID: "%s" does not exist.', $userId));
             return self::INVALID;

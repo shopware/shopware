@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -128,6 +129,7 @@ class ShippingCountryRuleTest extends TestCase
         $rule->match(new CartRuleScope($cart, $context));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testUnsupportedOperatorMessage(): void
     {
         $rule = (new ShippingCountryRule())

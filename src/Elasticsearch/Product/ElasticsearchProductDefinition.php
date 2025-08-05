@@ -66,6 +66,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'manufacturer' => ElasticsearchFieldBuilder::nested([
                 'name' => $languageFields,
             ]),
+            'deliveryTime' => ElasticsearchFieldBuilder::nested([
+                'name' => $languageFields,
+            ]),
             'options' => ElasticsearchFieldBuilder::nested([
                 'groupId' => self::KEYWORD_FIELD,
                 'name' => $languageFields,
@@ -89,6 +92,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'autoIncrement' => self::INT_FIELD,
             'manufacturerId' => self::KEYWORD_FIELD,
             'manufacturerNumber' => self::getTextFieldConfig(),
+            'deliveryTimeId' => self::KEYWORD_FIELD,
             'displayGroup' => self::KEYWORD_FIELD,
             'ean' => self::getTextFieldConfig(),
             'height' => self::FLOAT_FIELD,
@@ -217,6 +221,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'height' => (float) $item['height'],
                 'manufacturerId' => $item['productManufacturerId'],
                 'manufacturerNumber' => $item['manufacturerNumber'],
+                'deliveryTimeId' => $item['deliveryTimeId'],
                 'releaseDate' => isset($item['releaseDate']) ? (new \DateTime($item['releaseDate']))->format('c') : null,
                 'createdAt' => isset($item['createdAt']) ? (new \DateTime($item['createdAt']))->format('c') : null,
                 'categoryTree' => ElasticsearchIndexingUtils::parseJson($item, 'categoryTree'),
@@ -236,6 +241,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'manufacturer' => [
                     'id' => $item['productManufacturerId'],
                     'name' => ElasticsearchFieldMapper::translated(field: 'manufacturerName', items: $translation),
+                    '_count' => 1,
+                ],
+                'deliveryTime' => [
+                    'id' => $item['deliveryTimeId'],
+                    'name' => ElasticsearchFieldMapper::translated(field: 'deliveryTimeName', items: $translation),
                     '_count' => 1,
                 ],
                 'properties' => array_values(array_map(function (string $propertyId) use ($groups) {
@@ -294,6 +304,7 @@ SELECT
     p.product_number as productNumber,
     p.sales,
     LOWER(HEX(p.manufacturer)) AS productManufacturerId,
+    LOWER(HEX(p.delivery_time_id)) as deliveryTimeId,
     IFNULL(p.shipping_free, pp.shipping_free) AS shippingFree,
     IFNULL(p.is_closeout, pp.is_closeout) AS isCloseout,
     LOWER(HEX(IFNULL(p.product_media_id, pp.product_media_id))) AS coverId,
@@ -366,6 +377,7 @@ SELECT
     product_parent.custom_fields AS parentCustomFields,
     IFNULL(product_main.custom_search_keywords, product_parent.custom_search_keywords) AS customSearchKeywords,
     manufacturer.name AS manufacturerName,
+    delivery_time_translation.name as deliveryTimeName,
     #categories#
 FROM product p
     LEFT JOIN product_translation product_main ON product_main.product_id = p.id AND product_main.product_version_id = p.version_id AND product_main.language_id = :languageId
@@ -373,6 +385,7 @@ FROM product p
     LEFT JOIN product_manufacturer_translation manufacturer ON manufacturer.product_manufacturer_id = p.manufacturer AND manufacturer.language_id = :languageId AND manufacturer.product_manufacturer_version_id = p.version_id AND manufacturer.name IS NOT NULL
     LEFT JOIN product_category ON (product_category.product_id = p.categories AND product_category.product_version_id = p.version_id)
     LEFT JOIN category_translation category ON category.category_id = product_category.category_id AND category.category_version_id = product_category.category_version_id AND category.name IS NOT NULL AND category.language_id = :languageId
+    LEFT JOIN delivery_time_translation ON delivery_time_translation.delivery_time_id = p.delivery_time_id AND delivery_time_translation.language_id = :languageId
 
 WHERE p.id IN (:ids) AND p.version_id = :liveVersionId
 

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\Product\ElasticsearchProductException;
 
 /**
@@ -51,6 +52,7 @@ class SearchConfigLoaderTest extends TestCase
         static::assertEquals($expectedResult, $result);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testLoadWithNoResult(): void
     {
         static::expectExceptionObject(ElasticsearchProductException::configNotFound());

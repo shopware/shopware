@@ -234,6 +234,9 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
+     * [WARNING] Please refrain from using this functionality in new code. It is a workaround to reduce duplication of
+     * the criteria parameter groups and may be removed in the future.
+     *
      * OpenAPI specification does not support groups of parameters as reusable components.
      * As in Shopware has a number of GET routes that support passing criteria as a set of parameters,
      * describing them in the OpenAPI spec leads to a lot of duplication.

@@ -351,7 +351,6 @@
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Message\FlowActionHandler" public="true">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Flow\Dispatching\FlowFactory"/>
             <argument type="tagged_iterator" tag="flow.action" index-by="key" />
 

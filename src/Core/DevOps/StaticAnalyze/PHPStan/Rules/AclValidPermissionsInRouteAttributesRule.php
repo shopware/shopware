@@ -29,11 +29,8 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('framework')]
 class AclValidPermissionsInRouteAttributesRule implements Rule
 {
-    private AclValidPermissionsHelper $permissionsHelper;
-
-    public function __construct(AclValidPermissionsHelper $permissionsHelper)
+    public function __construct(private readonly AclValidPermissionsHelper $permissionsHelper)
     {
-        $this->permissionsHelper = $permissionsHelper;
     }
 
     public function getNodeType(): string

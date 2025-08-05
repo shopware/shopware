@@ -204,6 +204,8 @@ class FlowExecutor
             return;
         }
 
+        // We could also make the async flag configurable in the action config modal and check here if it should run async or not,
+        // that way we can also get rid of the shopware.yaml setting
         if ($this->messageBus !== null && $action instanceof AsyncFlowAction) {
             $this->messageBus->dispatch(new FlowActionMessage($sequence, $event, $event->getContext()));
 

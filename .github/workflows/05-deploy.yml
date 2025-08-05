@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 2
 
       - name: Configure aws credentials
-        uses: aws-actions/configure-aws-credentials@50ac8dd1e1b10d09dac7b8727528b91bed831ac0 # 3
+        uses: aws-actions/configure-aws-credentials@59b441846ad109fa4a1549b73ef4e149c4bfb53b # 3
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/UploadReleaseCalendar
           role-session-name: github-actions

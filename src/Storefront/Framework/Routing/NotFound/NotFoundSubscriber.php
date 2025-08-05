@@ -53,7 +53,6 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
         private readonly SalesChannelContextServiceInterface $contextService,
         private bool $kernelDebug, // Do not change to readonly, as it is used in tests
         private readonly CacheInterface $cache,
-        private readonly EntityCacheKeyGenerator $generator,
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly EventDispatcherInterface $eventDispatcher,
         array $sessionOptions = []
@@ -153,7 +152,7 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
 
     private function generateKey(string $salesChannelId, string $domainId, string $languageId, Request $request, SalesChannelContext $context): string
     {
-        $key = self::buildName($salesChannelId, $domainId, $languageId) . $this->generator->getSalesChannelContextHash($context);
+        $key = self::buildName($salesChannelId, $domainId, $languageId) . EntityCacheKeyGenerator::buildSalesChannelContextHash($context);
 
         $event = new NotFoundPageCacheKeyEvent($key, $request, $context);
 

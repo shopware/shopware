@@ -15,11 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('framework')]
 readonly class ContextAwareCacheHeadersService
 {
-    public function __construct(
-        private EntityCacheKeyGenerator $cacheKeyGenerator
-    ) {
-    }
-
     public function addContextHeaders(Request $request, Response $response, SalesChannelContext $context): void
     {
         // Add context headers to response
@@ -36,7 +31,7 @@ readonly class ContextAwareCacheHeadersService
         $areaRuleIds = $context->getAreaRuleIds();
         $ruleAreas = array_keys($areaRuleIds);
 
-        return $this->cacheKeyGenerator->getSalesChannelContextHash($context, $ruleAreas);
+        return EntityCacheKeyGenerator::buildSalesChannelContextHash($context, $ruleAreas);
     }
 
     private function addVaryHeaders(Response $response): void

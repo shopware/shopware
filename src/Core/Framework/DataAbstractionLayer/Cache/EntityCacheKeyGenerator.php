@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\Cache;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -29,7 +30,7 @@ class EntityCacheKeyGenerator
     /**
      * @param string[] $areas
      */
-    public function getSalesChannelContextHash(SalesChannelContext $context, array $areas = []): string
+    public static function buildSalesChannelContextHash(SalesChannelContext $context, array $areas = []): string
     {
         $ruleIds = $context->getRuleIdsByAreas($areas);
 
@@ -45,7 +46,7 @@ class EntityCacheKeyGenerator
         ]);
     }
 
-    public function getCriteriaHash(Criteria $criteria): string
+    public static function buildCriteriaHash(Criteria $criteria): string
     {
         return Hasher::hash([
             $criteria->getIds(),
@@ -61,5 +62,27 @@ class EntityCacheKeyGenerator
             $criteria->getAggregations(),
             $criteria->getAssociations(),
         ]);
+    }
+
+    /**
+     * @param string[] $areas
+     *
+     * @deprecated tag:v6.8.0 - Will be removed, use `buildSalesChannelContextHash` instead
+     */
+    public function getSalesChannelContextHash(SalesChannelContext $context, array $areas = []): string
+    {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', self::class . '::buildSalesChannelContextHash'));
+
+        return self::buildSalesChannelContextHash($context, $areas);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use `buildCriteriaHash` instead
+     */
+    public function getCriteriaHash(Criteria $criteria): string
+    {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', self::class . '::buildCriteriaHash'));
+
+        return self::buildCriteriaHash($criteria);
     }
 }

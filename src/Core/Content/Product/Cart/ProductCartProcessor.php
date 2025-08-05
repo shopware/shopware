@@ -56,7 +56,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         private readonly QuantityPriceCalculator $calculator,
         private readonly ProductFeatureBuilder $featureBuilder,
         private readonly AbstractProductPriceCalculator $priceCalculator,
-        private readonly EntityCacheKeyGenerator $generator,
         private readonly Connection $connection
     ) {
     }
@@ -573,7 +572,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
     private function getDataContextHash(SalesChannelContext $context): string
     {
-        $contextHash = $this->generator->getSalesChannelContextHash($context, [RuleAreas::PRODUCT_AREA]);
+        $contextHash = EntityCacheKeyGenerator::buildSalesChannelContextHash($context, [RuleAreas::PRODUCT_AREA]);
 
         $activeTaxRules = array_map(static function (TaxEntity $taxRule) {
             return $taxRule->getRules()?->getIds() ?: $taxRule->getId();

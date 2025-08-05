@@ -18,7 +18,7 @@ class ScoreQueryTest extends TestCase
         $scoreQuery = new ScoreQuery(new ContainsFilter('productNumber', '123456'), 100);
 
         /**
-         * @see \Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator::getCriteriaHash
+         * @see \Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator::buildCriteriaHash
          */
         $json = json_encode($scoreQuery, \JSON_THROW_ON_ERROR);
 

@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -27,8 +26,7 @@ class ContextAwareCacheHeadersServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $entityCacheKeyGenerator = new EntityCacheKeyGenerator();
-        $this->contextAwareCacheService = new ContextAwareCacheHeadersService($entityCacheKeyGenerator);
+        $this->contextAwareCacheService = new ContextAwareCacheHeadersService();
     }
 
     /**

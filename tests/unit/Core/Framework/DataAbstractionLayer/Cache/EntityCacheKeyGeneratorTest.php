@@ -53,9 +53,7 @@ class EntityCacheKeyGeneratorTest extends TestCase
     #[DataProvider('criteriaHashProvider')]
     public function testCriteriaHash(Criteria $criteria, string $hash): void
     {
-        $generator = new EntityCacheKeyGenerator();
-
-        static::assertSame($hash, $generator->getCriteriaHash($criteria));
+        static::assertSame($hash, EntityCacheKeyGenerator::buildCriteriaHash($criteria));
     }
 
     public static function criteriaHashProvider(): \Generator
@@ -95,11 +93,9 @@ class EntityCacheKeyGeneratorTest extends TestCase
     #[DataProvider('contextHashProvider')]
     public function testContextHash(SalesChannelContext $compared): void
     {
-        $generator = new EntityCacheKeyGenerator();
-
         static::assertNotSame(
-            $generator->getSalesChannelContextHash(new DummyContext(), ['test']),
-            $generator->getSalesChannelContextHash($compared, ['test'])
+            EntityCacheKeyGenerator::buildSalesChannelContextHash(new DummyContext(), ['test']),
+            EntityCacheKeyGenerator::buildSalesChannelContextHash($compared, ['test'])
         );
     }
 

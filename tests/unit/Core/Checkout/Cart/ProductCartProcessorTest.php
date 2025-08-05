@@ -26,7 +26,6 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\State;
-use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Checkout\EmptyPrice;
@@ -131,7 +130,6 @@ class ProductCartProcessorTest extends TestCase
             $this->createMock(QuantityPriceCalculator::class),
             $this->createMock(ProductFeatureBuilder::class),
             $calculator,
-            $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(Connection::class)
         );
 
@@ -199,7 +197,6 @@ class ProductCartProcessorTest extends TestCase
             $this->createMock(QuantityPriceCalculator::class),
             $this->createMock(ProductFeatureBuilder::class),
             $calculator,
-            $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(Connection::class)
         );
 
@@ -246,7 +243,6 @@ class ProductCartProcessorTest extends TestCase
             $this->createMock(QuantityPriceCalculator::class),
             $this->createMock(ProductFeatureBuilder::class),
             $this->createMock(ProductPriceCalculator::class),
-            $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(Connection::class)
         );
 
@@ -287,7 +283,6 @@ class ProductCartProcessorTest extends TestCase
             $calculator,
             $this->createMock(ProductFeatureBuilder::class),
             $this->createMock(ProductPriceCalculator::class),
-            $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(Connection::class)
         );
 
@@ -337,7 +332,6 @@ class ProductCartProcessorTest extends TestCase
             $this->createMock(QuantityPriceCalculator::class),
             $this->createMock(ProductFeatureBuilder::class),
             $this->createMock(ProductPriceCalculator::class),
-            $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(Connection::class)
         );
 

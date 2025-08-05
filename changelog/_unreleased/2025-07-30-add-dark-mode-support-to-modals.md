@@ -5,4 +5,4 @@ author_email: n.haberkamp@shopware.com
 author_github: @Haberkamp
 ---
 # Administration
-* Add Meteor Color Tokens to modals
+* Added Meteor Color Tokens to modals

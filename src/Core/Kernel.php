@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\VersionParser;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -356,7 +357,7 @@ PHP;
 
     private function addApiRoutes(RoutingConfigurator $routes): void
     {
-        $routes->import('.', 'api');
+        $routes->import('.', ApiRouteScope::ID);
     }
 
     private function addBundleRoutes(RoutingConfigurator $routes): void

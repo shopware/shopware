@@ -16,12 +16,9 @@ async function createWrapper() {
 
 describe('sw-bulk-edit-order-documents-generate-invoice', () => {
     let wrapper;
+
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain a generateData as a computed property', async () => {

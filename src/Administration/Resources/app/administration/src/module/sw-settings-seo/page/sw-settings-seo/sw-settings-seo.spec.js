@@ -73,10 +73,6 @@ describe('src/module/sw-settings-seo/page/sw-settings-seo', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain the settings card', async () => {
         await wrapper.vm.$nextTick();
         expect(

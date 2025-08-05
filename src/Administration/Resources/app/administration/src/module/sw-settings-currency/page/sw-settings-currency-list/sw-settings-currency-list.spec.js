@@ -77,13 +77,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to create a new currency', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

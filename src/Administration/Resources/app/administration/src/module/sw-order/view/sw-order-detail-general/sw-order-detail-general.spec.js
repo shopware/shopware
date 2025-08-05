@@ -141,12 +141,6 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         Shopware.Store.get('swOrderDetail').order = orderMock;
     });
 
-    it('should be a Vue.js component', async () => {
-        global.activeAclRoles = [];
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should tax description correctly for shipping cost if taxStatus is not tax-free', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();

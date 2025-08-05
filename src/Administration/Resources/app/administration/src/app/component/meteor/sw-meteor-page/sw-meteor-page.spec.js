@@ -78,13 +78,6 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         });
     });
 
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be in full width', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

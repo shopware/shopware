@@ -68,11 +68,6 @@ const setup = async (propOverride) => {
 };
 
 describe('components/form/sw-purchase-price-field', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await setup();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain the dollar price', async () => {
         const wrapper = await setup();
         expect(wrapper.vm.purchasePrice[0].gross).toEqual(dollarPrice.gross);

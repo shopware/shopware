@@ -569,10 +569,10 @@ class CriteriaParser
         if ($this->isCheapestPriceField($filter->getField(), true)) {
             $scriptContent = $this->getScript('cheapest_price_percentage_filter');
             $parameters = [
-                'params' => array_merge(
-                    ['eq' => $filter->getValue() === null ? null : (float) $filter->getValue()],
-                    ['accessors' => $this->getCheapestPriceAccessors($context, true)]
-                ),
+                'params' => [
+                    'eq' => $filter->getValue() === null ? null : (float) $filter->getValue(),
+                    'accessors' => $this->getCheapestPriceAccessors($context, true),
+                ],
             ];
 
             return $this->constructScriptQuery($scriptContent, $parameters);

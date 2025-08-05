@@ -21,10 +21,6 @@ describe('src/app/component/structure/sw-media-modal-renderer', () => {
         store = Shopware.Store.get('mediaModal');
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should open the media modal', async () => {
         let modal = wrapper.find('sw-media-modal-v2-stub');
         expect(modal.exists()).toBeFalsy();

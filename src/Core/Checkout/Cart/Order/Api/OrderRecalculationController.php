@@ -137,6 +137,7 @@ class OrderRecalculationController extends AbstractController
     public function updateOrderAddresses(string $orderId, Request $request, Context $context): JsonResponse
     {
         $mapping = $request->request->all('mapping');
+        \assert(array_is_list($mapping));
 
         $this->orderAddressService->updateOrderAddresses($orderId, $mapping, $context);
 

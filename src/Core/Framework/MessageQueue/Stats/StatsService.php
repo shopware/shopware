@@ -43,7 +43,7 @@ class StatsService
         }
 
         $timeInQueue = time() - $sentAtStamp->getSentAt()->getTimestamp();
-        $messageFqcn = \get_class($envelope->getMessage());
+        $messageFqcn = $envelope->getMessage()::class;
         $this->statsRepository->updateMessageStats($messageFqcn, $timeInQueue);
     }
 }

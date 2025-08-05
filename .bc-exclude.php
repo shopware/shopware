@@ -69,6 +69,11 @@ return [
         // The class has not been released
         'REMOVED: Class Shopware\\\\Elasticsearch\\\\Product\\\\CachedSearchConfigLoader has been deleted',
 
+        // Removing empty constructor methods should not be a BC break
+        preg_quote('REMOVED: Method Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowEmptyString#__construct() was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\DataAbstractionLayer\Attribute\Required#__construct() was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey#__construct() was removed', '/'),
+
         // The rule class is declared @final, and its constructor is marked as @internal.
         'REMOVED: Property Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule#$type was removed',
     ],

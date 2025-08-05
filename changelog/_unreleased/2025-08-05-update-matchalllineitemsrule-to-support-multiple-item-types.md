@@ -6,4 +6,4 @@ author_email: l.kemper@shopware.com
 author_github: @larskemper
 ---
 # Core
-* Updated `Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule` to support multiple line item types by changing the `$type` property and its corresponding constraint to an `array` and renaming the property to `$types`.
+* Changed `Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule` to support multiple line item types by changing the `$type` property and its corresponding constraint to an `array` and renaming the property to `$types`.

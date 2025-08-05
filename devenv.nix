@@ -94,7 +94,7 @@ in {
 
   services.mysql = {
     enable = true;
-    package = pkgs.mariaDb;
+    package = pkgs.mariadb;
     initialDatabases = lib.mkDefault [{ name = "shopware"; }];
     ensureUsers = lib.mkDefault [
       {

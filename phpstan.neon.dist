@@ -197,12 +197,6 @@ parameters:
                 - src/Core/Framework/DataAbstractionLayer/EntityRepository.php
                 - src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
 
-        - # It is not possible to specify the type of the EntitySearchResult, as the CmsSlotDataResolver and the ElementDataCollection are used for multiple entities at the same time
-            message: '#.* with generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection.*not specify its types: TElement#'
-            paths:
-                - src/Core/Content/Cms/DataResolver/CmsSlotsDataResolver.php
-                - src/Core/Content/Cms/DataResolver/Element/ElementDataCollection.php
-        - '#Parameter \#2 \$entitySearchResult of method Shopware\\Core\\Content\\Cms\\DataResolver\\Element\\ElementDataCollection::add\(\) expects Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection>, Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<Shopware\\.*Collection> given#'
         - # It is not possible to specify the type of the EntityResult, as the Aggregators are used for multiple entities at the same time
             message: '#Method Shopware\\.*::hydrateEntityAggregation\(\) return type with generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\AggregationResult\\Metric\\EntityResult does not specify its types: TEntityCollection#'
             paths:

@@ -105,7 +105,7 @@ class CmsSlotsMultiDataResolverTest extends TestCase
     }
 
     /**
-     * @return SalesChannelRepository<covariant EntityCollection<covariant Entity>>|Stub
+     * @return SalesChannelRepository<covariant EntityCollection<covariant Entity>>&Stub
      */
     private function createRepositoryMock(EntityDefinition $definition): SalesChannelRepository
     {

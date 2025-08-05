@@ -87,6 +87,14 @@
             <tag name="messenger.message_handler"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Cache\Message\RefreshHttpCacheMessageHandler">
+            <argument type="service" id="http_kernel.cache.inner"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CacheStore"/>
+            <argument type="service" id="cache.http"/>
+
+            <tag name="messenger.message_handler"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Adapter\Cache\Script\Facade\CacheInvalidatorFacadeHookFactory" public="true">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
         </service>

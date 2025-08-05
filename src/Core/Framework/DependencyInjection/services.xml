@@ -712,9 +712,8 @@ frame-ancestors 'none';
             <argument type="service" id="Shopware\Core\Framework\Routing\MaintenanceModeResolver"/>
             <argument>%session.storage.options%</argument>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
-            <argument type="service" id="http_kernel.cache.inner"/>
             <argument>%shopware.http_cache.soft_purge%</argument>
-            <argument type="service" id="lock.factory"/>
+            <argument type="service" id="messenger.bus.default"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator">

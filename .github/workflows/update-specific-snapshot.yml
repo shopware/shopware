@@ -1,0 +1,30 @@
+name: Update Specific Snapshot
+on:
+  workflow_dispatch:
+    inputs:
+      testName:
+        description: 'Name of the test to update (e.g., specific page visual test)'
+        required: true
+      snapshotName:
+        description: 'Snapshot file name (e.g., specific-snapshot.png)'
+        required: true
+jobs:
+  update-snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+      - name: Run Playwright to update specific snapshot
+        run: npx playwright test --grep "${{ github.event.inputs.testName }}" --update-snapshots
+      - name: Commit updated snapshot
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'Update snapshot ${{ github.event.inputs.snapshotName }}'

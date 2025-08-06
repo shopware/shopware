@@ -16,9 +16,11 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerTagAction;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowAction;
+use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\Dispatching\Action\StopFlowAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowExecutor;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
+use Shopware\Core\Content\Flow\Dispatching\Message\FlowActionMessage;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\ActionSequence;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
@@ -49,6 +51,9 @@ use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tag\TagEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBus;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -893,5 +898,73 @@ class FlowExecutorTest extends TestCase
         $this->flowExecutor->executeAction($actionSequence, $flow);
 
         static::assertNotEmpty($flow->getConfig());
+    }
+
+    public function testExecutesAsyncAction(): void
+    {
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $sendMailAction = $this->createMock(SendMailAction::class);
+
+        $flowExecutor = new FlowExecutor(
+            $this->eventDispatcherMock,
+            $this->appFlowActionProviderMock,
+            $this->ruleLoaderMock,
+            $this->scopeBuilderMock,
+            $this->connectionMock,
+            new ExtensionDispatcher($this->eventDispatcherMock),
+            $this->loggerMock,
+            [
+                SendMailAction::ACTION_NAME => $sendMailAction,
+            ],
+            $messageBus,
+        );
+
+        $actionSequence = new ActionSequence();
+        $actionSequence->action = SendMailAction::ACTION_NAME;
+
+        $flow = new StorableFlow('some-flow', Context::createCLIContext());
+        $flowState = new FlowState();
+        $flowState->currentSequence = $actionSequence;
+        $flow->setFlowState($flowState);
+
+        $messageBus
+            ->expects(static::once())
+            ->method('dispatch')
+            ->willReturn(Envelope::wrap(new FlowActionMessage($actionSequence, $flow, Context::createCLIContext())));
+
+        $flowExecutor->executeAction($actionSequence, $flow);
+    }
+
+    public function testDoesNotExecutesAsyncIfActionNotAsync(): void
+    {
+        $messageBus = $this->getMockBuilder(MessageBus::class)->disableOriginalConstructor()->getMock();
+
+        $flowExecutor = new FlowExecutor(
+            $this->eventDispatcherMock,
+            $this->appFlowActionProviderMock,
+            $this->ruleLoaderMock,
+            $this->scopeBuilderMock,
+            $this->connectionMock,
+            new ExtensionDispatcher($this->eventDispatcherMock),
+            $this->loggerMock,
+            [
+                self::ACTION_ADD_ORDER_TAG => $this->addOrderTagActionMock,
+            ],
+            $messageBus,
+        );
+
+        $actionSequence = new ActionSequence();
+        $actionSequence->action = SendMailAction::ACTION_NAME;
+
+        $flow = new StorableFlow('some-flow', Context::createCLIContext());
+        $flowState = new FlowState();
+        $flowState->currentSequence = $actionSequence;
+        $flow->setFlowState($flowState);
+
+        $messageBus
+            ->expects(static::never())
+            ->method('dispatch');
+
+        $flowExecutor->executeAction($actionSequence, $flow);
     }
 }

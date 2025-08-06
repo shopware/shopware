@@ -86,7 +86,11 @@ async function createWrapper(additionalOptions = {}, privileges = []) {
                     mixins: [
                         Mixin.getByName('listing'),
                     ],
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
                 ...additionalOptions,
             },

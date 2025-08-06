@@ -215,6 +215,7 @@ class AssetServiceTest extends TestCase
 
                 return true;
             });
+        $adapter->method('read')->willReturn(json_encode([], \JSON_THROW_ON_ERROR));
 
         $filesystem = new Filesystem($adapter);
         $assetService = new AssetService(

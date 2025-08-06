@@ -186,11 +186,6 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         SwOrderStateHistoryModal = await wrapTestComponent('sw-order-state-history-modal', { sync: true });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show state history grid correctly', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

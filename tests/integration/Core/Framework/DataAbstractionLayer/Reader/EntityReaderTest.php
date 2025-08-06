@@ -2024,9 +2024,9 @@ class EntityReaderTest extends TestCase
                     'id' => $ids->get('media'),
                     'name' => 'test-image',
                     'thumbnails' => [
-                        ['id' => Uuid::randomHex(), 'mediaId' => $ids->get('media'), 'width' => 10, 'height' => 10, 'highDpi' => true],
-                        ['id' => Uuid::randomHex(), 'mediaId' => $ids->get('media'), 'width' => 20, 'height' => 20, 'highDpi' => true],
-                        ['id' => Uuid::randomHex(), 'mediaId' => $ids->get('media'), 'width' => 30, 'height' => 30, 'highDpi' => true],
+                        ['id' => Uuid::randomHex(), 'mediaId' => $ids->get('media'), 'width' => 10, 'height' => 10, 'highDpi' => true, 'mediaThumbnailSize' => ['width' => 10, 'height' => 10]],
+                        ['id' => Uuid::randomHex(), 'mediaId' => $ids->get('media'), 'width' => 20, 'height' => 20, 'highDpi' => true, 'mediaThumbnailSize' => ['width' => 20, 'height' => 20]],
+                        ['id' => Uuid::randomHex(), 'mediaId' => $ids->get('media'), 'width' => 30, 'height' => 30, 'highDpi' => true, 'mediaThumbnailSize' => ['width' => 30, 'height' => 30]],
                     ],
                 ],
             ],

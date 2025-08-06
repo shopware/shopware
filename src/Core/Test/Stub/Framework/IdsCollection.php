@@ -12,16 +12,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class IdsCollection
 {
     /**
-     * @var array<string, string>
-     */
-    protected array $ids = [];
-
-    /**
      * @param array<string, string> $ids
      */
-    public function __construct(array $ids = [])
+    public function __construct(protected array $ids = [])
     {
-        $this->ids = $ids;
     }
 
     public function create(string $key): string

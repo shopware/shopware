@@ -26,10 +26,17 @@ class RouteScopeRuleTest extends RuleTestCase
             ],
         ]);
 
+        $this->analyse([__DIR__ . '/data/RouteScope/ControllerWithRouteAttribute.php'], [
+            [
+                'Method Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\RouteScope\ControllerWithRouteAttribute::resetScope() has no route scope defined. Please add a route scope to the method or the class.',
+                22,
+            ],
+        ]);
+
         $this->analyse([__DIR__ . '/data/RouteScope/ControllerWithoutRouteAttribute.php'], [
             [
                 'Method Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\RouteScope\ControllerWithoutRouteAttribute::withoutScope() has no route scope defined. Please add a route scope to the method or the class.',
-                15,
+                17,
             ],
         ]);
     }

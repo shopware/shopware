@@ -1,10 +1,10 @@
 @import "~scss/variables";
 
-$sw-page-smart-bar-border-color: $color-gray-300;
-$sw-page-separator-color: $color-gray-300;
-$sw-page-divider-background-color: $color-gray-300;
-$sw-page-smart-bar-background-color: $color-white;
-$sw-page-smart-bar-headline-color: $color-darkgray-200;
+$sw-page-smart-bar-border-color: var(--color-border-primary-default);
+$sw-page-separator-color: var(--color-border-primary-default);
+$sw-page-divider-background-color: var(--color-border-primary-default);
+$sw-page-smart-bar-background-color: var(--color-elevation-surface-default);
+$sw-page-smart-bar-headline-color: var(--color-text-primary-default);
 $sw-page-side-content-default-width: 440px;
 $sw-page-smart-bar-headline-font-size: $font-size-m;
 $sw-page-smart-bar-headline-font-weight: $font-weight-semi-bold;
@@ -29,7 +29,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         grid-template-columns: [head-start back-btn-start] 1fr [back-btn-end header-content-start] minmax(0, $content-width) [header-content-end] 1fr [smart-bar-end];
         align-items: center;
         background: $sw-page-smart-bar-background-color;
-        border-bottom: 2px solid $sw-page-smart-bar-border-color;
+        border-bottom: 1px solid $sw-page-smart-bar-border-color;
         z-index: $z-index-page-header;
     }
 

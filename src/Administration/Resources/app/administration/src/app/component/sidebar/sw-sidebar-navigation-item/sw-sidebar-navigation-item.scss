@@ -1,14 +1,14 @@
 @import "~scss/variables";
 
-$sw-sidebar-navigation-item-icon-color: $color-darkgray-200;
-$sw-sidebar-navigation-item-icon-color-active: $color-shopware-brand-500;
-$sw-sidebar-navigation-item-hover-color-background: $color-shopware-brand-50;
-$sw-sidebar-navigation-item-active-color-background: $color-shopware-brand-50;
-$sw-sidebar-navigation-item-size: 64px;
-$sw-sidebar-navigation-item-badge-color-info: $color-shopware-brand-500;
-$sw-sidebar-navigation-item-badge-color-warning: $color-pumpkin-spice-500;
-$sw-sidebar-navigation-item-badge-color-error: $color-crimson-500;
-$sw-sidebar-navigation-item-badge-color-success: $color-emerald-500;
+$sw-sidebar-navigation-item-icon-color: var(--color-icon-primary-default);
+$sw-sidebar-navigation-item-icon-color-active: var(--color-icon-brand-default);
+$sw-sidebar-navigation-item-hover-color-background: var(--color-background-brand-default);
+$sw-sidebar-navigation-item-active-color-background: var(--color-background-brand-default);
+$sw-sidebar-navigation-item-size: var(--scale-size-64);
+$sw-sidebar-navigation-item-badge-color-info: var(--color-icon-brand-default);
+$sw-sidebar-navigation-item-badge-color-warning: var(--color-icon-attention-default);
+$sw-sidebar-navigation-item-badge-color-error: var(--color-icon-critical-default);
+$sw-sidebar-navigation-item-badge-color-success: var(--color-icon-positive-default);
 
 .sw-sidebar-navigation-item {
     position: relative;
@@ -19,6 +19,11 @@ $sw-sidebar-navigation-item-badge-color-success: $color-emerald-500;
     background: none;
     cursor: pointer;
     outline: none;
+
+    &:focus-visible {
+        outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+        outline-offset: calc(var(--scale-size-2) * -1);
+    }
 
     &:hover:not(.is--disabled) {
         color: $sw-sidebar-navigation-item-icon-color-active;
@@ -51,7 +56,7 @@ $sw-sidebar-navigation-item-badge-color-success: $color-emerald-500;
         position: absolute;
         transform: translate(-30%, 70%);
         border-radius: 18px;
-        color: $color-white;
+        color: var(--color-text-static-default);
         font-size: $font-size-xxs;
         font-style: normal;
 

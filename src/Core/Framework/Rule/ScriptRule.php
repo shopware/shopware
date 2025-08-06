@@ -123,8 +123,6 @@ class ScriptRule extends Rule
 
     /**
      * @param array<string, mixed> $options
-     *
-     * @return $this
      */
     public function assignValues(array $options): ScriptRule
     {

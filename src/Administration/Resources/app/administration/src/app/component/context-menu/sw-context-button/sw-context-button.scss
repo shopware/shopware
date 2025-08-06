@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-$sw-context-button-color-text: $color-darkgray-200;
+$sw-context-button-color-text: var(--color-icon-primary-default);
 $sw-context-button-border-radius: $border-radius-default;
 $sw-context-button-color-border: $color-gray-300;
 $sw-context-button-color-disabled: $color-gray-100;
@@ -12,7 +12,7 @@ $sw-context-button-color-disabled: $color-gray-100;
 
     &.is--disabled {
         .sw-context-button__button {
-            color: lighten($sw-context-button-color-text, 20%);
+            color: var(--color-icon-primary-disabled);
             cursor: initial;
 
             &:hover,

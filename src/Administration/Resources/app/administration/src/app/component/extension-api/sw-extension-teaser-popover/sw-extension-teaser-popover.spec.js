@@ -33,11 +33,6 @@ describe('src/app/component/extension-api/sw-extension-teaser-popover', () => {
         store.identifier = {};
     });
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show button component', async () => {
         store.addPopoverComponent({
             positionId: 'test-position',

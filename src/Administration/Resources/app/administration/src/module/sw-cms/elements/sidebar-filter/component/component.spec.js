@@ -33,12 +33,6 @@ describe('src/module/sw-cms/elements/sidebar-filter/component', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('set a is--disabled class to wrapper', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({

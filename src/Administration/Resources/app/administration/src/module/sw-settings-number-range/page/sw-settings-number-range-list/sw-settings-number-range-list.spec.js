@@ -38,7 +38,11 @@ async function createWrapper(privileges = []) {
                     acl: {
                         can: (key) => (key ? privileges.includes(key) : true),
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
                 stubs: {
                     'sw-page': {
@@ -81,10 +85,6 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('Should not allow create without permission', async () => {

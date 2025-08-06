@@ -104,8 +104,11 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
             $this->eventDispatcher->dispatch(new SalesChannelContextCreatedEvent($context, $token, $session));
 
+            $currentRequest = $this->requestStack->getCurrentRequest();
+            $requestSession = $currentRequest?->hasSession() ? $currentRequest->getSession() : null;
+
             // skip cart calculation on ESI sub-requests if it has already been done.
-            $esiRequest = $this->requestStack->getCurrentRequest()?->attributes->has('_sw_esi') ?? false;
+            $esiRequest = $currentRequest?->attributes->has('_sw_esi') ?? false;
             if (!$this->cartService->hasCart($token) || !$esiRequest) {
                 // @deprecated tag:v6.8.0 - Permission will always be true
                 $result = $context->withPermissions(
@@ -114,6 +117,9 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
                 );
 
                 $this->cartService->setCart($result->getCart());
+                $requestSession?->set('sw-rule-ids', $result->getCart()->getRuleIds());
+            } else {
+                $context->setRuleIds($requestSession?->get('sw-rule-ids') ?? []);
             }
 
             return $context;

@@ -73,13 +73,6 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
     /** @tupe Wrapper */
     let wrapper;
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be visible if there are not variants', async () => {
         const productEntity = {
             canonicalProductId: null,

@@ -22,11 +22,11 @@ final readonly class FlowActionHandler
     /**
      * @internal
      *
-     * @param \Traversable|array<string, FlowAction> $actions
+     * @param iterable<string, FlowAction> $actions
      */
     public function __construct(
         private readonly FlowFactory $flowFactory,
-        $actions
+        iterable $actions
     ) {
         $this->actions = $actions instanceof \Traversable ? iterator_to_array($actions) : $actions;
     }

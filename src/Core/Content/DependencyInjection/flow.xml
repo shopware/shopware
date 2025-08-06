@@ -105,6 +105,8 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument>%shopware.mail.update_mail_variables_on_send%</argument>
             <tag name="flow.action" priority="500" key="action.mail.send"/>
         </service>

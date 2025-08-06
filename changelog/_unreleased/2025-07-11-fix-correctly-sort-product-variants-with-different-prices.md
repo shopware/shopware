@@ -1,7 +1,6 @@
 ---
 title: Adds MIN() Function to cheapestPrice Accessor
 issue: #4053
-flag:
 author: Ullrich Löblein
 author_email: lul@shd.de
 author_github: @ulloe

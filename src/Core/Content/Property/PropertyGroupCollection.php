@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Property;
 
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
-use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 
@@ -69,7 +68,7 @@ class PropertyGroupCollection extends EntityCollection
                 $entities[] = $option;
             }
 
-            array_multisort($columns, SORT_ASC, $entities);
+            array_multisort($columns, \SORT_ASC, $entities);
 
             $group->setOptions(new PropertyGroupOptionCollection($entities));
         }

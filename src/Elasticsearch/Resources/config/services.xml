@@ -552,5 +552,11 @@
             <tag name="shopware.elastic.admin-searcher-index" key="product_stream"/>
         </service>
 
+        <service id="Shopware\Elasticsearch\Product\ProductCriteriaParser"
+                 decorates="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser"
+        >
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
+            <argument type="service" id="Shopware\Core\System\CustomField\CustomFieldService"/>
+        </service>
     </services>
 </container>

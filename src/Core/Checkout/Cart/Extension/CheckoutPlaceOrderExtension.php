@@ -47,15 +47,18 @@ final class CheckoutPlaceOrderExtension extends Extension implements ShopwareSal
     ) {
     }
 
-    public function getSalesChannelContext(): SalesChannelContext {
+    public function getSalesChannelContext(): SalesChannelContext
+    {
         return $this->context;
     }
 
-    public function getContext(): Context {
+    public function getContext(): Context
+    {
         return $this->context->getContext();
     }
 
-    public function getCart(): Cart {
+    public function getCart(): Cart
+    {
         return $this->cart;
     }
 }

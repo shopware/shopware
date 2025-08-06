@@ -140,6 +140,22 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             expect(document.body.style.cursor).toBe('');
         });
 
+        it('should not execute startSidebarResize when sidebar is not resizable', async () => {
+            const wrapper = await createWrapper();
+
+            await ui.sidebar.add({
+                title: 'Test sidebar',
+                locationId: 'test-sidebar',
+                resizable: false,
+            });
+            Shopware.Store.get('sidebar').sidebars[0].active = true;
+            await wrapper.vm.$nextTick();
+
+            wrapper.vm.startSidebarResize({ clientX: 100 });
+            expect(wrapper.vm.sidebarDisplayOptions.isResizing).toBe(false);
+            expect(document.body.style.cursor).toBe('');
+        });
+
         it('should start resize when resize handle is clicked', async () => {
             const wrapper = await createWrapper();
 

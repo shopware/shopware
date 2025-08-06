@@ -36,7 +36,7 @@ const sidebarsStore = Shopware.Store.register({
                 icon,
                 locationId,
                 baseUrl,
-                resizable : (resizable ?? false) as boolean,
+                resizable,
                 active: false,
             });
 

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\InAppPurchase\Services\KeyFetcher;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -101,6 +102,7 @@ class KeyFetcherTest extends TestCase
         static::assertSame('sample-key-id', $key->getElements()[0]->kid);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetKeyReturns400ResponseWithoutExistingKey(): void
     {
         $this->expectException(AppException::class);

@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -27,6 +28,7 @@ class RuleExceptionTest extends TestCase
         static::assertSame($previous, $exception->getPrevious());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testUnsupportedOperator(): void
     {
         $exception = RuleException::unsupportedOperator('$', 'testClass');

@@ -16,6 +16,7 @@ use Twig\Node\Expression\AbstractExpression;
 #[CoversClass(AdapterException::class)]
 class AdapterExceptionTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testUnsupportedOperator(): void
     {
         $exception = AdapterException::unsupportedOperator('$', 'testClass');

@@ -156,7 +156,7 @@ export default {
         },
 
         'address.company'(newVal) {
-            if (!newVal) {
+            if (!newVal || !this.customer.isNew()) {
                 return;
             }
 

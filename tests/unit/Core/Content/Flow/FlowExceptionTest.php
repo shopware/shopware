@@ -11,6 +11,7 @@ use Shopware\Core\Content\Flow\Dispatching\TransactionFailedException;
 use Shopware\Core\Content\Flow\Exception\CustomTriggerByNameNotFoundException;
 use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(FlowException::class)]
 class FlowExceptionTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testCustomTriggerByNameNotFound(): void
     {
         $e = FlowException::customTriggerByNameNotFound('myEvent');

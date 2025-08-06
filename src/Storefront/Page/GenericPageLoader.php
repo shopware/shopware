@@ -29,7 +29,7 @@ class GenericPageLoader implements GenericPageLoaderInterface
 
             $page->setMetaInformation((new MetaInformation())->assign([
                 'revisit' => '15 days',
-                'robots' => 'index,follow',
+                'robots' => $this->systemConfigService->getString('core.basicInformation.metaRobots', $context->getSalesChannel()->getId()) ?: 'index,follow',
                 'xmlLang' => $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE) ?? '',
                 'metaTitle' => $this->systemConfigService->getString('core.basicInformation.shopName', $context->getSalesChannelId()),
             ]));

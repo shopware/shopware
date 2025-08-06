@@ -49,13 +49,6 @@ async function createWrapper() {
 }
 
 describe('components/media/sw-media-list-selection-v2', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should set the position property for each item by index in computed', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

@@ -79,18 +79,17 @@ async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5],
                     },
                 },
                 mediaService: {},
-                searchRankingService: {},
+                searchRankingService: {
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
             },
         },
     });
 }
 
 describe('src/module/sw-media/component/sw-media-library/index', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should allow loading of additional folders', async () => {
         const wrapper = await createWrapper({
             folderAmount: [

@@ -21,6 +21,7 @@ use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -77,6 +78,7 @@ class ProductDetailRouteTest extends TestCase
         $cmsPageLoader = $this->createMock(SalesChannelCmsPageLoader::class);
         $this->productCloseoutFilterFactory = new ProductCloseoutFilterFactory();
         $this->eventDispatcher = new EventDispatcher();
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
 
         $this->route = new ProductDetailRoute(
             $this->productRepository,
@@ -87,7 +89,8 @@ class ProductDetailRouteTest extends TestCase
             $cmsPageLoader,
             new SalesChannelProductDefinition(),
             $this->productCloseoutFilterFactory,
-            $this->eventDispatcher
+            $this->eventDispatcher,
+            $cacheTagCollector,
         );
     }
 

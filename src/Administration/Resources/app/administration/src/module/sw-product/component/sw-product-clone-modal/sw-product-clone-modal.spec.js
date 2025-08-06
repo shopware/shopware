@@ -37,13 +37,6 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
     /** @type Wrapper */
     let wrapper;
 
-    it('should be a Vue.JS component', async () => {
-        wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should clone parent without mainVariantId', async () => {
         wrapper = await createWrapper();
         await flushPromises();

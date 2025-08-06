@@ -146,10 +146,6 @@ describe('module/sw-settings-newsletter/page/sw-settings-newsletter', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain the settings card system', async () => {
         await wrapper.vm.$nextTick();
         expect(

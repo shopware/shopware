@@ -203,6 +203,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'mt-loader': true,
                     'sw-loader-deprecated': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-error-summary': true,
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': true,
@@ -441,11 +442,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         Shopware.Store.get('swBulkEdit').selectedIds = [
             Shopware.Utils.createId(),
         ];
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be handled change data', async () => {

@@ -75,6 +75,18 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\MessageQueue\Command\DeactivateScheduledTaskCommand">
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\MessageQueue\Command\ScheduleScheduledTaskCommand">
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry"/>
+
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\Framework\MessageQueue\Api\ScheduledTaskController" public="true">
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler"/>
             <call method="setContainer">

@@ -7,7 +7,9 @@ use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Search\SearchPage;
 use Shopware\Storefront\Page\Search\SearchPageLoadedHook;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
@@ -23,7 +25,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('inventory')]
 class SearchController extends StorefrontController
 {
@@ -78,7 +80,7 @@ class SearchController extends StorefrontController
     /**
      * Route to load the listing filters
      */
-    #[Route(path: '/widgets/search', name: 'widgets.search.pagelet.v2', defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront']], methods: ['GET', 'POST'])]
+    #[Route(path: '/widgets/search', name: 'widgets.search.pagelet.v2', defaults: ['XmlHttpRequest' => true], methods: ['GET', 'POST'])]
     public function ajax(Request $request, SalesChannelContext $context): Response
     {
         $request->request->set('no-aggregations', true);
@@ -96,7 +98,7 @@ class SearchController extends StorefrontController
     /**
      * Route to load the available listing filters
      */
-    #[Route(path: '/widgets/search/filter', name: 'widgets.search.filter', defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront'], '_httpCache' => true], methods: ['GET', 'POST'])]
+    #[Route(path: '/widgets/search/filter', name: 'widgets.search.filter', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
     public function filter(Request $request, SalesChannelContext $context): Response
     {
         $term = $request->get('search');

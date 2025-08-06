@@ -43,10 +43,6 @@ describe('src/app/mixin/form-field.mixin.ts', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain the correct formFieldName when this.name exists', () => {
         expect(wrapper.vm.formFieldName).toBe('sw-mock-field');
     });

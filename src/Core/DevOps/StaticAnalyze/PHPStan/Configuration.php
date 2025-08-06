@@ -11,16 +11,10 @@ use Shopware\Core\Framework\Log\Package;
 final class Configuration
 {
     /**
-     * @var array<string, mixed>
-     */
-    private array $parameters;
-
-    /**
      * @param array<string, mixed> $parameters
      */
-    public function __construct(array $parameters)
+    public function __construct(private array $parameters)
     {
-        $this->parameters = $parameters;
     }
 
     /**

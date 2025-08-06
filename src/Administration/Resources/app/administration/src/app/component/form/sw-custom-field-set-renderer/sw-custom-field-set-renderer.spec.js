@@ -628,14 +628,6 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         };
     });
 
-    it('should be a Vue.JS component', async () => {
-        wrapper = await createWrapper({
-            entity: {},
-            sets: [],
-        });
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should inherit the value from parent entity', async () => {
         const props = {
             sets: createEntityCollection([

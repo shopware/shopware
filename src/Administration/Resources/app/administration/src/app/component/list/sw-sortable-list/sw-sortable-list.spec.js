@@ -57,11 +57,6 @@ describe('src/component/list/sw-sortable-list', () => {
     /** @type Wrapper */
     let wrapper;
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have a list of items', async () => {
         wrapper = await createWrapper();
         const list = wrapper.find('.sw-sortable-list');

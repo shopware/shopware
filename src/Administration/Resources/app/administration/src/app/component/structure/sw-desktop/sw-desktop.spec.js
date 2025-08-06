@@ -158,12 +158,6 @@ describe('src/app/component/structure/sw-desktop', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be update userConfig when at index route', async () => {
         const wrapper = await createWrapper();
 

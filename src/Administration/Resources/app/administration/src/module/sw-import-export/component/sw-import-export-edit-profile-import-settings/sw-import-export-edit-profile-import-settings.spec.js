@@ -38,11 +38,6 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-impor
         if (wrapper) wrapper.unmount();
     });
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper(getProfileMock());
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should always keep one switch activated', async () => {
         wrapper = await createWrapper(getProfileMock());
         await flushPromises();

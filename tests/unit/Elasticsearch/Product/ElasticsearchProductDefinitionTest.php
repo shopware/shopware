@@ -249,12 +249,12 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 ],
                 'releaseDate' => [
                     'type' => 'date',
-                    'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
+                    'format' => 'yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time||epoch_millis',
                     'ignore_malformed' => true,
                 ],
                 'createdAt' => [
                     'type' => 'date',
-                    'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
+                    'format' => 'yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time||epoch_millis',
                     'ignore_malformed' => true,
                 ],
                 'sales' => [

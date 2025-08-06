@@ -8,10 +8,19 @@ author_github: @scarbous
 * Added `Shopware\Core\Content\Media\MediaEntity` to `Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension` to allow individual media handling.
 * Added `mimeType` to `Shopware\Core\Content\Media\Core\Params\UrlParams` 
 * Changed `Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension` to allow to skip thumbnail loading by returning `null` as result
+
 ___
+
 # Upgrade Information
+
+## Deprecation of properties in `ResolveRemoteThumbnailUrlExtension`
+
+The properties `mediaPath` and `mediaUpdatedAt` from `Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension` are deprecated and will be removed with the next major version. Set the values directly into the newly added `mediaEntity` property.
+
 ___
-* The properties `$mediaPath` and `$mediaUpdatedAt` from `Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension`, they could be resolved from `$mediaEntity`
+
 # Next Major Version Changes
-## The properties `$mediaPath` and `$mediaUpdatedAt` from `Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension` get removed
-* Use `$mediaEntity` instead of the `$mediaPath` and `$mediaUpdatedAt` properties.
+
+## Removal of properties in `ResolveRemoteThumbnailUrlExtension`
+
+The properties `$mediaPath` and `$mediaUpdatedAt` from `Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension` were removed. Set the values directly into the `mediaEntity` property.

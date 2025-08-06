@@ -2,7 +2,11 @@
 
 namespace Shopware\Core\Framework\Plugin\Util;
 
+use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToCheckExistence;
+use League\Flysystem\UnableToCreateDirectory;
+use League\Flysystem\UnableToDeleteDirectory;
 use League\Flysystem\UnableToReadFile;
 use League\Flysystem\Visibility;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
@@ -45,13 +49,25 @@ class AssetService
     }
 
     /**
+     * @throws \JsonException
+     * @throws FilesystemException
      * @throws PluginNotFoundException
+     * @throws UnableToCheckExistence
+     * @throws UnableToCreateDirectory
+     * @throws UnableToDeleteDirectory
      */
     public function copyAssetsFromBundle(string $bundleName, bool $force = false): void
     {
         $this->copyAssets($this->getBundle($bundleName), $force);
     }
 
+    /**
+     * @throws \JsonException
+     * @throws UnableToDeleteDirectory
+     * @throws UnableToCreateDirectory
+     * @throws UnableToCheckExistence
+     * @throws FilesystemException
+     */
     public function copyAssets(BundleInterface $bundle, bool $force = false): void
     {
         if ($bundle instanceof Plugin) {
@@ -67,6 +83,13 @@ class AssetService
         );
     }
 
+    /**
+     * @throws \JsonException
+     * @throws FilesystemException
+     * @throws UnableToCheckExistence
+     * @throws UnableToCreateDirectory
+     * @throws UnableToDeleteDirectory
+     */
     public function copyAssetsFromApp(string $appName, string $appPath, bool $force = false): void
     {
         $fs = $this->sourceResolver->filesystemForAppName($appName);
@@ -84,6 +107,11 @@ class AssetService
         );
     }
 
+    /**
+     * @throws \JsonException
+     * @throws FilesystemException
+     * @throws UnableToDeleteDirectory
+     */
     public function removeAssetsOfBundle(string $bundleName): void
     {
         $this->removeAssets($bundleName);
@@ -101,6 +129,11 @@ class AssetService
         }
     }
 
+    /**
+     * @throws \JsonException
+     * @throws FilesystemException
+     * @throws UnableToDeleteDirectory
+     */
     public function removeAssets(string $name): void
     {
         $targetDirectory = $this->getTargetDirectory($name);
@@ -113,16 +146,23 @@ class AssetService
         $this->writeManifest($manifest);
     }
 
+    /**
+     * @throws \JsonException
+     * @throws FilesystemException
+     * @throws UnableToCheckExistence
+     * @throws UnableToCreateDirectory
+     * @throws UnableToDeleteDirectory
+     */
     private function copyAssetsFromBundleOrApp(
         string $originDirectory,
         string $bundleOrAppName,
         bool $force,
     ): void {
-        $bundleOrAppName = mb_strtolower($bundleOrAppName);
-
         if (!is_dir($originDirectory)) {
             return;
         }
+
+        $bundleOrAppName = mb_strtolower($bundleOrAppName);
 
         $manifest = $this->getManifest();
 
@@ -171,7 +211,7 @@ class AssetService
             ->in($directory)
             ->getIterator();
 
-        return array_values(iterator_to_array($files));
+        return array_values(iterator_to_array($files, false));
     }
 
     /**
@@ -182,8 +222,8 @@ class AssetService
     private function buildBundleManifest(array $files): array
     {
         $localManifest = array_combine(
-            array_map(fn (SplFileInfo $file) => $file->getRelativePathname(), $files),
-            array_map(fn (SplFileInfo $file) => Hasher::hashFile($file->getPathname()), $files)
+            array_map(static fn (SplFileInfo $file) => $file->getRelativePathname(), $files),
+            array_map(static fn (SplFileInfo $file) => Hasher::hashFile($file->getPathname()), $files)
         );
 
         ksort($localManifest);
@@ -270,6 +310,9 @@ class AssetService
     }
 
     /**
+     * @throws \JsonException
+     * @throws FilesystemException
+     *
      * @return array<string, array<string, string>>
      */
     private function getManifest(): array
@@ -289,6 +332,8 @@ class AssetService
 
     /**
      * @param array<string, array<string, string>> $manifest
+     *
+     * @throws \JsonException
      */
     private function writeManifest(array $manifest): void
     {

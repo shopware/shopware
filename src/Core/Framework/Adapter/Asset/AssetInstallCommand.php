@@ -2,6 +2,10 @@
 
 namespace Shopware\Core\Framework\Adapter\Asset;
 
+use League\Flysystem\FilesystemException;
+use League\Flysystem\UnableToCheckExistence;
+use League\Flysystem\UnableToCreateDirectory;
+use League\Flysystem\UnableToDeleteDirectory;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Log\Package;
@@ -37,6 +41,13 @@ class AssetInstallCommand extends Command
         $this->addOption('force', 'f', InputOption::VALUE_NONE, 'Force the install of assets regardless of the manifest state');
     }
 
+    /**
+     * @throws \JsonException
+     * @throws UnableToDeleteDirectory
+     * @throws UnableToCreateDirectory
+     * @throws UnableToCheckExistence
+     * @throws FilesystemException
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);

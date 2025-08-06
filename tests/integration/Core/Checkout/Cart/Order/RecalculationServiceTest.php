@@ -26,7 +26,6 @@ use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
@@ -243,9 +242,6 @@ class RecalculationServiceTest extends TestCase
         }
         // set token to be equal for further comparison
         $cart->setToken($convertedCart->getToken());
-
-        // transactions are currently not supported so they are excluded for comparison
-        $cart->setTransactions(new TransactionCollection());
 
         $this->removeExtensions($cart);
         $this->removeExtensions($convertedCart);
@@ -1472,6 +1468,10 @@ class RecalculationServiceTest extends TestCase
                 $position->setExtensions([]);
                 $this->removeLineItemsExtension(new LineItemCollection([$position->getLineItem()]));
             }
+        }
+
+        foreach ($cart->getTransactions() as $transaction) {
+            $transaction->setExtensions([]);
         }
 
         $cart->setExtensions([]);

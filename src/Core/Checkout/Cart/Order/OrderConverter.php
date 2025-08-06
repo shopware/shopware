@@ -19,10 +19,13 @@ use Shopware\Core\Checkout\Cart\Order\Transformer\CustomerTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\DeliveryTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\LineItemTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\TransactionTransformer;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -246,6 +249,10 @@ class OrderConverter
             throw OrderException::missingAssociation('deliveries');
         }
 
+        if ($order->getTransactions() === null) {
+            throw OrderException::missingAssociation('transactions');
+        }
+
         $cart = new Cart(Uuid::randomHex());
         $cart->setPrice($order->getPrice());
         $cart->setCustomerComment($order->getCustomerComment());
@@ -259,9 +266,6 @@ class OrderConverter
         }
 
         $cart->addExtension(self::ORIGINAL_ORDER_NUMBER, new IdStruct($orderNumber));
-        /* NEXT-708 support:
-            - transactions
-        */
 
         $lineItems = LineItemTransformer::transformFlatToNested($order->getLineItems());
 
@@ -277,6 +281,9 @@ class OrderConverter
 
         $cart->setDeliveries(
             $this->convertDeliveries($order->getPrimaryOrderDeliveryId(), $order->getDeliveries(), $lineItems)
+        );
+        $cart->setTransactions(
+            $this->convertTransactions($order->getTransactions())
         );
 
         $event = new OrderConvertedEvent($order, $cart, $context);
@@ -487,6 +494,22 @@ class OrderConverter
         }
 
         return $cartDeliveries;
+    }
+
+    private function convertTransactions(OrderTransactionCollection $orderTransactions): TransactionCollection
+    {
+        $cartTransactions = new TransactionCollection();
+        foreach ($orderTransactions as $orderTransaction) {
+            $cartTransaction = new Transaction(
+                $orderTransaction->getAmount(),
+                $orderTransaction->getPaymentMethodId(),
+            );
+            $cartTransaction->addExtension(self::ORIGINAL_ID, new IdStruct($orderTransaction->getId()));
+
+            $cartTransactions->add($cartTransaction);
+        }
+
+        return $cartTransactions;
     }
 
     /**

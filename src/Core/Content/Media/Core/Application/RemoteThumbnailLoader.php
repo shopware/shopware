@@ -65,6 +65,7 @@ class RemoteThumbnailLoader implements ResetInterface
         $mediaThumbnailSizes = $this->getMediaThumbnailSizes();
         $baseUrl = $this->getBaseUrl();
 
+        /** @var MediaEntity|PartialEntity $mediaEntity */
         foreach ($media as $mediaEntity) {
             if (!isset($urls[$mediaEntity->getUniqueIdentifier()])) {
                 continue;
@@ -207,7 +208,9 @@ class RemoteThumbnailLoader implements ResetInterface
                 Entity $mediaEntity,
             ): string {
                 if (Feature::isActive('v6.8.0.0')) {
+                    /** @var string $mediaPath */
                     $mediaPath = $mediaEntity->get('path');
+                    /** @var ?\DateTimeInterface $mediaUpdatedAt */
                     $mediaUpdatedAt = $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt');
                 }
 

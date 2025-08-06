@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Content\Media\Extension;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Extensions\Extension;
 use Shopware\Core\Framework\Log\Package;
 
@@ -34,7 +35,7 @@ final class ResolveRemoteThumbnailUrlExtension extends Extension
          * @deprecated tag:v6.8.0 - Will be removed, set the value into the `mediaEntity` property instead
          */
         public ?\DateTimeInterface $mediaUpdatedAt,
-        public Entity $mediaEntity,
+        public MediaEntity|PartialEntity $mediaEntity,
     ) {
     }
 }

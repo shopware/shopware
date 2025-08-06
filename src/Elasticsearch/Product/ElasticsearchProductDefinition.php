@@ -50,6 +50,16 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     public function getMapping(Context $context): array
     {
         $languageFields = $this->fieldBuilder->translated(self::getTextFieldConfig());
+        $salesChannelByLanguage = $this->languageLoader->loadLanguages();
+        $allSalesChannels = array_values(array_unique(array_merge(...array_values($salesChannelByLanguage))));
+
+        $visibilities = [];
+
+        foreach ($allSalesChannels as $salesChannelId) {
+            $visibilities['visibility_' . $salesChannelId] = [
+                'type' => 'integer',
+            ];
+        }
 
         $debug = $this->environment !== 'prod';
 
@@ -118,6 +128,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'width' => self::FLOAT_FIELD,
             'states' => self::KEYWORD_FIELD,
             'customFields' => $this->fieldBuilder->customFields($this->getEntityDefinition()->getEntityName(), $context),
+            ...$visibilities,
         ];
 
         $mapping = [
@@ -195,6 +206,24 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             /** @var array<int, array{id: string, languageId?: string}> $categories */
             $categories = $item['categories'] ?? [];
 
+            $visibilities = ElasticsearchIndexingUtils::parseJson($item, 'visibilities');
+
+            $visibilitiesFlatten = [];
+
+            foreach ($visibilities as $key => $visibility) {
+                if (!isset($visibility['salesChannelId'])) {
+                    unset($visibilities[$key]);
+                    continue;
+                }
+
+                $visibilitiesFlatten['visibility_' . $visibility['salesChannelId']] = $visibility['visibility'] ?? 0;
+            }
+
+            // no visibilities found, skip this product
+            if (empty($visibilitiesFlatten)) {
+                continue;
+            }
+
             $documents[$id] = [
                 'id' => $id,
                 'autoIncrement' => (float) $item['autoIncrement'],
@@ -208,7 +237,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     return array_merge([
                         '_count' => 1,
                     ], $visibility);
-                }, ElasticsearchIndexingUtils::parseJson($item, 'visibilities')),
+                }, $visibilities),
                 'availableStock' => (int) $item['availableStock'],
                 'productNumber' => $item['productNumber'],
                 'ean' => $item['ean'],
@@ -276,6 +305,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'metaDescription' => ElasticsearchFieldMapper::translated(field: 'metaDescription', items: $translation),
                 'customSearchKeywords' => ElasticsearchFieldMapper::translated(field: 'customSearchKeywords', items: $translation),
                 ...$this->mapCheapestPrice(ElasticsearchIndexingUtils::parseJson($item, 'cheapest_price_accessor')),
+                ...$visibilitiesFlatten,
             ];
         }
 

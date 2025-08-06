@@ -54,6 +54,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
@@ -817,6 +818,13 @@ class CriteriaParser
         if (\count($filter->getQueries()) === 0) {
             return $bool;
         }
+
+        if ($filter instanceof NotEqualsFilter && $filter->getValue() === null) {
+            return new ExistsQuery(
+                $this->buildAccessor($definition, $filter->getField(), $context)
+            );
+        }
+
 
         if (\count($filter->getQueries()) === 1) {
             $bool->add(

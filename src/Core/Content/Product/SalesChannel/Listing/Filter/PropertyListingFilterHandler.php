@@ -7,7 +7,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
@@ -18,8 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -37,7 +37,8 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
      * @internal
      */
     public function __construct(
-        private readonly EntityRepository $repository,
+        private readonly EntityRepository $groupRepository,
+        private readonly EntityRepository $optionRepository,
         private readonly Connection $connection
     ) {
     }
@@ -66,27 +67,59 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
             return;
         }
 
-        $criteria = new Criteria($ids);
-        $criteria->setLimit(500);
-        $criteria->addAssociation('group');
-        $criteria->addAssociation('media');
-        $criteria->addFilter(new EqualsFilter('group.filterable', true));
-        $criteria->setTitle('product-listing::property-filter');
-        $criteria->addSorting(new FieldSorting('id', FieldSorting::ASCENDING));
+        $groupCriteria = new Criteria();
+        $groupCriteria->addFilter(new EqualsFilter('filterable', true));
 
-        $mergedOptions = new PropertyGroupOptionCollection();
+        $chunkIds = array_chunk($ids, 500);
+        $groups = new PropertyGroupCollection();
+        $previousIds = [];
 
-        $repositoryIterator = new RepositoryIterator($this->repository, $context->getContext(), $criteria);
-        while (($loop = $repositoryIterator->fetch()) !== null) {
-            $entities = $loop->getEntities();
+        foreach ($chunkIds as $chunk) {
+            $cloned = clone $groupCriteria;
 
-            $mergedOptions->merge($entities);
+            $cloned->setLimit(\count($chunk));
+            $cloned->addFilter(new EqualsAnyFilter('options.id', $chunk));
+
+            if (!empty($previousIds)) {
+                $cloned->addFilter(new NotEqualsAnyFilter(
+                    'id',
+                    $previousIds
+                ));
+            }
+
+            $groupResult = $this->groupRepository->search($cloned, $context->getContext());
+
+            $entities = $groupResult->getElements();
+            $previousIds = $groupResult->getIds();
+            $groups->fill($entities);
         }
 
-        // group options by their property-group
-        $grouped = $mergedOptions->groupByPropertyGroups();
-        $grouped->sortByPositions();
-        $grouped->sortByConfig();
+        foreach ($groups as $group) {
+            $group->setOptions(new PropertyGroupOptionCollection());
+        }
+
+        $optionCriteria = new Criteria();
+        $optionCriteria->addAssociation('media');
+        $optionCriteria->setTitle('product-listing::property-filter');
+
+        $options = new PropertyGroupOptionCollection();
+
+        foreach ($chunkIds as $chunk) {
+            $cloned = clone $optionCriteria;
+            $cloned->setLimit(\count($chunk));
+            $cloned->setIds($chunk);
+
+            $entities = $this->optionRepository->search($cloned, $context->getContext());
+
+            $options->fill($entities->getElements());
+        }
+
+        foreach ($options->getIterator() as $option) {
+            $groups->get($option->getGroupId())->getOptions()?->add($option);
+        }
+
+        $groups->sortByPositions();
+        $groups->sortByConfig();
 
         $aggregations = $result->getAggregations();
 
@@ -95,7 +128,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
         $aggregations->remove('configurators');
         $aggregations->remove('options');
 
-        $aggregations->add(new EntityResult('properties', $grouped));
+        $aggregations->add(new EntityResult('properties', $groups));
     }
 
     /**

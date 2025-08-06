@@ -3,8 +3,8 @@ import { FlowConfig } from '@shopware-ag/acceptance-test-suite';
 import { setViewport, replaceElements, hideElements } from '@shopware-ag/acceptance-test-suite';
 
 test('Visual: Flow Builder listing', { tag: '@Visual' }, async ({
-ShopAdmin,
-AdminFlowBuilderListing,
+    ShopAdmin,
+    AdminFlowBuilderListing,
 }) => {
     await test.step('Create a screenshot of the flow listing.', async () => {
         await ShopAdmin.goesTo(AdminFlowBuilderListing.url());
@@ -12,16 +12,17 @@ AdminFlowBuilderListing,
             requestURL: 'api/search/sales-channel-type',
         })
         await replaceElements(AdminFlowBuilderListing.page, [
-            AdminFlowBuilderListing.firstFlowName,
+            AdminFlowBuilderListing.testFlowNameCells,
             ]);
+        await AdminFlowBuilderListing.flowTemplatesTab.hover();
         await expect(AdminFlowBuilderListing.contentView).toHaveScreenshot('Flow-Builder-Listing.png', {
         });
     });
 
     await test.step('Create a screenshot of the flow templates listing.', async () => {
-        await AdminFlowBuilderListing.page.locator('.sw-tabs-item').getByText('Flow templates').click();
+        await AdminFlowBuilderListing.flowTemplatesTab.click();
         await setViewport(AdminFlowBuilderListing.page, {
-            waitForSelector: AdminFlowBuilderListing.page.locator('.sw-pagination'),
+            waitForSelector: AdminFlowBuilderListing.pagination,
         })
         await expect(AdminFlowBuilderListing.contentView).toHaveScreenshot('Flow-Builder-Templates-Listing.png', {
         });
@@ -36,7 +37,6 @@ test('Visual: Flow Builder detail page', { tag: '@Visual' }, async ({
     AdminFlowBuilderDetail,
     CreateFlow,
 }) => {
-
 
     const uniqueId = IdProvider.getIdPair().uuid;
     const tagName= (`Test tag - ${uniqueId}`);
@@ -59,9 +59,9 @@ test('Visual: Flow Builder detail page', { tag: '@Visual' }, async ({
     await test.step('Create a screenshot of a flow general tab.', async () => {
         await ShopAdmin.goesTo(AdminFlowBuilderListing.url());
         await ShopAdmin.attemptsTo(CreateFlow(testConfig as FlowConfig));
-        await ShopAdmin.expects(AdminFlowBuilderDetail.page.locator('.sw-skeleton').first()).not.toBeVisible();
-        await ShopAdmin.expects(AdminFlowBuilderDetail.page.locator('.mt-banner--positive')).toBeVisible();
-        await AdminFlowBuilderDetail.page.locator('.mt-banner__close').click();
+        await ShopAdmin.expects(AdminFlowBuilderDetail.skeletonLoader.first()).not.toBeVisible();
+        await ShopAdmin.expects(AdminFlowBuilderDetail.successMessage).toBeVisible();
+        await AdminFlowBuilderDetail.messageClose.click();
         await setViewport(AdminFlowBuilderDetail.page, {
             waitForSelector: AdminFlowBuilderDetail.activeSwitch,
         })

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
@@ -60,7 +61,7 @@ class AssetService
         }
 
         $this->copyAssetsFromBundleOrApp(
-            $bundle->getPath() . \DIRECTORY_SEPARATOR . self::EXTENSION_RESOURCES_DIRECTORY,
+            Path::join($bundle->getPath(), self::EXTENSION_RESOURCES_DIRECTORY),
             $bundle->getName(),
             $force,
         );
@@ -196,9 +197,9 @@ class AssetService
      */
     private function getTargetDirectory(string $name): string
     {
-        $assetDir = preg_replace('/bundle$/', '', mb_strtolower($name));
+        $assetDir = (string) preg_replace('/bundle$/', '', mb_strtolower($name));
 
-        return 'bundles' . \DIRECTORY_SEPARATOR . $assetDir;
+        return Path::join('bundles', $assetDir);
     }
 
     /**
@@ -220,15 +221,15 @@ class AssetService
         // diff the opposite way to find files which are present remote, but not locally.
         // we use array_diff_key because we don't care about the hash, just the file names
         foreach (array_keys(array_diff_key($remoteManifest, $localManifest)) as $file) {
-            $this->assetFilesystem->delete($targetDirectory . \DIRECTORY_SEPARATOR . $file);
+            $this->assetFilesystem->delete(Path::join($targetDirectory, $file));
         }
 
         $batches = [];
 
         foreach ($uploads as $file) {
             $batches[] = new CopyBatchInput(
-                $originDir . \DIRECTORY_SEPARATOR . $file,
-                [$targetDirectory . \DIRECTORY_SEPARATOR . $file],
+                Path::join($originDir, $file),
+                [Path::join($targetDirectory, $file)],
                 $this->parameterBag->get('shopware.filesystem.asset.config')['visibility'] ?? Visibility::PUBLIC,
             );
         }

@@ -33,6 +33,7 @@ use Shopware\Core\Framework\Store\Struct\PluginRegionStruct;
 use Shopware\Core\Framework\Store\Struct\ShopUserTokenStruct;
 use Shopware\Core\Framework\Store\Struct\StorePluginStruct;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -51,6 +52,9 @@ class FirstRunWizardService
 
     private const FRW_MAX_FAILURES = 3;
 
+    /**
+     * @param EntityRepository<UserConfigCollection> $userConfigRepository
+     */
     public function __construct(
         private readonly StoreService $storeService,
         private readonly SystemConfigService $configService,

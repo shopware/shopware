@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeCollection;
+use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -23,6 +25,8 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
 {
     /**
      * @internal
+     * 
+     * @param EntityRepository<MailTemplateTypeCollection> $mailTemplateTypeRepository
      */
     public function __construct(
         private readonly EntityWriterInterface $writer,

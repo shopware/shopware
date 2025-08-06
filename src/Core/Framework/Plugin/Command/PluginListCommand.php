@@ -28,6 +28,8 @@ class PluginListCommand extends Command
 {
     /**
      * @internal
+     * 
+     * @param EntityRepository<PluginCollection> $pluginRepo
      */
     public function __construct(private readonly EntityRepository $pluginRepo, private readonly ComposerPluginLoader $composerPluginLoader)
     {
@@ -63,7 +65,7 @@ class PluginListCommand extends Command
                 ]
             ));
         }
-        /** @var PluginCollection $plugins */
+
         $plugins = $this->pluginRepo->search($criteria, $context)->getEntities();
 
         if ($input->getOption('json')) {
@@ -83,7 +85,6 @@ class PluginListCommand extends Command
             $io->comment(\sprintf('Filtering for: %s', $filter));
         }
 
-        /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {
             $pluginActive = $plugin->getActive();
             $pluginInstalled = $plugin->getInstalledAt();

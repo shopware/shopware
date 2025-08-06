@@ -21,6 +21,8 @@ final readonly class FlowActionHandler
 
     /**
      * @internal
+     *
+     * @param \Traversable|array<string, FlowAction> $actions
      */
     public function __construct(
         private readonly FlowFactory $flowFactory,

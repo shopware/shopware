@@ -21,7 +21,7 @@ class PropertyGroupGenerator implements DemodataGeneratorInterface
 {
     /**
      * @internal
-     * 
+     *
      * @param EntityRepository<PropertyGroupCollection> $propertyGroupRepository
      */
     public function __construct(private readonly EntityRepository $propertyGroupRepository)

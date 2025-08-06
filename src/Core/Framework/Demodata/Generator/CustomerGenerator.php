@@ -34,7 +34,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
     /**
      * @internal
-     * 
+     *
      * @param EntityRepository<CustomerGroupCollection> $customerGroupRepository
      */
     public function __construct(

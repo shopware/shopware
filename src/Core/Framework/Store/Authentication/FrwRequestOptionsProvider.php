@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
-use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 
 /**
  * @internal

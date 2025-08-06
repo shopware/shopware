@@ -20,7 +20,7 @@ final class CleanupVersionTaskHandler extends ScheduledTaskHandler
 {
     /**
      * @internal
-     * 
+     *
      * @param EntityRepository<ScheduledTaskCollection> $repository
      */
     public function __construct(

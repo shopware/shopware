@@ -41,7 +41,7 @@ class RuleGenerator implements DemodataGeneratorInterface
 
     /**
      * @internal
-     * 
+     *
      * @param EntityRepository<RuleCollection> $ruleRepository
      * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
      * @param EntityRepository<ShippingMethodCollection> $shippingMethodRepository

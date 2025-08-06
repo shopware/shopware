@@ -34,7 +34,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
 
     /**
      * @internal
-     * 
+     *
      * @param EntityRepository<CategoryCollection> $categoryRepository
      * @param EntityRepository<CmsPageCollection> $cmsPageRepository
      */

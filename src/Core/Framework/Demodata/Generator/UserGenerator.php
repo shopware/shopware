@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\User\UserDefinition;
 
 /**
@@ -25,7 +24,7 @@ class UserGenerator implements DemodataGeneratorInterface
 {
     /**
      * @internal
-     * 
+     *
      * @param EntityRepository<LanguageCollection> $languageRepository
      */
     public function __construct(

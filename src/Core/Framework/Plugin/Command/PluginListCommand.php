@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginCollection;
-use Shopware\Core\Framework\Plugin\PluginEntity;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,7 +27,7 @@ class PluginListCommand extends Command
 {
     /**
      * @internal
-     * 
+     *
      * @param EntityRepository<PluginCollection> $pluginRepo
      */
     public function __construct(private readonly EntityRepository $pluginRepo, private readonly ComposerPluginLoader $composerPluginLoader)

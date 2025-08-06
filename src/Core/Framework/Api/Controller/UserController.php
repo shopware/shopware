@@ -34,7 +34,7 @@ class UserController extends AbstractController
 {
     /**
      * @internal
-     * 
+     *
      * @param EntityRepository<UserCollection> $userRepository
      * @param EntityRepository<EntityCollection<Entity>> $userRoleRepository
      * @param EntityRepository<AclRoleCollection> $roleRepository

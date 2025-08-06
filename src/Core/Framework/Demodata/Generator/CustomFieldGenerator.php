@@ -27,7 +27,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
 
     /**
      * @internal
-     * 
+     *
      * @param EntityRepository<CustomFieldSetCollection> $attributeSetRepository
      */
     public function __construct(

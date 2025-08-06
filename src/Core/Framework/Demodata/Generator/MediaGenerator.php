@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Faker\Generator;
 use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
 use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
@@ -35,7 +34,7 @@ class MediaGenerator implements DemodataGeneratorInterface
 
     /**
      * @internal
-     * 
+     *
      * @param EntityRepository<MediaDefaultFolderCollection> $defaultFolderRepository
      * @param EntityRepository<MediaFolderCollection> $folderRepository
      */

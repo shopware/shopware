@@ -23,7 +23,7 @@ class CreateIntegrationCommand extends Command
 {
     /**
      * @internal
-     * 
+     *
      * @param EntityRepository<IntegrationCollection> $integrationRepository
      */
     public function __construct(private readonly EntityRepository $integrationRepository)

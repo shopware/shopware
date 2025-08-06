@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\User\UserCollection;
-use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;

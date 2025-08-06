@@ -29,7 +29,7 @@ class RepositoryIterator
     private bool $autoIncrement = false;
 
     /**
-     * @param EntityRepository<covariant TEntityCollection> $repository
+     * @param EntityRepository<TEntityCollection> $repository
      */
     public function __construct(
         EntityRepository $repository,

@@ -38,7 +38,7 @@ class CleanPersonalDataCommand extends Command
 
     /**
      * @internal
-     * 
+     *
      * @param EntityRepository<CustomerCollection> $customerRepository
      */
     public function __construct(

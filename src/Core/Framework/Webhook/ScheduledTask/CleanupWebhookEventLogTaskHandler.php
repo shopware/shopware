@@ -19,7 +19,7 @@ final class CleanupWebhookEventLogTaskHandler extends ScheduledTaskHandler
 {
     /**
      * @internal
-     * 
+     *
      * @param EntityRepository<ScheduledTaskCollection> $repository
      */
     public function __construct(

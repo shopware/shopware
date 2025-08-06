@@ -4,12 +4,10 @@ namespace Shopware\Core\Framework\Plugin\Command\Lifecycle;
 
 use Composer\IO\ConsoleIO;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
-use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -25,7 +23,7 @@ class PluginUpdateAllCommand extends Command
 {
     /**
      * @internal
-     * 
+     *
      * @param EntityRepository<PluginCollection> $pluginRepository
      */
     public function __construct(

@@ -29,7 +29,7 @@ class TaskScheduler
 {
     /**
      * @internal
-     * 
+     *
      * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
      */
     public function __construct(

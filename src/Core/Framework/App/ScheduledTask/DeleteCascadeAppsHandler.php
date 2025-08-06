@@ -28,7 +28,7 @@ final class DeleteCascadeAppsHandler extends ScheduledTaskHandler
 
     /**
      * @internal
-     * 
+     *
      * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
      * @param EntityRepository<AclRoleCollection> $aclRoleRepository
      * @param EntityRepository<IntegrationCollection> $integrationRepository

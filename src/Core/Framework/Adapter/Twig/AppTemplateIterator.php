@@ -19,7 +19,7 @@ class AppTemplateIterator implements \IteratorAggregate
 {
     /**
      * @internal
-     * 
+     *
      * @param EntityRepository<TemplateCollection> $templateRepository
      */
     public function __construct(

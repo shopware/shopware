@@ -73,7 +73,7 @@ class SalesChannelProxyController extends AbstractController
 
     /**
      * @internal
-     * 
+     *
      * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
      */
     public function __construct(

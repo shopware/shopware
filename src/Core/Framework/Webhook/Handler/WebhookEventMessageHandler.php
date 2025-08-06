@@ -30,7 +30,7 @@ final readonly class WebhookEventMessageHandler
 
     /**
      * @internal
-     * 
+     *
      * @param EntityRepository<ScheduledTaskCollection> $webhookEventLogRepository
      */
     public function __construct(

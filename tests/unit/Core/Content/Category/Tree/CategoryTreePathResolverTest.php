@@ -6,13 +6,18 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Tree\CategoryTreePathResolver;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(CategoryTreePathResolver::class)]
+#[Package('framework')]
 class CategoryTreePathResolverTest extends TestCase
 {
+    /**
+     * @param list<string> $expected
+     */
     #[DataProvider('pathTestCases')]
     public function testPathResolution(
         string $activeId,
@@ -27,7 +32,7 @@ class CategoryTreePathResolverTest extends TestCase
     }
 
     /**
-     * @return array<string, array{string, ?string, string, ?string, int, array<string>, string}>
+     * @return array<string, array{string, ?string, string, ?string, int, list<string>}>
      */
     public static function pathTestCases(): array
     {

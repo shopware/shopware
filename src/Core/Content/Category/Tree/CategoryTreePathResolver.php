@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Content\Category\Tree;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal
  */
+#[Package('framework')]
 class CategoryTreePathResolver
 {
     /**

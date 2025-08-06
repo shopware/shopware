@@ -20,16 +20,16 @@ class FlowExecutorCompilerPassTest extends TestCase
     {
         $container = $this->createMock(ContainerBuilder::class);
 
-        $container->expects(static::once())
+        $container->expects($this->once())
             ->method('hasParameter')
             ->with('shopware.flow.async')
             ->willReturn(false);
 
-        $container->expects(static::once())
+        $container->expects($this->once())
             ->method('setParameter')
             ->with('shopware.flow.async', false);
 
-        $container->expects(static::once())
+        $container->expects($this->once())
             ->method('getParameter')
             ->with('shopware.flow.async')
             ->willReturn(false);
@@ -42,17 +42,17 @@ class FlowExecutorCompilerPassTest extends TestCase
     {
         $container = $this->createMock(ContainerBuilder::class);
 
-        $container->expects(static::once())
+        $container->expects($this->once())
             ->method('hasParameter')
             ->with('shopware.flow.async')
             ->willReturn(true);
 
-        $container->expects(static::once())
+        $container->expects($this->once())
             ->method('getParameter')
             ->with('shopware.flow.async')
             ->willReturn(true);
 
-        $container->expects(static::never())
+        $container->expects($this->never())
             ->method('getDefinition');
 
         $compilerPass = new FlowExecutorCompilerPass();
@@ -64,22 +64,22 @@ class FlowExecutorCompilerPassTest extends TestCase
         $container = $this->createMock(ContainerBuilder::class);
         $definition = $this->createMock(Definition::class);
 
-        $container->expects(static::once())
+        $container->expects($this->once())
             ->method('hasParameter')
             ->with('shopware.flow.async')
             ->willReturn(true);
 
-        $container->expects(static::once())
+        $container->expects($this->once())
             ->method('getParameter')
             ->with('shopware.flow.async')
             ->willReturn(false);
 
-        $container->expects(static::once())
+        $container->expects($this->once())
             ->method('getDefinition')
             ->with('Shopware\Core\Content\Flow\Dispatching\FlowExecutor')
             ->willReturn($definition);
 
-        $definition->expects(static::once())
+        $definition->expects($this->once())
             ->method('replaceArgument')
             ->with(8, null);
 

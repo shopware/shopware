@@ -928,7 +928,7 @@ class FlowExecutorTest extends TestCase
         $flow->setFlowState($flowState);
 
         $messageBus
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->willReturn(Envelope::wrap(new FlowActionMessage($actionSequence, $flow, Context::createCLIContext())));
 
@@ -962,7 +962,7 @@ class FlowExecutorTest extends TestCase
         $flow->setFlowState($flowState);
 
         $messageBus
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('dispatch');
 
         $flowExecutor->executeAction($actionSequence, $flow);

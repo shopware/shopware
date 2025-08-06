@@ -53,7 +53,7 @@
     }
 
     &__overlay {
-        position: fixed;
+        position: relative;
         display: flex;
         flex-direction: column;
         top: 0;
@@ -64,6 +64,10 @@
         max-width: 90vw;
         transition: all 0.3s ease-in-out;
         overflow: hidden;
+
+        &-resizable {
+            position: fixed;
+        }
     }
 
     &.is-overlay .sw-sidebar-renderer__overlay {

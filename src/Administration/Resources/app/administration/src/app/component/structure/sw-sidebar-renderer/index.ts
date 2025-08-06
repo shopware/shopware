@@ -29,7 +29,9 @@ export default Shopware.Component.wrapComponentConfig({
         });
 
         const sidebarDisplayOptions = computed(() => {
-            const availableWidth = windowWidth.value - MAIN_CONTENT_MIN_SIZE;
+            const availableWidth = activeSidebar.value?.resizable ? 
+                                   windowWidth.value - MAIN_CONTENT_MIN_SIZE : MIN_SIDEBAR_WIDTH;
+                                   
             const currentWidth = Math.max(MIN_SIDEBAR_WIDTH, sidebarSetWidth.value);
             return {
                 availableWidth: `${Math.max(availableWidth, 0)}px`,
@@ -65,6 +67,8 @@ export default Shopware.Component.wrapComponentConfig({
         };
 
         const startSidebarResize = (event: MouseEvent) => {
+            if (!activeSidebar.value?.resizable) return;
+
             isResizing.value = true;
             document.body.style.cursor = 'col-resize';
             document.body.style.userSelect = 'none';

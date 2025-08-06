@@ -121,12 +121,32 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             expect(mockLocalStorage.getItem).toHaveBeenCalledWith('sw-sidebar-width');
         });
 
+        it('should not render handle when resizing is not allowed', async () => {
+            const wrapper = await createWrapper();
+
+            await ui.sidebar.add({
+                title: 'Test sidebar',
+                locationId: 'test-sidebar',
+                resizable: false,
+            });
+            Shopware.Store.get('sidebar').sidebars[0].active = true;
+            await wrapper.vm.$nextTick();
+
+            const resizeHandle = wrapper.find('.sw-sidebar-renderer__resize-handle');
+
+            expect(resizeHandle.exists()).toBe(false);
+
+            expect(wrapper.vm.sidebarDisplayOptions.isResizing).toBe(false);
+            expect(document.body.style.cursor).toBe('');
+        });
+
         it('should start resize when resize handle is clicked', async () => {
             const wrapper = await createWrapper();
 
             await ui.sidebar.add({
                 title: 'Test sidebar',
                 locationId: 'test-sidebar',
+                resizable: true,
             });
             Shopware.Store.get('sidebar').sidebars[0].active = true;
             await wrapper.vm.$nextTick();
@@ -145,6 +165,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             await ui.sidebar.add({
                 title: 'Test sidebar',
                 locationId: 'test-sidebar',
+                resizable: true,
             });
             Shopware.Store.get('sidebar').sidebars[0].active = true;
             await wrapper.vm.$nextTick();
@@ -163,6 +184,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             await ui.sidebar.add({
                 title: 'Test sidebar',
                 locationId: 'test-sidebar',
+                resizable: true,
             });
             Shopware.Store.get('sidebar').sidebars[0].active = true;
             await wrapper.vm.$nextTick();
@@ -178,14 +200,26 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
         });
 
         it('should handle window resizing', async () => {
+            const originalAddEventListener = window.addEventListener;
             let eventListener = null;
+            
             window.addEventListener = jest.fn((event, callback) => {
                 if (event === 'resize') {
                     eventListener = callback;
                 }
+                
+                originalAddEventListener.call(window, event, callback);
             });
 
             const wrapper = await createWrapper();
+
+            await ui.sidebar.add({
+                title: 'Test sidebar',
+                locationId: 'test-sidebar',
+                resizable: true,
+            });
+            Shopware.Store.get('sidebar').sidebars[0].active = true;
+            await wrapper.vm.$nextTick();
 
             expect(wrapper.vm.sidebarDisplayOptions.availableWidth).toBe(`${PAGE_WIDTH - MAIN_CONTENT_MIN_SIZE}px`);
             expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`480px`);
@@ -200,6 +234,9 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             expect(wrapper.vm.sidebarDisplayOptions.availableWidth).toBe(`${1400 - MAIN_CONTENT_MIN_SIZE}px`);
             expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`480px`);
             expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(true);
+            
+            // Restore original method
+            window.addEventListener = originalAddEventListener;
         });
     });
 });

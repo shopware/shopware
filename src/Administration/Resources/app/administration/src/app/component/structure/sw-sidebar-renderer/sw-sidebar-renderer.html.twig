@@ -4,7 +4,7 @@
 >
     <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions, vuejs-accessibility/click-events-have-key-events -->
     <div
-        v-if="activeSidebar && activeSidebar.locationId === sidebar.locationId && sidebarDisplayOptions.isOverlayMode"
+        v-if="activeSidebar && activeSidebar.resizable && activeSidebar.locationId === sidebar.locationId && sidebarDisplayOptions.isOverlayMode"
         class="sw-sidebar-renderer-backdrop"
         :class="{ 'is-resizing': sidebarDisplayOptions.isResizing }"
         @click="closeSidebar(sidebar.locationId)"
@@ -15,7 +15,7 @@
         :class="{
             'is-active': activeSidebar && activeSidebar.locationId === sidebar.locationId,
             'is-resizing': sidebarDisplayOptions.isResizing,
-            'is-overlay': sidebarDisplayOptions.isOverlayMode,
+            'is-overlay': activeSidebar && activeSidebar.resizable && sidebarDisplayOptions.isOverlayMode,
         }"
         :style="{
             width: sidebarDisplayOptions.currentWidth,
@@ -24,12 +24,16 @@
     >
         <div
             class="sw-sidebar-renderer__overlay"
+            :class="{
+                'sw-sidebar-renderer__overlay-resizable': activeSidebar && activeSidebar.resizable,
+            }"
             :style="{
                 width: sidebarDisplayOptions.currentWidth
             }"
         >
             <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
             <div
+                v-if="activeSidebar && activeSidebar.resizable"
                 class="sw-sidebar-renderer__resize-handle"
                 @mousedown="startSidebarResize"
             ></div>

@@ -425,6 +425,57 @@ class SeoUrlPersisterTest extends TestCase
         static::assertFalse($seoUrl->getIsDeleted());
     }
 
+    public function testUpdateSeoUrlForDifferentSalesChannelsWithSameSeoPathInfo(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $salesChannels = [
+            ['id' => Uuid::randomHex(), 'name' => 'test a'],
+            ['id' => Uuid::randomHex(), 'name' => 'test b'],
+        ];
+        foreach ($salesChannels as $sc) {
+            $this->createStorefrontSalesChannelContext($sc['id'], $sc['name']);
+        }
+
+        $fk = Uuid::randomHex();
+        $seoPaths = ['fancy-path', 'fancy-path-2'];
+
+        foreach ($seoPaths as $seoPath) {
+            foreach ($salesChannels as $sc) {
+                $seoUrlUpdates = [[
+                    'foreignKey' => $fk,
+                    'salesChannelId' => $sc['id'],
+                    'pathInfo' => 'normal/path',
+                    'seoPathInfo' => $seoPath,
+                    'isCanonical' => true,
+                ]];
+                $fks = array_column($seoUrlUpdates, 'foreignKey');
+                $this->seoUrlPersister->updateSeoUrls($context, 'r', $fks, $seoUrlUpdates, $this->salesChannel);
+            }
+        }
+
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('routeName', 'r'));
+        $result = $this->seoUrlRepository->search($criteria, $context)->getEntities();
+        static::assertInstanceOf(SeoUrlCollection::class, $result);
+        static::assertCount(4, $result);
+
+        $canonicalUrls = $result->filterByProperty('isCanonical', true);
+        static::assertCount(2, $canonicalUrls);
+
+        foreach ($canonicalUrls as $url) {
+            static::assertSame('fancy-path-2', $url->getSeoPathInfo());
+            static::assertContains($url->getSalesChannelId(), array_column($salesChannels, 'id'));
+        }
+
+        $notCanonicalUrls = $result->filterByProperty('isCanonical', null);
+        static::assertCount(2, $notCanonicalUrls);
+
+        foreach ($notCanonicalUrls as $url) {
+            static::assertSame('fancy-path', $url->getSeoPathInfo());
+            static::assertContains($url->getSalesChannelId(), array_column($salesChannels, 'id'));
+        }
+    }
+
     private function createCategory(bool $active): CategoryEntity
     {
         $id = Uuid::randomHex();

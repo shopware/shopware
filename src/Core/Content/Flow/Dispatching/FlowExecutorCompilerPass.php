@@ -23,7 +23,7 @@ class FlowExecutorCompilerPass implements CompilerPassInterface
         if (!$shouldRunAsync) {
             $flowExecutor = $container->getDefinition('Shopware\Core\Content\Flow\Dispatching\FlowExecutor');
 
-            $flowExecutor->replaceArgument(7, null);
+            $flowExecutor->replaceArgument(8, null);
         }
     }
 }

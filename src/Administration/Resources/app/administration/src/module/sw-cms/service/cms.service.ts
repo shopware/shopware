@@ -569,5 +569,5 @@ export {
     type CmsBlockConfig,
     type CmsSlotConfig,
     type RuntimeSlot,
-    type EnrichedSlotData
+    type EnrichedSlotData,
 };

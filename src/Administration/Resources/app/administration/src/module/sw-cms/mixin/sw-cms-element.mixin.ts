@@ -20,6 +20,10 @@ interface Entity {
     translated?: TranslationWithSlotConfig;
 }
 
+interface ModuleDefinition {
+    entity?: string;
+}
+
 /**
  * @private
  * @sw-package discovery
@@ -73,6 +77,23 @@ export default Mixin.register(
                 }
             },
 
+            moduleEntity() {
+                const moduleEntity = (this.$route.meta?.$module as ModuleDefinition)?.entity;
+
+                if (!moduleEntity) {
+                    return null;
+                }
+
+                switch (moduleEntity) {
+                    case 'category':
+                        return this.category;
+                    case 'product':
+                        return this.product;
+                    default:
+                        return null;
+                }
+            },
+
             configOverride(): EnrichedSlotData {
                 return (
                     this.getEntitySlotConfig() ??
@@ -85,16 +106,11 @@ export default Mixin.register(
 
         methods: {
             initElementConfig(elementName: string) {
-                let defaultConfig = this.defaultConfig;
-
-                if (!defaultConfig) {
-                    const elementConfig = this.cmsElements[elementName];
-                    defaultConfig = elementConfig?.defaultConfig || {};
-                }
+                const defaultConfig = this.defaultConfig || this.cmsElements[elementName]?.defaultConfig || {};
 
                 this.element.config = merge(
                     cloneDeep(defaultConfig),
-                    this.configOverride,
+                    cloneDeep(this.configOverride),
                 );
             },
 
@@ -113,7 +129,7 @@ export default Mixin.register(
             },
 
             getEntitySlotConfig() {
-                const entity = this.category ?? this.product;
+                const entity = this.moduleEntity;
 
                 if (!entity) {
                     return null;

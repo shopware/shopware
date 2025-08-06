@@ -46,7 +46,7 @@ export default {
             const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
             if (!isSystemDefaultLanguage) {
                 Shopware.Store.get('context').resetLanguageToDefault();
-                this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
+                Shopware.Store.get('cmsPage').setIsSystemDefaultLanguage(isSystemDefaultLanguage);
             }
 
             this.page = this.pageRepository.create();

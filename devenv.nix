@@ -6,19 +6,6 @@ let
     extraConfig = config.languages.php.ini;
   };
 in {
-  overlays = [
-    # Each overlay is a function that takes two arguments: final and prev
-    (final: prev: {
-      # Override an existing package
-      boost177 = prev.boost177.overrideAttrs (oldAttrs: {
-        # The postFixup hook is where the signing check runs.
-        # By setting it to an empty string, we tell Nix to skip it.
-        # This is generally safe for development shells.
-        postFixup = "";
-      });
-    })
-  ];
-
   packages = [
     pkgs.gnupatch
     pkgs.nodePackages_latest.yalc
@@ -37,6 +24,8 @@ in {
   process.manager.implementation = lib.mkDefault "honcho";
 
   dotenv.disableHint = true;
+  cachix.enable = false;
+  devenv.warnOnNewVersion = false;
 
   languages.javascript = {
     enable = lib.mkDefault true;
@@ -105,7 +94,7 @@ in {
 
   services.mysql = {
     enable = true;
-    package = pkgs.mysql80;
+    package = pkgs.mysql84;
     initialDatabases = lib.mkDefault [{ name = "shopware"; }];
     ensureUsers = lib.mkDefault [
       {

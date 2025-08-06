@@ -6,6 +6,8 @@ use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -15,9 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
@@ -36,6 +38,10 @@ class StateMachineRegistry implements ResetInterface
 
     /**
      * @internal
+     *
+     * @param EntityRepository<StateMachineCollection> $stateMachineRepository
+     * @param EntityRepository<StateMachineStateCollection> $stateMachineStateRepository
+     * @param EntityRepository<StateMachineHistoryCollection> $stateMachineHistoryRepository
      */
     public function __construct(
         private readonly EntityRepository $stateMachineRepository,
@@ -69,10 +75,9 @@ class StateMachineRegistry implements ResetInterface
         $criteria->getAssociation('states')
             ->addSorting(new FieldSorting('state_machine_state.technicalName'));
 
-        $results = $this->stateMachineRepository->search($criteria, $context);
+        $results = $this->stateMachineRepository->search($criteria, $context)->getEntities();
 
         if ($stateMachine = $results->first()) {
-            /** @var StateMachineEntity $stateMachine */
             return $this->stateMachines[$name] = $stateMachine;
         }
 
@@ -232,8 +237,11 @@ class StateMachineRegistry implements ResetInterface
 
         $transitions = [];
         foreach ($stateMachineTransitions as $transition) {
-            /** @var StateMachineStateEntity $fromState */
             $fromState = $transition->getFromStateMachineState();
+            if (!$fromState) {
+                continue;
+            }
+
             if ($fromState->getId() === $fromStateId) {
                 $transitions[] = $transition;
             }
@@ -252,15 +260,17 @@ class StateMachineRegistry implements ResetInterface
     {
         $stateMachine = $this->getStateMachine($stateMachineName, $context);
 
-        /** @var StateMachineTransitionCollection $stateMachineTransitions */
         $stateMachineTransitions = $stateMachine->getTransitions();
+        \assert($stateMachineTransitions !== null);
 
         foreach ($stateMachineTransitions as $transition) {
-            /** @var StateMachineStateEntity $toState */
-            $toState = $transition->getToStateMachineState();
-
             // Not the transition that was requested step over
             if ($transition->getActionName() !== $transitionName) {
+                continue;
+            }
+
+            $toState = $transition->getToStateMachineState();
+            if (!$toState) {
                 continue;
             }
 
@@ -269,8 +279,11 @@ class StateMachineRegistry implements ResetInterface
                 throw StateMachineException::unnecessaryTransition($transitionName);
             }
 
-            /** @var StateMachineStateEntity $fromState */
             $fromState = $transition->getFromStateMachineState();
+            if (!$fromState) {
+                continue;
+            }
+
             // Desired transition found
             if ($fromState->getId() === $fromStateId) {
                 return $toState;
@@ -281,8 +294,7 @@ class StateMachineRegistry implements ResetInterface
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('technicalName', $transitionName));
             $criteria->addFilter(new EqualsFilter('stateMachineId', $stateMachine->getId()));
-            /** @var StateMachineStateEntity|null $toPlace */
-            $toPlace = $this->stateMachineStateRepository->search($criteria, $context)->first();
+            $toPlace = $this->stateMachineStateRepository->search($criteria, $context)->getEntities()->first();
             if ($toPlace?->getId() === $fromStateId) {
                 throw StateMachineException::unnecessaryTransition($transitionName);
             }
@@ -319,6 +331,8 @@ class StateMachineRegistry implements ResetInterface
     }
 
     /**
+     * @param EntityRepository<EntityCollection<Entity>> $repository
+     *
      * @throws InconsistentCriteriaIdsException
      * @throws StateMachineException
      */
@@ -341,8 +355,7 @@ class StateMachineRegistry implements ResetInterface
             throw StateMachineException::stateMachineInvalidStateField($stateFieldName);
         }
 
-        /** @var StateMachineStateEntity|null $fromPlace */
-        $fromPlace = $this->stateMachineStateRepository->search(new Criteria([$fromPlaceId]), $context)->get($fromPlaceId);
+        $fromPlace = $this->stateMachineStateRepository->search(new Criteria([$fromPlaceId]), $context)->getEntities()->get($fromPlaceId);
 
         if (!$fromPlace) {
             throw StateMachineException::stateMachineInvalidStateField($stateFieldName);

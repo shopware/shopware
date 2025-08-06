@@ -11,9 +11,10 @@ use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Detail\Event\ResolveVariantIdEvent;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -39,6 +40,8 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 {
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<SalesChannelProductCollection> $productRepository
      */
     public function __construct(
         private readonly SalesChannelRepository $productRepository,
@@ -49,7 +52,8 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader,
         private readonly SalesChannelProductDefinition $productDefinition,
         private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly CacheTagCollector $cacheTagCollector,
     ) {
     }
 
@@ -90,17 +94,14 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $criteria->setIds([$productId]);
             $criteria->setTitle('product-detail-route');
 
-            $product = $this->productRepository
-                ->search($criteria, $context)
-                ->first();
-
+            $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
             if (!($product instanceof SalesChannelProductEntity)) {
                 throw ProductException::productNotFound($productId);
             }
 
             $parent = $product->getParentId() ?? $product->getId();
 
-            $this->dispatcher->dispatch(new AddCacheTagEvent(EntityCacheKeyGenerator::buildProductTag($parent)));
+            $this->cacheTagCollector->addTag(EntityCacheKeyGenerator::buildProductTag($parent));
 
             $product->setSeoCategory(
                 $this->breadcrumbBuilder->getProductSeoCategory($product, $context)

@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
@@ -24,7 +24,6 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @phpstan-type CategoryMetaInformation array{id: string, level: int, path: string}
@@ -37,11 +36,13 @@ class NavigationRoute extends AbstractNavigationRoute
 
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<CategoryCollection> $categoryRepository
      */
     public function __construct(
         private readonly Connection $connection,
         private readonly SalesChannelRepository $categoryRepository,
-        private readonly EventDispatcherInterface $dispatcher,
+        private readonly CacheTagCollector $cacheTagCollector,
     ) {
     }
 
@@ -74,7 +75,7 @@ class NavigationRoute extends AbstractNavigationRoute
             self::buildName($activeId),
         ];
 
-        $this->dispatcher->dispatch(new AddCacheTagEvent(...$tags));
+        $this->cacheTagCollector->addTag(...$tags);
 
         $root = $this->getMetaInfoById($rootId, $metaInfo);
 
@@ -111,10 +112,7 @@ class NavigationRoute extends AbstractNavigationRoute
         $criteria->addAssociation('media');
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
-        /** @var CategoryCollection $missing */
-        $missing = $this->categoryRepository->search($criteria, $context)->getEntities();
-
-        return $missing;
+        return $this->categoryRepository->search($criteria, $context)->getEntities();
     }
 
     private function loadLevels(string $rootId, int $rootLevel, SalesChannelContext $context, Criteria $criteria, int $depth = 2): CategoryCollection
@@ -132,7 +130,6 @@ class NavigationRoute extends AbstractNavigationRoute
         $criteria->setLimit(null);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
-        /** @var CategoryCollection $levels */
         $levels = $this->categoryRepository->search($criteria, $context)->getEntities();
 
         $this->addVisibilityCounts($rootId, $rootLevel, $depth, $levels, $context);

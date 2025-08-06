@@ -18,21 +18,23 @@ class MediaPathChangedEvent extends Event
     {
     }
 
-    public function media(string $mediaId, string $path): void
+    public function media(string $mediaId, string $path, ?string $mimeType = null): void
     {
         $this->changed[] = [
             'mediaId' => $mediaId,
             'thumbnailId' => null,
             'path' => $path,
+            'mimeType' => $mimeType,
         ];
     }
 
-    public function thumbnail(string $mediaId, string $thumbnailId, string $path): void
+    public function thumbnail(string $mediaId, string $thumbnailId, string $path, ?string $mimeType = null): void
     {
         $this->changed[] = [
             'mediaId' => $mediaId,
             'thumbnailId' => $thumbnailId,
             'path' => $path,
+            'mimeType' => $mimeType,
         ];
     }
 }

@@ -59,6 +59,7 @@ export default Component.wrapComponentConfig({
                 this.loginConfigLoaded = true;
 
                 if (!loginConfig.useDefault) {
+                    window.sessionStorage.setItem('redirectFromLogin', 'true');
                     window.location.href = loginConfig.url;
                 }
             })

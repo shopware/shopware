@@ -59,6 +59,16 @@ export default Shopware.Component.wrapComponentConfig({
             return Store.get('swOrder').invalidPromotionCodes;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use orderValidateErrorMessage() instead.
+         */
+        isSaveOrderValid(): boolean {
+            return (this.customer &&
+                this.cart.token &&
+                this.cart.lineItems.length &&
+                !this.invalidPromotionCodes.length) as boolean;
+        },
+
         orderValidateErrorMessage(): string | null {
             if (!this.customer) {
                 return this.$tc('sw-order.create.saveError.noCustomer');

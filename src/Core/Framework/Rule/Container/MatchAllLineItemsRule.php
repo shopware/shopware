@@ -96,12 +96,15 @@ class MatchAllLineItemsRule extends Container
      */
     private function filterAndFlatten(LineItemCollection $collection): array
     {
+        $flat = $collection->getFlat();
+
         if (empty($this->types)) {
-            return $collection->getFlat();
+            return $flat;
         }
 
-        return $collection->filter(
-            fn (LineItem $lineItem) => \in_array($lineItem->getType(), $this->types, true),
-        )->getFlat();
+        return array_values(array_filter(
+            $flat,
+            fn (LineItem $lineItem) => \in_array($lineItem->getType(), $this->types, true)
+        ));
     }
 }

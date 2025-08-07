@@ -12,8 +12,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
-
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
     ],
@@ -153,7 +151,7 @@ export default {
         },
 
         onFieldChange(id) {
-            if (!this.$refs.selectedField.resultCollection.has(id)) {
+            if (!this.$refs.selectedField.resultCollection?.has(id)) {
                 this.operator = null;
                 this.renderedFieldValue = null;
                 this.renderedField = null;
@@ -164,14 +162,10 @@ export default {
             this.operator = null;
             this.renderedFieldValue = null;
             this.renderedField = this.$refs.selectedField.resultCollection.get(id);
-            this.selectedFieldSet = this.renderedField.customFieldSet;
+            this.selectedFieldSet = this.renderedField.customFieldSetId;
         },
 
         getTransformedField(field) {
-            if (!field?.config) {
-                return field;
-            }
-
             const transformedField = { ...field };
 
             transformedField.config = this.transformConfig(field.config);
@@ -184,10 +178,6 @@ export default {
         },
 
         transformConfig(config) {
-            if (!config?.customFieldType) {
-                return config;
-            }
-
             const transformedConfig = { ...config };
 
             if (
@@ -212,11 +202,7 @@ export default {
         },
 
         transformBooleanFieldConfig(transformedConfig) {
-            const locale = Shopware.Store.get('session').currentLocale;
-
-            if (!locale) {
-                return transformedConfig;
-            }
+            const locale = Shopware.Store.get('session')?.currentLocale || 'en-GB';
 
             const booleanOptions = [
                 {

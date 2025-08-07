@@ -53,7 +53,7 @@ function mockApiCall(type) {
                 addSorting(sorting) {
                     this.sortings.push(sorting);
                 },
-            }
+            };
             return data;
 
         case 'sales_channel':
@@ -97,13 +97,15 @@ const searchSpy = jest.fn(() => Promise.resolve(mockApiCall('newsletter_recipien
 async function createWrapper(options = {}, customStubs = {}) {
     const { useSearchSpy = false } = options;
 
-    const repositoryFactory = useSearchSpy ? {
-        create: jest.fn(() => ({
-            search: searchSpy,
-        })),
-    } : {
-        create: (type) => new MockRepositoryFactory(type),
-    }
+    const repositoryFactory = useSearchSpy
+        ? {
+              create: jest.fn(() => ({
+                  search: searchSpy,
+              })),
+          }
+        : {
+              create: (type) => new MockRepositoryFactory(type),
+          };
 
     return mount(await wrapTestComponent('sw-newsletter-recipient-list', { sync: true }), {
         global: {
@@ -187,7 +189,7 @@ async function createWrapper(options = {}, customStubs = {}) {
                 'sw-button-group': true,
                 'sw-context-menu-divider': true,
                 'sw-data-grid-skeleton': true,
-                ...customStubs
+                ...customStubs,
             },
             provide: {
                 repositoryFactory,
@@ -362,7 +364,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
             { useSearchSpy: true },
             {
                 'sw-entity-listing': await wrapTestComponent('sw-entity-listing', { sync: true }),
-            }
+            },
         );
         await wrapper.setData({
             disableRouteParams: true,
@@ -370,7 +372,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--firstName div').text()).toBe(
-            mockNewsletterRecipient[0].firstName + ' ' + mockNewsletterRecipient[0].lastName
+            mockNewsletterRecipient[0].firstName + ' ' + mockNewsletterRecipient[0].lastName,
         );
 
         searchSpy.mockClear();
@@ -384,7 +386,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
 
         expect(searchSpy).toHaveBeenCalledTimes(1);
         expect(wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--firstName div').text()).toBe(
-            mockNewsletterRecipient[1].firstName + ' ' + mockNewsletterRecipient[1].lastName
+            mockNewsletterRecipient[1].firstName + ' ' + mockNewsletterRecipient[1].lastName,
         );
     });
 });

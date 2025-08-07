@@ -124,7 +124,6 @@ describe('module/sw-cms/elements/product-name/component', () => {
             },
         });
 
-
         await wrapper.setData({
             cmsPageState: {
                 currentDemoEntity: null,

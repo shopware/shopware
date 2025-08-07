@@ -121,10 +121,7 @@ export default Mixin.register(
             initElementConfig(elementName: string) {
                 const defaultConfig = this.defaultConfig || this.cmsElements[elementName]?.defaultConfig || {};
 
-                this.element.config = merge(
-                    cloneDeep(defaultConfig),
-                    cloneDeep(this.configOverride),
-                );
+                this.element.config = merge(cloneDeep(defaultConfig), cloneDeep(this.configOverride));
             },
 
             initElementData(elementName: string) {
@@ -148,10 +145,7 @@ export default Mixin.register(
                     return null;
                 }
 
-                const translation = (
-                    entity.translated ??
-                    this.getDefaultTranslations(entity)
-                ) as TranslationWithSlotConfig;
+                const translation = (entity.translated ?? this.getDefaultTranslations(entity)) as TranslationWithSlotConfig;
 
                 return translation?.slotConfig?.[this.element.id] ?? null;
             },

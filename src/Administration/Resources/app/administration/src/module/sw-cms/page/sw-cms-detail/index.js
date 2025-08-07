@@ -395,7 +395,7 @@ export default {
                 }
 
                 await this.hydratePage();
-            } catch(exception) {
+            } catch (exception) {
                 this.createNotificationError({
                     title: exception.message,
                     message: exception.response.statusText,
@@ -422,7 +422,7 @@ export default {
                     path: 'page',
                     scope: this,
                 });
-            } catch(exception) {
+            } catch (exception) {
                 this.createNotificationError({
                     title: exception.message,
                     message: exception.response,
@@ -1209,7 +1209,11 @@ export default {
         },
 
         resetRelatedStores() {
-            const stores = ['cmsPage', 'swCategoryDetail', 'swProductDetail'];
+            const stores = [
+                'cmsPage',
+                'swCategoryDetail',
+                'swProductDetail',
+            ];
 
             stores.forEach((name) => {
                 try {

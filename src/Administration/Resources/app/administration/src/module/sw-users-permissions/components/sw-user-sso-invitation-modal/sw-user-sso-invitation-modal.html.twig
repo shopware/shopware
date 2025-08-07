@@ -23,6 +23,10 @@
             :placeholder="$tc('sw-users-permissions.sso.modal.placeholderLanguage')"
             :error="errors.errorLanguage"
         />
+
+        <mt-banner variant="info">
+            {{ $tc('sw-users-permissions.sso.modal.accountPermissionHint') }}
+        </mt-banner>
     </template>
 
     <template #modal-footer>

@@ -30,7 +30,8 @@
                 "placeholderEmail": "Gib eine E-Mail-Adresse ein ...",
                 "labelLanguage": "Sprache der Benutzeroberfläche",
                 "placeholderLanguage": "Wähle eine Sprache aus ...",
-                "labelButtonInvite": "Benutzer einladen"
+                "labelButtonInvite": "Benutzer einladen",
+                "accountPermissionHint": "Achte darauf, dass der Benutzer auch im Shopware Account zu Deinem Unternehmen gehört, damit er die Administration dieses Shops uneingeschränkt nutzen kann."
             }
         },
         "roles": {

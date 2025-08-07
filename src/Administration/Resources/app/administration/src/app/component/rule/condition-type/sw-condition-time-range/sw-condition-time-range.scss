@@ -24,7 +24,8 @@
     }
 
     .sw-single-select.sw-select {
-        .sw-single-select__selection-text, .sw-single-select__selection-input {
+        .sw-single-select__selection-text,
+        .sw-single-select__selection-input {
             padding: 8px;
             min-height: 0;
         }

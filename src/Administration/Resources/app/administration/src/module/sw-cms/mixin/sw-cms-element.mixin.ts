@@ -77,30 +77,46 @@ export default Mixin.register(
                 }
             },
 
-            moduleEntity() {
-                const moduleEntity = (this.$route.meta?.$module as ModuleDefinition)?.entity;
-
-                if (!moduleEntity) {
+            landingPage() {
+                try {
+                    return Shopware.Store.get('swCategoryDetail')?.landingPage as Entity;
+                } catch {
                     return null;
-                }
-
-                switch (moduleEntity) {
-                    case 'category':
-                        return this.category;
-                    case 'product':
-                        return this.product;
-                    default:
-                        return null;
                 }
             },
 
+            moduleEntity() {
+                const name = this.$route.name?.toString() || '';
+
+                if (name.startsWith('sw.category.landingPageDetail')) {
+                    return this.landingPage;
+                }
+
+                if (name.startsWith('sw.category.')) {
+                    return this.category;
+                }
+
+                if (name.startsWith('sw.product.')) {
+                    return this.product;
+                }
+
+                return null;
+            },
+
             configOverride(): EnrichedSlotData {
-                return (
-                    this.getEntitySlotConfig() ??
-                    this.element?.translated?.config ??
-                    this.element?.config ??
-                    {}
-                ) as EnrichedSlotData;
+                const entitySlotConfig = this.getEntitySlotConfig();
+
+                if (entitySlotConfig) {
+                    return entitySlotConfig as unknown as EnrichedSlotData;
+                }
+
+                const translatedConfig = this.element?.translated?.config;
+
+                if (translatedConfig && !Array.isArray(translatedConfig)) {
+                    return translatedConfig as EnrichedSlotData;
+                }
+
+                return this.element?.config ?? {} as EnrichedSlotData;
             },
         },
 

@@ -38,7 +38,7 @@ function mockApiCall(type) {
                     id: '25c6e7681c334d0caebae74c382c68e1',
                 },
             ];
-        case 'newsletter_recipient':
+        case 'newsletter_recipient': {
             const data = mockNewsletterRecipient;
             data.total = data.length;
             data.criteria = {
@@ -55,7 +55,7 @@ function mockApiCall(type) {
                 },
             };
             return data;
-
+        }
         case 'sales_channel':
             return [
                 {
@@ -372,7 +372,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--firstName div').text()).toBe(
-            mockNewsletterRecipient[0].firstName + ' ' + mockNewsletterRecipient[0].lastName,
+            `${mockNewsletterRecipient[0].firstName} ${mockNewsletterRecipient[0].lastName}`,
         );
 
         searchSpy.mockClear();
@@ -386,7 +386,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
 
         expect(searchSpy).toHaveBeenCalledTimes(1);
         expect(wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--firstName div').text()).toBe(
-            mockNewsletterRecipient[1].firstName + ' ' + mockNewsletterRecipient[1].lastName,
+            `${mockNewsletterRecipient[1].firstName} ${mockNewsletterRecipient[1].lastName}`,
         );
     });
 });

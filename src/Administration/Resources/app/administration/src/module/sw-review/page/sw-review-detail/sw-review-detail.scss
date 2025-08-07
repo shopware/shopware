@@ -1,7 +1,5 @@
 @import "~scss/variables";
 
-$sw-review-detail-base-color-text: $color-darkgray-200;
-
 .sw-review-detail {
     .sw-review-detail__container {
         margin-bottom: 16px;
@@ -50,7 +48,6 @@ $sw-review-detail-base-color-text: $color-darkgray-200;
     }
 
     .sw-review-base-info {
-        color: $sw-review-detail-base-color-text;
         font-size: $font-size-xs;
         margin-bottom: 16px;
 

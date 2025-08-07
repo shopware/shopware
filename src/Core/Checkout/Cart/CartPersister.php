@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -72,7 +73,8 @@ class CartPersister extends AbstractCartPersister
      */
     public function save(Cart $cart, SalesChannelContext $context): void
     {
-        if ($cart->getBehavior()?->isRecalculation()) {
+        /** @deprecated tag:v6.8.0 - Condition will be removed */
+        if (!Feature::isActive('v6.8.0.0') && $cart->getBehavior()?->isRecalculation()) {
             return;
         }
 
@@ -150,7 +152,7 @@ class CartPersister extends AbstractCartPersister
     private function serializeCart(Cart $cart): array
     {
         $errors = $cart->getErrors();
-        if (!$cart->getBehavior()?->hasPermission(static::PERSIST_CART_ERROR_PERMISSION)) {
+        if (!$cart->getBehavior()?->hasPermission(self::PERSIST_CART_ERROR_PERMISSION)) {
             $cart->setErrors(new ErrorCollection());
         }
 

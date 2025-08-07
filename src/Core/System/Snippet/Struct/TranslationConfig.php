@@ -31,6 +31,6 @@ class TranslationConfig extends Struct
     {
         $pluginName = $plugin->getName();
 
-        return $this->pluginMapping->get($pluginName)->name ?? $pluginName;
+        return $this->pluginMapping->get($pluginName)->snippetName ?? $pluginName;
     }
 }

@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 readonly class PluginMapping
 {
     public function __construct(
-        public string $plugin,
-        public string $name,
+        public string $pluginName,
+        public string $snippetName,
     ) {
     }
 }

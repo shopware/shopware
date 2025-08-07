@@ -13,6 +13,7 @@ use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -31,8 +32,24 @@ class TranslationConfigLoader
         $config = $this->parseConfig();
 
         $urlString = $config['repository-url'];
-        \assert(\is_string($urlString), 'The repository-url in the translation config must be a string.');
-        \assert(\mb_strlen(\trim($urlString)) > 0, 'The repository-url in the translation config must not be empty.');
+
+        if (!\is_string($urlString)) {
+            $encodedUrl = json_encode($urlString);
+            if ($encodedUrl === false) {
+                $encodedUrl = 'Unable to convert repository-url to string.';
+            }
+
+            throw SnippetException::invalidRepositoryUrl(
+                $encodedUrl,
+                new \InvalidArgumentException('The repository-url in the translation config must be a string.')
+            );
+        }
+        if (\mb_strlen(\trim($urlString)) < 1) {
+            throw SnippetException::invalidRepositoryUrl(
+                $urlString,
+                new \InvalidArgumentException('The repository-url in the translation config must not be empty.')
+            );
+        }
 
         try {
             $url = new Uri($urlString);
@@ -88,9 +105,9 @@ class TranslationConfigLoader
             throw SnippetException::translationConfigurationDirectoryDoesNotExist($this->getRelativeConfigurationPath());
         }
 
-        $configPath .= \DIRECTORY_SEPARATOR . $this->getConfigFilename();
+        $configFilePath = Path::join($configPath, $this->getConfigFilename());
         try {
-            $content = $this->configReader->readFile($configPath);
+            $content = $this->configReader->readFile($configFilePath);
         } catch (IOException $e) {
             throw SnippetException::translationConfigurationFileDoesNotExist($this->getConfigFilename(), $e);
         }

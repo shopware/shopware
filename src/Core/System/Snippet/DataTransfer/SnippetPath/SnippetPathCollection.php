@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Struct\Collection;
  * @internal
  *
  * @extends Collection<SnippetPath>
- *
- * @method void set(int|string|null $key, SnippetPath $element)
  */
 #[Package('discovery')]
 class SnippetPathCollection extends Collection
@@ -35,12 +33,7 @@ class SnippetPathCollection extends Collection
      */
     public function toLocationArray(): array
     {
-        return \array_values(
-            \array_map(
-                fn (SnippetPath $snippetPath) => $snippetPath->location,
-                $this->elements
-            )
-        );
+        return \array_values($this->map(fn (SnippetPath $snippetPath) => $snippetPath->location));
     }
 
     protected function getExpectedClass(): ?string

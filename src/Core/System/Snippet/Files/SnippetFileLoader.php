@@ -73,7 +73,6 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
 
         $isPluginPathCheckRegexp = \sprintf($translationPathRegexpTemplate, self::SCOPE_PLATFORM . '|' . self::SCOPE_PLUGINS, '');
         foreach ($translationFiles as $translationFile) {
-            /** @var $pathComponents array{0: string, locale: string, 1: string, component: string, 2: string, plugin: string, 3: string} */
             \preg_match($isPluginPathCheckRegexp, $translationFile->path(), $pathComponents);
 
             // Check if the path matches the expected structure. If not, the directory was modified and the file should be skipped.

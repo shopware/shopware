@@ -53,7 +53,7 @@ class SnippetPathCollectionTest extends TestCase
         static::assertCount(1, $this->snippetPathCollection);
     }
 
-    public function testHasPathByLocationSuccessfull(): void
+    public function testHasPathByLocationSuccessful(): void
     {
         $snippetPath1 = new SnippetPath('path/to/snippet1');
         $snippetPath2 = new SnippetPath('path/to/snippet2');
@@ -61,5 +61,21 @@ class SnippetPathCollectionTest extends TestCase
 
         static::assertTrue($this->snippetPathCollection->hasPath($snippetPath1));
         static::assertFalse($this->snippetPathCollection->hasPath($snippetPath2));
+    }
+
+    public function testToLocationArray(): void
+    {
+        $snippetPath1 = new SnippetPath('path/to/snippet1');
+        $snippetPath2 = new SnippetPath('path/to/snippet2');
+        $this->snippetPathCollection->add($snippetPath1);
+        $this->snippetPathCollection->add($snippetPath2);
+
+        static::assertSame(
+            [
+                'path/to/snippet1',
+                'path/to/snippet2',
+            ],
+            $this->snippetPathCollection->toLocationArray()
+        );
     }
 }

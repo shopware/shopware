@@ -15,12 +15,12 @@ class PluginMappingCollection extends Collection
 {
     public function add($element): void
     {
-        $this->set($element->plugin, $element);
+        $this->set($element->pluginName, $element);
     }
 
     public function set($key, $element): void
     {
-        parent::set($element->plugin, $element);
+        parent::set($element->pluginName, $element);
     }
 
     protected function getExpectedClass(): string

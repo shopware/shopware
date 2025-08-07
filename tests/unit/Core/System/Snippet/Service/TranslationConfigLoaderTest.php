@@ -51,7 +51,7 @@ class TranslationConfigLoaderTest extends TestCase
 
         $publisherMapping = $config->pluginMapping->get('SwagPublisher');
         static::assertInstanceOf(PluginMapping::class, $publisherMapping);
-        static::assertSame('PluginPublisher', $publisherMapping->name);
+        static::assertSame('PluginPublisher', $publisherMapping->snippetName);
     }
 
     public function testConfigFileSettings(): void
@@ -75,6 +75,24 @@ class TranslationConfigLoaderTest extends TestCase
 
         static::expectException(SnippetException::class);
         static::expectExceptionMessage('The repository URL "http://" is invalid: Unable to parse URI: http://');
+        $this->translationConfigLoader->load();
+    }
+
+    public function testThrowsOnInvalidUrlType(): void
+    {
+        $this->translationConfigLoader->setConfigFileName('translation_non_string_url.yaml');
+
+        static::expectException(SnippetException::class);
+        static::expectExceptionMessage('The repository URL "4" is invalid: The repository-url in the translation config must be a string.');
+        $this->translationConfigLoader->load();
+    }
+
+    public function testThrowsOnEmptyUrl(): void
+    {
+        $this->translationConfigLoader->setConfigFileName('translation_empty_string_url.yaml');
+
+        static::expectException(SnippetException::class);
+        static::expectExceptionMessage('The repository URL "" is invalid: The repository-url in the translation config must not be empty.');
         $this->translationConfigLoader->load();
     }
 

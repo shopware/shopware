@@ -27,7 +27,6 @@ export default {
             isLoading: false,
             items: null,
             total: 0,
-            repository: null,
             sortBy: 'createdAt',
             sortDirection: 'DESC',
             filterSidebarIsOpen: false,

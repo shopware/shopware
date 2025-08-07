@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\User\UserCollection;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -31,6 +32,9 @@ use Symfony\Component\Console\Question\Question;
 #[Package('checkout')]
 class StoreLoginCommand extends Command
 {
+    /**
+     * @param EntityRepository<UserCollection> $userRepository
+     */
     public function __construct(
         private readonly StoreClient $storeClient,
         private readonly EntityRepository $userRepository,

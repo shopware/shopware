@@ -27,6 +27,9 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
      */
     private EntityRepository $seoUrlRepository;
 
+    /**
+     * @var SalesChannelRepository<SeoUrlCollection>
+     */
     private SalesChannelRepository $salesChannelSeoUrlRepository;
 
     protected function setUp(): void

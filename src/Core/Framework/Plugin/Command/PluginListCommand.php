@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginCollection;
-use Shopware\Core\Framework\Plugin\PluginEntity;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,6 +27,8 @@ class PluginListCommand extends Command
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<PluginCollection> $pluginRepo
      */
     public function __construct(private readonly EntityRepository $pluginRepo, private readonly ComposerPluginLoader $composerPluginLoader)
     {
@@ -63,7 +64,7 @@ class PluginListCommand extends Command
                 ]
             ));
         }
-        /** @var PluginCollection $plugins */
+
         $plugins = $this->pluginRepo->search($criteria, $context)->getEntities();
 
         if ($input->getOption('json')) {
@@ -83,7 +84,6 @@ class PluginListCommand extends Command
             $io->comment(\sprintf('Filtering for: %s', $filter));
         }
 
-        /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {
             $pluginActive = $plugin->getActive();
             $pluginInstalled = $plugin->getInstalledAt();

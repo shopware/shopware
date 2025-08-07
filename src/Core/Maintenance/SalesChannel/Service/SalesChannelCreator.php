@@ -3,6 +3,9 @@
 namespace Shopware\Core\Maintenance\SalesChannel\Service;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -13,6 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\MaintenanceException;
+use Shopware\Core\System\Country\CountryCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
  * @internal
@@ -22,6 +27,12 @@ class SalesChannelCreator
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
+     * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
+     * @param EntityRepository<ShippingMethodCollection> $shippingMethodRepository
+     * @param EntityRepository<CountryCollection> $countryRepository
+     * @param EntityRepository<CategoryCollection> $categoryRepository
      */
     public function __construct(
         private readonly DefinitionInstanceRegistry $definitionRegistry,

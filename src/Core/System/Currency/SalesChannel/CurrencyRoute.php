@@ -22,6 +22,8 @@ class CurrencyRoute extends AbstractCurrencyRoute
 
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<CurrencyCollection> $currencyRepository
      */
     public function __construct(
         private readonly SalesChannelRepository $currencyRepository,
@@ -44,9 +46,6 @@ class CurrencyRoute extends AbstractCurrencyRoute
     {
         $this->cacheTagCollector->addTag(self::buildName($context->getSalesChannelId()), self::ALL_TAG);
 
-        /** @var CurrencyCollection $currencyCollection */
-        $currencyCollection = $this->currencyRepository->search($criteria, $context)->getEntities();
-
-        return new CurrencyRouteResponse($currencyCollection);
+        return new CurrencyRouteResponse($this->currencyRepository->search($criteria, $context)->getEntities());
     }
 }

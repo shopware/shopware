@@ -23,6 +23,7 @@ $calculatedCart = $updatedContext->withPermissions(
     fn (SalesChannelContext $context): Cart => $this->cartService->recalculate($originalCart, $context),
 );
 ```
+Please ensure you respect this permission when overwriting with `Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent::setShouldPersist`.
 ___
 # Next Major Version Changes
 ## Removal of `CartBehavior::isRecalculation`

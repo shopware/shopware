@@ -54,6 +54,7 @@
     "create": {
       "textNewOrder": "Neue Bestellung",
       "buttonSaveOrder": "Bestellung speichern",
+      "messageSaveError": "Bestellung konnte nicht gespeichert werden",
       "messageSwitchCustomerError": "Beim Kundenwechsel ist ein Fehler aufgetreten",
       "messageFetchCustomerAddressesError": "Beim Abrufen der Kundenadresse ist ein Fehler aufgetreten",
       "remindPaymentModal": {
@@ -62,12 +63,11 @@
         "primaryAction": "Auffordern"
       },
       "saveError": {
-        "noCustomer": "Die Bestellung konnte nicht gespeichert werden, da kein Kunde ausgewählt wurde.",
-        "noCart": "Die Bestellung konnte nicht gespeichert werden, da kein Warenkorb vorhanden ist.",
-        "noLineItems": "Die Bestellung konnte nicht gespeichert werden, da keine Positionen hinzugefügt wurden.",
-        "invalidPromotionCodes": "Die Bestellung konnte nicht gespeichert werden, da ungültige Aktionscodes vorhanden sind.",
-        "noTransactionReturned": "Die Bestellung konnte nicht gespeichert werden, da keine Zahlung erstellt wurde.",
-        "general": "Die Bestellung konnte nicht gespeichert werden."
+        "noCustomer": "Bestellung konnte nicht gespeichert werden, da kein Kunde ausgewählt wurde.",
+        "noCart": "Bestellung konnte nicht gespeichert werden, da kein Warenkorb vorhanden ist.",
+        "noLineItems": "Bestellung konnte nicht gespeichert werden, da keine Positionen hinzugefügt wurden.",
+        "invalidPromotionCodes": "Bestellung konnte nicht gespeichert werden, da ungültige Aktionscodes vorhanden sind.",
+        "noTransactionReturned": "Bestellung konnte nicht gespeichert werden, da keine Zahlung erstellt wurde."
       }
     },
     "createBase": {

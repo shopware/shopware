@@ -54,6 +54,7 @@
     "create": {
       "textNewOrder": "New order",
       "buttonSaveOrder": "Save order",
+      "messageSaveError": "Order could not be saved.",
       "messageSwitchCustomerError": "An error occurred during switching customer",
       "messageFetchCustomerAddressesError": "An error occurred during fetching customer addresses",
       "remindPaymentModal": {
@@ -62,12 +63,11 @@
         "primaryAction": "Remind"
       },
       "saveError": {
-        "noCustomer": "The order could not be saved because no customer was selected.",
-        "noCart": "The order could not be saved because there is no cart.",
-        "noLineItems": "The order could not be saved because no items were added.",
-        "invalidPromotionCodes": "The order could not be saved because there are invalid promotion codes.",
-        "noTransactionReturned": "The order could not be saved because no payment was created.",
-        "general": "The order could not be saved."
+        "noCustomer": "Order could not be saved because no customer was selected.",
+        "noCart": "Order could not be saved because there is no cart.",
+        "noLineItems": "Order could not be saved because no items were added.",
+        "invalidPromotionCodes": "Order could not be saved because there are invalid promotion codes.",
+        "noTransactionReturned": "Order could not be saved because no payment was created."
       }
     },
     "createBase": {

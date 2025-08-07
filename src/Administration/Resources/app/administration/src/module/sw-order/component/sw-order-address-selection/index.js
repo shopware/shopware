@@ -103,18 +103,20 @@ export default {
         },
 
         addressOptions() {
-            const addresses = (this.customer?.addresses || []).map((item) => {
-                if (this.address && this.address.hash === item.hash) {
-                    return null;
-                }
+            const addresses = (this.customer?.addresses || [])
+                .map((item) => {
+                    if (this.address && this.address.hash === item.hash) {
+                        return null;
+                    }
 
-                const option = {
-                    label: this.addressLabel(item),
-                    ...item,
-                };
-                option.id = item.id;
-                return option;
-            }).filter((item) => item !== null);
+                    const option = {
+                        label: this.addressLabel(item),
+                        ...item,
+                    };
+                    option.id = item.id;
+                    return option;
+                })
+                .filter((item) => item !== null);
 
             // eslint-disable-next-line no-unused-expressions
             this.address &&

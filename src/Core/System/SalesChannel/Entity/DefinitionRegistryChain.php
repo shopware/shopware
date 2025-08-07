@@ -33,7 +33,7 @@ class DefinitionRegistryChain
     }
 
     /**
-     * @return EntityRepository<EntityCollection<Entity>>|SalesChannelRepository<EntityCollection<Entity>>
+     * @return EntityRepository<covariant EntityCollection<covariant Entity>>|SalesChannelRepository<covariant EntityCollection<covariant Entity>>
      */
     public function getRepository(string $entity): EntityRepository|SalesChannelRepository
     {

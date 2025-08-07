@@ -20,7 +20,7 @@ class RepositoryIterator
     private readonly Criteria $criteria;
 
     /**
-     * @var EntityRepository<TEntityCollection>
+     * @var EntityRepository<covariant TEntityCollection>
      */
     private readonly EntityRepository $repository;
 
@@ -29,7 +29,7 @@ class RepositoryIterator
     private bool $autoIncrement = false;
 
     /**
-     * @param EntityRepository<TEntityCollection> $repository
+     * @param EntityRepository<covariant TEntityCollection> $repository
      */
     public function __construct(
         EntityRepository $repository,

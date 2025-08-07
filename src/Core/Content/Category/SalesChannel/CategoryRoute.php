@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Category\SalesChannel;
 
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationEntity;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
@@ -28,6 +29,8 @@ class CategoryRoute extends AbstractCategoryRoute
 
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<CategoryCollection> $categoryRepository
      */
     public function __construct(
         private readonly SalesChannelRepository $categoryRepository,
@@ -115,10 +118,7 @@ class CategoryRoute extends AbstractCategoryRoute
         $criteria->addAssociation('media');
         $criteria->addAssociation('translations');
 
-        $category = $this->categoryRepository
-            ->search($criteria, $context)
-            ->get($categoryId);
-
+        $category = $this->categoryRepository->search($criteria, $context)->getEntities()->get($categoryId);
         if (!$category instanceof CategoryEntity) {
             throw CategoryException::categoryNotFound($categoryId);
         }

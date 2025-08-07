@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\LandingPage\SalesChannel;
 
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
+use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\LandingPage\LandingPageException;
@@ -26,6 +27,8 @@ class LandingPageRoute extends AbstractLandingPageRoute
 {
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<LandingPageCollection> $landingPageRepository
      */
     public function __construct(
         private readonly SalesChannelRepository $landingPageRepository,
@@ -86,10 +89,7 @@ class LandingPageRoute extends AbstractLandingPageRoute
         $criteria->addFilter(new EqualsFilter('active', true));
         $criteria->addFilter(new EqualsFilter('salesChannels.id', $context->getSalesChannelId()));
 
-        $landingPage = $this->landingPageRepository
-            ->search($criteria, $context)
-            ->get($landingPageId);
-
+        $landingPage = $this->landingPageRepository->search($criteria, $context)->getEntities()->get($landingPageId);
         if (!$landingPage instanceof LandingPageEntity) {
             throw LandingPageException::notFound($landingPageId);
         }

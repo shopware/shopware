@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  */
 #[Package('checkout')]
-final readonly class CheckoutPermissions
+final class CheckoutPermissions
 {
     /**
      * Skip persisting the cart

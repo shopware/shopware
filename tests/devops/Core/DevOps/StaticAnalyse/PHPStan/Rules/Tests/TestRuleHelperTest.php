@@ -2,10 +2,10 @@
 
 namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\Tests;
 
-use PHPStan\Reflection\ClassReflection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\TestReflectionClassInterface;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\TestRuleHelper;
 
 /**
@@ -17,13 +17,13 @@ class TestRuleHelperTest extends TestCase
     #[DataProvider('classProvider')]
     public function testIsTestClass(string $className, bool $extendsTestCase, bool $isTestClass, bool $isUnitTestClass): void
     {
-        $classReflection = $this->createMock(ClassReflection::class);
+        $classReflection = $this->createMock(TestReflectionClassInterface::class);
         $classReflection
             ->method('getName')
             ->willReturn($className);
 
         if ($extendsTestCase) {
-            $parentClass = $this->createMock(ClassReflection::class);
+            $parentClass = $this->createMock(TestReflectionClassInterface::class);
             $parentClass
                 ->method('getName')
                 ->willReturn(TestCase::class);

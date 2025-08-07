@@ -47,6 +47,7 @@
                         :overwrite-label="true"
                         :allow-edit="acl.can('product.editor') && !isInherited"
                         @main-category-add="onAddMainCategory"
+                        @main-category-remove="onRemoveMainCategory"
                     />
                     {% endblock %}
                 </template>

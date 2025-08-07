@@ -16,6 +16,17 @@ use Twig\Node\Expression\AbstractExpression;
 #[CoversClass(AdapterException::class)]
 class AdapterExceptionTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testUnsupportedOperator(): void
+    {
+        $exception = AdapterException::unsupportedOperator('$', 'testClass');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('CONTENT__RULE_OPERATOR_NOT_SUPPORTED', $exception->getErrorCode());
+        static::assertSame('Unsupported operator $ in testClass', $exception->getMessage());
+        static::assertSame(['operator' => '$', 'class' => 'testClass'], $exception->getParameters());
+    }
+
     public function testUnexpectedTwigExpression(): void
     {
         /** @var AbstractExpression&MockObject $expression */

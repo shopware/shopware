@@ -23,6 +23,10 @@ framework:
         storage_factory_id: session.storage.factory.native
     serializer: { enabled: true }
     secret: "%env(APP_SECRET)%"
+    profiler:
+        collect_serializer_data: true
+    property_info:
+        with_constructor_extractor: true
     validation:
         enable_attributes: true
         email_validation_mode: html5

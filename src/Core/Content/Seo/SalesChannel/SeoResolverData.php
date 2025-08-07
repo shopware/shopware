@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 class SeoResolverData
 {
     /**
-     * @var array<string, mixed>
+     * @var array<string, array<string, array<string, Entity>>>
      */
     private array $entityMap = [];
 
@@ -19,7 +19,21 @@ class SeoResolverData
             $this->entityMap[$entityName] = [];
         }
 
-        $this->entityMap[$entityName][$entity->getUniqueIdentifier()] = $entity;
+        if (!isset($this->entityMap[$entityName][$entity->getUniqueIdentifier()])) {
+            $this->entityMap[$entityName][$entity->getUniqueIdentifier()] = [];
+        }
+
+        /**
+         * The same entity can be added multiple times, e.g. if the same product is assigned in multiple cross-selling groups
+         * Using `spl_object_hash` to ensure that every entity can be added multiple times and hence allowing to enrich seoUrls for all these duplicated entities even if they're in different extensions
+         */
+        $hash = spl_object_hash($entity);
+
+        if (isset($this->entityMap[$entityName][$entity->getUniqueIdentifier()][$hash])) {
+            return;
+        }
+
+        $this->entityMap[$entityName][$entity->getUniqueIdentifier()][$hash] = $entity;
     }
 
     /**
@@ -39,6 +53,14 @@ class SeoResolverData
     }
 
     public function get(string $entityName, string $id): Entity
+    {
+        return array_values($this->getAll($entityName, $id))[0];
+    }
+
+    /**
+     * @return array<Entity>
+     */
+    public function getAll(string $entityName, string $id): array
     {
         return $this->entityMap[$entityName][$id];
     }

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Util;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Util\UtilException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -39,5 +40,14 @@ class UtilExceptionTest extends TestCase
         static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertEquals('UTIL__FILESYSTEM_FILE_NOT_FOUND', $e->getErrorCode());
         static::assertEquals('The file "some/file" does not exist in the given filesystem "some/folder"', $e->getMessage());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testOperatorNotSupported(): void
+    {
+        $e = UtilException::operatorNotSupported('$');
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertEquals('CONTENT__OPERATOR_NOT_SUPPORTED', $e->getErrorCode());
+        static::assertEquals('Operator "$" is not supported.', $e->getMessage());
     }
 }

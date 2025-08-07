@@ -16,10 +16,10 @@ ___
 Please use granular permissions instead, a list of them can be found in `Shopware\Core\Checkout\CheckoutPermissions`.
 Note that a new `CartBehaviour` should be created with the permissions of the `SalesChannelContext`.
 ## Skip cart persistence with `CheckoutPermissions::SKIP_CART_PERSISTENCE`
-Flag the sales channel context or cart behaviour with `AbstractCartPersister::SKIP_PERSISTENCE_PERMISSION` to skip persisting the cart. Useful to trigger a memory only cart calculation:
+Flag the sales channel context or cart behaviour with `CheckoutPermissions::SKIP_CART_PERSISTENCE` to skip persisting the cart. Useful to trigger a memory only cart calculation:
 ```php
 $calculatedCart = $updatedContext->withPermissions(
-    [AbstractCartPersister::SKIP_PERSISTENCE_PERMISSION => true],
+    [CheckoutPermissions::SKIP_CART_PERSISTENCE => true],
     fn (SalesChannelContext $context): Cart => $this->cartService->recalculate($originalCart, $context),
 );
 ```

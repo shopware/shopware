@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
@@ -152,7 +153,7 @@ class CartPersister extends AbstractCartPersister
     private function serializeCart(Cart $cart): array
     {
         $errors = $cart->getErrors();
-        if (!$cart->getBehavior()?->hasPermission(self::PERSIST_CART_ERROR_PERMISSION)) {
+        if (!$cart->getBehavior()?->hasPermission(CheckoutPermissions::PERSIST_CART_ERRORS)) {
             $cart->setErrors(new ErrorCollection());
         }
 

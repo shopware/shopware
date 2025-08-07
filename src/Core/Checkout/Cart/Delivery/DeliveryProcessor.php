@@ -28,7 +28,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
     /**
      * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::SKIP_PRODUCT_STOCK_VALIDATION}
      */
-    final public const SKIP_DELIVERY_PRICE_RECALCULATION = CheckoutPermissions::SKIP_PRODUCT_STOCK_VALIDATION;
+    final public const SKIP_DELIVERY_PRICE_RECALCULATION = CheckoutPermissions::SKIP_DELIVERY_PRICE_RECALCULATION;
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::SKIP_DELIVERY_TAX_RECALCULATION}

@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 final readonly class CheckoutPermissions
 {
@@ -12,7 +15,7 @@ final readonly class CheckoutPermissions
      */
     final public const SKIP_CART_PERSISTENCE = 'skipCartPersistence';
 
-    final public const PERSIST_CART_ERROR = 'persist-cart-errors';
+    final public const PERSIST_CART_ERRORS = 'persist-cart-errors';
 
     final public const ALLOW_PRODUCT_PRICE_OVERWRITES = 'allowProductPriceOverwrites';
 
@@ -66,4 +69,8 @@ final readonly class CheckoutPermissions
      * Skips overwritting the primary order transaction and order delivery ids in {@see OrderConverter::convertToOrder}
      */
     final public const SKIP_PRIMARY_ORDER_IDS = 'skipPrimaryOrderIds';
+
+    private function __construct()
+    {
+    }
 }

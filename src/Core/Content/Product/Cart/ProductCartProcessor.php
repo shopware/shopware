@@ -47,7 +47,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     /**
      * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::ALLOW_PRODUCT_PRICE_OVERWRITES}
      */
-    final public const ALLOW_PRODUCT_LABEL_OVERWRITES = CheckoutPermissions::ALLOW_PRODUCT_PRICE_OVERWRITES;
+    final public const ALLOW_PRODUCT_LABEL_OVERWRITES = CheckoutPermissions::ALLOW_PRODUCT_LABEL_OVERWRITES;
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::SKIP_PRODUCT_RECALCULATION}

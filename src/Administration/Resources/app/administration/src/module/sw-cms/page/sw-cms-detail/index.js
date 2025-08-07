@@ -383,71 +383,72 @@ export default {
             });
         },
 
-        loadPage(pageId) {
+        async loadPage(pageId) {
             this.isLoading = true;
 
-            return this.pageRepository
-                .get(pageId, Shopware.Context.api, this.loadPageCriteria)
-                .then((page) => {
-                    this.page = { sections: [] };
-                    this.page = page;
+            try {
+                this.page = await this.pageRepository.get(pageId, Shopware.Context.api, this.loadPageCriteria);
+                this.cmsPageState.setCurrentPageType(this.page.type);
 
-                    this.cmsPageState.setCurrentPageType(page.type);
+                if (this.acl.can('system_config:read')) {
+                    await this.setDefaultLayout();
+                }
 
-                    if (this.acl.can('system_config:read')) {
-                        this.setDefaultLayout();
-                    }
-
-                    this.cmsDataResolverService
-                        .resolve(this.page)
-                        .then(() => {
-                            this.updateSectionAndBlockPositions();
-                            this.cmsPageState.setCurrentPage(this.page);
-
-                            this.updateDataMapping();
-                            this.pageOrigin = cloneDeep(this.page);
-
-                            if (this.selectedBlock) {
-                                const blockId = this.selectedBlock.id;
-                                const blockSectionId = this.selectedBlock.sectionId;
-                                this.page.sections.forEach((section) => {
-                                    if (section.id === blockSectionId) {
-                                        section.blocks.forEach((block) => {
-                                            if (block.id === blockId) {
-                                                this.setSelectedBlock(blockSectionId, block);
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-
-                            Shopware.ExtensionAPI.publishData({
-                                id: 'sw-cms-detail__page',
-                                path: 'page',
-                                scope: this,
-                            });
-
-                            this.isLoading = false;
-                        })
-                        .catch((exception) => {
-                            this.isLoading = false;
-                            this.createNotificationError({
-                                title: exception.message,
-                                message: exception.response,
-                            });
-
-                            warn(this._name, exception.message, exception.response);
-                        });
-                })
-                .catch((exception) => {
-                    this.isLoading = false;
-                    this.createNotificationError({
-                        title: exception.message,
-                        message: exception.response.statusText,
-                    });
-
-                    warn(this._name, exception.message, exception.response);
+                await this.hydratePage();
+            } catch(exception) {
+                this.createNotificationError({
+                    title: exception.message,
+                    message: exception.response.statusText,
                 });
+
+                warn(this._name, exception.message, exception.response);
+            } finally {
+                this.cmsPageState.setCurrentPage(this.page);
+                this.pageOrigin = cloneDeep(this.page);
+                this.restoreActiveBlock();
+                this.isLoading = false;
+            }
+        },
+
+        async hydratePage() {
+            try {
+                await this.cmsDataResolverService.resolve(this.page);
+
+                this.updateSectionAndBlockPositions();
+                this.updateDataMapping();
+
+                Shopware.ExtensionAPI.publishData({
+                    id: 'sw-cms-detail__page',
+                    path: 'page',
+                    scope: this,
+                });
+            } catch(exception) {
+                this.createNotificationError({
+                    title: exception.message,
+                    message: exception.response,
+                });
+
+                warn(this._name, exception.message, exception.response);
+            }
+        },
+
+        restoreActiveBlock() {
+            if (!this.selectedBlock) {
+                return;
+            }
+
+            const blockId = this.selectedBlock.id;
+            const blockSectionId = this.selectedBlock.sectionId;
+
+            this.page.sections.forEach((section) => {
+                if (section.id === blockSectionId) {
+                    section.blocks.forEach((block) => {
+                        if (block.id === blockId) {
+                            this.setSelectedBlock(blockSectionId, block);
+                        }
+                    });
+                }
+            });
         },
 
         updateDataMapping() {
@@ -508,6 +509,13 @@ export default {
             return this.hasUnsavedChanges();
         },
 
+        /**
+         * This check is not perfect, since some components (like sw-cms-section) change values at runtime,
+         * which should not be considered as unsaved changes.
+         *
+         * Further improvement should focus on removing these runtime changes,
+         * so a single "getObjectDiff" on the page is sufficient.
+         */
         hasUnsavedChanges() {
             if (this.page._isDirty) {
                 return true;
@@ -530,8 +538,9 @@ export default {
                     for (let k = 0; k < block.slots.length; k += 1) {
                         const slot = block.slots[k];
                         const originSlot = this.pageOrigin.sections.get(section.id).blocks.get(block.id).slots.get(slot.id);
+                        const slotDiff = getObjectDiff(originSlot, slot);
 
-                        if (slot._isDirty || !isEmpty(getObjectDiff(originSlot, slot))) {
+                        if (slot._isDirty || !isEmpty(slotDiff)) {
                             return true;
                         }
                     }

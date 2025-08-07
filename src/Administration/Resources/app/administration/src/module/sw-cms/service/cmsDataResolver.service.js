@@ -126,8 +126,6 @@ function initVisibility(element) {
 
         element.visibility[key] = true;
     });
-
-
 }
 
 /**

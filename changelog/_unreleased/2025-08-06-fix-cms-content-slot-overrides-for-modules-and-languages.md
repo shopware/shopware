@@ -5,5 +5,5 @@ author_email: b.schulze-baek@shopware.com
 author_github: @bschulzebaek
 ---
 # Administration
-* CMS slot config overrides are now correctly applied on individual pages (Category layout, Product layout) and for non-default language configurations.
+* Changed CMS slot config to now correctly apply config overrides on individual pages (Category, Landing, Product) and languages.
 * Deprecated method `resetCmsPageState` in `module/sw-cms/page/sw-cms-detail/index.js`. Use `resetRelatedStores` instead.

@@ -3,6 +3,7 @@ import { type EnrichedSlotData, type RuntimeSlot, type CmsSlotConfig } from '../
 
 const { Mixin } = Shopware;
 const { types } = Shopware.Utils;
+const { isEmpty } = types;
 const { cloneDeep, merge } = Shopware.Utils.object;
 
 interface Translation {
@@ -108,7 +109,7 @@ export default Mixin.register(
 
                 const translatedConfig = this.element?.translated?.config;
 
-                if (translatedConfig && !Array.isArray(translatedConfig)) {
+                if (translatedConfig && !isEmpty(translatedConfig)) {
                     return translatedConfig as EnrichedSlotData;
                 }
 

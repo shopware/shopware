@@ -134,14 +134,12 @@ class ScriptLoader implements EventSubscriberInterface
 
             $includes = $appIncludes[$script['app_id']];
 
-            $dates = [...[$script['lastModified']], ...array_column($includes, 'lastModified')];
-
-            $lastModified = new \DateTimeImmutable(max($dates));
+            $dates = [...[new \DateTimeImmutable($script['lastModified'])], ...array_column($includes, 'lastModified')];
 
             $executableScripts[$script['hook']][] = new Script(
                 $script['scriptName'],
                 $script['script'],
-                $lastModified,
+                max($dates),
                 $this->getAppInfo($script),
                 $includes,
                 (bool) $script['active'],

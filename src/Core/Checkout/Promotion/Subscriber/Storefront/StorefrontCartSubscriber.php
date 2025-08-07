@@ -144,9 +144,9 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
             ->filter(fn (LineItem $lineItem) => $lineItem->getType() === PromotionProcessor::LINE_ITEM_TYPE && $lineItem->getPayloadValue('promotionId') === $removedLineItem->getPayloadValue('promotionId'));
 
         foreach ($lineItemsOfSamePromotion as $lineItemOfSamePromotion) {
-            $this->eventDispatcher->dispatch(new BeforeLineItemRemovedEvent($lineItemOfSamePromotion, $cart, $context));
-
             $cart->remove($lineItemOfSamePromotion->getId());
+
+            $this->eventDispatcher->dispatch(new BeforeLineItemRemovedEvent($lineItemOfSamePromotion, $cart, $context));
         }
     }
 

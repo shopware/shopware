@@ -13,7 +13,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('after-sales')]
 #[CoversClass(Migration1754295570DocumentActivateReturnAddress::class)]
 class Migration1754295570DocumentActivateReturnAddressTest extends TestCase
 {

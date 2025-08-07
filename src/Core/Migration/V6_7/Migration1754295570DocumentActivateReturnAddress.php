@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('after-sales')]
 class Migration1754295570DocumentActivateReturnAddress extends MigrationStep
 {
     public function getCreationTimestamp(): int

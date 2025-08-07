@@ -159,7 +159,7 @@ class CartPersisterTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    #[DisabledFeatures('v6.8.0.0')]
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testRecalculationCartShouldNotBeSaved(): void
     {
         $cartBehavior = new CartBehavior([], true, true);

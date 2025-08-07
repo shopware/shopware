@@ -105,7 +105,7 @@ class OrderConverter
     public function convertToOrder(Cart $cart, SalesChannelContext $context, OrderConversionContext $conversionContext): array
     {
         /** @deprecated tag:v6.8.0 - `$isRecalculation` will be removed without replacement */
-        $isRecalculation = !Feature::isActive('v6.8.0.0') && $cart->getBehavior()?->isRecalculation() ?? false;
+        $isRecalculation = !Feature::isActive('v6.8.0.0') && ($cart->getBehavior()?->isRecalculation() ?? false);
 
         if ($conversionContext->shouldIncludeDeliveries()) {
             foreach ($cart->getDeliveries() as $delivery) {

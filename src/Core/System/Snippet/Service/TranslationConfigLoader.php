@@ -34,15 +34,14 @@ class TranslationConfigLoader
         $urlString = $config['repository-url'];
 
         if (!\is_string($urlString)) {
-            $encodedUrl = json_encode($urlString);
-            if ($encodedUrl === false) {
-                $encodedUrl = 'Unable to convert repository-url to string.';
+            $exception = new \InvalidArgumentException('The repository-url in the translation config must be a string.');
+            try {
+                $encodedUrl = json_encode($urlString, \JSON_THROW_ON_ERROR);
+            } catch (\JsonException $e) {
+                $exception = $e;
             }
 
-            throw SnippetException::invalidRepositoryUrl(
-                $encodedUrl,
-                new \InvalidArgumentException('The repository-url in the translation config must be a string.')
-            );
+            throw SnippetException::invalidRepositoryUrl($encodedUrl, $exception);
         }
         if (\mb_strlen(\trim($urlString)) < 1) {
             throw SnippetException::invalidRepositoryUrl(

@@ -23,6 +23,7 @@ use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Tests\Unit\Core\Framework\Plugin\_fixtures\ExampleBundle\ExampleBundle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
@@ -371,7 +372,7 @@ class AssetServiceTest extends TestCase
                 $local = $expectedWrites[$path];
                 unset($expectedWrites[$path]);
 
-                static::assertSame(__DIR__ . '/../_fixtures/' . $local, $meta['uri'] ?? '');
+                static::assertSame(Path::join(__DIR__, '/../_fixtures/', $local), $meta['uri'] ?? '');
 
                 return true;
             });

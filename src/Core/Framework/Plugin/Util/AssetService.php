@@ -2,7 +2,11 @@
 
 namespace Shopware\Core\Framework\Plugin\Util;
 
+use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToCheckExistence;
+use League\Flysystem\UnableToCreateDirectory;
+use League\Flysystem\UnableToDeleteDirectory;
 use League\Flysystem\UnableToReadFile;
 use League\Flysystem\Visibility;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
@@ -18,6 +22,7 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
@@ -26,11 +31,14 @@ use Symfony\Component\HttpKernel\KernelInterface;
 #[Package('framework')]
 class AssetService
 {
+    private const EXTENSION_RESOURCES_DIRECTORY = 'Resources/public';
+    private const ASSET_MANIFEST_FILENAME = 'asset-manifest.json';
+
     /**
      * @internal
      */
     public function __construct(
-        private readonly FilesystemOperator $filesystem,
+        private readonly FilesystemOperator $assetFilesystem,
         private readonly FilesystemOperator $privateFilesystem,
         private readonly KernelInterface $kernel,
         private readonly KernelPluginLoader $pluginLoader,
@@ -41,47 +49,69 @@ class AssetService
     }
 
     /**
+     * @throws \JsonException
+     * @throws FilesystemException
      * @throws PluginNotFoundException
+     * @throws UnableToCheckExistence
+     * @throws UnableToCreateDirectory
+     * @throws UnableToDeleteDirectory
      */
     public function copyAssetsFromBundle(string $bundleName, bool $force = false): void
     {
-        $bundle = $this->getBundle($bundleName);
-
-        $this->copyAssets($bundle, $force);
-
-        if ($bundle instanceof Plugin) {
-            foreach ($this->getAdditionalBundles($bundle) as $bundle) {
-                $this->copyAssets($bundle, $force);
-            }
-        }
+        $this->copyAssets($this->getBundle($bundleName), $force);
     }
 
+    /**
+     * @throws \JsonException
+     * @throws UnableToDeleteDirectory
+     * @throws UnableToCreateDirectory
+     * @throws UnableToCheckExistence
+     * @throws FilesystemException
+     */
     public function copyAssets(BundleInterface $bundle, bool $force = false): void
     {
+        if ($bundle instanceof Plugin) {
+            foreach ($this->getAdditionalBundles($bundle) as $additionalBundle) {
+                $this->copyAssets($additionalBundle, $force);
+            }
+        }
+
         $this->copyAssetsFromBundleOrApp(
-            $bundle->getPath() . '/Resources/public',
+            Path::join($bundle->getPath(), self::EXTENSION_RESOURCES_DIRECTORY),
             $bundle->getName(),
-            $force
+            $force,
         );
     }
 
+    /**
+     * @throws \JsonException
+     * @throws FilesystemException
+     * @throws UnableToCheckExistence
+     * @throws UnableToCreateDirectory
+     * @throws UnableToDeleteDirectory
+     */
     public function copyAssetsFromApp(string $appName, string $appPath, bool $force = false): void
     {
         $fs = $this->sourceResolver->filesystemForAppName($appName);
 
-        if (!$fs->has('Resources/public')) {
+        if (!$fs->has(self::EXTENSION_RESOURCES_DIRECTORY)) {
             return;
         }
 
-        $publicDirectory = $fs->path('Resources/public');
+        $publicDirectory = $fs->path(self::EXTENSION_RESOURCES_DIRECTORY);
 
         $this->copyAssetsFromBundleOrApp(
             $publicDirectory,
             $appName,
-            $force
+            $force,
         );
     }
 
+    /**
+     * @throws \JsonException
+     * @throws FilesystemException
+     * @throws UnableToDeleteDirectory
+     */
     public function removeAssetsOfBundle(string $bundleName): void
     {
         $this->removeAssets($bundleName);
@@ -99,11 +129,16 @@ class AssetService
         }
     }
 
+    /**
+     * @throws \JsonException
+     * @throws FilesystemException
+     * @throws UnableToDeleteDirectory
+     */
     public function removeAssets(string $name): void
     {
         $targetDirectory = $this->getTargetDirectory($name);
 
-        $this->filesystem->deleteDirectory($targetDirectory);
+        $this->assetFilesystem->deleteDirectory($targetDirectory);
 
         $manifest = $this->getManifest();
 
@@ -111,13 +146,23 @@ class AssetService
         $this->writeManifest($manifest);
     }
 
-    private function copyAssetsFromBundleOrApp(string $originDirectory, string $bundleOrAppName, bool $force): void
-    {
-        $bundleOrAppName = mb_strtolower($bundleOrAppName);
-
+    /**
+     * @throws \JsonException
+     * @throws FilesystemException
+     * @throws UnableToCheckExistence
+     * @throws UnableToCreateDirectory
+     * @throws UnableToDeleteDirectory
+     */
+    private function copyAssetsFromBundleOrApp(
+        string $originDirectory,
+        string $bundleOrAppName,
+        bool $force,
+    ): void {
         if (!is_dir($originDirectory)) {
             return;
         }
+
+        $bundleOrAppName = mb_strtolower($bundleOrAppName);
 
         $manifest = $this->getManifest();
 
@@ -129,11 +174,11 @@ class AssetService
 
         if (empty($manifest) || !isset($manifest[$bundleOrAppName])) {
             // if there is no manifest file or no entry for the current bundle, we need to remove all assets and start fresh
-            $this->filesystem->deleteDirectory($targetDirectory);
+            $this->assetFilesystem->deleteDirectory($targetDirectory);
         }
 
-        if (!$this->filesystem->directoryExists($targetDirectory)) {
-            $this->filesystem->createDirectory($targetDirectory);
+        if (!$this->assetFilesystem->directoryExists($targetDirectory)) {
+            $this->assetFilesystem->createDirectory($targetDirectory);
         }
 
         $remoteBundleManifest = $manifest[$bundleOrAppName] ?? [];
@@ -166,7 +211,7 @@ class AssetService
             ->in($directory)
             ->getIterator();
 
-        return array_values(iterator_to_array($files));
+        return array_values(iterator_to_array($files, false));
     }
 
     /**
@@ -177,8 +222,8 @@ class AssetService
     private function buildBundleManifest(array $files): array
     {
         $localManifest = array_combine(
-            array_map(fn (SplFileInfo $file) => $file->getRelativePathname(), $files),
-            array_map(fn (SplFileInfo $file) => Hasher::hashFile($file->getPathname()), $files)
+            array_map(static fn (SplFileInfo $file) => $file->getRelativePathname(), $files),
+            array_map(static fn (SplFileInfo $file) => Hasher::hashFile($file->getPathname()), $files)
         );
 
         ksort($localManifest);
@@ -192,9 +237,9 @@ class AssetService
      */
     private function getTargetDirectory(string $name): string
     {
-        $assetDir = preg_replace('/bundle$/', '', mb_strtolower($name));
+        $assetDir = (string) preg_replace('/bundle$/', '', mb_strtolower($name));
 
-        return 'bundles/' . $assetDir;
+        return Path::join('bundles', $assetDir);
     }
 
     /**
@@ -215,23 +260,21 @@ class AssetService
 
         // diff the opposite way to find files which are present remote, but not locally.
         // we use array_diff_key because we don't care about the hash, just the file names
-        $removes = array_keys(array_diff_key($remoteManifest, $localManifest));
-
-        foreach ($removes as $file) {
-            $this->filesystem->delete($targetDirectory . '/' . $file);
+        foreach (array_keys(array_diff_key($remoteManifest, $localManifest)) as $file) {
+            $this->assetFilesystem->delete(Path::join($targetDirectory, $file));
         }
 
         $batches = [];
 
         foreach ($uploads as $file) {
             $batches[] = new CopyBatchInput(
-                $originDir . '/' . $file,
-                [$targetDirectory . '/' . $file],
+                Path::join($originDir, $file),
+                [Path::join($targetDirectory, $file)],
                 $this->parameterBag->get('shopware.filesystem.asset.config')['visibility'] ?? Visibility::PUBLIC,
             );
         }
 
-        CopyBatch::copy($this->filesystem, ...$batches);
+        CopyBatch::copy($this->assetFilesystem, ...$batches);
     }
 
     /**
@@ -267,6 +310,9 @@ class AssetService
     }
 
     /**
+     * @throws \JsonException
+     * @throws FilesystemException
+     *
      * @return array<string, array<string, string>>
      */
     private function getManifest(): array
@@ -277,7 +323,7 @@ class AssetService
 
         $hashes = [];
         try {
-            $hashes = json_decode($this->privateFilesystem->read('asset-manifest.json'), true, flags: \JSON_THROW_ON_ERROR);
+            $hashes = json_decode($this->privateFilesystem->read(self::ASSET_MANIFEST_FILENAME), true, flags: \JSON_THROW_ON_ERROR);
         } catch (UnableToReadFile) {
         }
 
@@ -286,6 +332,8 @@ class AssetService
 
     /**
      * @param array<string, array<string, string>> $manifest
+     *
+     * @throws \JsonException
      */
     private function writeManifest(array $manifest): void
     {
@@ -294,7 +342,7 @@ class AssetService
         }
 
         $this->privateFilesystem->write(
-            'asset-manifest.json',
+            self::ASSET_MANIFEST_FILENAME,
             json_encode($manifest, \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR)
         );
     }

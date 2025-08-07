@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\StoreException;
@@ -23,6 +23,9 @@ class ExtensionDownloader
 {
     private readonly string $relativePluginDir;
 
+    /**
+     * @param EntityRepository<PluginCollection> $pluginRepository
+     */
     public function __construct(
         private readonly EntityRepository $pluginRepository,
         private readonly StoreClient $storeClient,
@@ -38,8 +41,7 @@ class ExtensionDownloader
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('plugin.name', $technicalName));
 
-        /** @var PluginEntity|null $plugin */
-        $plugin = $this->pluginRepository->search($criteria, $context)->first();
+        $plugin = $this->pluginRepository->search($criteria, $context)->getEntities()->first();
 
         if ($plugin !== null && $plugin->getManagedByComposer() && !str_starts_with($plugin->getPath() ?? '', $this->relativePluginDir)) {
             throw StoreException::cannotDeleteManaged($plugin->getName());

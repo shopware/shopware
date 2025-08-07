@@ -5,7 +5,6 @@ namespace Shopware\Core\System\Snippet\Service;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use League\Flysystem\Filesystem;
-use League\Flysystem\StorageAttributes;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -82,7 +81,7 @@ class TranslationLoader
             return false;
         }
 
-        foreach ($this->translationWriter->listContents($localesBasePath, true) as $fsNode) {
+        foreach ($this->translationWriter->listContents($localesBasePath, Filesystem::LIST_DEEP) as $fsNode) {
             if ($fsNode->isDir() && str_ends_with($fsNode->path(), 'Plugins/' . $name)) {
                 return true;
             }

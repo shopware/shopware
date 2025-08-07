@@ -52,8 +52,14 @@ async function resolve(page) {
                 if (Object.keys(slotData).length > 0) {
                     slotEntityList[slot.id] = slotData;
                 }
+
+                slot._isDirty = false;
             });
+
+            block._isDirty = false;
         });
+
+        section._isDirty = false;
     });
 
     const { directReads, searches } = optimizeCriteriaObjects(slotEntityList);
@@ -120,6 +126,8 @@ function initVisibility(element) {
 
         element.visibility[key] = true;
     });
+
+
 }
 
 /**

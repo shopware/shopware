@@ -20,10 +20,6 @@ interface Entity {
     translated?: TranslationWithSlotConfig;
 }
 
-interface ModuleDefinition {
-    entity?: string;
-}
-
 /**
  * @private
  * @sw-package discovery
@@ -116,7 +112,7 @@ export default Mixin.register(
                     return translatedConfig as EnrichedSlotData;
                 }
 
-                return this.element?.config ?? {} as EnrichedSlotData;
+                return (this.element?.config ?? {}) as unknown as EnrichedSlotData;
             },
         },
 

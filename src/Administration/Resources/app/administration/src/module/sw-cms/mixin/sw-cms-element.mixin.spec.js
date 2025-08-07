@@ -15,7 +15,7 @@ const defaultElement = {
 /**
  * Using a real component for testing
  */
-async function createWrapper(element = defaultElement, routeMeta = {}) {
+async function createWrapper(element = defaultElement, routeName = '') {
     return mount(await wrapTestComponent('sw-cms-el-text', { sync: true }), {
         props: {
             element,
@@ -29,7 +29,7 @@ async function createWrapper(element = defaultElement, routeMeta = {}) {
             },
             mocks: {
                 $route: {
-                    meta: routeMeta,
+                    name: routeName,
                 },
             },
         },
@@ -87,11 +87,7 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
             overrideFromCategory: 'bar',
         };
 
-        const wrapper = await createWrapper(defaultElement, {
-            $module: {
-                entity: 'category',
-            },
-        });
+        const wrapper = await createWrapper(defaultElement, 'sw.category.detail');
         wrapper.vm.initElementConfig('text');
 
         expect(wrapper.vm.element.config).toEqual(expectedElementConfig);
@@ -178,11 +174,7 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
     });
 
     it('should return correct moduleEntity based on route meta', async () => {
-        const wrapper = await createWrapper(defaultElement, {
-            $module: {
-                entity: 'category',
-            },
-        });
+        const wrapper = await createWrapper(defaultElement, 'sw.category.detail');
         const mockCategory = {
             id: 'category-1',
             name: 'Test Category',
@@ -218,7 +210,7 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
     });
 
     it('should return configOverride from entity slot config', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper(defaultElement, 'sw.category.detail');
         Shopware.Store.get('swCategoryDetail').category = {
             id: 'category-1',
             translated: {
@@ -226,14 +218,6 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
                     [defaultElement.id]: {
                         content: 'override content',
                     },
-                },
-            },
-        };
-
-        wrapper.vm.$route = {
-            meta: {
-                $module: {
-                    entity: 'category',
                 },
             },
         };
@@ -255,7 +239,7 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
     });
 
     it('should return slot config from entity translated data', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper(defaultElement, 'sw.category.detail');
         Shopware.Store.get('swCategoryDetail').category = {
             id: 'category-1',
             translated: {
@@ -267,21 +251,13 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
             },
         };
 
-        wrapper.vm.$route = {
-            meta: {
-                $module: {
-                    entity: 'category',
-                },
-            },
-        };
-
         const slotConfig = wrapper.vm.getEntitySlotConfig();
 
         expect(slotConfig.content).toBe('entity content');
     });
 
     it('should fall back to default translations when no translated config found', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper(defaultElement, 'sw.category.detail');
 
         Shopware.Store.get('swCategoryDetail').category = {
             id: 'category-1',
@@ -295,14 +271,6 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
                     },
                 },
             ],
-        };
-
-        wrapper.vm.$route = {
-            meta: {
-                $module: {
-                    entity: 'category',
-                },
-            },
         };
 
         const slotConfig = wrapper.vm.getEntitySlotConfig();

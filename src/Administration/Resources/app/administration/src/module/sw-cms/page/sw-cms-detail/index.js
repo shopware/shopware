@@ -7,6 +7,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 const { debounce } = Shopware.Utils;
 const { cloneDeep, getObjectDiff } = Shopware.Utils.object;
+const { isEmpty } = Shopware.Utils.types;
 const { warn } = Shopware.Utils.debug;
 const { Criteria } = Shopware.Data;
 const debounceTimeout = 800;
@@ -382,7 +383,6 @@ export default {
             });
         },
 
-
         loadPage(pageId) {
             this.isLoading = true;
 
@@ -505,7 +505,40 @@ export default {
         },
 
         abortOnLanguageChange() {
-            return Object.keys(getObjectDiff(this.page, this.pageOrigin)).length > 0;
+            return this.hasUnsavedChanges();
+        },
+
+        hasUnsavedChanges() {
+            if (this.page._isDirty) {
+                return true;
+            }
+
+            for (let i = 0; i < this.page.sections.length; i += 1) {
+                const section = this.page.sections[i];
+
+                if (section._isDirty) {
+                    return true;
+                }
+
+                for (let j = 0; j < section.blocks.length; j += 1) {
+                    const block = section.blocks[j];
+
+                    if (block._isDirty) {
+                        return true;
+                    }
+
+                    for (let k = 0; k < block.slots.length; k += 1) {
+                        const slot = block.slots[k];
+                        const originSlot = this.pageOrigin.sections.get(section.id).blocks.get(block.id).slots.get(slot.id);
+
+                        if (slot._isDirty || !isEmpty(getObjectDiff(originSlot, slot))) {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
         },
 
         saveOnLanguageChange() {
@@ -904,6 +937,7 @@ export default {
         updateSectionAndBlockPositions() {
             this.page.sections.forEach((section, index) => {
                 section.position = index;
+
                 this.updateBlockPositions(section);
             });
         },

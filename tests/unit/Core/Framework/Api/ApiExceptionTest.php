@@ -239,6 +239,13 @@ class ApiExceptionTest extends TestCase
         static::assertSame('Unable to generate bundle directory for bundle "bundleName".', $exception->getMessage());
     }
 
+    public function testSchemaDefinitionNotReadable(): void
+    {
+        $exception = ApiException::schemaDefinitionNotReadable('file');
+
+        static::assertSame(ApiException::API_SCHEMA_DEFINITION_NOT_READABLE, $exception->getErrorCode());
+    }
+
     public function testInvalidSchemaDefinitions(): void
     {
         $exception = ApiException::invalidSchemaDefinitions('file', new \JsonException());

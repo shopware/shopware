@@ -41,8 +41,8 @@ async function createWrapper() {
                         'disabled',
                     ],
                 },
-                'sw-promotion-v2-rule-select': {
-                    template: '<input type="select" class="sw-field sw-promotion-v2-rule-select"></input>',
+                'sw-select-rule-create': {
+                    template: '<input type="select" class="sw-field sw-select-rule-create"></input>',
                     props: [
                         'value',
                         'disabled',

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
+use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -20,6 +21,8 @@ class PropertyGroupGenerator implements DemodataGeneratorInterface
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<PropertyGroupCollection> $propertyGroupRepository
      */
     public function __construct(private readonly EntityRepository $propertyGroupRepository)
     {

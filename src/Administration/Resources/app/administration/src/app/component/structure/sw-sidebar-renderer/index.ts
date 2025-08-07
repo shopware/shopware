@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted, onUpdated } from 'vue';
 import template from './sw-sidebar-renderer.html.twig';
 import './sw-sidebar-renderer.scss';
 
@@ -81,6 +81,12 @@ export default Shopware.Component.wrapComponentConfig({
         const handleWindowResize = () => {
             windowWidth.value = window.innerWidth;
         };
+
+        onUpdated(() => {
+            if (!activeSidebar.value?.resizable && sidebarSetWidth.value !== MIN_SIDEBAR_WIDTH) {
+                sidebarSetWidth.value = MIN_SIDEBAR_WIDTH;
+            }
+        });
 
         onMounted(() => {
             const savedWidth = localStorage.getItem('sw-sidebar-width');

@@ -254,5 +254,28 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             // Restore original method
             window.addEventListener = originalAddEventListener;
         });
+
+        it('should reset width to minimum when sidebar becomes non-resizable', async () => {
+            const wrapper = await createWrapper();
+
+            await ui.sidebar.add({
+                title: 'Test sidebar',
+                locationId: 'test-sidebar',
+                resizable: true,
+            });
+            Shopware.Store.get('sidebar').sidebars[0].active = true;
+            await wrapper.vm.$nextTick();
+
+            await dragSidebarToWidth(wrapper, 1000);
+            
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('920px'); // 1920 - 1000
+
+            Shopware.Store.get('sidebar').sidebars[0].resizable = false;
+            
+            await wrapper.vm.$forceUpdate();
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('480px');
+        });
     });
 });

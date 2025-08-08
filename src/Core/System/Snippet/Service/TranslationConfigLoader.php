@@ -38,6 +38,7 @@ class TranslationConfigLoader
             try {
                 $encodedUrl = json_encode($urlString, \JSON_THROW_ON_ERROR);
             } catch (\JsonException $e) {
+                $encodedUrl = 'Unable to convert repository-url to string.';
                 $exception = $e;
             }
 

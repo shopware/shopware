@@ -515,16 +515,6 @@ class SalesChannelContext extends Struct
         $this->languageInfo = $languageInfo;
     }
 
-    public function getMeasurementSystem(): MeasurementUnits
-    {
-        return $this->measurementSystem;
-    }
-
-    public function setMeasurementSystem(MeasurementUnits $measurementSystem): void
-    {
-        $this->measurementSystem = $measurementSystem;
-    }
-
     /**
      * @internal
      */

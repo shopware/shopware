@@ -63,11 +63,11 @@
         "primaryAction": "Remind"
       },
       "saveError": {
-        "noCustomer": "Order could not be saved because no customer was selected.",
-        "noCart": "Order could not be saved because there is no cart.",
-        "noLineItems": "Order could not be saved because no items were added.",
-        "invalidPromotionCodes": "Order could not be saved because there are invalid promotion codes.",
-        "noTransactionReturned": "Order could not be saved because no payment was created."
+        "noCustomer": "No customer selected.",
+        "noCart": "No shopping cart available.",
+        "noLineItems": "No items added.",
+        "invalidPromotionCodes": "Invalid promotion code found.",
+        "noTransactionReturned": "No payment method created."
       }
     },
     "createBase": {

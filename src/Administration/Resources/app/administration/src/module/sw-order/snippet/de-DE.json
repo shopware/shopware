@@ -63,11 +63,11 @@
         "primaryAction": "Auffordern"
       },
       "saveError": {
-        "noCustomer": "Bestellung konnte nicht gespeichert werden, da kein Kunde ausgewählt wurde.",
-        "noCart": "Bestellung konnte nicht gespeichert werden, da kein Warenkorb vorhanden ist.",
-        "noLineItems": "Bestellung konnte nicht gespeichert werden, da keine Positionen hinzugefügt wurden.",
-        "invalidPromotionCodes": "Bestellung konnte nicht gespeichert werden, da ungültige Aktionscodes vorhanden sind.",
-        "noTransactionReturned": "Bestellung konnte nicht gespeichert werden, da keine Zahlung erstellt wurde."
+        "noCustomer": "Kein Kunde ausgewählt.",
+        "noCart": "Kein Warenkorb vorhanden.",
+        "noLineItems": "Die Bestellung hat keine Positionen.",
+        "invalidPromotionCodes": "Kein gültiger Aktionscode vorhanden.",
+        "noTransactionReturned": "Keine Zahlungsart vorhanden."
       }
     },
     "createBase": {

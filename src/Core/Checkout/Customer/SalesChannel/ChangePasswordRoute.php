@@ -81,7 +81,7 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
         $minPasswordLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
 
         $definition
-            ->add('newPassword', new NotBlank(), new Length(['min' => $minPasswordLength]), new EqualTo(['propertyPath' => 'newPasswordConfirm']))
+            ->add('newPassword', new NotBlank(), new Length(['min' => $minPasswordLength]), new EqualTo(propertyPath: 'newPasswordConfirm'))
             ->add('password', new CustomerPasswordMatches(['salesChannelContext' => $context]));
 
         $this->dispatchValidationEvent($definition, $data, $context->getContext());

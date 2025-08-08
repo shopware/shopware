@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Snippet\Service;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
+use League\Flysystem\Filesystem;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -13,10 +14,12 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
+use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
 use Shopware\Core\System\Snippet\SnippetException;
-use Shopware\Core\System\Snippet\Struct\Language;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
-use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Validator\Constraints\Locale;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -24,7 +27,8 @@ use Symfony\Component\Filesystem\Filesystem;
 #[Package('discovery')]
 class TranslationLoader
 {
-    public const TRANSLATION_DESTINATION = __DIR__ . '/../../Resources/translation';
+    public const TRANSLATION_DIR = '/translation';
+    public const TRANSLATION_LOCALE_SUB_DIR = 'locale';
 
     private const PLATFORM_BUNDLES = [
         'Administration' => 'administration.json',
@@ -43,12 +47,13 @@ class TranslationLoader
      * @param EntityRepository<SnippetSetCollection> $snippetSetRepository
      */
     public function __construct(
-        private readonly Filesystem $filesystem,
+        private readonly Filesystem $translationWriter,
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $localeRepository,
         private readonly EntityRepository $snippetSetRepository,
         private readonly ClientInterface $client,
         private readonly TranslationConfig $config,
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -67,12 +72,39 @@ class TranslationLoader
         $this->createSnippetSet($language, $context);
     }
 
-    public static function pluginTranslationExists(Plugin $plugin): bool
+    public function pluginTranslationExists(Plugin $plugin): bool
     {
-        $name = TranslationConfigLoader::getMappedPluginName($plugin);
-        $pattern = self::TRANSLATION_DESTINATION . '/*/Plugins/' . $name;
+        $name = $this->config->getMappedPluginName($plugin);
+        $localesBasePath = $this->getLocalesBasePath();
 
-        return (bool) glob($pattern, \GLOB_ONLYDIR);
+        if (!$this->translationWriter->directoryExists($localesBasePath)) {
+            return false;
+        }
+
+        foreach ($this->translationWriter->listContents($localesBasePath, Filesystem::LIST_DEEP) as $fsNode) {
+            if ($fsNode->isDir() && str_ends_with($fsNode->path(), 'Plugins/' . $name)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getLocalesBasePath(): string
+    {
+        return Path::join(self::TRANSLATION_DIR, self::TRANSLATION_LOCALE_SUB_DIR);
+    }
+
+    public function getLocalePath(string $locale): string
+    {
+        $localeViolationCount = $this->validator
+            ->validate($locale, new Locale())
+            ->count();
+        if ($locale !== '*' && $localeViolationCount !== 0) {
+            return '';
+        }
+
+        return Path::join(self::TRANSLATION_DIR, self::TRANSLATION_LOCALE_SUB_DIR, $locale);
     }
 
     private function fetchPluginSnippets(string $locale): void
@@ -96,10 +128,10 @@ class TranslationLoader
 
     private function fetchFile(string $bundle, string $locale, string $fileName, string $scope): void
     {
-        $destinationPath = \sprintf('%s/%s/%s/', realpath(self::TRANSLATION_DESTINATION), $locale, $scope);
+        $destinationPath = Path::join($this->getLocalePath($locale), $scope);
 
-        if (!$this->filesystem->exists($destinationPath)) {
-            $this->filesystem->mkdir($destinationPath);
+        if (!$this->translationWriter->directoryExists($destinationPath)) {
+            $this->translationWriter->createDirectory($destinationPath);
         }
 
         $downloadUrl = \sprintf(
@@ -119,7 +151,7 @@ class TranslationLoader
             $destinationFileName = strtolower($bundle) . '.json';
         }
 
-        $destination = $destinationPath . $destinationFileName;
+        $destination = Path::join($destinationPath, $destinationFileName);
 
         $this->downloadFile($downloadUrl, $destination);
     }
@@ -129,7 +161,7 @@ class TranslationLoader
         try {
             $response = $this->client->request('GET', $url);
 
-            file_put_contents($destination, $response->getBody());
+            $this->translationWriter->write($destination, $response->getBody()->getContents());
         } catch (GuzzleException $e) {
             if ($e->getCode() === 404) {
                 // If the file does not exist, we can skip it

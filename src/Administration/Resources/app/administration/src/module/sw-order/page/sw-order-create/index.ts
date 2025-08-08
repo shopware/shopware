@@ -59,11 +59,34 @@ export default Shopware.Component.wrapComponentConfig({
             return Store.get('swOrder').invalidPromotionCodes;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use orderValidateErrorMessage() instead.
+         */
         isSaveOrderValid(): boolean {
             return (this.customer &&
                 this.cart.token &&
                 this.cart.lineItems.length &&
                 !this.invalidPromotionCodes.length) as boolean;
+        },
+
+        orderValidateErrorMessage(): string | null {
+            if (!this.customer) {
+                return this.$tc('sw-order.create.saveError.noCustomer');
+            }
+
+            if (!this.cart.token) {
+                return this.$tc('sw-order.create.saveError.noCart');
+            }
+
+            if (this.cart.lineItems.length === 0) {
+                return this.$tc('sw-order.create.saveError.noLineItems');
+            }
+
+            if (this.invalidPromotionCodes.length > 0) {
+                return this.$tc('sw-order.create.saveError.invalidPromotionCodes');
+            }
+
+            return null;
         },
 
         paymentMethodRepository(): Repository<'payment_method'> {
@@ -106,47 +129,61 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async onSaveOrder(): Promise<void> {
-            if (this.isSaveOrderValid) {
-                this.isLoading = true;
-                this.isSaveSuccessful = false;
+            if (this.orderValidateErrorMessage) {
+                if (this.invalidPromotionCodes.length) {
+                    this.openInvalidCodeModal();
+                }
 
-                if (!this.customer) return;
-
-                await Store.get('swOrder')
-                    .saveOrder({
-                        salesChannelId: this.customer?.salesChannelId,
-                        contextToken: this.cart.token,
-                    })
-                    .then((response) => {
-                        // eslint-disable-next-line max-len
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-                        this.orderId = response?.data?.id;
-                        // eslint-disable-next-line max-len
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-                        this.orderTransaction = response?.data?.transactions?.[0];
-
-                        if (!this.orderTransaction) {
-                            return;
-                        }
-
-                        void this.paymentMethodRepository
-                            .get(this.orderTransaction.paymentMethodId, Context.api, new Criteria(1, 1))
-                            .then((paymentMethod) => {
-                                this.paymentMethodName = paymentMethod?.translated?.distinguishableName ?? '';
-                            });
-
-                        this.showRemindPaymentModal = true;
-                    })
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                    .catch((error) => this.showError(error))
-                    .finally(() => {
-                        this.isLoading = false;
-                    });
-            } else if (this.invalidPromotionCodes.length > 0) {
-                this.openInvalidCodeModal();
-            } else {
-                this.showError();
+                this.showError(this.orderValidateErrorMessage);
+                return;
             }
+
+            this.isLoading = true;
+            this.isSaveSuccessful = false;
+
+            try {
+                const { data } = (await Store.get('swOrder').saveOrder({
+                    salesChannelId: this.customer!.salesChannelId,
+                    contextToken: this.cart.token,
+                })) as {
+                    data: {
+                        id: string;
+                        transactions: Array<{ id: string; paymentMethodId: string }>;
+                    };
+                };
+
+                const [transaction] = data?.transactions || [];
+
+                if (!transaction) {
+                    throw new Error(this.$tc('sw-order.create.saveError.noTransactionReturned'));
+                }
+
+                this.orderId = data?.id;
+                this.orderTransaction = transaction;
+
+                await this.fetchPaymentMethodName();
+
+                this.isSaveSuccessful = true;
+                this.showRemindPaymentModal = true;
+            } catch (error) {
+                this.showError(error);
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async fetchPaymentMethodName(): Promise<void> {
+            if (!this.orderTransaction) {
+                return;
+            }
+
+            const method = await this.paymentMethodRepository.get(
+                this.orderTransaction.paymentMethodId,
+                Context.api,
+                new Criteria(1, 1),
+            );
+
+            this.paymentMethodName = method?.translated?.distinguishableName ?? '';
         },
 
         onCancelOrder() {

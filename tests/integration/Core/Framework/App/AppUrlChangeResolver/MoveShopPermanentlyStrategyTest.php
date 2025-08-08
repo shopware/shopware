@@ -95,7 +95,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $appDir = __DIR__ . '/../Lifecycle/Registration/_fixtures/no-setup';
         $this->loadAppsFromDir($appDir);
 
-        $shopId = $this->changeAppUrl();
+        $shopId = $this->changeAppUrl(false);
 
         $registrationsService = $this->createMock(AppRegistrationService::class);
         $registrationsService->expects($this->never())
@@ -113,7 +113,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         static::assertSame($shopId, $this->shopIdProvider->getShopId());
     }
 
-    private function changeAppUrl(): string
+    private function changeAppUrl(bool $expectsToThrow = true): string
     {
         $shopId = $this->shopIdProvider->getShopId();
 
@@ -126,7 +126,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         } catch (AppUrlChangeDetectedException) {
             $wasThrown = true;
         }
-        static::assertTrue($wasThrown);
+        static::assertSame($expectsToThrow, $wasThrown);
 
         return $shopId;
     }

@@ -371,11 +371,6 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        global.activeAclRoles = [];
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should sort options by their position', async () => {
         global.activeAclRoles = [];
         const sortedOptions = wrapper.vm.sortOptions(getOptions());

@@ -53,16 +53,21 @@ async function createWrapper() {
                             if (entity === 'currency') {
                                 return {
                                     search: () =>
-                                        Promise.resolve([
-                                            {
-                                                id: 'promotionId1',
-                                                isSystemDefault: true,
-                                            },
-                                        ]),
+                                        Promise.resolve(
+                                            new EntityCollection('', 'currency', Shopware.Context.api, new Criteria(1, 25), [
+                                                {
+                                                    id: 'currencyId',
+                                                    isSystemDefault: true,
+                                                    factor: 3,
+                                                },
+                                            ]),
+                                        ),
                                 };
                             }
+
                             return {
                                 search: () => Promise.resolve([{ id: 'promotionId1' }]),
+                                create: () => ({}),
                             };
                         },
                     },
@@ -131,7 +136,12 @@ async function createWrapper() {
                     apiAlias: null,
                     id: 'discountId',
                     discountRules: new EntityCollection('', 'rule', Shopware.Context.api, new Criteria(1, 25)),
-                    promotionDiscountPrices: [],
+                    promotionDiscountPrices: new EntityCollection(
+                        '',
+                        'promotion_discount_prices',
+                        Shopware.Context.api,
+                        new Criteria(1, 25),
+                    ),
                 },
             },
         },
@@ -199,5 +209,23 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-discount-component',
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-promotion-discount-component__select-discount-rules').exists()).toBeTruthy();
+    });
+
+    it('should create advanced prices and recalculate advanced prices when value changes', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.discount.value = 2;
+        wrapper.vm.onClickAdvancedPrices();
+
+        expect(wrapper.vm.discount.promotionDiscountPrices).toHaveLength(1);
+        expect(wrapper.vm.discount.promotionDiscountPrices[0].currencyId).toBe('currencyId');
+        expect(wrapper.vm.discount.promotionDiscountPrices[0].price).toBe(6);
+
+        wrapper.vm.discount.value = 3;
+        wrapper.vm.recalculatePrices();
+
+        expect(wrapper.vm.discount.promotionDiscountPrices).toHaveLength(1);
+        expect(wrapper.vm.discount.promotionDiscountPrices[0].currencyId).toBe('currencyId');
+        expect(wrapper.vm.discount.promotionDiscountPrices[0].price).toBe(9);
     });
 });

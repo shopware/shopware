@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 class CustomEntityException extends HttpException
 {
     public const CUSTOM_ENTITY_ON_DELETE_PROPERTY_NOT_SUPPORTED = 'FRAMEWORK__CUSTOM_ENTITY_ON_DELETE_PROPERTY_NOT_SUPPORTED';
+    public const CUSTOM_ENTITY_TABLE_WRONG_PREFIX = 'FRAMEWORK__CUSTOM_ENTITY_WRONG_TABLE_PREFIX';
     public const CUSTOM_FIELDS_AWARE_NO_LABEL_PROPERTY = 'NO_LABEL_PROPERTY';
     public const CUSTOM_FIELDS_AWARE_LABEL_PROPERTY_NOT_DEFINED = 'LABEL_PROPERTY_NOT_DEFINED';
     public const CUSTOM_FIELDS_AWARE_LABEL_PROPERTY_WRONG_TYPE = 'LABEL_PROPERTY_WRONG_TYPE';
@@ -22,6 +23,19 @@ class CustomEntityException extends HttpException
     public static function noLabelProperty(): self
     {
         return new self(Response::HTTP_INTERNAL_SERVER_ERROR, self::CUSTOM_FIELDS_AWARE_NO_LABEL_PROPERTY, 'Entity must have a label property when it is custom field aware');
+    }
+
+    /**
+     * @param list<string> $allowedPrefixes
+     */
+    public static function wrongTablePrefix(string $tableName, array $allowedPrefixes): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CUSTOM_ENTITY_TABLE_WRONG_PREFIX,
+            'Table "{{ tableName }}" has to be prefixed with "{{ allowedPrefixes }}"',
+            ['tableName' => $tableName, 'allowedPrefixes' => implode('", "', $allowedPrefixes)],
+        );
     }
 
     public static function labelPropertyNotDefined(string $labelProperty): self

@@ -33,7 +33,7 @@ class MySQLFactory
         $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_0_URL');
 
         $dsnParser = new DsnParser(['mysql' => 'pdo_mysql']);
-        $parameters = $dsnParser->parse($url);
+        $dsnParameters = $dsnParser->parse($url);
 
         $parameters = array_merge([
             'charset' => 'utf8mb4',
@@ -42,7 +42,7 @@ class MySQLFactory
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
                 \PDO::ATTR_TIMEOUT => 5, // 5s connection timeout
             ],
-        ], $parameters); // adding parameters that are not in the DSN
+        ], $dsnParameters); // adding parameters that are not in the DSN
 
         $initCommands = [
             'SET @@session.time_zone = \'+00:00\'',
@@ -78,7 +78,13 @@ class MySQLFactory
 
         if ($replicaUrl) {
             $parameters['wrapperClass'] = PrimaryReadReplicaConnection::class;
-            $parameters['primary'] = ['url' => $url, 'driverOptions' => $parameters['driverOptions']];
+
+            // Primary connection should use parameters from the main url
+            $parameters['primary'] = array_merge([
+                'charset' => $parameters['charset'],
+                'driverOptions' => $parameters['driverOptions'],
+            ], $dsnParameters);
+
             $parameters['replica'] = [];
 
             for ($i = 0; $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_' . $i . '_URL'); ++$i) {

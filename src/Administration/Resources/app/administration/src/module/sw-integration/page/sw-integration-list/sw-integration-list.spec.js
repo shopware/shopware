@@ -136,11 +136,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-integration/page/sw-integration-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to create / edit without permissions', async () => {
         const wrapper = await createWrapper();
 

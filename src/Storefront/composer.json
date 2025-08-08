@@ -30,10 +30,11 @@
     "require": {
         "php": "~8.2.0 || ~8.3.0 || ~8.4.0",
         "cocur/slugify": "^4.3.0",
-        "doctrine/dbal": "^4.2",
+        "doctrine/dbal": "^4.3.1",
         "meyfa/php-svg": "^0.16.1",
         "scssphp/scssphp": "v1.12.0",
         "shopware/core": "*",
+        "symfony/asset": "~7.3.0",
         "symfony/cache": "~7.3.0",
         "symfony/cache-contracts": "~3.6.0",
         "symfony/console": "~7.3.0",
@@ -56,6 +57,6 @@
     },
     "require-dev": {
         "symfony/css-selector": "~7.3.0",
-        "phpunit/phpunit": "^11.5.17"
+        "phpunit/phpunit": "^11.5.19"
     }
 }

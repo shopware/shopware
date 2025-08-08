@@ -40,6 +40,9 @@ class ProductStreamProcessorTest extends TestCase
 
     private ProductStreamBuilderInterface&MockObject $productStreamBuilder;
 
+    /**
+     * @var SalesChannelRepository<ProductCollection>&MockObject
+     */
     private SalesChannelRepository&MockObject $productRepository;
 
     protected function setUp(): void

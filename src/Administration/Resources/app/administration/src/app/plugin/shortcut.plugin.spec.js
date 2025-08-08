@@ -64,12 +64,6 @@ function defineJsdomProperties() {
 describe('app/plugins/shortcut.plugin', () => {
     let wrapper;
 
-    it('should test with a Vue.js component', async () => {
-        wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('String: should call the onSave method', async () => {
         const onSaveMock = jest.fn();
 

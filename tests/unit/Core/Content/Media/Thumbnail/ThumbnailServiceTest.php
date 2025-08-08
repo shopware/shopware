@@ -21,12 +21,12 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
-use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -91,8 +91,6 @@ class ThumbnailServiceTest extends TestCase
             'id' => '$mediaThumbnailEntity-id-1',
         ];
 
-        $this->thumbnailRepository->addSearch($expected);
-
         $mediaThumbnailEntity = $this->createMediaThumbnailEntity();
         $mediaFolderEntity = $this->createMediaFolderEntity();
 
@@ -107,14 +105,76 @@ class ThumbnailServiceTest extends TestCase
             ->method('handle')
             ->with(static::isInstanceOf(MediaIndexingMessage::class));
 
+        $this->connection->expects($this->once())
+            ->method('fetchAllKeyValue')
+            ->willReturnCallback(function ($_, $params) {
+                return [
+                    Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
+                ];
+            });
+
         $result = $this->thumbnailService->generate($mediaCollection, $this->context);
+        static::assertSame(1, $result);
 
         static::assertCount(1, $this->thumbnailRepository->deletes);
-
         $deleted = $this->thumbnailRepository->deletes[0][0] ?? [];
         static::assertArrayHasKey('id', $deleted);
         static::assertSame($expected, $deleted);
+
+        static::assertCount(1, $this->thumbnailRepository->creates);
+        $created = $this->thumbnailRepository->creates[0][0] ?? [];
+        static::assertArrayHasKey('id', $created);
+        static::assertSame('media-id-1', $created['mediaId']);
+        static::assertSame('$mediaThumbnailSizeEntity-id-1', $created['mediaThumbnailSizeId']);
+        static::assertSame(100, $created['width']);
+        static::assertSame(100, $created['height']);
+    }
+
+    public function testGenerateWithValidMediaCollectionKeepAspectRatio(): void
+    {
+        $expected = [
+            'id' => '$mediaThumbnailEntity-id-1',
+        ];
+
+        $mediaThumbnailEntity = $this->createMediaThumbnailEntity();
+        $mediaFolderEntity = $this->createMediaFolderEntity();
+        static::assertNotNull($mediaFolderEntity->getConfiguration(), 'Media folder configuration should not be null');
+        $mediaFolderEntity->getConfiguration()->setKeepAspectRatio(true);
+
+        $file = file_get_contents(__DIR__ . '/shopware-logo.png');
+        $this->filesystemPublic->expects($this->once())->method('read')->willReturn($file);
+
+        $mediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
+        $mediaThumbnailEntity->setMedia($mediaEntity);
+        $mediaCollection = new MediaCollection([$mediaEntity]);
+
+        $this->indexer->expects($this->once())
+            ->method('handle')
+            ->with(static::isInstanceOf(MediaIndexingMessage::class));
+
+        $this->connection->expects($this->once())
+            ->method('fetchAllKeyValue')
+            ->willReturnCallback(function ($_, $params) {
+                return [
+                    Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
+                ];
+            });
+
+        $result = $this->thumbnailService->generate($mediaCollection, $this->context);
         static::assertSame(1, $result);
+
+        static::assertCount(1, $this->thumbnailRepository->deletes);
+        $deleted = $this->thumbnailRepository->deletes[0][0] ?? [];
+        static::assertArrayHasKey('id', $deleted);
+        static::assertSame($expected, $deleted);
+
+        static::assertCount(1, $this->thumbnailRepository->creates);
+        $created = $this->thumbnailRepository->creates[0][0] ?? [];
+        static::assertArrayHasKey('id', $created);
+        static::assertSame('media-id-1', $created['mediaId']);
+        static::assertSame('$mediaThumbnailSizeEntity-id-1', $created['mediaThumbnailSizeId']);
+        static::assertSame(100, $created['width']);
+        static::assertSame(53, $created['height']);
     }
 
     public function testGenerateWithEmptyMediaCollection(): void
@@ -186,16 +246,23 @@ class ThumbnailServiceTest extends TestCase
             'id' => '$mediaThumbnailEntity-id-1',
         ];
 
-        $this->thumbnailRepository->addSearch($expected);
-
-        $mediaThumbnailEntity = $this->createMediaThumbnailEntity();
-        $mediaFolderEntity = $this->createMediaFolderEntity();
+        // Use different mediaThumbnailIds, so the ThumbnailService should delete the old thumbnails and generate new ones
+        $mediaThumbnailEntity = $this->createMediaThumbnailEntity('abc');
+        $mediaFolderEntity = $this->createMediaFolderEntity('def');
 
         $file = file_get_contents(__DIR__ . '/shopware-logo.png');
         $this->filesystemPublic->expects($this->once())->method('read')->willReturn($file);
 
         $mediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
         $mediaThumbnailEntity->setMedia($mediaEntity);
+
+        $this->connection->expects($this->once())
+            ->method('fetchAllKeyValue')
+            ->willReturnCallback(function ($_, $params) {
+                return [
+                    Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
+                ];
+            });
 
         $mediaCollection = new MediaCollection([$mediaEntity]);
         $this->thumbnailService->generate($mediaCollection, $this->context);
@@ -205,11 +272,70 @@ class ThumbnailServiceTest extends TestCase
 
         $this->connection->expects($this->once())
             ->method('transactional')
-            ->willReturn($expected);
+            ->willReturnCallback(function (\Closure $func) use ($expected, $newMediaEntity, $mediaFolderEntity) {
+                $reflection = new \ReflectionFunction($func);
+                $staticVars = $reflection->getStaticVariables();
+
+                static::assertCount(1, $staticVars['delete'][0]);
+                static::assertSame($newMediaEntity, $staticVars['media']);
+                static::assertSame($mediaFolderEntity->getConfiguration(), $staticVars['config']);
+                static::assertSame($this->context, $staticVars['context']);
+                static::assertInstanceOf(MediaThumbnailSizeCollection::class, $staticVars['toBeCreatedSizes']);
+                static::assertCount(1, $staticVars['toBeCreatedSizes']->getElements());
+
+                return $expected;
+            });
 
         $actual = $this->thumbnailService->updateThumbnails($newMediaEntity, $this->context, false);
 
         static::assertSame(1, $actual);
+    }
+
+    public function testNoUpdateWithValidMediaCollection(): void
+    {
+        // Use the same mediaThumbnailIds, so the ThumbnailService should not delete the old thumbnails and not generate new ones
+        $mediaThumbnailEntity = $this->createMediaThumbnailEntity('abc');
+        $mediaFolderEntity = $this->createMediaFolderEntity('abc');
+
+        $file = file_get_contents(__DIR__ . '/shopware-logo.png');
+        $this->filesystemPublic->expects($this->once())->method('read')->willReturn($file);
+
+        $mediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
+        $mediaThumbnailEntity->setMedia($mediaEntity);
+
+        $this->connection->expects($this->once())
+            ->method('fetchAllKeyValue')
+            ->willReturnCallback(function ($_, $params) {
+                return [
+                    Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
+                ];
+            });
+
+        $mediaCollection = new MediaCollection([$mediaEntity]);
+        $this->thumbnailService->generate($mediaCollection, $this->context);
+
+        $newMediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
+        $newMediaEntity->setThumbnails(new MediaThumbnailCollection([$mediaThumbnailEntity]));
+
+        $this->connection->expects($this->once())
+            ->method('transactional')
+            ->willReturnCallback(function (\Closure $func) use ($newMediaEntity, $mediaFolderEntity) {
+                $reflection = new \ReflectionFunction($func);
+                $staticVars = $reflection->getStaticVariables();
+
+                static::assertCount(0, $staticVars['delete'][0] ?? []);
+                static::assertSame($newMediaEntity, $staticVars['media']);
+                static::assertSame($mediaFolderEntity->getConfiguration(), $staticVars['config']);
+                static::assertSame($this->context, $staticVars['context']);
+                static::assertInstanceOf(MediaThumbnailSizeCollection::class, $staticVars['toBeCreatedSizes']);
+                static::assertCount(0, $staticVars['toBeCreatedSizes']->getElements());
+
+                return [];
+            });
+
+        $actual = $this->thumbnailService->updateThumbnails($newMediaEntity, $this->context, false);
+
+        static::assertSame(0, $actual);
     }
 
     public function testDeleteThumbnailsExecutesRepository(): void
@@ -336,38 +462,6 @@ class ThumbnailServiceTest extends TestCase
         $service->deleteThumbnails(new MediaEntity(), $this->context);
     }
 
-    public function testUpdateThumbnailsAddsSyncFileDeleteStateToContext(): void
-    {
-        $this->thumbnailRepository->addSearch([
-            'id' => 'media-1',
-        ]);
-
-        $this->connection->expects($this->once())
-            ->method('transactional')
-            ->willReturnCallback(function (callable $callback) {
-                return $callback();
-            });
-
-        $mediaThumbnailEntity = $this->createMediaThumbnailEntity();
-        $mediaFolderEntity = $this->createMediaFolderEntity();
-
-        $file = file_get_contents(__DIR__ . '/shopware-logo.png');
-        $this->filesystemPublic->method('read')->willReturn($file);
-
-        $mediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
-        $mediaThumbnailEntity->setMedia($mediaEntity);
-
-        $mediaCollection = new MediaCollection([$mediaEntity]);
-        $this->thumbnailService->generate($mediaCollection, $this->context);
-
-        $newMediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
-        $newMediaEntity->setThumbnails(new MediaThumbnailCollection([$mediaThumbnailEntity]));
-
-        $actual = $this->thumbnailService->updateThumbnails($newMediaEntity, $this->context, false);
-        static::assertSame(1, $actual);
-        static::assertTrue($this->context->hasState(MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE));
-    }
-
     private function createMediaEntity(MediaThumbnailEntity $mediaThumbnailEntity, MediaFolderEntity $mediaFolderEntity): MediaEntity
     {
         $mediaEntity = new MediaEntity();
@@ -392,16 +486,17 @@ class ThumbnailServiceTest extends TestCase
         return $mediaEntity;
     }
 
-    private function createMediaFolderEntity(): MediaFolderEntity
+    private function createMediaFolderEntity(string $mediaThumbnailSizeId = '$mediaThumbnailSizeEntity-id-1'): MediaFolderEntity
     {
         $mediaThumbnailSizeEntity = new MediaThumbnailSizeEntity();
-        $mediaThumbnailSizeEntity->setId('mediaThumbnailSizeEntity-id-1');
+        $mediaThumbnailSizeEntity->setId($mediaThumbnailSizeId);
         $mediaThumbnailSizeEntity->setWidth(100);
         $mediaThumbnailSizeEntity->setHeight(100);
 
         $mediaFolderConfigEntity = new MediaFolderConfigurationEntity();
         $mediaFolderConfigEntity->setMediaThumbnailSizes(new MediaThumbnailSizeCollection([$mediaThumbnailSizeEntity]));
         $mediaFolderConfigEntity->setCreateThumbnails(true);
+        $mediaFolderConfigEntity->setKeepAspectRatio(false);
 
         $mediaFolderEntity = new MediaFolderEntity();
         $mediaFolderEntity->setConfiguration($mediaFolderConfigEntity);
@@ -409,14 +504,15 @@ class ThumbnailServiceTest extends TestCase
         return $mediaFolderEntity;
     }
 
-    private function createMediaThumbnailEntity(): MediaThumbnailEntity
+    private function createMediaThumbnailEntity(string $mediaThumbnailSizeId = '$mediaThumbnailSizeEntity-id-1'): MediaThumbnailEntity
     {
         $mediaThumbnailEntity = new MediaThumbnailEntity();
         $mediaThumbnailEntity->setId('$mediaThumbnailEntity-id-1');
         $mediaThumbnailEntity->setWidth(100);
-        $mediaThumbnailEntity->setHeight(200);
+        $mediaThumbnailEntity->setHeight(100);
         $mediaThumbnailEntity->setMediaId('media-id-1');
         $mediaThumbnailEntity->setPath(__DIR__ . '/shopware-logo.png');
+        $mediaThumbnailEntity->setMediaThumbnailSizeId($mediaThumbnailSizeId);
 
         return $mediaThumbnailEntity;
     }

@@ -38,7 +38,7 @@ class StoreApiGeneratorTest extends TestCase
             [
                 'Framework' => ['path' => __DIR__ . '/_fixtures'],
             ],
-            new BundleSchemaPathCollection([])
+            new BundleSchemaPathCollection([]),
         );
 
         $this->customBundleSchemas = new ShopwareBundleWithName();
@@ -50,7 +50,7 @@ class StoreApiGeneratorTest extends TestCase
             [
                 'Framework' => ['path' => __DIR__ . '/_fixtures'],
             ],
-            $customBundlePathCollection
+            $customBundlePathCollection,
         );
         $this->definitionRegistry = new StaticDefinitionInstanceRegistry(
             [
@@ -133,5 +133,42 @@ class StoreApiGeneratorTest extends TestCase
         static::assertCount(2, $entities['Simple']['required']);
         static::assertContains('requiredField', $entities['Simple']['required']);
         static::assertContains('apiAlias', $entities['Simple']['required']);
+    }
+
+    public function testGroupsParametersParsing(): void
+    {
+        $schema = $this->generator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            null
+        );
+
+        // Assert that the schema does not contain 'x-parameter-groups' component
+        static::assertArrayHasKey('components', $schema);
+        static::assertArrayNotHasKey('x-parameter-groups', $schema['components']);
+
+        // Check schema
+        static::assertArrayHasKey('paths', $schema);
+        static::assertArrayHasKey('/category', $schema['paths']);
+        static::assertArrayHasKey('get', $schema['paths']['/category']);
+
+        $operation = $schema['paths']['/category']['get'];
+        static::assertArrayHasKey('parameters', $operation);
+        static::assertIsArray($operation['parameters']);
+
+        // Schema should contain all defined parameters
+        $parameterNames = array_column($operation['parameters'], 'name');
+        static::assertContains('sw-language-id', $parameterNames);
+        static::assertContains('page', $parameterNames);
+        static::assertContains('limit', $parameterNames);
+        // but not left-overs of replaced parameter groups
+        static::assertCount(3, $operation['parameters']);
+
+        foreach ($operation['parameters'] as $parameter) {
+            static::assertArrayHasKey('name', $parameter);
+            static::assertArrayHasKey('in', $parameter);
+            static::assertArrayHasKey('schema', $parameter);
+        }
     }
 }

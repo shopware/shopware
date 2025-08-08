@@ -444,11 +444,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         ];
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be handled change data', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

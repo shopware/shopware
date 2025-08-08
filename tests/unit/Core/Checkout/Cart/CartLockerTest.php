@@ -109,6 +109,8 @@ class CartLockerTest extends TestCase
                 static::assertSame($context->getLock(), $firstLock);
             });
         });
+
+        static::assertNull($context->getLock());
     }
 
     public function testGetLockKey(): void

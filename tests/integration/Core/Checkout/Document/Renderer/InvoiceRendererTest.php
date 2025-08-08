@@ -38,6 +38,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\AppSystemTestBehaviour;
+use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
@@ -50,6 +51,7 @@ class InvoiceRendererTest extends TestCase
 {
     use AppSystemTestBehaviour;
     use DocumentTrait;
+    use SnapshotTesting;
 
     private SalesChannelContext $salesChannelContext;
 
@@ -94,6 +96,54 @@ class InvoiceRendererTest extends TestCase
         if (self::$callback instanceof \Closure) {
             static::getContainer()->get('event_dispatcher')->removeListener(DocumentTemplateRendererParameterEvent::class, self::$callback);
         }
+    }
+
+    public function testDocumentSnapshot(): void
+    {
+        $cart = $this->cartService->createNew('A');
+        $factory = new ProductLineItemFactory(new PriceDefinitionFactory());
+        $ids = new IdsCollection();
+
+        $product = (new ProductBuilder($ids, 'product-1'))
+            ->price(100)
+            ->name('A product 1')
+            ->active(true)
+            ->tax('test-', 7)
+            ->visibility()
+            ->build();
+
+        $lineItem = $factory->create(['id' => $ids->get('product-1'), 'referencedId' => $ids->get('product-1')], $this->salesChannelContext);
+
+        $this->addTaxDataToSalesChannel($this->salesChannelContext, $product['tax']);
+
+        $this->productRepository->create([$product], Context::createDefaultContext());
+        $this->cartService->add($cart, [$lineItem], $this->salesChannelContext);
+        $orderId = $this->persistCart($cart);
+
+        $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, [
+            'documentDate' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $processedTemplate = $this->invoiceRenderer->render(
+            [$orderId => $operation],
+            $this->context,
+            new DocumentRendererConfig()
+        );
+
+        $rendered = $processedTemplate->getSuccess()[$orderId];
+        static::assertInstanceOf(RenderedDocument::class, $rendered);
+
+        $content = $rendered->getContent();
+        static::assertNotEmpty($content);
+
+        // replace the date in the meta tag to avoid snapshot differences
+        $processedHtml = preg_replace(
+            '/(<meta name="date" content=")(.*?)(")/i',
+            '$1[date]$3',
+            $content
+        );
+
+        $this->assertSnapshot('invoice_renderer_default', $processedHtml);
     }
 
     /**

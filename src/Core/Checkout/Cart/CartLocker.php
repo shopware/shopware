@@ -27,7 +27,7 @@ class CartLocker
      */
     public function locked(SalesChannelContext $context, \Closure $closure)
     {
-        if ($context->getCartLock() !== null && $context->getCartLock()->isAcquired()) {
+        if ($context->getCartLock()?->isAcquired()) {
             // If the lock is already acquired for this context & process, we can skip acquiring it again
             return $closure();
         }

@@ -17,8 +17,8 @@ class SlotConfigFieldSerializer extends JsonFieldSerializer
     protected function getConstraints(Field $field): array
     {
         return [
-            new All([
-                'constraints' => new Collection([
+            new All(
+                constraints: new Collection([
                     'allowExtraFields' => false,
                     'allowMissingFields' => false,
                     'fields' => [
@@ -36,7 +36,7 @@ class SlotConfigFieldSerializer extends JsonFieldSerializer
                         'value' => [],
                     ],
                 ]),
-            ]),
+            ),
         ];
     }
 }

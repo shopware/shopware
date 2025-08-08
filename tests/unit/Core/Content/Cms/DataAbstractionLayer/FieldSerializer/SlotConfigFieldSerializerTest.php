@@ -30,8 +30,8 @@ class SlotConfigFieldSerializerTest extends TestCase
     public function testEncodeUsesSlotConfigFieldSerializerConstraints(): void
     {
         $id = Uuid::randomHex();
-        $expected = new All([
-            'constraints' => new Collection([
+        $expected = new All(
+            constraints: new Collection([
                 'allowExtraFields' => false,
                 'allowMissingFields' => false,
                 'fields' => [
@@ -49,7 +49,7 @@ class SlotConfigFieldSerializerTest extends TestCase
                     'value' => [],
                 ],
             ]),
-        ]);
+        );
 
         $serializer = $this->getSerializer($id, $expected);
 

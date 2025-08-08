@@ -36,14 +36,14 @@ class SlotConfigFieldSerializerTest extends TestCase
                 'allowMissingFields' => false,
                 'fields' => [
                     'source' => [
-                        new Choice([
-                            'choices' => [
+                        new Choice(
+                            choices: [
                                 FieldConfig::SOURCE_STATIC,
                                 FieldConfig::SOURCE_MAPPED,
                                 FieldConfig::SOURCE_PRODUCT_STREAM,
                                 FieldConfig::SOURCE_DEFAULT,
                             ],
-                        ]),
+                        ),
                         new NotBlank(),
                     ],
                     'value' => [],

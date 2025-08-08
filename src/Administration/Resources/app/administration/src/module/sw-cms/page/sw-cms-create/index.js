@@ -41,11 +41,12 @@ export default {
     methods: {
         createdComponent() {
             Shopware.Store.get('adminMenu').collapseSidebar();
+            this.resetRelatedStores();
 
             const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
             if (!isSystemDefaultLanguage) {
                 Shopware.Store.get('context').resetLanguageToDefault();
-                this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
+                Shopware.Store.get('cmsPage').setIsSystemDefaultLanguage(isSystemDefaultLanguage);
             }
 
             this.page = this.pageRepository.create();

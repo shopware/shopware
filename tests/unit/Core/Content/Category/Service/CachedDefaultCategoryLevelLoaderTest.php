@@ -178,4 +178,139 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
 
         static::assertFalse($cache->hasItem(Hasher::hash($cacheKeyParts)));
     }
+
+    public function testEventDisablesCaching(): void
+    {
+        $rootId = 'navigation-category-id';
+        $rootLevel = 1;
+        $depth = 3;
+        $criteria = new Criteria();
+
+        $salesChannel = (new SalesChannelEntity())->assign([
+            'navigationCategoryId' => $rootId,
+        ]);
+
+        $this->salesChannelContext->method('getSalesChannel')
+            ->willReturn($salesChannel);
+        $context = Context::createDefaultContext();
+        $this->salesChannelContext->method('getContext')
+            ->willReturn($context);
+        $this->salesChannelContext->method('getSalesChannelId')
+            ->willReturn('sales-channel-id');
+
+        $expectedCollection = new CategoryCollection();
+        $this->innerLoader->expects($this->exactly(1))
+            ->method('loadLevels')
+            ->with($rootId, $rootLevel, $this->salesChannelContext, $criteria, $depth)
+            ->willReturn($expectedCollection);
+
+        $cache = new TagAwareAdapter(new ArrayAdapter());
+
+        $loader = new CachedDefaultCategoryLevelLoader(
+            $cache,
+            $this->eventDispatcher,
+            $this->innerLoader,
+        );
+
+        $cacheKeyParts = [
+            'rootId' => $rootId,
+            'depth' => $depth,
+            'salesChannelId' => 'sales-channel-id',
+            'languageId' => $context->getLanguageId(),
+        ];
+        $eventsThrown = 0;
+        $this->eventDispatcher->addListener(
+            CategoryLevelLoaderCacheKeyEvent::class,
+            function (CategoryLevelLoaderCacheKeyEvent $event) use ($cacheKeyParts, &$eventsThrown): void {
+                static::assertSame($cacheKeyParts, $event->getParts());
+
+                $event->disableCaching();
+
+                ++$eventsThrown;
+            }
+        );
+
+        $result = $loader->loadLevels(
+            $rootId,
+            $rootLevel,
+            $this->salesChannelContext,
+            $criteria,
+            $depth
+        );
+
+        static::assertEquals($expectedCollection, $result);
+        static::assertSame(1, $eventsThrown);
+
+        static::assertFalse($cache->hasItem(Hasher::hash($cacheKeyParts)));
+    }
+
+    public function testEventManipulatesCacheKey(): void
+    {
+        $rootId = 'navigation-category-id';
+        $rootLevel = 1;
+        $depth = 3;
+        $criteria = new Criteria();
+
+        $salesChannel = (new SalesChannelEntity())->assign([
+            'navigationCategoryId' => $rootId,
+        ]);
+
+        $this->salesChannelContext->method('getSalesChannel')
+            ->willReturn($salesChannel);
+        $context = Context::createDefaultContext();
+        $this->salesChannelContext->method('getContext')
+            ->willReturn($context);
+        $this->salesChannelContext->method('getSalesChannelId')
+            ->willReturn('sales-channel-id');
+
+        $expectedCollection = new CategoryCollection();
+        $this->innerLoader->expects($this->exactly(1))
+            ->method('loadLevels')
+            ->with($rootId, $rootLevel, $this->salesChannelContext, $criteria, $depth)
+            ->willReturn($expectedCollection);
+
+        $cache = new TagAwareAdapter(new ArrayAdapter());
+
+        $loader = new CachedDefaultCategoryLevelLoader(
+            $cache,
+            $this->eventDispatcher,
+            $this->innerLoader,
+        );
+
+        $cacheKeyParts = [
+            'rootId' => $rootId,
+            'depth' => $depth,
+            'salesChannelId' => 'sales-channel-id',
+            'languageId' => $context->getLanguageId(),
+        ];
+        $eventsThrown = 0;
+        $this->eventDispatcher->addListener(
+            CategoryLevelLoaderCacheKeyEvent::class,
+            function (CategoryLevelLoaderCacheKeyEvent $event) use ($cacheKeyParts, &$eventsThrown): void {
+                static::assertSame($cacheKeyParts, $event->getParts());
+
+                $event->addPart('test', 'test');
+
+                ++$eventsThrown;
+            }
+        );
+
+        $result = $loader->loadLevels(
+            $rootId,
+            $rootLevel,
+            $this->salesChannelContext,
+            $criteria,
+            $depth
+        );
+
+        static::assertEquals($expectedCollection, $result);
+        static::assertSame(1, $eventsThrown);
+
+        $cacheKeyParts['test'] = 'test';
+        static::assertTrue($cache->hasItem(Hasher::hash($cacheKeyParts)));
+
+        $loader->invalidateCache();
+
+        static::assertFalse($cache->hasItem(Hasher::hash($cacheKeyParts)));
+    }
 }

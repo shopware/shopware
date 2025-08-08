@@ -37,10 +37,7 @@ class CategoryLevelLoaderCacheKeyEventTest extends TestCase
 
         static::assertSame($initialParts, $event->getParts());
         static::assertSame($context, $event->getSalesChannelContext());
-        static::assertSame($rootId, $event->getRootId());
-        static::assertSame($depth, $event->getDepth());
-        static::assertSame($criteria, $event->getCriteria());
-        static::assertSame($salesChannelId, $event->getSalesChannelId());
+        static::assertSame($context->getContext(), $event->getContext());
         static::assertTrue($event->shouldCache());
 
         $newParts = ['new-part1' => 'test', 'new-part2' => 'test2'];

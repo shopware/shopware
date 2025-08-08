@@ -19,19 +19,11 @@ class CategoryLevelLoaderCacheKeyEvent extends Event implements ShopwareSalesCha
      */
     public function __construct(
         private array $parts,
-        private string $rootId,
-        private int $depth,
-        private SalesChannelContext $context,
-        private Criteria $criteria
+        public readonly string $rootId,
+        public readonly int $depth,
+        public readonly SalesChannelContext $context,
+        public readonly Criteria $criteria
     ) {
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function getParts(): array
-    {
-        return $this->parts;
     }
 
     public function getSalesChannelContext(): SalesChannelContext
@@ -44,19 +36,12 @@ class CategoryLevelLoaderCacheKeyEvent extends Event implements ShopwareSalesCha
         return $this->context->getContext();
     }
 
-    public function getRootId(): string
+    /**
+     * @return array<string, mixed>
+     */
+    public function getParts(): array
     {
-        return $this->rootId;
-    }
-
-    public function getDepth(): int
-    {
-        return $this->depth;
-    }
-
-    public function getCriteria(): Criteria
-    {
-        return $this->criteria;
+        return $this->parts;
     }
 
     /**
@@ -75,11 +60,6 @@ class CategoryLevelLoaderCacheKeyEvent extends Event implements ShopwareSalesCha
     public function removePart(string $part): void
     {
         unset($this->parts[$part]);
-    }
-
-    public function getSalesChannelId(): string
-    {
-        return $this->context->getSalesChannelId();
     }
 
     public function disableCaching(): void

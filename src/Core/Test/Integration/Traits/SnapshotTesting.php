@@ -75,7 +75,7 @@ trait SnapshotTesting
     {
         $env = $_SERVER['UPDATE_SNAPSHOTS'] ?? '';
 
-        return !\in_array($env, [false, -1, 0, ''], true);
+        return !\in_array($env, ['false', '-1', '0', ''], true);
     }
 
     /**

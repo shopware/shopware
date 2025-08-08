@@ -1,0 +1,198 @@
+{% extends '@WebProfiler/Profiler/layout.html.twig' %}
+
+{% block toolbar %}
+    {% set icon %}
+        {{ include('@Profiling/Collector/cart.svg', {height: 24}) }}
+        <span class="sf-toolbar-value">{{ collector.itemCount }} items</span>
+    {% endset %}
+
+    {% set text %}
+        <div class="sf-toolbar-info-piece">
+            <b>Total Items</b>
+            <span>{{ collector.itemCount }}</span>
+        </div>
+
+        <div class="sf-toolbar-info-piece">
+            <b>Cart Total</b>
+            <span>{{ collector.cartTotal|format_currency(collector.currency) }}</span>
+        </div>
+
+        {% if collector.cart is not null and collector.cart.lineItems is defined %}
+            {% for lineItem in collector.cart.lineItems %}
+                {% if loop.index <= 3 %}
+                    <div class="sf-toolbar-info-piece">
+                        <b>{{ lineItem.label }}</b>
+                        <span>{{ lineItem.quantity }} × {{ lineItem.price.unitPrice|format_currency(collector.currency) }}</span>
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            {% if collector.itemCount > 3 %}
+                <div class="sf-toolbar-info-piece">
+                    <span class="sf-toolbar-status">+{{ collector.itemCount - 3 }} more</span>
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endset %}
+
+    {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { link: true }) }}
+{% endblock %}
+
+{% block menu %}
+    {# This left-hand menu appears when using the full-screen profiler. #}
+    <span class="label {{ collector.itemCount == 0 ? 'disabled' }}">
+        <span class="icon">{{ include('@Profiling/Collector/cart.svg') }}</span>
+        <strong>Cart</strong>
+        <span class="count">
+            <span>{{ collector.itemCount }}</span>
+        </span>
+    </span>
+{% endblock %}
+
+{% block panel %}
+    <h2>Cart Information</h2>
+
+    {% if collector.cart is null %}
+        <div class="empty">
+            <p>No cart available.</p>
+        </div>
+    {% else %}
+        <div class="metrics">
+            <div class="metric">
+                <span class="value">{{ collector.itemCount }}</span>
+                <span class="label">Items in Cart</span>
+            </div>
+            <div class="metric">
+                <span class="value">{{ collector.cartTotal|format_currency(collector.currency) }}</span>
+                <span class="label">Cart Total</span>
+            </div>
+        </div>
+
+        {% if collector.cart.lineItems is defined and collector.cart.lineItems|length > 0 %}
+            <h3>Line Items</h3>
+            <table class="cart-line-item-table">
+                <thead>
+                    <tr>
+                        <th class="text-right">Quantity</th>
+                        <th>Item</th>
+                        <th>Type</th>
+                        <th class="text-right">Unit Price</th>
+                        <th class="text-right">Total Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lineItem in collector.cart.lineItems %}
+                        <tr>
+                            <td class="font-normal text-right nowrap">{{ lineItem.quantity }}</td>
+                            <td class="font-normal">
+                                <span class="expandable-block-title" data-toggle="code-{{ loop.index }}">
+                                    {{ lineItem.label }}
+                                    <span class="sf-toggle-icon">
+                                        <svg class="icon icon-expand" width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill="#AAA" d="M10.28 6.28L3.989 11.5 2.979 10.28l4.251-3.99-4.414-4.014 1.022-1.202 6.388 5.157.054.066z"/>
+                                        </svg>
+                                    </span>
+                                </span>
+                            </td>
+                            <td class="font-normal">{{ lineItem.type }}</td>
+                            <td class="font-normal text-right nowrap">{{ lineItem.price.unitPrice|format_currency(collector.currency) }}</td>
+                            <td class="font-normal text-right nowrap">{{ lineItem.price.totalPrice|format_currency(collector.currency) }}</td>
+                        </tr>
+                        <tr class="code-block-row hidden" id="code-{{ loop.index }}">
+                            <td colspan="5">
+                                {{ dump(lineItem) }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th class="font-normal" colspan="4">Subtotal</th>
+                        <th class="font-normal text-right nowrap">{{ collector.cart.price.positionPrice|format_currency(collector.currency) }}</th>
+                    </tr>
+
+                    {% if collector.cart.deliveries is defined and collector.cart.deliveries|length > 0 %}
+                        <tr>
+                            <th class="font-normal" colspan="4">Shipping</th>
+                            <th class="font-normal text-right nowrap">{{ collector.cart.deliveries|first.shippingCosts.totalPrice|format_currency(collector.currency) }}</th>
+                        </tr>
+                    {% endif %}
+
+                    {% if collector.cart.price.calculatedTaxes is defined %}
+                        {% for tax in collector.cart.price.calculatedTaxes %}
+                            <tr>
+                                <td class="font-normal" colspan="4">{{ tax.taxRate }}% VAT</td>
+                                <td class="font-normal text-right nowrap">{{ tax.tax|format_currency(collector.currency) }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+
+                    <tr class="status-success">
+                        <th class="font-normal" colspan="4">Total</th>
+                        <th class="font-normal text-right nowrap">{{ collector.cartTotal|format_currency(collector.currency) }}</th>
+                    </tr>
+                </tfoot>
+            </table>
+        {% else %}
+            <div class="empty">
+                <p>Cart contains no items.</p>
+            </div>
+        {% endif %}
+    {% endif %}
+
+    {% if collector.cart is not null and collector.cart.lineItems is defined and collector.cart.lineItems|length > 0 %}
+        <script type="text/javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                const toggleElements = document.querySelectorAll('.expandable-block-title');
+                toggleElements.forEach(function(element) {
+                    element.addEventListener('click', function() {
+                        const targetId = this.getAttribute('data-toggle');
+                        const targetElement = document.getElementById(targetId);
+
+                        if (targetElement.classList.contains('hidden')) {
+                            targetElement.classList.remove('hidden');
+                            this.classList.add('expanded');
+                        } else {
+                            targetElement.classList.add('hidden');
+                            this.classList.remove('expanded');
+                        }
+                    });
+                });
+            });
+        </script>
+
+        <style>
+            .cart-line-item-table tfoot {
+                border-top: 1px solid var(--table-border-color);
+            }
+
+            .expandable-block-title {
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+            }
+
+            .expandable-block-title .sf-toggle-icon {
+                margin-left: 5px;
+                transition: transform 0.2s;
+            }
+
+            tr:has(.expandable-block-title.expanded) td {
+                border-bottom: none;
+            }
+
+            .expandable-block-title.expanded .sf-toggle-icon {
+                transform: rotate(90deg);
+            }
+
+            .code-block-row td {
+                border-top: none;
+                padding-top: 0;
+            }
+
+            .code-block-row.hidden {
+                display: none;
+            }
+        </style>
+    {% endif %}
+{% endblock %}

@@ -82,6 +82,15 @@ abstract class Error extends \Exception implements \JsonSerializable
     }
 
     /**
+     * This method is used to set the message after the error has been created.
+     * It is useful for translating the message or modifying it before displaying.
+     */
+    public function setMessage(string $message): void
+    {
+        $this->message = $message;
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function jsonSerialize(): array

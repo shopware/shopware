@@ -143,7 +143,12 @@ class InvoiceRendererTest extends TestCase
             $content
         );
 
-        $this->assertSnapshot('invoice_renderer_default', $processedHtml);
+        $this->assertHtmlSnapshot(
+            'invoice_renderer_default',
+            $processedHtml,
+            null,
+            ['normalizeWhitespace' => true],
+        );
     }
 
     /**

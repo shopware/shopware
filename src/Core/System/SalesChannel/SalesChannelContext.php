@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\Tax\TaxCollection;
+use Symfony\Component\Lock\LockInterface;
 
 #[Package('framework')]
 class SalesChannelContext extends Struct
@@ -117,6 +118,11 @@ class SalesChannelContext extends Struct
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $context;
+
+    /**
+     * @internal
+     */
+    protected ?LockInterface $cartLock = null;
 
     /**
      * @internal
@@ -507,5 +513,21 @@ class SalesChannelContext extends Struct
     public function setLanguageInfo(LanguageInfo $languageInfo): void
     {
         $this->languageInfo = $languageInfo;
+    }
+
+    /**
+     * @internal
+     */
+    public function getCartLock(): ?LockInterface
+    {
+        return $this->cartLock;
+    }
+
+    /**
+     * @internal
+     */
+    public function setCartLock(?LockInterface $cartLock): void
+    {
+        $this->cartLock = $cartLock;
     }
 }

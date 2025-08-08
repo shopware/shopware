@@ -25,7 +25,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 /**
  * @internal
  */
-#[CoversClass(DefaultCategoryLevelLoader::class)]
+#[CoversClass(CachedDefaultCategoryLevelLoader::class)]
 #[Package('discovery')]
 class CachedDefaultCategoryLevelLoaderTest extends TestCase
 {

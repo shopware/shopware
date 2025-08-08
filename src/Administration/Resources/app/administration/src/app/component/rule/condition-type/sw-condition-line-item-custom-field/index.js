@@ -95,7 +95,7 @@ export default {
         },
 
         operators() {
-            return this.conditionDataProviderService.getOperatorSetByComponent(this.getTransformedField(this.renderedField));
+            return this.conditionDataProviderService.getOperatorSetByComponent(this.renderedField);
         },
 
         currentError() {
@@ -163,68 +163,6 @@ export default {
             this.renderedFieldValue = null;
             this.renderedField = this.$refs.selectedField.resultCollection.get(id);
             this.selectedFieldSet = this.renderedField.customFieldSetId;
-        },
-
-        getTransformedField(field) {
-            const transformedField = { ...field };
-
-            transformedField.config = this.transformConfig(field.config);
-
-            if (field.config?.componentName === 'sw-text-editor') {
-                transformedField.type = 'text';
-            }
-
-            return transformedField;
-        },
-
-        transformConfig(config) {
-            const transformedConfig = { ...config };
-
-            if (
-                [
-                    'checkbox',
-                    'switch',
-                ].includes(transformedConfig.type)
-            ) {
-                return this.transformBooleanFieldConfig(transformedConfig);
-            }
-
-            if (transformedConfig.customFieldType === 'textEditor') {
-                return {
-                    ...transformedConfig,
-                    type: 'text',
-                    componentName: 'sw-field',
-                    customFieldType: 'text',
-                };
-            }
-
-            return transformedConfig;
-        },
-
-        transformBooleanFieldConfig(transformedConfig) {
-            const locale = Shopware.Store.get('session')?.currentLocale || 'en-GB';
-
-            const booleanOptions = [
-                {
-                    label: {
-                        [locale]: this.$tc('global.default.yes'),
-                    },
-                    value: true,
-                },
-                {
-                    label: {
-                        [locale]: this.$tc('global.default.no'),
-                    },
-                    value: false,
-                },
-            ];
-
-            return {
-                ...transformedConfig,
-                options: booleanOptions,
-                componentName: 'sw-single-select',
-                customFieldType: 'select',
-            };
         },
     },
 };

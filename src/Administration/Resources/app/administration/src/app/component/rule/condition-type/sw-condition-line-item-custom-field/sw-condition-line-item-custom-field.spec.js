@@ -272,12 +272,9 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         await flushPromises();
 
         const operators = wrapper.findAll('.sw-condition-operator-select .sw-select-result');
-        expect(operators).toHaveLength(2);
+        expect(operators).toHaveLength(1);
 
         expect(operators[0].find('sw-highlight-text-stub').attributes('text')).toBe('global.sw-condition.operator.equals');
-        expect(operators[1].find('sw-highlight-text-stub').attributes('text')).toBe(
-            'global.sw-condition.operator.notEquals',
-        );
 
         await operators[0].trigger('click');
         await flushPromises();

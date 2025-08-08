@@ -94,7 +94,6 @@ class DeliveryNoteRendererTest extends TestCase
         static::assertInstanceOf(RenderedDocument::class, $rendered);
 
         $content = $rendered->getContent();
-        static::assertNotEmpty($content);
 
         // replace the date in the meta tag to avoid snapshot differences
         $processedHtml = preg_replace(
@@ -102,12 +101,11 @@ class DeliveryNoteRendererTest extends TestCase
             '$1[date]$3',
             $content
         );
+        static::assertIsString($processedHtml);
 
         $this->assertHtmlSnapshot(
             'delivery_note_renderer_default',
-            $processedHtml,
-            null,
-            ['normalizeWhitespace' => true],
+            $processedHtml
         );
     }
 

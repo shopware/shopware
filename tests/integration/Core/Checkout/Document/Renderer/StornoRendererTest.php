@@ -118,7 +118,6 @@ class StornoRendererTest extends TestCase
         static::assertInstanceOf(RenderedDocument::class, $rendered);
 
         $content = $rendered->getContent();
-        static::assertNotEmpty($content);
 
         // replace the date in the meta tag to avoid snapshot differences
         $processedHtml = preg_replace(
@@ -126,12 +125,11 @@ class StornoRendererTest extends TestCase
             '$1[date]$3',
             $content
         );
+        static::assertIsString($processedHtml);
 
         $this->assertHtmlSnapshot(
             'storno_renderer_default',
-            $processedHtml,
-            null,
-            ['normalizeWhitespace' => true],
+            $processedHtml
         );
     }
 
@@ -281,7 +279,7 @@ class StornoRendererTest extends TestCase
     }
 
     /**
-     * @param array<int, int> $possibleTaxes
+     * @param array<int, int> $taxes
      */
     private function generateDemoCart(array $taxes): Cart
     {

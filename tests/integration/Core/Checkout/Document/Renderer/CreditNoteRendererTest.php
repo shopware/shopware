@@ -130,7 +130,6 @@ class CreditNoteRendererTest extends TestCase
         static::assertInstanceOf(RenderedDocument::class, $rendered);
 
         $content = $rendered->getContent();
-        static::assertNotEmpty($content);
 
         // replace the date in the meta tag to avoid snapshot differences
         $processedHtml = preg_replace(
@@ -138,12 +137,11 @@ class CreditNoteRendererTest extends TestCase
             '$1[date]$3',
             $content
         );
+        static::assertIsString($processedHtml);
 
         $this->assertHtmlSnapshot(
             'credit_note_renderer_default',
-            $processedHtml,
-            null,
-            ['normalizeWhitespace' => true],
+            $processedHtml
         );
     }
 

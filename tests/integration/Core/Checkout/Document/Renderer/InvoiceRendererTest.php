@@ -117,7 +117,6 @@ class InvoiceRendererTest extends TestCase
         static::assertInstanceOf(RenderedDocument::class, $rendered);
 
         $content = $rendered->getContent();
-        static::assertNotEmpty($content);
 
         // replace the date in the meta tag to avoid snapshot differences
         $processedHtml = preg_replace(
@@ -125,12 +124,11 @@ class InvoiceRendererTest extends TestCase
             '$1[date]$3',
             $content
         );
+        static::assertIsString($processedHtml);
 
         $this->assertHtmlSnapshot(
             'invoice_renderer_default',
-            $processedHtml,
-            null,
-            ['normalizeWhitespace' => true],
+            $processedHtml
         );
     }
 
@@ -769,7 +767,7 @@ class InvoiceRendererTest extends TestCase
         $lineItems = [];
 
         foreach ($taxes as $index => $tax) {
-            $price = 100.0 + $index;
+            $price = 100.0 + (int) $index;
             $name = 'product ' . $index;
             $number = 'p' . $index;
 

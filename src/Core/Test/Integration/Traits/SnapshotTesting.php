@@ -14,16 +14,11 @@ trait SnapshotTesting
 {
     /**
      * @param array<mixed>|string $actual
-     * @param array<string, mixed> $options
      *
      * @throws \JsonException
      */
-    protected function doAssertSnapshot(string $name, array|string $actual, string $extension, string $message, array $options = []): void
+    protected function doAssertSnapshot(string $name, array|string $actual, string $extension, string $message): void
     {
-        if ($extension === 'html' && ($options['normalizeWhitespace'] ?? false) && \is_string($actual)) {
-            $actual = $this->normalizeHtmlWhitespace($actual);
-        }
-
         $filePath = $this->getSnapshotPath($name, $extension);
 
         if ($this->isUpdateSnapshotsEnabled()) {
@@ -31,7 +26,7 @@ trait SnapshotTesting
             $this->markTestIncomplete(\sprintf('Snapshot updated: %s.%s', $name, $extension));
         }
 
-        if (!file_exists($filePath)) {
+        if (!\is_file($filePath)) {
             $this->fail(\sprintf('Missing snapshot \'%s.%s\'. Run with UPDATE_SNAPSHOTS=1 to generate it.', $name, $extension));
         }
 
@@ -42,14 +37,12 @@ trait SnapshotTesting
             $expected = json_decode($expected, true, 512, \JSON_THROW_ON_ERROR);
         }
 
-        if ($extension === 'html' && ($options['normalizeWhitespace'] ?? false)) {
-            $expected = $this->normalizeHtmlWhitespace($expected);
-        }
-
         static::assertSame($expected, $actual, $message);
     }
 
     /**
+     * @param array<mixed>|string $data
+     *
      * @throws \JsonException
      */
     protected function updateSnapshot(string $filePath, array|string $data): void
@@ -85,40 +78,28 @@ trait SnapshotTesting
         return !\in_array($env, [false, -1, 0, ''], true);
     }
 
-    protected function normalizeHtmlWhitespace(string $html): string
-    {
-        $lines = explode(\PHP_EOL, $html);
-        $trimmedLines = array_map('trim', $lines);
-        $nonEmptyLines = array_filter($trimmedLines, static fn (string $line) => $line !== '');
-        $imploded = implode(\PHP_EOL, $nonEmptyLines);
-
-        return preg_replace('/(?:(?:\r\n|\r|\n)\s*){2,}/', \PHP_EOL . \PHP_EOL, $imploded) ?? $imploded;
-    }
-
     /**
      * @param array<mixed> $actual
      *
      * @throws \JsonException
      */
-    private function assertJsonSnapshot(string $name, array $actual, ?string $message = null, array $options = []): void
+    private function assertJsonSnapshot(string $name, array $actual, ?string $message = null): void
     {
         $this->doAssertSnapshot(
             $name,
             $actual,
             'json',
             $message ?: "JSON snapshot mismatch: $name",
-            $options,
         );
     }
 
-    private function assertHtmlSnapshot(string $name, string $actual, ?string $message = null, array $options = []): void
+    private function assertHtmlSnapshot(string $name, string $actual, ?string $message = null): void
     {
         $this->doAssertSnapshot(
             $name,
             $actual,
             'html',
             $message ?: "HTML snapshot mismatch: $name",
-            $options,
         );
     }
 }

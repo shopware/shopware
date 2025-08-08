@@ -38,6 +38,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
@@ -72,6 +73,8 @@ class SalesChannelProxyController extends AbstractController
 
     /**
      * @internal
+     *
+     * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
      */
     public function __construct(
         private readonly KernelInterface $kernel,
@@ -274,8 +277,7 @@ class SalesChannelProxyController extends AbstractController
      */
     private function fetchSalesChannel(string $salesChannelId, Context $context): SalesChannelEntity
     {
-        /** @var SalesChannelEntity|null $salesChannel */
-        $salesChannel = $this->salesChannelRepository->search(new Criteria([$salesChannelId]), $context)->get($salesChannelId);
+        $salesChannel = $this->salesChannelRepository->search(new Criteria([$salesChannelId]), $context)->getEntities()->get($salesChannelId);
 
         if ($salesChannel === null) {
             throw ApiException::invalidSalesChannelId($salesChannelId);

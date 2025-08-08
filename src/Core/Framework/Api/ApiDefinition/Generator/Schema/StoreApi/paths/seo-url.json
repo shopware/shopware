@@ -39,30 +39,44 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Entity search result containing seo urls.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "allOf": [
-                                        {
-                                            "properties": {
-                                                "elements": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/SeoUrl"
-                                                    }
-                                                }
-                                            },
-                                            "type": "object",
-                                            "required": ["elements"]
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/EntitySearchResult"
-                                        }
-                                    ]
-                                }
-                            }
+                        "$ref": "#/components/responses/SeoUrlListResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "Sitemap & Routes",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch SEO routes",
+                "description": "Perform a filtered search for seo urls.",
+                "operationId": "readSeoUrlGet",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
                         }
+                    },
+                    {
+                        "x-parameter-group": "criteria"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/SeoUrlListResponse"
                     },
                     "404": {
                         "$ref": "#/components/responses/404"

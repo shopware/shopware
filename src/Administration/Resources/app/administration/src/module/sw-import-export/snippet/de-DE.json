@@ -180,8 +180,8 @@
                 "importLabel": "Import",
                 "exportLabel": "Export"
             },
-          "profileTypeDisabledText": "Leere das Feld 'Objekt-Typ', um wieder zwischen allen möglichen 'Nutzungen' auswählen zu können.",
-          "objectTypeDisabledText": "Leere das Feld 'Nutzung', um wieder zwischen allen möglichen 'Objekt-Typen' auswählen zu können.",
+          "profileTypeDisabledText": "Leere das Feld \"Objekt-Typ\", um wieder zwischen allen möglichen \"Nutzungen\" auswählen zu können.",
+          "objectTypeDisabledText": "Leere das Feld \"Nutzung\", um wieder zwischen allen möglichen \"Objekt-Typen\" auswählen zu können.",
           "csvUploadText": "Erstelle das Mapping aus einer vorhandenen CSV-Datei.",
           "skipCsvUpload": "Überspringe Upload"
         },

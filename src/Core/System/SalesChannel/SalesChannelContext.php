@@ -38,7 +38,7 @@ class SalesChannelContext extends Struct
 
     protected MeasurementUnits $measurementSystem;
 
-    protected ?LockInterface $lock = null;
+    protected ?LockInterface $cartLock = null;
 
     /**
      * @internal
@@ -453,13 +453,13 @@ class SalesChannelContext extends Struct
         $this->measurementSystem = $measurementSystem;
     }
 
-    public function getLock(): ?LockInterface
+    public function getCartLock(): ?LockInterface
     {
-        return $this->lock;
+        return $this->cartLock;
     }
 
-    public function setLock(?LockInterface $lock): void
+    public function setCartLock(?LockInterface $cartLock): void
     {
-        $this->lock = $lock;
+        $this->cartLock = $cartLock;
     }
 }

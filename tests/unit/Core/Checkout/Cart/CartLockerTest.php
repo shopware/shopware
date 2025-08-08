@@ -102,15 +102,15 @@ class CartLockerTest extends TestCase
         $context = Generator::generateSalesChannelContext(token: $token);
 
         $this->locker->locked($context, function () use ($context): void {
-            $firstLock = $context->getLock();
+            $firstLock = $context->getCartLock();
             static::assertInstanceOf(LockInterface::class, $firstLock);
 
             $this->locker->locked($context, function () use ($context, $firstLock): void {
-                static::assertSame($context->getLock(), $firstLock);
+                static::assertSame($context->getCartLock(), $firstLock);
             });
         });
 
-        static::assertNull($context->getLock());
+        static::assertNull($context->getCartLock());
     }
 
     public function testGetLockKey(): void

@@ -3,39 +3,79 @@
 namespace Shopware\Core\Test\Integration\Traits;
 
 /**
- * This trait allows to run an assertion on a stored snapshot.
- * During normal test operation the $actual parameter is ignored,
- * and the data stored in the snapshot file is used.
- * But when the env variable 'UPDATE_SNAPSHOTS' is set to 1,
- * the $actual parameter is written to the snapshot file.
+ * Trait to snapshot test JSON arrays or Twig-rendered HTML strings.
+ *
+ * On first run (UPDATE_SNAPSHOTS=1), writes the snapshot file (.json or .html).
+ * On subsequent runs, asserts current output matches the stored snapshot.
  *
  * @internal
  */
 trait SnapshotTesting
 {
     /**
-     * @param array<string, mixed>|list<mixed> $actual
+     * @param array<mixed>|string $actual Array data to encode as JSON, or HTML string.
+     *
+     * @throws \JsonException
      */
-    private function assertSnapshot(string $expectedSnapshotName, array $actual, string $message = ''): void
+    private function assertSnapshot(string $name, array|string $actual, string $message = ''): void
     {
-        $class = new \ReflectionClass(static::class);
-        $baseDir = \dirname((string) $class->getFileName());
-        $snapshot = $baseDir . '/_snapshots/' . $expectedSnapshotName . '.json';
-        $envVar = $_SERVER['UPDATE_SNAPSHOTS'] ?? '';
-        $runUpdate = $envVar !== 'false'
-            && $envVar !== '-1'
-            && $envVar !== '';
+        $snapshotDir = $this->getSnapshotDirectory();
 
-        if ($runUpdate) {
-            file_put_contents(
-                $snapshot,
-                json_encode($actual, \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES)
-            );
+        $isHtml = \is_string($actual);
+        $extension = $isHtml ? 'html' : 'json';
+        $filePath = "$snapshotDir/$name.$extension";
 
-            return;
+        $update = ($_SERVER['UPDATE_SNAPSHOTS'] ?? '') === '1';
+
+        if ($update) {
+            file_put_contents($filePath, $this->prepareContent($actual, $isHtml));
+            $this->markTestIncomplete("Snapshot updated: $name.$extension");
         }
 
-        $baseline = json_decode((string) file_get_contents($snapshot), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
-        static::assertSame($baseline, $actual, $message);
+        if (!file_exists($filePath)) {
+            $this->fail("Missing snapshot '$name.$extension'. Run with UPDATE_SNAPSHOTS=1 to generate it.");
+        }
+
+        $stored = file_get_contents($filePath);
+
+        if ($isHtml) {
+            static::assertSame(
+                trim($stored),
+                trim(preg_replace('/\s+/', ' ', $actual)),
+                $message ?: "HTML snapshot mismatch: $name"
+            );
+        } else {
+            $baseline = json_decode($stored, true, 512, \JSON_THROW_ON_ERROR);
+            static::assertSame(
+                $baseline,
+                $actual,
+                $message ?: "JSON snapshot mismatch: $name"
+            );
+        }
+    }
+
+    private function getSnapshotDirectory(): string
+    {
+        $refClass = new \ReflectionClass(static::class);
+        $dir = \dirname((string) $refClass->getFileName()) . '/_snapshots';
+
+        if (!is_dir($dir) && !mkdir($dir, 0777, true) && !is_dir($dir)) {
+            throw new \RuntimeException("Failed to create snapshot directory: $dir");
+        }
+
+        return $dir;
+    }
+
+    /**
+     * @throws \JsonException
+     */
+    private function prepareContent(array|string $data, bool $isHtml): string
+    {
+        if ($isHtml) {
+            // normalize whitespace
+            return trim(preg_replace('/\s+/', ' ', $data)) . \PHP_EOL;
+        }
+
+        return json_encode($data, \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES) . \PHP_EOL;
     }
 }

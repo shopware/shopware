@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\System\Snippet\Struct;
+namespace Shopware\Tests\Unit\Core\System\Snippet\DataTransfer\Language;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
 use Shopware\Core\System\Snippet\SnippetException;
-use Shopware\Core\System\Snippet\Struct\Language;
 
 /**
  * @internal

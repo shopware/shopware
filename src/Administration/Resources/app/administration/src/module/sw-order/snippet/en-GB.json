@@ -61,6 +61,13 @@
         "title": "Remind payment",
         "text": "Do you want to remind the customer to pay this order with \"{paymentMethodName}\"?",
         "primaryAction": "Remind"
+      },
+      "saveError": {
+        "noCustomer": "No customer selected.",
+        "noCart": "No shopping cart available.",
+        "noLineItems": "No items added.",
+        "invalidPromotionCodes": "Invalid promotion code found.",
+        "noTransactionReturned": "No payment method created."
       }
     },
     "createBase": {

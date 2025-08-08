@@ -9,9 +9,8 @@ use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
-use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
@@ -66,7 +65,7 @@ class SalesChannelProxyController extends AbstractController
     private const SEARCH_ROUTE = 'search';
 
     private const ADMIN_ORDER_PERMISSIONS = [
-        ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
+        CheckoutPermissions::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
     ];
 
     protected Processor $processor;
@@ -212,7 +211,7 @@ class SalesChannelProxyController extends AbstractController
 
         $salesChannelId = (string) $request->request->get('salesChannelId');
 
-        $this->adminOrderCartService->addPermission($contextToken, PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS, $salesChannelId);
+        $this->adminOrderCartService->addPermission($contextToken, CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS, $salesChannelId);
 
         return new JsonResponse();
     }
@@ -228,7 +227,7 @@ class SalesChannelProxyController extends AbstractController
 
         $salesChannelId = (string) $request->request->get('salesChannelId');
 
-        $this->adminOrderCartService->deletePermission($contextToken, PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS, $salesChannelId);
+        $this->adminOrderCartService->deletePermission($contextToken, CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS, $salesChannelId);
 
         return new JsonResponse();
     }

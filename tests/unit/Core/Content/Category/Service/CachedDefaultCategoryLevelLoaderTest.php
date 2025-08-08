@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Content\Category\Service;
+namespace Shopware\Tests\Unit\Core\Content\Category\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -8,15 +8,16 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEvents;
 use Shopware\Core\Content\Category\Event\CategoryLevelLoaderCacheKeyEvent;
+use Shopware\Core\Content\Category\Service\CachedDefaultCategoryLevelLoader;
 use Shopware\Core\Content\Category\Service\DefaultCategoryLevelLoader;
-use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
@@ -26,38 +27,36 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
  */
 #[CoversClass(DefaultCategoryLevelLoader::class)]
 #[Package('discovery')]
-class DefaultCategoryLevelLoaderTest extends TestCase
+class CachedDefaultCategoryLevelLoaderTest extends TestCase
 {
-    private DefaultCategoryLevelLoader $categoryLevelLoader;
+    private CachedDefaultCategoryLevelLoader $categoryLevelLoader;
 
     private MockObject&TagAwareCacheInterface $cache;
 
     private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var MockObject&SalesChannelRepository<CategoryCollection>
-     */
-    private MockObject&SalesChannelRepository $categoryRepository;
+    private MockObject&DefaultCategoryLevelLoader $innerLoader;
 
     private MockObject&SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
         $this->cache = $this->createMock(TagAwareCacheInterface::class);
-        $this->eventDispatcher = new EventDispatcher();
-        $this->categoryRepository = $this->createMock(SalesChannelRepository::class);
         $this->salesChannelContext = $this->createMock(SalesChannelContext::class);
 
-        $this->categoryLevelLoader = new DefaultCategoryLevelLoader(
+        $this->eventDispatcher = new EventDispatcher();
+        $this->innerLoader = $this->createMock(DefaultCategoryLevelLoader::class);
+
+        $this->categoryLevelLoader = new CachedDefaultCategoryLevelLoader(
             $this->cache,
             $this->eventDispatcher,
-            $this->categoryRepository
+            $this->innerLoader,
         );
     }
 
     public function testGetSubscribedEvents(): void
     {
-        $events = DefaultCategoryLevelLoader::getSubscribedEvents();
+        $events = CachedDefaultCategoryLevelLoader::getSubscribedEvents();
 
         static::assertIsArray($events);
         static::assertArrayHasKey(CategoryEvents::CATEGORY_WRITTEN_EVENT, $events);
@@ -80,16 +79,10 @@ class DefaultCategoryLevelLoaderTest extends TestCase
 
         $expectedCollection = new CategoryCollection();
 
-        $this->categoryRepository->expects($this->once())
-            ->method('search')
-            ->willReturn(new EntitySearchResult(
-                'category',
-                0,
-                $expectedCollection,
-                null,
-                $criteria,
-                $this->salesChannelContext->getContext()
-            ));
+        $this->innerLoader->expects($this->once())
+            ->method('loadLevels')
+            ->with($rootId, $rootLevel, $this->salesChannelContext, $criteria, $depth)
+            ->willReturn($expectedCollection);
 
         $result = $this->categoryLevelLoader->loadLevels(
             $rootId,
@@ -131,31 +124,43 @@ class DefaultCategoryLevelLoaderTest extends TestCase
             ->willReturn('sales-channel-id');
 
         $expectedCollection = new CategoryCollection();
-        $compressedData = CacheValueCompressor::compress($expectedCollection);
+        $this->innerLoader->expects($this->exactly(1))
+            ->method('loadLevels')
+            ->with($rootId, $rootLevel, $this->salesChannelContext, $criteria, $depth)
+            ->willReturn($expectedCollection);
 
-        $this->cache->expects($this->once())
-            ->method('get')
-            ->willReturn($compressedData);
+        $cache = new TagAwareAdapter(new ArrayAdapter());
 
-        $eventThrown = false;
+        $loader = new CachedDefaultCategoryLevelLoader(
+            $cache,
+            $this->eventDispatcher,
+            $this->innerLoader,
+        );
+
+        $cacheKeyParts = [
+            'rootId' => $rootId,
+            'depth' => $depth,
+            'salesChannelId' => 'sales-channel-id',
+            'languageId' => $context->getLanguageId(),
+        ];
+        $eventsThrown = 0;
         $this->eventDispatcher->addListener(
             CategoryLevelLoaderCacheKeyEvent::class,
-            function (CategoryLevelLoaderCacheKeyEvent $event) use ($rootId, $depth, $context, &$eventThrown): void {
-                static::assertSame(
-                    [
-                        'rootId' => $rootId,
-                        'depth' => $depth,
-                        'salesChannelId' => 'sales-channel-id',
-                        'languageId' => $context->getLanguageId(),
-                    ],
-                    $event->getParts()
-                );
+            function (CategoryLevelLoaderCacheKeyEvent $event) use ($cacheKeyParts, &$eventsThrown): void {
+                static::assertSame($cacheKeyParts, $event->getParts());
 
-                $eventThrown = true;
+                ++$eventsThrown;
             }
         );
 
-        $result = $this->categoryLevelLoader->loadLevels(
+        $result = $loader->loadLevels(
+            $rootId,
+            $rootLevel,
+            $this->salesChannelContext,
+            $criteria,
+            $depth
+        );
+        $result2 = $loader->loadLevels(
             $rootId,
             $rootLevel,
             $this->salesChannelContext,
@@ -164,6 +169,13 @@ class DefaultCategoryLevelLoaderTest extends TestCase
         );
 
         static::assertEquals($expectedCollection, $result);
-        static::assertTrue($eventThrown);
+        static::assertEquals($result2, $result);
+        static::assertSame(2, $eventsThrown);
+
+        static::assertTrue($cache->hasItem(Hasher::hash($cacheKeyParts)));
+
+        $loader->invalidateCache();
+
+        static::assertFalse($cache->hasItem(Hasher::hash($cacheKeyParts)));
     }
 }

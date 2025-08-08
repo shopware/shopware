@@ -342,21 +342,22 @@ export default class RuleConditionService {
 
     private getTransformedBooleanFieldConfig(transformedConfig: CustomFieldConditionConfig) {
         const locale = Shopware.Store.get('session')?.currentLocale || 'en-GB';
+        const app = Shopware.Application.getApplicationRoot();
+
+        if (!app) {
+            return transformedConfig;
+        }
 
         const booleanOptions = [
             {
                 label: {
-                    // @ts-expect-error
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                    [locale]: Shopware.Snippet.tc('global.default.yes'),
+                    [locale]: app.$tc('global.default.yes'),
                 },
                 value: true,
             },
             {
                 label: {
-                    // @ts-expect-error
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                    [locale]: Shopware.Snippet.tc('global.default.no'),
+                    [locale]: app.$tc('global.default.no'),
                 },
                 value: false,
             },

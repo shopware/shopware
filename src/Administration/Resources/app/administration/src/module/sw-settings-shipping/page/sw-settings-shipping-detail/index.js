@@ -215,7 +215,7 @@ export default {
             const criteria = new Criteria(1, 500);
             criteria.addAssociation('salesChannels');
             this.currencyRepository.search(criteria, Context.api).then((currencyResponse) => {
-                Shopware.Store.get('swShippingDetail').currencies = this.sortCurrencies(currencyResponse);
+                Shopware.State.get('swShippingDetail').currencies = this.sortCurrencies(currencyResponse);
                 this.currenciesLoading = false;
             });
         },

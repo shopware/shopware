@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\Tax\TaxCollection;
+use Symfony\Component\Lock\LockInterface;
 
 #[Package('framework')]
 class SalesChannelContext extends Struct
@@ -36,6 +37,8 @@ class SalesChannelContext extends Struct
     protected ?string $imitatingUserId = null;
 
     protected MeasurementUnits $measurementSystem;
+
+    protected ?LockInterface $lock = null;
 
     /**
      * @internal
@@ -448,5 +451,15 @@ class SalesChannelContext extends Struct
     public function setMeasurementSystem(MeasurementUnits $measurementSystem): void
     {
         $this->measurementSystem = $measurementSystem;
+    }
+
+    public function getLock(): ?LockInterface
+    {
+        return $this->lock;
+    }
+
+    public function setLock(?LockInterface $lock): void
+    {
+        $this->lock = $lock;
     }
 }

@@ -1,5 +1,3 @@
-import type { I18n } from 'vue-i18n';
-
 const { Criteria } = Shopware.Data;
 
 type AppScriptCondition = {
@@ -67,14 +65,6 @@ type CustomFieldConditionConfig = {
     componentName: string;
     customFieldType?: string;
 };
-
-type Translator = I18n<
-    Record<string, unknown>,
-    Record<string, unknown>,
-    Record<string, unknown>,
-    string,
-    true
->['global']['t'];
 
 /**
  * @module app/service/rule-condition
@@ -322,7 +312,7 @@ export default class RuleConditionService {
         return this.operatorSets[operatorSetKey];
     }
 
-    getTransformedCustomFieldConditionConfig(config: CustomFieldConditionConfig, translator: Translator) {
+    getTransformedCustomFieldConditionConfig(config: CustomFieldConditionConfig) {
         if (!config) {
             return null;
         }
@@ -335,7 +325,7 @@ export default class RuleConditionService {
                 'switch',
             ].includes(transformedConfig?.type)
         ) {
-            return this.getTransformedBooleanFieldConfig(transformedConfig, translator);
+            return this.getTransformedBooleanFieldConfig(transformedConfig);
         }
 
         if (transformedConfig?.customFieldType === 'textEditor') {
@@ -350,19 +340,23 @@ export default class RuleConditionService {
         return transformedConfig;
     }
 
-    private getTransformedBooleanFieldConfig(transformedConfig: CustomFieldConditionConfig, translator: Translator) {
+    private getTransformedBooleanFieldConfig(transformedConfig: CustomFieldConditionConfig) {
         const locale = Shopware.Store.get('session')?.currentLocale || 'en-GB';
 
         const booleanOptions = [
             {
                 label: {
-                    [locale]: translator('global.default.yes'),
+                    // @ts-expect-error
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                    [locale]: Shopware.Snippet.tc('global.default.yes'),
                 },
                 value: true,
             },
             {
                 label: {
-                    [locale]: translator('global.default.no'),
+                    // @ts-expect-error
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                    [locale]: Shopware.Snippet.tc('global.default.no'),
                 },
                 value: false,
             },

@@ -623,10 +623,7 @@ describe('src/app/service/rule-condition.service.js', () => {
 
         const ruleConditionService = new RuleConditionService();
 
-        const transformedConfig = ruleConditionService.getTransformedCustomFieldConditionConfig(
-            config,
-            jest.fn((key) => key),
-        );
+        const transformedConfig = ruleConditionService.getTransformedCustomFieldConditionConfig(config);
 
         expect(transformedConfig).toStrictEqual({
             ...config,
@@ -659,10 +656,7 @@ describe('src/app/service/rule-condition.service.js', () => {
             customFieldType: 'textEditor',
         };
 
-        const transformedConfig = ruleConditionService.getTransformedCustomFieldConditionConfig(
-            config,
-            jest.fn((key) => key),
-        );
+        const transformedConfig = ruleConditionService.getTransformedCustomFieldConditionConfig(config);
 
         expect(transformedConfig).toStrictEqual({
             ...config,
@@ -681,7 +675,6 @@ describe('src/app/service/rule-condition.service.js', () => {
     it('should use en-GB as fallback locale for custom field condition config', async () => {
         const ruleConditionService = new RuleConditionService();
 
-        const translator = jest.fn((key) => key);
         jest.spyOn(Shopware.Store, 'get').mockReturnValueOnce({
             currentLocale: '',
         });
@@ -693,9 +686,8 @@ describe('src/app/service/rule-condition.service.js', () => {
             type: 'checkbox',
         };
 
-        const transformedConfig = ruleConditionService.getTransformedCustomFieldConditionConfig(config, translator);
+        const transformedConfig = ruleConditionService.getTransformedCustomFieldConditionConfig(config);
 
-        expect(translator).toHaveBeenCalledTimes(2);
         expect(transformedConfig).toStrictEqual({
             ...config,
             componentName: 'sw-single-select',

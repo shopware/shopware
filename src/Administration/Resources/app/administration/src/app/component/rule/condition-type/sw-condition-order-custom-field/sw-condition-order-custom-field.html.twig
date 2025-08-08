@@ -52,7 +52,7 @@
         name="sw-field--renderedFieldValue"
         size="medium"
         :value="renderedFieldValue"
-        :config="conditionDataProviderService.getTransformedCustomFieldConditionConfig(renderedField.config, $tc)"
+        :config="conditionDataProviderService.getTransformedCustomFieldConditionConfig(renderedField.config)"
         :disabled="disabled || undefined"
         @update:value="renderedFieldValue = $event"
     />

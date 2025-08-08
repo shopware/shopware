@@ -90,7 +90,7 @@ class PasswordFieldSerializer extends AbstractFieldSerializer
             return $constraints;
         }
 
-        $constraints[] = new Length(['min' => $minPasswordLength]);
+        $constraints[] = new Length(min: $minPasswordLength);
 
         return $constraints;
     }

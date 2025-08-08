@@ -66,7 +66,7 @@ class ConstraintBuilder
 
     public function isLengthLessThanOrEqual(int $maxLength): self
     {
-        $this->addConstraint(new Length(['max' => $maxLength]));
+        $this->addConstraint(new Length(max: $maxLength));
 
         return $this;
     }

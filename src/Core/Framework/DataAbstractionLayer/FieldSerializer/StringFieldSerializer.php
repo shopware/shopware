@@ -84,7 +84,7 @@ class StringFieldSerializer extends AbstractFieldSerializer
     {
         $constraints = [
             new Type('string'),
-            new Length(['max' => $field->getMaxLength()]),
+            new Length(max: $field->getMaxLength()),
         ];
 
         if (!$field->is(AllowEmptyString::class)) {

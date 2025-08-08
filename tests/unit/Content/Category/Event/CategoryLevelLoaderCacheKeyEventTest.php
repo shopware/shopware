@@ -19,7 +19,7 @@ class CategoryLevelLoaderCacheKeyEventTest extends TestCase
     public function testEvent(): void
     {
         // Prepare test data
-        $initialParts = ['part1', 'part2'];
+        $initialParts = ['part1' => 'test', 'part2' => 'test2'];
         $rootId = 'root-id';
         $depth = 3;
         $salesChannelId = 'sales-channel-id';
@@ -36,20 +36,22 @@ class CategoryLevelLoaderCacheKeyEventTest extends TestCase
         );
 
         static::assertSame($initialParts, $event->getParts());
-        static::assertSame($context, $event->getContext());
+        static::assertSame($context, $event->getSalesChannelContext());
         static::assertSame($rootId, $event->getRootId());
         static::assertSame($depth, $event->getDepth());
         static::assertSame($criteria, $event->getCriteria());
         static::assertSame($salesChannelId, $event->getSalesChannelId());
         static::assertTrue($event->shouldCache());
 
-        $newParts = ['new-part1', 'new-part2'];
+        $newParts = ['new-part1' => 'test', 'new-part2' => 'test2'];
         $event->setParts($newParts);
         static::assertSame($newParts, $event->getParts());
 
-        $additionalPart = 'new-part3';
-        $event->addPart($additionalPart);
-        static::assertSame([...$newParts, $additionalPart], $event->getParts());
+        $event->addPart('new-part3', 'test3');
+        static::assertSame(array_merge($newParts, ['new-part3' => 'test3']), $event->getParts());
+
+        $event->removePart('new-part3');
+        static::assertSame($newParts, $event->getParts());
 
         $event->disableCaching();
         static::assertFalse($event->shouldCache());

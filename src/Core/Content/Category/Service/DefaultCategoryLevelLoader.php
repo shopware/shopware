@@ -163,7 +163,6 @@ class DefaultCategoryLevelLoader implements EventSubscriberInterface
         $criteria->setLimit(null);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
-        /** @var CategoryCollection $levels */
         $levels = $this->categoryRepository->search($criteria, $context)->getEntities();
 
         $this->addVisibilityCounts($rootId, $rootLevel, $depth, $levels, $context);

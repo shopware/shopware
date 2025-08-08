@@ -109,12 +109,10 @@ export default {
                         return null;
                     }
 
-                    const option = {
+                    return {
                         label: this.addressLabel(item),
                         ...item,
                     };
-                    option.id = item.id;
-                    return option;
                 })
                 .filter((item) => item !== null);
 

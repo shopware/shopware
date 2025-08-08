@@ -43,6 +43,9 @@ return [
         // Fix to make promotions work with order recalculation
         'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*skipPromotion.*(\n.*)*to array \((\n.*)*pinAutomaticPromotions',
 
+        // Only new additions
+        'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*to array \((\n.*)*skipCartPersistence(.*\n.*)*skipPrimaryOrderIds(.*\n.*)*automaticPromotionDeletionNotices',
+
         // No break as mixed is the top type and every other type is a subtype of mixed
         preg_quote('The parameter $value of Shopware\Storefront\Event\StorefrontRenderEvent#setParameter() changed from no type to mixed', '/'),
 
@@ -73,6 +76,9 @@ return [
         preg_quote('REMOVED: Method Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowEmptyString#__construct() was removed', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Framework\DataAbstractionLayer\Attribute\Required#__construct() was removed', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey#__construct() was removed', '/'),
+
+        // The rule class is declared @final, and its constructor is marked as @internal.
+        preg_quote('REMOVED: Property Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule#$type was removed', '/'),
 
         // The classes were never properly released and are not use.
         preg_quote('REMOVED: Class Shopware\Core\System\Snippet\Struct\Language has been deleted', '/'),

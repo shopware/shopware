@@ -160,49 +160,50 @@ describe('src/module/sw-order/page/sw-order-create', () => {
 
     it('should open remind payment modal on save order', async () => {
         await wrapper.find('.sw-button-process').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        expect(wrapper.vm.showRemindPaymentModal).toBeTruthy();
+        expect(wrapper.vm.showRemindPaymentModal).toBe(true);
         const modal = wrapper.find('.sw-modal');
-        expect(modal.isVisible).toBeTruthy();
+        expect(modal.isVisible()).toBe(true);
     });
 
     it('should be able to close remind payment modal', async () => {
         await wrapper.find('.sw-button-process').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        expect(wrapper.vm.showRemindPaymentModal).toBeTruthy();
+        expect(wrapper.vm.showRemindPaymentModal).toBe(true);
 
         const modal = wrapper.find('.sw-modal');
-        expect(modal.isVisible).toBeTruthy();
+        expect(modal.isVisible()).toBe(true);
 
         await findByText(modal, 'button', 'global.default.no').trigger('click');
 
-        expect(wrapper.vm.isSaveSuccessful).toBeTruthy();
-        expect(wrapper.vm.showRemindPaymentModal).not.toBeTruthy();
+        expect(wrapper.vm.isSaveSuccessful).toBe(true);
+        expect(wrapper.vm.showRemindPaymentModal).not.toBe(true);
     });
 
     it('should remind payment on primary modal action', async () => {
         await wrapper.find('.sw-button-process').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        expect(wrapper.vm.showRemindPaymentModal).toBeTruthy();
+        expect(wrapper.vm.showRemindPaymentModal).toBe(true);
 
         const modal = wrapper.find('.sw-modal');
-        expect(modal.isVisible).toBeTruthy();
+        expect(modal.isVisible()).toBe(true);
 
         await findByText(modal, 'button', 'sw-order.create.remindPaymentModal.primaryAction').trigger('click');
+        await flushPromises();
 
         expect(remindPaymentMock).toHaveBeenCalledTimes(1);
 
-        await wrapper.vm.$nextTick();
-        expect(wrapper.vm.isSaveSuccessful).toBeTruthy();
-        expect(wrapper.vm.showRemindPaymentModal).not.toBeTruthy();
+        expect(wrapper.vm.isSaveSuccessful).toBe(true);
+        expect(wrapper.vm.showRemindPaymentModal).not.toBe(true);
     });
 
     it('should be set context language after the process is successful', async () => {
         const buttonProcess = wrapper.find('.sw-button-process');
         await buttonProcess.trigger('click');
+        await flushPromises();
 
         await wrapper.getComponent('.sw-button-process').vm.$emit('update:processSuccess');
         await flushPromises();

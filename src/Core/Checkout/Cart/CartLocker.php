@@ -18,11 +18,11 @@ class CartLocker
     }
 
     /**
-     * @param \Closure(): \T $closure
+     * @template T
      *
-     * @return \T
+     * @param \Closure(): T $closure
      *
-     * @template \T
+     * @return T
      */
     public function locked(string $token, \Closure $closure)
     {

@@ -362,7 +362,7 @@ export default {
         },
 
         /**
-         * @deprecated: v6.8.0 - Replaced by "resetRelatedStores" method
+         * @deprecated: tag:v6.8.0 - Replaced by "resetRelatedStores" method
          */
         resetCmsPageState() {
             this.cmsPageState.resetCmsPageState();

@@ -54,6 +54,7 @@ class PropertyFilterHandlerTest extends TestCase
 
         $handler = new PropertyListingFilterHandler(
             new StaticEntityRepository([]),
+            new StaticEntityRepository([]),
             $connection
         );
 
@@ -73,6 +74,7 @@ class PropertyFilterHandlerTest extends TestCase
             ->method('fetchAllAssociative');
 
         $handler = new PropertyListingFilterHandler(
+            new StaticEntityRepository([]),
             new StaticEntityRepository([]),
             $connection
         );
@@ -116,6 +118,7 @@ class PropertyFilterHandlerTest extends TestCase
 
         $handler = new PropertyListingFilterHandler(
             new StaticEntityRepository([]),
+            new StaticEntityRepository([]),
             $connection
         );
 
@@ -147,6 +150,7 @@ class PropertyFilterHandlerTest extends TestCase
         $connection = $this->createMock(Connection::class);
 
         $handler = new PropertyListingFilterHandler(
+            new StaticEntityRepository([]),
             new StaticEntityRepository([]),
             $connection
         );
@@ -180,6 +184,7 @@ class PropertyFilterHandlerTest extends TestCase
             ->method('fetchAllAssociative');
 
         $handler = new PropertyListingFilterHandler(
+            new StaticEntityRepository([]),
             new StaticEntityRepository([]),
             $connection
         );
@@ -276,7 +281,11 @@ class PropertyFilterHandlerTest extends TestCase
             new PropertyGroupOptionCollection(),
         ], $definition);
 
-        $handler = new PropertyListingFilterHandler($repository, $this->createMock(Connection::class));
+        $handler = new PropertyListingFilterHandler(
+            $repository,
+            new StaticEntityRepository([]),
+            $this->createMock(Connection::class)
+        );
 
         $result = new ProductListingResult(
             'test',

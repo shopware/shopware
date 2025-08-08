@@ -56,10 +56,10 @@ class PropertyGroupCollection extends EntityCollection
             $columns = [];
             $entities = [];
 
-            $sortingType = PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC;
+            $sortingType = $group->getSortingType();
 
             foreach ($options->getIterator() as $option) {
-                if ($sortingType) {
+                if ($sortingType === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
                     $columns[] = (string) ($option->getTranslation('name') ?? '');
                 } else {
                     $columns[] = (int) ($option->getTranslation('position') ?? $option->getPosition() ?? 0);
@@ -68,7 +68,7 @@ class PropertyGroupCollection extends EntityCollection
                 $entities[] = $option;
             }
 
-            array_multisort($columns, \SORT_ASC, $entities);
+            array_multisort($columns, \SORT_ASC, \SORT_NATURAL, $entities);
 
             $group->setOptions(new PropertyGroupOptionCollection($entities));
         }

@@ -100,24 +100,7 @@ class InvoiceRendererTest extends TestCase
 
     public function testDocumentSnapshot(): void
     {
-        $cart = $this->cartService->createNew('A');
-        $factory = new ProductLineItemFactory(new PriceDefinitionFactory());
-        $ids = new IdsCollection();
-
-        $product = (new ProductBuilder($ids, 'product-1'))
-            ->price(100)
-            ->name('A product 1')
-            ->active(true)
-            ->tax('test-', 7)
-            ->visibility()
-            ->build();
-
-        $lineItem = $factory->create(['id' => $ids->get('product-1'), 'referencedId' => $ids->get('product-1')], $this->salesChannelContext);
-
-        $this->addTaxDataToSalesChannel($this->salesChannelContext, $product['tax']);
-
-        $this->productRepository->create([$product], Context::createDefaultContext());
-        $this->cartService->add($cart, [$lineItem], $this->salesChannelContext);
+        $cart = $this->generateDemoCart([7]);
         $orderId = $this->persistCart($cart);
 
         $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, [
@@ -777,8 +760,6 @@ class InvoiceRendererTest extends TestCase
     {
         $cart = $this->cartService->createNew('A');
 
-        $keywords = ['awesome', 'epic', 'high quality'];
-
         $products = [];
 
         $factory = new ProductLineItemFactory(new PriceDefinitionFactory());
@@ -787,13 +768,10 @@ class InvoiceRendererTest extends TestCase
 
         $lineItems = [];
 
-        foreach ($taxes as $tax) {
-            $price = random_int(100, 200000) / 100.0;
-
-            shuffle($keywords);
-            $name = ucfirst(implode(' ', $keywords) . ' product');
-
-            $number = Uuid::randomHex();
+        foreach ($taxes as $index => $tax) {
+            $price = 100.0 + $index;
+            $name = 'product ' . $index;
+            $number = 'p' . $index;
 
             $product = (new ProductBuilder($ids, $number))
                 ->price($price)

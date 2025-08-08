@@ -43,6 +43,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
+use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 
 /**
  * @internal
@@ -51,6 +52,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 class CreditNoteRendererTest extends TestCase
 {
     use DocumentTrait;
+    use SnapshotTesting;
 
     private SalesChannelContext $salesChannelContext;
 
@@ -92,6 +94,57 @@ class CreditNoteRendererTest extends TestCase
         $this->creditNoteRenderer = static::getContainer()->get(CreditNoteRenderer::class);
         $this->cartService = static::getContainer()->get(CartService::class);
         $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
+    }
+
+    public function testDocumentSnapshot(): void
+    {
+        $cart = $this->generateDemoCart([7]);
+        $cart = $this->generateCreditItems($cart, [-100]);
+
+        $orderId = $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());
+
+        $invoiceConfig = new DocumentConfiguration();
+        $invoiceConfig->setDocumentNumber('1001');
+
+        $operationInvoice = new DocumentGenerateOperation($orderId, FileTypes::PDF, $invoiceConfig->jsonSerialize());
+        $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->getSuccess()->first();
+        static::assertNotNull($result);
+        $invoiceId = $result->getId();
+
+        $operation = new DocumentGenerateOperation(
+            $orderId,
+            HtmlRenderer::FILE_EXTENSION,
+            [
+                'documentDate' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ],
+            $invoiceId
+        );
+
+        $processedTemplate = $this->creditNoteRenderer->render(
+            [$orderId => $operation],
+            $this->context,
+            new DocumentRendererConfig()
+        );
+
+        $rendered = $processedTemplate->getSuccess()[$orderId];
+        static::assertInstanceOf(RenderedDocument::class, $rendered);
+
+        $content = $rendered->getContent();
+        static::assertNotEmpty($content);
+
+        // replace the date in the meta tag to avoid snapshot differences
+        $processedHtml = preg_replace(
+            '/(<meta name="date" content=")(.*?)(")/i',
+            '$1[date]$3',
+            $content
+        );
+
+        $this->assertHtmlSnapshot(
+            'credit_note_renderer_default',
+            $processedHtml,
+            null,
+            ['normalizeWhitespace' => true],
+        );
     }
 
     /**

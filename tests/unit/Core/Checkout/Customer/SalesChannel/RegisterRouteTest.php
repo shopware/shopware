@@ -42,9 +42,9 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validation;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -100,6 +100,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(DataValidationFactoryInterface::class),
         );
 
         $data = [
@@ -171,6 +172,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(DataValidationFactoryInterface::class),
         );
 
         $data = [
@@ -248,6 +250,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(DataValidationFactoryInterface::class),
         );
 
         $data = [
@@ -321,6 +324,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(DataValidationFactoryInterface::class),
         );
 
         $data = [
@@ -389,6 +393,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $customFieldMapper,
             $this->createMock(EntityRepository::class),
+            $this->createMock(DataValidationFactoryInterface::class),
         );
 
         $data = [
@@ -456,6 +461,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $salutationRepository,
+            $this->createMock(DataValidationFactoryInterface::class),
         );
 
         $data = [
@@ -529,6 +535,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(DataValidationFactoryInterface::class),
         );
 
         $data = [
@@ -603,6 +610,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(DataValidationFactoryInterface::class),
         );
 
         $data = [
@@ -703,7 +711,7 @@ class RegisterRouteTest extends TestCase
                 static::assertCount(3, $properties['vatIds']);
 
                 static::assertInstanceOf(NotBlank::class, $properties['vatIds'][0]);
-                static::assertInstanceOf(Constraint::class, $properties['vatIds'][1]);
+                static::assertInstanceOf(Type::class, $properties['vatIds'][1]);
                 static::assertInstanceOf(CustomerVatIdentification::class, $properties['vatIds'][2]);
 
                 return true;
@@ -728,6 +736,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
+            $definitionFactory,
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -808,7 +817,7 @@ class RegisterRouteTest extends TestCase
 
                 $billingAddressDefinition = $subs['billingAddress'];
 
-                static::assertCount(5, $billingAddressDefinition->getProperties());
+                static::assertCount(4, $billingAddressDefinition->getProperties());
                 static::assertArrayNotHasKey('vatIds', $billingAddressDefinition->getProperties());
 
                 return true;
@@ -833,6 +842,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
+            $definitionFactory,
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);

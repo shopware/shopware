@@ -19,7 +19,9 @@ use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
@@ -36,12 +38,10 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
 class InfoController extends AbstractController
 {
-    private const API_SCOPE_ADMIN = 'api';
-
     /**
      * @internal
      */
@@ -61,6 +61,7 @@ class InfoController extends AbstractController
         private readonly ?ViteFileAccessorDecorator $viteFileAccessorDecorator,
         private readonly Filesystem $filesystem,
         private readonly ShopIdProvider $shopIdProvider,
+        private readonly StatsService $messageStatsService,
     ) {
     }
 
@@ -101,6 +102,16 @@ class InfoController extends AbstractController
             'name' => $entry['key'],
             'size' => (int) $entry['count'],
         ], array_values($entries)));
+    }
+
+    #[Route(path: '/api/_info/message-stats.json', name: 'api.info.message-stats', methods: ['GET'])]
+    public function messageStats(): JsonResponse
+    {
+        $response = new JsonResponse();
+        $response->setEncodingOptions($response->getEncodingOptions() | \JSON_PRESERVE_ZERO_FRACTION);
+        $response->setData($this->messageStatsService->getStats());
+
+        return $response;
     }
 
     #[Route(
@@ -212,7 +223,7 @@ class InfoController extends AbstractController
     {
         $endpoints = array_map(
             static fn (RouteInfo $endpoint) => ['path' => $endpoint->path, 'methods' => $endpoint->methods],
-            $this->apiRouteInfoResolver->getApiRoutes(self::API_SCOPE_ADMIN)
+            $this->apiRouteInfoResolver->getApiRoutes(ApiRouteScope::ID)
         );
 
         return new JsonResponse(['endpoints' => $endpoints]);

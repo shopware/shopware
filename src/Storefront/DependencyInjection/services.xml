@@ -63,7 +63,7 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\RequestTransformer"
-                 decorates="Shopware\Core\Framework\Routing\RequestTransformerInterface">
+                 decorates="Shopware\Core\Framework\Routing\RequestTransformerInterface" public="true">
 
             <argument type="service" id="Shopware\Storefront\Framework\Routing\RequestTransformer.inner"/>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoResolver"/>
@@ -74,6 +74,7 @@
         <service id="Shopware\Storefront\Framework\Routing\Router" decorates="router">
             <argument type="service" id="Shopware\Storefront\Framework\Routing\Router.inner"/>
             <argument type="service" id="request_stack"/>
+            <argument>%storefront.router.allowed_routes%</argument>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver">
@@ -101,7 +102,7 @@
 
         <service id="Shopware\Storefront\Theme\ThemeConfigValueAccessor">
             <argument type="service" id="Shopware\Storefront\Theme\ResolvedConfigLoader"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Twig\Extension\ConfigExtension">
@@ -168,9 +169,8 @@
         <service id="Shopware\Storefront\Framework\Routing\TemplateDataSubscriber">
             <argument type="service" id="Shopware\Core\Content\Seo\HreflangLoaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
-            <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
-
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigService"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -291,6 +291,7 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader">
@@ -444,7 +445,9 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Cookie\CookieProviderInterface" class="Shopware\Storefront\Framework\Cookie\CookieProvider"/>
+        <service id="Shopware\Storefront\Framework\Cookie\CookieProviderInterface" class="Shopware\Storefront\Framework\Cookie\CookieProvider">
+            <argument>%session.storage.options%</argument>
+        </service>
 
         <service id="Shopware\Storefront\Framework\Cookie\AppCookieProvider" decorates="Shopware\Storefront\Framework\Cookie\CookieProviderInterface">
             <argument type="service" id="Shopware\Storefront\Framework\Cookie\AppCookieProvider.inner"/>
@@ -535,12 +538,48 @@
             <tag name="kernel.event_listener" event="kernel.exception"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\SystemCheck\SaleChannelsReadinessCheck" >
-            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface" />
-            <argument type="service" id="Symfony\Component\Routing\RouterInterface" />
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        <service id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil">
+            <argument type="service" id="Symfony\Component\Routing\RouterInterface"/>
+            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
+            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck">
+            <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil"/>
+            <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider"/>
 
             <tag name="shopware.system_check"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\SystemCheck\ProductDetailReadinessCheck">
+            <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider"/>
+
+            <tag name="shopware.system_check"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\SystemCheck\ProductListingReadinessCheck">
+            <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider"/>
+
+            <tag name="shopware.system_check"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Storefront\Page\Robots\RobotsPageLoader">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="sales_channel_domain.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Routing\RobotsRouteScopeWhitelist">
+            <tag name="shopware.route_scope_whitelist"/>
         </service>
     </services>
 </container>

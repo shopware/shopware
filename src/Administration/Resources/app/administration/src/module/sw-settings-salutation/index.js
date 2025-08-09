@@ -42,7 +42,7 @@ Module.register('sw-settings-salutation', {
             props: {
                 default(route) {
                     return {
-                        salutationId: route.params.id,
+                        salutationId: route.params.id.toLowerCase(),
                     };
                 },
             },

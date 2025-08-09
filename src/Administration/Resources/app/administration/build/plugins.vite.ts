@@ -31,9 +31,9 @@ import injectHtml from './vite-plugins/inject-html';
 
 const VITE_MODE = process.env.VITE_MODE || 'development';
 const isDev = VITE_MODE === 'development';
-
-// This env variable is provided by the symfony recipes
-const hasAdminRootEnv = !!process.env.ADMIN_ROOT;
+const adminSrcPath = process.env.ADMIN_ROOT
+    ? path.join(process.env.ADMIN_ROOT, 'Resources', 'app', 'administration', 'src')
+    : path.join(path.dirname(__dirname), 'src');
 const host = process.env.VITE_HOST || (isInsideDockerContainer() ? getContainerIP() : undefined) || 'localhost';
 
 const extensionEntries = loadExtensions();
@@ -98,21 +98,10 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
                     find: /^src\//,
                     replacement: '/src/',
                 },
-
-                // In the symfony recipes, shopware lies in the vendor folder, therefore we can't use the PROJECT_ROOT
-                ...(hasAdminRootEnv
-                    ? [
-                          {
-                              find: /^~scss\/(.*)/,
-                              replacement: `${process.env.ADMIN_ROOT}/Resources/app/administration/src/app/assets/scss/$1.scss`,
-                          },
-                      ]
-                    : [
-                          {
-                              find: /^~scss\/(.*)/,
-                              replacement: `${process.env.PROJECT_ROOT}/src/Administration/Resources/app/administration/src/app/assets/scss/$1.scss`,
-                          },
-                      ]),
+                {
+                    find: /^~scss\/(.*)/,
+                    replacement: `${adminSrcPath}/app/assets/scss/$1.scss`,
+                },
                 {
                     find: /^~(.*)$/,
                     replacement: '$1',
@@ -166,6 +155,8 @@ const main = async () => {
 
     if (isDev) {
         const availablePorts = await findAvailablePorts(5333, extensionEntries.length);
+        const extensionsServerScheme = process.env.VITE_EXTENSIONS_SERVER_SCHEME || 'http';
+        const extensionsServerHost = process.env.VITE_EXTENSIONS_SERVER_HOST || host || 'localhost';
 
         // Create sw-plugin-dev.json for development mode
         const swPluginDevJsonData = {
@@ -189,12 +180,15 @@ const main = async () => {
             }
 
             if (extension.isApp) {
-                swPluginDevJsonData[extension.technicalName].html = `http://${host}:${availablePorts[index]}/index.html`;
+                swPluginDevJsonData[extension.technicalName].html =
+                    `${extensionsServerScheme}://${extensionsServerHost}:${availablePorts[index]}/index.html`;
             }
 
             if (extension.isPlugin) {
-                swPluginDevJsonData[extension.technicalName].js = `http://${host}:${availablePorts[index]}/${fileName}`;
-                swPluginDevJsonData[extension.technicalName].hmrSrc = `http://${host}:${availablePorts[index]}/@vite/client`;
+                swPluginDevJsonData[extension.technicalName].js =
+                    `${extensionsServerScheme}://${extensionsServerHost}:${availablePorts[index]}/${fileName}`;
+                swPluginDevJsonData[extension.technicalName].hmrSrc =
+                    `${extensionsServerScheme}://${extensionsServerHost}:${availablePorts[index]}/@vite/client`;
             }
         });
 

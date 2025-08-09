@@ -60,10 +60,14 @@ templateFiles.forEach((file) => {
 // Stop the progress bar
 pb.stop();
 
+// Sort the result array to maintain consistent ordering
+const sortedPositionIdentifiers = result.sort((a, b) => a.localeCompare(b));
+
 // Define the output file path for the result
 const outputFile = path.join(__dirname, '../../src/meta/position-identifiers.json');
 
 console.log(colors.blueBright(`\nWriting to ${outputFile}`));
-fs.writeFileSync(outputFile, JSON.stringify(result));
+
+fs.writeFileSync(outputFile, JSON.stringify(sortedPositionIdentifiers, null, 1));
 
 console.log(colors.green('\nAll done!'));

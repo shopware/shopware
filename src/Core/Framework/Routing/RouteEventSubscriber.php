@@ -70,6 +70,10 @@ readonly class RouteEventSubscriber implements EventSubscriberInterface
         if ($request->attributes->has('_route')) {
             $this->dispatcher->dispatch($event, $request->attributes->get('_route') . '.response');
         }
+
+        foreach ($request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []) as $scope) {
+            $this->dispatcher->dispatch($event, $scope . '.scope.response');
+        }
     }
 
     public function controller(ControllerEvent $event): void

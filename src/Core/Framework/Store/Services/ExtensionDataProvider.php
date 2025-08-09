@@ -24,6 +24,10 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
 {
     final public const HEADER_NAME_TOTAL_COUNT = 'SW-Meta-Total';
 
+    /**
+     * @param EntityRepository<AppCollection> $appRepository
+     * @param EntityRepository<PluginCollection> $pluginRepository
+     */
     public function __construct(
         private readonly ExtensionLoader $extensionLoader,
         private readonly EntityRepository $appRepository,
@@ -39,13 +43,11 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
         $appCriteria->addAssociation('translations');
         $appCriteria->addFilter(new EqualsFilter('selfManaged', false));
 
-        /** @var AppCollection $installedApps */
         $installedApps = $this->appRepository->search($appCriteria, $context)->getEntities();
 
         $pluginCriteria = $searchCriteria ? clone $searchCriteria : new Criteria();
         $pluginCriteria->addAssociation('translations');
 
-        /** @var PluginCollection $installedPlugins */
         $installedPlugins = $this->pluginRepository->search($pluginCriteria, $context)->getEntities();
         $pluginCollection = $this->extensionLoader->loadFromPluginCollection($context, $installedPlugins);
 
@@ -65,7 +67,7 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
         $criteria = (new Criteria())->addFilter(new EqualsFilter('name', $technicalName));
         $app = $this->appRepository->search($criteria, $context)->getEntities()->first();
 
-        if (!$app instanceof AppEntity) {
+        if (!$app) {
             throw StoreException::extensionNotFoundFromTechnicalName($technicalName);
         }
 
@@ -77,7 +79,7 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
         $criteria = new Criteria([$id]);
         $app = $this->appRepository->search($criteria, $context)->getEntities()->first();
 
-        if (!$app instanceof AppEntity) {
+        if (!$app) {
             throw StoreException::extensionNotFoundFromId($id);
         }
 

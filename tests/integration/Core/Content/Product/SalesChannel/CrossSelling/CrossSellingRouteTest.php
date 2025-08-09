@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingR
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -468,7 +469,7 @@ class CrossSellingRouteTest extends TestCase
             $this->createMock(SystemConfigService::class),
             $this->createMock(ProductListingLoader::class),
             $this->createMock(AbstractProductCloseoutFilterFactory::class),
-            new EventDispatcher()
+            $this->createMock(CacheTagCollector::class),
         );
 
         $productId = Uuid::randomHex();
@@ -594,7 +595,9 @@ class CrossSellingRouteTest extends TestCase
         }
 
         $this->productRepository->create($products, $this->salesChannelContext->getContext());
-        $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
+        $lastProduct = end($products);
+        static::assertIsArray($lastProduct);
+        $this->addTaxDataToSalesChannel($this->salesChannelContext, $lastProduct['tax']);
 
         return $products;
     }
@@ -602,8 +605,14 @@ class CrossSellingRouteTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function getProductData(?string $id = null, ?string $manufacturerId = null, ?string $taxId = null, bool $withChild = false, int $stock = 1, bool $isCloseout = false): array
-    {
+    private function getProductData(
+        ?string $id = null,
+        ?string $manufacturerId = null,
+        ?string $taxId = null,
+        bool $withChild = false,
+        int $stock = 1,
+        bool $isCloseout = false
+    ): array {
         $price = random_int(0, 10);
 
         $product = [

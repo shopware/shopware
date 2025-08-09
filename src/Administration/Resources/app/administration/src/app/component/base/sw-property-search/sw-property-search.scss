@@ -73,6 +73,10 @@
 
         .sw-grid__pagination {
             background-color: $color-white;
+
+            .mt-icon {
+                margin: 0;
+            }
         }
     }
 

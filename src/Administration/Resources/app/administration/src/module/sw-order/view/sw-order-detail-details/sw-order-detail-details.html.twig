@@ -88,6 +88,7 @@
             class="sw-order-detail-details__shipping-cost"
             :disabled="!acl.can('order.editor')"
             :step="1"
+            :min="0"
             :label="$tc('sw-order.detailDeliveries.labelShippingCosts')"
         >
             <template #suffix>
@@ -278,7 +279,6 @@
     <sw-order-state-history-modal
         v-if="showStateHistoryModal"
         :order="order"
-        :is-loading="isLoading"
         @modal-close="showStateHistoryModal = false"
     />
     {% endblock %}

@@ -7,6 +7,7 @@ parameters:
 shopware:
     http_cache:
         cookies: []
+        soft_purge: false
         reverse_proxy:
             enabled: false
             ban_method: "BAN" # This can defer from used reverse proxy
@@ -133,10 +134,12 @@ shopware:
     filesystem:
         private:
             type: "local"
+            visibility: "private"
             config:
                 root: "%kernel.project_dir%/files"
         public:
             type: "local"
+            visibility: "public"
             config:
                 root: "%kernel.project_dir%/public"
         temp:
@@ -300,6 +303,8 @@ shopware:
         batchsize: 100
         custom_urls:
         excluded_urls:
+        scheduled_task:
+            enabled: true
 
     deployment:
         blue_green: '%env(bool:default:defaults_bool_true:BLUE_GREEN_DEPLOYMENT)%'
@@ -553,6 +558,7 @@ shopware:
 
     messenger:
         routing_overwrite:
+        stats:
 
     product_stream:
         indexing: true

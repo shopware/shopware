@@ -97,7 +97,7 @@ export default {
                 return String(this.documentConfig.documentNumber);
             },
             set(value) {
-                this.documentConfig.documentNumber = Number(value);
+                this.documentConfig.documentNumber = value;
             },
         },
     },

@@ -105,19 +105,16 @@
             {% endblock %}
         </div>
 
-        {% block cms_form_contact_required_fields_info %}
-            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-info-required.html.twig' %}
-        {% endblock %}
-
         {% block cms_form_contact_captcha %}
             {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { additionalClass : 'col-md-12' } %}
         {% endblock %}
 
         {% block cms_form_contact_privacy %}
-            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-privacy.html.twig' with {
-                requiresTermsOfService: false,
-                prevUrl: app.request.isXmlHttpRequest() ? path('frontend.cms.page', { id: config('core.basicInformation.contactPage') }) : '',
-            } %}
+            {% sw_include '@Storefront/storefront/component/privacy-notice.html.twig' %}
+        {% endblock %}
+
+        {% block cms_form_contact_required_fields_info %}
+            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-info-required.html.twig' %}
         {% endblock %}
 
         {% block cms_form_contact_submit %}

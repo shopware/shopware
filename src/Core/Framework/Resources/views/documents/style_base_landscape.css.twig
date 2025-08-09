@@ -1,10 +1,15 @@
 <style type="text/css">
     {% block document_style %}
         body {
-            font-family: 'Source Sans Pro', sans-serif;
+            font-family: 'Source Sans Pro', "DejaVu Sans", sans-serif;
             font-size: 12px;
             line-height: 12px;
             width: 100%;
+        }
+
+        main {
+            width: 100%;
+            float: right;
         }
 
         .letter-header {
@@ -44,6 +49,7 @@
         /*Page */
         @page {
             margin-top: 200px;
+            margin-bottom: 50px;
         }
 
         /* Header */
@@ -247,9 +253,8 @@
         /* Footer */
         footer {
             position: fixed;
-            bottom: 30px;
+            bottom: -10px;
             font-size: 8px;
-            padding-top: 30px;
             line-height: 9px;
             width: 100%;
         }

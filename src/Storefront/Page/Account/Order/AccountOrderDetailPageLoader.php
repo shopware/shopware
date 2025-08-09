@@ -48,7 +48,7 @@ class AccountOrderDetailPageLoader
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
         );
 
         if (!$salesChannelContext->getCustomer()) {
@@ -63,17 +63,26 @@ class AccountOrderDetailPageLoader
 
         $criteria = new Criteria([$orderId]);
         $criteria
+            ->addAssociation('primaryOrderTransaction.paymentMethod')
+            ->addAssociation('primaryOrderTransaction.stateMachineState')
+            ->addAssociation('primaryOrderDelivery.shippingMethod')
+            ->addAssociation('primaryOrderDelivery.stateMachineState')
             ->addAssociation('lineItems')
             ->addAssociation('orderCustomer')
             ->addAssociation('stateMachineState')
-            ->addAssociation('transactions.paymentMethod')
-            ->addAssociation('transactions.stateMachineState')
             ->addAssociation('deliveries.shippingMethod')
-            ->addAssociation('deliveries.stateMachineState')
             ->addAssociation('lineItems.cover');
 
-        $criteria->getAssociation('transactions')
-            ->addSorting(new FieldSorting('createdAt'));
+        if (!Feature::isActive('v6.8.0.0')) {
+            $criteria
+                ->addAssociation('transactions.paymentMethod')
+                ->addAssociation('transactions.stateMachineState')
+                ->addAssociation('deliveries.stateMachineState');
+
+            $criteria
+                ->getAssociation('transactions')
+                ->addSorting(new FieldSorting('createdAt'));
+        }
 
         $apiRequest = $request->duplicate();
 

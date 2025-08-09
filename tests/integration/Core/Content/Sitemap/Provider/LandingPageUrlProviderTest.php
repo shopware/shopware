@@ -217,6 +217,7 @@ class LandingPageUrlProviderTest extends TestCase
 
     private function createLandingPages(): void
     {
+        $validLandingPages = [];
         // add valid landing pages
         for ($i = 1; $i <= 10; ++$i) {
             $validLandingPages[] = [
@@ -230,10 +231,7 @@ class LandingPageUrlProviderTest extends TestCase
             ];
         }
 
-        $this->landingPageRepository->upsert(
-            $validLandingPages,
-            $this->salesChannelContext->getContext()
-        );
+        $this->landingPageRepository->upsert($validLandingPages, $this->salesChannelContext->getContext());
 
         $newSalesChannelContext = $this->createStorefrontSalesChannelContext(
             Uuid::randomHex(),

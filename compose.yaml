@@ -22,6 +22,8 @@ services:
 
     database:
         image: mariadb:latest
+        ports:
+            - 3306:3306
         environment:
             MARIADB_ROOT_PASSWORD: root
             MARIADB_DATABASE: shopware
@@ -43,6 +45,7 @@ services:
         healthcheck:
             test: [ "CMD", "mariadb-admin" ,"ping", "-h", "localhost", "-proot" ]
             start_interval: 3s
+            start_period: 10s
             interval: 5s
             timeout: 1s
             retries: 10

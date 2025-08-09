@@ -62,17 +62,18 @@
                     {% block sw_theme_manager_detail_smart_bar_actions_save_context_menu %}
                         <sw-context-button>
                             <template #button>
-                                <sw-button
+                                <mt-button
                                     class="sw_theme_manager_detail__button-context-menu"
                                     square
                                     variant="primary"
                                     :disabled="isLoading || !acl.can('theme.editor')"
+                                    size="default"
                                 >
-                                    <sw-icon
-                                            name="regular-chevron-down-xs"
-                                            size="16"
+                                    <mt-icon
+                                        name="regular-chevron-down-xs"
+                                        size="16"
                                     />
-                                </sw-button>
+                                </mt-button>
                             </template>
 
                             {% block sw_theme_manager_detail_smart_bar_actions_save_context_menu_actions %}
@@ -175,8 +176,8 @@
                                                 <div class="sw-theme-manager-detail__info-content">
                                                     <div class="sw-theme-manager-detail__info-name">{{ theme.name }}</div>
                                                     <div class="sw-theme-manager-detail__info-author">{{ theme.author }}</div>
-                                                    <div v-if="theme.description" class="sw-theme-manager-detail__info-descr">
-                                                        <p class="sw-theme-manager-detail__info-descr-title">
+                                                    <div v-if="theme.description" class="sw-theme-manager-detail__info-description">
+                                                        <p class="sw-theme-manager-detail__info-description-title">
                                                             {{ $t('sw-theme-manager.detail.description') }}:
                                                         </p>
                                                         <p>{{ theme.description |truncate(140) }}</p>
@@ -184,7 +185,7 @@
 
                                                     <sw-entity-multi-select
                                                         v-model:entityCollection="theme.salesChannels"
-                                                        class="sw-theme-manager-detail__saleschannels-select"
+                                                        class="sw-theme-manager-detail__sales-channels-select"
                                                         :label="$t('sw-theme-manager.detail.salesChannel')"
                                                         :disabled="!acl.can('theme.editor')"
                                                         :helpText="isDefaultTheme ? $t('sw-theme-manager.detail.salesChannelHelpText') : null"
@@ -220,7 +221,7 @@
                                                         :disabled="!acl.can('theme.creator')"
                                                         @click="onDuplicateTheme(theme)"
                                                     >
-                                                        {{ $t('sw-theme-manager.actions.duplicate') }}
+                                                        {{ $t('global.default.duplicate') }}
                                                     </sw-context-menu-item>
                                                 {% endblock %}
 
@@ -268,17 +269,17 @@
                                                     {# @deprecated tag:v6.8.0 - Remove `section.label` from if-condition #}
                                                     <div
                                                         v-if="$t(section.labelSnippetKey) !== section.labelSnippetKey || section.label"
-                                                        class="sw-theme-manager-detail__content--section_title"
+                                                        class="sw-theme-manager-detail__content-section-title"
                                                     >
                                                         {{ getSnippet(section.labelSnippetKey, section.label) }}
                                                     </div>
 
                                                     {% block sw_theme_manager_detail_content_fields %}
-                                                        <sw-container class="sw-theme-manager-detail__content--section_field">
+                                                        <sw-container class="sw-theme-manager-detail__content-section-field">
                                                             <div v-for="(field, fieldName) in section.fields"
                                                                  :key="fieldName"
-                                                                 class="sw-theme-manager-detail__content--section_field"
-                                                                 :class="{'sw-theme-manager-detail__content--section_field-full-width': field.fullWidth}">
+                                                                 class="sw-theme-manager-detail__content-section-field"
+                                                                 :class="{'sw-theme-manager-detail__content-section-field-full-width': field.fullWidth}">
                                                                 <template v-if="themeConfig[fieldName] && baseThemeConfig[fieldName]">
                                                                     <template v-if="mapSwFieldTypes(field.type) === 'select'">
                                                                         <sw-inherit-wrapper
@@ -287,7 +288,8 @@
                                                                             :ref="`wrapper-${fieldName}`"
                                                                             :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                             :inherited-value="baseThemeConfig[fieldName].value"
-                                                                            :label="getSnippet(field.labelSnippetKey, field.label)"
+                                                                            :label="getFieldLabel(field, fieldName)"
+                                                                            :help-text="getHelpText(field)"
                                                                             :customInheritationCheckFunction="checkInheritanceFunction(fieldName)"
                                                                             @update:value="handleInheritanceInput($event, fieldName)"
                                                                         >
@@ -296,11 +298,9 @@
                                                                                     v-model:value="currentValue"
                                                                                     :placeholder="field.placeholder"
                                                                                     :options="field.options"
-                                                                                    :helpText="getHelpText(field.helpTextSnippetKey, field.helpText)"
                                                                                     :disabled="isInherited || !acl.can('theme.editor')"
                                                                                     @update:value="updateCurrentValue"
-                                                                                >
-                                                                                </sw-select-field>
+                                                                                ></sw-select-field>
                                                                             </template>
                                                                         </sw-inherit-wrapper>
                                                                     </template>
@@ -312,18 +312,17 @@
                                                                             :ref="`wrapper-${fieldName}`"
                                                                             :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                             :inherited-value="baseThemeConfig[fieldName].value"
-                                                                            :label="getSnippet(field.labelSnippetKey, field.label)"
+                                                                            :label="getFieldLabel(field, fieldName)"
+                                                                            :help-text="getHelpText(field)"
                                                                             :customInheritationCheckFunction="checkInheritanceFunction(fieldName)"
                                                                             @update:value="handleInheritanceInput($event, fieldName)"
                                                                         >
                                                                             <template #content="{ currentValue, updateCurrentValue, isInherited }">
                                                                                 <sw-url-field
                                                                                     v-model:value="currentValue"
-                                                                                    :helpText="getHelpText(field.helpTextSnippetKey, field.helpText)"
                                                                                     :disabled="isInherited || !acl.can('theme.editor')"
                                                                                     @update:value="updateCurrentValue"
-                                                                                >
-                                                                                </sw-url-field>
+                                                                                ></sw-url-field>
                                                                             </template>
                                                                         </sw-inherit-wrapper>
                                                                     </template>
@@ -335,12 +334,13 @@
                                                                         </sw-upload-listener>
 
                                                                         <sw-inherit-wrapper
-                                                                            :class="'sw-field-id-' + fieldName"
                                                                             v-model:value="currentThemeConfig[fieldName].value"
+                                                                            :class="`sw-field-id-${fieldName} sw-theme-manager-detail__inherit-wrapper-media`"
                                                                             :ref="`wrapper-${fieldName}`"
                                                                             :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                             :inherited-value="baseThemeConfig[fieldName].value"
-                                                                            :label="getSnippet(field.labelSnippetKey, field.label)"
+                                                                            :label="getFieldLabel(field, fieldName)"
+                                                                            :help-text="getHelpText(field)"
                                                                             :customInheritationCheckFunction="checkInheritanceFunction(fieldName)"
                                                                             @update:value="handleInheritanceInput($event, fieldName)"
                                                                         >
@@ -348,15 +348,14 @@
                                                                                 <sw-media-upload-v2
                                                                                     :source="currentValue"
                                                                                     :uploadTag="tabName + '-' + blockName + '-' + sectionName + '-' + fieldName"
-                                                                                    :helpText="getHelpText(field.helpTextSnippetKey, field.helpText)"
                                                                                     :ref="tabName + '-' + blockName + '-' + sectionName + '-' + fieldName"
                                                                                     :defaultFolder="themeRepository.schema.entity"
                                                                                     :allowMultiSelect="false"
                                                                                     :disabled="!acl.can('theme.editor') || themeConfig[fieldName].editable === false"
                                                                                     @media-drop="onDropMedia($event, currentThemeConfig[fieldName])"
-                                                                                    @media-upload-sidebar-open="openMediaSidebar()"
-                                                                                    @media-upload-remove-image="removeMediaItem(fieldName, updateCurrentValue, isInherited, removeInheritance)">
-                                                                                </sw-media-upload-v2>
+                                                                                    @media-upload-sidebar-open="onOpenMediaModal(fieldName)"
+                                                                                    @media-upload-remove-image="removeMediaItem(fieldName, updateCurrentValue, isInherited, removeInheritance)"
+                                                                                ></sw-media-upload-v2>
                                                                             </template>
                                                                         </sw-inherit-wrapper>
                                                                     </div>
@@ -368,25 +367,26 @@
                                                                             :ref="`wrapper-${fieldName}`"
                                                                             :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                             :inherited-value="baseThemeConfig[fieldName].value"
-                                                                            :label="getSnippet(field.labelSnippetKey, field.label)"
+                                                                            :label="getFieldLabel(field, fieldName)"
+                                                                            :help-text="getHelpText(field)"
                                                                             :customInheritationCheckFunction="checkInheritanceFunction(fieldName)"
                                                                             @update:value="handleInheritanceInput($event, fieldName)"
                                                                         >
                                                                             <template #content="{ currentValue, updateCurrentValue, isInherited }">
                                                                                 <sw-colorpicker
                                                                                     v-if="mapSwFieldTypes(field.type) === 'colorpicker'"
-                                                                                    :helpText="getHelpText(field.helpTextSnippetKey, field.helpText)"
                                                                                     :disabled="isInherited || !acl.can('theme.editor') || themeConfig[fieldName].editable === false"
                                                                                     :value="currentValue"
-                                                                                    zIndex="100"
+                                                                                    :error="themeConfigErrors[fieldName]"
+                                                                                    :z-index="100"
                                                                                     @update:value="updateCurrentValue"
                                                                                 />
 
                                                                                 <mt-text-field
                                                                                     v-else-if="mapSwFieldTypes(field.type) === 'text' || mapSwFieldTypes(field.type) === null"
-                                                                                    :helpText="getHelpText(field.helpTextSnippetKey, field.helpText)"
                                                                                     :disabled="isInherited || !acl.can('theme.editor') || themeConfig[fieldName].editable === false"
                                                                                     :model-value="cssValue(currentValue)"
+                                                                                    :error="themeConfigErrors[fieldName]"
                                                                                     @update:modelValue="updateCurrentValue"
                                                                                 />
                                                                             </template>
@@ -400,7 +400,8 @@
                                                                             :ref="`wrapper-${fieldName}`"
                                                                             :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                             :inherited-value="baseThemeConfig[fieldName].value"
-                                                                            :label="getSnippet(field.labelSnippetKey, field.label)"
+                                                                            :label="getFieldLabel(field, fieldName)"
+                                                                            :help-text="getHelpText(field)"
                                                                             :customInheritationCheckFunction="checkInheritanceFunction(fieldName)"
                                                                             @update:value="handleInheritanceInput($event, fieldName)"
                                                                         >
@@ -409,9 +410,10 @@
                                                                                     v-bind="getBind(field)"
                                                                                     :value="currentValue"
                                                                                     :disabled="isInherited || !acl.can('theme.editor')"
+                                                                                    :error="themeConfigErrors[fieldName]"
+                                                                                    bordered
                                                                                     @update:value="updateCurrentValue"
-                                                                                >
-                                                                                </sw-form-field-renderer>
+                                                                                ></sw-form-field-renderer>
                                                                             </template>
                                                                         </sw-inherit-wrapper>
                                                                     </template>
@@ -450,22 +452,23 @@
                     {% block sw_theme_manager_reset_modal_footer %}
                         <template #modal-footer>
                             {% block sw_theme_manager_reset_modal_cancel %}
-                                <sw-button
+                                <mt-button
                                     size="small"
+                                    variant="primary"
                                     @click="onCloseResetModal"
                                 >
                                     {{ $t('global.default.cancel') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
 
                             {% block sw_theme_manager_reset_modal_confirm %}
-                                <sw-button
+                                <mt-button
                                     size="small"
-                                    variant="danger"
+                                    variant="critical"
                                     @click="onConfirmThemeReset"
                                 >
                                     {{ $t('sw-theme-manager.actions.buttonReset') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
                      </template>
                     {% endblock %}
@@ -487,22 +490,23 @@
                     {% block sw_theme_manager_detail_delete_modal_footer %}
                         <template #modal-footer>
                             {% block sw_theme_manager_detail_delete_modal_cancel %}
-                                <sw-button
+                                <mt-button
+                                    variant="secondary"
                                     size="small"
                                     @click="onCloseDeleteModal"
                                 >
                                     {{ $t('global.default.cancel') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
 
                             {% block sw_theme_manager_detail_delete_modal_confirm %}
-                                <sw-button
-                                    variant="danger"
+                                <mt-button
+                                    variant="critical"
                                     size="small"
                                     @click="onConfirmThemeDelete"
                                 >
                                     {{ $t('global.default.delete') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
                         </template>
                     {% endblock %}
@@ -564,22 +568,23 @@
                     {% block sw_theme_manager_detail_save_modal_footer %}
                         <template #modal-footer>
                             {% block sw_theme_manager_detail_save_modal_cancel %}
-                                <sw-button
+                                <mt-button
+                                    variant="secondary"
                                     size="small"
                                     @click="onCloseSaveModal"
                                 >
                                     {{ $t('global.default.cancel') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
 
                             {% block sw_theme_manager_detail_save_modal_confirm %}
-                                <sw-button
+                                <mt-button
                                     variant="primary"
                                     size="small"
                                     @click="onConfirmThemeSave"
                                 >
                                     {{ $t('global.default.save') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
                         </template>
                     {% endblock %}
@@ -609,19 +614,24 @@
                     {% block sw_theme_manager_detail_duplicate_modal_footer %}
                         <template #modal-footer>
                             {% block sw_theme_manager_detail_duplicate_modal_cancel %}
-                                <sw-button @click="onCloseDuplicateModal"
-                                           size="small">
+                                <mt-button
+                                    variant="primary"
+                                    size="small"
+                                    @click="onCloseDuplicateModal"
+                                >
                                     {{ $t('global.default.cancel') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
 
                             {% block sw_theme_manager_detail_duplicate_modal_confirm %}
-                                <sw-button @click="onConfirmThemeDuplicate"
-                                           variant="primary"
-                                           :disabled="newThemeName.length < 3"
-                                           size="small">
-                                    {{ $t('sw-theme-manager.modal.buttonDuplicateTheme') }}
-                                </sw-button>
+                                <mt-button
+                                    variant="primary"
+                                    :disabled="newThemeName.length < 3"
+                                    size="small"
+                                    @click="onConfirmThemeDuplicate"
+                                >
+                                    {{ $t('global.default.duplicate') }}
+                                </mt-button>
                             {% endblock %}
                         </template>
                     {% endblock %}
@@ -651,19 +661,24 @@
                     {% block sw_theme_manager_detail_rename_modal_footer %}
                         <template #modal-footer>
                             {% block sw_theme_manager_detail_rename_modal_cancel %}
-                                <sw-button @click="onCloseRenameModal"
-                                           size="small">
+                                <mt-button
+                                    variant="secondary"
+                                    size="small"
+                                    @click="onCloseRenameModal"
+                                >
                                     {{ $t('global.default.cancel') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
 
                             {% block sw_theme_manager_detail_rename_modal_confirm %}
-                                <sw-button @click="onConfirmThemeRename"
-                                           variant="primary"
-                                           :disabled="newThemeName.length < 3"
-                                           size="small">
+                                <mt-button
+                                    variant="primary"
+                                    :disabled="newThemeName.length < 3"
+                                    size="small"
+                                    @click="onConfirmThemeRename"
+                                >
                                     {{ $t('global.default.save') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
                         </template>
                     {% endblock %}
@@ -683,24 +698,41 @@
                     {% block sw_theme_manager_detail_error_modal_footer %}
                         <template #modal-footer>
                             {% block sw_theme_manager_detail_error_modal_close %}
-                                <sw-button size="small" @click="onCloseErrorModal">
+                                <mt-button
+                                    variant="secondary"
+                                    size="small"
+                                    @click="onCloseErrorModal"
+                                >
                                     {{ $t('global.default.close') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
                         </template>
                     {% endblock %}
                 </sw-modal>
             {% endblock %}
+
+            {% block sw_theme_manager_detail_media_modal %}
+                <sw-media-modal-v2
+                    v-if="showMediaModal"
+                    :initial-folder-id="defaultMediaFolderId"
+                    :allow-multi-select="false"
+                    @media-modal-selection-change="onMediaChange"
+                    @modal-close="onCloseMediaModal"
+                />
+            {% endblock %}
         </template>
 
+        {# @deprecated tag:v6.8.0 - Will be removed, use block sw_theme_manager_detail_media_modal instead. #}
         {% block sw_theme_manager_detail_sidebar %}
             <template #sidebar>
                 <sw-sidebar :propagateWidth="true">
+                    {# @deprecated tag:v6.8.0 - Will be removed. #}
                     {% block sw_theme_manager_detail_sidebar_media %}
                         <sw-sidebar-media-item
                             ref="mediaSidebarItem"
                             :initialFolderId="defaultMediaFolderId">
                             <template #context-menu-items="media">
+                                {# @deprecated tag:v6.8.0 - Will be removed. #}
                                 {% block sw_theme_manager_detail_sidebar_media_items %}
                                     <template v-if="shouldShowContent">
                                         <template v-for="tab in structuredThemeFields.tabs">
@@ -712,7 +744,7 @@
                                                             :key="fieldName"
                                                             @click="onAddMediaToTheme(media.mediaItem, currentThemeConfig[fieldName])"
                                                         >
-                                                            {{ $t('sw-theme-manager.modal.addToMediaLabel', { name: getSnippet(field.labelSnippetKey, field.label) }) }}
+                                                            {{ $t('sw-theme-manager.modal.addToMediaLabel', { name: getFieldLabel(field, fieldName) }) }}
                                                         </sw-context-menu-item>
                                                     </template>
                                                 </template>

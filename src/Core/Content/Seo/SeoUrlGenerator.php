@@ -136,7 +136,7 @@ class SeoUrlGenerator
         } catch (Error $error) {
             $this->logger->warning('Error received on rendering SEO URL template', [
                 'exception' => $error,
-                'mapping_entity_type' => \get_class($mapping->getEntity()),
+                'mapping_entity_type' => $mapping->getEntity()::class,
                 'mapping_error' => $mapping->getError(),
                 'mapping_info_path' => $mapping->getInfoPathContext(),
                 'mapping' => $mapping,
@@ -160,7 +160,7 @@ class SeoUrlGenerator
         ]));
 
         try {
-            $this->twig->loadTemplate($this->twig->getTemplateClass($templateName), $templateName);
+            $this->twig->load($templateName);
         } catch (SyntaxError $syntaxError) {
             $this->logger->warning('Error initializing SEO URL template', [
                 'exception' => $syntaxError,

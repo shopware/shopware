@@ -16,9 +16,14 @@
             @modal-close="closeModal(modal.locationId)"
         >
             <sw-iframe-renderer
+                v-if="modal.locationId"
                 :src="modal.baseUrl"
                 :location-id="modal.locationId"
             />
+
+            <template v-else>
+                <p v-html="sanitizeTextContent(modal.textContent)"></p>
+            </template>
 
             <template #modal-footer>
                 <mt-button

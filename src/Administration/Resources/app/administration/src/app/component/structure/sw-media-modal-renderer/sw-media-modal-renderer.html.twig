@@ -1,0 +1,12 @@
+{% block sw_media_modal_renderer %}
+<sw-media-modal-v2
+    v-if="mediaModal"
+    :initial-folder-id="mediaModal.initialFolderId"
+    :file-accept="mediaModal.fileAccept"
+    :entity-context="mediaModal.entityContext"
+    :default-tab="mediaModal.defaultTab"
+    :allow-multi-select="mediaModal.allowMultiSelect"
+    @media-modal-selection-change="onSelectionChange"
+    @modal-close="closeModal"
+/>
+{% endblock %}

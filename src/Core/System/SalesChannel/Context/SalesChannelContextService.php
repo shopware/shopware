@@ -2,14 +2,18 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextCreatedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 #[Package('framework')]
 class SalesChannelContextService implements SalesChannelContextServiceInterface
@@ -52,7 +56,8 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
         private readonly CartRuleLoader $ruleLoader,
         private readonly SalesChannelContextPersister $contextPersister,
         private readonly CartService $cartService,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly RequestStack $requestStack
     ) {
     }
 
@@ -92,11 +97,30 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
             }
 
             $context = $this->factory->create($token, $parameters->getSalesChannelId(), $session);
+
+            if ($parameters->getOriginalContext()?->hasState(ElasticsearchEntitySearcher::EXPLAIN_MODE)) {
+                $context->addState(ElasticsearchEntitySearcher::EXPLAIN_MODE);
+            }
+
             $this->eventDispatcher->dispatch(new SalesChannelContextCreatedEvent($context, $token, $session));
 
-            $result = $this->ruleLoader->loadByToken($context, $token);
+            $currentRequest = $this->requestStack->getCurrentRequest();
+            $requestSession = $currentRequest?->hasSession() ? $currentRequest->getSession() : null;
 
-            $this->cartService->setCart($result->getCart());
+            // skip cart calculation on ESI sub-requests if it has already been done.
+            $esiRequest = $currentRequest?->attributes->has('_sw_esi') ?? false;
+            if (!$this->cartService->hasCart($token) || !$esiRequest) {
+                // @deprecated tag:v6.8.0 - Permission will always be true
+                $result = $context->withPermissions(
+                    [AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => Feature::isActive('DEFERRED_CART_ERRORS')],
+                    fn (SalesChannelContext $context) => $this->ruleLoader->loadByToken($context, $token),
+                );
+
+                $this->cartService->setCart($result->getCart());
+                $requestSession?->set('sw-rule-ids', $result->getCart()->getRuleIds());
+            } else {
+                $context->setRuleIds($requestSession?->get('sw-rule-ids') ?? []);
+            }
 
             return $context;
         });

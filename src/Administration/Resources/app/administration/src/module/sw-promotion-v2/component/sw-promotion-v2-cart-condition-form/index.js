@@ -98,6 +98,16 @@ export default {
                 };
             });
         },
+
+        setGroupCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addAssociation('setGroupRules');
+
+            criteria.addFilter(Criteria.equals('promotionId', this.promotion.id));
+
+            return criteria;
+        },
     },
 
     watch: {
@@ -126,10 +136,7 @@ export default {
         },
 
         loadSetGroups() {
-            const criteria = new Criteria(1, 25);
-            criteria.addFilter(Criteria.equals('promotionId', this.promotion.id));
-
-            this.promotionGroupRepository.search(criteria).then((groups) => {
+            this.promotionGroupRepository.search(this.setGroupCriteria).then((groups) => {
                 this.promotion.setgroups = groups;
             });
         },

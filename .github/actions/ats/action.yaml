@@ -83,11 +83,12 @@ runs:
         echo "SHOPWARE_HTTP_CACHE_ENABLED=0" >> $GITHUB_ENV
         echo "SHOPWARE_DISABLE_UPDATE_CHECK=true" >> $GITHUB_ENV
         echo "BLUE_GREEN_DEPLOYMENT=1" >> $GITHUB_ENV
+        echo "ENABLE_SERVICES=0" >> $GITHUB_ENV
 
     - name: Setup Shopware
       uses: shopware/setup-shopware@main
       with:
-        mysql-version: "builtin"
+        mysql-version: 'builtin'
         shopware-version: ${{ github.ref }}
         shopware-repository: ${{ github.repository }}
         install: ${{ inputs.install }}
@@ -136,6 +137,17 @@ runs:
       working-directory: ${{ inputs.directory }}
       run: npx playwright install --with-deps chromium
 
+    - name: Download visual testing snapshots
+      if: ${{ contains(inputs.project, 'visual') && !contains(inputs.extra-options, 'update-snapshots') }}
+      uses: dawidd6/action-download-artifact@07ab29fd4a977ae4d2b275087cf67563dfdf0295 # v9
+      with:
+        workflow_search: 'true'
+        branch: ${{ github.ref_name }}
+        name: visual-snapshots-${{ hashFiles('.git/HEAD') }}
+        path: .
+        search_artifacts: 'true'
+      continue-on-error: true
+
     - name: Run your tests
       shell: bash
       working-directory: ${{ inputs.directory }}
@@ -145,6 +157,7 @@ runs:
         CURRENTS_BUILD_ID: "${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}${{ matrix.major && 'major' }}"
         ATS_CMD: ${{ inputs.use-currents && 'pwc' || 'playwright'}}
       run: npx $ATS_CMD test --project=${{ inputs.project }} --workers=${{ inputs.workers }} --shard=${{ inputs.shard }}/${{ inputs.shard-count }} ${{ inputs.extra-options }}
+      continue-on-error: ${{ contains(inputs.project, 'visual') }} # Visual tests are allowed to fail; the results will be uploaded regardless and checked regularly
 
     - uses: actions/upload-artifact@v4
       if: always()
@@ -152,3 +165,15 @@ runs:
         name: ats-${{ inputs.project }}-${{ inputs.shard }}-php${{ inputs.php-version }}-${{ inputs.major && '-major' || '' }}
         path: ${{ inputs.directory }}/test-results/
         retention-days: 3
+      continue-on-error: true
+
+    - name: Upload visual testing snapshots
+      if: ${{ contains(inputs.project, 'visual') && contains(inputs.extra-options, 'update-snapshots') }}
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      with:
+        name: visual-snapshots-${{ hashFiles('.git/HEAD') }}
+        path: |
+          .gitignore
+          tests/acceptance/tests/**/*-snapshots/*.png
+        retention-days: 90
+      continue-on-error: true

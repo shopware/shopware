@@ -20,12 +20,11 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
  * @method \Shopware\Core\Framework\Routing\Facade\RequestFacade request()
  * @method \Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade response()
  * @method \Shopware\Core\Framework\Adapter\Cache\Script\Facade\CacheInvalidatorFacade cache()
+ * @method \Shopware\Core\Framework\Script\Api\AclFacade acl()
  */
 #[Package('framework')]
 final class ServiceStubs
 {
-    private string $hook;
-
     /**
      * @var array<string, array{deprecation?: string, service: object}>
      */
@@ -34,9 +33,8 @@ final class ServiceStubs
     /**
      * @internal
      */
-    public function __construct(string $hook)
+    public function __construct(private readonly string $hook)
     {
-        $this->hook = $hook;
     }
 
     /**

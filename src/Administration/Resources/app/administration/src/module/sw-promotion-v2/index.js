@@ -47,7 +47,6 @@ Shopware.Component.register(
     'sw-promotion-v2-empty-state-hero',
     () => import('./component/sw-promotion-v2-empty-state-hero'),
 );
-Shopware.Component.register('sw-promotion-v2-rule-select', () => import('./component/sw-promotion-v2-rule-select'));
 Shopware.Component.register(
     'sw-promotion-v2-sales-channel-select',
     () => import('./component/sw-promotion-v2-sales-channel-select'),
@@ -149,7 +148,7 @@ Module.register('sw-promotion-v2', {
             props: {
                 default: (route) => {
                     return {
-                        promotionId: route.params.id,
+                        promotionId: route.params.id?.toLowerCase(),
                     };
                 },
             },

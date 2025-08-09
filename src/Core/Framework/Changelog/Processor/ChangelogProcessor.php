@@ -59,7 +59,7 @@ class ChangelogProcessor
         $this->featureFlags = $flags;
     }
 
-    public function findLastestTag(): ?string
+    public function findLatestTag(): ?string
     {
         if ($this->env === 'test') {
             return null;
@@ -159,7 +159,7 @@ class ChangelogProcessor
         [$superVersion, $majorVersion] = explode('.', $version);
 
         if (!is_numeric($superVersion) || !is_numeric($majorVersion)) {
-            FrameworkException::invalidArgumentException(\sprintf('Unable to generate next version number, supplied version seems invalid (%s)', $version));
+            throw FrameworkException::invalidArgumentException(\sprintf('Unable to generate next version number, supplied version seems invalid (%s)', $version));
         }
 
         $superVersion = (int) $superVersion;

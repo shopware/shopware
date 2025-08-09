@@ -1720,6 +1720,25 @@ class ElasticsearchProductTest extends TestCase
     }
 
     #[Depends('testIndexing')]
+    public function testFilterCustomTextFieldEqualNull(IdsCollection $data): void
+    {
+        try {
+            $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+            $criteria->addFilter(new EqualsFilter('customFields.testField', null));
+
+            $result = $this->createEntitySearcher()->search($this->productDefinition, $criteria, Context::createDefaultContext());
+
+            static::assertSame(1, $result->getTotal());
+            static::assertTrue($result->has($data->get('product-7')));
+        } catch (\Exception $e) {
+            $this->tearDown();
+
+            throw $e;
+        }
+    }
+
+    #[Depends('testIndexing')]
     public function testXorQuery(IdsCollection $data): void
     {
         try {
@@ -2445,7 +2464,7 @@ class ElasticsearchProductTest extends TestCase
                     ],
                     'test_date' => [
                         'type' => 'date',
-                        'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
+                        'format' => 'yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time||epoch_millis',
                         'ignore_malformed' => true,
                     ],
                     'test_float' => [
@@ -2982,6 +3001,7 @@ class ElasticsearchProductTest extends TestCase
                     'name' => \sprintf('name-%s', $id),
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'parentId' => $parentId,
+                    'active' => true,
                     'translationCode' => [
                         'code' => Uuid::randomHex(),
                         'name' => 'Test locale',

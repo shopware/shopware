@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
@@ -123,9 +124,12 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                         continue;
                     }
 
-                    $deliveries = null;
+                    $deliveries = $order->getPrimaryOrderDelivery();
+
                     if ($order->getDeliveries()) {
-                        $deliveries = $order->getDeliveries()->first();
+                        if (!Feature::isActive('v6.8.0.0')) {
+                            $deliveries = $order->getDeliveries()->first();
+                        }
                     }
 
                     $language = $order->getLanguage();

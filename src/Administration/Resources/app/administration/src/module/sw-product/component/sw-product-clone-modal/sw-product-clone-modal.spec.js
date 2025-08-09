@@ -37,13 +37,6 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
     /** @type Wrapper */
     let wrapper;
 
-    it('should be a Vue.JS component', async () => {
-        wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should clone parent without mainVariantId', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -54,6 +47,7 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
                 variantListingConfig: {
                     mainVariantId: '1a2b3c',
                 },
+                childCount: 1,
             },
         });
 
@@ -73,9 +67,29 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
                     variantListingConfig: {
                         mainVariantId: null,
                     },
+                    childCount: 1,
                 },
             },
             expect.anything(),
         );
+    });
+
+    it('should not change the original product', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const product = {
+            name: 'shirt',
+            variantListingConfig: {
+                mainVariantId: '1a2b3c',
+            },
+            childCount: 1,
+        };
+
+        await wrapper.setProps({
+            product: product,
+        });
+
+        expect(product.variantListingConfig.mainVariantId).toBe('1a2b3c');
     });
 });

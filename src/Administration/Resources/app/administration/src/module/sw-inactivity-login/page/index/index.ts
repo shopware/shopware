@@ -140,10 +140,12 @@ export default Component.wrapComponentConfig({
 
             if (previousRoute?.fullPath) {
                 void this.$router.push(previousRoute.fullPath);
-                return;
+            } else {
+                void this.$router.push({ name: 'core' });
             }
 
-            void this.$router.push({ name: 'core' });
+            // Reload the page to ensure all non-login initializers are executed
+            window.location.reload();
         },
 
         onBackToLogin() {

@@ -16,17 +16,8 @@ parameters:
     featureToggles:
         internalTag: false
 
-    # For stricter testing those should be set to false at some point
-    polluteScopeWithLoopInitialAssignments: true
-    polluteScopeWithAlwaysIterableForeach: true
-    polluteScopeWithBlock: true
-
     # For stricter testing those should be set to true at some point
-    checkDynamicProperties: false
-    checkExplicitMixedMissingReturn: false
     reportMaybesInMethodSignatures: false
-    reportStaticMethodSignatures: false
-    reportMaybesInPropertyPhpDocTypes: false
     reportWrongPhpDocTypeInVarTag: false
 
     # For stricter testing those should be set to true at some point
@@ -77,3 +68,6 @@ rules:
     # naming rules
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule
     - Symplify\PHPStanRules\Rules\UppercaseConstantRule
+
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PublicServiceDecoratorRule
+

@@ -504,9 +504,9 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     });
 
     ruleConditionService.addCondition('promotionLineItem', {
-        component: 'sw-condition-generic',
+        component: 'sw-condition-generic-line-item',
         label: 'global.sw-condition.condition.promotionLineItemRule',
-        scopes: ['cart'],
+        scopes: ['lineItem'],
         group: 'promotion',
     });
 

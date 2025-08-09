@@ -23,13 +23,15 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Rule\Container\Container;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
 class OrderRoute extends AbstractOrderRoute
 {
@@ -63,7 +65,11 @@ class OrderRoute extends AbstractOrderRoute
             ->addFilter(new EqualsFilter('config.displayInCustomerAccount', 'true'))
             ->addFilter(new EqualsFilter('sent', true));
 
-        $criteria->addAssociations(['billingAddress', 'orderCustomer.customer']);
+        $criteria->addAssociations(['billingAddress', 'orderCustomer.customer', 'primaryOrderDelivery']);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $criteria->addAssociation('deliveries');
+        }
 
         $deepLinkFilter = \current(array_filter($criteria->getFilters(), static fn (Filter $filter) => \in_array('order.deepLinkCode', $filter->getFields(), true)
             || \in_array('deepLinkCode', $filter->getFields(), true))) ?: null;

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
@@ -22,18 +23,20 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  */
 #[AsMessageHandler]
 #[Package('framework')]
-final class WebhookEventMessageHandler
+final readonly class WebhookEventMessageHandler
 {
     private const TIMEOUT = 20;
     private const CONNECT_TIMEOUT = 10;
 
     /**
      * @internal
+     *
+     * @param EntityRepository<ScheduledTaskCollection> $webhookEventLogRepository
      */
     public function __construct(
-        private readonly Client $client,
-        private readonly EntityRepository $webhookEventLogRepository,
-        private readonly RelatedWebhooks $relatedWebhooks,
+        private Client $client,
+        private EntityRepository $webhookEventLogRepository,
+        private RelatedWebhooks $relatedWebhooks,
     ) {
     }
 

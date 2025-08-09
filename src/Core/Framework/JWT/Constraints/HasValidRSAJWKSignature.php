@@ -11,23 +11,24 @@ use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Validator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\JWT\JWTException;
 use Shopware\Core\Framework\JWT\Struct\JWKCollection;
 use Shopware\Core\Framework\JWT\Struct\JWKStruct;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
-final class HasValidRSAJWKSignature implements Constraint
+final readonly class HasValidRSAJWKSignature implements Constraint
 {
     private const ALGORITHMS = ['RS256', 'RS384', 'RS512'];
 
-    private JWKCollection $jwks;
-
-    public function __construct(JWKCollection $jwks)
+    public function __construct(private JWKCollection $jwks)
     {
-        $this->jwks = $jwks;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function assert(Token $token): void
     {
         $this->validateAlgorithm($token);
@@ -36,7 +37,11 @@ final class HasValidRSAJWKSignature implements Constraint
 
         $signer = $this->getSigner($token->headers()->get('alg'));
 
-        (new Validator())->assert($token, new SignedWith($signer, InMemory::plainText($pem)));
+        if (Feature::isActive('v6.8.0.0')) {
+            (new SignedWith($signer, InMemory::plainText($pem)))->assert($token);
+        } else {
+            (new Validator())->assert($token, new SignedWith($signer, InMemory::plainText($pem)));
+        }
     }
 
     private function validateAlgorithm(Token $token): void

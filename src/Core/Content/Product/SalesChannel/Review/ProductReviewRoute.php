@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\ProductException;
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -12,13 +12,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('after-sales')]
 class ProductReviewRoute extends AbstractProductReviewRoute
 {
@@ -30,7 +31,7 @@ class ProductReviewRoute extends AbstractProductReviewRoute
     public function __construct(
         private readonly EntityRepository $productReviewRepository,
         private readonly SystemConfigService $systemConfigService,
-        private readonly EventDispatcherInterface $dispatcher,
+        private readonly CacheTagCollector $cacheTagCollector
     ) {
     }
 
@@ -52,7 +53,7 @@ class ProductReviewRoute extends AbstractProductReviewRoute
             throw ProductException::reviewNotActive();
         }
 
-        $this->dispatcher->dispatch(new AddCacheTagEvent(self::buildName($productId)));
+        $this->cacheTagCollector->addTag(self::buildName($productId));
 
         $active = new MultiFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('status', true)]);
         if ($customer = $context->getCustomer()) {

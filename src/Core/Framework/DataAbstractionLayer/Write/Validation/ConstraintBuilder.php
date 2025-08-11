@@ -17,6 +17,9 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('framework')]
 class ConstraintBuilder
 {
+    /**
+     * @var Constraint[]
+     */
     private array $constraints = [];
 
     /**
@@ -66,6 +69,10 @@ class ConstraintBuilder
 
     public function isLengthLessThanOrEqual(int $maxLength): self
     {
+        if ($maxLength < 1) {
+            $maxLength = null;
+        }
+
         $this->addConstraint(new Length(max: $maxLength));
 
         return $this;
@@ -120,7 +127,8 @@ class ConstraintBuilder
     }
 
     /**
-     * Set prop must be in array
+     * @param array<string> $values
+     *                              Set prop must be in array
      */
     public function isInArray(array $values): self
     {

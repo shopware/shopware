@@ -1747,18 +1747,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Write/PrimaryKeyBag.php
 
 		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Write\\Validation\\ConstraintBuilder\:\:isInArray\(\) has parameter \$values with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Validation/ConstraintBuilder.php
-
-		-
-			message: '#^Property Shopware\\Core\\Framework\\DataAbstractionLayer\\Write\\Validation\\ConstraintBuilder\:\:\$constraints type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Validation/ConstraintBuilder.php
-
-		-
 			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Write\\Validation\\RestrictDeleteViolation\:\:getRestrictions\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1

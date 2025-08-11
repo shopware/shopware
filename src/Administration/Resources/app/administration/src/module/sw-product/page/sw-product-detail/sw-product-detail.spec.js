@@ -195,10 +195,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
         }
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show advanced mode settings', async () => {
         Shopware.Store.get('swProductDetail').product = { parentId: '' };
         await nextTick();

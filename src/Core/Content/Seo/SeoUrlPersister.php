@@ -109,7 +109,7 @@ class SeoUrlPersister
             $insertQuery->addInsert($this->seoUrlRepository->getDefinition()->getEntityName(), $insert);
         }
 
-        $inuseSeoUrls = $this->findInUseCanonicalSeoUrls($seoPathInfos);
+        $inuseSeoUrls = $this->findInUseCanonicalSeoUrls($seoPathInfos, $salesChannelId);
 
         RetryableTransaction::retryable($this->connection, function () use ($obsoleted, $insertQuery, $foreignKeys, $updatedFks, $salesChannelId): void {
             $this->obsoleteIds($obsoleted, $salesChannelId);
@@ -196,19 +196,25 @@ class SeoUrlPersister
      *
      * @return array<array<string, mixed>>
      */
-    private function findInUseCanonicalSeoUrls(array $seoPathInfos): array
+    private function findInUseCanonicalSeoUrls(array $seoPathInfos, ?string $salesChannelId = null): array
     {
         if (empty($seoPathInfos)) {
             return [];
         }
 
-        return $this->connection->fetchAllAssociative(
-            'SELECT id, language_id languageId, sales_channel_id salesChannelId, foreign_key foreignKey, route_name routeName
-            FROM seo_url
-            WHERE is_canonical = 1 AND seo_path_info IN (:seoPathInfos)',
-            ['seoPathInfos' => $seoPathInfos],
-            ['seoPathInfos' => ArrayParameterType::BINARY]
-        );
+        $query = 'SELECT id, language_id languageId, sales_channel_id salesChannelId, foreign_key foreignKey, route_name routeName
+        FROM seo_url
+        WHERE is_canonical = 1 AND seo_path_info IN (:seoPathInfos)';
+
+        $params = ['seoPathInfos' => $seoPathInfos];
+        $types = ['seoPathInfos' => ArrayParameterType::BINARY];
+
+        if ($salesChannelId !== null) {
+            $query .= ' AND sales_channel_id = :salesChannelId';
+            $params['salesChannelId'] = $salesChannelId;
+        }
+
+        return $this->connection->fetchAllAssociative($query, $params, $types);
     }
 
     /**

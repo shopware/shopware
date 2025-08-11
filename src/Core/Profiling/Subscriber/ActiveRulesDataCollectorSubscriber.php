@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Profiling\Subscriber;
 
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -27,6 +27,9 @@ class ActiveRulesDataCollectorSubscriber extends AbstractDataCollector implement
      */
     private array $ruleIds = [];
 
+    /**
+     * @param EntityRepository<RuleCollection> $ruleRepository
+     */
     public function __construct(private readonly EntityRepository $ruleRepository)
     {
     }
@@ -63,7 +66,7 @@ class ActiveRulesDataCollectorSubscriber extends AbstractDataCollector implement
 
     public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
-        $this->data = $this->getMatchingRules();
+        $this->data = $this->getMatchingRules()->getElements();
     }
 
     public static function getTemplate(): string
@@ -76,17 +79,14 @@ class ActiveRulesDataCollectorSubscriber extends AbstractDataCollector implement
         $this->ruleIds = $event->getContext()->getRuleIds();
     }
 
-    /**
-     * @return array<string, Entity>
-     */
-    private function getMatchingRules(): array
+    private function getMatchingRules(): RuleCollection
     {
         if (empty($this->ruleIds)) {
-            return [];
+            return new RuleCollection();
         }
 
         $criteria = new Criteria($this->ruleIds);
 
-        return $this->ruleRepository->search($criteria, Context::createDefaultContext())->getElements();
+        return $this->ruleRepository->search($criteria, Context::createDefaultContext())->getEntities();
     }
 }

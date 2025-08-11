@@ -85,6 +85,9 @@ async function createWrapper(privileges = [], isSso = { isSso: false }, saveFunc
                 },
                 searchRankingService: {
                     clearCacheUserSearchConfiguration: () => {},
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
                 },
                 userConfigService: {
                     upsert: () => {
@@ -115,13 +118,6 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
                 setLocaleWithId: jest.fn(),
             };
         });
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to save own user', async () => {

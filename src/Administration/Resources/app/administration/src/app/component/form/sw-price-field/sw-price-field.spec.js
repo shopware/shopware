@@ -107,12 +107,6 @@ describe('components/form/sw-price-field', () => {
         jest.useRealTimers();
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await setup();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain the dollar price', async () => {
         const wrapper = await setup();
 

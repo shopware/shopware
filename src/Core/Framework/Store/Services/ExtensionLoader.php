@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Store\Struct\VariantCollection;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Storefront\Framework\ThemeInterface;
+use Shopware\Storefront\Theme\ThemeCollection;
 use Symfony\Component\Intl\Languages;
 use Symfony\Component\Intl\Locales;
 
@@ -46,6 +47,9 @@ class ExtensionLoader
      */
     private ?array $installedThemeNames = null;
 
+    /**
+     * @param ?EntityRepository<ThemeCollection> $themeRepository
+     */
     public function __construct(
         private readonly ?EntityRepository $themeRepository,
         private readonly AppLoader $appLoader,

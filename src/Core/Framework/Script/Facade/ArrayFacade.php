@@ -28,16 +28,13 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
 {
-    private readonly ?\Closure $closure;
-
     /**
      * @param array<string|int, mixed> $items
      */
     public function __construct(
         private array $items,
-        ?\Closure $closure = null
+        private readonly ?\Closure $closure = null,
     ) {
-        $this->closure = $closure;
     }
 
     /**

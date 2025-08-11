@@ -231,4 +231,18 @@
         </component>
     </card>
 
+    <card>
+        <title>Meta</title>
+        <input-field type="text">
+            <name>metaRobots</name>
+            <label>Robots Meta Tag</label>
+            <label lang="de-DE">Robots Meta Tag</label>
+            <helpText>This option affects the default content attribute of the "robots" meta tag. CMS pages can override this value. Some pages like the cart will always set "noindex,follow".</helpText>
+            <helpText lang="de-DE">Diese Option betrifft den Standardwert des "robots" Meta Tag. CMS Seiten können diesen Wert überschreiben. Einige Seiten, wie der Warenkorb, nutzen immer "noindex,follow".</helpText>
+            <defaultValue>index,follow</defaultValue>
+            <placeholder>index,follow</placeholder>
+            <placeholder lang="de-DE">index,follow</placeholder>
+        </input-field>
+    </card>
+
 </config>

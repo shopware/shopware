@@ -106,13 +106,6 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         window.location = originalLocation;
     });
 
-    it('should be a Vue.js component', async () => {
-        const { wrapper } = await createWrapper(false);
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show a warning if the login is rate limited', async () => {
         const { wrapper, usernameInput, passwordInput } = await createWrapper(false);
         jest.useFakeTimers();

@@ -27,7 +27,11 @@ async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFu
                             return privileges.includes(identifier);
                         },
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                     ssoSettingsService: {
                         isSso: () => {
                             return Promise.resolve(isSso);
@@ -73,10 +77,6 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('the card should contain the right title', async () => {

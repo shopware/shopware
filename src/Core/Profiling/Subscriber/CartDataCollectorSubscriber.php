@@ -23,8 +23,15 @@ class CartDataCollectorSubscriber extends AbstractDataCollector implements Event
 
     private ?SalesChannelContext $salesChannelContext = null;
 
-    public function __construct(private readonly AbstractCartPersister $cartPersister)
-    {
+    /**
+     * @param array<string, array{serviceId: string, priority: int, decoratedBy: list<array{serviceId: string, priority: int}>}> $cartCollectors
+     * @param array<string, array{serviceId: string, priority: int, decoratedBy: list<array{serviceId: string, priority: int}>}> $cartProcessors
+     */
+    public function __construct(
+        private readonly AbstractCartPersister $cartPersister,
+        private readonly array $cartCollectors = [],
+        private readonly array $cartProcessors = [],
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -67,9 +74,30 @@ class CartDataCollectorSubscriber extends AbstractDataCollector implements Event
         return $this->getCart()?->getPrice()?->getTotalPrice() ?? 0.0;
     }
 
+    /**
+     * @return array<string, array{serviceId: string, priority: int, decoratedBy: list<array{serviceId: string, priority: int}>}>
+     */
+    public function getCollectors(): array
+    {
+        return $this->data['collectors'] ?? [];
+    }
+
+    /**
+     * @return array<string, array{serviceId: string, priority: int, decoratedBy: list<array{serviceId: string, priority: int}>}>
+     */
+    public function getProcessors(): array
+    {
+        return $this->data['processors'] ?? [];
+    }
+
     public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
-        $this->data = ['cart' => $this->getCartData(), 'currency' => $this->salesChannelContext?->getCurrency()->getIsoCode()];
+        $this->data = [
+            'cart' => $this->getCartData(),
+            'currency' => $this->salesChannelContext?->getCurrency()->getIsoCode(),
+            'collectors' => $this->cartCollectors,
+            'processors' => $this->cartProcessors,
+        ];
     }
 
     public static function getTemplate(): string

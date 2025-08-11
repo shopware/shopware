@@ -23,6 +23,9 @@ readonly class InstallationPath implements Fingerprint
         return self::IDENTIFIER;
     }
 
+    /**
+     * A change in the installation path usually indicates with near certainty that the shop has been permanently moved or has been cloned to a new environment.
+     */
     public function getScore(): int
     {
         return 100;

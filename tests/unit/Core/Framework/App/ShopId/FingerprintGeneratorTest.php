@@ -3,10 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\ShopId;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\Fingerprint;
+use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\FingerprintGenerator;
+use Shopware\Core\Framework\App\ShopId\FingerprintMatch;
+use Shopware\Core\Framework\App\ShopId\FingerprintMismatch;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -41,71 +44,74 @@ class FingerprintGeneratorTest extends TestCase
         static::assertSame('baz', $fingerprints['baz']);
     }
 
-    public function testDoesNotSuggestShopIdChangeIfAllFingerprintsMatch(): void
+    /**
+     * @param array<string, string> $fingerprints
+     */
+    #[DataProvider('fingerprintsForComparison')]
+    public function testComparesFingerPrintAndReturnsResult(array $fingerprints, FingerprintComparisonResult $result): void
     {
-        $fingerprints = [
-            'foo' => 'foo',
-            'bar' => 'bar',
-            'baz' => 'baz',
-        ];
+        $fingerprintGenerator = new FingerprintGenerator([
+            new FooFingerprint(),
+            new BarFingerprint(),
+            new BazFingerprint(),
+        ]);
 
-        $this->fingerprintGenerator->compare($fingerprints);
-
-        static::expectNotToPerformAssertions();
+        static::assertEquals($result, $fingerprintGenerator->compare($fingerprints));
     }
 
-    public function testDoesNotSuggestShopIdChangeIfScoreIsBelowThreshold(): void
+    public static function fingerprintsForComparison(): \Generator
     {
-        $fingerprints = [
-            'foo' => 'foo',
-            'bar' => 'rab',
-            'baz' => 'baz',
+        yield 'all match' => [
+            [
+                'foo' => 'foo',
+                'bar' => 'bar',
+                'baz' => 'baz',
+            ],
+            new FingerprintComparisonResult(
+                [
+                    'foo' => new FingerprintMatch('foo', 'foo'),
+                    'bar' => new FingerprintMatch('bar', 'bar'),
+                    'baz' => new FingerprintMatch('baz', 'baz'),
+                ],
+                [],
+                75,
+            ),
         ];
 
-        $this->fingerprintGenerator->compare($fingerprints);
-
-        static::expectNotToPerformAssertions();
-    }
-
-    public function testSuggestsShopIdChangeIfScoreIsEqualToThreshold(): void
-    {
-        $fingerprints = [
-            'foo' => 'foo',
-            'bar' => 'rab',
-            'baz' => 'zab',
+        yield 'one mismatch' => [
+            [
+                'foo' => 'foo',
+                'bar' => 'wrong',
+                'baz' => 'baz',
+            ],
+            new FingerprintComparisonResult(
+                [
+                    'foo' => new FingerprintMatch('foo', 'foo'),
+                    'baz' => new FingerprintMatch('baz', 'baz'),
+                ],
+                [
+                    'bar' => new FingerprintMismatch('bar', 'wrong', 'bar', 50),
+                ],
+                75,
+            ),
         ];
 
-        try {
-            $this->fingerprintGenerator->compare($fingerprints);
-
-            static::fail(\sprintf('Expected "%s" to be thrown.', ShopIdChangeSuggestedException::class));
-        } catch (ShopIdChangeSuggestedException $e) {
-            static::assertSame([
-                'bar',
-                'baz',
-            ], $e->mismatchingFingerprints);
-        }
-    }
-
-    public function testSuggestsShopIdChangeIfScoreIsAboveThreshold(): void
-    {
-        $fingerprints = [
-            'foo' => 'oof',
-            'bar' => 'rab',
-            'baz' => 'zab',
+        yield 'all mismatch' => [
+            [
+                'foo' => 'wrong',
+                'bar' => 'wrong',
+                'baz' => 'wrong',
+            ],
+            new FingerprintComparisonResult(
+                [],
+                [
+                    'foo' => new FingerprintMismatch('foo', 'wrong', 'foo', 100),
+                    'bar' => new FingerprintMismatch('bar', 'wrong', 'bar', 50),
+                    'baz' => new FingerprintMismatch('baz', 'wrong', 'baz', 25),
+                ],
+                75,
+            ),
         ];
-
-        try {
-            $this->fingerprintGenerator->compare($fingerprints);
-
-            static::fail(\sprintf('Expected "%s" to be thrown.', ShopIdChangeSuggestedException::class));
-        } catch (ShopIdChangeSuggestedException $e) {
-            static::assertSame([
-                'foo',
-                'bar',
-                'baz',
-            ], $e->mismatchingFingerprints);
-        }
     }
 }
 

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
+use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -512,12 +513,9 @@ class AppException extends HttpException
         );
     }
 
-    /**
-     * @param list<string> $mismatchingFingerprints
-     */
-    public static function shopIdChangeSuggested(array $mismatchingFingerprints): self
+    public static function shopIdChangeSuggested(FingerprintComparisonResult $comparisonResult): self
     {
-        return new ShopIdChangeSuggestedException($mismatchingFingerprints);
+        return new ShopIdChangeSuggestedException($comparisonResult);
     }
 
     public static function appUrlNotConfigured(): self
@@ -525,7 +523,7 @@ class AppException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::APP_URL_NOT_CONFIGURED,
-            'The environment variable "APP_URL" is not set. Please set it to point the URL to your Admin API.'
+            'The environment variable "APP_URL" is not set. Please set it to the URL to your Admin API.'
         );
     }
 
@@ -534,7 +532,7 @@ class AppException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INVALID_SHOP_ID_CONFIGURATION,
-            'The configuration value for "core.app.shopId" in the system config is invalid.'
+            'The configuration values for "core.app.shopIdV2" and "core.app.shopId" in the system config are invalid.'
         );
     }
 }

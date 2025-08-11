@@ -24,6 +24,9 @@ readonly class SalesChannelDomainUrls implements Fingerprint
         return self::IDENTIFIER;
     }
 
+    /**
+     * Newly added, removed or changed sales channel domains are an early indication that the shop ID should be changed.
+     */
     public function getScore(): int
     {
         return 25;

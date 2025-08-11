@@ -8,6 +8,8 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppDownloadException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
+use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -179,11 +181,13 @@ class AppExceptionTest extends TestCase
 
     public function testShopIdChangeSuggested(): void
     {
-        $e = AppException::shopIdChangeSuggested(['foo', 'bar']);
+        $e = AppException::shopIdChangeSuggested($comparisonResult = new FingerprintComparisonResult([], [], 75));
 
+        static::assertInstanceOf(ShopIdChangeSuggestedException::class, $e);
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
         static::assertSame('FRAMEWORK__APP_SHOP_ID_CHANGE_SUGGESTED', $e->getErrorCode());
         static::assertSame('Changes in your system were detected that suggest a change of the shop ID.', $e->getMessage());
+        static::assertSame($comparisonResult, $e->comparisonResult);
     }
 
     public function testAppUrlNotConfigured(): void

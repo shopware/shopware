@@ -680,21 +680,21 @@
         <service id="Shopware\Core\Framework\App\ShopId\Fingerprint\SalesChannelDomainUrls">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
-            <tag name="shopware.app_system.shop_id_change_detector"/>
+            <tag name="shopware.app_system.shop_id_fingerprint"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ShopId\Fingerprint\InstallationPath">
             <argument>%kernel.project_dir%</argument>
 
-            <tag name="shopware.app_system.shop_id_change_detector"/>
+            <tag name="shopware.app_system.shop_id_fingerprint"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl">
-            <tag name="shopware.app_system.shop_id_change_detector"/>
+            <tag name="shopware.app_system.shop_id_fingerprint"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ShopId\FingerprintGenerator">
-            <argument type="tagged_iterator" tag="shopware.app_system.shop_id_change_detector"/>
+            <argument type="tagged_iterator" tag="shopware.app_system.shop_id_fingerprint"/>
         </service>
     </services>
 </container>

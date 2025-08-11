@@ -6,10 +6,11 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
+use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\FingerprintGenerator;
+use Shopware\Core\Framework\App\ShopId\FingerprintMismatch;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdChangedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdDeletedEvent;
@@ -118,7 +119,18 @@ class ShopIdProviderTest extends TestCase
 
         $fingerprintGenerator = $this->createMock(FingerprintGenerator::class);
         $fingerprintGenerator->method('compare')
-            ->willThrowException(AppException::shopIdChangeSuggested([AppUrl::IDENTIFIER]));
+            ->willReturn(new FingerprintComparisonResult(
+                [],
+                [
+                    AppUrl::IDENTIFIER => new FingerprintMismatch(
+                        AppUrl::IDENTIFIER,
+                        'https://old.url',
+                        'https://new.url',
+                        100,
+                    ),
+                ],
+                75,
+            ));
 
         $provider = new ShopIdProvider(
             $systemConfigService,
@@ -151,7 +163,18 @@ class ShopIdProviderTest extends TestCase
         $fingerprintGenerator = $this->createMock(FingerprintGenerator::class);
         $fingerprintGenerator->expects($this->once())
             ->method('compare')
-            ->willThrowException(AppException::shopIdChangeSuggested([AppUrl::IDENTIFIER]));
+            ->willReturn(new FingerprintComparisonResult(
+                [],
+                [
+                    AppUrl::IDENTIFIER => new FingerprintMismatch(
+                        AppUrl::IDENTIFIER,
+                        'https://old.url',
+                        'https://new.url',
+                        100,
+                    ),
+                ],
+                75,
+            ));
         $fingerprintGenerator->expects($this->once())
             ->method('takeFingerprints')
             ->willReturn([

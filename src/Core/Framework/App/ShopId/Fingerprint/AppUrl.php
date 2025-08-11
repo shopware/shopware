@@ -20,6 +20,9 @@ readonly class AppUrl implements Fingerprint
         return self::IDENTIFIER;
     }
 
+    /**
+     * Changing the APP_URL usually indicates with near certainty that the shop has been permanently moved or has been cloned to a new environment.
+     */
     public function getScore(): int
     {
         return 100;

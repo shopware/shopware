@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Exception;
 
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -12,11 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('framework')]
 class ShopIdChangeSuggestedException extends AppException
 {
-    /**
-     * @param list<string> $mismatchingFingerprints
-     */
     public function __construct(
-        public readonly array $mismatchingFingerprints,
+        public readonly FingerprintComparisonResult $comparisonResult,
     ) {
         parent::__construct(
             Response::HTTP_INTERNAL_SERVER_ERROR,

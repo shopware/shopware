@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
-use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
@@ -92,15 +91,9 @@ class ShopIdProvider
 
     private function hasAppUrlChanged(ShopId $shopId): bool
     {
-        $hasAppUrlChanged = false;
-
-        try {
-            $this->fingerprintGenerator->compare($shopId->fingerprints);
-        } catch (ShopIdChangeSuggestedException $e) {
-            $hasAppUrlChanged = \in_array(AppUrl::IDENTIFIER, $e->mismatchingFingerprints, true);
-        }
-
-        return $hasAppUrlChanged;
+        return $this->fingerprintGenerator
+                ->compare($shopId->fingerprints)
+                ->getMismatchingFingerprint(AppUrl::IDENTIFIER) instanceof FingerprintMismatch;
     }
 
     private function fetchShopIdFromSystemConfig(): ?ShopId

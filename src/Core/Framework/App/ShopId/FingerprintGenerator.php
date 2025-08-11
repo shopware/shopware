@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\ShopId;
 
-use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -32,24 +31,37 @@ class FingerprintGenerator
     /**
      * @param array<string, string> $fingerprints
      */
-    public function compare(array $fingerprints): void
+    public function compare(array $fingerprints): FingerprintComparisonResult
     {
-        $score = 0;
+        $matchingFingerprints = [];
         $mismatchingFingerprints = [];
 
         foreach ($this->fingerprints as $fingerprint) {
-            $stamp = $fingerprints[$fingerprint->getIdentifier()] ?? null;
-            if ($stamp === $fingerprint->getStamp()) {
+            $storedStamp = $fingerprints[$fingerprint->getIdentifier()] ?? null;
+            $expectedStamp = $fingerprint->getStamp();
+
+            if ($storedStamp === $expectedStamp) {
+                $matchingFingerprints[$fingerprint->getIdentifier()] = new FingerprintMatch(
+                    $fingerprint->getIdentifier(),
+                    $fingerprint->getStamp(),
+                );
+
                 continue;
             }
 
-            $mismatchingFingerprints[] = $fingerprint->getIdentifier();
-            $score += $fingerprint->getScore();
+            $mismatchingFingerprints[$fingerprint->getIdentifier()] = new FingerprintMismatch(
+                $fingerprint->getIdentifier(),
+                $storedStamp,
+                $expectedStamp,
+                $fingerprint->getScore(),
+            );
         }
 
-        if ($score >= self::STATE_CHANGE_THRESHOLD) {
-            throw AppException::shopIdChangeSuggested($mismatchingFingerprints);
-        }
+        return new FingerprintComparisonResult(
+            $matchingFingerprints,
+            $mismatchingFingerprints,
+            self::STATE_CHANGE_THRESHOLD,
+        );
     }
 
     /**

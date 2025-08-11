@@ -5,10 +5,12 @@
     max-width: $content-width;
     margin: 0 auto var(--scale-size-40);
     border-radius: var(--border-radius-card);
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 10%), 0 2px 1px 0 rgba(0, 0, 0, 6%), 0 1px 1px 0 rgba(0, 0, 0, 8%);
+    border: 1px solid var(--color-border-primary-default);
     position: relative;
 
     &--not-accepted {
+        transform-style: preserve-3d;
+
         &::after {
             content: "";
             position: absolute;
@@ -18,10 +20,11 @@
                 linear-gradient(
                     -45deg,
                     transparent 45%,
-                    $color-shopware-brand-300 48%,
-                    $color-module-purple-300 52%,
+                    var(--color-border-brand-selected) 48%,
+                    var(--color-border-accent-default) 52%,
                     transparent 55%
                 );
+            transform: translateZ(-1px);
             background-size: 400%;
             z-index: -1;
             opacity: 0;

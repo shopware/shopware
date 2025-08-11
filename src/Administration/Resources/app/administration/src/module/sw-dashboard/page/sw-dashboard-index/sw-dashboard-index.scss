@@ -63,12 +63,14 @@ $content-max-width: 960px;
     &__card-grid {
         max-width: $content-max-width;
         margin: 0 auto var(--scale-size-40);
+        display: flex;
+        flex-direction: column;
+        gap: var(--scale-size-24);
 
         @media (min-width: 1024px) {
             display: grid;
             grid-template-columns: 3fr 2fr;
-            grid-column-gap: 24px;
-            grid-row-gap: 0;
+            grid-column-gap: var(--scale-size-24);
         }
     }
 

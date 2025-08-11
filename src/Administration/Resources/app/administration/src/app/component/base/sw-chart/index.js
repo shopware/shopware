@@ -290,7 +290,7 @@ export default {
 
                     axisTicks: {
                         show: true,
-                        color: "var(--color-border-primary-default)",
+                        color: 'var(--color-border-primary-default)',
                     },
 
                     labels: {

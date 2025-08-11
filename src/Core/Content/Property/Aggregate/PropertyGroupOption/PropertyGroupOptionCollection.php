@@ -78,7 +78,6 @@ class PropertyGroupOptionCollection extends EntityCollection
      * should only be used internally, when we need to add a lot of entities, that are already validated.
      *
      * @param array<PropertyGroupOptionEntity> $options
-     *
      */
     public function fillOptions(array $options): void
     {
@@ -86,7 +85,6 @@ class PropertyGroupOptionCollection extends EntityCollection
             $this->elements[$option->getUniqueIdentifier()] = $option;
         }
     }
-
 
     public function getApiAlias(): string
     {

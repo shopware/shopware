@@ -72,6 +72,20 @@ class PropertyGroupOptionCollection extends EntityCollection
         return $groups;
     }
 
+    /**
+     * @internal
+     * Performance optimization: By design this skips the expected class validation,
+     * should only be used internally, when we need to add a lot of entities, that are already validated.
+     *
+     * @param array<PropertyGroupOptionEntity> $options
+     */
+    public function fillOptions(array $options): void
+    {
+        foreach ($options as $option) {
+            $this->elements[$option->getUniqueIdentifier()] = $option;
+        }
+    }
+
     public function getApiAlias(): string
     {
         return 'product_group_option_collection';

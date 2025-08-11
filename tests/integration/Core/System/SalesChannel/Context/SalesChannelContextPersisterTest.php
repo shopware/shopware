@@ -117,7 +117,7 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertNotEmpty($result);
 
         static::assertEquals($expected, $result);
-        static::assertEquals($token, $result['token']);
+        static::assertSame($token, $result['token']);
     }
 
     public function testSaveMergesWithExisting(): void
@@ -344,7 +344,7 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertArrayNotHasKey(SalesChannelContextService::CUSTOMER_ID, $result);
     }
 
-    #[DataProvider('testRevokeTokensDataProvider')]
+    #[DataProvider('revokeTokensDataProvider')]
     public function testRevokeTokens(string $token, ?string $preserveToken): void
     {
         $customerId = $this->createCustomer();
@@ -367,7 +367,7 @@ class SalesChannelContextPersisterTest extends TestCase
         }
     }
 
-    public static function testRevokeTokensDataProvider(): \Generator
+    public static function revokeTokensDataProvider(): \Generator
     {
         yield [Uuid::randomHex(), ''];
         yield [$token = Uuid::randomHex(), $token];

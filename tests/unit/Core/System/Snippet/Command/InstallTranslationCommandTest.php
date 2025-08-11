@@ -2,14 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\System\Snippet\Command;
 
+use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\InstallTranslationCommand;
+use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
+use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\SnippetException;
-use Shopware\Core\System\Snippet\Struct\LanguageCollection;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -28,11 +30,11 @@ class InstallTranslationCommandTest extends TestCase
     {
         $this->translationLoader = $this->createMock(TranslationLoader::class);
         $this->config = new TranslationConfig(
-            'https://example.com',
+            new Uri('http://localhost:8000'),
             ['en-GB', 'es-ES'],
             [],
-            new LanguageCollection([]),
-            []
+            new LanguageCollection(),
+            new PluginMappingCollection()
         );
     }
 

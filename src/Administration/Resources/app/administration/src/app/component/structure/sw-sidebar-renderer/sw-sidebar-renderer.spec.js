@@ -218,12 +218,12 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
         it('should handle window resizing', async () => {
             const originalAddEventListener = window.addEventListener;
             let eventListener = null;
-            
+
             window.addEventListener = jest.fn((event, callback) => {
                 if (event === 'resize') {
                     eventListener = callback;
                 }
-                
+
                 originalAddEventListener.call(window, event, callback);
             });
 
@@ -250,7 +250,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             expect(wrapper.vm.sidebarDisplayOptions.availableWidth).toBe(`${1400 - MAIN_CONTENT_MIN_SIZE}px`);
             expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`480px`);
             expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(true);
-            
+
             // Restore original method
             window.addEventListener = originalAddEventListener;
         });
@@ -267,11 +267,11 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             await wrapper.vm.$nextTick();
 
             await dragSidebarToWidth(wrapper, 1000);
-            
+
             expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('920px'); // 1920 - 1000
 
             Shopware.Store.get('sidebar').sidebars[0].resizable = false;
-            
+
             await wrapper.vm.$forceUpdate();
             await wrapper.vm.$nextTick();
 

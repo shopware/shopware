@@ -29,9 +29,10 @@ export default Shopware.Component.wrapComponentConfig({
         });
 
         const sidebarDisplayOptions = computed(() => {
-            const availableWidth = activeSidebar.value?.resizable ? 
-                                   windowWidth.value - MAIN_CONTENT_MIN_SIZE : MIN_SIDEBAR_WIDTH;
-                                   
+            const availableWidth = activeSidebar.value?.resizable
+                ? windowWidth.value - MAIN_CONTENT_MIN_SIZE
+                : MIN_SIDEBAR_WIDTH;
+
             const currentWidth = Math.max(MIN_SIDEBAR_WIDTH, sidebarSetWidth.value);
             return {
                 availableWidth: `${Math.max(availableWidth, 0)}px`,

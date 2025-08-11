@@ -2,8 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Facade;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal
@@ -37,20 +36,21 @@ class RepositoryWriterFacadeTest extends TestCase
 
     private Context $context;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
+    private EntityRepository $productRepository;
+
     protected function setUp(): void
     {
         $this->factory = static::getContainer()->get(RepositoryWriterFacadeHookFactory::class);
         $this->context = Context::createDefaultContext();
+        $this->productRepository = static::getContainer()->get('product.repository');
     }
 
-    /**
-     * @param array<int, mixed> $payload
-     * @param callable(Context, ContainerInterface): void $expectation
-     */
-    #[DataProvider('testCases')]
-    public function testFacade(array $payload, string $method, IdsCollection $ids, callable $expectation): void
+    public function testCreateViaUpsert(): void
     {
-        $this->ids = $ids;
+        $this->ids = new IdsCollection();
         $this->createProducts();
 
         $facade = $this->factory->factory(
@@ -58,69 +58,57 @@ class RepositoryWriterFacadeTest extends TestCase
             new Script('test', '', new \DateTimeImmutable())
         );
 
-        $facade->$method('product', $payload); /* @phpstan-ignore-line */
+        $payload = [
+            (new ProductBuilder($this->ids, 'p4'))
+                ->visibility()
+                ->price(300)
+                ->build(),
+        ];
 
-        $expectation($this->context, static::getContainer());
+        $facade->upsert('product', $payload);
+        $createdProduct = $this->productRepository->search(new Criteria([$this->ids->get('p4')]), $this->context)->first();
+
+        static::assertInstanceOf(ProductEntity::class, $createdProduct);
     }
 
-    /**
-     * @return array<string, array<int, mixed>>
-     */
-    public static function testCases(): array
+    public function testUpdateViaUpsert(): void
     {
-        $ids = new IdsCollection();
+        $this->ids = new IdsCollection();
+        $this->createProducts();
 
-        return [
-            'testCreateViaUpsert' => [
-                [
-                    (new ProductBuilder($ids, 'p4'))
-                    ->visibility()
-                    ->price(300)
-                    ->build(),
-                ],
-                'upsert',
-                $ids,
-                function (Context $context, ContainerInterface $container) use ($ids): void {
-                    $productRepository = $container->get('product.repository');
+        $facade = $this->factory->factory(
+            new TestHook('test', $this->context),
+            new Script('test', '', new \DateTimeImmutable())
+        );
 
-                    $createdProduct = $productRepository->search(new Criteria([$ids->get('p4')]), $context)->first();
-
-                    static::assertInstanceOf(ProductEntity::class, $createdProduct);
-                },
-            ],
-            'testUpdateViaUpsert' => [
-                [
-                    [
-                        'id' => $ids->get('p2'),
-                        'active' => true,
-                    ],
-                ],
-                'upsert',
-                $ids,
-                function (Context $context, ContainerInterface $container) use ($ids): void {
-                    $productRepository = $container->get('product.repository');
-
-                    $updated = $productRepository->search(new Criteria([$ids->get('p2')]), $context)->first();
-
-                    static::assertInstanceOf(ProductEntity::class, $updated);
-                    static::assertTrue($updated->getActive());
-                },
-            ],
-            'testDelete' => [
-                [
-                    ['id' => $ids->get('p2')],
-                ],
-                'delete',
-                $ids,
-                function (Context $context, ContainerInterface $container) use ($ids): void {
-                    $productRepository = $container->get('product.repository');
-
-                    $deleted = $productRepository->search(new Criteria([$ids->get('p2')]), $context)->first();
-
-                    static::assertNull($deleted);
-                },
+        $payload = [
+            [
+                'id' => $this->ids->get('p2'),
+                'active' => true,
             ],
         ];
+
+        $facade->upsert('product', $payload);
+        $updated = $this->productRepository->search(new Criteria([$this->ids->get('p2')]), $this->context)->first();
+
+        static::assertInstanceOf(ProductEntity::class, $updated);
+        static::assertTrue($updated->getActive());
+    }
+
+    public function testDelete(): void
+    {
+        $this->ids = new IdsCollection();
+        $this->createProducts();
+
+        $facade = $this->factory->factory(
+            new TestHook('test', $this->context),
+            new Script('test', '', new \DateTimeImmutable())
+        );
+
+        $facade->delete('product', [['id' => $this->ids->get('p2')]]);
+        $deleted = $this->productRepository->search(new Criteria([$this->ids->get('p2')]), $this->context)->first();
+
+        static::assertNull($deleted);
     }
 
     public function testSync(): void
@@ -157,26 +145,22 @@ class RepositoryWriterFacadeTest extends TestCase
             ],
         ]);
 
-        $productRepository = static::getContainer()->get('product.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
 
-        $createdProduct = $productRepository->search(new Criteria([$this->ids->get('p4')]), $this->context)->first();
+        $createdProduct = $this->productRepository->search(new Criteria([$this->ids->get('p4')]), $this->context)->first();
         static::assertInstanceOf(ProductEntity::class, $createdProduct);
 
-        $updated = $productRepository->search(new Criteria([$this->ids->get('p2')]), $this->context)->first();
+        $updated = $this->productRepository->search(new Criteria([$this->ids->get('p2')]), $this->context)->first();
         static::assertInstanceOf(ProductEntity::class, $updated);
         static::assertTrue($updated->getActive());
 
-        $deleted = $productRepository->search(new Criteria([$this->ids->get('p3')]), $this->context)->first();
+        $deleted = $this->productRepository->search(new Criteria([$this->ids->get('p3')]), $this->context)->first();
         static::assertNull($deleted);
     }
 
-    /**
-     * @param array<int, mixed> $arguments
-     */
-    #[DataProvider('withoutPermissionsCases')]
-    public function testWithoutPermission(array $arguments, string $method, IdsCollection $ids): void
+    public function testUpsertWithoutPermission(): void
     {
-        $this->ids = $ids;
+        $this->ids = new IdsCollection();
         $this->createProducts();
 
         $appInfo = $this->installApp(__DIR__ . '/_fixtures/apps/withoutProductPermission');
@@ -187,41 +171,50 @@ class RepositoryWriterFacadeTest extends TestCase
         );
 
         static::expectException(MissingPrivilegeException::class);
-        $facade->$method(...$arguments); /* @phpstan-ignore-line */
+        $facade->upsert('product', [
+            [
+                'id' => $this->ids->get('p2'),
+                'active' => true,
+            ],
+        ]);
     }
 
-    /**
-     * @return array<string, array<int, mixed>>
-     */
-    public static function withoutPermissionsCases(): array
+    public function testDeleteWithoutPermission(): void
     {
-        $ids = new IdsCollection();
+        $this->ids = new IdsCollection();
+        $this->createProducts();
 
-        return [
-            'testUpsert' => [
-                ['product', [['id' => $ids->get('p2'), 'active' => true]]],
-                'upsert',
-                $ids,
+        $appInfo = $this->installApp(__DIR__ . '/_fixtures/apps/withoutProductPermission');
+
+        $facade = $this->factory->factory(
+            new TestHook('test', Context::createDefaultContext()),
+            new Script('test', '', new \DateTimeImmutable(), $appInfo)
+        );
+
+        static::expectException(MissingPrivilegeException::class);
+        $facade->upsert('product', [['id' => $this->ids->get('p3')]]);
+    }
+
+    public function testSyncWithoutPermission(): void
+    {
+        $this->ids = new IdsCollection();
+        $this->createProducts();
+
+        $appInfo = $this->installApp(__DIR__ . '/_fixtures/apps/withoutProductPermission');
+
+        $facade = $this->factory->factory(
+            new TestHook('test', Context::createDefaultContext()),
+            new Script('test', '', new \DateTimeImmutable(), $appInfo)
+        );
+
+        static::expectException(MissingPrivilegeException::class);
+        $facade->sync([
+            [
+                'entity' => 'product',
+                'action' => 'delete',
+                'payload' => [['id' => $this->ids->get('p3')]],
             ],
-            'testDelete' => [
-                ['product', [['id' => $ids->get('p3')]]],
-                'delete',
-                $ids,
-            ],
-            'testSync' => [
-                [
-                    [
-                        [
-                            'entity' => 'product',
-                            'action' => 'delete',
-                            'payload' => [['id' => $ids->get('p3')]],
-                        ],
-                    ],
-                ],
-                'sync',
-                $ids,
-            ],
-        ];
+        ]);
     }
 
     public function testIntegrationCreateCase(): void
@@ -267,9 +260,7 @@ class RepositoryWriterFacadeTest extends TestCase
 
         static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
-        $productRepository = static::getContainer()->get('product.repository');
-
-        $updated = $productRepository->search(new Criteria([$this->ids->get('p2')]), $this->context)->first();
+        $updated = $this->productRepository->search(new Criteria([$this->ids->get('p2')]), $this->context)->first();
         static::assertInstanceOf(ProductEntity::class, $updated);
         static::assertTrue($updated->getActive());
     }
@@ -294,9 +285,7 @@ class RepositoryWriterFacadeTest extends TestCase
 
         static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
-        $productRepository = static::getContainer()->get('product.repository');
-
-        $deleted = $productRepository->search(new Criteria([$this->ids->get('p3')]), $this->context)->first();
+        $deleted = $this->productRepository->search(new Criteria([$this->ids->get('p3')]), $this->context)->first();
         static::assertNull($deleted);
     }
 
@@ -321,13 +310,11 @@ class RepositoryWriterFacadeTest extends TestCase
 
         static::getContainer()->get(ScriptExecutor::class)->execute($hook);
 
-        $productRepository = static::getContainer()->get('product.repository');
-
-        $updated = $productRepository->search(new Criteria([$this->ids->get('p2')]), $this->context)->first();
+        $updated = $this->productRepository->search(new Criteria([$this->ids->get('p2')]), $this->context)->first();
         static::assertInstanceOf(ProductEntity::class, $updated);
         static::assertTrue($updated->getActive());
 
-        $deleted = $productRepository->search(new Criteria([$this->ids->get('p3')]), $this->context)->first();
+        $deleted = $this->productRepository->search(new Criteria([$this->ids->get('p3')]), $this->context)->first();
         static::assertNull($deleted);
     }
 

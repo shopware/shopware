@@ -10,14 +10,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('checkout')]
 class CustomerGroupRegistrationPageLoadedEvent extends PageLoadedEvent
 {
-    protected CustomerGroupRegistrationPage $page;
-
     public function __construct(
-        CustomerGroupRegistrationPage $page,
+        protected CustomerGroupRegistrationPage $page,
         SalesChannelContext $salesChannelContext,
-        Request $request
+        Request $request,
     ) {
-        $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }
 

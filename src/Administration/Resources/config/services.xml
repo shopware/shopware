@@ -137,6 +137,9 @@
         <service id="Shopware\Administration\Snippet\SnippetFinder">
             <argument type="service" id="kernel" />
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="shopware.filesystem.private"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationLoader"/>
         </service>
 
         <service id="Shopware\Administration\Snippet\CachedSnippetFinder" decorates="Shopware\Administration\Snippet\SnippetFinder">

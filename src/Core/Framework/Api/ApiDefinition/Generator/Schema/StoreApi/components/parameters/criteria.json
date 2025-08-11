@@ -1,0 +1,446 @@
+{
+    "components": {
+        "parameters": {
+            "criteriaPage": {
+                "name": "page",
+                "in": "query",
+                "description": "Search result page",
+                "schema": {
+                    "type": "integer"
+                }
+            },
+            "criteriaLimit": {
+                "name": "limit",
+                "in": "query",
+                "description": "Number of items per result page",
+                "schema": {
+                    "type": "integer"
+                }
+            },
+            "criteriaTerm": {
+                "name": "term",
+                "in": "query",
+                "description": "Search term",
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "criteriaFilter": {
+                "name": "filter[]",
+                "in": "query",
+                "description": "List of filters to restrict the search result. For more information, see [Search Queries > Filter](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#filter)",
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/SimpleFilter"
+                            },
+                            {
+                                "$ref": "#/components/schemas/EqualsFilter"
+                            },
+                            {
+                                "$ref": "#/components/schemas/MultiNotFilter"
+                            },
+                            {
+                                "$ref": "#/components/schemas/RangeFilter"
+                            }
+                        ]
+                    }
+                }
+            },
+            "criteriaIds": {
+                "name": "ids[]",
+                "in": "query",
+                "description": "List of ids to search for",
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "criteriaQuery": {
+                "name": "query",
+                "in": "query",
+                "description": "The query string to search for",
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "criteriaAssociations": {
+                "name": "associations",
+                "in": "query",
+                "description": "",
+                "schema": {
+                    "$ref": "#/components/schemas/Associations"
+                },
+                "style": "deepObject",
+                "explode": true
+            },
+            "criteriaPostFilter": {
+                "name": "post-filter[]",
+                "in": "query",
+                "description": "Filters that applied without affecting aggregations. For more information, see [Search Queries > Post Filter](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#post-filter)",
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/SimpleFilter"
+                            },
+                            {
+                                "$ref": "#/components/schemas/EqualsFilter"
+                            },
+                            {
+                                "$ref": "#/components/schemas/MultiNotFilter"
+                            },
+                            {
+                                "$ref": "#/components/schemas/RangeFilter"
+                            }
+                        ]
+                    }
+                }
+            },
+            "criteriaSort": {
+                "name": "sort[]",
+                "in": "query",
+                "description": "Sorting in the search result.",
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/components/schemas/Sort"
+                    }
+                }
+            },
+            "criteriaAggregations": {
+                "name": "aggregations[]",
+                "in": "query",
+                "description": "",
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/components/schemas/Aggregation"
+                    }
+                }
+            },
+            "criteriaFields": {
+                "name": "fields[]",
+                "in": "query",
+                "description": "Fields which should be returned in the search result.",
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "description": "Name of a field"
+                    }
+                }
+            },
+            "criteriaGrouping": {
+                "name": "grouping[]",
+                "in": "query",
+                "description": "Perform groupings over certain fields",
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "description": "Name of a field"
+                    }
+                }
+            },
+            "criteriaTotalCountMode": {
+                "name": "total-count-mode",
+                "in": "query",
+                "description": "",
+                "schema": {
+                    "$ref": "#/components/schemas/TotalCountMode"
+                }
+            },
+            "criteriaIncludes": {
+                "name": "includes",
+                "in": "query",
+                "description": "",
+                "schema": {
+                    "$ref": "#/components/schemas/Includes"
+                },
+                "style": "deepObject",
+                "explode": true
+            }
+        },
+        "x-parameter-groups": {
+            "criteria": [
+                {
+                    "$ref": "#/components/parameters/criteriaPage"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaLimit"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaTerm"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaFilter"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaIds"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaQuery"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaAssociations"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaPostFilter"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaSort"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaAggregations"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaFields"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaGrouping"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaTotalCountMode"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaIncludes"
+                }
+            ],
+            "noneFieldsCriteria": [
+                {
+                    "$ref": "#/components/parameters/criteriaPage"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaLimit"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaTerm"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaFilter"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaIds"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaQuery"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaAssociations"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaPostFilter"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaSort"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaAggregations"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaGrouping"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaTotalCountMode"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaIncludes"
+                }
+            ],
+            "productListingCriteria": [
+                {
+                    "$ref": "#/components/parameters/criteriaPage"
+                },
+                {
+                    "name": "limit",
+                    "in": "query",
+                    "description": "Number of items per result page. If not set, the limit will be set according to the default products per page, defined in the system settings.",
+                    "schema": {
+                        "type": "integer",
+                        "minimum": 0
+                    }
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaTerm"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaFilter"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaIds"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaQuery"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaAssociations"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaPostFilter"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaSort"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaAggregations"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaFields"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaGrouping"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaTotalCountMode"
+                },
+                {
+                    "$ref": "#/components/parameters/criteriaIncludes"
+                },
+                {
+                    "name": "order",
+                    "in": "query",
+                    "description": "Specifies the sorting of the products by `availableSortings`. If not set, the default sorting will be set according to the shop settings. The available sorting options are sent within the response under the `availableSortings` key. In order to sort by a field, consider using the `sort` parameter from the listing criteria. Do not use both parameters together, as it might lead to unexpected results.",
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "p",
+                    "in": "query",
+                    "description": "Search result page",
+                    "schema": {
+                        "type": "integer",
+                        "default": 1
+                    }
+                },
+                {
+                    "name": "manufacturer",
+                    "in": "query",
+                    "description": "Filter by manufacturers. List of manufacturer identifiers separated by a `|`.",
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "min-price",
+                    "in": "query",
+                    "description": "Filters by a minimum product price. Has to be lower than the `max-price` filter.",
+                    "schema": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "default": 0
+                    }
+                },
+                {
+                    "name": "max-price",
+                    "in": "query",
+                    "description": "Filters by a maximum product price. Has to be higher than the `min-price` filter.",
+                    "schema": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "default": 0
+                    }
+                },
+                {
+                    "name": "rating",
+                    "in": "query",
+                    "description": "Filter products with a minimum average rating.",
+                    "schema": {
+                        "type": "integer"
+                    }
+                },
+                {
+                    "name": "shipping-free",
+                    "in": "query",
+                    "description": "Filters products that are marked as shipping-free.",
+                    "schema": {
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                {
+                    "name": "properties",
+                    "in": "query",
+                    "description": "Filters products by their properties. List of property identifiers separated by a `|`.",
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "manufacturer-filter",
+                    "in": "query",
+                    "description": "Enables/disabled filtering by manufacturer. If set to false, the `manufacturer` filter will be ignored. Also the `aggregations[manufacturer]` key will be removed from the response.",
+                    "schema": {
+                        "type": "boolean",
+                        "default": true
+                    }
+                },
+                {
+                    "name": "price-filter",
+                    "in": "query",
+                    "description": "Enables/disabled filtering by price. If set to false, the `min-price` and `max-price` filter will be ignored. Also the `aggregations[price]` key will be removed from the response.",
+                    "schema": {
+                        "type": "boolean",
+                        "default": true
+                    }
+                },
+                {
+                    "name": "rating-filter",
+                    "in": "query",
+                    "description": "Enables/disabled filtering by rating. If set to false, the `rating` filter will be ignored. Also the `aggregations[rating]` key will be removed from the response.",
+                    "schema": {
+                        "type": "boolean",
+                        "default": true
+                    }
+                },
+                {
+                    "name": "shipping-free-filter",
+                    "in": "query",
+                    "description": "Enables/disabled filtering by shipping-free products. If set to false, the `shipping-free` filter will be ignored. Also the `aggregations[shipping-free]` key will be removed from the response.",
+                    "schema": {
+                        "type": "boolean",
+                        "default": true
+                    }
+                },
+                {
+                    "name": "property-filter",
+                    "in": "query",
+                    "description": "Enables/disabled filtering by properties products. If set to false, the `properties` filter will be ignored. Also the `aggregations[properties]` key will be removed from the response.",
+                    "schema": {
+                        "type": "boolean",
+                        "default": true
+                    }
+                },
+                {
+                    "name": "property-whitelist",
+                    "in": "query",
+                    "description": "A whitelist of property identifiers which can be used for filtering. List of property identifiers separated by a `|`. The `property-filter` must be `true`, otherwise the whitelist has no effect.",
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "reduce-aggregations",
+                    "in": "query",
+                    "description": "By sending the parameter `reduce-aggregations` , the post-filters that were applied by the customer, are also applied to the aggregations. This has the consequence that only values are returned in the aggregations that would lead to further filter results. This parameter is a flag, the value has no effect.",
+                    "schema": {
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}

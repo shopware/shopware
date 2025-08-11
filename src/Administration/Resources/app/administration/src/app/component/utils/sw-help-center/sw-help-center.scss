@@ -12,9 +12,15 @@
         justify-content: center;
         align-items: center;
         position: relative;
+        color: var(--color-icon-primary-default);
 
-        &.is--active {
+        &:hover {
             background: var(--color-interaction-secondary-hover);
+        }
+
+        &:focus-visible {
+            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline-offset: var(--scale-size-2);
         }
     }
 

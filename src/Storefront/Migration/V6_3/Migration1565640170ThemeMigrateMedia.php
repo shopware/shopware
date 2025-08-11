@@ -71,10 +71,6 @@ class Migration1565640170ThemeMigrateMedia extends MigrationStep
                WHERE `media_default_folder`.`entity` = \'theme\';'
         );
 
-        if (empty($mediaIds)) {
-            return;
-        }
-
         foreach ($mediaIds as $mediaId) {
             $connection->insert('theme_media', [
                 'theme_id' => $themeMediaMapping[$mediaId] ?? $defaultThemeId,

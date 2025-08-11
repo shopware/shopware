@@ -103,6 +103,13 @@ class CreditNoteRendererTest extends TestCase
 
         $orderId = $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());
 
+        static::getContainer()->get('order.repository')->update([
+            [
+                'id' => $orderId,
+                'orderDateTime' => '2023-11-24T12:00:00+00:00',
+            ],
+        ], $this->context);
+
         $invoiceConfig = new DocumentConfiguration();
         $invoiceConfig->setDocumentNumber('1001');
 
@@ -115,7 +122,7 @@ class CreditNoteRendererTest extends TestCase
             $orderId,
             HtmlRenderer::FILE_EXTENSION,
             [
-                'documentDate' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'documentDate' => '2023-11-24T12:00:00+00:00',
             ],
             $invoiceId
         );

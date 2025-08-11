@@ -88,6 +88,13 @@ class StornoRendererTest extends TestCase
         $cart = $this->generateDemoCart([19]);
         $orderId = $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());
 
+        static::getContainer()->get('order.repository')->update([
+            [
+                'id' => $orderId,
+                'orderDateTime' => '2023-11-24T12:00:00+00:00',
+            ],
+        ], $this->context);
+
         $invoiceConfig = new DocumentConfiguration();
         $invoiceConfig->setDocumentNumber('1001');
 
@@ -100,7 +107,7 @@ class StornoRendererTest extends TestCase
             $orderId,
             HtmlRenderer::FILE_EXTENSION,
             [
-                'documentDate' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'documentDate' => '2023-11-24T12:00:00+00:00',
                 'custom' => [
                     'invoiceNumber' => '1001',
                 ],

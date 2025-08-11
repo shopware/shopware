@@ -80,8 +80,18 @@ class DeliveryNoteRendererTest extends TestCase
         $cart = $this->generateDemoCart(1);
         $orderId = $this->persistCart($cart);
 
+        static::getContainer()->get('order.repository')->update([
+            [
+                'id' => $orderId,
+                'orderDateTime' => '2023-11-24T12:00:00+00:00',
+            ],
+        ], $this->context);
+
         $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, [
-            'documentDate' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'documentDate' => '2023-11-24T12:00:00+00:00',
+            'custom' => [
+                'deliveryDate' => '2023-11-24T12:00:00+00:00',
+            ],
         ]);
 
         $processedTemplate = $this->deliveryNoteRenderer->render(

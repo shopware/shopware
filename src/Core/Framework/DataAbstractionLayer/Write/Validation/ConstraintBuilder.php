@@ -41,28 +41,28 @@ class ConstraintBuilder
 
     public function isBool(): self
     {
-        $this->addConstraint(new Type('bool'));
+        $this->addConstraint(new Type(type: 'bool'));
 
         return $this;
     }
 
     public function isString(): self
     {
-        $this->addConstraint(new Type('string'));
+        $this->addConstraint(new Type(type: 'string'));
 
         return $this;
     }
 
     public function isNumeric(): self
     {
-        $this->addConstraint(new Type('numeric'));
+        $this->addConstraint(new Type(type: 'numeric'));
 
         return $this;
     }
 
     public function isFloat(): self
     {
-        $this->addConstraint(new Type('numeric'));
+        $this->addConstraint(new Type(type: 'numeric'));
 
         return $this;
     }

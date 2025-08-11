@@ -3,6 +3,10 @@
 namespace Shopware\Tests\Unit\Administration\Snippet;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Psr7\Uri;
+use League\Flysystem\Filesystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -14,23 +18,60 @@ use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\System\Locale\LocaleCollection;
+use Shopware\Core\System\Locale\LocaleDefinition;
+use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
+use Shopware\Core\System\Snippet\DataTransfer\Language\Language as LanguageDto;
+use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection as LanguageDtoCollection;
+use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
+use Shopware\Core\System\Snippet\Service\TranslationLoader;
+use Shopware\Core\System\Snippet\SnippetDefinition;
+use Shopware\Core\System\Snippet\Struct\TranslationConfig;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Storefront;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
  */
 #[CoversClass(SnippetFinder::class)]
+#[DisabledFeatures(['v6.8.0.0'])]
 class SnippetFinderTest extends TestCase
 {
     use SnippetFileTrait;
 
+    private Filesystem $filesystem;
+
+    /**
+     * @var StaticEntityRepository<LanguageCollection>
+     */
+    private StaticEntityRepository $languageRepository;
+
+    /**
+     * @var StaticEntityRepository<LocaleCollection>
+     */
+    private StaticEntityRepository $localeRepository;
+
+    /**
+     * @var StaticEntityRepository<SnippetSetCollection>
+     */
+    private StaticEntityRepository $snippetSetRepository;
+
+    protected function setUp(): void
+    {
+        $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $this->languageRepository = new StaticEntityRepository([], new LanguageDefinition());
+        $this->localeRepository = new StaticEntityRepository([], new LocaleDefinition());
+        $this->snippetSetRepository = new StaticEntityRepository([], new SnippetDefinition());
+    }
+
     public function testFindSnippetsFromAppNoSnippetsAdded(): void
     {
-        $snippetFinder = new SnippetFinder(
-            $this->getKernelMock(),
-            $this->getConnectionMock('en-GB', [])
-        );
+        $snippetFinder = $this->getSnippetFinder();
 
         $snippets = $snippetFinder->findSnippets('en-GB');
         static::assertArrayNotHasKey('my-custom-snippet-key', $snippets);
@@ -38,9 +79,8 @@ class SnippetFinderTest extends TestCase
 
     public function testFindSnippetsFromApp(): void
     {
-        $snippetFinder = new SnippetFinder(
-            $this->getKernelMock(),
-            $this->getConnectionMock('en-GB', $this->getSnippetFixtures())
+        $snippetFinder = $this->getSnippetFinder(
+            connection: $this->getConnectionMock('en-GB', $this->getSnippetFixtures())
         );
 
         $snippets = $snippetFinder->findSnippets('en-GB');
@@ -52,9 +92,8 @@ class SnippetFinderTest extends TestCase
 
     public function testNoSnippetsFound(): void
     {
-        $snippetFinder = new SnippetFinder(
-            $this->getKernelMock(),
-            $this->getConnectionMock('fr-FR', [])
+        $snippetFinder = $this->getSnippetFinder(
+            connection: $this->getConnectionMock('fr-FR', [])
         );
 
         static::assertEmpty($snippetFinder->findSnippets('fr-FR'));
@@ -78,7 +117,7 @@ class SnippetFinderTest extends TestCase
             'nonExistingBundle',
         ];
 
-        $snippetFinder = new SnippetFinder(
+        $snippetFinder = $this->getSnippetFinder(
             $this->getKernelMock($pluginPaths, $activePluginPaths, $bundlePaths),
             $this->getConnectionMock('jp-JP', [])
         );
@@ -89,6 +128,7 @@ class SnippetFinderTest extends TestCase
             'activePlugin' => 'successfully loaded',
             'existingBundle' => 'successfully loaded as well',
             'activeMeteorApp' => 'Snippet',
+            'existingBundleMeteorApp' => 'Loaded from a bundle',
         ], $actualSnippets);
     }
 
@@ -98,9 +138,8 @@ class SnippetFinderTest extends TestCase
     #[DataProvider('validAppSnippetsDataProvider')]
     public function testValidateValidSnippets(array $appSnippets): void
     {
-        $snippetFinder = new SnippetFinder(
-            $this->getKernelMock(),
-            $this->getConnectionMock('en-GB', $appSnippets)
+        $snippetFinder = $this->getSnippetFinder(
+            connection: $this->getConnectionMock('en-GB', $appSnippets)
         );
 
         $actualSnippetKeys = $snippetFinder->findSnippets('en-GB');
@@ -117,9 +156,8 @@ class SnippetFinderTest extends TestCase
             'sw-wizard' => [],
         ];
 
-        $snippetFinder = new SnippetFinder(
-            $this->getKernelMock(),
-            $this->getConnectionMock('en-GB', $appSnippets)
+        $snippetFinder = $this->getSnippetFinder(
+            connection: $this->getConnectionMock('en-GB', $appSnippets)
         );
 
         $snippets = $snippetFinder->findSnippets('en-GB');
@@ -135,9 +173,8 @@ class SnippetFinderTest extends TestCase
     #[DataProvider('sanitizeAppSnippetDataProvider')]
     public function testSanitizeAppSnippets(array $before, array $after): void
     {
-        $snippetFinder = new SnippetFinder(
-            $this->getKernelMock(),
-            $this->getConnectionMock('en-GB', $before)
+        $snippetFinder = $this->getSnippetFinder(
+            connection: $this->getConnectionMock('en-GB', $before),
         );
 
         $result = $snippetFinder->findSnippets('en-GB');
@@ -271,37 +308,52 @@ class SnippetFinderTest extends TestCase
 
     public function testFindInstalledSnippetsWithoutPluginsActive(): void
     {
-        $this->createSnippetFiles();
+        $config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['es-ES'],
+            [],
+            new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
+            new PluginMappingCollection(),
+        );
+        $loader = $this->getTranslationLoader($config);
 
-        $snippetFinder = new SnippetFinder(
-            $this->getKernelMock(),
-            $this->getConnectionMock('es-ES', [])
+        $this->createSnippetFixtures($this->filesystem, $loader);
+
+        $snippetFinder = $this->getSnippetFinder(
+            connection: $this->getConnectionMock('es-ES', []),
+            translationConfig: $config,
         );
 
         $snippets = $snippetFinder->findSnippets('es-ES');
 
-        static::assertEquals(['shop' => 'Demo Shop'], $snippets);
-
-        $this->cleanupSnippetFiles();
+        static::assertEquals(['shop_administration' => 'Platform admin'], $snippets);
     }
 
     public function testFindInstalledSnippetsWithActivePlugin(): void
     {
-        $this->createSnippetFiles();
+        $config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['es-ES'],
+            ['activePlugin'],
+            new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
+            new PluginMappingCollection(),
+        );
+        $loader = $this->getTranslationLoader($config);
+        $this->createSnippetFixtures($this->filesystem, $loader);
 
-        $snippetFinder = new SnippetFinder(
-            $this->getKernelMock(pluginPaths: ['activePlugin'], activePluginPaths: ['activePlugin']),
-            $this->getConnectionMock('es-ES', [])
+        $pluginPath = __DIR__ . '/_fixtures/activePlugin';
+        $snippetFinder = $this->getSnippetFinder(
+            kernel: $this->getKernelMock(pluginPaths: [$pluginPath], activePluginPaths: ['activePlugin']),
+            connection: $this->getConnectionMock('es-ES', []),
+            translationConfig: $config,
         );
 
         $snippets = $snippetFinder->findSnippets('es-ES');
 
         static::assertEquals([
-            'plugin' => 'activePlugin',
-            'shop' => 'Demo Shop',
+            'plugin_administration' => 'Plugin admin',
+            'shop_administration' => 'Platform admin',
         ], $snippets);
-
-        $this->cleanupSnippetFiles();
     }
 
     /**
@@ -343,5 +395,45 @@ class SnippetFinderTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    private function getSnippetFinder(
+        (Kernel&MockObject)|null $kernel = null,
+        (Connection&MockObject)|null $connection = null,
+        ?TranslationConfig $translationConfig = null,
+    ): SnippetFinder {
+        $config = $translationConfig ?? new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['en-GB'],
+            [],
+            new LanguageDtoCollection([new LanguageDto('en-GB', 'English (UK')]),
+            new PluginMappingCollection(),
+        );
+
+        $kernelMock = $kernel ?? $this->getKernelMock();
+        $connectionMock = $connection ?? $this->getConnectionMock('en-GB', []);
+        $translationLoader = $this->getTranslationLoader($config);
+
+        return new SnippetFinder(
+            $kernelMock,
+            $connectionMock,
+            $this->filesystem,
+            $config,
+            $translationLoader,
+        );
+    }
+
+    private function getTranslationLoader(
+        TranslationConfig $translationConfig,
+    ): TranslationLoader {
+        return new TranslationLoader(
+            translationWriter: $this->filesystem,
+            languageRepository: $this->languageRepository,
+            localeRepository: $this->localeRepository,
+            snippetSetRepository: $this->snippetSetRepository,
+            client: $this->createMock(ClientInterface::class),
+            config: $translationConfig,
+            validator: Validation::createValidator(),
+        );
     }
 }

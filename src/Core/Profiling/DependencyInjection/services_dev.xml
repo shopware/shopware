@@ -47,5 +47,12 @@
             <tag name="data_collector"/>
             <argument type="service" id="request_stack"/>
         </service>
+
+        <service id="Shopware\Core\Profiling\Subscriber\CartDataCollectorSubscriber">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
+
+            <tag name="kernel.event_subscriber"/>
+            <tag name="data_collector"/>
+        </service>
     </services>
 </container>

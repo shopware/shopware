@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Detail\Event\ResolveVariantIdEvent;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
@@ -39,6 +40,8 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 {
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<SalesChannelProductCollection> $productRepository
      */
     public function __construct(
         private readonly SalesChannelRepository $productRepository,
@@ -91,10 +94,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $criteria->setIds([$productId]);
             $criteria->setTitle('product-detail-route');
 
-            $product = $this->productRepository
-                ->search($criteria, $context)
-                ->first();
-
+            $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
             if (!($product instanceof SalesChannelProductEntity)) {
                 throw ProductException::productNotFound($productId);
             }

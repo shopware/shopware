@@ -13,7 +13,7 @@ async function createWrapper(profile) {
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': true,
-                'sw-inheritance-switch': true,
+                'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch'),
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
             },
@@ -67,5 +67,33 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-impor
 
         expect(switches.at(0).attributes('disabled')).toBeDefined();
         expect(switches.at(1).attributes('disabled')).toBeDefined();
+    });
+
+    it('should be possible to enable both switches', async () => {
+        wrapper = await createWrapper(getProfileMock());
+        await flushPromises();
+
+        const createSwitch = await wrapper.find('.sw-import-export-edit-profile-import-settings__create-switch input');
+        const updateSwitch = await wrapper.find('.sw-import-export-edit-profile-import-settings__update-switch input');
+
+        await createSwitch.setChecked(false);
+        await flushPromises();
+        expect(createSwitch.attributes('checked')).toBeUndefined();
+        expect(updateSwitch.attributes('checked')).toBeDefined();
+
+        await createSwitch.setChecked(true);
+        await flushPromises();
+        expect(createSwitch.attributes('checked')).toBeDefined();
+        expect(updateSwitch.attributes('checked')).toBeDefined();
+
+        await updateSwitch.setChecked(false);
+        await flushPromises();
+        expect(createSwitch.attributes('checked')).toBeDefined();
+        expect(updateSwitch.attributes('checked')).toBeUndefined();
+
+        await updateSwitch.setChecked(true);
+        await flushPromises();
+        expect(createSwitch.attributes('checked')).toBeDefined();
+        expect(updateSwitch.attributes('checked')).toBeDefined();
     });
 });

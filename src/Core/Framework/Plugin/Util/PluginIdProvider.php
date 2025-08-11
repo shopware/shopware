@@ -7,12 +7,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\PluginCollection;
 
 #[Package('framework')]
 class PluginIdProvider
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<PluginCollection> $pluginRepo
      */
     public function __construct(private readonly EntityRepository $pluginRepo)
     {

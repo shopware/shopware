@@ -285,6 +285,8 @@ frame-ancestors 'none';
             <argument type="service" id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationLoader"/>
+            <argument type="service" id="shopware.filesystem.private"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader">

@@ -4,9 +4,12 @@ namespace Shopware\Tests\Integration\Core\System\UsageData\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -14,6 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\Consent\ConsentState;
+use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
@@ -65,7 +69,7 @@ class EntityDeleteSubscriberTest extends TestCase
         $productBuilder = new ProductBuilder($productIds, 'product-to-delete', 1);
         $productBuilder->price(3.14);
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
 
         $productRepository->create([$productBuilder->build()], Context::createDefaultContext());
@@ -101,7 +105,7 @@ class EntityDeleteSubscriberTest extends TestCase
         // non live version should not trigger the subscriber
         $product['versionId'] = Uuid::randomHex();
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
 
         $productRepository->create([$product], Context::createDefaultContext());
@@ -126,7 +130,7 @@ class EntityDeleteSubscriberTest extends TestCase
         $product = $this->insertTestProduct($idsCollection, Uuid::randomHex());
         $category = $this->insertTestCategory($idsCollection, Defaults::LIVE_VERSION);
 
-        /** @var EntityRepository $productCategoryRepository */
+        /** @var EntityRepository<EntityCollection<Entity>> $productCategoryRepository */
         $productCategoryRepository = static::getContainer()->get('product_category.repository');
         $productCategoryRepository->create([
             [
@@ -165,7 +169,7 @@ class EntityDeleteSubscriberTest extends TestCase
             'localeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
         ];
 
-        /** @var EntityRepository $userRepository */
+        /** @var EntityRepository<UserCollection> $userRepository */
         $userRepository = static::getContainer()->get('user.repository');
         $userRepository->create([$userData], Context::createDefaultContext());
 
@@ -184,7 +188,7 @@ class EntityDeleteSubscriberTest extends TestCase
         $aclRoleRepository = static::getContainer()->get('acl_role.repository');
         $aclRoleRepository->create([$aclRoleData], Context::createDefaultContext());
 
-        /** @var EntityRepository $aclUserRoleRepository */
+        /** @var EntityRepository<EntityCollection<Entity>> $aclUserRoleRepository */
         $aclUserRoleRepository = static::getContainer()->get('acl_user_role.repository');
         $aclUserRoleRepository->create([
             [
@@ -225,7 +229,7 @@ class EntityDeleteSubscriberTest extends TestCase
         $productBuilder = new ProductBuilder($idsCollection, 'product-1', 1);
         $productBuilder->price(3.14);
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
 
         $product = $productBuilder->build();

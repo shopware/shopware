@@ -61,6 +61,9 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
         static::assertIsArray($events);
         static::assertArrayHasKey(CategoryEvents::CATEGORY_WRITTEN_EVENT, $events);
         static::assertSame('invalidateCache', $events[CategoryEvents::CATEGORY_WRITTEN_EVENT]);
+
+        static::assertArrayHasKey(CategoryEvents::CATEGORY_DELETED_EVENT, $events);
+        static::assertSame('invalidateCache', $events[CategoryEvents::CATEGORY_DELETED_EVENT]);
     }
 
     public function testLoadLevelsOutsideMainCategoryIsUncached(): void

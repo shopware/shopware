@@ -37,6 +37,7 @@ class CachedDefaultCategoryLevelLoader implements DefaultCategoryLevelLoaderInte
     {
         return [
             CategoryEvents::CATEGORY_WRITTEN_EVENT => 'invalidateCache',
+            CategoryEvents::CATEGORY_DELETED_EVENT => 'invalidateCache',
         ];
     }
 

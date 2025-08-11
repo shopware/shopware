@@ -274,6 +274,7 @@ class ApiController extends AbstractController
 
         $aggregations = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): AggregationResultCollection => $repository->aggregate($criteria, $context));
 
+        /** @var EntitySearchResult<covariant EntityCollection<covariant Entity>> */
         $result = new EntitySearchResult($entityName, 0, new EntityCollection(), $aggregations, $criteria, $context);
 
         $definition = $this->getDefinitionOfPath($entityName, $path, $context);
@@ -424,7 +425,7 @@ class ApiController extends AbstractController
     }
 
     /**
-     * @return array{0: Criteria, 1: EntityRepository}
+     * @return array{0: Criteria, 1: EntityRepository<covariant EntityCollection<covariant Entity>>}
      */
     private function resolveSearch(Request $request, Context $context, string $entityName, string $path): array
     {

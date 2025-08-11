@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute;
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -18,7 +18,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -30,7 +29,7 @@ class ProductReviewRouteTest extends TestCase
 
     private StaticSystemConfigService $config;
 
-    private MockObject&EventDispatcherInterface $eventDispatcher;
+    private MockObject&CacheTagCollector $cacheTagCollector;
 
     private ProductReviewRoute $route;
 
@@ -47,12 +46,13 @@ class ProductReviewRouteTest extends TestCase
                 'core.basicInformation.email' => 'noreply@example.com',
             ],
         ]);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+
+        $this->cacheTagCollector = $this->createMock(CacheTagCollector::class);
 
         $this->route = new ProductReviewRoute(
             $this->repository,
             $this->config,
-            $this->eventDispatcher
+            $this->cacheTagCollector,
         );
     }
 
@@ -88,11 +88,10 @@ class ProductReviewRouteTest extends TestCase
             ->method('search')
             ->with($expectedCriteria, $context);
 
-        $event = new AddCacheTagEvent($this->route::buildName($productId));
-        $this->eventDispatcher
+        $this->cacheTagCollector
             ->expects($this->once())
-            ->method('dispatch')
-            ->with($event);
+            ->method('addTag')
+            ->with($this->route::buildName($productId));
 
         $this->route->load(
             $productId,

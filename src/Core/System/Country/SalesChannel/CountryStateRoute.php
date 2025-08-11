@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\Country\SalesChannel;
 
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -31,7 +31,8 @@ class CountryStateRoute extends AbstractCountryStateRoute
      */
     public function __construct(
         private readonly EntityRepository $countryStateRepository,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly CacheTagCollector $cacheTagCollector,
     ) {
     }
 
@@ -43,10 +44,7 @@ class CountryStateRoute extends AbstractCountryStateRoute
     #[Route(path: '/store-api/country-state/{countryId}', name: 'store-api.country.state', methods: ['GET', 'POST'], defaults: ['_entity' => 'country'])]
     public function load(string $countryId, Request $request, Criteria $criteria, SalesChannelContext $context): CountryStateRouteResponse
     {
-        $this->dispatcher->dispatch(new AddCacheTagEvent(
-            self::buildName($countryId),
-            self::ALL_TAG
-        ));
+        $this->cacheTagCollector->addTag(self::buildName($countryId), self::ALL_TAG);
 
         $criteria->addFilter(
             new EqualsFilter('countryId', $countryId),

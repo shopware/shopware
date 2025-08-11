@@ -49,7 +49,7 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
     #[Route(path: '/store-api/checkout/cart/line-item', name: 'store-api.checkout.cart.add', methods: ['POST'])]
     public function add(Request $request, Cart $cart, SalesChannelContext $context, ?array $items): CartResponse
     {
-        return $this->cartLocker->locked($cart->getToken(), function () use ($request, $cart, $context, $items) {
+        return $this->cartLocker->locked($context, function () use ($request, $cart, $context, $items) {
             if ($items === null) {
                 $items = [];
 

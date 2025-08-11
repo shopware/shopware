@@ -78,6 +78,7 @@ class OrderStorerTest extends TestCase
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['orderId' => 'id'], []);
         $this->storer->restore($storable);
         $entity = new OrderEntity();
+        $entity->setId('id');
         $result = $this->createMock(EntitySearchResult::class);
         $result->expects($this->once())->method('getEntities')->willReturn(new OrderCollection([$entity]));
 

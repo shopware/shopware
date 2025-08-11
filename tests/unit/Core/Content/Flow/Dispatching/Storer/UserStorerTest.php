@@ -78,6 +78,7 @@ class UserStorerTest extends TestCase
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['userRecoveryId' => 'id'], []);
         $this->storer->restore($storable);
         $entity = new UserRecoveryEntity();
+        $entity->setId('id');
         $result = $this->createMock(EntitySearchResult::class);
         $result->expects($this->once())->method('getEntities')->willReturn(new UserRecoveryCollection([$entity]));
 

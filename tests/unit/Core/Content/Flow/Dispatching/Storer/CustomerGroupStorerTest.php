@@ -77,6 +77,7 @@ class CustomerGroupStorerTest extends TestCase
 
         $this->storer->restore($storable);
         $entity = new CustomerGroupEntity();
+        $entity->setId('id');
         $result = $this->createMock(EntitySearchResult::class);
         $result->expects($this->once())->method('getEntities')->willReturn(new CustomerGroupCollection([$entity]));
 

@@ -78,6 +78,7 @@ class NewsletterRecipientStorerTest extends TestCase
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['newsletterRecipientId' => 'id'], []);
         $this->storer->restore($storable);
         $entity = new NewsletterRecipientEntity();
+        $entity->setId('id');
         $result = $this->createMock(EntitySearchResult::class);
         $result->expects($this->once())->method('getEntities')->willReturn(new NewsletterRecipientCollection([$entity]));
 

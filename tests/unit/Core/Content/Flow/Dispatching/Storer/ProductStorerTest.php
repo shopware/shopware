@@ -80,6 +80,7 @@ class ProductStorerTest extends TestCase
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['productId' => 'id'], []);
         $this->storer->restore($storable);
         $entity = new ProductEntity();
+        $entity->setId('id');
         $result = $this->createMock(EntitySearchResult::class);
         $result->expects($this->once())->method('getEntities')->willReturn(new ProductCollection([$entity]));
 

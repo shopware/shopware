@@ -61,7 +61,7 @@ module.exports = {
     ],
 
     coverageReporters: [
-        'text',
+        isCi ? 'text-summary' : 'text',
         'cobertura',
         'html-spa',
     ],

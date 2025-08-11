@@ -111,7 +111,7 @@ class TokenQueryBuilder
 
             $queries[] = new MatchQuery($searchField, $token, [
                 'boost' => $config->getRanking(),
-                'fuzziness' => $config->tokenize() ? 'auto' : 1,
+                'fuzziness' => $config->getFuzziness($token),
                 'operator' => $operator,
             ]);
 

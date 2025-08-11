@@ -16,14 +16,14 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 #[AsMessageHandler(handles: IterateEntityMessage::class)]
 #[Package('data-services')]
-final class IterateEntityMessageHandler
+final readonly class IterateEntityMessageHandler
 {
     public function __construct(
-        private readonly MessageBusInterface $bus,
-        private readonly IterateEntitiesQueryBuilder $iteratorFactory,
-        private readonly ConsentService $consentService,
-        private readonly EntityDefinitionService $entityDefinitionService,
-        private readonly LoggerInterface $logger,
+        private MessageBusInterface $bus,
+        private IterateEntitiesQueryBuilder $iteratorFactory,
+        private ConsentService $consentService,
+        private EntityDefinitionService $entityDefinitionService,
+        private LoggerInterface $logger,
     ) {
     }
 

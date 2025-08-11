@@ -149,8 +149,10 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
 
                 /** @var array<string> $languageIds */
                 $languageIds = $registrationSalesChannel->getLanguages()->getIds();
+                $languageCriteria = new Criteria($languageIds);
+                $languageCriteria->addFilter(new EqualsFilter('active', true));
 
-                $languageCollection = $this->languageRepository->search(new Criteria($languageIds), $context)->getEntities();
+                $languageCollection = $this->languageRepository->search($languageCriteria, $context)->getEntities();
 
                 foreach ($languageIds as $languageId) {
                     $language = $languageCollection->get($languageId);

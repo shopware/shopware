@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\VersionParser;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -35,6 +36,7 @@ class Kernel extends HttpKernel
     use MicroKernelTrait;
 
     final public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
+
     /**
      * @var string Fallback version if nothing is provided via kernel constructor
      */
@@ -77,14 +79,13 @@ class Kernel extends HttpKernel
     public function registerBundles(): iterable
     {
         /** @var array<class-string<Bundle>, array<string, bool>> $bundles */
-        $bundles = require $this->getProjectDir() . '/config/bundles.php';
+        $bundles = require $this->getBundlesPath();
         $instantiatedBundleNames = [];
 
         $kernelParameters = $this->getKernelParameters();
 
         foreach ($bundles as $class => $envs) {
             if (isset($envs['all']) || isset($envs[$this->environment])) {
-                /** @var ShopwareBundle|Bundle $bundle */
                 $bundle = new $class();
 
                 if ($this->isBundleRegistered($bundle, $instantiatedBundleNames)) {
@@ -122,39 +123,27 @@ class Kernel extends HttpKernel
 
     public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): Response
     {
-        if (!$this->booted) {
-            $this->boot();
-        }
+        $this->boot();
 
         return $this->getHttpKernel()->handle($request, $type, $catch);
     }
 
     public function boot(): void
     {
-        if ($this->booted) {
-            if ($this->debug) {
-                $this->startTime = microtime(true);
+        if (!$this->booted) {
+            if ($this->debug && !EnvironmentHelper::hasVariable('SHELL_VERBOSITY')) {
+                putenv('SHELL_VERBOSITY=1');
+                $_ENV['SHELL_VERBOSITY'] = 1;
+                $_SERVER['SHELL_VERBOSITY'] = 1;
             }
 
-            return;
-        }
-
-        if ($this->debug) {
-            $this->startTime = microtime(true);
-        }
-
-        if ($this->debug && !EnvironmentHelper::hasVariable('SHELL_VERBOSITY')) {
-            putenv('SHELL_VERBOSITY=1');
-            $_ENV['SHELL_VERBOSITY'] = 1;
-            $_SERVER['SHELL_VERBOSITY'] = 1;
-        }
-
-        try {
-            // initialize plugins before booting
-            $this->pluginLoader->initializePlugins($this->getProjectDir());
-        } catch (DBALException $e) {
-            if (\defined('\STDERR')) {
-                fwrite(\STDERR, 'Warning: Failed to load plugins. Message: ' . $e->getMessage() . \PHP_EOL);
+            try {
+                // initialize plugins before booting
+                $this->pluginLoader->initializePlugins($this->getProjectDir());
+            } catch (DBALException $e) {
+                if (\defined('\STDERR')) {
+                    fwrite(\STDERR, 'Warning: Failed to load plugins. Message: ' . $e->getMessage() . \PHP_EOL);
+                }
             }
         }
 
@@ -368,7 +357,7 @@ PHP;
 
     private function addApiRoutes(RoutingConfigurator $routes): void
     {
-        $routes->import('.', 'api');
+        $routes->import('.', ApiRouteScope::ID);
     }
 
     private function addBundleRoutes(RoutingConfigurator $routes): void

@@ -87,7 +87,11 @@ async function createWrapper() {
                     stopEventListener: () => {},
                     startEventListener: () => {},
                 },
-                searchRankingService: {},
+                searchRankingService: {
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
                 customFieldDataProviderService: {
                     getCustomFieldSets: jest.fn(() => Promise.resolve([])),
                 },

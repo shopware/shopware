@@ -2,13 +2,22 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
          bootstrap="src/Core/TestBootstrap.php"
+         cacheDirectory=".phpunit.cache"
          cacheResult="false"
          executionOrder="random"
          displayDetailsOnPhpunitDeprecations="true"
          displayDetailsOnTestsThatTriggerWarnings="true"
-         cacheDirectory=".phpunit.cache">
+         displayDetailsOnTestsThatTriggerDeprecations="true">
     <coverage includeUncoveredFiles="true"/>
-    <source>
+    <source ignoreSuppressionOfDeprecations="true"
+            ignoreIndirectDeprecations="true"
+            restrictNotices="true"
+            restrictWarnings="true">
+        <deprecationTrigger>
+            <function>trigger_deprecation</function>
+            <method>Doctrine\Deprecations\Deprecation::trigger</method>
+            <method>Doctrine\Deprecations\Deprecation::delegateTriggerToBackend</method>
+        </deprecationTrigger>
         <include>
             <directory suffix=".php">src</directory>
         </include>
@@ -28,7 +37,6 @@
             <directory suffix="Struct.php">src/Administration/Snippet/</directory>
             <directory suffix="Collection.php">src/Administration/Snippet/</directory>
 
-
             <file>src/Core/Framework/Adapter/Twig/functions.php</file>
             <directory suffix=".php">src/Core/Test/Integration/Builder</directory>
             <directory suffix=".php">src/Core/Framework/Test</directory>
@@ -42,6 +50,7 @@
             <directory suffix=".php">src/Core/Migration/Test</directory>
             <directory suffix=".php">src/Elasticsearch/Test</directory>
             <directory suffix=".php">src/Storefront/Test</directory>
+            <directory suffix=".php">src/tests/unit/Core/System/Snippet/Mock</directory>
 
             <directory suffix="Definition.php">src/Core/</directory>
             <directory suffix="Entity.php">src/Core/</directory>
@@ -100,9 +109,6 @@
         <server name="TESTS_RUNNING" value="1"/>
         <server name="MAILER_URL" value="null://localhost"/>
         <server name="HTTPS" value="off"/>
-        <!--To see the full stackTrace of a Deprecation set the value to a regex matching the deprecation warning-->
-        <!--https://symfony.com/doc/current/components/phpunit_bridge.html#display-the-full-stack-trace-->
-        <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[self]=0&amp;ignoreFile=./deprecation.ignore" />
     </php>
     <testsuites>
         <testsuite name="unit">
@@ -121,7 +127,6 @@
             <directory>tests/integration/Core/Framework/Adapter</directory>
             <directory>tests/integration/Core/Framework/Api</directory>
             <directory>tests/integration/Core/Framework/App</directory>
-            <directory>tests/integration/Core/Framework/Cache</directory>
             <directory>tests/integration/Core/Framework/Changelog</directory>
             <directory>tests/integration/Core/Framework/CustomField</directory>
         </testsuite>

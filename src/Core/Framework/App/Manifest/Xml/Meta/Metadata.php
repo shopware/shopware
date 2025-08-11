@@ -48,9 +48,9 @@ class Metadata extends XmlElement
 
     protected string $copyright;
 
-    protected ?string $license;
+    protected ?string $license = null;
 
-    protected ?string $compatibility;
+    protected ?string $compatibility = null;
 
     protected string $version;
 
@@ -62,8 +62,6 @@ class Metadata extends XmlElement
      * @var array<string, string>
      */
     protected array $privacyPolicyExtensions = [];
-
-    protected ?string $url = null;
 
     /**
      * @return array<string, mixed>
@@ -175,11 +173,6 @@ class Metadata extends XmlElement
         return $this->privacy;
     }
 
-    public function getUrl(): ?string
-    {
-        return $this->url;
-    }
-
     /**
      * @return array<string, string>
      */
@@ -204,7 +197,6 @@ class Metadata extends XmlElement
          *      icon: ?string,
          *      privacy: ?string,
          *      privacyPolicyExtensions: array<string, string>,
-         *      url: ?string,
          *  } $values
          */
         $values = XmlParserUtils::parseChildrenAndTranslate($element, self::TRANSLATABLE_FIELDS);

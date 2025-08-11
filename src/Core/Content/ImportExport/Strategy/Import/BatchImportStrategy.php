@@ -85,7 +85,7 @@ class BatchImportStrategy extends OneByOneImportStrategy implements ResetInterfa
             $this->reset();
 
             return new ImportResult([$result], []);
-        } catch (\Throwable $exception) {
+        } catch (\Throwable) {
             // If we have an error, we will try to import one by one
             $results = [];
             $failedRecords = [];

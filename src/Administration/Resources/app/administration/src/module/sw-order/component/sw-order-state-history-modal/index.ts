@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
 import template from './sw-order-state-history-modal.html.twig';
@@ -17,6 +16,7 @@ interface StateMachineHistoryData {
     createdAt: string;
     user?: {
         username: string;
+        email: string;
     };
     integration?: {
         label: string;
@@ -314,7 +314,7 @@ export default Component.wrapComponentConfig({
 
         getStateChangeAuthor(item: StateMachineHistoryData): string {
             if (item.user) {
-                return item.user.username;
+                return item.user.username || item.user.email;
             }
             if (item.integration) {
                 const integrationLabel = item.integration.label;

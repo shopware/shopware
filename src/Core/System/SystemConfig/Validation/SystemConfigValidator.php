@@ -137,7 +137,7 @@ class SystemConfigValidator
     {
         try {
             return $this->configurationService->getConfiguration($domain, $context);
-        } catch (BundleConfigNotFoundException $e) {
+        } catch (BundleConfigNotFoundException) {
             return [];
         }
     }

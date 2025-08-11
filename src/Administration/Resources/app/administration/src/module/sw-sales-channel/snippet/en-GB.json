@@ -44,6 +44,7 @@
       "messageSaveSuccess": "Sales Channel \"{name}\" saved.",
       "messageSaveError": "The Sales Channel \"{name}\" could not be saved. Please check your entries.",
       "messageActivateWithoutThemeError": "Sales Channel \"{name}\" could not be activated. Active Sales Channels need to have a theme associated.",
+      "messageMeasurementUnitsSetError": "Could not load system configuration for product measurements.",
       "activateDisable": "Please assign a theme before activating and saving the Sales Channel.",
       "buttonSave": "Save",
       "buttonCreateNewApiKeys": "Create new API key",
@@ -144,6 +145,7 @@
       "ipAddressAllowlistHelpText": "Add IP addresses to the allowlist in order to allow selective access to your shop. You may add IPv4 and IPv6 addresses as needed.",
       "basicinformationLink": "Change default maintenance layout here",
       "columnDomainCurrency": "Currency",
+      "columnDomainUnitSystem": "Unit system",
       "products": {
         "titleEmptyState": "No more products found",
         "titleEmptyStateTable": "No matching products found",
@@ -216,7 +218,7 @@
         "messageAccessKeyChanged": "Access key and export URL are active only after saving the Sales Channel.",
         "templates": {
           "label": "Template",
-          "placeholderSelectTemplate": "Do not use a template...",
+          "placeholderSelectTemplate": "Select a template...",
           "template-label": {
             "billiger-de": "billiger.de (CSV)",
             "idealo": "idealo.de (CSV)",
@@ -292,6 +294,14 @@
           "titleNoProductStreamsMatching": "No matching dynamic product groups found.",
           "titleNoProductStreamsAvailable": "No dynamic product groups available."
         }
+      },
+      "measurementSystem": {
+        "labelDefaultUnitSystem": "Default unit system",
+        "labelDefaultLengthUnit": "Default length unit",
+        "labelDefaultWeightUnit": "Default weight unit",
+        "labelUnitSystem": "Unit system",
+        "labelLengthUnit": "Length unit",
+        "labelWeightUnit": "Weight unit"
       }
     },
     "sw-sales-channel-defaults-select": {

@@ -1,11 +1,10 @@
 /* stylelint-disable max-nesting-depth */
 @import "~scss/variables";
 
-$sw-search-bar-border-color: $color-gray-300;
-$sw-search-bar-background-color: $color-white;
-$sw-search-bar-results-background-color: $color-white;
+$sw-search-bar-border-color: var(--color-border-primary-default);
+$sw-search-bar-results-background-color: var(--color-elevation-surface-overlay);
 $sw-search-bar-border-radius: $border-radius-default;
-$sw-search-bar-results-box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 30%);
+$sw-search-bar-results-box-shadow: 0 3px 6px 0 var(--color-elevation-shadow-default);
 $sw-search-bar-results-z-index: 800;
 $sw-search-bar-types-z-index: 900;
 $sw-search-bar-z-index: $z-index-search-bar-results;
@@ -18,7 +17,6 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
 .sw-search-bar {
     width: 100%;
     height: 80px;
-    background: $sw-search-bar-background-color;
     z-index: $sw-search-bar-z-index;
     align-content: center;
 
@@ -64,7 +62,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
         margin-bottom: 0;
         border: 1px solid $sw-search-bar-border-color;
         border-radius: $sw-search-bar-border-radius;
-        background-color: $color-white;
+        background-color: var(--color-elevation-surface-raised);
         padding: 9px 10px;
         position: relative;
         display: flex;
@@ -72,7 +70,8 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
         height: 50px;
 
         &.is--active {
-            border-color: $color-shopware-brand-500;
+            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline-offset: var(--scale-size-2);
         }
 
         .sw-search-bar__field-icon {
@@ -82,7 +81,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
             height: 100%;
             width: 50px;
             right: 0;
-            color: $color-darkgray-200;
+            color: var(--color-icon-primary-default);
             text-align: center;
             line-height: 45px;
             background: 0 none;
@@ -135,6 +134,11 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
             font-weight: $font-weight-semi-bold;
             font-size: $font-size-xs;
 
+            &:focus-visible {
+                outline-offset: var(--scale-size-2);
+                outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            }
+
             .mt-icon {
                 width: 16px;
                 height: 16px;
@@ -151,14 +155,15 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
     &__header {
         display: flex;
         justify-content: space-between;
-        background-color: $color-gray-50;
+        background-color: var(--color-background-primary-disabled);
         padding: 10px 24px;
     }
 
     &__header-title {
-        font-size: $font-size-xs;
-        color: $color-darkgray-200;
-        font-weight: $font-weight-semi-bold;
+        font-size: var(--font-size-xs);
+        color: var(--color-text-primary-default);
+        font-weight: var(--font-weight-semibold);
+        line-height: var(--font-line-height-xs);
     }
 
     &__footer-action-setting {
@@ -166,13 +171,18 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
     }
 
     .sw-search-bar__input {
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         flex-grow: 1;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
         padding: 0 40px 0 15px;
         border: 0;
         background: none;
         outline: none;
+
+        &::placeholder {
+            color: var(--color-text-tertiary-default);
+        }
     }
 
     .sw-search-bar__controls {
@@ -185,8 +195,11 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
 
     .sw-search-bar__results-column-header {
         margin-bottom: 10px;
-        font-size: $font-size-xs;
-        color: $color-darkgray-200;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        font-family: var(--font-family-body);
+        font-weight: var(--font-weight-regular);
+        color: var(--color-text-primary-default);
 
         .mt-icon {
             margin-right: 5px;
@@ -244,16 +257,16 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
             }
 
             .sw-search-bar__shortcut-tip {
-                line-height: 22px;
-                font-size: $font-size-xxs;
-                color: $color-darkgray-200;
+                line-height: var(--font-line-height-2xs);
+                font-size: var(--font-size-2xs);
+                color: var(--color-text-primary-default);
                 margin: 0;
 
                 span {
                     text-transform: uppercase;
-                    border: 1px solid $color-gray-500;
+                    border: 1px solid var(--color-border-primary-default);
                     border-radius: 3px;
-                    background-color: $color-white;
+                    background-color: var(--color-background-primary-disabled);
                     padding: 0 4px;
                     margin: 0 3px;
                 }
@@ -266,7 +279,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
             .sw-search-bar__results-column-header {
                 display: flex;
                 justify-content: space-between;
-                background-color: #f9fafb;
+                background-color: var(--color-background-primary-disabled);
                 padding: 10px 24px;
                 margin: 0;
             }
@@ -338,12 +351,12 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
                 &:hover {
                     border-radius: unset;
                     border: none;
-                    background-color: lighten($color-shopware-brand-500, 40%);
+                    background-color: var(--color-background-brand-default);
 
                     .sw-search-bar__type {
                         &-item-name,
                         &--filter {
-                            color: $color-shopware-brand-500;
+                            color: var(--color-text-brand-default);
                         }
                     }
                 }
@@ -356,16 +369,16 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
         }
 
         .sw-search-bar__shortcut-tip {
-            line-height: 22px;
-            font-size: $font-size-xxs;
-            color: $color-darkgray-200;
+            line-height: var(--font-line-height-2xs);
+            font-size: var(--font-size-2xs);
+            color: var(--color-text-primary-default);
             margin: 0;
 
             span {
                 text-transform: uppercase;
-                border: 1px solid $color-gray-500;
+                border: 1px solid var(--color-border-primary-default);
                 border-radius: 3px;
-                background-color: $color-white;
+                background-color: var(--color-background-primary-disabled);
                 padding: 0 4px;
                 margin: 0 3px;
             }
@@ -383,8 +396,9 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
     &__type-item-name {
         display: flex;
         align-items: center;
-        color: $color-darkgray-200;
-        font-size: $font-size-xs;
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
         padding: 5px 0;
     }
 
@@ -401,19 +415,20 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
     }
 
     &__results-empty-text {
-        color: $color-darkgray-200;
-        font-size: $font-size-s;
-        font-weight: $font-weight-semi-bold;
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-s);
+        line-height: var(--font-line-height-s);
+        font-family: var(--font-family-body);
+        font-weight: var(--font-weight-semibold);
         letter-spacing: 0.09px;
-        line-height: 25px;
     }
 
     &__results-empty-detail {
-        color: $color-darkgray-200;
-        font-size: $font-size-xs;
-        font-weight: normal;
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        font-weight: var(--font-weight-regular);
         letter-spacing: 0.1px;
-        line-height: 22px;
     }
 
     &__type-results-empty-message {

@@ -288,6 +288,7 @@
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ShippingFreeListingFilterHandler"/>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PropertyListingFilterHandler">
+            <argument type="service" id="property_group.repository"/>
             <argument type="service" id="property_group_option.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>

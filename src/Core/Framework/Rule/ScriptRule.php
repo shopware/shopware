@@ -54,16 +54,9 @@ class ScriptRule extends Rule
 
     public function match(RuleScope $scope): bool
     {
+        $name = $this->identifier ?? $this->getName();
         $context = [...['scope' => $scope], ...$this->values];
         $lastModified = $this->lastModified ?? $scope->getCurrentTime();
-        $name = $this->identifier ?? $this->getName();
-
-        $options = ['auto_reload' => true];
-        if (!$this->debug) {
-            $options['cache'] = new FilesystemCache($this->cacheDir . '/' . $name);
-        } else {
-            $options['debug'] = true;
-        }
 
         $script = new Script(
             $name,
@@ -76,9 +69,15 @@ class ScriptRule extends Rule
                 {{- var -}}
             ', implode(', ', array_keys($context)), $this->script),
             $lastModified,
-            null,
-            $options
         );
+
+        $twigOptions = ['auto_reload' => true];
+        if (!$this->debug) {
+            $twigOptions['cache'] = new FilesystemCache($this->cacheDir . '/' . $name);
+        } else {
+            $twigOptions['debug'] = true;
+        }
+        $script->setTwigOptions($twigOptions);
 
         $twig = new TwigEnvironment(
             new ScriptTwigLoader($script),

@@ -71,7 +71,7 @@ class CartOrderRouteTest extends TestCase
         $this->cartContextHasher = new CartContextHasher(new EventDispatcher());
 
         $this->cartLocker = $this->createMock(CartLocker::class);
-        $this->cartLocker->method('locked')->willReturnCallback(fn (string $token, \Closure $closure) => $closure());
+        $this->cartLocker->method('locked')->willReturnCallback(fn (SalesChannelContext $context, \Closure $closure) => $closure());
 
         $this->route = new CartOrderRoute(
             $this->cartCalculator,
@@ -306,7 +306,7 @@ class CartOrderRouteTest extends TestCase
         $this->cartLocker
             ->expects($this->once())
             ->method('locked')
-            ->willReturnCallback(fn (string $token, \Closure $closure) => $closure());
+            ->willReturnCallback(fn (SalesChannelContext $context, \Closure $closure) => $closure());
 
         $exception = new \Exception('test exception');
         $this->cartCalculator
@@ -322,7 +322,7 @@ class CartOrderRouteTest extends TestCase
     {
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = Generator::generateSalesChannelContext();
 
         $dispatcher = new EventDispatcher();
         $extensions = new ExtensionDispatcher($dispatcher);

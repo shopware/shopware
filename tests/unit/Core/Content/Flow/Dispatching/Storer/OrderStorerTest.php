@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer;
@@ -78,7 +79,7 @@ class OrderStorerTest extends TestCase
         $this->storer->restore($storable);
         $entity = new OrderEntity();
         $result = $this->createMock(EntitySearchResult::class);
-        $result->expects($this->once())->method('get')->willReturn($entity);
+        $result->expects($this->once())->method('getEntities')->willReturn(new OrderCollection([$entity]));
 
         $this->repository->expects($this->once())->method('search')->willReturn($result);
         $res = $storable->getData('order');
@@ -90,14 +91,13 @@ class OrderStorerTest extends TestCase
     {
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['orderId' => 'id'], []);
         $this->storer->restore($storable);
-        $entity = null;
         $result = $this->createMock(EntitySearchResult::class);
-        $result->expects($this->once())->method('get')->willReturn($entity);
+        $result->expects($this->once())->method('getEntities')->willReturn(new OrderCollection());
 
         $this->repository->expects($this->once())->method('search')->willReturn($result);
         $res = $storable->getData('order');
 
-        static::assertSame($res, $entity);
+        static::assertNull($res);
     }
 
     public function testLazyLoadNullId(): void

@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PriceListingFilter
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PropertyListingFilterHandler;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\RatingListingFilterHandler;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ShippingFreeListingFilterHandler;
+use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -33,6 +34,8 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductSortingCollection> $sortingRepository
      */
     public function __construct(
         private readonly AbstractProductListingRoute $listingRoute,

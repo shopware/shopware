@@ -4,11 +4,14 @@ namespace Shopware\Tests\Unit\Core\Content\Cms\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Cms\Command\CreatePageCommand;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -30,6 +33,7 @@ class CreatePageCommandTest extends TestCase
 
     protected function setUp(): void
     {
+        /** @var StaticEntityRepository<ProductCollection> */
         $productRepository = new StaticEntityRepository([
             [
                 'product-id-1',
@@ -37,12 +41,14 @@ class CreatePageCommandTest extends TestCase
             ],
         ], new ProductDefinition());
 
+        /** @var StaticEntityRepository<CategoryCollection> */
         $categoryRepository = new StaticEntityRepository([
             [
                 'category-id-1',
             ],
         ], new CategoryDefinition());
 
+        /** @var StaticEntityRepository<MediaCollection> */
         $mediaRepository = new StaticEntityRepository([
             [
                 'media-id-1',

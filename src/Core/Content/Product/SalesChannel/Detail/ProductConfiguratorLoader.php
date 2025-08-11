@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
-use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
@@ -21,6 +21,8 @@ class ProductConfiguratorLoader
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductConfiguratorSettingCollection> $configuratorRepository
      */
     public function __construct(
         private readonly EntityRepository $configuratorRepository,
@@ -97,7 +99,6 @@ class ProductConfiguratorLoader
         }
         $groups = [];
 
-        /** @var ProductConfiguratorSettingEntity $setting */
         foreach ($settings as $setting) {
             $option = $setting->getOption();
             if ($option === null) {
@@ -152,7 +153,6 @@ class ProductConfiguratorLoader
             $sorted[$group->getId()] = $group;
         }
 
-        /** @var PropertyGroupEntity $group */
         foreach ($sorted as $group) {
             $options = $group->getOptions();
             if ($options === null) {

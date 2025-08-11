@@ -10,6 +10,7 @@ use Shopware\Core\Content\Flow\Dispatching\Aware\NewsletterRecipientAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\NewsletterRecipientStorer;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Framework\Context;
@@ -78,7 +79,7 @@ class NewsletterRecipientStorerTest extends TestCase
         $this->storer->restore($storable);
         $entity = new NewsletterRecipientEntity();
         $result = $this->createMock(EntitySearchResult::class);
-        $result->expects($this->once())->method('get')->willReturn($entity);
+        $result->expects($this->once())->method('getEntities')->willReturn(new NewsletterRecipientCollection([$entity]));
 
         $this->repository->expects($this->once())->method('search')->willReturn($result);
         $res = $storable->getData('newsletterRecipient');
@@ -89,14 +90,13 @@ class NewsletterRecipientStorerTest extends TestCase
     {
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['newsletterRecipientId' => 'id'], []);
         $this->storer->restore($storable);
-        $entity = null;
         $result = $this->createMock(EntitySearchResult::class);
-        $result->expects($this->once())->method('get')->willReturn($entity);
+        $result->expects($this->once())->method('getEntities')->willReturn(new NewsletterRecipientCollection());
 
         $this->repository->expects($this->once())->method('search')->willReturn($result);
         $res = $storable->getData('newsletterRecipient');
 
-        static::assertSame($res, $entity);
+        static::assertNull($res);
     }
 
     public function testLazyLoadNullId(): void

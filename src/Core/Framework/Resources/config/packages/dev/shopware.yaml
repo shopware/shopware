@@ -4,7 +4,7 @@ shopware:
             auth_required: false
     cache:
         invalidation:
-            delay: false
+            delay_enabled: false
     media:
         enable_url_upload_feature: true
         enable_url_validation: false

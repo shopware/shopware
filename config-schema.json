@@ -589,7 +589,7 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "delay": {
+                "delay_enabled": {
                     "type": "boolean"
                 },
                 "delay_options": {

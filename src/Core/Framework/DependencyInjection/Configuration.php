@@ -405,7 +405,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('cache_compression_method')->defaultValue('gzip')->end()
                 ->arrayNode('invalidation')
                     ->children()
-                        ->booleanNode('delay')
+                        ->booleanNode('delay_enabled')
                             ->defaultTrue()
                         ->end()
                         ->arrayNode('delay_options')

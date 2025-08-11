@@ -13,7 +13,7 @@ shopware:
 
     cache:
         invalidation:
-            delay: false
+            delay_enabled: false
 
     increment:
         user_activity:

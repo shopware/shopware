@@ -72,4 +72,26 @@ class CartCompressorTest extends TestCase
         static::expectExceptionObject(CartException::deserializeFailed());
         $compressor->unserialize('invalid', 1);
     }
+
+    public function testSerializationMaxSize(): void
+    {
+        static::expectException(CartException::class);
+        static::expectExceptionMessage('The serialized cart data exceeds the allowed payload size limit');
+
+        $compressor = new CartCompressor(true, 'gzip', 1);
+
+        // necessary to get the limit of 1 mb
+        $compressor->serialize(str_repeat('testTheLimit', 46000000));
+    }
+
+    public function testSerializationMaxSizeWithOutCompress(): void
+    {
+        static::expectException(CartException::class);
+        static::expectExceptionMessage('The serialized cart data exceeds the allowed payload size limit');
+
+        $compressor = new CartCompressor(false, 'gzip', 1);
+
+        // necessary to get the limit of 1 mb
+        $compressor->serialize(str_repeat('testTheLimit', 46000000));
+    }
 }

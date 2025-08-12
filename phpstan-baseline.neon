@@ -2293,18 +2293,6 @@ parameters:
 			path: src/Core/Framework/Validation/DataValidator.php
 
 		-
-			message: '#^Method Shopware\\Core\\Framework\\Validation\\Exception\\ConstraintViolationException\:\:__construct\(\) has parameter \$inputData with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/Validation/Exception/ConstraintViolationException.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\Validation\\Exception\\ConstraintViolationException\:\:getInputData\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/Validation/Exception/ConstraintViolationException.php
-
-		-
 			message: '#^Method Shopware\\Core\\Framework\\Webhook\\Hookable\\HookableEventCollector\:\:getBusinessEventNamesWithPrivileges\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1

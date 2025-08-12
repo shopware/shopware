@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Rule;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
+use Symfony\Component\Validator\Constraints\Timezone;
 
 /**
  * @final
@@ -20,6 +21,8 @@ class TimeRangeRule extends Rule
 
     protected string $toTime;
 
+    protected ?string $timezone = null;
+
     private bool $validationTurnover = false;
 
     private \DateTimeInterface $to;
@@ -29,8 +32,8 @@ class TimeRangeRule extends Rule
     public function match(RuleScope $scope): bool
     {
         $now = $scope->getCurrentTime();
-        $this->from = $this->extractTime($this->fromTime, $now);
-        $this->to = $this->extractTime($this->toTime, $now);
+        $this->from = $this->extractTime($this->fromTime, $this->timezone, $now);
+        $this->to = $this->extractTime($this->toTime, $this->timezone, $now);
 
         $this->switchValidationIfToIsSmallerThanFrom();
 
@@ -42,11 +45,16 @@ class TimeRangeRule extends Rule
         return [
             'toTime' => [new NotBlank(), new Regex(self::TIME_REGEX)],
             'fromTime' => [new NotBlank(), new Regex(self::TIME_REGEX)],
+            'timezone' => [new Timezone()],
         ];
     }
 
-    private function extractTime(string $time, \DateTimeImmutable $now): \DateTimeInterface
+    private function extractTime(string $time, ?string $timezone, \DateTimeImmutable $now): \DateTimeInterface
     {
+        if ($timezone) {
+            $now = $now->setTimezone(new \DateTimeZone($timezone));
+        }
+
         [$hour, $minute] = explode(':', $time);
 
         return $now->setTime((int) $hour, (int) $minute);

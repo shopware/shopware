@@ -45,6 +45,7 @@ class TimeRangeRuleTest extends TestCase
                 'value' => [
                     'fromTime' => '15:00',
                     'toTime' => '12:00',
+                    'timezone' => 'Europe/Berlin',
                 ],
             ],
         ], $context);
@@ -60,6 +61,7 @@ class TimeRangeRuleTest extends TestCase
         static::assertArrayHasKey('fromTime', $value);
         static::assertSame('12:00', $value['toTime']);
         static::assertSame('15:00', $value['fromTime']);
+        static::assertSame('Europe/Berlin', $value['timezone']);
 
         $ruleRepository->delete([['id' => $ruleId]], $context);
         $conditionRepository->delete([['id' => $id]], $context);

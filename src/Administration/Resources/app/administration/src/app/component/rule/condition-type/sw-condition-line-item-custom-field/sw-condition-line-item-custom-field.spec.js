@@ -5,86 +5,146 @@ import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
-const mockCustomFields = new EntityCollection(
-    '/custom-field',
-    'custom_field',
-    null,
-    {},
-    [
-        {
-            id: '1',
-            name: '',
-            config: {
-                type: 'text',
-                label: 'foo',
-            },
-            customFieldSetId: '1',
-            customFieldSet: {
-                name: '',
-                config: {
-                    label: 'bar',
-                },
-            },
-            allowCartExpose: false,
+const defaultCustomFieldMock = [
+    {
+        id: 'custom-field-id-1',
+        name: 'custom_test_checkbox',
+        type: 'bool',
+        active: true,
+        customFieldSetId: 'custom-field-set-id-1',
+        allowCustomerWrite: false,
+        allowCartExpose: true,
+        storeApiAware: true,
+        config: {
+            type: 'checkbox',
+            label: 'checkbox',
+            componentName: 'sw-field',
+            customFieldType: 'checkbox',
         },
-        {
-            id: '2',
-            name: '',
+        customFieldSet: {
             config: {
-                componentName: 'sw-field',
-                type: 'text',
-                label: 'foo2',
+                label: 'custom-field-set-label-1',
             },
-            customFieldSetId: '2',
-            customFieldSet: {
-                name: '',
-                config: {
-                    label: 'bar',
-                },
-            },
-            allowCartExpose: true,
         },
-    ],
-    2,
-    null,
-);
+    },
+    {
+        id: 'custom-field-id-2',
+        name: 'custom_test_switch',
+        type: 'bool',
+        active: true,
+        customFieldSetId: 'custom-field-set-id-2',
+        allowCustomerWrite: false,
+        allowCartExpose: true,
+        storeApiAware: true,
+        config: {
+            type: 'switch',
+            label: 'switch',
+            componentName: 'sw-field',
+            customFieldType: 'switch',
+        },
+        customFieldSet: {
+            config: {
+                label: 'custom-field-set-label-2',
+            },
+        },
+    },
+    {
+        id: 'custom-field-id-3',
+        name: 'custom_test_editor',
+        type: 'html',
+        active: true,
+        customFieldSetId: 'custom-field-set-id-3',
+        allowCustomerWrite: false,
+        allowCartExpose: true,
+        storeApiAware: true,
+        config: {
+            label: 'editor',
+            componentName: 'sw-text-editor',
+            customFieldType: 'textEditor',
+        },
+        customFieldSet: {
+            config: {
+                label: 'custom-field-set-label-3',
+            },
+        },
+    },
+    {
+        id: 'custom-field-id-4',
+        name: 'custom_test_text',
+        type: 'text',
+        active: true,
+        customFieldSetId: 'custom-field-set-id-4',
+        allowCustomerWrite: false,
+        allowCartExpose: true,
+        storeApiAware: true,
+        config: {
+            label: 'text',
+            componentName: 'sw-field',
+            customFieldType: 'text',
+        },
+        customFieldSet: {
+            config: {
+                label: 'custom-field-set-label-4',
+            },
+        },
+    },
+];
 
-async function createWrapper() {
+const defaultProps = {
+    condition: {
+        id: 'rule-condition-id',
+        type: 'cartLineItemCustomField',
+        ruleId: 'rule-id',
+        customFields: null,
+        children: [],
+        value: {
+            operator: null,
+            renderedField: null,
+            selectedField: null,
+            selectedFieldSet: null,
+            renderedFieldValue: null,
+        },
+    },
+};
+
+const getRepositoryFactoryMock = (mock) => ({
+    search: jest.fn(() => Promise.resolve(new EntityCollection('/custom-field', 'custom_field', null, {}, mock, 2, null))),
+    get: jest.fn(() => Promise.resolve()),
+});
+
+async function createWrapper(props = defaultProps, customFieldMock = defaultCustomFieldMock) {
     return mount(
         await wrapTestComponent('sw-condition-line-item-custom-field', {
             sync: true,
         }),
         {
+            props,
             global: {
-                directives: {
-                    popover: Shopware.Directive.getByName('popover'),
-                },
                 stubs: {
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-block-field': await wrapTestComponent('sw-block-field'),
-                    'sw-condition-operator-select': await wrapTestComponent('sw-condition-operator-select'),
-                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
-                    'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
-                    'sw-popover': await wrapTestComponent('sw-popover'),
-                    'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
-                    'sw-select-result': await wrapTestComponent('sw-select-result'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                    'sw-popover': await wrapTestComponent('sw-popover'),
+                    'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated'),
+                    'sw-select-result': await wrapTestComponent('sw-select-result'),
+                    'sw-condition-operator-select': await wrapTestComponent('sw-condition-operator-select'),
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
-                    'sw-text-field': await wrapTestComponent('sw-text-field'),
-                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                    'sw-ai-copilot-badge': true,
-                    'sw-help-text': true,
-                    'sw-field-error': true,
-                    'sw-product-variant-info': true,
+                    'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
                     'sw-highlight-text': true,
-                    'sw-loader': true,
+                    'sw-help-text': true,
+                    'mt-icon': true,
+                    'sw-product-variant-info': true,
                     'sw-inheritance-switch': true,
+                    'sw-loader': true,
+                    'sw-ai-copilot-badge': true,
                     'sw-condition-type-select': true,
-                    'sw-context-menu-item': true,
+                    'sw-field-error': true,
                     'sw-context-button': true,
-                    'sw-field-copyable': true,
+                    'sw-context-menu': true,
+                    'sw-context-menu-item': true,
+                    'mt-floating-ui': true,
                 },
                 provide: {
                     conditionDataProviderService: new ConditionDataProviderService(),
@@ -99,24 +159,15 @@ async function createWrapper() {
                     conditionScopes: [],
                     unwrapAllLineItemsCondition: () => ({}),
                     repositoryFactory: {
-                        create: (param) => {
-                            if (param === 'custom_field') {
-                                return {
-                                    search: () => Promise.resolve(mockCustomFields),
-                                };
+                        create: (type) => {
+                            if (type === 'custom_field') {
+                                return getRepositoryFactoryMock(customFieldMock);
                             }
+
                             return {
-                                search: () => Promise.resolve(),
                                 get: () => Promise.resolve(),
                             };
                         },
-                    },
-                },
-            },
-            props: {
-                condition: {
-                    value: {
-                        renderedField: '',
                     },
                 },
             },
@@ -125,133 +176,159 @@ async function createWrapper() {
 }
 
 describe('components/rule/condition-type/sw-condition-line-item-custom-field', () => {
-    let wrapper;
-
-    beforeEach(async () => {
-        wrapper = await createWrapper();
+    it.each([
+        {
+            name: 'default',
+            customField: { ...defaultCustomFieldMock[0], allowCartExpose: false },
+            expected: 'global.sw-condition.condition.lineItemCustomField.field.customFieldSelect.tooltip',
+        },
+        { name: 'cart expose', customField: { ...defaultCustomFieldMock[0], allowCartExpose: true }, expected: '' },
+    ])('should render custom field tooltip: $name', async ({ customField, expected }) => {
+        const wrapper = await createWrapper(defaultProps, [
+            customField,
+        ]);
         await flushPromises();
-    });
 
-    it('should render custom field options', async () => {
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const listElements = document.body.querySelector('.sw-select-result-list__item-list').querySelectorAll('li');
-
-        expect(listElements.item(0).querySelector('.sw-select-result__result-item-text').textContent).toBe('foo ');
-        expect(listElements.item(0).querySelector('.sw-select-result__result-item-description').textContent).toBe('bar');
-        expect(listElements.item(0).className).toContain('is--disabled');
-
-        expect(listElements.item(1).querySelector('.sw-select-result__result-item-text').textContent).toBe('foo2 ');
-        expect(listElements.item(1).querySelector('.sw-select-result__result-item-description').textContent).toBe('bar');
-        expect(listElements.item(1).className).not.toContain('is--disabled');
+        expect(wrapper.find('.sw-select-result').attributes('tooltip-mock-message')).toBe(expected);
     });
 
-    it('should get custom field option tooltip', async () => {
-        let tooltipConfig = wrapper.vm.getTooltipConfig(mockCustomFields.at(0));
-
-        expect(tooltipConfig).toEqual({
-            disabled: false,
-            width: 260,
-            message: 'global.sw-condition.condition.lineItemCustomField.field.customFieldSelect.tooltip',
-        });
-
-        tooltipConfig = wrapper.vm.getTooltipConfig(mockCustomFields.at(1));
-
-        expect(tooltipConfig).toEqual({ message: '', disabled: true });
-    });
-
-    it('should set data on field change with known id', async () => {
-        await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
-        await flushPromises();
-
-        wrapper.vm.onFieldChange('1');
-
-        expect(wrapper.vm.renderedField).toStrictEqual({
-            allowCartExpose: false,
-            config: {
-                label: 'foo',
-                type: 'text',
-            },
+    it.each([
+        {
+            name: 'label',
             customFieldSet: {
                 config: {
-                    label: 'bar',
+                    label: 'This is a very long text that should be truncated.',
                 },
-                name: '',
             },
-            customFieldSetId: '1',
-            id: '1',
-            name: '',
-        });
-        expect(wrapper.vm.selectedFieldSet).toBe('1');
-    });
+        },
+        {
+            name: 'name',
+            customFieldSet: {
+                name: 'This is a very long text that should be truncated.',
+                config: {
+                    label: null,
+                },
+            },
+        },
+    ])('should truncate field description if too long: $name', async ({ customFieldSet }) => {
+        const wrapper = await createWrapper(defaultProps, [
+            {
+                ...defaultCustomFieldMock[0],
+                customFieldSet: {
+                    ...defaultCustomFieldMock[0].customFieldSet,
+                    ...customFieldSet,
+                },
+            },
+        ]);
+        await flushPromises();
 
-    it('should not set data on field change with unknown id', async () => {
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        wrapper.vm.onFieldChange('3');
-
-        expect(wrapper.vm.renderedField).toBeNull();
-        expect(wrapper.vm.selectedFieldSet).toBeUndefined();
+        expect(wrapper.find('.sw-select-result__result-item-description').text()).toBe('This is a very lo...');
     });
 
-    it('should set custom field value on input', async () => {
+    it('should update field & reset field on change if unselected', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        document.body.querySelector('li:nth-of-type(2)').click();
+        await wrapper.find('.sw-select-result').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('foo2');
+        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('checkbox');
+        expect(wrapper.find('.sw-condition-operator-select').exists()).toBe(true);
+
+        await wrapper.find('.sw-select__select-indicator-hitbox').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-condition-operator-select').exists()).toBe(false);
     });
 
-    it('should set operator field value on input', async () => {
+    it.each([
+        { name: 'checkboxes', customField: defaultCustomFieldMock[0], label: 'checkbox' },
+        { name: 'switches', customField: defaultCustomFieldMock[1], label: 'switch' },
+    ])('should transform custom field config & operators for: $name', async ({ customField, label }) => {
+        const wrapper = await createWrapper(defaultProps, [
+            customField,
+        ]);
+        await flushPromises();
+
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        document.body.querySelector('li:nth-of-type(2)').click();
+        await wrapper.find('.sw-select-result').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-single-select__selection-input').trigger('click');
+        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe(label);
+        expect(wrapper.find('.sw-condition-operator-select').exists()).toBe(true);
+
+        await wrapper.find('.sw-condition-operator-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        document.body.querySelector('li').click();
+        const operators = wrapper.findAll('.sw-condition-operator-select .sw-select-result');
+        expect(operators).toHaveLength(1);
+
+        expect(operators[0].find('sw-highlight-text-stub').attributes('text')).toBe('global.sw-condition.operator.equals');
+
+        await operators[0].trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-single-select__selection-text').text()).toBe('global.sw-condition.operator.equals');
+        expect(wrapper.find('.sw-condition-operator-select .sw-single-select__selection-text').text()).toBe(
+            'global.sw-condition.operator.equals',
+        );
+
+        await wrapper.find('.sw-form-field-renderer .sw-select__selection').trigger('click');
+        await flushPromises();
+
+        const options = wrapper.findAll('.sw-form-field-renderer .sw-select-result');
+        expect(options).toHaveLength(2);
+
+        expect(options[0].find('sw-highlight-text-stub').attributes('text')).toBe('global.default.yes');
+        expect(options[1].find('sw-highlight-text-stub').attributes('text')).toBe('global.default.no');
     });
 
-    it('should set form field value on input', async () => {
+    it('should transform custom field config & operators for text editors', async () => {
+        const wrapper = await createWrapper(defaultProps, [
+            defaultCustomFieldMock[2],
+        ]);
+        await flushPromises();
+
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        document.body.querySelector('li:nth-of-type(2)').click();
+        await wrapper.find('.sw-select-result').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-single-select__selection-input').trigger('click');
+        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('editor');
+        expect(wrapper.find('.sw-condition-operator-select').exists()).toBe(true);
+
+        await wrapper.find('.sw-condition-operator-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        document.body.querySelector('li').click();
+        const operators = wrapper.findAll('.sw-condition-operator-select .sw-select-result');
+        expect(operators).toHaveLength(2);
+
+        expect(operators[0].find('sw-highlight-text-stub').attributes('text')).toBe('global.sw-condition.operator.equals');
+        expect(operators[1].find('sw-highlight-text-stub').attributes('text')).toBe(
+            'global.sw-condition.operator.notEquals',
+        );
+
+        await operators[0].trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-form-field-renderer input').setValue('test123');
-        await flushPromises();
+        expect(wrapper.find('.sw-condition-operator-select .sw-single-select__selection-text').text()).toBe(
+            'global.sw-condition.operator.equals',
+        );
 
-        expect(wrapper.vm.renderedFieldValue).toBe('test123');
-    });
-
-    it('should truncate custom field description', async () => {
-        mockCustomFields.at(0).customFieldSet.config.label = 'Product migration custom fields (attributes)';
-
-        const testWrapper = await createWrapper();
-        await flushPromises();
-
-        await testWrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
-        await flushPromises();
-
-        const description = document.body.querySelector('.sw-select-result__result-item-description').textContent;
-        expect(description).toHaveLength(20);
-        expect(description.endsWith('...')).toBe(true);
+        const field = wrapper.find('.sw-form-field-renderer');
+        expect(field.attributes('label')).toBe('editor');
+        expect(field.attributes('componentname')).toBe('sw-field');
+        expect(field.attributes('type')).toBe('text');
     });
 });

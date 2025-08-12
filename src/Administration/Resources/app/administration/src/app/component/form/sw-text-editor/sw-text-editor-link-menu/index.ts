@@ -49,7 +49,7 @@ export default Shopware.Component.wrapComponentConfig({
         buttonVariant: ButtonVariant;
         linkCategory: LinkCategories;
         categoryCollection?: EntityCollection<'category'>;
-        buttonVariantList: Array<{ id: number, value: ButtonVariant; label: string }>;
+        buttonVariantList: Array<{ id: number; value: ButtonVariant; label: string }>;
     } {
         return {
             linkTitle: '',

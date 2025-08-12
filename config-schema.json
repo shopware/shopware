@@ -91,7 +91,7 @@
                     "$ref": "#/definitions/mail"
                 },
                 "profiler": {
-                  "$ref": "#/definitions/profiler"
+                    "$ref": "#/definitions/profiler"
                 },
                 "twig": {
                     "$ref": "#/definitions/twig"
@@ -109,7 +109,7 @@
                     "$ref": "#/definitions/redis"
                 },
                 "usage_data": {
-                  "$ref": "#/definitions/usage_data"
+                    "$ref": "#/definitions/usage_data"
                 },
                 "staging": {
                     "$ref": "#/definitions/staging"
@@ -137,7 +137,11 @@
                         "anyOf": [
                             {
                                 "type": "string",
-                                "enum": ["Symfony", "Datadog", "Tideways"]
+                                "enum": [
+                                    "Symfony",
+                                    "Datadog",
+                                    "Tideways"
+                                ]
                             },
                             {
                                 "type": "string"
@@ -222,7 +226,11 @@
                                     },
                                     "type": {
                                         "type": "string",
-                                        "enum": ["equal", "regex", "prefix"]
+                                        "enum": [
+                                            "equal",
+                                            "regex",
+                                            "prefix"
+                                        ]
                                     },
                                     "replace": {
                                         "type": "string"
@@ -316,7 +324,10 @@
                     "default": false
                 },
                 "stats": {
-                    "type": ["object", "null"],
+                    "type": [
+                        "object",
+                        "null"
+                    ],
                     "additionalProperties": false,
                     "properties": {
                         "enabled": {
@@ -388,7 +399,10 @@
             "additionalProperties": false,
             "properties": {
                 "max_limit": {
-                    "type": ["integer", "null"],
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
                     "default": 100
                 },
                 "access_token_ttl": {
@@ -501,7 +515,10 @@
                     "type": "string"
                 },
                 "max_limit": {
-                    "type": ["integer", "null"],
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
                     "default": 100
                 }
             },
@@ -531,7 +548,10 @@
                 },
                 "cache_compression_method": {
                     "type": "string",
-                    "enum": ["gzip", "zstd"],
+                    "enum": [
+                        "gzip",
+                        "zstd"
+                    ],
                     "default": "gzip",
                     "description": "Controls the cache compression method"
                 },
@@ -569,8 +589,8 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "delay": {
-                    "type": "integer"
+                "delay_enabled": {
+                    "type": "boolean"
                 },
                 "delay_options": {
                     "type": "object",
@@ -678,7 +698,10 @@
                 },
                 "compression_method": {
                     "type": "string",
-                    "enum": ["gzip", "zstd"],
+                    "enum": [
+                        "gzip",
+                        "zstd"
+                    ],
                     "default": "gzip",
                     "description": "Controls the cache compression method"
                 },
@@ -688,7 +711,10 @@
                     "properties": {
                         "type": {
                             "type": "string",
-                            "enum": ["mysql", "redis"]
+                            "enum": [
+                                "mysql",
+                                "redis"
+                            ]
                         },
                         "config": {
                             "type": "object",
@@ -717,7 +743,10 @@
                     "anyOf": [
                         {
                             "type": "string",
-                            "enum": ["mysql", "redis"]
+                            "enum": [
+                                "mysql",
+                                "redis"
+                            ]
                         },
                         {
                             "type": "string"
@@ -761,7 +790,10 @@
                         },
                         "soft_purge": {
                             "type": "string",
-                            "enum": ["1", "0"],
+                            "enum": [
+                                "1",
+                                "0"
+                            ],
                             "default": "0",
                             "Title": "Soft purge parameter will be passed to fastly API"
                         },
@@ -825,11 +857,17 @@
                     }
                 },
                 "stale_while_revalidate": {
-                    "type": ["integer", "null"],
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
                     "default": null
                 },
                 "stale_if_error": {
-                    "type": ["integer", "null"],
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
                     "default": null
                 },
                 "soft_purge": {
@@ -927,7 +965,10 @@
                                 },
                                 "soft_purge": {
                                     "type": "string",
-                                    "enum": ["1", "0"],
+                                    "enum": [
+                                        "1",
+                                        "0"
+                                    ],
                                     "default": "0"
                                 }
                             }
@@ -1177,7 +1218,9 @@
                 },
                 "error_code_log_levels": {
                     "type": "object",
-                    "additionalProperties": {"type": "string"}
+                    "additionalProperties": {
+                        "type": "string"
+                    }
                 }
             },
             "title": "Logger"
@@ -1285,17 +1328,26 @@
             "additionalProperties": false,
             "properties": {
                 "enabled": {
-                    "type": ["string", "boolean"],
+                    "type": [
+                        "string",
+                        "boolean"
+                    ],
                     "description": "Enable Elasticsearch Searching",
                     "default": false
                 },
                 "indexing_enabled": {
-                    "type": ["string", "boolean"],
+                    "type": [
+                        "string",
+                        "boolean"
+                    ],
                     "description": "Enable Elasticsearch Indexing",
                     "default": false
                 },
                 "indexing_batch_size": {
-                    "type": ["string", "integer"],
+                    "type": [
+                        "string",
+                        "integer"
+                    ],
                     "description": "Elasticsearch Batch Size",
                     "default": 100
                 },
@@ -1310,7 +1362,10 @@
                     "default": "sw"
                 },
                 "throw_exception": {
-                    "type": ["string", "boolean"],
+                    "type": [
+                        "string",
+                        "boolean"
+                    ],
                     "description": "Throw exception when Elasticsearch queries failing",
                     "default": false
                 },
@@ -1319,7 +1374,10 @@
                     "additionalProperties": false,
                     "properties": {
                         "custom_fields_mapping": {
-                            "type": ["object", "null"],
+                            "type": [
+                                "object",
+                                "null"
+                            ],
                             "title": "Custom Field Mapping of Product"
                         }
                     }
@@ -1360,11 +1418,17 @@
                             "default": true
                         },
                         "cert_path": {
-                            "type": ["boolean", "string"],
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "default": false
                         },
                         "cert_key_path": {
-                            "type": ["boolean", "string"],
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "default": false
                         },
                         "sigV4": {
@@ -1376,11 +1440,17 @@
                                     "default": false
                                 },
                                 "region": {
-                                    "type": ["boolean", "string"],
+                                    "type": [
+                                        "boolean",
+                                        "string"
+                                    ],
                                     "default": false
                                 },
                                 "service": {
-                                    "type": ["boolean", "string"],
+                                    "type": [
+                                        "boolean",
+                                        "string"
+                                    ],
                                     "default": false
                                 },
                                 "credentials_provider": {
@@ -1388,11 +1458,17 @@
                                     "additionalProperties": false,
                                     "properties": {
                                         "key_id": {
-                                            "type": ["boolean", "string"],
+                                            "type": [
+                                                "boolean",
+                                                "string"
+                                            ],
                                             "default": false
                                         },
                                         "secret_key": {
-                                            "type": ["boolean", "string"],
+                                            "type": [
+                                                "boolean",
+                                                "string"
+                                            ],
                                             "default": false
                                         }
                                     }
@@ -1406,11 +1482,17 @@
                     "additionalProperties": true,
                     "properties": {
                         "number_of_shards": {
-                            "type": ["integer", "null"],
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
                             "default": 3
                         },
                         "number_of_replicas": {
-                            "type": ["integer", "null"],
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
                             "default": 3
                         },
                         "mapping.total_fields.limit": {

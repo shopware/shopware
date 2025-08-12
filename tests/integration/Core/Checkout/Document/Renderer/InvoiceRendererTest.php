@@ -38,6 +38,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\AppSystemTestBehaviour;
+use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
@@ -50,6 +51,7 @@ class InvoiceRendererTest extends TestCase
 {
     use AppSystemTestBehaviour;
     use DocumentTrait;
+    use SnapshotTesting;
 
     private SalesChannelContext $salesChannelContext;
 
@@ -94,6 +96,55 @@ class InvoiceRendererTest extends TestCase
         if (self::$callback instanceof \Closure) {
             static::getContainer()->get('event_dispatcher')->removeListener(DocumentTemplateRendererParameterEvent::class, self::$callback);
         }
+    }
+
+    public function testDocumentSnapshot(): void
+    {
+        $cart = $this->generateDemoCart([7]);
+        $orderId = $this->persistCart($cart);
+
+        static::getContainer()->get('order.repository')->update([
+            [
+                'id' => $orderId,
+                'orderDateTime' => '2023-11-24T12:00:00+00:00',
+            ],
+        ], $this->context);
+
+        $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, [
+            'itemsPerPage' => 10,
+            'displayHeader' => true,
+            'displayFooter' => true,
+            'displayPrices' => true,
+            'displayPageCount' => true,
+            'displayLineItems' => true,
+            'displayCompanyAddress' => true,
+            'companyName' => 'Example Company',
+            'documentDate' => '2023-11-24T12:00:00+00:00',
+        ]);
+
+        $processedTemplate = $this->invoiceRenderer->render(
+            [$orderId => $operation],
+            $this->context,
+            new DocumentRendererConfig()
+        );
+
+        $rendered = $processedTemplate->getSuccess()[$orderId];
+        static::assertInstanceOf(RenderedDocument::class, $rendered);
+
+        $content = $rendered->getContent();
+
+        // replace the date in the meta tag to avoid snapshot differences
+        $processedHtml = preg_replace(
+            '/(<meta name="date" content=")(.*?)(")/i',
+            '$1[date]$3',
+            $content
+        );
+        static::assertIsString($processedHtml);
+
+        $this->assertHtmlSnapshot(
+            'invoice_renderer_default',
+            $processedHtml
+        );
     }
 
     /**
@@ -722,8 +773,6 @@ class InvoiceRendererTest extends TestCase
     {
         $cart = $this->cartService->createNew('A');
 
-        $keywords = ['awesome', 'epic', 'high quality'];
-
         $products = [];
 
         $factory = new ProductLineItemFactory(new PriceDefinitionFactory());
@@ -732,13 +781,10 @@ class InvoiceRendererTest extends TestCase
 
         $lineItems = [];
 
-        foreach ($taxes as $tax) {
-            $price = random_int(100, 200000) / 100.0;
-
-            shuffle($keywords);
-            $name = ucfirst(implode(' ', $keywords) . ' product');
-
-            $number = Uuid::randomHex();
+        foreach ($taxes as $index => $tax) {
+            $price = 100.0 + (int) $index;
+            $name = 'product ' . $index;
+            $number = 'p' . $index;
 
             $product = (new ProductBuilder($ids, $number))
                 ->price($price)

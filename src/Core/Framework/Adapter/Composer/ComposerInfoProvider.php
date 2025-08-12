@@ -1,0 +1,73 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Adapter\Composer;
+
+use Composer\InstalledVersions;
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @internal
+ *
+ * @phpstan-type ComposerPackage = array{name: string, version: string, path: string, pretty_version: string}
+ */
+#[Package('framework')]
+class ComposerInfoProvider
+{
+    /**
+     * @var ComposerPackage[]|null
+     */
+    private static ?array $fakedPackages = null;
+
+    /**
+     * @return ComposerPackage[]
+     */
+    public static function getComposerPackages(string $type): array
+    {
+        // For testing purposes, we can fake the packages
+        if (self::$fakedPackages !== null) {
+            return self::$fakedPackages;
+        }
+
+        $rawPackages = InstalledVersions::getAllRawData();
+        $packages = [];
+
+        foreach ($rawPackages as $rootPackage) {
+            if (($rootPackage['root']['type'] ?? '') === $type) {
+                $packages[$rootPackage['root']['name']] = [
+                    'name' => $rootPackage['root']['name'],
+                    'version' => $rootPackage['root']['version'] ?? '1.0.0',
+                    'pretty_version' => $rootPackage['root']['pretty_version'] ?? $rootPackage['root']['version'] ?? '1.0.0.0',
+                    'path' => $rootPackage['root']['install_path'] ?? '',
+                ];
+            }
+
+            foreach ($rootPackage['versions'] ?? [] as $packageName => $packageData) {
+                if (($packageData['type'] ?? '') !== $type) {
+                    continue;
+                }
+
+                $packages[$packageName] = [
+                    'name' => $packageName,
+                    'version' => $packageData['version'] ?? '1.0.0',
+                    'pretty_version' => $packageData['pretty_version'] ?? $packageData['version'] ?? '1.0.0.0',
+                    'path' => $packageData['install_path'] ?? '',
+                ];
+            }
+        }
+
+        return $packages;
+    }
+
+    /**
+     * @param ComposerPackage[] $packages
+     */
+    public static function fake(array $packages): void
+    {
+        self::$fakedPackages = $packages;
+    }
+
+    public static function reset(): void
+    {
+        self::$fakedPackages = null;
+    }
+}

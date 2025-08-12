@@ -122,6 +122,14 @@ class CreditNoteRendererTest extends TestCase
             $orderId,
             HtmlRenderer::FILE_EXTENSION,
             [
+                'itemsPerPage' => 10,
+                'displayHeader' => true,
+                'displayFooter' => true,
+                'displayPrices' => true,
+                'displayPageCount' => true,
+                'displayLineItems' => true,
+                'displayCompanyAddress' => true,
+                'companyName' => 'Example Company',
                 'documentDate' => '2023-11-24T12:00:00+00:00',
             ],
             $invoiceId

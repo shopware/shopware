@@ -88,10 +88,17 @@ class DeliveryNoteRendererTest extends TestCase
         ], $this->context);
 
         $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, [
-            'documentDate' => '2023-11-24T12:00:00+00:00',
             'custom' => [
                 'deliveryDate' => '2023-11-24T12:00:00+00:00',
             ],
+            'itemsPerPage' => 10,
+            'displayHeader' => true,
+            'displayFooter' => true,
+            'displayPrices' => true,
+            'displayPageCount' => true,
+            'displayCompanyAddress' => true,
+            'companyName' => 'Example Company',
+            'documentDate' => '2023-11-24T12:00:00+00:00',
         ]);
 
         $processedTemplate = $this->deliveryNoteRenderer->render(

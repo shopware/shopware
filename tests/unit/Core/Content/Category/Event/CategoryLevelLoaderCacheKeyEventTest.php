@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Category\Event;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Event\CategoryLevelLoaderCacheKeyEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,6 +19,7 @@ class CategoryLevelLoaderCacheKeyEventTest extends TestCase
 {
     public function testEvent(): void
     {
+        $defaultContext = Context::createDefaultContext();
         // Prepare test data
         $initialParts = ['part1' => 'test', 'part2' => 'test2'];
         $rootId = 'root-id';
@@ -25,6 +27,8 @@ class CategoryLevelLoaderCacheKeyEventTest extends TestCase
         $salesChannelId = 'sales-channel-id';
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn($salesChannelId);
+        $context->method('getContext')->willReturn($defaultContext);
+
         $criteria = new Criteria();
 
         $event = new CategoryLevelLoaderCacheKeyEvent(

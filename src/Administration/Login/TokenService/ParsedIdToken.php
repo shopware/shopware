@@ -34,9 +34,9 @@ final readonly class ParsedIdToken
             $dataSet->get('sub'),
             $dataSet->get('email'),
             $dataSet->get('exp'),
-            $dataSet->get('preferred_username'),
-            $dataSet->get('given_name'),
-            $dataSet->get('family_name'),
+            self::prepareValue($dataSet->get('preferred_username'), $dataSet->get('email')),
+            self::prepareValue($dataSet->get('given_name'), $dataSet->get('email')),
+            self::prepareValue($dataSet->get('family_name'), $dataSet->get('email')),
         );
     }
 
@@ -60,9 +60,6 @@ final readonly class ParsedIdToken
         $constraints = new Collection([
             'exp' => new NotBlank(null, 'is empty'),
             'sub' => new NotBlank(null, 'is empty'),
-            'preferred_username' => new NotBlank(null, 'is empty'),
-            'given_name' => new NotBlank(null, 'is empty'),
-            'family_name' => new NotBlank(null, 'is empty'),
             'email' => [
                 new NotBlank(null, 'is empty'),
                 new Email(null, 'is a invalid email address'),
@@ -72,5 +69,23 @@ final readonly class ParsedIdToken
         $constraints->allowExtraFields = true;
 
         return $constraints;
+    }
+
+    /**
+     * Initial we set the fields (userName, givenName, familyName) to email.
+     * On first login with SSO we try to update all user data, but it is possible for old
+     * datasets, that these fields are null or empty. Then we use the email again.
+     */
+    private static function prepareValue(?string $value, string $email): string
+    {
+        if ($value === null) {
+            return $email;
+        }
+
+        if (trim($value) === '') {
+            return $email;
+        }
+
+        return $value;
     }
 }

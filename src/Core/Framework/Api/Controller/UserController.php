@@ -18,8 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Sso\SsoService;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\Framework\Sso\SsoService;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyCollection;
 use Shopware\Core\System\User\UserCollection;

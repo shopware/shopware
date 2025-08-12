@@ -78,7 +78,7 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
     {
         $definition = new DataValidationDefinition('customer.password.update');
 
-        $minPasswordLength = (int) $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
+        $minPasswordLength = $this->systemConfigService->getInt('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
         if ($minPasswordLength < 0) {
             $minPasswordLength = null;
         }

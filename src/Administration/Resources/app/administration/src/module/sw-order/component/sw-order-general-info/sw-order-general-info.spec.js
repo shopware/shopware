@@ -257,12 +257,12 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
 
         wrapper.vm.onLeaveModalConfirm([], false);
 
-        expect(wrapper.vm.stateChangeInProgress).toBeTruthy();
+        expect(Shopware.Store.get('swOrderDetail').isLoading).toBeTruthy();
 
         Shopware.Store.get('swOrderDetail').savedSuccessful = true;
         wrapper.vm.$options.watch.savedSuccessful.call(wrapper.vm, false, true);
 
-        expect(wrapper.vm.stateChangeInProgress).toBeFalsy();
+        expect(Shopware.Store.get('swOrderDetail').isLoading).toBeFalsy();
 
         stateSelects.forEach((select) => {
             // get first child first

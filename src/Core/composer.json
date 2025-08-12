@@ -24,7 +24,7 @@
         "forum": "https://forum.shopware.com",
         "wiki": "https://developer.shopware.com",
         "docs": "https://developer.shopware.com",
-        "chat": "https://slack.shopware.com"
+        "chat": "https://chat.shopware.com/"
     },
     "extra": {
         "branch-alias": {

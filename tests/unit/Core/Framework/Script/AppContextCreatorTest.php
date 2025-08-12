@@ -110,7 +110,7 @@ class DummyScript extends Script
         string $name,
         ?string $appId,
     ) {
-        $app = $appId ? new ScriptAppInformation($appId, '', '') : null;
+        $app = $appId ? new ScriptAppInformation($appId, '', '', '') : null;
 
         parent::__construct($name, 'foo', new \DateTimeImmutable(), $app);
     }

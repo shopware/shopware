@@ -107,6 +107,23 @@ async function createWrapperForComponent(componentName, props = {}) {
     });
 }
 
+Shopware.Service().register('timezoneService', () => {
+    return {
+        getTimezoneOptions() {
+            return [
+                {
+                    label: 'UTC',
+                    value: 'UTC',
+                },
+                {
+                    label: 'Europe/Berlin',
+                    value: 'Europe/Berlin',
+                },
+            ];
+        },
+    };
+});
+
 function eachField(fieldTypes, callbackFunction) {
     fieldTypes.forEach((fieldType) =>
         fieldType.forEach((field) => {

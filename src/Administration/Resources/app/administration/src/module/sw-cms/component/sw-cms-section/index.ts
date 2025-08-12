@@ -75,6 +75,9 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             isCollapsed: true,
+            /**
+             * @deprecated tag:v6.8.0 - will be removed, is not used anymore
+             */
             pageSlotconfigError: null as SlotConfigErrorObject | null,
         };
     },
@@ -286,7 +289,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         hasSlotConfigErrors(block: Entity<'cms_block'>) {
-            const errorElements = (this.pageSlotconfigError as SlotConfigErrorObject)?.parameters?.elements;
+            const errorElements = (this.pageSlotConfigError as SlotConfigErrorObject)?.parameters?.elements;
 
             if (!errorElements) {
                 return false;

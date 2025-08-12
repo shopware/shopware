@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SqlHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
@@ -133,6 +134,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'customFields' => $this->fieldBuilder->customFields($this->getEntityDefinition()->getEntityName(), $context),
             ...$visibilities,
         ];
+
+        if (Feature::isActive('v6.8.0.0')) {
+            unset($properties['categoriesRo']);
+            unset($properties['visibilities']);
+        }
 
         $mapping = [
             'dynamic_templates' => [
@@ -317,6 +323,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 ...$this->mapCheapestPrice(ElasticsearchIndexingUtils::parseJson($item, 'cheapest_price_accessor')),
                 ...$visibilitiesFlatten,
             ];
+
+            if (Feature::isActive('v6.8.0.0')) {
+                unset($documents[$id]['categoriesRo']);
+                unset($documents[$id]['visibilities']);
+            }
         }
 
         return $documents;

@@ -4,7 +4,7 @@ namespace Shopware\Elasticsearch\Product;
 
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexingFinished;
+use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexingFinishedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -33,14 +33,14 @@ class ElasticsearchOptimizeSwitch implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            ElasticsearchIndexingFinished::class => 'onIndexingFinished',
+            ElasticsearchIndexingFinishedEvent::class => 'onIndexingFinished',
         ];
     }
 
     /**
      * @deprecated tag:v6.8.0 - reason:remove-subscriber - will be removed without alternative
      */
-    public function onIndexingFinished(ElasticsearchIndexingFinished $event): void
+    public function onIndexingFinished(ElasticsearchIndexingFinishedEvent $event): void
     {
         $this->storage->set(self::FLAG, true);
     }

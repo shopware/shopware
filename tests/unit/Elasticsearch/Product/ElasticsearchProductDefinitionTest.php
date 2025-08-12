@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Shopware\Core\System\Language\SalesChannelLanguageLoader;
@@ -356,6 +357,10 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ],
         ];
 
+        if (Feature::isActive('v6.8.0.0')) {
+            unset($expectedMapping['properties']['visibilities']);
+            unset($expectedMapping['properties']['categoriesRo']);
+        }
         static::assertEquals($expectedMapping, $definition->getMapping(Context::createDefaultContext()));
     }
 
@@ -607,42 +612,50 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $document['propertyIds']
         );
 
-        static::assertArrayHasKey('visibilities', $document);
-        static::assertSame(
-            [
+        if (Feature::isActive('v6.8.0.0')) {
+            static::assertArrayHasKey('visibility_sc-1', $document);
+            static::assertArrayHasKey('visibility_sc-2', $document);
+            static::assertSame(30, $document['visibility_sc-1']);
+            static::assertSame(20, $document['visibility_sc-2']);
+        } else {
+            static::assertArrayHasKey('visibilities', $document);
+
+            static::assertSame(
                 [
-                    '_count' => 1,
-                    'visibility' => 20,
-                    'salesChannelId' => 'sc-2',
+                    [
+                        '_count' => 1,
+                        'visibility' => 20,
+                        'salesChannelId' => 'sc-2',
+                    ],
+                    [
+                        '_count' => 1,
+                        'visibility' => 20,
+                        'salesChannelId' => 'sc-2',
+                    ],
+                    [
+                        '_count' => 1,
+                        'visibility' => 20,
+                        'salesChannelId' => 'sc-2',
+                    ],
+                    [
+                        '_count' => 1,
+                        'visibility' => 30,
+                        'salesChannelId' => 'sc-1',
+                    ],
+                    [
+                        '_count' => 1,
+                        'visibility' => 30,
+                        'salesChannelId' => 'sc-1',
+                    ],
+                    [
+                        '_count' => 1,
+                        'visibility' => 20,
+                        'salesChannelId' => 'sc-2',
+                    ],
                 ],
-                [
-                    '_count' => 1,
-                    'visibility' => 20,
-                    'salesChannelId' => 'sc-2',
-                ],
-                [
-                    '_count' => 1,
-                    'visibility' => 20,
-                    'salesChannelId' => 'sc-2',
-                ],
-                [
-                    '_count' => 1,
-                    'visibility' => 30,
-                    'salesChannelId' => 'sc-1',
-                ],
-                [
-                    '_count' => 1,
-                    'visibility' => 30,
-                    'salesChannelId' => 'sc-1',
-                ],
-                [
-                    '_count' => 1,
-                    'visibility' => 20,
-                    'salesChannelId' => 'sc-2',
-                ],
-            ],
-            $document['visibilities']
-        );
+                $document['visibilities']
+            );
+        }
 
         static::assertSame(
             [

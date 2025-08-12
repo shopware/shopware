@@ -18,7 +18,7 @@ class ElasticsearchIndexingMessage implements AsyncMessageInterface, Deduplicata
         private readonly IndexingDto $data,
         private readonly ?IndexerOffset $offset,
         private readonly Context $context,
-        private readonly bool $lastMessage = false
+        private bool $lastMessage = false
     ) {
     }
 
@@ -59,5 +59,10 @@ class ElasticsearchIndexingMessage implements AsyncMessageInterface, Deduplicata
     public function isLastMessage(): bool
     {
         return $this->lastMessage;
+    }
+
+    public function markAsLastMessage(): bool
+    {
+        return $this->lastMessage = true;
     }
 }

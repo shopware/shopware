@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
@@ -243,6 +244,6 @@ class TokenQueryBuilder
 
     private function isSortableTranslatedField(TranslatedField $field): bool
     {
-        return $field->useForSorting() && $this->storage->has(ElasticsearchOptimizeSwitch::FLAG);
+        return $field->useForSorting() && (Feature::isActive('v6.8.0.0') || $this->storage->has(ElasticsearchOptimizeSwitch::FLAG));
     }
 }

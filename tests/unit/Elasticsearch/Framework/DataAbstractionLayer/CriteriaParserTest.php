@@ -39,8 +39,10 @@ use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
+use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -60,7 +62,8 @@ class CriteriaParserTest extends TestCase
         /** @var CompositeAggregation $esAgg */
         $esAgg = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
-            $this->createMock(CustomFieldService::class)
+            $this->createMock(CustomFieldService::class),
+            new ArrayKeyValueStorage([]),
         ))->parseAggregation($aggs, $definition, Context::createDefaultContext());
 
         static::assertInstanceOf(CompositeAggregation::class, $esAgg);
@@ -105,6 +108,7 @@ class CriteriaParserTest extends TestCase
         $parser = new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $this->createMock(CustomFieldService::class),
+            new ArrayKeyValueStorage([]),
         );
 
         $esAgg = $parser->parseAggregation($aggs, $definition, Context::createDefaultContext());
@@ -131,6 +135,7 @@ class CriteriaParserTest extends TestCase
         $parser = new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $this->createMock(CustomFieldService::class),
+            new ArrayKeyValueStorage([]),
         );
 
         $esAgg = $parser->parseAggregation($aggs, $definition, Context::createDefaultContext());
@@ -150,6 +155,9 @@ class CriteriaParserTest extends TestCase
         $parser = new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $this->createMock(CustomFieldService::class),
+            new ArrayKeyValueStorage([
+                ElasticsearchOptimizeSwitch::FLAG => true,
+            ]),
         );
 
         $context = new Context(
@@ -167,7 +175,7 @@ class CriteriaParserTest extends TestCase
     {
         $definition = $this->getDefinition();
 
-        $parser = new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class));
+        $parser = new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class), new ArrayKeyValueStorage([]));
 
         static::expectException(ElasticsearchException::class);
         static::expectExceptionMessage(\sprintf('Provided filter of class %s is not supported', CustomFilter::class));
@@ -179,7 +187,7 @@ class CriteriaParserTest extends TestCase
     {
         $definition = $this->getDefinition();
 
-        $accessor = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)))->buildAccessor($definition, $field, $context);
+        $accessor = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class), new ArrayKeyValueStorage([])))->buildAccessor($definition, $field, $context);
 
         static::assertSame($expectedAccessor, $accessor);
     }
@@ -770,10 +778,21 @@ EOT,
             $customFieldService->method('getCustomField')->willReturn($customField);
         }
 
+        $context = Context::createDefaultContext();
+        $context->assign([
+            'languageIdChain' => [
+                Defaults::LANGUAGE_SYSTEM,
+                self::SECOND_LANGUAGE,
+            ],
+        ]);
+
         $fieldSort = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $customFieldService,
-        ))->parseSorting($sorting, $definition, Context::createDefaultContext());
+            new ArrayKeyValueStorage([
+                ElasticsearchOptimizeSwitch::FLAG => true,
+            ]),
+        ))->parseSorting($sorting, $definition, $context);
 
         static::assertSame($expectedFieldSort->getField(), $fieldSort->getField());
         static::assertNotNull($expectedFieldSort->getOrder());
@@ -936,6 +955,7 @@ EOT,
                         'field' => 'customFields',
                         'languages' => [
                             Defaults::LANGUAGE_SYSTEM,
+                            self::SECOND_LANGUAGE,
                         ],
                         'suffix' => 'foo',
                     ],
@@ -955,6 +975,7 @@ EOT,
                         'field' => 'customFields',
                         'languages' => [
                             Defaults::LANGUAGE_SYSTEM,
+                            self::SECOND_LANGUAGE,
                         ],
                         'suffix' => 'foo',
                         'order' => FieldSort::ASC,
@@ -975,6 +996,7 @@ EOT,
                         'field' => 'customFields',
                         'languages' => [
                             Defaults::LANGUAGE_SYSTEM,
+                            self::SECOND_LANGUAGE,
                         ],
                         'suffix' => 'foo',
                         'order' => FieldSort::ASC,
@@ -995,6 +1017,7 @@ EOT,
                         'field' => 'name',
                         'languages' => [
                             Defaults::LANGUAGE_SYSTEM,
+                            self::SECOND_LANGUAGE,
                         ],
                     ],
                 ],
@@ -1013,6 +1036,7 @@ EOT,
                         'field' => 'name',
                         'languages' => [
                             Defaults::LANGUAGE_SYSTEM,
+                            self::SECOND_LANGUAGE,
                         ],
                     ],
                 ],
@@ -1043,6 +1067,7 @@ EOT,
                         'field' => 'customFields',
                         'languages' => [
                             Defaults::LANGUAGE_SYSTEM,
+                            self::SECOND_LANGUAGE,
                         ],
                         'suffix' => 'bar',
                     ],
@@ -1062,6 +1087,7 @@ EOT,
                         'field' => 'customFields',
                         'languages' => [
                             Defaults::LANGUAGE_SYSTEM,
+                            self::SECOND_LANGUAGE,
                         ],
                         'suffix' => 'boolField',
                     ],
@@ -1083,6 +1109,7 @@ EOT,
         $sortedFilter = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $this->createMock(CustomFieldService::class),
+            new ArrayKeyValueStorage([]),
         ))->parseFilter($filter, $definition, '', $context);
 
         $sortedFilterArray = $sortedFilter->toArray();
@@ -1261,12 +1288,8 @@ EOT,
                 'nested' => [
                     'path' => 'unit',
                     'query' => [
-                        'multi_match' => [
-                            'query' => 'value',
-                            'fields' => [
-                                'unit.shortCode.2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-                            ],
-                            'type' => 'best_fields',
+                        'term' => [
+                            'unit.shortCode.2fbb5fe2e29a4d70aa5854ce7ce3e20b' => 'value',
                         ],
                     ],
                 ],
@@ -1306,6 +1329,7 @@ EOT,
         $sorting = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $this->createMock(CustomFieldService::class),
+            new ArrayKeyValueStorage([]),
         ))->parseSorting($sorting, $definition, $context);
 
         $script = $sorting->getParameter('script');
@@ -1499,6 +1523,7 @@ return Double.MIN_VALUE;
         $parsedSorting = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $this->createMock(CustomFieldService::class),
+            new ArrayKeyValueStorage([]),
         ))->parseSorting($sorting, $definition, $context);
 
         $script = $parsedSorting->getParameter('script');

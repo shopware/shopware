@@ -8,6 +8,6 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  */
 #[Package('framework')]
-class ElasticsearchIndexingFinished
+class ElasticsearchIndexingFinishedEvent
 {
 }

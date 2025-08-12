@@ -33,8 +33,10 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
+use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
 use Shopware\Elasticsearch\TokenQueryBuilder;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -58,7 +60,10 @@ class ProductSearchQueryBuilderTest extends TestCase
                 'evolvesInt' => new IntField('evolvesInt', 'evolvesInt'),
                 'evolvesFloat' => new FloatField('evolvesFloat', 'evolvesFloat'),
                 'evolvesText' => new StringField('evolvesText', 'evolvesText'),
-            ])
+            ]),
+            new ArrayKeyValueStorage([
+                ElasticsearchOptimizeSwitch::FLAG => true,
+            ]),
         );
     }
 

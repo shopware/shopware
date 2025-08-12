@@ -36,7 +36,7 @@ class CartDeleteRoute extends AbstractCartDeleteRoute
     #[Route(path: '/store-api/checkout/cart', name: 'store-api.checkout.cart.delete', methods: ['DELETE'])]
     public function delete(SalesChannelContext $context): NoContentResponse
     {
-        return $this->cartLocker->locked($context->getToken(), function () use ($context) {
+        return $this->cartLocker->locked($context, function () use ($context) {
             $this->cartPersister->delete($context->getToken(), $context);
 
             $cartDeleteEvent = new CartDeletedEvent($context);

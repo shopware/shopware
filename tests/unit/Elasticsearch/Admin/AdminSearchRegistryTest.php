@@ -99,6 +99,20 @@ class AdminSearchRegistryTest extends TestCase
             []
         );
 
+        $this->indexer->expects($this->once())
+            ->method('mapping')
+            ->with([
+                'properties' => [
+                    'id' => ['type' => 'keyword'],
+                    'textBoosted' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_ngram_analyzer',
+                    ],
+                    'text' => ['type' => 'text'],
+                    'entityName' => ['type' => 'keyword'],
+                    'parameters' => ['type' => 'keyword'],
+                ],
+            ]);
         $registry->updateMappings();
     }
 

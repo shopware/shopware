@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
+use Shopware\Core\System\User\UserCollection;
 
 /**
  * @internal
@@ -17,6 +18,9 @@ class StoreService
     final public const CONFIG_KEY_STORE_LICENSE_DOMAIN = 'core.store.licenseHost';
     final public const CONFIG_KEY_STORE_LICENSE_EDITION = 'core.store.licenseEdition';
 
+    /**
+     * @param EntityRepository<UserCollection> $userRepository
+     */
     final public function __construct(private readonly EntityRepository $userRepository)
     {
     }

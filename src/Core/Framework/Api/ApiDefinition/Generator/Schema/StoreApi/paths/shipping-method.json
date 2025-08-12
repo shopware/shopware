@@ -88,6 +88,40 @@
                         "ApiKey": []
                     }
                 ]
+            },
+            "get": {
+                "tags": [
+                    "Payment & Shipping",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch shipping methods",
+                "description": "Perform a filtered search for shipping methods.",
+                "operationId": "readShippingMethodGet",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "x-parameter-group": "criteria"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ShippingMethodListResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
             }
         }
     }

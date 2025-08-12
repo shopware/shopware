@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -28,6 +29,8 @@ class TaskScheduler
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
      */
     public function __construct(
         private readonly EntityRepository $scheduledTaskRepository,
@@ -49,7 +52,6 @@ class TaskScheduler
         // Tasks **must not** be queued before their state in the database has been updated. Otherwise,
         // a worker could have already fetched the task and set its state to running before it gets set to
         // queued, thus breaking the task.
-        /** @var ScheduledTaskEntity $task */
         foreach ($tasks as $task) {
             $this->queueTask($task, $context);
         }

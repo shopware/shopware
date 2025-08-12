@@ -28,6 +28,11 @@ export default class FormSubmitLoaderPlugin extends Plugin {
         skipLoadingIndicator: false,
     };
 
+    /**
+     * List of submitted button with loading indicators
+     */
+    _submittedButtonLoaders = [];
+
     init() {
         if (!this._getForm() || !this._getSubmitButtons()) {
             return;
@@ -35,6 +40,9 @@ export default class FormSubmitLoaderPlugin extends Plugin {
 
         // check if validation plugin is active for this form
         this._validationPluginActive = !!window.PluginManager.getPluginInstanceFromElement(this._form, 'FormValidation');
+
+        // Will hold the instances of loading indicators for each submit button.
+        this._submittedButtonLoaders = [];
 
         this._registerEvents();
     }
@@ -83,6 +91,7 @@ export default class FormSubmitLoaderPlugin extends Plugin {
     _registerEvents() {
         // the submit event will be triggered only if the HTML5 validation has been successful
         this._form.addEventListener('submit', this._onFormSubmit.bind(this));
+        this._form.addEventListener('removeLoader', this.removeLoadingIndicator.bind(this));
     }
 
     /**
@@ -108,8 +117,18 @@ export default class FormSubmitLoaderPlugin extends Plugin {
 
             const loader = new ButtonLoadingIndicator(submitButton, this.options.indicatorPosition);
             loader.create();
+            this._submittedButtonLoaders.push(loader);
         });
 
         this.$emitter.publish('beforeSubmit');
+    }
+
+    /**
+     * Will remove existing loading indicators from submit buttons
+     */
+    removeLoadingIndicator() {
+        this._submittedButtonLoaders.forEach(loader => loader.remove());
+
+        this._submittedButtonLoaders = [];
     }
 }

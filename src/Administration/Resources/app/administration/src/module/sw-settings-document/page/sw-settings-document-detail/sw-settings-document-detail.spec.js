@@ -193,11 +193,6 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         documentBaseConfigSalesChannelsRepositoryMock.counter = 1;
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     // eslint-disable-next-line max-len
     it('should create an array with sales channel ids from the document config sales channels association', async () => {
         const wrapper = await createWrapper({

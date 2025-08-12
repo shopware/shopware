@@ -36,7 +36,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
             <argument>%storefront.theme.allowed_scss_values%</argument>
             <argument>%storefront.theme.validate_on_compile%</argument>
-            <argument>%shopware.filesystem.theme.config%</argument>
+            <argument>%shopware.filesystem.theme.visibility%</argument>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeLifecycleService">
@@ -74,6 +74,7 @@
             <argument type="service" id="theme.repository"/>
             <argument type="service" id="theme_sales_channel.repository"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeCompiler"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>

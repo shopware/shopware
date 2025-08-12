@@ -61,6 +61,13 @@
         "title": "Zahlungsaufforderung",
         "text": "Möchtest du den Kunden auffordern die Bestellung per \"{paymentMethodName}\" zu bezahlen?",
         "primaryAction": "Auffordern"
+      },
+      "saveError": {
+        "noCustomer": "Kein Kunde ausgewählt.",
+        "noCart": "Kein Warenkorb vorhanden.",
+        "noLineItems": "Die Bestellung hat keine Positionen.",
+        "invalidPromotionCodes": "Kein gültiger Aktionscode vorhanden.",
+        "noTransactionReturned": "Keine Zahlungsart vorhanden."
       }
     },
     "createBase": {
@@ -203,6 +210,7 @@
       "columnPriceNet": "Nettopreis",
       "columnTotalPriceNet": "Gesamt",
       "columnProductNumber": "Produktnummer",
+      "columnType": "Typ",
       "contextMenuShowProduct": "Produkt anzeigen",
       "contextMenuDelete": "Aus Bestellung entfernen",
       "summaryLabelAmount": "Summe",
@@ -265,6 +273,14 @@
       "textDeleteLineItemConfirm": "Möchten Sie die Position ({label}) wirklich löschen?",
       "helpTextCustomerComment": "Dieser Kommentar wird von Kunden hinterlassen und Änderungen sind für sie sichtbar.",
       "helpTextInternalComment": "Dieser Kommentar ist nur für interne Zwecke und wird Kunden nicht angezeigt."
+    },
+    "lineItemType": {
+      "credit": "Gutschrift",
+      "product": "Produkt",
+      "custom": "Individuell",
+      "promotion": "Rabattaktion",
+      "discount": "Rabatt",
+      "container": "Container"
     },
     "nestedLineItemsModal": {
       "titlePrefix": "Position: {lineItemLabel} - {price}",

@@ -16,7 +16,8 @@
       "DUPLICATED_URL": "Diese URL wird bereits genutzt. Bitte wähle eine andere Domain.",
       "DUPLICATED_NAME": "Dieser Name wird bereits genutzt.",
       "CONTENT__MEDIA_EMPTY_FILE": "Gib einen gültigen Dateinamen an.",
-      "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Datentyp kann nicht gerendert werden. Bitte kontaktiere Deinen Administrator."
+      "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Datentyp kann nicht gerendert werden. Bitte kontaktiere Deinen Administrator.",
+      "THEME__INVALID_SCSS_VAR": "SCSS-Wert \"{value}\" ist nicht gültig für Typ \"{type}\"."
     },
     "default": {
       "add": "Hinzufügen",
@@ -699,7 +700,7 @@
         },
         "isGuestRule": "Gastbesteller",
         "isNewsletterRecipient": "Kunde ist Newsletter-Empfänger",
-        "daysSinceLastOrderRule": "Zeit seit letzter Bestellung",
+        "daysSinceLastOrderRule": "Zeit seit letzter abgeschlossenen Bestellung",
         "shippingCountryRule": "Lieferadresse: Land",
         "shippingCityRule": "Lieferadresse: Stadt",
         "shippingStreetRule": "Lieferadresse: Straße",
@@ -731,7 +732,7 @@
         "lineItemWithQuantityRule": "Positionsanzahl",
         "orderTagRule": "Bestellung mit Tag",
         "orderTrackingCodeRule": "Sendungsnummer",
-        "orderDeliveryStatusRule": "Lieferstatus",
+        "orderDeliveryStatusRule": "Lieferstatus (Flow)",
         "orderCreatedByAdminRule": "Bestellung vom Administrator erstellt (Flow)",
         "adminSalesChannelSourceRule": "In Administration verwendbar",
         "orderTransactionStatusRule": "Zahlungsstatus",
@@ -1016,6 +1017,7 @@
       "import_export_profile": "Import/Export-Profil | Import/Export-Profile",
       "feature_set": "Template | Templates",
       "property_group": "Eigenschaftsgruppe | Eigenschaftsgruppen",
+      "property_group_option": "Eigenschaftsgruppen-Option | Eigenschaftsgruppen-Optionen",
       "document_base_config": "Dokumenten-Grundeinstellung | Dokumenten-Grundeinstellungen",
       "product_feature_set": "Neues Template | Neue Templates",
       "custom-field-set": "Zusatzfeld-Set",
@@ -1614,7 +1616,9 @@
   },
   "sidebar": {
     "ariaLabelButtonClose": "Seitenleiste schließen",
-    "ariaLabelButtonOpen": "Seitenleiste öffnen"
+    "ariaLabelButtonOpen": "Seitenleiste öffnen",
+    "ariaLabelButtonCollapse": "Seitenleiste minimieren",
+    "buttonCollapse": "minimieren"
   },
   "help-center": {
     "sidebar": {

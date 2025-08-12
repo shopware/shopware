@@ -55,12 +55,6 @@ async function createSingleSelect(customOptions) {
 }
 
 describe('components/sw-single-select', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createSingleSelect();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should open the result list on click on .sw-select__selection', async () => {
         const wrapper = await createSingleSelect();
         await flushPromises();

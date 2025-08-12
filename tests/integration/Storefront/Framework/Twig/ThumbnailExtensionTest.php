@@ -8,6 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
@@ -27,7 +29,6 @@ use Shopware\Storefront\Storefront;
 use Shopware\Storefront\Theme\AbstractResolvedConfigLoader;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -237,7 +238,7 @@ class ThumbnailExtensionTest extends TestCase
             $this->createMock(SystemConfigService::class),
             new ThemeConfigValueAccessor(
                 $this->createMock(AbstractResolvedConfigLoader::class),
-                $this->createMock(EventDispatcherInterface::class)
+                $this->createMock(CacheTagCollector::class)
             ),
             $this->createMock(ThemeScripts::class)
         );
@@ -245,6 +246,7 @@ class ThumbnailExtensionTest extends TestCase
         $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));
         $twig->getExtension(NodeExtension::class)->getFinder();
         $twig->addExtension(new ThumbnailExtension($templateFinder));
+        $twig->addExtension(new FeatureFlagExtension());
 
         // url encoder and theme_config are used inside the thumbnail.html.twig template
         $twig->addExtension(new ConfigExtension($templateConfigAccessor));

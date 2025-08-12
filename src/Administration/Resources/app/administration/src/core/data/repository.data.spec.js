@@ -33,6 +33,8 @@ function mockContext() {
         authToken: {
             access: 'BwP_OL47uNW6k8iQzChh6SxE31XaleO_l4unyLNmFco',
         },
+        measurementLengthUnit: null,
+        measurementWeightUnit: null,
     };
 }
 
@@ -114,6 +116,19 @@ describe('repository.data.ts', () => {
         };
 
         expect(actualHeaders).toEqual(exptectedHeaders);
+    });
+
+    it('should include measurement units in headers', async () => {
+        const repositoryData = createRepositoryData('language');
+        const context = {
+            ...mockContext(),
+            measurementLengthUnit: 'cm',
+            measurementWeightUnit: 'kg',
+        };
+        const actualHeaders = repositoryData.buildHeaders(context);
+
+        expect(actualHeaders['sw-measurement-length-unit']).toBe('cm');
+        expect(actualHeaders['sw-measurement-weight-unit']).toBe('kg');
     });
 
     it('should create one delete operation for multiple deletes', async () => {

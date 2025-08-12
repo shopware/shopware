@@ -1,5 +1,6 @@
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import CookieConfiguration, { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
+import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 
 const template = `
     <div class="offcanvas-cookie">
@@ -61,10 +62,12 @@ const template = `
 
 describe('CookieConfiguration plugin tests', () => {
     let plugin;
+    let originalHref;
 
     beforeEach(() => {
         window.router = {
             'frontend.cookie.offcanvas': 'https://shop.example.com/offcanvas',
+            'frontend.account.login.page': 'https://shop.example.com/login',
         };
 
         window.focusHandler = {
@@ -72,7 +75,12 @@ describe('CookieConfiguration plugin tests', () => {
             resumeFocusState: jest.fn(),
         };
 
-        window.PluginManager.initializePlugins = () => jest.fn();
+        window.PluginManager = {
+            initializePlugins: jest.fn(),
+            getPluginInstances: jest.fn(() => []),
+            getPluginInstancesFromElement: jest.fn(() => new Map()),
+            getPlugin: jest.fn(() => new Map([['instances', []]]))
+        };
 
         global.fetch = jest.fn(() =>
             Promise.resolve({
@@ -84,6 +92,10 @@ describe('CookieConfiguration plugin tests', () => {
         plugin = new CookieConfiguration(container);
 
         plugin.openOffCanvas(() => {});
+
+        jest.spyOn(AjaxOffCanvas, 'open').mockImplementation(jest.fn());
+        jest.spyOn(AjaxOffCanvas, 'close').mockImplementation(jest.fn());
+        originalHref = window.location.href;
     });
 
     afterEach(() => {
@@ -223,5 +235,73 @@ describe('CookieConfiguration plugin tests', () => {
         plugin._acceptAllCookiesFromCookieBar();
 
         expect(global.fetch).toHaveBeenCalledWith('https://shop.example.com/offcanvas', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    });
+
+    test('openRequestConsentOffCanvas sets lastTriggerElement and calls AjaxOffCanvas.open', () => {
+        document.body.innerHTML += '<button id="wishlist-btn">Add to wishlist</button>';
+        const triggerBtn = document.getElementById('wishlist-btn');
+        triggerBtn.focus();
+        plugin.openRequestConsentOffCanvas('/cookie/consent-offcanvas', 'wishlist-enabled');
+        expect(CookieConfiguration.lastTriggerElement).toBe(triggerBtn);
+        expect(AjaxOffCanvas.open).toHaveBeenCalledWith(
+            '/cookie/consent-offcanvas',
+            false,
+            expect.any(Function),
+            'left'
+        );
+        document.body.removeChild(triggerBtn);
+    });
+
+    test('_onAccept sets the cookie and closes the offcanvas', () => {
+        const setItemSpy = jest.spyOn(CookieStorage, 'setItem').mockImplementation(jest.fn());
+        plugin._onAccept('wishlist-enabled');
+        expect(setItemSpy).toHaveBeenCalledWith('wishlist-enabled', '1', 30);
+        expect(AjaxOffCanvas.close).toHaveBeenCalled();
+        setItemSpy.mockRestore();
+    });
+
+    test('_onLogin closes the offcanvas and redirects', () => {
+        const originalLocation = window.location;
+        delete window.location;
+        window.location = { href: '' };
+        window.router['frontend.account.login.page'] = 'https://shop.example.com/login';
+        plugin._onLogin();
+        expect(AjaxOffCanvas.close).toHaveBeenCalled();
+        expect(window.location.href).toBe('https://shop.example.com/login');
+        window.location = originalLocation;
+    });
+
+    test('_onCancel closes the offcanvas', () => {
+        plugin._onCancel();
+        expect(AjaxOffCanvas.close).toHaveBeenCalled();
+    });
+
+    test('_onPreferences closes the offcanvas and opens config modal', () => {
+        const openOffCanvasSpy = jest.spyOn(plugin, 'openOffCanvas');
+        const event = { preventDefault: jest.fn() };
+        plugin._onPreferences(event);
+        expect(event.preventDefault).toHaveBeenCalled();
+        expect(AjaxOffCanvas.close).toHaveBeenCalled();
+        expect(openOffCanvasSpy).toHaveBeenCalled();
+    });
+
+    test('openRequestConsentOffCanvas does not throw exception if .offcanvas is missing', () => {
+        plugin._getOffCanvas = jest.fn(() => ({
+            querySelectorAll: () => [],
+        }));
+        expect(() => {
+            plugin.openRequestConsentOffCanvas('/cookie/consent-offcanvas', 'wishlist-enabled');
+        }).not.toThrow();
+        expect(AjaxOffCanvas.open).toHaveBeenCalled();
+    });
+
+    test('_restoreFocus focuses the lastTriggerElement', () => {
+        const btn = document.createElement('button');
+        document.body.appendChild(btn);
+        CookieConfiguration.lastTriggerElement = btn;
+        const focusSpy = jest.spyOn(btn, 'focus');
+        plugin._restoreFocus();
+        expect(focusSpy).toHaveBeenCalled();
+        document.body.removeChild(btn);
     });
 });

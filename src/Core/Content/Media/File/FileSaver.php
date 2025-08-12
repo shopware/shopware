@@ -290,11 +290,8 @@ class FileSaver
             'fileName' => $destination,
             'metaData' => $metadata,
             'mediaTypeRaw' => serialize($mediaType),
+            'uploadedAt' => new \DateTime(),
         ];
-
-        if ($media->getUploadedAt() === null) {
-            $data['uploadedAt'] = new \DateTime();
-        }
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data): void {
             $this->mediaRepository->update([$data], $context);

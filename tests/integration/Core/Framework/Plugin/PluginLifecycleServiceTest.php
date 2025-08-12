@@ -284,7 +284,7 @@ class PluginLifecycleServiceTest extends TestCase
         $assetService = $this->createMock(AssetService::class);
         $assetService
             ->expects($this->once())
-            ->method('copyAssetsFromBundle');
+            ->method('copyAssets');
 
         $service = new PluginLifecycleService(
             $this->pluginRepo,
@@ -760,6 +760,7 @@ class PluginLifecycleServiceTest extends TestCase
                     'id' => $id,
                     'name' => $iso,
                     'localeId' => $localeId,
+                    'active' => true,
                     'translationCode' => [
                         'id' => $localeId,
                         'code' => $iso,

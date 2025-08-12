@@ -110,13 +110,14 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-order/component/sw-order-document-settings-modal', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
+    let wrapper;
+
+    beforeEach(async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
     });
 
     it('should emit `preview-show` event when click on Preview button', async () => {
-        const wrapper = await createWrapper();
         const previewButton = wrapper.find('.sw-order-document-settings-modal__preview-button');
 
         await previewButton.trigger('click');
@@ -126,7 +127,6 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
     });
 
     it('should show file or hide custom document file when toggling Upload custom document', async () => {
-        const wrapper = await createWrapper();
         const inputUploadCustomDoc = wrapper.find('input[name="sw-field--uploadDocument"]');
         await inputUploadCustomDoc.setChecked(true);
 
@@ -135,8 +135,6 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
     });
 
     it('should emit `create` event when click on Create button', async () => {
-        const wrapper = await createWrapper();
-
         const createButton = wrapper.find('.sw-order-document-settings-modal__create');
         await createButton.trigger('click');
 
@@ -144,8 +142,6 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
     });
 
     it('should emit `document-create` event when click on Create and send button', async () => {
-        const wrapper = await createWrapper();
-
         const createAndSendButton = wrapper.find('.sw-order-document-settings-modal__send-button');
         await createAndSendButton.trigger('click');
 
@@ -154,8 +150,6 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
     });
 
     it('should emit `document-create` event when click on Create and download button', async () => {
-        const wrapper = await createWrapper();
-
         const createAndSendButton = wrapper.find('.sw-order-document-settings-modal__download-button');
         await createAndSendButton.trigger('click');
 
@@ -164,8 +158,6 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
     });
 
     it('should able to add file from media modal if media is suitable', async () => {
-        const wrapper = await createWrapper();
-
         const customDocumentToggle = wrapper.find('input[name="sw-field--uploadDocument"]');
         await customDocumentToggle.setChecked(true);
 
@@ -182,8 +174,6 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
     });
 
     it('should able to add file uploaded from url if media is suitable', async () => {
-        const wrapper = await createWrapper();
-
         const customDocumentToggle = wrapper.find('input[name="sw-field--uploadDocument"]');
         await customDocumentToggle.setChecked(true);
 
@@ -195,8 +185,6 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
     });
 
     it('should able to show modal title responding to document type', async () => {
-        const wrapper = await createWrapper();
-
         await wrapper.setProps({
             currentDocumentType: {
                 id: '1',
@@ -210,13 +198,19 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
     });
 
     it('should emit `preview-show` event when click on Preview of the HTML button', async () => {
-        const wrapper = await createWrapper();
-
         const previewButton = wrapper.findAll('.sw-button-group').at(0);
         await previewButton.find('.sw-order-document-settings-modal__preview-button-html').trigger('click');
 
         expect(wrapper.emitted()['preview-show']).toBeTruthy();
         expect(wrapper.emitted()['preview-show'][0][1]).toBe('html');
         expect(wrapper.emitted()['preview-show'][0][0].fileTypes).toEqual(['html']);
+    });
+
+    it('should allow any text input in the document number field', async () => {
+        const documentNumberFieldInput = wrapper.findByLabel('sw-order.documentModal.labelDocumentNumber');
+        expect(documentNumberFieldInput.exists()).toBeTruthy();
+
+        await documentNumberFieldInput.setValue('Prefix-1000-Suffix');
+        expect(documentNumberFieldInput.element.value).toBe('Prefix-1000-Suffix');
     });
 });

@@ -10,16 +10,25 @@
 
     {% block sw_newsletter_recipient_detail_actions %}
     <template #smart-bar-actions>
-        {% block sw_newsletter_recipient_detail_actions_edit %}
         <mt-button
-            class="sw-newsletter-recipient-detail__open-edit-mode-action"
-            variant="primary"
-            :disabled="isLoading || !acl.can('newsletter_recipient.editor')"
+            variant="secondary"
             size="default"
-            @click="onClickSave"
+            @click="onCancel"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+
+        {% block sw_newsletter_recipient_detail_actions_edit %}
+        <sw-button-process
+            variant="primary"
+            :is-loading="isLoading"
+            :disabled="isLoading || !acl.can('newsletter_recipient.editor')"
+            :process-success="isSaveSuccessful"
+            @update:process-success="onSaveFinish"
+            @click="onSave"
         >
             {{ $tc('sw-newsletter-recipient.general.buttonSave') }}
-        </mt-button>
+        </sw-button-process>
         {% endblock %}
     </template>
     {% endblock %}

@@ -64,8 +64,9 @@ class ServiceSourceResolver implements Source
         $name = $app instanceof Manifest ? $app->getMetadata()->getName() : $app->getName();
 
         // app is already on the filesystem, use that
-        if ($this->io->exists(Path::join($temporaryDirectory, $name))) {
-            return new Filesystem(Path::join($temporaryDirectory, $name));
+        $appPath = Path::join($temporaryDirectory, $name);
+        if ($this->io->exists($appPath)) {
+            return new Filesystem($appPath);
         }
 
         /** @var ServiceSourceConfig $sourceConfig */
@@ -83,7 +84,13 @@ class ServiceSourceResolver implements Source
      */
     private function checkVersionAndDownloadAppZip(string $serviceName, array $sourceConfig): string
     {
-        $client = $this->serviceClientFactory->fromName($serviceName);
+        try {
+            $client = $this->serviceClientFactory->fromName($serviceName);
+        } catch (ServiceException) {
+            // the service is not available, so we cannot download it.
+            // this can happen if the service is not installed or the service client is misconfigured. or the service has been removed.
+            return Path::join($this->temporaryDirectoryFactory->path(), $serviceName);
+        }
 
         $latestAppInfo = $client->latestAppInfo();
 

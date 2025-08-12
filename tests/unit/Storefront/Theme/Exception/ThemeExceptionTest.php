@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme\Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(ThemeException::class)]
 class ThemeExceptionTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testThemeMediaStillInUse(): void
     {
         $exception = ThemeException::themeMediaStillInUse();
@@ -67,7 +69,7 @@ class ThemeExceptionTest extends TestCase
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(ThemeException::INVALID_SCSS_VAR, $exception->getErrorCode());
-        static::assertSame('SCSS Value "primary-color" with value "invalid-value" is not valid for type "color"', $exception->getMessage());
+        static::assertSame('SCSS Value "invalid-value" is not valid for type "color".', $exception->getMessage());
         static::assertSame(['name' => $name, 'value' => $value, 'type' => $type], $exception->getParameters());
     }
 

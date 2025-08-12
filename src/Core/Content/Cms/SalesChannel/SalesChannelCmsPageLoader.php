@@ -14,7 +14,7 @@ use Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent;
 use Shopware\Core\Content\Cms\Events\CmsPageLoaderCriteriaEvent;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductBoxStruct;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -36,7 +36,8 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
     public function __construct(
         private readonly EntityRepository $cmsPageRepository,
         private readonly CmsSlotsDataResolver $slotDataResolver,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly CacheTagCollector $cacheTagCollector,
     ) {
     }
 
@@ -101,7 +102,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
 
         $this->dispatcher->dispatch(new CmsPageLoadedEvent($request, $pages, $context));
 
-        $this->dispatcher->dispatch(new AddCacheTagEvent(...$this->extractProductIds($pages)));
+        $this->cacheTagCollector->addTag(...$this->extractProductIds($pages));
 
         return $result;
     }

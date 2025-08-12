@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Snippet\Struct;
+namespace Shopware\Core\System\Snippet\DataTransfer\Language;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
@@ -17,7 +17,7 @@ class LanguageCollection extends Collection
      * @param list<Language> $elements
      */
     public function __construct(
-        array $elements,
+        iterable $elements = [],
     ) {
         parent::__construct($elements);
 

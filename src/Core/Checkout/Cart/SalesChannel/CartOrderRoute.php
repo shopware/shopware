@@ -74,7 +74,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
             throw CartException::hashMismatch($cart->getToken());
         }
 
-        return $this->cartLocker->locked($cart->getToken(), function () use ($cart, $context, $data) {
+        return $this->cartLocker->locked($context, function () use ($cart, $context, $data) {
             // we use this state in stock updater class, to prevent duplicate available stock updates
             $context->addState('checkout-order-route');
 

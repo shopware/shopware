@@ -1,0 +1,537 @@
+
+            
+        
+    
+        
+    
+        
+    
+                
+    <!DOCTYPE html>
+    <html lang="en-GB">
+    <head>
+                    <meta http-equiv="Content-Security-Policy" content="script-src 'none'; base-uri 'self';">
+            <meta name="date" content="[date]">
+        
+                    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+                        <title>    Credit note 1000</title>
+            
+                            <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700;1,900&display=swap" rel="stylesheet">
+            
+                            <style type="text/css">
+            body {
+            font-family: 'Source Sans Pro', "DejaVu Sans", sans-serif;
+            font-size: 12px;
+            line-height: 12px;
+            width: 100%;
+        }
+
+        main {
+            width: 100%;
+            float: right;
+        }
+
+        .letter-header {
+            position: relative;
+            height: 80px;
+        }
+
+        .letter-body {
+            clear: right;
+        }
+
+        div.page_break {
+            page-break-before: always;
+        }
+
+        div.page_break + div.page_break {
+            page-break-before: always;
+        }
+
+        .headline {
+            font-size: 18px;
+        }
+
+        h1 {
+            line-height: 24px;
+        }
+
+        /* Helper classes */
+        .align-right {
+            text-align: right;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .small-padding-top {
+            padding-top: 15px;
+        }
+
+        /*Page */
+        @page {
+            margin-top: 200px;
+            margin-bottom: 50px;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: -175px;
+        }
+
+        .logo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            max-height: 150px;
+            width: auto;
+            clear: right;
+        }
+
+        /* Document title */
+        .document-title-container {
+            font-size: 18px;
+        }
+
+        /* Sender info section (top right) */
+        .sender-address-container {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+        }
+
+        /* Receipt address section */
+        .recipient-address-container {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            clear: right;
+        }
+
+        /* Smaller company address */
+        .company-address-small {
+            font-size: 9px;
+        }
+
+        /* Line item section */
+        .line-item-table {
+            width: 100%;
+            border-spacing: 0 2px;
+            border-collapse: collapse;
+        }
+
+        .line-item-table tbody tr:first-child > td {
+            padding-top: 20px;
+        }
+
+        .line-item-table tbody tr > td {
+            padding-bottom: 5px;
+        }
+
+        .line-item-table tbody tr:first-child > .line-item-breakable .label-wrapper {
+            top: 20px;
+        }
+
+        .line-item-table-header {
+            vertical-align: top;
+        }
+
+        .line-item-table-header > th, .line-item-table:last-child {
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+            text-align: left;
+        }
+
+        .line-item-table-header > th.product-number {
+            width: 200px;
+        }
+
+        .line-item-table-header > th.product-label {
+            width: 240px;
+        }
+
+        .line-item-table-header > th.numbers {
+            text-align: right;
+        }
+
+        .line-item-table-header > th.incl-vat {
+            position: relative;
+            width: auto;
+        }
+
+        .line-item-table-header > th.incl-vat > span {
+            display: inline-block;
+            position: absolute;
+            font-size: 10px;
+            font-weight: normal;
+            margin-top: 12px;
+            right: 0;
+        }
+
+        .line-item, .sum-container, .payment-shipping-container, .document-comment-container {
+            line-height: 16px;
+        }
+
+        .line-item.nested > td {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .line-item-breakable {
+            word-wrap: break-word;
+            vertical-align: top;
+        }
+
+        .line-item .label-wrapper {
+            display: inline-block;
+            position: absolute;
+            top: 0.05%;
+            bottom: 0;
+            left: 0;
+            border-left: 2px solid rgba(0, 0, 0, 0.15);
+        }
+
+        .line-item > td {
+            vertical-align: top;
+        }
+
+        .label-wrapper.level-2 { margin-left: 10px; }
+        .label-wrapper.level-3 { margin-left: 20px; }
+        .label-wrapper.level-4 { margin-left: 30px; }
+        .label-wrapper.level-5 { margin-left: 40px; }
+        .label-wrapper.level-6 { margin-left: 50px; }
+        .label-wrapper.level-7 { margin-left: 60px; }
+        .label-wrapper.level-8 { margin-left: 70px; }
+        .label-wrapper.level-9 { margin-left: 80px; }
+        .label-wrapper.level-10 { margin-left: 90px; }
+        .label-wrapper.level-11 { margin-left: 100px; }
+        .label-wrapper.level-12 { margin-left: 110px; }
+        .label-wrapper.level-13 { margin-left: 120px; }
+        .label-wrapper.level-14 { margin-left: 130px; }
+        .label-wrapper.level-15 { margin-left: 140px; }
+        .label-wrapper.level-16 { margin-left: 150px; }
+        .label-wrapper.level-17 { margin-left: 160px; }
+        .label-wrapper.level-18 { margin-left: 170px; }
+        .label-wrapper.level-19 { margin-left: 180px; }
+        .label-wrapper.level-20 { margin-left: 190px; }
+
+        .line-item-label.level-1 { padding-left: 10px; }
+        .line-item-label.level-2 { padding-left: 20px; }
+        .line-item-label.level-3 { padding-left: 30px; }
+        .line-item-label.level-4 { padding-left: 40px; }
+        .line-item-label.level-5 { padding-left: 50px; }
+        .line-item-label.level-6 { padding-left: 60px; }
+        .line-item-label.level-7 { padding-left: 70px; }
+        .line-item-label.level-8 { padding-left: 80px; }
+        .line-item-label.level-9 { padding-left: 90px; }
+        .line-item-label.level-10 { margin-left: 100px; }
+        .line-item-label.level-11 { margin-left: 110px; }
+        .line-item-label.level-12 { margin-left: 120px; }
+        .line-item-label.level-13 { margin-left: 130px; }
+        .line-item-label.level-14 { margin-left: 140px; }
+        .line-item-label.level-15 { margin-left: 150px; }
+        .line-item-label.level-16 { margin-left: 160px; }
+        .line-item-label.level-17 { margin-left: 170px; }
+        .line-item-label.level-18 { margin-left: 180px; }
+        .line-item-label.level-19 { margin-left: 190px; }
+        .line-item-label.level-20 { margin-left: 100px; }
+
+        .table-spacer {
+            height: 20px;
+        }
+
+        /* Payment/shipping details*/
+        .payment-shipping-container, .sum-container, .document-comment-container {
+            padding-top: 25px;
+        }
+
+        .payment-shipping-container, .shipping-address-container, .sum-container {
+            page-break-inside: avoid;
+            clear: right;
+        }
+
+        .shipping-address-container .bold {
+            margin: 0;
+        }
+
+        .page-count {
+            width: 100%;
+            float: left;
+        }
+
+        .pagenum:after {
+            content: counter(page);
+        }
+
+        /* Subtotal/Total section */
+        .sum-container {
+            text-align: right;
+            float: right;
+            right: 0;
+        }
+
+        .sum-table {
+            border-spacing: 20px 0;
+        }
+
+        /* Footer */
+        footer {
+            position: fixed;
+            bottom: -10px;
+            font-size: 8px;
+            line-height: 9px;
+            width: 100%;
+        }
+
+        footer > ul {
+            width: 20%;
+            display: block;
+            float: left;
+            list-style-type: none;
+            margin: 0;
+        }
+
+        footer > ul:first-child {
+            padding: 0;
+        }
+    </style>
+            
+                            <style type="text/css">
+            body {
+            max-width: 1200px;
+            margin: auto;
+            font-size: 14px;
+            line-height: 18px;
+        }
+
+        header {
+            top: 20px;
+        }
+
+        main {
+            padding: 20px 30px;
+            margin-bottom: 60px;
+        }
+
+        .letter-header {
+            min-height: 300px;
+            height: auto;
+            top: 0;
+        }
+
+        .page-count {
+            display: none;
+        }
+
+        .line-item-table-header > th.incl-vat > span {
+            font-size: 12px;
+            margin-top: 16px;
+        }
+
+        .line-item-table tbody tr .line-item-product-number {
+            padding-right: 14px;
+        }
+
+        footer {
+            max-width: 1200px;
+            margin: auto;
+            font-size: 12px;
+            line-height: 14px;
+            display: flex;
+            justify-content: space-between;
+            position: fixed;
+            bottom: 0;
+            padding: 1rem;
+            background-color: #FFFFFF;
+        }
+    </style>
+                        </head>
+
+    <body>
+
+                <footer tabindex="0">
+                                                <ul>
+                                                     <li class="bold">Example Company</li>                                                                                                                                                                                                                                                                                </ul>
+                
+                                    <ul>
+                                                                                                                                                                                                                                                                                                                                    </ul>
+                
+                                    <ul>
+                                                                                                                                                                            </ul>
+                
+                                    <ul>
+                                            </ul>
+                
+                                    <div class="page-count">
+                                                    Page <span class="pagenum"></span> / DOMPDF_PAGE_COUNT_PLACEHOLDER
+                                            </div>
+                                    </footer>
+    
+
+    <main>
+                                            
+                                
+
+                                                    <header>
+                                                </header>
+    
+        
+                        
+    <div class="letter-header">
+        <div class="recipient-address-container" tabindex="0">
+                            Max Mustermann<br/>Ebbinghoff 10<br/>48624 Schöppingen<br/>Germany<br/>
+
+                                    </div>
+
+        <div class="sender-address-container" tabindex="0">
+                            <table>
+                                                                        <tr>
+                                <td class="bold">Example Company</td>
+                            </tr>
+                                            
+
+                    
+                    
+                                    </table><br>
+            
+                            <table>
+                                                                        <tr>
+                                <td>
+                                    Customer no. 1337
+                                </td>
+                            </tr>
+                        
+                                                    <tr>
+                                <td>
+                                    Order no. 10000
+                                </td>
+                            </tr>
+                        
+                                                    <tr>
+                                <td>
+                                    Order date 24 Nov 2023
+                                </td>
+                            </tr>
+                        
+                                                    <tr>
+                                <td>
+                                    Date 24 Nov 2023
+                                </td>
+                            </tr>
+                                                            </table>
+                    </div>
+    </div>
+
+        
+                        <div class="letter-body">
+        <div class="document-title-container">
+                <h1 class="headline" tabindex="0">
+        Credit note 1000 for Invoice no. 1001    </h1>
+        </div>
+                    <div class="line-item-container">
+                                    <table class="line-item-table">
+                            <thead>
+        <tr class="line-item-table-header">
+                                                                
+                                    <th class="product-number">Prod. no.</th>
+                
+                                    <th class="product-label">Product / service</th>
+                
+                                    <th class="numbers">Quantity</th>
+                
+                                                                                                                                                            
+                        
+                                                    <th class="numbers">VAT</th>
+                                                                            <th class="numbers incl-vat">
+                                Unit price
+                                                                                                            <span>Incl. VAT</span>
+                                                                                                </th>
+                                                                            <th class="numbers incl-vat">
+                                Total
+                                                                                                            <span>Incl. VAT</span>
+                                                                                                </th>
+                                                                                </tr>
+    </thead>
+
+                                                
+            
+    
+                                    
+        <tr class="line-item first" tabindex="0">
+                                                                
+                                                            <td></td>
+                                    
+                                    <td class="line-item-breakable">
+                                            
+                        <span class="line-item-label level-0">credit-100</span>
+                        
+                                                                </td>
+                
+                                    <td class="align-right">1</td>
+                
+                                                                                        <td class="align-right">7 % </td>
+                                                                            <td class="align-right">
+                                                                                                                                                €100.00
+                                    
+                                                            </td>
+                                                                            <td class="align-right">
+                                                                                                                                                €100.00
+                                                                                                </td>
+                                                                                </tr>
+    
+    
+                        
+    
+                
+    
+                                
+        
+                                                    </table>
+            </div>
+            </div>
+
+            
+
+                            
+                        <div class="sum-container" tabindex="0">
+                            <table class="sum-table">
+                                                                        <tr>
+                                                                    <td class="align-right">Net total:</td>
+                                                                                                    <td class="align-right">€93.46</td>
+                                                            </tr>
+                        
+                                                                                    <tr>
+                                                                            <td class="align-right">plus 7% VAT:</td>
+                                                                                                                <td class="align-right">€6.54</td>
+                                                                    </tr>
+                                                    
+                                                    
+                            
+                                <tr class="bold">
+                                                                            <td class="align-right">Total:</td>
+                                    
+                                                                            <td class="align-right">€100.00</td>
+                                                                    </tr>
+                            
+                                                            </table>
+                    </div>
+    
+
+                        <div class="payment-shipping-container" tabindex="0">
+                                                <strong>Payment method:</strong> Payment<br>
+                                                    <strong>Shipping method:</strong> test shipping method<br><br>
+                                                    Delivered goods remain our property until full payment has been made.<br>
+                                                    Service date equivalent to invoice date<br>
+                                                                                        </div>
+    
+
+                
+
+            
+            </main>
+
+    </body>
+    </html>

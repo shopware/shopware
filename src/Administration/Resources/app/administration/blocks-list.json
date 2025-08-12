@@ -1299,6 +1299,7 @@
  "sw_condition_shipping_zip_code_field_operator",
  "sw_condition_shipping_zip_code_field_zip_codes",
  "sw_condition_time_range_field_from_time",
+ "sw_condition_time_range_field_timezone",
  "sw_condition_time_range_field_to_time",
  "sw_condition_tree",
  "sw_condition_type_select",

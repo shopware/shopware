@@ -109,7 +109,7 @@ class AppUrlChangeControllerTest extends TestCase
         $systemConfigService = static::getContainer()->get(SystemConfigService::class);
 
         $oldUrl = 'http://old.com';
-        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, (array) ShopId::v2('1234567890', [
+        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, (array) ShopId::v2('1234567890', [
             AppUrl::IDENTIFIER => $oldUrl,
         ]));
 
@@ -118,7 +118,7 @@ class AppUrlChangeControllerTest extends TestCase
 
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
 
-        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true, flags: \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertSame(['oldUrl' => $oldUrl, 'newUrl' => $_SERVER['APP_URL']], $response);

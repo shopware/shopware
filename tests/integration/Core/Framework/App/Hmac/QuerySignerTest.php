@@ -47,7 +47,7 @@ class QuerySignerTest extends TestCase
         $signedUri = $this->querySigner->signUri('http://app.url/?foo=bar', $this->app, Context::createDefaultContext());
         parse_str($signedUri->getQuery(), $signedQuery);
 
-        $shopIdConfig = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
+        $shopIdConfig = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
         static::assertIsArray($shopIdConfig);
 
         $shopId = ShopId::fromSystemConfig($shopIdConfig);

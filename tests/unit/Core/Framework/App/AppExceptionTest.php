@@ -196,7 +196,7 @@ class AppExceptionTest extends TestCase
 
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
         static::assertSame('FRAMEWORK__APP_URL_NOT_CONFIGURED', $e->getErrorCode());
-        static::assertSame('The environment variable "APP_URL" is not set. Please set it to point the URL to your Admin API.', $e->getMessage());
+        static::assertSame('The environment variable "APP_URL" is not set. Please set it to the URL to your Admin API.', $e->getMessage());
     }
 
     public function testInvalidShopIdConfiguration(): void
@@ -205,6 +205,6 @@ class AppExceptionTest extends TestCase
 
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
         static::assertSame('FRAMEWORK__APP_INVALID_SHOP_ID_CONFIGURATION', $e->getErrorCode());
-        static::assertSame('The configuration value for "core.app.shopId" in the system config is invalid.', $e->getMessage());
+        static::assertSame('The configuration values for "core.app.shopIdV2" and "core.app.shopId" in the system config are invalid.', $e->getMessage());
     }
 }

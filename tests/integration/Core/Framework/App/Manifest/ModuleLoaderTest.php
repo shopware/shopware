@@ -102,7 +102,7 @@ class ModuleLoaderTest extends TestCase
         $this->registerAppsWithModules();
 
         $systemConfigService = static::getContainer()->get(SystemConfigService::class);
-        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, (array) ShopId::v2(Uuid::randomHex(), [
+        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, (array) ShopId::v2(Uuid::randomHex(), [
             AppUrl::IDENTIFIER => 'https://test.com',
         ]));
 
@@ -270,7 +270,7 @@ class ModuleLoaderTest extends TestCase
         $expectedUrl = parse_url($urlPath);
         static::assertSame($expectedUrl, $url);
 
-        $shopIdConfig = static::getContainer()->get(SystemConfigService::class)->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
+        $shopIdConfig = static::getContainer()->get(SystemConfigService::class)->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
         static::assertIsArray($shopIdConfig);
         $shopId = ShopId::fromSystemConfig($shopIdConfig);
 

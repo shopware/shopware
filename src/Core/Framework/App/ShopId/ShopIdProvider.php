@@ -71,6 +71,7 @@ class ShopIdProvider
     public function deleteShopId(): void
     {
         $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY);
+        $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
 
         $this->eventDispatcher->dispatch(new ShopIdDeletedEvent());
     }
@@ -78,8 +79,7 @@ class ShopIdProvider
     private function setShopId(ShopId $shopId): void
     {
         $oldShopId = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2)
-            ?? $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY)
-            ?? null;
+            ?? $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY);
         if (\is_array($oldShopId)) {
             $oldShopId = ShopId::fromSystemConfig($oldShopId);
         } else {

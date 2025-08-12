@@ -44,7 +44,7 @@ class ShopIdTest extends TestCase
     public function testThrowsIfSystemConfigIsInvalid(): void
     {
         static::expectException(AppException::class);
-        static::expectExceptionMessage('The configuration value for "core.app.shopId" in the system config is invalid.');
+        static::expectExceptionMessage('The configuration values for "core.app.shopIdV2" and "core.app.shopId" in the system config are invalid.');
 
         ShopId::fromSystemConfig(['foo' => 'bar']);
     }

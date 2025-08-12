@@ -40,9 +40,10 @@ class ShopIdProviderTest extends TestCase
     public function testGeneratesNewShopIdV2IfNoShopIdPresentInSystemConfig(): void
     {
         static::assertNull($this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
+        static::assertNull($this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2));
 
         $shopId = $this->shopIdProvider->getShopId();
-        $shopIdConfig = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
+        $shopIdConfig = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
 
         static::assertIsArray($shopIdConfig);
 
@@ -60,6 +61,7 @@ class ShopIdProviderTest extends TestCase
     public function testUpgradesShopIdToV2IfShopIdV1PresentInSystemConfig(): void
     {
         static::assertNull($this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
+        static::assertNull($this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2));
 
         $this->systemConfigService->set(
             ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY,
@@ -69,7 +71,7 @@ class ShopIdProviderTest extends TestCase
         $this->setEnvVars(['APP_URL' => $newAppUrl = 'https://new.url']);
 
         $shopId = $this->shopIdProvider->getShopId();
-        $shopIdV2Config = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
+        $shopIdV2Config = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
 
         static::assertIsArray($shopIdV2Config);
 
@@ -107,14 +109,28 @@ class ShopIdProviderTest extends TestCase
         /** @var string $appUrlBeforeUpdate */
         $appUrlBeforeUpdate = EnvironmentHelper::getVariable('APP_URL');
         $shopIdBeforeUpdate = $this->shopIdProvider->getShopId();
-        $shopIdConfigBeforeUpdate = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
+        $shopIdConfigBeforeUpdate = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
         static::assertSame($appUrlBeforeUpdate, $shopIdConfigBeforeUpdate['fingerprints'][AppUrl::IDENTIFIER] ?? null);
 
         $this->setEnvVars(['APP_URL' => $newAppUrl = 'https://new.url']);
         $shopIdAfterUpdate = $this->shopIdProvider->getShopId();
         static::assertSame($shopIdBeforeUpdate, $shopIdAfterUpdate);
-        $shopIdConfigAfterUpdate = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
+        $shopIdConfigAfterUpdate = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
         static::assertSame($newAppUrl, $shopIdConfigAfterUpdate['fingerprints'][AppUrl::IDENTIFIER] ?? null);
+    }
+
+    public function testDeletesShopIdConfigV1AndShopIdConfigV2(): void
+    {
+        $this->systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, ['value' => '1234567890', 'app_url' => 'https://foo.bar']);
+        $this->systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, ['value' => '1234567890', 'version' => 2, 'fingerprints' => ['app_url' => 'https://foo.bar']]);
+
+        static::assertIsArray($this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
+        static::assertIsArray($this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2));
+
+        $this->shopIdProvider->deleteShopId();
+
+        static::assertNull($this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
+        static::assertNull($this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2));
     }
 
     /**

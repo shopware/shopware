@@ -50,7 +50,7 @@ class AppUrlTest extends TestCase
         $this->setEnvVars(['APP_URL' => null]);
 
         static::expectException(AppException::class);
-        static::expectExceptionMessage('The environment variable "APP_URL" is not set. Please set it to point the URL to your Admin API.');
+        static::expectExceptionMessage('The environment variable "APP_URL" is not set. Please set it to the URL to your Admin API.');
 
         $fingerprint->getStamp();
     }

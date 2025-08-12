@@ -52,7 +52,7 @@ class HandshakeFactoryTest extends TestCase
         $shopUrl = 'test.shop.com';
 
         $systemConfigService = static::getContainer()->get(SystemConfigService::class);
-        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, (array) ShopId::v2(Uuid::randomHex(), [
+        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, (array) ShopId::v2(Uuid::randomHex(), [
             AppUrl::IDENTIFIER => 'https://test.com',
         ]));
 

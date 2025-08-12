@@ -226,9 +226,17 @@ class ShopIdProviderTest extends TestCase
     public function testDeletesShopId(): void
     {
         $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects($this->once())
+        $systemConfigService->expects($matcher = $this->exactly(2))
             ->method('delete')
-            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
+            ->willReturnCallback(function (...$parameters) use ($matcher): void {
+                if ($matcher->numberOfInvocations() === 1) {
+                    static::assertSame(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, $parameters[0]);
+                }
+
+                if ($matcher->numberOfInvocations() === 2) {
+                    static::assertSame(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, $parameters[0]);
+                }
+            });
 
         $provider = new ShopIdProvider(
             $systemConfigService,

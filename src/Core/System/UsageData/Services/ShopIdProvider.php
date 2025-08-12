@@ -11,22 +11,23 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * @internal
  */
 #[Package('data-services')]
-class ShopIdProvider
+readonly class ShopIdProvider
 {
     public function __construct(
-        private readonly AppSystemShopIdProvider $shopIdProvider,
-        private readonly SystemConfigService $systemConfigService
+        private AppSystemShopIdProvider $shopIdProvider,
+        private SystemConfigService $systemConfigService,
     ) {
     }
 
     public function getShopId(): string
     {
-        $shopId = $this->systemConfigService->get(AppSystemShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
+        $shopId = $this->systemConfigService->get(AppSystemShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2)
+            ?? $this->systemConfigService->get(AppSystemShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
 
-        if (!\is_array($shopId)) {
-            return $this->shopIdProvider->getShopId();
+        if (\is_array($shopId)) {
+            return ShopId::fromSystemConfig($shopId)->id;
         }
 
-        return ShopId::fromSystemConfig($shopId)->id;
+        return $this->shopIdProvider->getShopId();
     }
 }

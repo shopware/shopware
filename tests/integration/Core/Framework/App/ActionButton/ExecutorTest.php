@@ -314,7 +314,7 @@ class ExecutorTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
         $systemConfigService = static::getContainer()->get(SystemConfigService::class);
-        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, (array) ShopId::v2('shopId', [
+        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, (array) ShopId::v2('shopId', [
             AppUrl::IDENTIFIER => 'http://random-shop.url',
         ]));
 

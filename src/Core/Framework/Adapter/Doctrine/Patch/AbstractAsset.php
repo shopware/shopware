@@ -283,12 +283,14 @@ abstract class AbstractAsset
             try {
                 $parsedName = $this->getNameParser()->parse($input);
             } catch (\Throwable $e) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/6592',
-                    'Unable to parse object name: %s.',
-                    $e->getMessage(),
-                );
+                // Mute as this will always happen with SHOPWARE current foreign keys, as they are not compatible
+                // with this parser, since they are not strict (e.g. `fk.shopware.order_address`).
+                // Deprecation::trigger(
+                //    'doctrine/dbal',
+                //    'https://github.com/doctrine/dbal/pull/6592',
+                //    'Unable to parse object name: %s.',
+                //    $e->getMessage(),
+                // );
 
                 return;
             }

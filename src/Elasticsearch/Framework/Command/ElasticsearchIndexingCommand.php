@@ -80,6 +80,10 @@ class ElasticsearchIndexingCommand extends Command
 
             $this->messageBus->dispatch($message);
 
+            if ($message->isLastMessage()) {
+                break;
+            }
+
             $progressBar->advance($step);
         }
 

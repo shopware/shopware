@@ -45,6 +45,10 @@ class SystemUpdateListener
             $offset = $message->getOffset();
 
             $this->messageBus->dispatch($message);
+
+            if ($message->isLastMessage()) {
+                break;
+            }
         }
 
         $this->storage->remove(self::CONFIG_KEY);

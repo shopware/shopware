@@ -8,12 +8,15 @@ use OpenSearchDSL\Query\TermLevel\RangeQuery;
 use OpenSearchDSL\Query\TermLevel\TermQuery;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 
 /**
@@ -22,9 +25,21 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 #[Package('inventory')]
 class ProductCriteriaParser extends CriteriaParser
 {
+    public function __construct(
+        EntityDefinitionQueryHelper $helper,
+        CustomFieldService $customFieldService,
+        private readonly AbstractKeyValueStorage $storage,
+        private readonly CriteriaParser $decorated
+    ) {
+        parent::__construct($helper, $customFieldService, $storage);
+    }
 
     public function parseFilter(Filter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface
     {
+        if (!$this->storage->has(ElasticsearchOptimizeSwitch::FLAG)) {
+            return $this->decorated->parseFilter($filter, $definition, $root, $context);
+        }
+
         if (!$definition instanceof ProductDefinition) {
             return parent::parseFilter($filter, $definition, $root, $context);
         }
@@ -45,7 +60,7 @@ class ProductCriteriaParser extends CriteriaParser
             return $query;
         }
 
-        if ($filter instanceof EqualsFilter && \str_contains($filter->getField(), 'categoriesRo.id')) {
+        if ($filter instanceof EqualsFilter && \str_contains($filter->getField(), 'categoriesRo.id') && $filter->getValue() !== null) {
             return new TermQuery('categoryTree', $filter->getValue());
         }
 

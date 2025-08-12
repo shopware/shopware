@@ -9,6 +9,7 @@ use OpenSearchDSL\Query\FullText\MatchPhrasePrefixQuery;
 use OpenSearchDSL\Query\FullText\MatchQuery;
 use OpenSearchDSL\Query\Joining\NestedQuery;
 use OpenSearchDSL\Query\TermLevel\TermQuery;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
+use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
 
 /**
@@ -38,7 +40,8 @@ class TokenQueryBuilder
      */
     public function __construct(
         private readonly DefinitionInstanceRegistry $definitionRegistry,
-        private readonly CustomFieldService $customFieldService
+        private readonly CustomFieldService $customFieldService,
+        private readonly AbstractKeyValueStorage $storage
     ) {
     }
 
@@ -73,7 +76,7 @@ class TokenQueryBuilder
                 // If the field is a TranslatedField, we need to build a translated query
                 // translated query will use the languageIdChain to find the correct translation with fallback
                 // and if the field is prefilled fallback, we can use the current languageId as every languageId is filled with the fallback when indexing
-                $this->translatedQuery($real, $token, $config, $field->useForSorting() ? [$context->getLanguageId()] : $languageIdChain) :
+                $this->translatedQuery($real, $token, $config, $this->isSortableTranslatedField($field) ? [$context->getLanguageId()] : $languageIdChain) :
                 $this->matchQuery($real, $token, $config);
 
             if (!$fieldQuery) {
@@ -236,5 +239,10 @@ class TokenQueryBuilder
         $fieldQuery->addParameter('_name', $explainPayload);
 
         return $fieldQuery;
+    }
+
+    private function isSortableTranslatedField(TranslatedField $field): bool
+    {
+        return $field->useForSorting() && $this->storage->has(ElasticsearchOptimizeSwitch::FLAG);
     }
 }

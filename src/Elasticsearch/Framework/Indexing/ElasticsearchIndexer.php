@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
+use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexingFinished;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexIteratorEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -99,7 +100,7 @@ class ElasticsearchIndexer
         return new ElasticsearchIndexingMessage($indexing, null, $context);
     }
 
-    private function createIndexingMessage(IndexerOffset $offset): ?ElasticsearchIndexingMessage
+    private function createIndexingMessage(IndexerOffset $offset): ElasticsearchIndexingMessage
     {
         $definition = $this->registry->get((string) $offset->getDefinition());
 
@@ -116,9 +117,17 @@ class ElasticsearchIndexer
 
         $ids = $event->iterator->fetch();
 
+        $alias = $this->helper->getIndexName($definition->getEntityDefinition());
+
+        $index = $alias . '_' . $offset->getTimestamp();
+
+        if (\count($ids) < $this->indexingBatchSize) {
+            return new ElasticsearchIndexingMessage(new IndexingDto(array_values($ids), $index, $entity), null, Context::createDefaultContext(), true);
+        }
+
         if (empty($ids)) {
             if (!$offset->hasNextDefinition()) {
-                return null;
+                return new ElasticsearchIndexingMessage(new IndexingDto([], $index, $entity), null, Context::createDefaultContext(), true);
             }
             // increment definition offset
             $offset->selectNextDefinition();
@@ -131,10 +140,6 @@ class ElasticsearchIndexer
 
         // increment last id with iterator offset
         $offset->setLastId($iterator->getOffset());
-
-        $alias = $this->helper->getIndexName($definition->getEntityDefinition());
-
-        $index = $alias . '_' . $offset->getTimestamp();
 
         // return indexing message for current offset
         return new ElasticsearchIndexingMessage(new IndexingDto(array_values($ids), $index, $entity), $offset, Context::createDefaultContext());
@@ -225,9 +230,17 @@ class ElasticsearchIndexer
 
     private function handleIndexingMessage(ElasticsearchIndexingMessage $message): void
     {
+        if ($message->isLastMessage()) {
+            $event = new ElasticsearchIndexingFinished();
+            $this->eventDispatcher->dispatch($event);
+        }
         $task = $message->getData();
 
         $ids = $task->getIds();
+
+        if (\count($ids) === 0) {
+            return;
+        }
 
         $index = $task->getIndex();
 

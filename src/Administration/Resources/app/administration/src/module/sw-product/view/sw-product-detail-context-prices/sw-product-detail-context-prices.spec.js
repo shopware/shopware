@@ -293,4 +293,54 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         );
         expect(secondPriceFieldGross.element.value).toBe('0');
     });
+
+    it('should accept the value entered in the “To” field without changing it automatically for valid inputs on non-last rules', async () => {
+        const entities = [
+            {
+                ruleId: 'ruleId',
+                quantityStart: 1,
+                quantityEnd: 5,
+                price: [{ currencyId: 'euro', gross: 10, net: 10, linked: true, listPrice: null }],
+            },
+            {
+                ruleId: 'ruleId',
+                quantityStart: 11,
+                quantityEnd: null,
+                price: [{ currencyId: 'euro', gross: 8, net: 8, linked: true, listPrice: null }],
+            },
+        ];
+
+        Shopware.Store.get('swProductDetail').product = {
+            id: 'productId',
+            parentId: null,
+            prices: new EntityCollection(
+                '/test-price',
+                'product_price',
+                null,
+                { isShopwareContext: true },
+                entities,
+                entities.length,
+                null,
+            ),
+        };
+        Shopware.Store.get('swProductDetail').parentProduct = { id: 'parentProductId' };
+        Shopware.Store.get('swProductDetail').currencies = [
+            { id: 'euro', translated: { name: 'Euro' }, isSystemDefault: true, isoCode: 'EUR' },
+        ];
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const firstQuantityEndInput = wrapper.find('.sw-data-grid__row--0 input[name="ruleId-1-quantityEnd"]');
+        expect(firstQuantityEndInput.element.value).toBe('5');
+
+        const newValue = 10;
+        await firstQuantityEndInput.setValue(newValue);
+        await firstQuantityEndInput.trigger('blur');
+        await wrapper.vm.$nextTick();
+
+        expect(firstQuantityEndInput.element.value).toBe(newValue.toString());
+        expect(wrapper.vm.product.prices).toHaveLength(2);
+        expect(wrapper.vm.product.prices[0].quantityEnd).toBe(newValue);
+    });
 });

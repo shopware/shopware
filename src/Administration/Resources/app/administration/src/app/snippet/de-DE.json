@@ -1616,7 +1616,9 @@
   },
   "sidebar": {
     "ariaLabelButtonClose": "Seitenleiste schließen",
-    "ariaLabelButtonOpen": "Seitenleiste öffnen"
+    "ariaLabelButtonOpen": "Seitenleiste öffnen",
+    "ariaLabelButtonCollapse": "Seitenleiste minimieren",
+    "buttonCollapse": "minimieren"
   },
   "help-center": {
     "sidebar": {

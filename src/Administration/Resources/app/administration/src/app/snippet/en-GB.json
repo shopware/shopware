@@ -1616,7 +1616,9 @@
   },
   "sidebar": {
     "ariaLabelButtonClose": "Close sidebar",
-    "ariaLabelButtonOpen": "Open sidebar"
+    "ariaLabelButtonOpen": "Open sidebar",
+    "ariaLabelButtonCollapse": "Collapse sidebar",
+    "buttonCollapse": "collapse"
   },
   "help-center": {
     "sidebar": {

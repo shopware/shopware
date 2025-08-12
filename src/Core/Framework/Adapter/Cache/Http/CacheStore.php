@@ -92,7 +92,13 @@ class CacheStore implements StoreInterface
 
                 $lockKey = $key . '.lock';
 
+                /**
+                 * We use this cache item to lock that we dispatch only one RefreshHttpCacheMessage for the same request.
+                 * This is important, because we can have multiple requests for the same page in parallel,
+                 * e.g. when multiple users open the same page at the same time.
+                 */
                 $this->cache->get($lockKey, function (ItemInterface $item) use ($lockKey, $request): void {
+                    // We keep the lock for a half hour, if not proceed in that time, the lock will be released, and we can re-dispatch the message
                     $item->expiresAfter(self::HALF_HOUR);
 
                     $this->bus->dispatch(new RefreshHttpCacheMessage($lockKey, $request->query->all(), $request->attributes->all(), $request->cookies->all(), $request->server->all(), Request::getTrustedProxies(), Request::getTrustedHeaderSet()));

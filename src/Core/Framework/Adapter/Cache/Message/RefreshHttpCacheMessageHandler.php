@@ -43,6 +43,13 @@ final readonly class RefreshHttpCacheMessageHandler
                 [],
                 $msg->server
             );
+
+            /**
+             * We create a mock session to prevent session-related errors during request handling.
+             * Since this is for cache regeneration only, the mock session has no impact on the
+             * response content - we're just generating a cacheable response that doesn't include
+             * any session-specific data.
+             */
             $request->setSession(new Session(new MockArraySessionStorage()));
 
             $response = $this->kernel->handle($request, HttpKernelInterface::MAIN_REQUEST, false);

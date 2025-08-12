@@ -10,6 +10,6 @@ author_github: @CR0YD
 ___
 # Upgrade Information
 ## Return address in documents
-The option `Display company` address is now split into `Diplay return address` and `Display company address`.  
+The option `Display company` address in the `Document settings` section of the document configuration is now split into `Diplay return address` and `Display company address`.  
 The former toggles the display of the return address above the customer address in the address block.  
 The latter toggles the display of the company address below the header on the right-hand side of the document.

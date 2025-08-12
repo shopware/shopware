@@ -1017,6 +1017,7 @@
       "import_export_profile": "Import/export profile | Import/export profiles",
       "feature_set": "Template | Templates",
       "property_group": "Property group | Property groups",
+      "property_group_option": "Property group option | Property group options",
       "document_base_config": "Document base config | Document base configs",
       "product_feature_set": "New template | New templates",
       "custom-field-set": "Custom field set",

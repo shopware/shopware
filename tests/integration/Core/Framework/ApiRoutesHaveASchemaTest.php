@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\System\CustomEntity\Api\CustomEntityApiController;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
+use Shopware\Tests\Integration\Core\Framework\fixtures\QueryParameterAllowList;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
@@ -53,6 +54,8 @@ class ApiRoutesHaveASchemaTest extends TestCase
             null
         );
 
+        $allowedQueryParams = $this->buildAllowedQueryParams();
+
         $schemaRoutes = $schema['paths'];
         $missingRoutes = [];
 
@@ -67,7 +70,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
             $path = \substr($path, \strlen('/store-api'));
             if (\array_key_exists($path, $schemaRoutes)) {
                 $this->checkExperimentalState($route, $schemaRoutes[$path]);
-                $this->checkQueryParameters($route, $schemaRoutes[$path]);
+                $this->checkQueryParameters($route, $schemaRoutes[$path], $allowedQueryParams, $schema);
                 unset($schemaRoutes[$path]);
 
                 continue;
@@ -229,32 +232,44 @@ class ApiRoutesHaveASchemaTest extends TestCase
 
     /**
      * @param array<string, mixed> $schema
+     * @param array<string, array<string, true>> $allowedQueryParams
+     * @param array<string, mixed> $fullSchema
      */
-    private function checkQueryParameters(Route $route, array $schema): void
+    private function checkQueryParameters(Route $route, array $schema, array $allowedQueryParams, array $fullSchema): void
     {
-        $whitelist = [
-            '/store-api/shipping-method:onlyAvailable',
-            '/store-api/checkout/cart/line-item:ids',
-            '/store-api/product-listing/{categoryId}:p',
-            '/store-api/search:p',
-            '/store-api/search-suggest:p',
-        ];
+        $allowedForRoute = $allowedQueryParams[$route->getPath()] ?? [];
 
         foreach ($schema as $operation) {
-            foreach ($operation['parameters'] ?? [] as $item) {
+            $parameters = $operation['parameters'] ?? [];
+            $resolvedParameters = [];
+            foreach ($parameters as $parameter) {
+                if (isset($parameter['$ref'])) {
+                    $resolvedParameters[] = $this->resolveRef($parameter['$ref'], $fullSchema);
+                } else {
+                    $resolvedParameters[] = $parameter;
+                }
+            }
+
+            foreach ($resolvedParameters as $item) {
                 if ($item['in'] !== 'query') {
                     continue;
                 }
 
-                if ($item['schema']['type'] === 'string') {
+                $parameterName = $item['name'];
+
+                // It's explicitly allowed
+                if (isset($allowedForRoute[$parameterName])) {
                     continue;
                 }
 
-                /** @var string $parameterName */
-                $parameterName = $item['name'];
-                $key = $route->getPath() . ':' . $parameterName;
+                // string params are fine
+                if (isset($item['schema']['type']) && $item['schema']['type'] === 'string') {
+                    continue;
+                }
 
-                static::assertContains($key, $whitelist, \sprintf('Route "%s" has as query parameter "%s" which is not allowed.', $route->getPath(), $parameterName));
+                static::fail(
+                    \sprintf('Route "%s" has a non-string query parameter "%s" which is not allowed. Please add it to the allowed list in ApiRoutesHaveASchemaTest.', $route->getPath(), $parameterName)
+                );
             }
         }
     }
@@ -282,5 +297,58 @@ class ApiRoutesHaveASchemaTest extends TestCase
         }
 
         return $paths;
+    }
+
+    /**
+     * Build the complete list of allowed query parameters by combining static params with params from the routes.
+     *
+     * @return array<string, array<string, true>>
+     */
+    private function buildAllowedQueryParams(): array
+    {
+        $allowList = QueryParameterAllowList::getQueryParameterAllowList();
+
+        $groups = $allowList['groups'];
+        $routes = $allowList['allowedList'];
+
+        $allowedQueryParams = [];
+        foreach ($routes as $route => $params) {
+            $allowed = [];
+            foreach ($params as $param) {
+                if (str_starts_with($param, '@')) {
+                    $groupParams = $groups[substr($param, 1)];
+                    foreach ($groupParams as $p) {
+                        $allowed[$p] = true;
+                    }
+                } else {
+                    $allowed[$param] = true;
+                }
+            }
+            $allowedQueryParams[$route] = $allowed;
+        }
+
+        return $allowedQueryParams;
+    }
+
+    /**
+     * @param array<string, mixed> $fullSchema
+     *
+     * @return array<string, mixed>
+     */
+    private function resolveRef(string $ref, array $fullSchema): array
+    {
+        $refPath = \str_replace('#/', '', $ref);
+        $parts = \explode('/', $refPath);
+
+        $current = $fullSchema;
+        foreach ($parts as $part) {
+            if (!\is_array($current) || !\array_key_exists($part, $current)) {
+                static::fail(\sprintf('Reference "%s" could not be resolved.', $ref));
+            }
+
+            $current = $current[$part];
+        }
+
+        return $current;
     }
 }

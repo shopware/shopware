@@ -57,6 +57,18 @@ class CookieController extends StorefrontController
         return $response;
     }
 
+    #[Route(path: '/cookie/consent-offcanvas', name: 'frontend.cookie.consent.offcanvas', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
+    public function cookieConsentOffcanvas(Request $request, SalesChannelContext $context): Response
+    {
+        $featureName = $request->get('featureName', 'wishlist');
+        $cookieName = $request->get('cookieName', 'wishlist-enabled');
+
+        return $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-consent-offcanvas.html.twig', [
+            'featureName' => $featureName,
+            'cookieName' => $cookieName,
+        ]);
+    }
+
     private function getCookieGroupsFromCookieRoute(Request $request, SalesChannelContext $salesChannelContext): CookieGroupCollection
     {
         // Create a new request with the translation parameter set to false for Twig templates

@@ -3,8 +3,9 @@
 namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
-use Shopware\Core\Framework\App\AppUrlChangeResolver\Resolver;
+use Shopware\Core\Framework\App\ShopIdChangeResolver\Resolver;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -13,16 +14,18 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @internal only for use by the app-system
+ * @internal
  */
 #[AsCommand(
-    name: 'app:url-change:resolve',
-    description: 'Resolves app url changes',
+    name: 'app:shop-id:change',
+    description: 'Change the shop ID by choosing a resolution strategy',
+    /** @deprecated tag:v6.8.0 - Alias `app:url-change:resolve` will be removed */
+    aliases: ['app:url-change:resolve'],
 )]
 #[Package('framework')]
-class ResolveAppUrlChangeCommand extends Command
+class ChangeShopIdCommand extends Command
 {
-    public function __construct(private readonly Resolver $appUrlChangeResolver)
+    public function __construct(private readonly Resolver $shopIdChangeResolver)
     {
         parent::__construct();
     }
@@ -36,7 +39,16 @@ class ResolveAppUrlChangeCommand extends Command
     {
         $io = new ShopwareStyle($input, $output);
 
-        $availableStrategies = $this->appUrlChangeResolver->getAvailableStrategies();
+        if ($input->hasArgument('command') && $input->getArgument('command') === 'app:url-change:resolve') {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                $deprecationMessage = 'The command alias "app:url-change:resolve" is deprecated and will be removed in v6.8.0. Use "app:shop-id:change" instead.'
+            );
+
+            $io->warning($deprecationMessage);
+        }
+
+        $availableStrategies = $this->shopIdChangeResolver->getAvailableStrategies();
         $strategy = $input->getArgument('strategy');
 
         if ($strategy === null || !\array_key_exists($strategy, $availableStrategies)) {
@@ -45,12 +57,12 @@ class ResolveAppUrlChangeCommand extends Command
             }
 
             $strategy = $io->choice(
-                'Choose what strategy should be applied, to resolve the app url change?',
+                'Choose what strategy should be applied when changing the shop ID?',
                 $availableStrategies
             );
         }
 
-        $this->appUrlChangeResolver->resolve($strategy, Context::createCLIContext());
+        $this->shopIdChangeResolver->resolve($strategy, Context::createCLIContext());
 
         $io->success('Strategy "' . $strategy . '" was applied successfully');
 

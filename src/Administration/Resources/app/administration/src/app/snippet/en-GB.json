@@ -1502,27 +1502,50 @@
         "iframeModalConfirmMessageDescription": "Please make sure that all processes are completed.",
         "dontAskMeAgain": "Don't ask me again"
       },
-      "sw-app-app-url-changed-modal": {
-        "move-shop-permanently": {
-          "name": "Migrate apps to new domain",
-          "description": "This is typically the right option if you have permanently moved your shop from an old to a new domain. Shopware will notify app servers about the new domain (i.e. re-register at the app servers) and apps remain installed. The shop identifier remains unchanged."
+      "sw-app-shop-id-change-modal": {
+        "title": "Shop identifier change suggested",
+        "description": {
+          "explanation": "Changes in your system and environment were detected that suggest a change of your shop's identifier. Until you have selected an option, there will be no communication with apps to prevent problems with shop identification or data corruption.",
+          "shopId": {
+            "title": "What is the shop identifier?",
+            "explanation": "The shop identifier is a feature of Shopware's app system. Apps your shop is registered with use it to uniquely identify your shop. Because of this, it is important that shop identifiers remain unique and are not shared across different shops, not even in different environments (e.g. a staging or testing copy) of the same shop."
+          }
         },
-        "reinstall-apps": {
-          "name": "Copy apps to current domain",
-          "description": "This is typically the right option if you have made a copy of your shop (e.g. a staging or testing environment of a production shop) and you do want to use the apps in this copy. Shopware will re-install the apps and newly register at the app servers using the new domain. A new shop identifier will be generated."
+        "affectedApps": "The following apps are affected:",
+        "detectedChanges": "The following changes were detected:",
+        "success": "Shop identifier updated successfully.",
+        "error": "Shop identifier update failed.",
+        "oldValue": "Old value",
+        "newValue": "New value",
+        "remindMeLater": "Remind me later",
+        "selectAnOption": "Read the available options carefully and select the one that best suits your scenario:",
+        "fingerprints": {
+          "app_url": {
+            "label": "APP_URL environment variable",
+            "description": "The APP_URL is used by apps to connect to your shop's Admin API."
+          },
+          "installation_path": {
+            "label": "Installation path"
+          },
+          "sales_channel_domain_urls": {
+            "label": "Sales channel domains",
+            "description": "The checksum of the sales channel domains changes when existing domains are modified or deleted or new domains are added."
+          }
         },
-        "uninstall-apps": {
-          "name": "Uninstall apps",
-          "description": "This is typically the right option if you have made a copy of your shop (e.g. a staging or testing environment of a production shop) and you don’t want to use the apps in this copy. Shopware will delete the apps without notifying the app servers. A new shop identifier will be generated."
-        },
-        "title": "Domain change detected",
-        "oldLabel": "Old domain: ",
-        "newLabel": "New domain: ",
-        "explanationHeader": "We have noticed a change in your shop domain.",
-        "explanation": "Installed apps are still connected with the old domain and won't work with the new domain. There are three options from here to proceed.",
-        "confirmation": "Confirm",
-        "success": "Domain changed.",
-        "error": "Error while changing domain for apps"
+        "strategies": {
+          "move-shop-permanently": {
+            "description": "This is typically the right option if you have permanently moved your shop to a different infrastructure or new environment. Shopware will notify apps (i.e. re-register at the app servers) using the same shop identifier and apps remain installed. Your shop will identify as the same shop as before.",
+            "name": "Keep the shop identifier"
+          },
+          "reinstall-apps": {
+            "description": "This is typically the right option if you have made a copy of your shop (e.g. a staging or testing environment of a production shop) and you want to use the apps in this copy. Shopware will re-install the apps and newly register at the app servers using the new shop identifier. Your shop will identify as a new shop.",
+            "name": "Generate a new shop identifier"
+          },
+          "uninstall-apps": {
+            "name": "Uninstall apps",
+            "description": "This is typically the right option if you have made a copy of your shop (e.g. a staging or testing environment of a production shop) and you don’t want to use the apps in this copy. Shopware will delete the apps without notifying the app servers. A new shop identifier will be generated and your shop will identify as a new shop."
+          }
+        }
       },
       "sw-app-wrong-app-url-modal": {
         "title": "Wrongly configured APP_URL",

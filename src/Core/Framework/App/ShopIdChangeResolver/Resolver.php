@@ -1,22 +1,23 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
+namespace Shopware\Core\Framework\App\ShopIdChangeResolver;
 
-use Shopware\Core\Framework\App\Exception\AppUrlChangeStrategyNotFoundException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal only for use by the app-system
+ * @internal
  */
 #[Package('framework')]
-class Resolver
+readonly class Resolver
 {
     /**
-     * @param AbstractAppUrlChangeStrategy[] $strategies
+     * @param AbstractShopIdChangeStrategy[] $strategies
      */
-    public function __construct(private readonly iterable $strategies)
-    {
+    public function __construct(
+        private iterable $strategies
+    ) {
     }
 
     public function resolve(string $strategyName, Context $context): void
@@ -29,7 +30,7 @@ class Resolver
             }
         }
 
-        throw new AppUrlChangeStrategyNotFoundException($strategyName);
+        throw AppException::shopIdChangeResolveStrategyNotFound($strategyName);
     }
 
     /**

@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Framework\Cookie;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
+/**
+ * @deprecated tag:v6.8.0 - Will be removed in 6.8.0, replaced by the CookieCollectionProvider
+ */
 class CookieProvider implements CookieProviderInterface
 {
     private const REQUIRED_COOKIES = [

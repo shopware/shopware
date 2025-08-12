@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Cookie\Service;
 
-use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -52,21 +51,13 @@ readonly class CookieService
     /**
      * Converts an array of cookie groups to a CookieGroupCollection.
      *
-     * @param array<string|int, mixed> $cookieGroups
+     * @param array<string|int, CookieGroup> $cookieGroups
      */
     private function convertToCookieGroupCollection(array $cookieGroups): CookieGroupCollection
     {
         $collection = new CookieGroupCollection();
         foreach ($cookieGroups as $group) {
-            $cookieGroup = new CookieGroup(
-                $group['isRequired'] ?? false,
-                isset($group['entries']) && \is_array($group['entries'])
-                    ? $this->convertCookieEntries($group['entries'])
-                    : []
-            );
-
-            $this->setCookieProperties($cookieGroup, $group);
-            $collection->add($cookieGroup);
+            $collection->add($group);
         }
 
         return $collection;
@@ -86,53 +77,43 @@ readonly class CookieService
     }
 
     /**
-     * Translates snippet names and descriptions in cookie groups.
+     * Translates the snippet names and descriptions of cookie groups and their entries.
      *
-     * @param array<string|int, mixed> $cookieGroups
+     * @param array<string|int, CookieGroup> $cookieGroups
      *
-     * @return array<string|int, mixed>
+     * @return array<string|int, CookieGroup>
      */
     private function translateCookieGroups(array $cookieGroups): array
     {
-        $translatedGroups = [];
-
         foreach ($cookieGroups as $group) {
-            $translatedGroup = $group;
-
-            // Translate group snippet_name and snippet_description
-            if (!empty($group['snippet_name'])) {
-                $translatedGroup['snippet_name'] = $this->translator->trans($group['snippet_name']);
-            }
-            if (!empty($group['snippet_description'])) {
-                $translatedGroup['snippet_description'] = $this->translator->trans($group['snippet_description']);
+            if (isset($group->snippetName)) {
+                $group->snippetName = $this->translator->trans($group->snippetName);
             }
 
-            // Translate entries
-            if (isset($group['entries']) && \is_array($group['entries'])) {
-                $translatedEntries = [];
-                foreach ($group['entries'] as $entry) {
-                    $translatedEntry = $entry;
-                    if (!empty($entry['snippet_name'])) {
-                        $translatedEntry['snippet_name'] = $this->translator->trans($entry['snippet_name']);
+            if (isset($group->snippetDescription)) {
+                $group->snippetDescription = $this->translator->trans($group->snippetDescription);
+            }
+
+            if (isset($group->entries) && \is_array($group->entries)) {
+                foreach ($group->entries as $entry) {
+                    if (isset($entry->snippetName)) {
+                        $entry->snippetName = $this->translator->trans($entry->snippetName);
                     }
-                    if (!empty($entry['snippet_description'])) {
-                        $translatedEntry['snippet_description'] = $this->translator->trans($entry['snippet_description']);
+
+                    if (isset($entry->snippetDescription)) {
+                        $entry->snippetDescription = $this->translator->trans($entry->snippetDescription);
                     }
-                    $translatedEntries[] = $translatedEntry;
                 }
-                $translatedGroup['entries'] = $translatedEntries;
             }
-
-            $translatedGroups[] = $translatedGroup;
         }
 
-        return $translatedGroups;
+        return $cookieGroups;
     }
 
     /**
-     * @param array<string|int, mixed> $cookieGroups
+     * @param array<string|int, CookieGroup> $cookieGroups
      *
-     * @return array<string|int, mixed>
+     * @return array<string|int, CookieGroup>
      */
     private function filterGoogleAnalyticsCookie(SalesChannelContext $context, array $cookieGroups): array
     {
@@ -153,14 +134,14 @@ readonly class CookieService
 
         $filteredGroups = [];
         foreach ($cookieGroups as $cookieGroup) {
-            if ($cookieGroup['snippet_name'] === 'cookie.groupStatistical') {
+            if ($cookieGroup->snippetName === 'cookie.groupStatistical') {
                 $cookieGroup = $this->filterCookieGroup('cookie.groupStatisticalGoogleAnalytics', $cookieGroup);
                 if ($cookieGroup !== null) {
                     $filteredGroups[] = $cookieGroup;
                 }
 
                 continue;
-            } elseif ($cookieGroup['snippet_name'] === 'cookie.groupMarketing') {
+            } elseif ($cookieGroup->snippetName === 'cookie.groupMarketing') {
                 $cookieGroup = $this->filterCookieGroup('cookie.groupMarketingAdConsent', $cookieGroup);
                 if ($cookieGroup !== null) {
                     $filteredGroups[] = $cookieGroup;
@@ -175,15 +156,17 @@ readonly class CookieService
         return $filteredGroups;
     }
 
-    /**
-     * @param array<string|int, mixed> $cookieGroup
-     *
-     * @return ?array<string|int, mixed>
-     */
-    private function filterCookieGroup(string $cookieSnippetName, array $cookieGroup): ?array
+    private function filterCookieGroup(string $cookieSnippetName, ?CookieGroup $cookieGroup): ?CookieGroup
     {
-        $cookieGroup['entries'] = array_filter($cookieGroup['entries'], fn ($item) => $item['snippet_name'] !== $cookieSnippetName);
-        if (\count($cookieGroup['entries']) === 0) {
+        if ($cookieGroup === null) {
+            return null;
+        }
+
+        $cookieGroup->entries = array_values(array_filter($cookieGroup->entries, function ($item) use ($cookieSnippetName) {
+            return $item->snippetName !== $cookieSnippetName;
+        }));
+
+        if (\count($cookieGroup->entries) === 0) {
             return null;
         }
 
@@ -191,9 +174,9 @@ readonly class CookieService
     }
 
     /**
-     * @param array<string|int, mixed> $cookieGroups
+     * @param array<string|int, CookieGroup> $cookieGroups
      *
-     * @return array<string|int, mixed>
+     * @return array<string|int, CookieGroup>
      */
     private function filterWishlistCookie(string $salesChannelId, array $cookieGroups): array
     {
@@ -203,7 +186,7 @@ readonly class CookieService
 
         $filteredGroups = [];
         foreach ($cookieGroups as $cookieGroup) {
-            if ($cookieGroup['snippet_name'] === 'cookie.groupComfortFeatures') {
+            if ($cookieGroup->snippetName === 'cookie.groupComfortFeatures') {
                 $cookieGroup = $this->filterCookieGroup('cookie.groupComfortFeaturesWishlist', $cookieGroup);
                 if ($cookieGroup !== null) {
                     $filteredGroups[] = $cookieGroup;
@@ -219,9 +202,9 @@ readonly class CookieService
     }
 
     /**
-     * @param array<string|int, mixed> $cookieGroups
+     * @param array<string|int, CookieGroup> $cookieGroups
      *
-     * @return array<string|int, mixed>
+     * @return array<string|int, CookieGroup>
      */
     private function filterGoogleReCaptchaCookie(string $salesChannelId, array $cookieGroups): array
     {
@@ -239,7 +222,7 @@ readonly class CookieService
 
         $filteredGroups = [];
         foreach ($cookieGroups as $cookieGroup) {
-            if ($cookieGroup['snippet_name'] === 'cookie.groupRequired') {
+            if ($cookieGroup->snippetName === 'cookie.groupRequired') {
                 $cookieGroup = $this->filterCookieGroup('cookie.groupRequiredCaptcha', $cookieGroup);
                 if ($cookieGroup !== null) {
                     $filteredGroups[] = $cookieGroup;
@@ -252,48 +235,5 @@ readonly class CookieService
         }
 
         return $filteredGroups;
-    }
-
-    /**
-     * Converts an array of cookie entries to an array of CookieEntry objects.
-     *
-     * @param array<string|int, mixed> $entries
-     *
-     * @return list<CookieEntry>
-     */
-    private function convertCookieEntries(array $entries): array
-    {
-        $convertedEntries = [];
-        foreach ($entries as $entry) {
-            $cookieEntry = new CookieEntry($entry['hidden'] ?? false);
-            $this->setCookieProperties($cookieEntry, $entry);
-            $convertedEntries[] = $cookieEntry;
-        }
-
-        return $convertedEntries;
-    }
-
-    /**
-     * Sets the cookie properties from the given data array to the cookie object.
-     *
-     * @param array<string|int, mixed> $data
-     */
-    private function setCookieProperties(CookieEntry|CookieGroup $cookie, array $data): void
-    {
-        if (isset($data['snippet_name']) && $data['snippet_name'] !== '') {
-            $cookie->snippet_name = $data['snippet_name'];
-        }
-        if (isset($data['snippet_description']) && $data['snippet_description'] !== '') {
-            $cookie->snippet_description = $data['snippet_description'];
-        }
-        if (isset($data['cookie']) && $data['cookie'] !== '') {
-            $cookie->cookie = $data['cookie'];
-        }
-        if (isset($data['value']) && $data['value'] !== '') {
-            $cookie->value = $data['value'];
-        }
-        if (isset($data['expiration']) && $data['expiration'] !== '') {
-            $cookie->expiration = $data['expiration'];
-        }
     }
 }

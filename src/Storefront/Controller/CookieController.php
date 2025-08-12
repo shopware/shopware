@@ -3,8 +3,6 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieRoute;
-use Shopware\Core\Content\Cookie\Struct\CookieEntry;
-use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -38,7 +36,7 @@ class CookieController extends StorefrontController
     {
         $cookieGroupCollection = $this->getCookieGroupsFromCookieRoute($request, $salesChannelContext);
         $response = $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-configuration.html.twig', [
-            'cookieGroups' => $this->transformCookieGroupForTwig($cookieGroupCollection),
+            'cookieGroups' => $cookieGroupCollection,
         ]);
         $response->headers->set('x-robots-tag', 'noindex,follow');
 
@@ -50,7 +48,7 @@ class CookieController extends StorefrontController
     {
         $cookieGroupCollection = $this->getCookieGroupsFromCookieRoute($request, $salesChannelContext);
         $response = $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-permission.html.twig', [
-            'cookieGroups' => $this->transformCookieGroupForTwig($cookieGroupCollection),
+            'cookieGroups' => $cookieGroupCollection,
         ]);
         $response->headers->set('x-robots-tag', 'noindex,follow');
 
@@ -66,46 +64,5 @@ class CookieController extends StorefrontController
         $cookieRouteResponse = $this->cookieRoute->getCookieGroups($cookieRequest, $salesChannelContext);
 
         return $cookieRouteResponse->getCookieGroups();
-    }
-
-    /**
-     * Transforms the cookie group collection to a format suitable for Twig.
-     *
-     * Ensures that all snippet names and descriptions are initialized or set to empty strings.
-     *
-     * @return array<string|int, mixed>
-     */
-    private function transformCookieGroupForTwig(CookieGroupCollection $cookieGroupCollection): array
-    {
-        $result = [];
-        foreach ($cookieGroupCollection as $group) {
-            $this->setDefaultValuesForCookieStruct($group);
-            $result[] = $group->jsonSerialize();
-            foreach ($group->entries as $pos => $cookieStruct) {
-                $this->setDefaultValuesForCookieStruct($cookieStruct);
-                $result[\count($result) - 1]['entries'][$pos] = $cookieStruct->jsonSerialize();
-            }
-        }
-
-        return $result;
-    }
-
-    private function setDefaultValuesForCookieStruct(CookieEntry|CookieGroup $cookieStruct): void
-    {
-        if (!isset($cookieStruct->snippet_name)) {
-            $cookieStruct->snippet_name = '';
-        }
-        if (!isset($cookieStruct->snippet_description)) {
-            $cookieStruct->snippet_description = '';
-        }
-        if (!isset($cookieStruct->cookie)) {
-            $cookieStruct->cookie = '';
-        }
-        if (!isset($cookieStruct->value)) {
-            $cookieStruct->value = '';
-        }
-        if (!isset($cookieStruct->expiration)) {
-            $cookieStruct->expiration = '';
-        }
     }
 }

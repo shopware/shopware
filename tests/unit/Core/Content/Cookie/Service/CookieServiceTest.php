@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Cookie\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\Service\CookieService;
+use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -23,51 +24,57 @@ class CookieServiceTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $cookieGroups = [
-            [
-                'snippet_name' => 'cookie.groupStatistical',
-                'snippet_description' => 'Statistical cookies',
-                'isRequired' => false,
-                'entries' => [
-                    [
-                        'snippet_name' => 'cookie.groupStatisticalGoogleAnalytics',
-                        'snippet_description' => 'Google Analytics',
+            (new CookieGroup(
+                isRequired: false,
+                entries: [
+                    (new CookieEntry(
+                        hidden: false,
+                    ))->assign([
+                        'snippetName' => 'cookie.groupStatisticalGoogleAnalytics',
+                        'snippetDescription' => 'Google Analytics',
                         'cookie' => 'google-analytics-enabled',
                         'value' => '1',
                         'expiration' => '30',
-                        'hidden' => false,
-                    ],
+                    ]),
                 ],
-            ],
-            [
-                'snippet_name' => 'cookie.groupMarketing',
-                'snippet_description' => 'Marketing cookies',
-                'isRequired' => false,
-                'entries' => [
-                    [
-                        'snippet_name' => 'cookie.groupMarketingAdConsent',
-                        'snippet_description' => 'Google Ads',
+            ))->assign([
+                'snippetName' => 'cookie.groupStatistical',
+                'snippetDescription' => 'Statistical cookies',
+            ]),
+            (new CookieGroup(
+                isRequired: false,
+                entries: [
+                    (new CookieEntry(
+                        hidden: false,
+                    ))->assign([
+                        'snippetName' => 'cookie.groupMarketingAdConsent',
+                        'snippetDescription' => 'Google Ads',
                         'cookie' => 'google-ads-enabled',
                         'value' => '1',
                         'expiration' => '30',
-                        'hidden' => false,
-                    ],
+                    ]),
                 ],
-            ],
-            [
-                'snippet_name' => 'cookie.groupOther',
-                'snippet_description' => 'Other cookies',
-                'isRequired' => false,
-                'entries' => [
-                    [
-                        'snippet_name' => 'other.cookie',
-                        'snippet_description' => 'Other cookie description',
+            ))->assign([
+                'snippetName' => 'cookie.groupMarketing',
+                'snippetDescription' => 'Marketing cookies',
+            ]),
+            (new CookieGroup(
+                isRequired: false,
+                entries: [
+                    (new CookieEntry(
+                        hidden: false,
+                    ))->assign([
+                        'snippetName' => 'other.cookie',
+                        'snippetDescription' => 'Other cookie description',
                         'cookie' => 'other-cookie',
                         'value' => '1',
                         'expiration' => '30',
-                        'hidden' => false,
-                    ],
+                    ]),
                 ],
-            ],
+            ))->assign([
+                'snippetName' => 'cookie.groupOther',
+                'snippetDescription' => 'Other cookies',
+            ]),
         ];
 
         /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
@@ -86,11 +93,11 @@ class CookieServiceTest extends TestCase
         static::assertCount(1, $result);
         $group = $result->first();
         static::assertInstanceOf(CookieGroup::class, $group);
-        static::assertSame('cookie.groupOther', $group->snippet_name);
-        static::assertSame('Other cookies', $group->snippet_description);
+        static::assertSame('cookie.groupOther', $group->snippetName);
+        static::assertSame('Other cookies', $group->snippetDescription);
         static::assertCount(1, $group->entries);
-        static::assertSame('other.cookie', $group->entries[0]->snippet_name);
-        static::assertSame('Other cookie description', $group->entries[0]->snippet_description);
+        static::assertSame('other.cookie', $group->entries[0]->snippetName);
+        static::assertSame('Other cookie description', $group->entries[0]->snippetDescription);
         static::assertSame('other-cookie', $group->entries[0]->cookie);
         static::assertSame('1', $group->entries[0]->value);
         static::assertSame('30', $group->entries[0]->expiration);
@@ -100,22 +107,28 @@ class CookieServiceTest extends TestCase
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
 
+        $cookieGroupEntry = (new CookieEntry(
+            hidden: false,
+        ))->assign([
+            'snippetName' => 'cookie.entry.test',
+            'snippetDescription' => 'cookie.entry.test.description',
+            'cookie' => 'test-cookie',
+            'value' => '1',
+            'expiration' => '30',
+        ]);
+
+        $cookieGroup = (new CookieGroup(
+            isRequired: false,
+            entries: [
+                $cookieGroupEntry,
+            ]
+        ))->assign([
+            'snippetName' => 'cookie.group.test',
+            'snippetDescription' => 'cookie.group.test.description',
+        ]);
+
         $cookieGroups = [
-            [
-                'snippet_name' => 'cookie.group.test',
-                'snippet_description' => 'cookie.group.test.description',
-                'isRequired' => false,
-                'entries' => [
-                    [
-                        'snippet_name' => 'cookie.entry.test',
-                        'snippet_description' => 'cookie.entry.test.description',
-                        'cookie' => 'test-cookie',
-                        'value' => '1',
-                        'expiration' => '30',
-                        'hidden' => false,
-                    ],
-                ],
-            ],
+            $cookieGroup,
         ];
 
         /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
@@ -133,11 +146,11 @@ class CookieServiceTest extends TestCase
         static::assertCount(1, $result);
         $group = $result->first();
         static::assertInstanceOf(CookieGroup::class, $group);
-        static::assertSame('Translated: cookie.group.test', $group->snippet_name);
-        static::assertSame('Translated: cookie.group.test.description', $group->snippet_description);
+        static::assertSame('Translated: cookie.group.test', $group->snippetName);
+        static::assertSame('Translated: cookie.group.test.description', $group->snippetDescription);
         static::assertCount(1, $group->entries);
-        static::assertSame('Translated: cookie.entry.test', $group->entries[0]->snippet_name);
-        static::assertSame('Translated: cookie.entry.test.description', $group->entries[0]->snippet_description);
+        static::assertSame('Translated: cookie.entry.test', $group->entries[0]->snippetName);
+        static::assertSame('Translated: cookie.entry.test.description', $group->entries[0]->snippetDescription);
         static::assertSame('test-cookie', $group->entries[0]->cookie);
         static::assertSame('1', $group->entries[0]->value);
         static::assertSame('30', $group->entries[0]->expiration);
@@ -148,21 +161,23 @@ class CookieServiceTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $cookieGroups = [
-            [
-                'snippet_name' => 'test.group',
-                'snippet_description' => 'Test Group Description',
-                'isRequired' => true,
-                'entries' => [
-                    [
-                        'snippet_name' => 'test.cookie',
-                        'snippet_description' => 'Test Cookie Description',
+            (new CookieGroup(
+                isRequired: true,
+                entries: [
+                    (new CookieEntry(
+                        hidden: false,
+                    ))->assign([
+                        'snippetName' => 'test.cookie',
+                        'snippetDescription' => 'Test Cookie Description',
                         'cookie' => 'test-cookie',
                         'value' => '1',
                         'expiration' => '30',
-                        'hidden' => false,
-                    ],
+                    ]),
                 ],
-            ],
+            ))->assign([
+                'snippetName' => 'test.group',
+                'snippetDescription' => 'Test Group Description',
+            ]),
         ];
 
         /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
@@ -178,33 +193,38 @@ class CookieServiceTest extends TestCase
         static::assertInstanceOf(CookieGroup::class, $group);
         static::assertTrue($group->isRequired);
         static::assertCount(1, $group->entries);
-        static::assertSame('test.group', $group->snippet_name);
-        static::assertSame('Test Group Description', $group->snippet_description);
-        static::assertSame('test.cookie', $group->entries[0]->snippet_name);
-        static::assertSame('Test Cookie Description', $group->entries[0]->snippet_description);
+        static::assertSame('test.group', $group->snippetName);
+        static::assertSame('Test Group Description', $group->snippetDescription);
+        static::assertSame('test.cookie', $group->entries[0]->snippetName);
+        static::assertSame('Test Cookie Description', $group->entries[0]->snippetDescription);
         static::assertSame('test-cookie', $group->entries[0]->cookie);
         static::assertSame('1', $group->entries[0]->value);
         static::assertSame('30', $group->entries[0]->expiration);
         static::assertFalse($group->entries[0]->hidden);
     }
 
-    public function testJsonSerializationExcludesNullValues(): void
+    public function testJsonSerialization(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $cookieGroups = [
-            [
-                'snippet_name' => 'test.group',
-                'snippet_description' => 'Test Group Description',
-                'isRequired' => true,
-                'entries' => [
-                    [
-                        'snippet_name' => 'test.cookie',
-                        // Note: no snippet_description, cookie, value, or expiration provided
-                        'hidden' => false,
-                    ],
+            (new CookieGroup(
+                isRequired: true,
+                entries: [
+                    (new CookieEntry(
+                        hidden: false,
+                    ))->assign([
+                        'snippetName' => 'test.cookie',
+                        'snippetDescription' => null,
+                        'cookie' => null,
+                        'value' => null,
+                        'expiration' => null,
+                    ]),
                 ],
-            ],
+            ))->assign([
+                'snippetName' => 'test.group',
+                'snippetDescription' => 'Test Group Description',
+            ]),
         ];
 
         /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
@@ -227,23 +247,12 @@ class CookieServiceTest extends TestCase
         $groupJson = $group->jsonSerialize();
         $entryJson = $group->entries[0]->jsonSerialize();
 
-        // Verify that null values are not present in the JSON output
-        static::assertArrayNotHasKey('cookie', $groupJson);
-        static::assertArrayNotHasKey('value', $groupJson);
-        static::assertArrayNotHasKey('expiration', $groupJson);
-
-        static::assertArrayNotHasKey('snippet_description', $entryJson);
-        static::assertArrayNotHasKey('cookie', $entryJson);
-        static::assertArrayNotHasKey('value', $entryJson);
-        static::assertArrayNotHasKey('expiration', $entryJson);
-
-        // Verify that non-null values are present
-        static::assertArrayHasKey('snippet_name', $groupJson);
-        static::assertArrayHasKey('snippet_description', $groupJson);
+        static::assertArrayHasKey('snippetName', $groupJson);
+        static::assertArrayHasKey('snippetDescription', $groupJson);
         static::assertArrayHasKey('isRequired', $groupJson);
         static::assertArrayHasKey('entries', $groupJson);
 
-        static::assertArrayHasKey('snippet_name', $entryJson);
+        static::assertArrayHasKey('snippetName', $entryJson);
         static::assertArrayHasKey('hidden', $entryJson);
     }
 }

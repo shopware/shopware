@@ -24,8 +24,8 @@ class CookieControllerTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $cookieGroup = new CookieGroup(false, []);
-        $cookieGroup->snippet_name = 'test.group';
-        $cookieGroup->snippet_description = 'Test Group';
+        $cookieGroup->snippetName = 'test.group';
+        $cookieGroup->snippetDescription = 'Test Group';
 
         $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 
@@ -56,8 +56,8 @@ class CookieControllerTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $cookieGroup = new CookieGroup(false, []);
-        $cookieGroup->snippet_name = 'test.group';
-        $cookieGroup->snippet_description = 'Test Group';
+        $cookieGroup->snippetName = 'test.group';
+        $cookieGroup->snippetDescription = 'Test Group';
 
         $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 
@@ -124,16 +124,19 @@ class CookieControllerTest extends TestCase
         $controller->offcanvas($request, $salesChannelContext);
 
         $transformedGroups = $controller->renderStorefrontParameters['cookieGroups'];
-        static::assertIsArray($transformedGroups);
+        static::assertInstanceOf(CookieGroupCollection::class, $transformedGroups);
         static::assertNotEmpty($transformedGroups);
 
         // Check that default values are set
-        $group = $transformedGroups[0];
-        static::assertArrayHasKey('snippet_name', $group);
-        static::assertArrayHasKey('snippet_description', $group);
-        static::assertArrayHasKey('cookie', $group);
-        static::assertArrayHasKey('value', $group);
-        static::assertArrayHasKey('expiration', $group);
+        $group = $transformedGroups->getElements()[0];
+
+        static::assertObjectHasProperty('snippetName', $group);
+        static::assertObjectNotHasProperty('snippet_name', $group);
+        static::assertObjectHasProperty('snippetDescription', $group);
+        static::assertObjectNotHasProperty('snippet_description', $group);
+        static::assertObjectHasProperty('cookie', $group);
+        static::assertObjectHasProperty('value', $group);
+        static::assertObjectHasProperty('expiration', $group);
     }
 }
 

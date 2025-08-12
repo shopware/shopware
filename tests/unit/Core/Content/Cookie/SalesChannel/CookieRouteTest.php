@@ -43,10 +43,10 @@ class CookieRouteTest extends TestCase
 
         $mockCookieGroups = [
             [
-                'snippet_name' => 'test.group',
+                'snippetName' => 'test.group',
                 'entries' => [
                     [
-                        'snippet_name' => 'test.cookie',
+                        'snippetName' => 'test.cookie',
                         'cookie' => 'test-cookie',
                     ],
                 ],
@@ -79,7 +79,7 @@ class CookieRouteTest extends TestCase
 
         $cookieProvider = $this->createMock(CookieProviderInterface::class);
         $cookieProvider->method('getCookieGroups')->willReturn([
-            ['snippet_name' => 'test.group'],
+            ['snippetName' => 'test.group'],
         ]);
 
         $expectedCollection = new CookieGroupCollection();
@@ -102,10 +102,10 @@ class CookieRouteTest extends TestCase
 
         $mockCookieGroups = [
             [
-                'snippet_name' => 'test.group',
+                'snippetName' => 'test.group',
                 'entries' => [
                     [
-                        'snippet_name' => 'test.cookie',
+                        'snippetName' => 'test.cookie',
                         'cookie' => 'test-cookie',
                     ],
                 ],
@@ -138,10 +138,10 @@ class CookieRouteTest extends TestCase
 
         $mockCookieGroups = [
             [
-                'snippet_name' => 'test.group',
+                'snippetName' => 'test.group',
                 'entries' => [
                     [
-                        'snippet_name' => 'test.cookie',
+                        'snippetName' => 'test.cookie',
                         'cookie' => 'test-cookie',
                     ],
                 ],
@@ -173,7 +173,7 @@ class CookieRouteTest extends TestCase
 
         $mockCookieGroups = [
             [
-                'snippet_name' => 'test.group',
+                'snippetName' => 'test.group',
                 'entries' => [],
             ],
         ];

@@ -8,9 +8,9 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 abstract class CookieStruct extends Struct
 {
-    public ?string $snippet_name;
+    public ?string $snippetName;
 
-    public ?string $snippet_description;
+    public ?string $snippetDescription;
 
     public ?string $cookie;
 

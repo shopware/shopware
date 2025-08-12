@@ -35,6 +35,7 @@ class PromotionException extends HttpException
     public const PRICE_NOT_FOUND_FOR_ITEM = 'CHECKOUT__PRICE_NOT_FOUND_FOR_ITEM';
     public const FILTER_SORTER_NOT_FOUND = 'CHECKOUT__FILTER_SORTER_NOT_FOUND';
     public const FILTER_PICKER_NOT_FOUND = 'CHECKOUT__FILTER_PICKER_NOT_FOUND';
+    public const PROMOTION_USAGE_LOCKED = 'CHECKOUT__PROMOTION_USAGE_LOCKED';
 
     public static function codeAlreadyRedeemed(string $code): self
     {
@@ -247,6 +248,16 @@ class PromotionException extends HttpException
             self::FILTER_PICKER_NOT_FOUND,
             'Picker "{{ key }}" has not been found!',
             ['key' => $key]
+        );
+    }
+
+    public static function promotionUsageLocked(string $promotionCodeOrId): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::PROMOTION_USAGE_LOCKED,
+            'Promotion {{ promotion }} is locked due to concurrent write operation. Please try again later.',
+            ['promotion' => $promotionCodeOrId]
         );
     }
 }

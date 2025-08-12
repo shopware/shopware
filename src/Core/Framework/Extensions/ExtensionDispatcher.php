@@ -26,6 +26,11 @@ final readonly class ExtensionDispatcher
         return $name . '.post';
     }
 
+    public static function error(string $name): string
+    {
+        return $name . '.error';
+    }
+
     /**
      * @template TExtensionType of mixed
      *
@@ -38,7 +43,15 @@ final readonly class ExtensionDispatcher
         $this->dispatcher->dispatch($extension, self::pre($name));
 
         if (!$extension->isPropagationStopped()) {
-            $extension->result = $function(...$extension->getParams());
+            try {
+                $extension->result = $function(...$extension->getParams());
+            } catch (\Throwable $e) {
+                $extension->exception = $e;
+
+                $this->dispatcher->dispatch($extension, self::error($name));
+
+                throw $e;
+            }
         }
 
         $extension->resetPropagation();

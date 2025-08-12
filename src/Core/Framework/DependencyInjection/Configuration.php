@@ -551,7 +551,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->booleanNode('compress')->defaultFalse()->end()
                 ->scalarNode('compression_method')->defaultValue('gzip')->end()
-                ->variableNode('serialization_max_size')->defaultNull()->end()
+                ->variableNode('serialization_max_mb_size')->defaultNull()->end()
                 ->integerNode('expire_days')
                     ->min(1)
                     ->defaultValue(120)

@@ -636,10 +636,10 @@ class CartException extends HttpException
         );
     }
 
-    public static function serializeCartTooLarge(): self
+    public static function serializedCartTooLarge(): self
     {
         return new self(
-            Response::HTTP_REQUEST_ENTITY_TOO_LARGE,
+            Response::HTTP_UNPROCESSABLE_ENTITY,
             self::CART_SERIALIZATION_TOO_LARGE,
             'The serialized cart data exceeds the allowed payload size limit'
         );

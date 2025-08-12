@@ -20,21 +20,39 @@ use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type ShopIdV1Config from ShopId
  */
 #[CoversClass(ShopIdProvider::class)]
 class ShopIdProviderTest extends TestCase
 {
+    /**
+     * @param ShopIdV1Config|null $shopIdV1Config
+     */
     #[DataProvider('oldShopIdsProvider')]
-    public function testGeneratesNewShopIdV2(?string $oldShopId): void
+    public function testGeneratesNewShopIdV2(?array $shopIdV1Config): void
     {
         $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects($this->exactly(2))
+        $systemConfigService->expects($matcher = $this->exactly(4))
             ->method('get')
-            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY)
-            ->willReturnOnConsecutiveCalls(null, $oldShopId ? (array) ShopId::v1($oldShopId) : null);
+            ->willReturnCallback(function (...$parameters) use ($matcher, $shopIdV1Config) {
+                if ($matcher->numberOfInvocations() === 1 || $matcher->numberOfInvocations() === 3) {
+                    static::assertSame(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, $parameters[0]);
+
+                    return null;
+                }
+
+                if ($matcher->numberOfInvocations() === 2 || $matcher->numberOfInvocations() === 4) {
+                    static::assertSame(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, $parameters[0]);
+
+                    return \is_array($shopIdV1Config) ? (array) ShopId::v1($shopIdV1Config['value'], $shopIdV1Config['app_url']) : null;
+                }
+
+                static::fail(\sprintf('SystemConfigService was not expected to be called more than %s times', $matcher->numberOfInvocations()));
+            });
         $systemConfigService->expects($this->once())
             ->method('set')
-            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, static::callback(function (array $config): bool {
+            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, static::callback(function (array $config): bool {
                 static::assertSame(2, $config['version'] ?? null);
                 static::assertSame([], $config['fingerprints'] ?? null);
 
@@ -54,7 +72,8 @@ class ShopIdProviderTest extends TestCase
 
         $shopIdChangedEvent = $eventDispatcher->getEvents()[0] ?? null;
         static::assertInstanceOf(ShopIdChangedEvent::class, $shopIdChangedEvent);
-        static::assertSame($oldShopId, $shopIdChangedEvent->oldShopId?->id);
+        static::assertSame($shopIdV1Config['value'] ?? null, $shopIdChangedEvent->oldShopId?->id);
+        static::assertSame($shopIdV1Config['app_url'] ?? null, $shopIdChangedEvent->oldShopId?->getFingerprint(AppUrl::IDENTIFIER) ?? null);
         static::assertSame($shopId, $shopIdChangedEvent->newShopId->id);
     }
 
@@ -72,13 +91,26 @@ class ShopIdProviderTest extends TestCase
         ];
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects($this->exactly(2))
+        $systemConfigService->expects($matcher = $this->exactly(4))
             ->method('get')
-            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY)
-            ->willReturn($shopIdV1Config, $shopIdV2Config);
+            ->willReturnCallback(function (...$parameters) use ($matcher, $shopIdV1Config) {
+                if ($matcher->numberOfInvocations() === 1 || $matcher->numberOfInvocations() === 3) {
+                    static::assertSame(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, $parameters[0]);
+
+                    return null;
+                }
+
+                if ($matcher->numberOfInvocations() === 2 || $matcher->numberOfInvocations() === 4) {
+                    static::assertSame(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, $parameters[0]);
+
+                    return $shopIdV1Config;
+                }
+
+                static::fail(\sprintf('SystemConfigService was not expected to be called more than %s times', $matcher->numberOfInvocations()));
+            });
         $systemConfigService->expects($this->once())
             ->method('set')
-            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, static::callback(function (array $config) use ($shopIdV2Config): bool {
+            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, static::callback(function (array $config) use ($shopIdV2Config): bool {
                 static::assertSame($shopIdV2Config, $config);
 
                 return true;
@@ -109,7 +141,7 @@ class ShopIdProviderTest extends TestCase
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($this->once())
             ->method('get')
-            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY)
+            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2)
             ->willReturn((array) $shopId);
 
         $connection = $this->createMock(Connection::class);
@@ -152,7 +184,7 @@ class ShopIdProviderTest extends TestCase
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($this->exactly(2))
             ->method('get')
-            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY)
+            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2)
             ->willReturnOnConsecutiveCalls((array) $shopId, (array) $shopId);
 
         $connection = $this->createMock(Connection::class);
@@ -214,6 +246,6 @@ class ShopIdProviderTest extends TestCase
     public static function oldShopIdsProvider(): \Generator
     {
         yield 'old shop id NOT present' => [null];
-        yield 'old shop id IS present' => ['0987654321'];
+        yield 'old shop id IS present' => [['value' => '1234567890', 'app_url' => 'https://foo.bar']];
     }
 }

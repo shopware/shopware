@@ -25,7 +25,7 @@ class ShopIdTest extends TestCase
 
         static::assertSame($shopId->id, $config['value']);
         static::assertSame(1, $shopId->version);
-        static::assertSame([], $shopId->fingerprints);
+        static::assertSame(['app_url' => $config['app_url']], $shopId->fingerprints);
     }
 
     public function testCreatesShopIdFromValidV2Config(): void

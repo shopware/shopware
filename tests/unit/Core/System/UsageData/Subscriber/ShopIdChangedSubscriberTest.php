@@ -99,7 +99,7 @@ class ShopIdChangedSubscriberTest extends TestCase
         );
 
         $shopIdChangedSubscriber->handleShopIdChanged(
-            new ShopIdChangedEvent(ShopId::v1('newShopId'), null),
+            new ShopIdChangedEvent(ShopId::v1('newShopId', 'https://foo.bar'), null),
         );
     }
 

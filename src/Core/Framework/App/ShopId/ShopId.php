@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\ShopId;
 
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -29,9 +30,9 @@ readonly class ShopId
         return $this->fingerprints[$identifier] ?? null;
     }
 
-    public static function v1(string $id): self
+    public static function v1(string $id, string $appUrl): self
     {
-        return new self($id, [], 1);
+        return new self($id, [AppUrl::IDENTIFIER => $appUrl], 1);
     }
 
     /**
@@ -48,7 +49,7 @@ readonly class ShopId
     public static function fromSystemConfig(array $config): self
     {
         if (self::isV1($config)) {
-            return self::v1($config['value']);
+            return self::v1($config['value'], $config['app_url']);
         }
 
         if (self::isV2($config)) {

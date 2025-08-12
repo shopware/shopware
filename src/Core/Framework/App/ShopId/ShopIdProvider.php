@@ -14,11 +14,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type ShopIdV1Config from ShopId
+ * @phpstan-import-type ShopIdV2Config from ShopId
  */
 #[Package('framework')]
 class ShopIdProvider
 {
     final public const SHOP_ID_SYSTEM_CONFIG_KEY = 'core.app.shopId';
+    final public const SHOP_ID_SYSTEM_CONFIG_KEY_V2 = 'core.app.shopIdV2';
 
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
@@ -73,14 +77,16 @@ class ShopIdProvider
 
     private function setShopId(ShopId $shopId): void
     {
-        $oldShopId = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY);
+        $oldShopId = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2)
+            ?? $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY)
+            ?? null;
         if (\is_array($oldShopId)) {
             $oldShopId = ShopId::fromSystemConfig($oldShopId);
         } else {
             $oldShopId = null;
         }
 
-        $this->systemConfigService->set(self::SHOP_ID_SYSTEM_CONFIG_KEY, (array) $shopId);
+        $this->systemConfigService->set(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2, (array) $shopId);
         $this->eventDispatcher->dispatch(new ShopIdChangedEvent($shopId, $oldShopId));
     }
 
@@ -98,19 +104,21 @@ class ShopIdProvider
 
     private function fetchShopIdFromSystemConfig(): ?ShopId
     {
-        /** @var array<string, mixed>|null $shopId */
-        $shopId = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY);
-        if (!\is_array($shopId)) {
-            return null;
+        /** @var ShopIdV2Config|null $shopIdV2 */
+        $shopIdV2 = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
+        if (\is_array($shopIdV2)) {
+            return ShopId::fromSystemConfig($shopIdV2);
         }
 
-        $shopId = ShopId::fromSystemConfig($shopId);
+        /** @var ShopIdV1Config|null $shopIdV1 */
+        $shopIdV1 = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY);
+        if (\is_array($shopIdV1)) {
+            $shopIdV1 = ShopId::fromSystemConfig($shopIdV1);
 
-        if ($shopId->version === 1) {
-            return $this->regenerateAndSetShopId($shopId->id);
+            return $this->regenerateAndSetShopId($shopIdV1->id);
         }
 
-        return $shopId;
+        return null;
     }
 
     private function loadAppUrlFromEnvironment(): string

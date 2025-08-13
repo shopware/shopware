@@ -57,7 +57,8 @@
             :disabled="disabled"
             compact
             :alpha="false"
-            @update:value="handleButtonClick(buttonConfig)"
+            :apply-mode="true"
+            @update:model-value="handleButtonClick(buttonConfig)"
         />
     </div>
     {% endblock %}

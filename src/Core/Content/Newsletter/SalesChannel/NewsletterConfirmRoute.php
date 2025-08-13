@@ -89,8 +89,8 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
     {
         $definition = new DataValidationDefinition('newsletter_recipient.opt_in_before');
         $definition->add('id', new NotBlank())
-            ->add('status', new EqualTo(['value' => NewsletterSubscribeRoute::STATUS_NOT_SET]))
-            ->add('em', new EqualTo(['value' => $emHash]));
+            ->add('status', new EqualTo(value: NewsletterSubscribeRoute::STATUS_NOT_SET))
+            ->add('em', new EqualTo(value: $emHash));
 
         return $definition;
     }

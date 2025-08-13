@@ -8,6 +8,8 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppDownloadException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
+use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -127,5 +129,34 @@ class AppExceptionTest extends TestCase
         static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
         static::assertEquals('FRAMEWORK__APP_NO_SOURCE_SUPPORTS', $e->getErrorCode());
         static::assertEquals('The source "/Unknown/Source" does not exist', $e->getMessage());
+    }
+
+    public function testShopIdChangeSuggested(): void
+    {
+        $e = AppException::shopIdChangeSuggested($comparisonResult = new FingerprintComparisonResult([], [], 75));
+
+        static::assertInstanceOf(ShopIdChangeSuggestedException::class, $e);
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_SHOP_ID_CHANGE_SUGGESTED', $e->getErrorCode());
+        static::assertSame('Changes in your system were detected that suggest a change of the shop ID.', $e->getMessage());
+        static::assertSame($comparisonResult, $e->comparisonResult);
+    }
+
+    public function testAppUrlNotConfigured(): void
+    {
+        $e = AppException::appUrlNotConfigured();
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_URL_NOT_CONFIGURED', $e->getErrorCode());
+        static::assertSame('The environment variable "APP_URL" is not set. Please set it to the URL to your Admin API.', $e->getMessage());
+    }
+
+    public function testInvalidShopIdConfiguration(): void
+    {
+        $e = AppException::invalidShopIdConfiguration();
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_INVALID_SHOP_ID_CONFIGURATION', $e->getErrorCode());
+        static::assertSame('The configuration values for "core.app.shopIdV2" and "core.app.shopId" in the system config are invalid.', $e->getMessage());
     }
 }

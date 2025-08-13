@@ -466,4 +466,13 @@ WHERE app.active = 1 AND app.base_app_url is not null');
     {
         return str_replace('_', '-', $bundle->getContainerPrefix());
     }
+
+    private function getShopId(): string
+    {
+        try {
+            return $this->shopIdProvider->getShopId();
+        } catch (AppUrlChangeDetectedException $e) {
+            return $e->getShopId()->id;
+        }
+    }
 }

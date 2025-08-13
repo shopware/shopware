@@ -11,6 +11,9 @@ use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
+use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\ShopId\ShopId;
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
@@ -142,6 +145,48 @@ class InfoControllerTest extends TestCase
         static::assertCount(1, $inAppPurchases);
         static::assertArrayHasKey('SwagApp', $inAppPurchases);
         static::assertSame(['SwagApp_premium'], $inAppPurchases['SwagApp']);
+    }
+
+    public function testReturnsCurrentShopIdIfAppUrlChangeIsDetected(): void
+    {
+        $this->createInstance();
+
+        $this->shopIdProvider
+            ->expects($this->once())
+            ->method('getShopId')
+            ->willThrowException(new AppUrlChangeDetectedException('http://localhost', 'http://globalhost', ShopId::v2('current-shop-id')));
+
+        $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true);
+        static::assertArrayHasKey('shopId', $data);
+        static::assertSame('current-shop-id', $data['shopId']);
+    }
+
+    public function testMessageStatsPreservesFloatingPointPrecision(): void
+    {
+        $this->statsService->method('getStats')->willReturn(
+            new MessageStatsResponseEntity(
+                true,
+                new MessageStatsEntity(1, new \DateTime(), 1.00, new MessageTypeStatsCollection())
+            )
+        );
+        $this->createInstance();
+
+        $response = $this->infoController->messageStats();
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('stats', $data);
+        static::assertArrayHasKey('averageTimeInQueue', $data['stats']);
+
+        // Check that the floating point precision is preserved for zero-padded decimal values
+        static::assertSame(1.00, $data['stats']['averageTimeInQueue']);
     }
 
     private function createInstance(): void

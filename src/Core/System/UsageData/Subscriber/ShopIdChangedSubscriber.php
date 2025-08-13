@@ -51,10 +51,7 @@ class ShopIdChangedSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (
-            $event->newShopId['value'] === $event->oldShopId['value']
-            && $event->newShopId['app_url'] === $event->oldShopId['app_url']
-        ) {
+        if ($event->newShopId->id === $event->oldShopId->id) {
             return;
         }
 

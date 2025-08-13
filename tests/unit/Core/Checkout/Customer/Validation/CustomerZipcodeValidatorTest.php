@@ -36,9 +36,7 @@ class CustomerZipcodeValidatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->constraint = new CustomerZipCode([
-            'countryId' => Uuid::randomHex(),
-        ]);
+        $this->constraint = new CustomerZipCode(countryId: Uuid::randomHex());
 
         $this->countryRepository = $this->createMock(EntityRepository::class);
     }
@@ -60,7 +58,7 @@ class CustomerZipcodeValidatorTest extends TestCase
 
         $validator = new CustomerZipCodeValidator($this->countryRepository);
 
-        $validator->validate(['zipcode' => '1235468'], new CustomerZipCode([]));
+        $validator->validate(['zipcode' => '1235468'], new CustomerZipCode());
     }
 
     public function testInValidZipcodeIsRequired(): void

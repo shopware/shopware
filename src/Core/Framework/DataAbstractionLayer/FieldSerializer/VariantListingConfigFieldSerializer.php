@@ -73,27 +73,27 @@ class VariantListingConfigFieldSerializer extends AbstractFieldSerializer
     protected function getConstraints(Field $field): array
     {
         return [
-            new Collection([
-                'allowExtraFields' => true,
-                'allowMissingFields' => true,
-                'fields' => [
+            new Collection(
+                allowExtraFields: true,
+                allowMissingFields: true,
+                fields: [
                     'displayParent' => [new Type('boolean')],
                     'mainVariantId' => [new Uuid()],
                     'configuratorGroupConfig' => [
                         new Optional(
-                            new Collection([
-                                'allowExtraFields' => true,
-                                'allowMissingFields' => true,
-                                'fields' => [
+                            new Collection(
+                                allowExtraFields: true,
+                                allowMissingFields: true,
+                                fields: [
                                     'id' => [new NotBlank(), new Uuid()],
                                     'representation' => [new NotBlank(), new Type('string')],
                                     'expressionForListings' => [new NotBlank(), new Type('boolean')],
-                                ],
-                            ])
+                                ]
+                            )
                         ),
                     ],
-                ],
-            ]),
+                ]
+            ),
         ];
     }
 }

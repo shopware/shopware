@@ -41,6 +41,8 @@ return [
         preg_quote('ADDED: Parameter visibility was added to Method __construct() of class Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput', '/'),
         preg_quote('ADDED: Parameter versionId was added to Method createIterator() of class Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory', '/'),
         preg_quote('ADDED: Parameter useForSorting was added to Method __construct() of class Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField', '/'),
+        preg_quote('ADDED: Parameter countryId was added to Method __construct() of class Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode', '/'),
+        preg_quote('ADDED: Parameter caseSensitiveCheck was added to Method __construct() of class Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode', '/'),
 
         // Fix to make promotions work with order recalculation
         'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*skipPromotion.*(\n.*)*to array \((\n.*)*pinAutomaticPromotions',

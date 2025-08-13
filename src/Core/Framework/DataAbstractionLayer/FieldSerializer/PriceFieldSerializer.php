@@ -173,42 +173,42 @@ class PriceFieldSerializer extends AbstractFieldSerializer
     protected function getConstraints(Field $field): array
     {
         $constraints = [
-            new Collection([
-                'allowExtraFields' => true,
-                'allowMissingFields' => false,
-                'fields' => [
+            new Collection(
+                allowExtraFields: true,
+                allowMissingFields: false,
+                fields: [
                     'currencyId' => [new NotBlank(), new Uuid()],
                     'gross' => [new NotBlank(), new Type(type: 'numeric')],
                     'net' => [new NotBlank(), new Type(type: 'numeric')],
                     'linked' => [new Type(type: 'boolean')],
                     'listPrice' => [
                         new Optional(
-                            new Collection([
-                                'allowExtraFields' => true,
-                                'allowMissingFields' => false,
-                                'fields' => [
+                            new Collection(
+                                allowExtraFields: true,
+                                allowMissingFields: false,
+                                fields: [
                                     'gross' => [new NotBlank(), new Type(type: 'numeric')],
                                     'net' => [new NotBlank(), new Type('numeric')],
                                     'linked' => [new Type(type: 'boolean')],
-                                ],
-                            ])
+                                ]
+                            )
                         ),
                     ],
                     'regulationPrice' => [
                         new Optional(
-                            new Collection([
-                                'allowExtraFields' => true,
-                                'allowMissingFields' => false,
-                                'fields' => [
+                            new Collection(
+                                allowExtraFields: true,
+                                allowMissingFields: false,
+                                fields: [
                                     'gross' => [new NotBlank(), new Type(type: 'numeric')],
                                     'net' => [new NotBlank(), new Type('numeric')],
                                     'linked' => [new Type(type: 'boolean')],
-                                ],
-                            ])
+                                ]
+                            )
                         ),
                     ],
-                ],
-            ]),
+                ]
+            ),
         ];
 
         return $constraints;

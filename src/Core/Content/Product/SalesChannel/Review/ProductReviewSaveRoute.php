@@ -138,20 +138,20 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         if ($data->get('id')) {
             $criteria->addFilter(new EqualsFilter('id', $data->get('id')));
 
-            $definition->add('id', new EntityExists([
-                'entity' => 'product_review',
-                'context' => $context,
-                'criteria' => $criteria,
-            ]));
+            $definition->add('id', new EntityExists(
+                entity: 'product_review',
+                context: $context,
+                criteria: $criteria,
+            ));
         } else {
             $criteria->addFilter(new EqualsFilter('productId', $data->get('productId')));
 
-            $definition->add('customerId', new EntityNotExists([
-                'entity' => 'product_review',
-                'context' => $context,
-                'criteria' => $criteria,
-                'primaryProperty' => 'customerId',
-            ]));
+            $definition->add('customerId', new EntityNotExists(
+                entity: 'product_review',
+                context: $context,
+                criteria: $criteria,
+                primaryProperty: 'customerId',
+            ));
         }
 
         $this->validator->validate($data->all(), $definition);

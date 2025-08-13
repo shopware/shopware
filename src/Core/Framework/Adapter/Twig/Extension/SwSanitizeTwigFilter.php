@@ -5,11 +5,12 @@ namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
+use Symfony\Contracts\Service\ResetInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
 #[Package('framework')]
-class SwSanitizeTwigFilter extends AbstractExtension
+class SwSanitizeTwigFilter extends AbstractExtension implements ResetInterface
 {
     /**
      * @var array<string, string>
@@ -51,5 +52,10 @@ class SwSanitizeTwigFilter extends AbstractExtension
         $this->cache[$textKey] = $this->sanitizer->sanitize($text, $options, $override);
 
         return $this->cache[$textKey];
+    }
+
+    public function reset(): void
+    {
+        $this->cache = [];
     }
 }

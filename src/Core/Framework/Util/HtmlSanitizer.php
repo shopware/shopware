@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\Util;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('framework')]
-class HtmlSanitizer
+class HtmlSanitizer implements ResetInterface
 {
     /**
      * @var \HTMLPurifier[]
@@ -58,6 +59,11 @@ class HtmlSanitizer
         }
 
         return $this->purifiers[$hash]->purify($text);
+    }
+
+    public function reset(): void
+    {
+        $this->purifiers = [];
     }
 
     private function getBaseConfig(): \HTMLPurifier_Config

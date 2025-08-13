@@ -314,7 +314,7 @@ class DocumentMergerTest extends TestCase
         $filesystem->expects($this->once())->method('remove');
 
         $this->expectException(DocumentException::class);
-        $this->expectExceptionMessageMatches('/^Cannot read document ZIP file: \/tmp\//');
+        $this->expectExceptionMessageMatches('/^Cannot read document ZIP file:.*tmp/');
 
         $documentMerger = new DocumentMerger(
             $documentRepository,

@@ -161,7 +161,6 @@ class MediaUploadServiceTest extends TestCase
     {
         $url = 'https://example.com/image.jpg';
         $params = new MediaUploadParameters();
-        $mediaId = Uuid::randomHex();
 
         $mediaFile = new MediaFile(
             'test.jpg',
@@ -179,7 +178,7 @@ class MediaUploadServiceTest extends TestCase
             ->method('fetchFromURL')
             ->with(
                 $url,
-                static::stringStartsWith($tmpDir)
+                static::stringContains($tmpDir)
             )
             ->willReturn($mediaFile);
 

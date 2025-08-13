@@ -153,12 +153,16 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
      */
     protected function getCachedConstraints(Field $field): array
     {
-        // Don't cache custom field fields as they are created dynamically
-        if ($field->is(CustomField::class)) {
-            return $this->getConstraints($field);
-        }
-
         $key = $field->getPropertyName() . spl_object_id($field);
+
+        if ($field->is(CustomField::class)) {
+            /**
+             * custom fields are generated dynamically, therefore the object id changes
+             * however for custom fields the field definitions do not change
+             * @see CustomFieldsSerializer::getFields()
+             */
+            $key = $field::class;
+        }
 
         if (\array_key_exists($key, $this->cachedConstraints)) {
             return $this->cachedConstraints[$key];

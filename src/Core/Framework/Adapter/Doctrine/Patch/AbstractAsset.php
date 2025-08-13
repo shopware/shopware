@@ -355,13 +355,15 @@ abstract class AbstractAsset
         $futureNamespace = $namespace?->getValue();
 
         if ($this->_name !== $futureName) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6592',
-                'Instead of "%s", this name will be interpreted as "%s" in 5.0',
-                $this->_name,
-                $futureName,
-            );
+            // Mute as this is the format expected in 5.0, not really a deprecation then,
+            // as stated in https://github.com/doctrine/dbal/issues/7030
+            // Deprecation::trigger(
+            //    'doctrine/dbal',
+            //    'https://github.com/doctrine/dbal/pull/6592',
+            //    'Instead of "%s", this name will be interpreted as "%s" in 5.0',
+            //    $this->_name,
+            //    $futureName,
+            // );
         }
 
         if ($this->_namespace === $futureNamespace) {

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
@@ -23,6 +24,10 @@ class Migration1737430168RemoveFileTypeOfDocumentTable extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return;
+        }
+
         $this->dropColumnIfExists($connection, 'document', 'file_type');
     }
 }

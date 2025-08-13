@@ -4,6 +4,9 @@ namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\Event\DeliveryNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
@@ -12,14 +15,19 @@ use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 
@@ -30,6 +38,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 class DeliveryNoteRendererTest extends TestCase
 {
     use DocumentTrait;
+    use SnapshotTesting;
 
     private SalesChannelContext $salesChannelContext;
 
@@ -38,6 +47,11 @@ class DeliveryNoteRendererTest extends TestCase
     private DeliveryNoteRenderer $deliveryNoteRenderer;
 
     private CartService $cartService;
+
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
+    private EntityRepository $productRepository;
 
     protected function setUp(): void
     {
@@ -58,6 +72,58 @@ class DeliveryNoteRendererTest extends TestCase
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
         $this->deliveryNoteRenderer = static::getContainer()->get(DeliveryNoteRenderer::class);
         $this->cartService = static::getContainer()->get(CartService::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+    }
+
+    public function testDocumentSnapshot(): void
+    {
+        $cart = $this->generateDemoCart(1);
+        $orderId = $this->persistCart($cart);
+
+        static::getContainer()->get('order.repository')->update([
+            [
+                'id' => $orderId,
+                'orderDateTime' => '2023-11-24T12:00:00+00:00',
+            ],
+        ], $this->context);
+
+        $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, [
+            'custom' => [
+                'deliveryDate' => '2023-11-24T12:00:00+00:00',
+            ],
+            'itemsPerPage' => 10,
+            'displayHeader' => true,
+            'displayFooter' => true,
+            'displayPrices' => true,
+            'displayPageCount' => true,
+            'displayCompanyAddress' => true,
+            'companyName' => 'Example Company',
+            'documentDate' => '2023-11-24T12:00:00+00:00',
+        ]);
+
+        $processedTemplate = $this->deliveryNoteRenderer->render(
+            [$orderId => $operation],
+            $this->context,
+            new DocumentRendererConfig()
+        );
+
+        $rendered = $processedTemplate->getSuccess()[$orderId];
+        static::assertInstanceOf(RenderedDocument::class, $rendered);
+
+        $content = $rendered->getContent();
+
+        // replace the date in the meta tag to avoid snapshot differences
+        $processedHtml = preg_replace(
+            '/(<meta name="date" content=")(.*?)(")/i',
+            '$1[date]$3',
+            $content
+        );
+        static::assertIsString($processedHtml);
+
+        $this->assertHtmlSnapshot(
+            'delivery_note_renderer_default',
+            $processedHtml
+        );
     }
 
     #[DataProvider('deliveryNoteRendererDataProvider')]
@@ -145,5 +211,42 @@ class DeliveryNoteRendererTest extends TestCase
         );
 
         static::assertNotSame($operationDelivery->getOrderVersionId(), Defaults::LIVE_VERSION);
+    }
+
+    private function generateDemoCart(int $productsCount): Cart
+    {
+        $cart = $this->cartService->createNew('A');
+
+        $products = [];
+
+        $factory = new ProductLineItemFactory(new PriceDefinitionFactory());
+
+        $ids = new IdsCollection();
+
+        $lineItems = [];
+
+        for ($i = 0; $i < $productsCount; ++$i) {
+            $price = 100.0 + $i;
+            $name = 'product ' . $i;
+            $number = 'p' . $i;
+            $tax = 19;
+
+            $product = (new ProductBuilder($ids, $number))
+                ->price($price)
+                ->name($name)
+                ->active(true)
+                ->tax('test-tax', $tax)
+                ->visibility()
+                ->build();
+
+            $products[] = $product;
+
+            $lineItems[] = $factory->create(['id' => $ids->get($number), 'referencedId' => $ids->get($number)], $this->salesChannelContext);
+            $this->addTaxDataToSalesChannel($this->salesChannelContext, $product['tax']);
+        }
+
+        $this->productRepository->create($products, $this->context);
+
+        return $this->cartService->add($cart, $lineItems, $this->salesChannelContext);
     }
 }

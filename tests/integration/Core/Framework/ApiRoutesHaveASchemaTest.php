@@ -157,7 +157,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
         static::assertSame([], array_keys($schemaRoutes), 'The schema contains routes that do not exist');
         // Add missing routes under:
         // src/Core/Framework/Api/ApiDefinition/Generator/Schema/AdminApi/paths
-        $this->assertSnapshot(
+        $this->assertJsonSnapshot(
             'routes_without_schema',
             $missingRoutes,
             'Routes are missing in the schema'

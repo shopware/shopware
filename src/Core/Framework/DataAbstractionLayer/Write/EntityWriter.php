@@ -239,7 +239,7 @@ class EntityWriter implements EntityWriterInterface
 
             foreach ($keys as $key) {
                 if (!\is_array($key)) {
-                    $key = ['id' => $key];
+                    $key = [($affectedDefinition->getPrimaryKeys()->first()?->getPropertyName() ?? 'id') => $key];
                 }
 
                 $primary = EntityHydrator::encodePrimaryKey($affectedDefinition, $key, $writeContext->getContext());
@@ -272,7 +272,7 @@ class EntityWriter implements EntityWriterInterface
 
             foreach ($keys as $key) {
                 if (!\is_array($key)) {
-                    $key = ['id' => $key];
+                    $key = [($affectedDefinition->getPrimaryKeys()->first()?->getPropertyName() ?? 'id') => $key];
                 }
 
                 $primary = EntityHydrator::encodePrimaryKey($affectedDefinition, $key, $writeContext->getContext());
@@ -322,7 +322,7 @@ class EntityWriter implements EntityWriterInterface
             $isEnforced = $flag !== null ? $flag->isEnforcedByConstraint() : true;
 
             foreach ($restrictions as $key) {
-                $payload = ['id' => Uuid::fromHexToBytes($key), $field => null];
+                $payload = [($affectedDefinition->getPrimaryKeys()->first()?->getPropertyName() ?? 'id') => Uuid::fromHexToBytes($key), $field => null];
 
                 $primary = EntityHydrator::encodePrimaryKey($affectedDefinition, ['id' => $key], $writeContext->getContext());
 

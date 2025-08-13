@@ -89,7 +89,7 @@ class AppActionLoaderTest extends TestCase
         static::assertNotNull($action);
 
         $systemConfigService = static::getContainer()->get(SystemConfigService::class);
-        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
+        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, [
             'app_url' => 'https://test.com',
             'value' => Uuid::randomHex(),
         ]);

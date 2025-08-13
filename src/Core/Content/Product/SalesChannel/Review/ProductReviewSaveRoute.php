@@ -124,8 +124,8 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         $definition = new DataValidationDefinition('product.create_rating');
 
         $definition->add('name', new NotBlank());
-        $definition->add('title', new NotBlank(), new Length(['min' => 5]));
-        $definition->add('content', new NotBlank(), new Length(['min' => 40]));
+        $definition->add('title', new NotBlank(), new Length(min: 5));
+        $definition->add('content', new NotBlank(), new Length(min: 40));
 
         $definition->add('points', new GreaterThanOrEqual(1), new LessThanOrEqual(5));
 

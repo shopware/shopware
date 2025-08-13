@@ -106,10 +106,7 @@ class ContactFormRouteTest extends TestCase
             ['firstName' => 'Y http://localhost', 'lastName' => 'Tran http://localhost'],
             [
                 new NotBlank(),
-                new Regex([
-                    'pattern' => ContactFormValidationFactory::DOMAIN_NAME_REGEX,
-                    'match' => false,
-                ]),
+                new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
             ],
         ];
 
@@ -124,10 +121,7 @@ class ContactFormRouteTest extends TestCase
             ['firstName' => 'Y', 'lastName' => 'Tran'],
             [
                 new NotBlank(),
-                new Regex([
-                    'pattern' => ContactFormValidationFactory::DOMAIN_NAME_REGEX,
-                    'match' => false,
-                ]),
+                new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
             ],
         ];
     }

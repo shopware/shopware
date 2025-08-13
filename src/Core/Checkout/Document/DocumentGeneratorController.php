@@ -51,7 +51,7 @@ class DocumentGeneratorController extends AbstractController
             'documents',
             (new DataValidationDefinition())
                 ->add('orderId', new NotBlank())
-                ->add('fileType', new Choice([PdfRenderer::FILE_EXTENSION]))
+                ->add('fileType', new Choice(choices: [PdfRenderer::FILE_EXTENSION]))
                 ->add('config', new Type('array'))
                 ->add('static', new Type('bool'))
                 ->add('referencedDocumentId', new Uuid())

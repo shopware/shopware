@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CustomField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -152,6 +153,11 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
      */
     protected function getCachedConstraints(Field $field): array
     {
+        // Don't cache custom field fields as they are created dynamically
+        if ($field->is(CustomField::class)) {
+            return $this->getConstraints($field);
+        }
+
         $key = $field->getPropertyName() . spl_object_id($field);
 
         if (\array_key_exists($key, $this->cachedConstraints)) {

@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CustomField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
@@ -99,8 +100,12 @@ class CustomFieldsSerializer extends JsonFieldSerializer
     {
         $fields = [];
         foreach ($attributeNames as $attributeName) {
-            $fields[] = $this->attributeService->getCustomField($attributeName)
+            $field = $this->attributeService->getCustomField($attributeName)
                 ?? new JsonField($attributeName, $attributeName);
+
+            $field->addFlags(new CustomField());
+
+            $fields[] = $field;
         }
 
         return $fields;

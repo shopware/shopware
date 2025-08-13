@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -10,6 +11,11 @@ use Twig\TwigFilter;
 #[Package('framework')]
 class SwSanitizeTwigFilter extends AbstractExtension
 {
+    /**
+     * @var array<string, string>
+     */
+    private array $cache = [];
+
     /**
      * @internal
      */
@@ -29,6 +35,21 @@ class SwSanitizeTwigFilter extends AbstractExtension
      */
     public function sanitize(string $text, ?array $options = [], bool $override = false): string
     {
-        return $this->sanitizer->sanitize($text, $options, $override);
+        $options ??= [];
+
+        $hash = Hasher::hash($options);
+
+        if ($override) {
+            $hash .= '-override';
+        }
+
+        $textKey = $hash . Hasher::hash($text);
+        if (isset($this->cache[$textKey])) {
+            return $this->cache[$textKey];
+        }
+
+        $this->cache[$textKey] = $this->sanitizer->sanitize($text, $options, $override);
+
+        return $this->cache[$textKey];
     }
 }

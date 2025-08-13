@@ -17,11 +17,6 @@ class HtmlSanitizer
     private readonly string $cacheDir;
 
     /**
-     * @var array<string, string>
-     */
-    private array $cache = [];
-
-    /**
      * @internal
      *
      * @param array<string, array{name?: string, tags?: list<string>, attributes?: list<string>, options?: array<string, mixed>, custom_attributes?: array<string, array<string, list<string>>>}> $sets
@@ -57,19 +52,12 @@ class HtmlSanitizer
             $hash .= '-override';
         }
 
-        $textKey = $hash . Hasher::hash($text);
-        if (isset($this->cache[$textKey])) {
-            return $this->cache[$textKey];
-        }
-
         if (!isset($this->purifiers[$hash])) {
             $config = $this->getConfig($options, $override, $field);
             $this->purifiers[$hash] = new \HTMLPurifier($config);
         }
 
-        $this->cache[$textKey] = $this->purifiers[$hash]->purify($text);
-
-        return $this->cache[$textKey];
+        return $this->purifiers[$hash]->purify($text);
     }
 
     private function getBaseConfig(): \HTMLPurifier_Config

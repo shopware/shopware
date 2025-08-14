@@ -70,12 +70,15 @@ shopware:
             - 'utm_marketing_tactic'
             - '_gl'
             - 'gclsrc'
+            - 'gPromoCode' # Google Merchant Center
+            - 'gQT' # Google Merchant Center
             - 'gclid'
             - 'srsltid'
             - 'dclid'
             - 'gbraid'
             - 'wbraid'
             - 'gad_source'
+            - 'gad_campaignid'
             - 'fbclid' # Facebook
             - 'fb_action_ids'
             - 'fb_action_types'
@@ -128,6 +131,9 @@ shopware:
             - 'ScCid' # Snapchat
             - 'rtid' # Rokt
             - 'irclickid' # Impact
+            - 'klar_source'
+            - 'klar_cpid'
+            - 'klar_adid'
 
     profiler:
         integrations: []

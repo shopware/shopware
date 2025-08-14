@@ -49,6 +49,16 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
     final public const IMITATING_USER_ID = 'imitatingUserId';
 
     /**
+     * @internal do not rely on this externally, use the rules from the context instead
+     */
+    final public const RULE_IDS = 'sw-rule-ids';
+
+    /**
+     * @internal do not rely on this externally, use the rules from the context instead
+     */
+    final public const AREA_RULE_IDS = 'sw-rule-area-ids';
+
+    /**
      * @internal
      */
     public function __construct(
@@ -117,9 +127,13 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
                 );
 
                 $this->cartService->setCart($result->getCart());
-                $requestSession?->set('sw-rule-ids', $result->getCart()->getRuleIds());
+
+                // the rule loader updates the rules in the context, save them to the session for later reuse
+                $requestSession?->set(self::RULE_IDS, $context->getRuleIds());
+                $requestSession?->set(self::AREA_RULE_IDS, $context->getAreaRuleIds());
             } else {
-                $context->setRuleIds($requestSession?->get('sw-rule-ids') ?? []);
+                $context->setRuleIds($requestSession?->get(self::RULE_IDS) ?? []);
+                $context->setAreaRuleIds($requestSession?->get(self::AREA_RULE_IDS) ?? []);
             }
 
             return $context;

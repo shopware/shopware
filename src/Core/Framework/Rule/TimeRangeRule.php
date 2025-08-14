@@ -43,8 +43,8 @@ class TimeRangeRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'toTime' => [new NotBlank(), new Regex(self::TIME_REGEX)],
-            'fromTime' => [new NotBlank(), new Regex(self::TIME_REGEX)],
+            'toTime' => [new NotBlank(), new Regex(pattern: self::TIME_REGEX)],
+            'fromTime' => [new NotBlank(), new Regex(pattern: self::TIME_REGEX)],
             'timezone' => [new Timezone()],
         ];
     }

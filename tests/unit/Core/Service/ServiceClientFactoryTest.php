@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\ServiceClientFactory;
@@ -139,7 +140,7 @@ class ServiceClientFactoryTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $this->appPayloadServiceHelper->method('buildSource')->willThrowException(new AppUrlChangeDetectedException('App URL changed', 'foo', 'shopid'));
+        $this->appPayloadServiceHelper->method('buildSource')->willThrowException(new AppUrlChangeDetectedException('App URL changed', 'foo', ShopId::v2('shopid')));
 
         $this->expectException(AppUrlChangeDetectedException::class);
         $serviceClientRegistry = static::createMock(ServiceRegistryClient::class);

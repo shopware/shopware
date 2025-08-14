@@ -52,9 +52,9 @@ class CustomerProfileValidationFactory implements DataValidationFactoryInterface
     {
         $definition
             ->add('salutationId', new EntityExists(['entity' => SalutationDefinition::ENTITY_NAME, 'context' => $context->getContext()]))
-            ->add('title', new Length(['max' => CustomerDefinition::MAX_LENGTH_TITLE]))
-            ->add('firstName', new NotBlank(), new Length(['max' => CustomerDefinition::MAX_LENGTH_FIRST_NAME]))
-            ->add('lastName', new NotBlank(), new Length(['max' => CustomerDefinition::MAX_LENGTH_LAST_NAME]))
+            ->add('title', new Length(max: CustomerDefinition::MAX_LENGTH_TITLE))
+            ->add('firstName', new NotBlank(), new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME))
+            ->add('lastName', new NotBlank(), new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME))
             ->add('accountType', new Choice($this->accountTypes));
 
         $salesChannelId = $context->getSalesChannelId();
@@ -62,9 +62,9 @@ class CustomerProfileValidationFactory implements DataValidationFactoryInterface
         if ($this->systemConfigService->get('core.loginRegistration.showBirthdayField', $salesChannelId)
             && $this->systemConfigService->get('core.loginRegistration.birthdayFieldRequired', $salesChannelId)) {
             $definition
-                ->add('birthdayDay', new GreaterThanOrEqual(['value' => 1]), new LessThanOrEqual(['value' => 31]))
-                ->add('birthdayMonth', new GreaterThanOrEqual(['value' => 1]), new LessThanOrEqual(['value' => 12]))
-                ->add('birthdayYear', new GreaterThanOrEqual(['value' => 1900]), new LessThanOrEqual(['value' => date('Y')]));
+                ->add('birthdayDay', new GreaterThanOrEqual(value: 1), new LessThanOrEqual(value: 31))
+                ->add('birthdayMonth', new GreaterThanOrEqual(value: 1), new LessThanOrEqual(value: 12))
+                ->add('birthdayYear', new GreaterThanOrEqual(value: 1900), new LessThanOrEqual(value: date('Y')));
         }
     }
 }

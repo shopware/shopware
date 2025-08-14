@@ -33,6 +33,9 @@ body:
               - Extension:Sales-Agent
               - Extension:Recommendations
               - Extension:Social-Shopping
+              - Extension:3D-Preview-Generator
+              - Extension:Image-Editor
+              - Extension:Copilot
       validations:
           required: true
     - type: textarea

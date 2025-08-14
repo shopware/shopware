@@ -37,7 +37,7 @@
                             {% endif %}
 
                             {% block layout_navigation_categories_recoursion %}
-                                {% if level < navigationMaxDepth and item.children %}
+                                {% if item.children %}
                                     {% sw_include '@Storefront/storefront/layout/sidebar/category-navigation.html.twig' with {
                                         navigationTree: item.children,
                                         level: level + 1

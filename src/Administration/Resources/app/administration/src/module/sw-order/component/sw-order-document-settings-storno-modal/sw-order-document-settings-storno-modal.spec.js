@@ -134,10 +134,6 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show only invoice numbers in invoice number select field', async () => {
         const invoiceSelect = wrapper.find('.mt-select input');
         await invoiceSelect.trigger('click');

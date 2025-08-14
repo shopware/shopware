@@ -15,13 +15,15 @@ use Shopware\Core\Framework\Increment\RedisIncrementer;
 #[Group('redis')]
 class RedisIncrementerTest extends TestCase
 {
+    private string $redisUrl;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        $redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
+        $this->redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
 
-        if ($redisUrl === '') {
+        if ($this->redisUrl === '') {
             static::markTestSkipped('Redis is not available');
         }
     }
@@ -30,10 +32,14 @@ class RedisIncrementerTest extends TestCase
     {
         parent::tearDown();
 
-        $factory = new RedisConnectionFactory();
-        $redisClient = $factory->create((string) EnvironmentHelper::getVariable('REDIS_URL'));
-        static::assertInstanceOf(\Redis::class, $redisClient);
+        // Clear the Redis incrementer storage only if it was set up and not skipped
+        if ($this->redisUrl === '') {
+            return;
+        }
 
+        $factory = new RedisConnectionFactory();
+        $redisClient = $factory->create($this->redisUrl);
+        static::assertInstanceOf(\Redis::class, $redisClient);
         $redisClient->flushAll();
     }
 
@@ -148,7 +154,7 @@ class RedisIncrementerTest extends TestCase
     {
         $factory = new RedisConnectionFactory($prefix);
 
-        $redisClient = $factory->create((string) EnvironmentHelper::getVariable('REDIS_URL'));
+        $redisClient = $factory->create($this->redisUrl);
         static::assertInstanceOf(\Redis::class, $redisClient);
 
         $incrementer = new RedisIncrementer($redisClient);

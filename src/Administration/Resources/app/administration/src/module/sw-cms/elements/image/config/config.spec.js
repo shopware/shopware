@@ -87,12 +87,6 @@ describe('src/module/sw-cms/elements/image/config', () => {
         await setupCmsEnvironment();
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should keep minHeight value when changing display mode', async () => {
         const wrapper = await createWrapper('settings');
 

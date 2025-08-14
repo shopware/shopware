@@ -25,5 +25,15 @@
         :placeholder="$tc('sw-datepicker.time.placeholder')"
     />
     {% endblock %}
+
+    {% block sw_condition_time_range_field_timezone %}
+    <sw-single-select
+        v-model:value="timezone"
+        name="sw-field--timezone"
+        :options="timezoneOptions"
+        :disabled="disabled || undefined"
+        show-clearable-button
+    />
+    {% endblock %}
 </div>
 {% endblock %}

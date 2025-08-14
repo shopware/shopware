@@ -36,10 +36,6 @@ describe('src/app/component/structure/sw-in-app-purchase-checkout', () => {
         wrapper.vm.closeModal();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render the modal when modal data is set', async () => {
         const requestCheckout = {
             featureId: 'Test Feature',

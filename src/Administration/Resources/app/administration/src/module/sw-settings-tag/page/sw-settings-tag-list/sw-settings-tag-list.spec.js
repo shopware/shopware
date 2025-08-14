@@ -82,7 +82,11 @@ async function createWrapper(privileges = []) {
                             return privileges.includes(identifier);
                         },
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                     tagApiService: {
                         filterIds: jest.fn(() => Promise.resolve({ total: 1, ids: ['1'] })),
                     },
@@ -148,13 +152,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to create a new tag', async () => {
         const wrapper = await createWrapper([
             'tag.creator',

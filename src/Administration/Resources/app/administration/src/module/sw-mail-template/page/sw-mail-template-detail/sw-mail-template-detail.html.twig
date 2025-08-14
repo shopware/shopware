@@ -401,6 +401,7 @@
                                 {% block sw_mail_template_available_variables_tree_items_item_actions %}
                                 <template #actions="{ item }">
                                     <mt-icon
+                                        v-if="item.childCount === 0"
                                         v-tooltip="{
                                             message: $tc('sw-mail-template.detail.sidebar.copyTooltip'),
                                             width: 150,

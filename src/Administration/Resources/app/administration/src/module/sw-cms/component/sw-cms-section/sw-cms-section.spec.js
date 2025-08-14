@@ -2,6 +2,7 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
+import ShopwareError from 'src/core/data/ShopwareError';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 
 async function createWrapper() {
@@ -11,7 +12,12 @@ async function createWrapper() {
         }),
         {
             props: {
-                page: {},
+                page: {
+                    id: '1',
+                    getEntityName: () => {
+                        return 'cms_page';
+                    },
+                },
                 section: {
                     visibility: {
                         mobile: true,
@@ -90,14 +96,6 @@ describe('module/sw-cms/component/sw-cms-section', () => {
                 currentCmsDeviceView: 'desktop',
             }),
         });
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-        expect(wrapper.vm.section.backgroundMediaMode).toBe('cover');
-        expect(wrapper.vm.section.backgroundColor).toBe('');
     });
 
     it('should not disable all sub components', async () => {
@@ -205,5 +203,29 @@ describe('module/sw-cms/component/sw-cms-section', () => {
                 type: 'foo-bar',
             },
         });
+    });
+
+    it('should highlight blocks with slot config errors', async () => {
+        Shopware.Store.get('error').addApiError({
+            expression: `cms_page.1.slotConfig`,
+            error: new ShopwareError({
+                code: 'requiredConfigMissing',
+                meta: {
+                    parameters: {
+                        elements: [
+                            {
+                                name: 'foo-bar-slot.missing',
+                                blockId: '1a2b',
+                            },
+                        ],
+                    },
+                },
+            }),
+        });
+
+        const wrapper = await createWrapper();
+
+        const fooBarBlock = wrapper.findComponent('.sw-cms-section__content .sw-cms-block-foo-bar');
+        expect(wrapper.vm.hasSlotConfigErrors(fooBarBlock.props('block'))).toBeTruthy();
     });
 });

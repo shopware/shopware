@@ -124,11 +124,6 @@ async function createWrapper(customData = {}) {
 }
 
 describe('src/module/sw-order/component/sw-order-select-document-type-modal', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should disable storno and credit note if there is no invoice exists', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

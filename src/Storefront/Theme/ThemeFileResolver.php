@@ -32,22 +32,46 @@ class ThemeFileResolver
         bool $onlySourceFiles
     ): array {
         return [
-            self::SCRIPT_FILES => $this->resolve(
+            self::SCRIPT_FILES => $this->resolveScriptFiles(
                 $themeConfig,
                 $configurationCollection,
-                $onlySourceFiles,
-                $this->resolveScriptFiles(...)
+                $onlySourceFiles
             ),
-            self::STYLE_FILES => $this->resolve(
+            self::STYLE_FILES => $this->resolveStyleFiles(
                 $themeConfig,
                 $configurationCollection,
-                $onlySourceFiles,
-                fn (StorefrontPluginConfiguration $configuration) => $configuration->getStyleFiles()
+                $onlySourceFiles
             ),
         ];
     }
 
-    private function resolveScriptFiles(StorefrontPluginConfiguration $configuration, bool $onlySourceFiles): FileCollection
+    public function resolveScriptFiles(
+        StorefrontPluginConfiguration $themeConfig,
+        StorefrontPluginConfigurationCollection $configurationCollection,
+        bool $onlySourceFiles
+    ): FileCollection {
+        return $this->resolve(
+            $themeConfig,
+            $configurationCollection,
+            $onlySourceFiles,
+            $this->collectConfigurationScriptFiles(...)
+        );
+    }
+
+    public function resolveStyleFiles(
+        StorefrontPluginConfiguration $themeConfig,
+        StorefrontPluginConfigurationCollection $configurationCollection,
+        bool $onlySourceFiles
+    ): FileCollection {
+        return $this->resolve(
+            $themeConfig,
+            $configurationCollection,
+            $onlySourceFiles,
+            fn (StorefrontPluginConfiguration $configuration) => $configuration->getStyleFiles()
+        );
+    }
+
+    private function collectConfigurationScriptFiles(StorefrontPluginConfiguration $configuration, bool $onlySourceFiles): FileCollection
     {
         $fileCollection = new FileCollection();
         $scriptFiles = $configuration->getScriptFiles();

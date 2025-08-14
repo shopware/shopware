@@ -141,7 +141,7 @@
 
         <service id="Shopware\Core\Maintenance\Staging\Handler\StagingAppHandler">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
 
             <tag name="kernel.event_listener"/>
         </service>

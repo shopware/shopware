@@ -291,7 +291,7 @@ class PluginLifecycleService
         }
 
         if ($plugin->getActive() && !$shopwareContext->hasState(self::STATE_SKIP_ASSET_BUILDING)) {
-            $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
+            $this->assetInstaller->copyAssets($pluginBaseClass);
         }
 
         $this->runMigrations($updateContext);
@@ -368,7 +368,7 @@ class PluginLifecycleService
         $this->runMigrations($activateContext);
 
         if (!$shopwareContext->hasState(self::STATE_SKIP_ASSET_BUILDING)) {
-            $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
+            $this->assetInstaller->copyAssets($pluginBaseClass);
         }
 
         $this->updatePluginData(

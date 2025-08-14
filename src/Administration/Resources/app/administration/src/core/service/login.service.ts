@@ -371,6 +371,7 @@ export default function createLoginService(
      */
     function logout(isInactivityLogout = false, shouldRedirect = true): boolean {
         if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
+            cookieStorage.removeItem(storageKey, { path: context.basePath });
             cookieStorage.removeItem(storageKey);
         }
 

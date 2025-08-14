@@ -24,6 +24,8 @@ class SnippetException extends HttpException
 
     final public const INVALID_SNIPPET_FILE = 'SYSTEM__INVALID_SNIPPET_FILE';
 
+    final public const JSON_NOT_FOUND = 'SYSTEM__JSON_NOT_FOUND';
+
     final public const SNIPPET_NO_ARGUMENTS_PROVIDED = 'SYSTEM__NO_ARGUMENTS_PROVIDED';
 
     final public const SNIPPET_NO_LOCALES_ARGUMENT_PROVIDED = 'SYSTEM__NO_LOCALES_ARGUMENT_PROVIDED';
@@ -34,9 +36,13 @@ class SnippetException extends HttpException
 
     final public const SNIPPET_TRANSLATION_CONFIGURATION_FILE_DOES_NOT_EXIST = 'SYSTEM__TRANSLATION_CONFIGURATION_FILE_DOES_NOT_EXISTS';
 
+    final public const SNIPPET_TRANSLATION_CONFIGURATION_FILE_IS_EMPTY = 'SYSTEM__TRANSLATION_CONFIGURATION_FILE_DOES_IS_EMPTY';
+
     final public const SNIPPET_CONFIGURED_LOCALE_DOES_NOT_EXIST = 'SYSTEM__PROVIDED_LOCALE_DOES_NOT_EXIST';
 
     final public const SNIPPET_CONFIGURED_LANGUAGE_DOES_NOT_EXIST = 'SYSTEM__LANGUAGE_DOES_NOT_EXISTS';
+
+    final public const SNIPPET_TRANSLATION_CONFIGURATION_INVALID_REPOSITORY_URL = 'SYSTEM__SNIPPET_TRANSLATION_CONFIGURATION_INVALID_REPOSITORY_URL';
 
     public static function invalidFilterName(): self
     {
@@ -98,6 +104,15 @@ class SnippetException extends HttpException
         );
     }
 
+    public static function jsonNotFound(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::JSON_NOT_FOUND,
+            'Snippet JSON file not found. Please check the path and ensure the file exists.'
+        );
+    }
+
     public static function noArgumentsProvided(): self
     {
         return new self(
@@ -141,12 +156,25 @@ class SnippetException extends HttpException
         );
     }
 
-    public static function translationConfigurationFileDoesNotExist(string $file): self
+    public static function translationConfigurationFileDoesNotExist(string $file, ?\Throwable $previous = null): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SNIPPET_TRANSLATION_CONFIGURATION_FILE_DOES_NOT_EXIST,
             'Translation configuration file does not exist: "{{ file }}".',
+            [
+                'file' => $file,
+            ],
+            $previous
+        );
+    }
+
+    public static function translationConfigurationFileIsEmpty(string $file): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SNIPPET_TRANSLATION_CONFIGURATION_FILE_IS_EMPTY,
+            'Translation configuration file exists, but is empty: "{{ file }}".',
             [
                 'file' => $file,
             ]
@@ -174,6 +202,20 @@ class SnippetException extends HttpException
             [
                 'language' => $language,
             ]
+        );
+    }
+
+    public static function invalidRepositoryUrl(string $url, \Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SNIPPET_TRANSLATION_CONFIGURATION_INVALID_REPOSITORY_URL,
+            'The repository URL "{{ url }}" is invalid: {{ message }}',
+            [
+                'url' => $url,
+                'message' => $previous->getMessage(),
+            ],
+            $previous
         );
     }
 }

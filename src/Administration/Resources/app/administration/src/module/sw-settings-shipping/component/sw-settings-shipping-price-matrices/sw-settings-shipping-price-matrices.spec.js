@@ -156,12 +156,6 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         };
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render one shipping price matrix', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

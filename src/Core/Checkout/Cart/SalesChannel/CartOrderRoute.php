@@ -26,15 +26,17 @@ use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
 class CartOrderRoute extends AbstractCartOrderRoute
 {
@@ -72,7 +74,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
             throw CartException::hashMismatch($cart->getToken());
         }
 
-        return $this->cartLocker->locked($cart->getToken(), function () use ($cart, $context, $data) {
+        return $this->cartLocker->locked($context, function () use ($cart, $context, $data) {
             // we use this state in stock updater class, to prevent duplicate available stock updates
             $context->addState('checkout-order-route');
 

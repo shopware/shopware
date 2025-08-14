@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Framework\Cookie;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -12,14 +13,20 @@ class CookieCollectionProvider implements CookieProviderInterface
 {
     public function getCookieGroups(): array
     {
-        $cookieGroups = new CookieGroupCollection();
+        // hint: the store API will only skip NULL values if the CookieGroupCollection is used
+        if (Feature::isActive('v6.8.0.0')) {
+            $cookieGroups = new CookieGroupCollection();
 
-        $cookieGroups->add($this->getCookieGroupRequiredEntries());
-        $cookieGroups->add($this->getCookieGroupStatistical());
-        $cookieGroups->add($this->getCookieGroupComfortFeatures());
-        $cookieGroups->add($this->getCookieGroupMarketing());
+            $cookieGroups->add($this->getCookieGroupRequiredEntries());
+            $cookieGroups->add($this->getCookieGroupStatistical());
+            $cookieGroups->add($this->getCookieGroupComfortFeatures());
+            $cookieGroups->add($this->getCookieGroupMarketing());
 
-        return $cookieGroups->getElements();
+            return $cookieGroups->getElements();
+        }
+
+        // @deprecated tag:v6.8.0 - Will be removed in 6.8.0, replaced by the CookieCollectionProvider
+        return (new CookieProvider())->getCookieGroups();
     }
 
     private function getCookieGroupRequiredEntries(): CookieGroup

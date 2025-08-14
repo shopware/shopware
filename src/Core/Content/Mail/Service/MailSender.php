@@ -51,9 +51,9 @@ class MailSender extends AbstractMailSender
         $disabled = $this->configService->get(self::DISABLE_MAIL_DELIVERY);
 
         if ($disabled) {
-            $receiver = array_map(fn($address) => $address->getAddress(), $email->getTo());
+            $receiver = array_map(fn ($address) => $address->getAddress(), $email->getTo());
 
-            $this->logger->debug(
+            $this->logger->info(
                 'Tried to send mail but delivery is disabled.',
                 [
                     'subject' => $email->getSubject(),

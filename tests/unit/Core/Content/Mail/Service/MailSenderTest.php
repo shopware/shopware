@@ -126,7 +126,7 @@ class MailSenderTest extends TestCase
         $mail = new Email();
 
         $logger->expects($this->once())
-            ->method('debug');
+            ->method('info');
 
         $fileSystem
             ->expects($this->never())

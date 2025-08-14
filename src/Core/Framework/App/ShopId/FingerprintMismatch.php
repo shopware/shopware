@@ -3,17 +3,20 @@
 namespace Shopware\Core\Framework\App\ShopId;
 
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
-class ShopIdChangedEvent extends Event
+readonly class FingerprintMismatch
 {
     public function __construct(
-        public readonly ShopId $newShopId,
-        public readonly ?ShopId $oldShopId
+        public string $identifier,
+        public ?string $storedStamp,
+        public string $expectedStamp,
+        public int $score,
     ) {
     }
 }

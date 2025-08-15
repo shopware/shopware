@@ -5,9 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerialize
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ListFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -17,6 +22,27 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(ListFieldSerializer::class)]
 class ListFieldSerializerTest extends TestCase
 {
+    public function testEncodeThrowsExceptionWithUnsupportedField(): void
+    {
+        $serializer = new ListFieldSerializer(
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(DefinitionInstanceRegistry::class)
+        );
+
+        // ListFieldSerializer only supports ListField, so we create an unsupported field type
+        $field = new IdField('test', 'test');
+
+        $this->expectExceptionObject(DataAbstractionLayerException::invalidSerializerField(ListField::class, $field));
+        iterator_to_array(
+            $serializer->encode(
+                $field,
+                $this->createMock(EntityExistence::class),
+                $this->createMock(KeyValuePair::class),
+                $this->createMock(WriteParameterBag::class)
+            )
+        );
+    }
+
     /**
      * @param array<mixed>|null $expected
      */

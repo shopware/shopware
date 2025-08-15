@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldService;
 
@@ -46,8 +45,7 @@ class CustomFieldsAccessorBuilder extends JsonFieldAccessorBuilder
             '$2$3',
             $accessor
         );
-        $attributeField = $this->customFieldService->getCustomField($attributeName)
-            ?? new JsonField($attributeName, $attributeName);
+        $attributeField = $this->customFieldService->getCustomField($attributeName);
 
         $field->setPropertyMapping([$attributeField]);
 

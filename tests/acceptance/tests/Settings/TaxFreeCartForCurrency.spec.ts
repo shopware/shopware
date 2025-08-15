@@ -24,6 +24,7 @@ test(
     const customer = await TestDataService.createCustomer();
     await TestDataService.assignSalesChannelCurrency(DefaultSalesChannel.salesChannel.id, currency.id);
 
+
     await ShopCustomer.attemptsTo(Login(customer));
 
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));

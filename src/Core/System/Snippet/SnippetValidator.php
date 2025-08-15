@@ -147,7 +147,8 @@ class SnippetValidator implements SnippetValidatorInterface
                 $this->getLocaleFromFileName($fileName),
                 'Shopware',
                 false,
-                ''
+                '',
+                true,
             ));
         }
 

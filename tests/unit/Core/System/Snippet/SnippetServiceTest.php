@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\Snippet;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\Filesystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -267,6 +268,7 @@ class SnippetServiceTest extends TestCase
             $this->createMock(SnippetFilterFactory::class),
             new ExtensionDispatcher(new EventDispatcher()),
             $eventDispatcher ?? new EventDispatcher(),
+            $this->createMock(Filesystem::class),
         );
     }
 }

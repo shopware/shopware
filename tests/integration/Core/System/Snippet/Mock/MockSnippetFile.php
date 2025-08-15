@@ -18,7 +18,8 @@ class MockSnippetFile extends AbstractSnippetFile
         ?string $iso = null,
         string $content = '{}',
         private readonly bool $isBase = true,
-        private readonly string $technicalName = 'mock'
+        private readonly string $technicalName = 'mock',
+        private readonly bool $isLocal = true,
     ) {
         $this->iso = $iso ?? $name;
         file_put_contents($this->getPath(), $content);
@@ -59,5 +60,10 @@ class MockSnippetFile extends AbstractSnippetFile
     public function getTechnicalName(): string
     {
         return $this->technicalName;
+    }
+
+    public function isLocal(): bool
+    {
+        return $this->isLocal;
     }
 }

@@ -1119,6 +1119,7 @@ json
             static::getContainer()->get(SnippetFilterFactory::class),
             static::getContainer()->get(ExtensionDispatcher::class),
             static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('shopware.filesystem.private'),
         );
     }
 

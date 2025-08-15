@@ -13,7 +13,8 @@ class GenericSnippetFile extends AbstractSnippetFile
         private readonly string $iso,
         private readonly string $author,
         private readonly bool $isBase,
-        private string $technicalName
+        private string $technicalName,
+        private readonly bool $isLocal,
     ) {
     }
 
@@ -50,5 +51,10 @@ class GenericSnippetFile extends AbstractSnippetFile
     public function setTechnicalName(string $technicalName): void
     {
         $this->technicalName = $technicalName;
+    }
+
+    public function isLocal(): bool
+    {
+        return $this->isLocal;
     }
 }

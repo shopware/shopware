@@ -144,7 +144,8 @@ class SnippetFileLoaderTest extends TestCase
                 'xx-XX',
                 'test Author',
                 true,
-                'ShopwareBundleWithSnippets'
+                'ShopwareBundleWithSnippets',
+                true,
             ),
             new GenericSnippetFile(
                 'test',
@@ -152,7 +153,8 @@ class SnippetFileLoaderTest extends TestCase
                 'yy-YY',
                 'test Author',
                 true,
-                'ShopwareBundleWithSnippets'
+                'ShopwareBundleWithSnippets',
+                true,
             ),
         ]);
 
@@ -257,7 +259,8 @@ class SnippetFileLoaderTest extends TestCase
             'es-ES',
             'Test Author',
             false,
-            'TestApp'
+            'TestApp',
+            true,
         );
 
         $appSnippetFileLoader = $this->createMock(AppSnippetFileLoader::class);
@@ -382,7 +385,6 @@ class SnippetFileLoaderTest extends TestCase
         $this->createSnippetFixtures($this->filesystem, $loader);
 
         $path = __DIR__ . '/_fixtures/activePlugin';
-        $projectPath = '/Users/FooBar/Project/shopware/files';
 
         $plugin = new TestPlugin(true, $path);
         $plugin->setName('activePlugin');
@@ -406,7 +408,7 @@ class SnippetFileLoaderTest extends TestCase
             new ActiveAppsLoader(
                 $this->createMock(Connection::class),
                 $this->createMock(AppLoader::class),
-                $projectPath
+                '/',
             ),
             $this->config,
             $loader,
@@ -419,8 +421,10 @@ class SnippetFileLoaderTest extends TestCase
         $files = $collection->getElements();
         static::assertContainsOnlyInstancesOf(GenericSnippetFile::class, $files);
 
-        $platformPath = Path::join($projectPath, $loader->getLocalePath('es-ES'), 'Platform');
-        $activePluginPath = Path::join($projectPath, $loader->getLocalePath('es-ES'), 'Plugins', 'activePlugin');
+        $platformPath = Path::join($loader->getLocalePath('es-ES'), 'Platform');
+        $platformPath = mb_ltrim($platformPath, '/\\');
+        $activePluginPath = Path::join($loader->getLocalePath('es-ES'), 'Plugins', 'activePlugin');
+        $activePluginPath = mb_ltrim($activePluginPath, '/\\');
         $actualPaths = array_map(static fn (GenericSnippetFile $file) => $file->getPath(), $files);
 
         $expectedPaths = [

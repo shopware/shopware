@@ -819,7 +819,7 @@ class EntityWriterTest extends TestCase
         );
 
         // Test fetch
-        $fetchedEntityOne = $testEntityOneRepository->search(
+        $testEntityOneRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', 'Some-Technical-Name')),
             $context,
         );

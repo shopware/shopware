@@ -124,7 +124,7 @@ class CookieControllerTest extends TestCase
 
     public function testConsentOffcanvasRouteRendersWithParameters(): void
     {
-        $response = $this->browser->request(
+        $this->browser->request(
             'GET',
             $_SERVER['APP_URL'] . '/cookie/consent-offcanvas?featureName=feature&cookieName=cookieName'
         );

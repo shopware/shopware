@@ -497,18 +497,6 @@ PHP_EOL;
          * The behaviour of the ThemeCompiler will still ad variables with a null value,
          * but SCSS omits property definitions if they reference a variable with null value.
          */
-        $expectedCssOutput = <<<PHP_EOL
-.test-selector-plugin {
-\tbackground: #fff;
-\tcolor: #eee;
-}
-
-.test-selector-app {
-\tbackground: #aaa;
-\tcolor: #eee;
-}
-PHP_EOL;
-
         $expectedCssOutputNoAutoPrefix = <<<PHP_EOL
 .test-selector-plugin {
   background: #fff;

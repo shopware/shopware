@@ -117,11 +117,6 @@ class CustomEntityTest extends TestCase
             }
         }
 
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-
-        $result = $container->get('category.repository')->search($criteria, Context::createDefaultContext());
-
         // ensure that the dal extensions are removed before continue with next test
         $categories = $container->get(Connection::class)->fetchAllAssociative('SELECT LOWER(HEX(id)), `type` FROM category WHERE `type` = :type', ['type' => self::CATEGORY_TYPE]);
         static::assertCount(0, $categories);

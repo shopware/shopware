@@ -124,7 +124,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
         $schemaRoutes = $schema['paths'];
         $missingRoutes = [];
 
-        foreach ($this->routes as $key => $route) {
+        foreach ($this->routes as $route) {
             $path = $route->getPath();
             if (!$this->isAdminApi($path)) {
                 continue;

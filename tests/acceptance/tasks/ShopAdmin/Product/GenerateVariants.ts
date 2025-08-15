@@ -3,31 +3,30 @@ import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
 
 export const GenerateVariants = base.extend<{ GenerateVariants: Task }, FixtureTypes>({
     GenerateVariants: async ({ ShopAdmin, AdminProductDetail }, use) => {
-        const task = (colorGroupName: string, sizeGroupName: string ) => {
+        const task = (colorProperty: string, sizeProperty: string ) => {
             return async function GenerateVariants() {
                 // Navigate to variants tab
                 await AdminProductDetail.variantsTabLink.click();
                 await AdminProductDetail.generateVariantsButton.click();
                 await ShopAdmin.expects(AdminProductDetail.variantsModalHeadline).toBeVisible();
-                await ShopAdmin.expects(AdminProductDetail.propertyGroup(colorGroupName)).toBeVisible();
 
                 // Select color properties
-                await AdminProductDetail.propertyGroup(colorGroupName).click();
+                await AdminProductDetail.propertyName(colorProperty).click();
 
-                await AdminProductDetail.propertyGroupValueCheckbox('Blue').check();
-                await ShopAdmin.expects(AdminProductDetail.propertyGroupValueCheckbox('Blue')).toBeChecked();
+                await AdminProductDetail.propertyValueCheckbox('Blue').check();
+                await ShopAdmin.expects(AdminProductDetail.propertyValueCheckbox('Blue')).toBeChecked();
 
-                await AdminProductDetail.propertyGroupValueCheckbox('Red').check();
-                await ShopAdmin.expects(AdminProductDetail.propertyGroupValueCheckbox('Red')).toBeChecked();
+                await AdminProductDetail.propertyValueCheckbox('Red').check();
+                await ShopAdmin.expects(AdminProductDetail.propertyValueCheckbox('Red')).toBeChecked();
 
                 // Select size properties
-                await AdminProductDetail.propertyGroup(sizeGroupName).click();
+                await AdminProductDetail.propertyName(sizeProperty).click();
 
-                await AdminProductDetail.propertyGroupValueCheckbox('Medium').check();
-                await ShopAdmin.expects(AdminProductDetail.propertyGroupValueCheckbox('Medium')).toBeChecked();
+                await AdminProductDetail.propertyValueCheckbox('Medium').check();
+                await ShopAdmin.expects(AdminProductDetail.propertyValueCheckbox('Medium')).toBeChecked();
 
-                await AdminProductDetail.propertyGroupValueCheckbox('Large').check();
-                await ShopAdmin.expects(AdminProductDetail.propertyGroupValueCheckbox('Large')).toBeChecked();
+                await AdminProductDetail.propertyValueCheckbox('Large').check();
+                await ShopAdmin.expects(AdminProductDetail.propertyValueCheckbox('Large')).toBeChecked();
 
                 // Proceed to generate variants
                 await AdminProductDetail.variantsNextButton.click();

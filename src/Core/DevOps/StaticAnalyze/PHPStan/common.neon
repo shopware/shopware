@@ -70,4 +70,5 @@ rules:
     - Symplify\PHPStanRules\Rules\UppercaseConstantRule
 
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PublicServiceDecoratorRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\UnusedLocalVariableRule
 

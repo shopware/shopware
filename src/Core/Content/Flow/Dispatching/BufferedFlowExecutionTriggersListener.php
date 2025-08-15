@@ -42,7 +42,6 @@ class BufferedFlowExecutionTriggersListener implements EventSubscriberInterface,
 
     public function triggerBufferedFlowExecution(): void
     {
-        xdebug_break();
         $bufferedFlows = $this->flowMessageReceiver->get();
         if (empty($bufferedFlows)) {
             return;
@@ -52,6 +51,7 @@ class BufferedFlowExecutionTriggersListener implements EventSubscriberInterface,
         do {
             foreach ($bufferedFlows as $bufferedFlow) {
                 $flowExecutor->__invoke($bufferedFlow->getMessage());
+                $this->flowMessageReceiver->ack($bufferedFlow);
             }
         } while ($bufferedFlows = $this->flowMessageReceiver->get());
     }

@@ -54,11 +54,6 @@ class BufferedFlowExecutor
         }
     }
 
-    public function getFlowExecutionDepth(): int
-    {
-        return $this->flowExecutionDepth;
-    }
-
     /**
      * @param EventGroupedFlowHolders $eventGroupedFlowHolders
      *

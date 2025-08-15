@@ -382,6 +382,7 @@ class SnippetFileLoaderTest extends TestCase
         $this->createSnippetFixtures($this->filesystem, $loader);
 
         $path = __DIR__ . '/_fixtures/activePlugin';
+        $projectPath = '/Users/FooBar/Project/shopware/files';
 
         $plugin = new TestPlugin(true, $path);
         $plugin->setName('activePlugin');
@@ -405,7 +406,7 @@ class SnippetFileLoaderTest extends TestCase
             new ActiveAppsLoader(
                 $this->createMock(Connection::class),
                 $this->createMock(AppLoader::class),
-                '/'
+                $projectPath
             ),
             $this->config,
             $loader,
@@ -418,10 +419,8 @@ class SnippetFileLoaderTest extends TestCase
         $files = $collection->getElements();
         static::assertContainsOnlyInstancesOf(GenericSnippetFile::class, $files);
 
-        $platformPath = Path::join($loader->getLocalePath('es-ES'), 'Platform');
-        $platformPath = mb_ltrim($platformPath, '/\\');
-        $activePluginPath = Path::join($loader->getLocalePath('es-ES'), 'Plugins', 'activePlugin');
-        $activePluginPath = mb_ltrim($activePluginPath, '/\\');
+        $platformPath = Path::join($projectPath, $loader->getLocalePath('es-ES'), 'Platform');
+        $activePluginPath = Path::join($projectPath, $loader->getLocalePath('es-ES'), 'Plugins', 'activePlugin');
         $actualPaths = array_map(static fn (GenericSnippetFile $file) => $file->getPath(), $files);
 
         $expectedPaths = [

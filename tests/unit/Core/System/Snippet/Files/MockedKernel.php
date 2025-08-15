@@ -25,5 +25,7 @@ class MockedKernel extends Kernel
         if ($pluginLoader) {
             $this->pluginLoader = $pluginLoader;
         }
+
+        $this->projectDir = '/Users/FooBar/Project/shopware';
     }
 }

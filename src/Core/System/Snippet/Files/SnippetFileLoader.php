@@ -94,9 +94,11 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                 $fileName = 'messages.' . $pathComponents['locale'];
             }
 
+            $absolutePath = Path::join($this->kernel->getProjectDir(), 'files', $fileInfo->getPathname());
+
             $snippetFile = new GenericSnippetFile(
-                $fileName ?? $fileInfo->getFilename(),
-                $fileInfo->getPathname(),
+                $fileName,
+                $absolutePath,
                 $pathComponents['locale'],
                 'Shopware',
                 $isBase,

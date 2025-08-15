@@ -4,8 +4,10 @@ namespace Shopware\Core\Content\ProductExport\Service;
 
 use Doctrine\DBAL\Connection;
 use Monolog\Level;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportProductCriteriaEvent;
@@ -59,7 +61,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         Environment $twig,
         private readonly ProductDefinition $productDefinition,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
-        TwigVariableParserFactory $parserFactory
+        TwigVariableParserFactory $parserFactory,
+        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder
     ) {
         $this->twigVariableParser = $parserFactory->getParser($twig);
     }
@@ -105,6 +108,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         );
 
         $associations = $this->getAssociations($productExport, $context);
+        $needsSeoCategory = $this->detectSeoCategory($productExport, $context);
 
         $criteria = new Criteria();
         $criteria
@@ -159,6 +163,11 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         while ($productResult = $iterator->fetch()) {
             foreach ($productResult->getEntities() as $product) {
                 $data = $productContext->getContext();
+                if ($needsSeoCategory && $product instanceof SalesChannelProductEntity) {
+                    $product->setSeoCategory(
+                        $this->breadcrumbBuilder->getProductSeoCategory($product, $context)
+                    );
+                }
                 $data['product'] = $product;
 
                 if ($productExport->isIncludeVariants() && !$product->getParentId() && $product->getChildCount() > 0) {
@@ -226,5 +235,28 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         }
 
         return array_filter(array_unique($associations));
+    }
+
+    private function detectSeoCategory(ProductExportEntity $productExport, SalesChannelContext $context): bool
+    {
+        try {
+            $variables = $this->twigVariableParser->parse((string) $productExport->getBodyTemplate());
+        } catch (\Exception $e) {
+            $e = ProductExportException::renderProductException($e->getMessage());
+
+            $loggingEvent = new ProductExportLoggingEvent($context->getContext(), $e->getMessage(), Level::Warning, $e);
+
+            $this->eventDispatcher->dispatch($loggingEvent);
+
+            throw $e;
+        }
+
+        foreach ($variables as $variable) {
+            if (\is_string($variable) && str_contains($variable, 'product.seoCategory')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

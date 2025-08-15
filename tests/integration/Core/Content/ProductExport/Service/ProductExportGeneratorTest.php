@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\ProductExport\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
@@ -139,7 +140,8 @@ class ProductExportGeneratorTest extends TestCase
             static::getContainer()->get('twig'),
             static::getContainer()->get(ProductDefinition::class),
             static::getContainer()->get(LanguageLocaleCodeProvider::class),
-            static::getContainer()->get(TwigVariableParserFactory::class)
+            static::getContainer()->get(TwigVariableParserFactory::class),
+            static::getContainer()->get(CategoryBreadcrumbBuilder::class)
         );
 
         $exportGenerator->generate($productExport, $exportBehavior);
@@ -206,7 +208,8 @@ class ProductExportGeneratorTest extends TestCase
             static::getContainer()->get('twig'),
             static::getContainer()->get(ProductDefinition::class),
             static::getContainer()->get(LanguageLocaleCodeProvider::class),
-            static::getContainer()->get(TwigVariableParserFactory::class)
+            static::getContainer()->get(TwigVariableParserFactory::class),
+            static::getContainer()->get(CategoryBreadcrumbBuilder::class)
         );
 
         try {
@@ -280,6 +283,97 @@ class ProductExportGeneratorTest extends TestCase
         yield 'Euro iso code' => ['EUR'];
         yield 'US dollar iso code' => ['USD'];
         yield 'British pound iso code' => ['GBP'];
+    }
+
+    public function testExportExposesSeoCategoryWhenReferenced(): void
+    {
+        $domain = $this->getSalesChannelDomain();
+        $salesChannelId = $domain->getSalesChannelId();
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepo */
+        $salesChannelRepo = static::getContainer()->get('sales_channel.repository');
+        $sc = $salesChannelRepo->search(new Criteria([$salesChannelId]), $this->context)->first();
+        static::assertInstanceOf(SalesChannelEntity::class, $sc);
+        $navigationCategoryId = $sc->getNavigationCategoryId();
+        static::assertIsString($navigationCategoryId);
+
+        $categoryId = Uuid::randomHex();
+        $categoryName = 'export-seo-cat';
+        static::getContainer()->get('category.repository')->create([
+            [
+                'id' => $categoryId,
+                'name' => $categoryName,
+                'active' => true,
+                'parentId' => $navigationCategoryId,
+            ],
+        ], $this->context);
+
+        $productId = Uuid::randomHex();
+        static::getContainer()->get('product.repository')->create([
+            [
+                'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'active' => true,
+                'name' => 'SEO Category Product',
+                'price' => [[
+                    'currencyId' => Defaults::CURRENCY,
+                    'gross' => 10,
+                    'net' => 9,
+                    'linked' => false,
+                ]],
+                'manufacturer' => ['name' => 'test-manufacturer'],
+                'tax' => ['name' => 'test-tax', 'taxRate' => 19],
+                'visibilities' => [[
+                    'salesChannelId' => $salesChannelId,
+                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                ]],
+                'categories' => [['id' => $categoryId]],
+            ],
+        ], $this->context);
+
+        $streamId = Uuid::randomHex();
+        $filterPayload = json_encode([
+            [
+                'type' => 'equalsAny',
+                'field' => 'product.id',
+                'value' => $productId,
+            ],
+        ], \JSON_THROW_ON_ERROR);
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`) VALUES (UNHEX(:id), :apiFilter, 0, NOW(3), NULL)',
+            [
+                'id' => $streamId,
+                'apiFilter' => $filterPayload,
+            ]
+        );
+
+        $productExportId = Uuid::randomHex();
+        $this->repository->upsert([
+            [
+                'id' => $productExportId,
+                'fileName' => 'SeoCategoryExport.csv',
+                'accessKey' => Uuid::randomHex(),
+                'encoding' => ProductExportEntity::ENCODING_UTF8,
+                'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
+                'interval' => 0,
+                'headerTemplate' => 'category',
+                'bodyTemplate' => '{{ product.seoCategory.name }}',
+                'productStreamId' => $streamId,
+                'storefrontSalesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
+                'salesChannelId' => $this->getSalesChannelId(),
+                'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+                'generateByCronjob' => false,
+                'currencyId' => Defaults::CURRENCY,
+            ],
+        ], $this->context);
+
+        $criteria = $this->createProductExportCriteria($productExportId);
+        $productExport = $this->repository->search($criteria, $this->context)->first();
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
+
+        $exportResult = $this->service->generate($productExport, new ExportBehavior());
+        static::assertInstanceOf(ProductExportResult::class, $exportResult);
+        static::assertStringContainsString($categoryName, $exportResult->getContent());
     }
 
     private function createProductExportCriteria(string $id): Criteria

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
@@ -66,6 +67,8 @@ class ProductExportGeneratorTest extends TestCase
 
     private MockObject&TwigVariableParserFactory $parserFactory;
 
+    private MockObject&CategoryBreadcrumbBuilder $breadcrumbBuilder;
+
     protected function setUp(): void
     {
         $this->productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
@@ -82,6 +85,7 @@ class ProductExportGeneratorTest extends TestCase
         $this->productDefinition = new ProductDefinition();
         $this->languageLocaleProvider = $this->createMock(LanguageLocaleCodeProvider::class);
         $this->parserFactory = $this->createMock(TwigVariableParserFactory::class);
+        $this->breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
     }
 
     public function testGenerateWithInvalidProductExportId(): void
@@ -107,7 +111,8 @@ class ProductExportGeneratorTest extends TestCase
             $this->twig,
             $this->productDefinition,
             $this->languageLocaleProvider,
-            $this->parserFactory
+            $this->parserFactory,
+            $this->breadcrumbBuilder
         );
 
         static::expectException(ProductExportException::class);
@@ -146,7 +151,8 @@ class ProductExportGeneratorTest extends TestCase
             $this->twig,
             $this->productDefinition,
             $this->languageLocaleProvider,
-            $this->parserFactory
+            $this->parserFactory,
+            $this->breadcrumbBuilder
         );
 
         static::expectException(ProductExportException::class);

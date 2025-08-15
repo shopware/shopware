@@ -85,7 +85,7 @@ class ListFieldSerializer extends AbstractFieldSerializer
                 $kvPair = new KeyValuePair((string) $i, $value, true);
 
                 $x = $listField->getSerializer()->encode($listField, $existence, $kvPair, $nestedParameters);
-                $_x = iterator_to_array($x);
+                iterator_to_array($x);
             } catch (WriteFieldException $exception) {
                 $parameters->getContext()->getExceptions()->add($exception);
             }

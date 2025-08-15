@@ -61,6 +61,16 @@
                         {% set ariaLiveText = 'listing.filterPanelAriaLive'|trans({'%count%': searchResult.total})|sw_sanitize %}
                     {% endif %}
 
+                    <!-- Fix for flash of unstyled content in web components -->
+                    <style>
+                        sw-product-card {
+                            transition: opacity 0.5s ease-out;
+                        }
+                        sw-product-card:not(:defined) {
+                            opacity: 0;
+                        }
+                    </style>
+
                     <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="{{- ariaLiveText -}}"{% if searchResult.total > 0 %} role="list"{% endif %}>
                         {% if searchResult.total > 0 %}
                             {% block element_product_listing_col %}
@@ -69,6 +79,27 @@
                                         {% block element_product_listing_box %}
                                             {% if feature('STOREFRONT_COMPONENTS') %}
                                                 <twig:product-card:product-card :product="product" />
+                                            {% elseif feature('STOREFRONT_WEB_COMPONENTS') %}
+                                                {% set isAvailable = not product.isCloseout or (product.stock >= product.minPurchase) %}
+                                                {% set displayFrom = product.calculatedPrices.count > 1 %}
+                                                {% set displayBuyButton = isAvailable and not displayFrom and product.childCount <= 0 %}
+
+                                                <sw-product-card
+                                                    product-name="{{ product.translated.name }}"
+                                                    detail-route="{{ seoUrl('frontend.detail.page', { productId: product.id }) }}"
+                                                    product-price="{{ product.calculatedCheapestPrice.unitPrice|currency }}"
+                                                    show-tax-info="true"
+                                                    tax-route="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
+                                                    display-buy-button="{{ displayBuyButton and config('core.listing.allowBuyInListing') }}"
+                                                >
+                                                    <img
+                                                        src="{{ product.cover.media.url }}"
+                                                        alt="{{ product.cover.media.translated.alt }}"
+                                                        class="card-img-top object-fit-cover"
+                                                        height="240"
+                                                        slot="image"
+                                                    >
+                                                </sw-product-card>
                                             {% else %}
                                                 {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
                                                     layout: boxLayout,

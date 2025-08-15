@@ -51,3 +51,8 @@ shopware:
         major: true
         toggleable: true
         description: "Enable new Storefront component system."
+      - name: STOREFRONT_WEB_COMPONENTS
+        default: false
+        major: true
+        toggleable: true
+        description: "Enable new Storefront web component system."

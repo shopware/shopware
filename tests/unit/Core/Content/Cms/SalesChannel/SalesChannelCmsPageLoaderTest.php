@@ -104,12 +104,12 @@ class SalesChannelCmsPageLoaderTest extends TestCase
         $config = $slot->getConfig();
         static::assertIsArray($config);
         static::assertSame([
-            "translated" => "original value",
-            "key" => [
-                "value" => [
-                    "value-4",
+            'translated' => 'original value',
+            'key' => [
+                'value' => [
+                    'value-4',
                 ],
-                "source" => "static",
+                'source' => 'static',
             ],
         ], $config);
     }
@@ -203,14 +203,14 @@ class SalesChannelCmsPageLoaderTest extends TestCase
                                     'slot' => 'content',
                                     'type' => 'foo',
                                     'config' => [
-                                        "translated" => "original value",
-                                        "key" => [
-                                            "value" => [
-                                                "value-1",
-                                                "value-2",
-                                                "value-3",
+                                        'translated' => 'original value',
+                                        'key' => [
+                                            'value' => [
+                                                'value-1',
+                                                'value-2',
+                                                'value-3',
                                             ],
-                                            "source" => "static",
+                                            'source' => 'static',
                                         ],
                                     ],
                                 ]),

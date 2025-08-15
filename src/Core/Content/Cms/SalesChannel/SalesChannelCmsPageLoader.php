@@ -209,7 +209,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
     private function overrideArray(array $original, array $override): array
     {
         foreach ($override as $key => $value) {
-            if (array_key_exists($key, $original) && is_array($original[$key]) && is_array($value)) {
+            if (\array_key_exists($key, $original) && \is_array($original[$key]) && \is_array($value)) {
                 if ($this->isAssoc($original[$key]) && $this->isAssoc($value)) {
                     $original[$key] = $this->overrideArray($original[$key], $value);
                     continue;
@@ -227,7 +227,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
     }
 
     /**
-     * Determines if an array is associative (has string keys) 
+     * Determines if an array is associative (has string keys)
      * or indexed (sequential numeric keys).
      */
     private function isAssoc(array $arr): bool
@@ -236,6 +236,6 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
             return false;
         }
 
-        return array_keys($arr) !== range(0, count($arr) - 1);
+        return array_keys($arr) !== range(0, \count($arr) - 1);
     }
 }

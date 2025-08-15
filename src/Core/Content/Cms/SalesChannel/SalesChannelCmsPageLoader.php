@@ -134,10 +134,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
             }
 
             $defaultConfig = $slot->getConfig() ?? [];
-            $merged = array_replace_recursive(
-                $defaultConfig,
-                $config[$slot->getId()]
-            );
+            $merged = $this->overrideArray($defaultConfig, $config[$slot->getId()]);
 
             $slot->setConfig($merged);
             $slot->addTranslated('config', $merged);
@@ -203,5 +200,42 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
             ...array_map(EntityCacheKeyGenerator::buildStreamTag(...), $streamIds),
             ...array_map(EntityCacheKeyGenerator::buildCmsTag(...), $pages->getIds()),
         ];
+    }
+
+    /**
+     * Recursively merges two arrays, with values from the override array taking precedence.
+     * For associative arrays, merges recursively. For indexed arrays, replaces completely.
+     */
+    private function overrideArray(array $original, array $override): array
+    {
+        foreach ($override as $key => $value) {
+            if (array_key_exists($key, $original) && is_array($original[$key]) && is_array($value)) {
+                if ($this->isAssoc($original[$key]) && $this->isAssoc($value)) {
+                    $original[$key] = $this->overrideArray($original[$key], $value);
+                    continue;
+                }
+                // For indexed arrays, replace entirely
+                $original[$key] = $value;
+                continue;
+            }
+
+            // Simple value override
+            $original[$key] = $value;
+        }
+
+        return $original;
+    }
+
+    /**
+     * Determines if an array is associative (has string keys) 
+     * or indexed (sequential numeric keys).
+     */
+    private function isAssoc(array $arr): bool
+    {
+        if ($arr === []) {
+            return false;
+        }
+
+        return array_keys($arr) !== range(0, count($arr) - 1);
     }
 }

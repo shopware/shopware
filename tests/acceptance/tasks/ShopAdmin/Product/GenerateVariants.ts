@@ -3,7 +3,7 @@ import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
 
 export const GenerateVariants = base.extend<{ GenerateVariants: Task }, FixtureTypes>({
     GenerateVariants: async ({ ShopAdmin, AdminProductDetail }, use) => {
-        const task = (colorProperty: string, sizeProperty: string ) => {
+        const task = (colorProperty: string, sizeProperty: string) => {
             return async function GenerateVariants() {
                 // Navigate to variants tab
                 await AdminProductDetail.variantsTabLink.click();

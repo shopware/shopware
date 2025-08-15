@@ -7,6 +7,7 @@ namespace Shopware\Core\Content\Flow\Dispatching;
 use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\StoppableEventInterface;
+use Shopware\Core\Content\Flow\Dispatching\Message\FlowMessage;
 use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowEventAware;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
 
 /**
@@ -54,7 +56,10 @@ class FlowDispatcher implements EventDispatcherInterface, ServiceSubscriberInter
         }
 
         if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS')) {
-            $this->container->get(BufferedFlowQueue::class)->queueFlow($event);
+            $this->container->get(MessageBusInterface::class)->dispatch(new FlowMessage(
+                $event,
+                $this->container->get(FlowExecutionDepthProvider::class)->getFlowExecutionDepth() + 1,
+            ));
 
             return $event;
         }
@@ -117,7 +122,8 @@ class FlowDispatcher implements EventDispatcherInterface, ServiceSubscriberInter
             FlowFactory::class,
             FlowExecutor::class,
             FlowLoader::class,
-            BufferedFlowQueue::class,
+            MessageBusInterface::class,
+            FlowExecutionDepthProvider::class,
         ];
     }
 

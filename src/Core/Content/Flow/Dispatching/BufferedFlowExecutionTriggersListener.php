@@ -9,6 +9,7 @@ use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
+use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
 
 /**
@@ -21,7 +22,7 @@ class BufferedFlowExecutionTriggersListener implements EventSubscriberInterface,
 {
     public function __construct(
         private readonly ContainerInterface $container,
-        private readonly BufferedFlowQueue $bufferedFlowQueue,
+        private readonly ReceiverInterface $flowMessageReceiver,
     ) {
     }
 
@@ -41,11 +42,18 @@ class BufferedFlowExecutionTriggersListener implements EventSubscriberInterface,
 
     public function triggerBufferedFlowExecution(): void
     {
-        if ($this->bufferedFlowQueue->isEmpty()) {
+        xdebug_break();
+        $bufferedFlows = $this->flowMessageReceiver->get();
+        if (empty($bufferedFlows)) {
             return;
         }
 
-        $this->container->get(BufferedFlowExecutor::class)->executeBufferedFlows();
+        $flowExecutor = $this->container->get(BufferedFlowExecutor::class);
+        do {
+            foreach ($bufferedFlows as $bufferedFlow) {
+                $flowExecutor->__invoke($bufferedFlow->getMessage());
+            }
+        } while ($bufferedFlows = $this->flowMessageReceiver->get());
     }
 
     /**
@@ -53,8 +61,6 @@ class BufferedFlowExecutionTriggersListener implements EventSubscriberInterface,
      */
     public static function getSubscribedServices(): array
     {
-        return [
-            BufferedFlowExecutor::class,
-        ];
+        return [BufferedFlowExecutor::class];
     }
 }

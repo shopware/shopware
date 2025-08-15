@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\LockExtension;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionRedemptionLocker;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\Lock\LockFactory;
@@ -95,6 +96,34 @@ class PromotionRedemptionLockerTest extends TestCase
         static::assertNotNull($lockExtension);
 
         static::assertSame([$firstLineItem->getPayloadValue('code') => $lock], $lockExtension->getLocks());
+    }
+
+    public function testAcquireLockWithValidPromotionItemFails(): void
+    {
+        $lockFactory = $this->createMock(LockFactory::class);
+        $lock = $this->createMock(SharedLockInterface::class);
+        $lock->expects($this->once())
+            ->method('acquire')
+            ->with(true)
+            ->willReturn(false);
+
+        $lockFactory->expects($this->once())
+            ->method('createLock')
+            ->with('promotion-promotion-code', 5.0, true)
+            ->willReturn($lock);
+
+        $locker = new PromotionRedemptionLocker($lockFactory);
+
+        $cart = new Cart('test');
+        $lineItem = new LineItem('id', PromotionProcessor::LINE_ITEM_TYPE);
+        $lineItem->setPayloadValue('code', 'promotion-code');
+        $lineItem->setPayloadValue('limitedRedemptions', true);
+        $cart->add($lineItem);
+        $extension = new CheckoutPlaceOrderExtension($cart, Generator::generateSalesChannelContext(), new RequestDataBag());
+
+        $this->expectException(PromotionException::class);
+        $this->expectExceptionMessage('Promotion promotion-code is locked due to concurrent write operation. Please try again later.');
+        $locker->acquireLocks($extension);
     }
 
     public function testAcquireLockWithUnlimitedPromotionItem(): void

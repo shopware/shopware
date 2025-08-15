@@ -645,6 +645,8 @@ frame-ancestors 'none';
             <argument>%shopware.html_sanitizer.sets%</argument>
             <argument>%shopware.html_sanitizer.fields%</argument>
             <argument>%shopware.html_sanitizer.enabled%</argument>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler" decorates="monolog.handler.main" decoration-on-invalid="ignore">

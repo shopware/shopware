@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class TemplateStateService
 {
+    /**
+     * @param EntityRepository<TemplateCollection> $templateRepo
+     */
     public function __construct(
         private readonly EntityRepository $templateRepo,
         private readonly CacheClearer $cacheClearer,

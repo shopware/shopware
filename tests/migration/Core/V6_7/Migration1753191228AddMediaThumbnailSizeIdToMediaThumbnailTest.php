@@ -32,6 +32,23 @@ class Migration1753191228AddMediaThumbnailSizeIdToMediaThumbnailTest extends Tes
         $columns = $manager->listTableColumns('media_thumbnail');
 
         static::assertArrayHasKey('media_thumbnail_size_id', $columns);
+        static::assertFalse($columns['media_thumbnail_size_id']->getNotnull());
+    }
+
+    public function testDestructiveMigration(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $this->revertDestructiveMigration($connection);
+
+        $migration = new Migration1753191228AddMediaThumbnailSizeIdToMediaThumbnail();
+        $migration->updateDestructive($connection);
+        $migration->updateDestructive($connection);
+
+        $manager = $connection->createSchemaManager();
+        $columns = $manager->listTableColumns('media_thumbnail');
+
+        static::assertArrayHasKey('media_thumbnail_size_id', $columns);
         static::assertTrue($columns['media_thumbnail_size_id']->getNotnull());
     }
 
@@ -42,7 +59,35 @@ class Migration1753191228AddMediaThumbnailSizeIdToMediaThumbnailTest extends Tes
 
     private function revertMigration(Connection $connection): void
     {
-        $connection->executeStatement('ALTER TABLE `media_thumbnail` DROP FOREIGN KEY `fk.media_thumbnail.media_thumbnail_size_id`');
-        $connection->executeStatement('ALTER TABLE `media_thumbnail` DROP COLUMN `media_thumbnail_size_id`');
+        if ($this->columnExists($connection, 'media_thumbnail', 'media_thumbnail_size_id')) {
+            $connection->executeStatement('ALTER TABLE `media_thumbnail` DROP FOREIGN KEY `fk.media_thumbnail.media_thumbnail_size_id`');
+            $connection->executeStatement('ALTER TABLE `media_thumbnail` DROP COLUMN `media_thumbnail_size_id`');
+        }
+    }
+
+    private function revertDestructiveMigration(Connection $connection): void
+    {
+        if ($this->columnExists($connection, 'media_thumbnail', 'media_thumbnail_size_id')) {
+            $connection->executeStatement('ALTER TABLE `media_thumbnail` DROP FOREIGN KEY `fk.media_thumbnail.media_thumbnail_size_id`');
+        }
+        $connection->executeStatement('
+            ALTER TABLE `media_thumbnail`
+            MODIFY COLUMN `media_thumbnail_size_id` BINARY(16) NULL
+        ');
+        $connection->executeStatement('
+            ALTER TABLE `media_thumbnail`
+            ADD CONSTRAINT `fk.media_thumbnail.media_thumbnail_size_id`
+            FOREIGN KEY (`media_thumbnail_size_id`)
+            REFERENCES `media_thumbnail_size` (`id`)
+            ON DELETE SET NULL ON UPDATE CASCADE
+        ');
+    }
+
+    private function columnExists(Connection $connection, string $table, string $column): bool
+    {
+        return \array_key_exists(
+            strtolower($column),
+            $connection->createSchemaManager()->listTableColumns($table)
+        );
     }
 }

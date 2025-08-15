@@ -61,6 +61,13 @@
         "title": "Zahlungsaufforderung",
         "text": "Möchtest du den Kunden auffordern die Bestellung per \"{paymentMethodName}\" zu bezahlen?",
         "primaryAction": "Auffordern"
+      },
+      "saveError": {
+        "noCustomer": "Kein Kunde ausgewählt.",
+        "noCart": "Kein Warenkorb vorhanden.",
+        "noLineItems": "Die Bestellung hat keine Positionen.",
+        "invalidPromotionCodes": "Kein gültiger Aktionscode vorhanden.",
+        "noTransactionReturned": "Keine Zahlungsart vorhanden."
       }
     },
     "createBase": {

@@ -15,6 +15,8 @@ class MessageQueueException extends HttpException
     public const CANNOT_FIND_SCHEDULED_TASK = 'FRAMEWORK__CANNOT_FIND_SCHEDULED_TASK';
     public const QUEUE_MESSAGE_SIZE_EXCEEDS = 'FRAMEWORK__QUEUE_MESSAGE_SIZE_EXCEEDS';
     public const QUEUE_STATS_NOT_FOUND = 'FRAMEWORK__QUEUE_STATS_NOT_FOUND';
+    public const MISSING_EXTENDS_CODE = 'FRAMEWORK__SCHEDULED_TASK_MISSING_EXTENDS';
+    public const NOT_FOUND_CODE = 'FRAMEWORK__SCHEDULED_TASK_NOT_FOUND';
 
     public static function validReceiverNameNotProvided(): self
     {
@@ -67,6 +69,26 @@ class MessageQueueException extends HttpException
                 'message' => $messageName,
                 'size' => $size,
             ]
+        );
+    }
+
+    public static function missingExtends(string $class): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MISSING_EXTENDS_CODE,
+            'Tried to register "{{ class }}" as scheduled task, but class does not extend ScheduledTask',
+            ['class' => $class]
+        );
+    }
+
+    public static function notFound(string $name): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::NOT_FOUND_CODE,
+            'Tried to fetch "{{ name }}" scheduled task, but scheduled task does not exist',
+            ['name' => $name]
         );
     }
 }

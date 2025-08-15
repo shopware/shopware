@@ -2,17 +2,19 @@
 
 namespace Shopware\Core\Framework\Rule\Container;
 
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @final
  *
- * MatchAllLineItemsRule returns true, if all rules are true for all line items
+ * MatchAllLineItemsRule returns true if all rules are true for all line items
  */
 #[Package('fundamentals@after-sales')]
 class MatchAllLineItemsRule extends Container
@@ -21,11 +23,14 @@ class MatchAllLineItemsRule extends Container
 
     /**
      * @internal
+     *
+     * @param list<Rule> $rules
+     * @param list<string> $types
      */
     public function __construct(
         array $rules = [],
         protected ?int $minimumShouldMatch = null,
-        protected ?string $type = null
+        protected ?array $types = []
     ) {
         parent::__construct($rules);
     }
@@ -36,17 +41,17 @@ class MatchAllLineItemsRule extends Container
             return false;
         }
 
-        $lineItems = $scope instanceof LineItemScope ? new LineItemCollection([$scope->getLineItem()]) : $scope->getCart()->getLineItems();
+        $lineItems = $scope instanceof LineItemScope
+            ? new LineItemCollection([$scope->getLineItem()])
+            : $scope->getCart()->getLineItems();
 
-        if ($this->type !== null) {
-            $lineItems = $lineItems->filterFlatByType($this->type);
-        }
-
-        if (\is_array($lineItems) && \count($lineItems) === 0) {
+        if ($lineItems->count() === 0) {
             return false;
         }
 
-        if (!\is_array($lineItems) && $lineItems->count() === 0) {
+        $flatItems = $this->filterAndFlatten($lineItems);
+
+        if (\count($flatItems) === 0) {
             return false;
         }
 
@@ -55,7 +60,7 @@ class MatchAllLineItemsRule extends Container
         foreach ($this->rules as $rule) {
             $matched = 0;
 
-            foreach ($lineItems as $lineItem) {
+            foreach ($flatItems as $lineItem) {
                 $scope = new LineItemScope($lineItem, $context);
                 $match = $rule->match($scope);
 
@@ -81,8 +86,25 @@ class MatchAllLineItemsRule extends Container
         $rules = parent::getConstraints();
 
         $rules['minimumShouldMatch'] = [new Type('int')];
-        $rules['type'] = [new Type('string')];
+        $rules['types'] = [new Type('array')];
 
         return $rules;
+    }
+
+    /**
+     * @return array<LineItem>
+     */
+    private function filterAndFlatten(LineItemCollection $collection): array
+    {
+        $flat = $collection->getFlat();
+
+        if (empty($this->types)) {
+            return $flat;
+        }
+
+        return array_values(array_filter(
+            $flat,
+            fn (LineItem $lineItem) => \in_array($lineItem->getType(), $this->types, true)
+        ));
     }
 }

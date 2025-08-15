@@ -68,7 +68,7 @@ class EntityHydrator
     }
 
     /**
-     * @template TEntityCollection of EntityCollection<Entity>
+     * @template TEntityCollection of EntityCollection
      *
      * @param TEntityCollection $collection
      * @param array<mixed> $rows

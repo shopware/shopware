@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -16,13 +15,12 @@ use Twig\Cache\FilesystemCache;
 /**
  * @internal only for use by the app-system
  *
- * @phpstan-type ScriptInfo = array{app_id: ?string, scriptName: string, script: string, hook: string, appName: ?string, integrationId: ?string, lastModified: string, appVersion: string, active: bool}
- * @phpstan-type IncludesInfo = array{app_id: ?string, name: string, script: string, appName: ?string, integrationId: ?string, lastModified: string}
+ * @phpstan-type ScriptInfo = array{app_id: ?string, scriptName: string, script: string, hook: string, appName: ?string, appVersion: ?string, integrationId: ?string, lastModified: string, active: bool}
  */
 #[Package('framework')]
 class ScriptLoader implements EventSubscriberInterface
 {
-    final public const CACHE_KEY = 'shopware-app-scripts';
+    final public const CACHE_KEY = 'shopware-executable-app-scripts';
 
     private readonly string $cacheDir;
 
@@ -38,25 +36,47 @@ class ScriptLoader implements EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
-        return ['script.written' => 'invalidateCache'];
+        return [
+            'script.written' => 'invalidateCache',
+            'app.written' => 'invalidateCache',
+        ];
     }
 
     /**
-     * @return Script[]
+     * @return list<Script>
      */
     public function get(string $hook): array
     {
+        $hookScripts = [];
+
         $cacheItem = $this->cache->getItem(self::CACHE_KEY);
         if ($cacheItem->isHit() && $cacheItem->get()) {
-            return CacheCompressor::uncompress($cacheItem)[$hook] ?? [];
+            /** @var list<Script> */
+            $hookScripts = CacheCompressor::uncompress($cacheItem)[$hook] ?? [];
+        } else {
+            $scripts = $this->load();
+
+            $cacheItem = CacheCompressor::compress($cacheItem, $scripts);
+            $this->cache->save($cacheItem);
+
+            $hookScripts = $scripts[$hook] ?? [];
         }
 
-        $scripts = $this->load();
+        foreach ($hookScripts as $script) {
+            $info = $script->getScriptAppInformation();
+            $cachePrefix = $info ? Hasher::hash($info->getAppName() . $info->getAppVersion()) : EnvironmentHelper::getVariable('INSTANCE_ID', '');
 
-        $cacheItem = CacheCompressor::compress($cacheItem, $scripts);
-        $this->cache->save($cacheItem);
+            $twigOptions = [];
+            if (!$this->debug) {
+                $twigOptions['cache'] = new FilesystemCache($this->cacheDir . '/' . $cachePrefix);
+            } else {
+                $twigOptions['debug'] = true;
+            }
 
-        return $scripts[$hook] ?? [];
+            $script->setTwigOptions($twigOptions);
+        }
+
+        return $hookScripts;
     }
 
     public function invalidateCache(): void
@@ -79,71 +99,50 @@ class ScriptLoader implements EventSubscriberInterface
                    `script`.`name` AS scriptName,
                    `script`.`script` AS script,
                    `script`.`hook` AS hook,
-                   IFNULL(`script`.`updated_at`, `script`.`created_at`) AS lastModified,
                    `app`.`name` AS appName,
-                   LOWER(HEX(`app`.`integration_id`)) AS integrationId,
                    `app`.`version` AS appVersion,
-                   `script`.`active` AS active
-            FROM `script`
-            LEFT JOIN `app` ON `script`.`app_id` = `app`.`id`
-            WHERE `script`.`hook` != \'include\'
-            ORDER BY `app`.`created_at`, `app`.`id`, `script`.`name`
-        ');
-
-        $includes = $this->connection->fetchAllAssociative('
-            SELECT LOWER(HEX(`script`.`app_id`)) as `app_id`,
-                   `script`.`name` AS name,
-                   `script`.`script` AS script,
-                   `app`.`name` AS appName,
                    LOWER(HEX(`app`.`integration_id`)) AS integrationId,
-                   IFNULL(`script`.`updated_at`, `script`.`created_at`) AS lastModified
+                   IFNULL(`script`.`updated_at`, `script`.`created_at`) AS lastModified,
+                   IF(`script`.`active` = 1 AND (`app`.id IS NULL OR `app`.`active` = 1), 1, 0) AS active
             FROM `script`
             LEFT JOIN `app` ON `script`.`app_id` = `app`.`id`
-            WHERE `script`.`hook` = \'include\'
             ORDER BY `app`.`created_at`, `app`.`id`, `script`.`name`
         ');
-
-        /** @var array<string, list<IncludesInfo>> $allIncludes */
-        $allIncludes = FetchModeHelper::group($includes);
 
         $executableScripts = [];
+        $appIncludes = [];
+
         foreach ($scripts as $script) {
-            $appId = $script['app_id'];
-
-            $includes = $allIncludes[$appId] ?? [];
-
-            $dates = [...[$script['lastModified']], ...array_column($includes, 'lastModified')];
-
-            $lastModified = new \DateTimeImmutable(max($dates));
-
-            $cachePrefix = $script['appName'] ? Hasher::hash($script['appName'] . $script['appVersion']) : EnvironmentHelper::getVariable('INSTANCE_ID', '');
-
-            $includes = array_map(function (array $script) use ($appId) {
-                $script['app_id'] = $appId;
-
-                return new Script(
-                    $script['name'],
-                    $script['script'],
-                    new \DateTimeImmutable($script['lastModified']),
-                    $this->getAppInfo($script)
-                );
-            }, $includes);
-
-            $options = [];
-            if (!$this->debug) {
-                $options['cache'] = new FilesystemCache($this->cacheDir . '/' . $cachePrefix);
-            } else {
-                $options['debug'] = true;
+            if ($script['hook'] === 'include') {
+                continue;
             }
+
+            if (!isset($appIncludes[$script['app_id']])) {
+                $includes = array_filter($scripts, fn (array $include) => $include['hook'] === 'include' && $include['app_id'] === $script['app_id']);
+
+                $appIncludes[$script['app_id']] = array_map(function (array $include): Script {
+                    return new Script(
+                        $include['scriptName'],
+                        $include['script'],
+                        new \DateTimeImmutable($include['lastModified']),
+                        $this->getAppInfo($include),
+                        [],
+                        (bool) $include['active'],
+                    );
+                }, $includes);
+            }
+
+            $includes = $appIncludes[$script['app_id']];
+
+            $dates = [...[new \DateTimeImmutable($script['lastModified'])], ...array_column($includes, 'lastModified')];
 
             $executableScripts[$script['hook']][] = new Script(
                 $script['scriptName'],
                 $script['script'],
-                $lastModified,
+                max($dates),
                 $this->getAppInfo($script),
-                $options,
                 $includes,
-                (bool) $script['active']
+                (bool) $script['active'],
             );
         }
 
@@ -151,18 +150,19 @@ class ScriptLoader implements EventSubscriberInterface
     }
 
     /**
-     * @param ScriptInfo|IncludesInfo $script
+     * @param ScriptInfo $script
      */
     private function getAppInfo(array $script): ?ScriptAppInformation
     {
-        if (!$script['app_id'] || !$script['appName'] || !$script['integrationId']) {
+        if (!$script['app_id'] || !$script['appName'] || !$script['appVersion'] || !$script['integrationId']) {
             return null;
         }
 
         return new ScriptAppInformation(
             $script['app_id'],
             $script['appName'],
-            $script['integrationId']
+            $script['appVersion'],
+            $script['integrationId'],
         );
     }
 }

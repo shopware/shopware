@@ -1,0 +1,18 @@
+repository-url: 'http://localhost:8000'
+locales:
+    - en-GB
+    - de-DE
+    - es-ES
+plugins:
+    - activePlugin
+    - testPlugin
+languages:
+    - locale: en-GB
+      name: English (UK)
+    - locale: de-DE
+      name: Deutsch
+    - locale: es-ES
+      name: Español
+plugin-mapping:
+    - plugin: TestPlugin
+      name: activePlugin

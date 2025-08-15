@@ -10,11 +10,14 @@
     }
 }
 
+[data-theme="dark"] {
+    color-scheme: dark;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    color-scheme: light;
     font-family: $font-family-default;
 }
 

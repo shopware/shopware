@@ -214,13 +214,14 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
     private function overrideArray(array $original, array $override): array
     {
         foreach ($override as $key => $value) {
-            if (\array_key_exists($key, $original) && \is_array($original[$key]) && \is_array($value)) {
-                if ($this->isAssoc($original[$key]) && $this->isAssoc($value)) {
-                    $original[$key] = $this->overrideArray($original[$key], $value);
-                    continue;
-                }
-                // For indexed arrays, replace entirely
-                $original[$key] = $value;
+            $originalValue = $original[$key] ?? null;
+            if (
+                \is_array($originalValue)
+                && \is_array($value)
+                && !array_is_list($originalValue)
+                && !array_is_list($value)
+            ) {
+                $original[$key] = $this->overrideArray($originalValue, $value);
                 continue;
             }
 
@@ -229,20 +230,5 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
         }
 
         return $original;
-    }
-
-    /**
-     * Determines if an array is associative (has string keys)
-     * or indexed (sequential numeric keys).
-     *
-     * @param array<string, mixed> $arr
-     */
-    private function isAssoc(array $arr): bool
-    {
-        if ($arr === []) {
-            return false;
-        }
-
-        return array_keys($arr) !== range(0, \count($arr) - 1);
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityCriteriaEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityIdSearchResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchedEvent;
@@ -222,7 +223,10 @@ class EntityRepository
      */
     private function _search(Criteria $criteria, Context $context): EntitySearchResult
     {
-        $criteria = clone $criteria;
+        $criteriaEvent = new EntityCriteriaEvent($this->definition, $criteria, $context);
+        $this->eventDispatcher->dispatch($criteriaEvent, $criteriaEvent->getEventName());
+
+        $criteria = clone $criteriaEvent->getCriteria();
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);

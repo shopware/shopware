@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -50,6 +51,55 @@ readonly class CookieService
         }
 
         return $this->convertToCookieGroupCollection($cookieGroups);
+    }
+
+    /**
+     * Calculate a hash representing all cookie groups and their entries
+     */
+    public function calculateCookieHash(CookieGroupCollection $collection): string
+    {
+        $hashData = [];
+
+        /** @var CookieGroup $cookieGroup */
+        foreach ($collection->getElements() as $cookieGroup) {
+            $groupData = [
+                'isRequired' => $cookieGroup->isRequired,
+                'snippetName' => $cookieGroup->snippetName ?? '',
+                'snippetDescription' => $cookieGroup->snippetDescription ?? '',
+                'cookie' => $cookieGroup->cookie ?? '',
+                'value' => $cookieGroup->value ?? '',
+                'expiration' => $cookieGroup->expiration ?? '',
+                'entries' => [],
+            ];
+
+            foreach ($cookieGroup->entries as $entry) {
+                $entryData = [
+                    'hidden' => $entry->hidden,
+                    'snippetName' => $entry->snippetName ?? '',
+                    'snippetDescription' => $entry->snippetDescription ?? '',
+                    'cookie' => $entry->cookie ?? '',
+                    'value' => $entry->value ?? '',
+                    'expiration' => $entry->expiration ?? '',
+                ];
+
+                $groupData['entries'][] = $entryData;
+            }
+
+            // Sort entries by their serialized content to ensure consistent hash
+            usort($groupData['entries'], function ($a, $b) {
+                return serialize($a) <=> serialize($b);
+            });
+
+            $hashData[] = $groupData;
+        }
+
+        // Sort groups by their serialized content to ensure consistent hash
+        usort($hashData, function ($a, $b) {
+            return serialize($a) <=> serialize($b);
+        });
+
+        // Generate SHA-1 hash of the serialized data
+        return Hasher::hash(serialize($hashData), 'sha1');
     }
 
     /**

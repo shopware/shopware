@@ -15,5 +15,10 @@
             <argument type="service" id="Shopware\Storefront\Framework\Cookie\CookieProviderInterface"/>
             <argument type="service" id="Shopware\Core\Content\Cookie\Service\CookieService"/>
         </service>
+
+        <service id="Shopware\Core\Content\Cookie\SalesChannel\CookieHashRoute" public="true">
+            <argument type="service" id="Shopware\Storefront\Framework\Cookie\CookieProviderInterface"/>
+            <argument type="service" id="Shopware\Core\Content\Cookie\Service\CookieService"/>
+        </service>
     </services>
 </container>

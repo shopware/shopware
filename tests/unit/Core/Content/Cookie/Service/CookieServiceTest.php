@@ -7,6 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\Service\CookieService;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
+use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
@@ -77,7 +79,6 @@ class CookieServiceTest extends TestCase
             ]),
         ];
 
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $translator = $this->createMock(TranslatorInterface::class);
@@ -131,7 +132,6 @@ class CookieServiceTest extends TestCase
             $cookieGroup,
         ];
 
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $translator = $this->createMock(TranslatorInterface::class);
@@ -180,11 +180,11 @@ class CookieServiceTest extends TestCase
             ]),
         ];
 
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $translator = $this->createMock(TranslatorInterface::class);
 
+        // @phpstan-ignore-next-line
         $cookieService = new CookieService($systemConfigService, $repository, $translator);
         $result = $cookieService->getCookieGroupCollection($cookieGroups, $salesChannelContext, false);
 
@@ -227,7 +227,6 @@ class CookieServiceTest extends TestCase
             ]),
         ];
 
-        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $translator = $this->createMock(TranslatorInterface::class);
@@ -254,5 +253,141 @@ class CookieServiceTest extends TestCase
 
         static::assertArrayHasKey('snippetName', $entryJson);
         static::assertArrayHasKey('hidden', $entryJson);
+    }
+
+    public function testCalculateCookieHashWithEmptyCollection(): void
+    {
+        $repository = $this->createMock(EntityRepository::class);
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $translator = $this->createMock(TranslatorInterface::class);
+
+        $cookieService = new CookieService($systemConfigService, $repository, $translator);
+        $collection = new CookieGroupCollection();
+
+        $hash = $cookieService->calculateCookieHash($collection);
+
+        static::assertIsString($hash);
+        static::assertSame(40, \strlen($hash)); // SHA-1 produces 40 character hex string
+        static::assertMatchesRegularExpression('/^[a-f0-9]{40}$/', $hash);
+    }
+
+    public function testCalculateCookieHashConsistency(): void
+    {
+        $repository = $this->createMock(EntityRepository::class);
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $translator = $this->createMock(TranslatorInterface::class);
+
+        $cookieService = new CookieService($systemConfigService, $repository, $translator);
+
+        // Create two identical collections
+        $collection1 = $this->createTestCollection();
+        $collection2 = $this->createTestCollection();
+
+        $hash1 = $cookieService->calculateCookieHash($collection1);
+        $hash2 = $cookieService->calculateCookieHash($collection2);
+
+        // Same data should produce same hash
+        static::assertSame($hash1, $hash2);
+    }
+
+    public function testCalculateCookieHashChangesWithDifferentData(): void
+    {
+        $repository = $this->createMock(EntityRepository::class);
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $translator = $this->createMock(TranslatorInterface::class);
+
+        $cookieService = new CookieService($systemConfigService, $repository, $translator);
+
+        $collection1 = $this->createTestCollection();
+
+        // Create a different collection
+        $collection2 = new CookieGroupCollection();
+        $entry = new CookieEntry(hidden: false);
+        $entry->cookie = 'different-cookie';
+        $group = new CookieGroup(isRequired: false, entries: [$entry]);
+        $group->snippetName = 'different.group';
+        $collection2->add($group);
+
+        $hash1 = $cookieService->calculateCookieHash($collection1);
+        $hash2 = $cookieService->calculateCookieHash($collection2);
+
+        // Different data should produce different hashes
+        static::assertNotSame($hash1, $hash2);
+    }
+
+    public function testCalculateCookieHashHandlesNullValues(): void
+    {
+        $repository = $this->createMock(EntityRepository::class);
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $translator = $this->createMock(TranslatorInterface::class);
+
+        $cookieService = new CookieService($systemConfigService, $repository, $translator);
+
+        $collection = new CookieGroupCollection();
+        $entry = new CookieEntry(hidden: true);
+        // Leave all optional fields as null
+        $group = new CookieGroup(isRequired: true, entries: [$entry]);
+        $collection->add($group);
+
+        $hash = $cookieService->calculateCookieHash($collection);
+
+        static::assertIsString($hash);
+        static::assertSame(40, \strlen($hash));
+        static::assertMatchesRegularExpression('/^[a-f0-9]{40}$/', $hash);
+    }
+
+    public function testCalculateCookieHashOrderIndependent(): void
+    {
+        $repository = $this->createMock(EntityRepository::class);
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $translator = $this->createMock(TranslatorInterface::class);
+
+        $cookieService = new CookieService($systemConfigService, $repository, $translator);
+
+        // Create collections with same groups but in different order
+        $collection1 = new CookieGroupCollection();
+        $collection2 = new CookieGroupCollection();
+
+        $group1 = new CookieGroup(isRequired: true, entries: []);
+        $group1->snippetName = 'group1';
+
+        $group2 = new CookieGroup(isRequired: false, entries: []);
+        $group2->snippetName = 'group2';
+
+        // Add in different order
+        $collection1->add($group1);
+        $collection1->add($group2);
+
+        $collection2->add($group2);
+        $collection2->add($group1);
+
+        $hash1 = $cookieService->calculateCookieHash($collection1);
+        $hash2 = $cookieService->calculateCookieHash($collection2);
+
+        // Order should not matter due to sorting in the algorithm
+        static::assertSame($hash1, $hash2);
+    }
+
+    private function createTestCollection(): CookieGroupCollection
+    {
+        $collection = new CookieGroupCollection();
+
+        $entry = new CookieEntry(hidden: false);
+        $entry->cookie = 'test-cookie';
+        $entry->snippetName = 'test.cookie';
+        $entry->snippetDescription = 'Test Cookie Description';
+        $entry->value = '1';
+        $entry->expiration = '30';
+
+        $group = new CookieGroup(isRequired: true, entries: [$entry]);
+        $group->snippetName = 'test.group';
+        $group->snippetDescription = 'Test Group Description';
+        $group->cookie = 'test-group-cookie';
+        $group->value = 'group-value';
+        $group->expiration = '60';
+
+        $collection->add($group);
+
+        return $collection;
     }
 }

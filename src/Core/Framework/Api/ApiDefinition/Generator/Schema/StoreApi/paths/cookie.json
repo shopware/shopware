@@ -8,6 +8,16 @@
         "items": {
           "$ref": "#/components/schemas/CookieGroup"
         }
+      },
+      "CookieHashResponse": {
+        "type": "object",
+        "properties": {
+          "cookieHash": {
+            "type": "string",
+            "description": "SHA-1 hash representing all cookie groups and their entries. Changes when any cookie configuration is modified."
+          }
+        },
+        "required": ["cookieHash"]
       }
     }
   },
@@ -27,6 +37,36 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CookieGroupCollection"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/cookie-hash": {
+      "get": {
+        "tags": [
+          "Cookie Groups"
+        ],
+        "summary": "Get cookie configuration hash",
+        "description": "Returns a hash representing the current cookie configuration. This hash changes whenever any cookie group or entry is modified, making it useful for detecting configuration changes.",
+        "operationId": "readCookieHash",
+        "responses": {
+          "200": {
+            "description": "Successful response with the cookie configuration hash.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CookieHashResponse"
                 }
               }
             }

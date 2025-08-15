@@ -205,6 +205,11 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
     /**
      * Recursively merges two arrays, with values from the override array taking precedence.
      * For associative arrays, merges recursively. For indexed arrays, replaces completely.
+     *
+     * @param array<string, mixed> $original
+     * @param array<string, mixed> $override
+     *
+     * @return array<string, mixed>
      */
     private function overrideArray(array $original, array $override): array
     {
@@ -229,6 +234,8 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
     /**
      * Determines if an array is associative (has string keys)
      * or indexed (sequential numeric keys).
+     *
+     * @param array<string, mixed> $arr
      */
     private function isAssoc(array $arr): bool
     {

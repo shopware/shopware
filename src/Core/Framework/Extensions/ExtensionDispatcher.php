@@ -48,9 +48,14 @@ final readonly class ExtensionDispatcher
             } catch (\Throwable $e) {
                 $extension->exception = $e;
 
+                $extension->resetPropagation();
+
                 $this->dispatcher->dispatch($extension, self::error($name));
 
-                throw $e;
+                // if the extensions want to gracefully handle the exception, they can put in a result, otherwise we rethrow the exception
+                if ($extension->result === null) {
+                    throw $e;
+                }
             }
         }
 

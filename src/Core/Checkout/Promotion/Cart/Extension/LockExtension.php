@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Lock\LockInterface;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class LockExtension extends Struct
 {

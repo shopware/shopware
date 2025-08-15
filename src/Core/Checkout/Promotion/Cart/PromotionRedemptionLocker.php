@@ -61,6 +61,10 @@ class PromotionRedemptionLocker implements EventSubscriberInterface
             $locks[$key] = $lock;
         }
 
+        if (empty($locks)) {
+            return;
+        }
+
         $extension->addExtension(LockExtension::KEY, new LockExtension($locks));
     }
 
@@ -78,8 +82,8 @@ class PromotionRedemptionLocker implements EventSubscriberInterface
         $extension->removeExtension(LockExtension::KEY);
     }
 
-    public function getLockKey(string $promotionId): string
+    public function getLockKey(string $promotionCodeOrId): string
     {
-        return 'promotion-' . $promotionId;
+        return 'promotion-' . $promotionCodeOrId;
     }
 }

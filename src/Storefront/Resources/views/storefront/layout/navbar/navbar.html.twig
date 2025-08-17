@@ -30,12 +30,15 @@
                         {% endblock %}
 
                         {% block layout_navbar_menu_items %}
-
                             {% for treeItem in header.navigation.tree %}
                                 {% set category = treeItem.category %}
                                 {% set id = category.id %}
                                 {% set name = category.translated.name %}
                                 {% set hasChildren = treeItem.children|length > 0 %}
+
+                                {% if category.type == 'folder' && not hasChildren %}
+                                    {% continue %}
+                                {% endif %}
 
                                 {% block layout_navbar_menu_item %}
                                     <li class="nav-item nav-item-{{ id }} {% if hasChildren %}dropdown position-static{% endif %}">

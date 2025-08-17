@@ -37,14 +37,13 @@
                                 {% set name = category.translated.name %}
                                 {% set hasChildren = treeItem.children|length > 0 %}
 
-
                                 {% block layout_navbar_menu_item %}
                                     <li class="nav-item nav-item-{{ id }} {% if hasChildren %}dropdown position-static{% endif %}">
                                         {% block layout_navbar_menu_item_link %}
                                             <a class="nav-link nav-item-{{ id }}-link root main-navigation-link p-2{% if hasChildren %} dropdown-toggle{% endif %}"
                                                href="{{ category.seoUrl ?: '#' }}"
                                                {% if hasChildren %}data-bs-toggle="dropdown"{% endif %}
-                                               {% if category.type != 'folder' && category.shouldOpenInNewTab %}target="_blank"{% endif %}
+                                               {% if category.type != 'folder' and category.shouldOpenInNewTab %}target="_blank"{% endif %}
                                                itemprop="url"
                                                title="{{ name }}"
                                             >

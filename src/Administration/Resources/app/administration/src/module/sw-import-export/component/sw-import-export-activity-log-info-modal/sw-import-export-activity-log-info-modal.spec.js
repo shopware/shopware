@@ -11,7 +11,7 @@ function getLogEntityMock() {
         username: 'admin',
         createdAt: '2021-11-05T09:08:40.015+00:00',
         profile: {
-            label: 'Default product',
+            technicalName: 'default_product',
         },
         file: {
             originalName: 'star-lord.csv',
@@ -58,9 +58,9 @@ describe('module/sw-import-export/components/sw-import-export-activity-log-info-
             'star-lord.csv',
         ],
         [
-            'profile name',
+            'technical name',
             '.sw-import-export-activity-log-info-modal__item-profile dd',
-            'Default product',
+            'default_product',
         ],
         [
             'updated records',

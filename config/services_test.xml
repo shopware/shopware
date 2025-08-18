@@ -7,6 +7,8 @@
     </parameters>
 
     <services>
+        <defaults autoconfigure="true"/>
+
         <service id="Shopware\Tests\Integration\Core\Framework\Api\EventListener\FixturesPhp\SalesChannelAuthenticationListenerTestRoute">
             <tag name="controller.service_arguments"/>
         </service>
@@ -52,9 +54,7 @@
             <tag name="shopware.entity"/>
         </service>
 
-        <service id="Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityAgg">
-            <tag name="shopware.entity"/>
-        </service>
+        <service id="Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityAgg"/>
 
         <service id="Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityWithHydrator">
             <tag name="shopware.entity"/>

@@ -46,7 +46,12 @@
             </div>
 
             <span class="sw-sso-error-card__small-text">{{ $tc('sw-sso-error.error-card.loggedInAsPrefix') }}</span>
-            <span class="sw-sso-error-card__small-text-email">{{ email }}</span>
+            <span
+                v-if="email"
+                class="sw-sso-error-card__small-text-email"
+            >
+                {{ email }}
+            </span>
         </mt-card>
     </div>
 </div>

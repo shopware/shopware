@@ -33,6 +33,7 @@
         <mt-button
             class="sw-users-permissions-sso-modal-close-button"
             variant="secondary"
+            :disabled="isLoading"
             @click="closeModal()"
         >
             {{ $tc('global.default.cancel') }}
@@ -42,6 +43,7 @@
             variant="primary"
             class="sw-users-permissions-sso-modal-save-button"
             :disabled="hasError"
+            :is-loading="isLoading"
             @click="sendInvitation"
         >
             {{ $tc('sw-users-permissions.sso.modal.labelButtonInvite') }}

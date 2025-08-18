@@ -78,6 +78,7 @@
             class="sso-user-Integrations-modal--cancel"
             size="small"
             variant="secondary"
+            :disabled="isLoading"
             @click="onCancel()"
         >
             {{ $tc('global.default.cancel') }}
@@ -89,7 +90,7 @@
             class="sso-user-Integrations-modal--apply"
             size="small"
             variant="primary"
-            :disabled="isLoading"
+            :is-loading="isLoading"
             @click="onSave()"
         >
             {{ $tc('sw-users-permissions.users.user-detail.modal.buttonApply') }}

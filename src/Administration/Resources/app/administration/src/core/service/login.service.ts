@@ -15,17 +15,18 @@ export interface AuthObject {
     expiry: number;
 }
 
+/** @private */
+export interface LoginConfig {
+    useDefault: boolean;
+    url: string;
+}
+
 interface TokenResponse {
     /* eslint-disable camelcase */
     access_token: string;
     refresh_token: string;
     expires_in: number;
     /* eslint-enable camelcase */
-}
-
-interface LoginConfig {
-    useDefault: boolean;
-    url: string;
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

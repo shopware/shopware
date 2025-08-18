@@ -29,6 +29,7 @@ export default {
                 errorEmail: null,
                 errorLanguage: null,
             },
+            isLoading: false,
         };
     },
 
@@ -71,34 +72,34 @@ export default {
 
     methods: {
         componentCreated() {
-            this.loadLanguages();
+            return this.loadLanguages();
         },
 
-        loadLanguages() {
-            this.languageRepository.search(this.languageCriteria, Shopware.Context.api).then((languages) => {
-                this.languages = languages;
-            });
+        async loadLanguages() {
+            this.languages = await this.languageRepository.search(this.languageCriteria, Shopware.Context.api);
         },
 
-        sendInvitation() {
+        async sendInvitation() {
+            this.isLoading = true;
             this.validateEmail();
             this.validateLanguage();
 
             if (this.hasError) {
+                this.isLoading = false;
                 return;
             }
 
             const localeId = this.languages.get(this.languageId).localeId;
 
-            this.invitationService
-                .inviteUser(this.email, localeId)
-                .then(() => {
-                    this.$emit('user-invited');
-                    this.closeModal();
-                })
-                .catch((errorResponse) => {
-                    this.$emit('invitation-failed', errorResponse);
-                });
+            try {
+                await this.invitationService.inviteUser(this.email, localeId);
+                this.$emit('user-invited');
+                this.closeModal();
+            } catch (e) {
+                this.$emit('invitation-failed', e);
+            } finally {
+                this.isLoading = false;
+            }
         },
 
         closeModal() {

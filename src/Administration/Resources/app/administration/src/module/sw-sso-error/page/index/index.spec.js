@@ -9,7 +9,7 @@ import { CookieStorage } from 'cookie-storage';
 
 const { Component } = Shopware;
 
-async function createWrapper(useDefaultLogin) {
+async function createWrapper(useDefaultLogin, setCookie = true) {
     const wrapper = mount(await wrapTestComponent('sw-sso-error-index', { sync: true }), {
         global: {
             provide: {
@@ -23,7 +23,9 @@ async function createWrapper(useDefaultLogin) {
 
                     getStorage: () => {
                         const storage = new CookieStorage();
-                        storage.setItem('user', 'foo@bar.baz');
+                        if (setCookie) {
+                            storage.setItem('user', 'foo@bar.baz');
+                        }
 
                         return storage;
                     },
@@ -62,5 +64,12 @@ describe('src/module/sw-sso-error/page/index', () => {
         expect(wrapper.find('.sw-button.sw-button--primary').text()).toBe('sw-sso-error.error-card.button');
         expect(wrapper.find('.sw-sso-error-card__small-text').text()).toBe('sw-sso-error.error-card.loggedInAsPrefix');
         expect(wrapper.find('.sw-sso-error-card__small-text-email').text()).toBe('foo@bar.baz');
+    });
+
+    it('should not render the email if none is available', async () => {
+        const wrapper = await createWrapper(false, false);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-sso-error-card__small-text-email').exists()).toBe(false);
     });
 });

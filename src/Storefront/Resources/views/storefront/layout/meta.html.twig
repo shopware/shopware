@@ -202,6 +202,8 @@
             {% sw_include '@Storefront/storefront/utilities/form-validation-config.html.twig' %}
         {% endblock %}
 
+        <script type="module" src="{{ asset('assets/web-components/index.js', 'theme') }}"></script>
+
         {% block layout_head_javascript_hmr_mode %}
             {% if isHMRMode %}
                 {% block layout_head_javascript_hmr_dev %}
@@ -215,6 +217,7 @@
                 {% block layout_head_javascript_prod %}
                     <script>
                         window.themeJsPublicPath = '{{ asset('js/', 'theme') }}';
+                        window.themeWebComponentsPath = '{{ asset('assets/web-components', 'theme') }}';
                     </script>
                     {% for script in theme_scripts() %}
                         <script type="text/javascript" src="{{ asset(script, 'theme') }}" defer></script>

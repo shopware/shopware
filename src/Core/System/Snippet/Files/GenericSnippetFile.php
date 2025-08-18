@@ -14,7 +14,7 @@ class GenericSnippetFile extends AbstractSnippetFile
         private readonly string $author,
         private readonly bool $isBase,
         private string $technicalName,
-        private readonly bool $isLocal,
+        private readonly ?bool $isLocal = true,
     ) {
     }
 

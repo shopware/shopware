@@ -169,7 +169,6 @@ class SystemLanguageChangedSubscriberTest extends TestCase
             'id' => Uuid::randomHex(),
             'appId' => $appId,
             'localeId' => $localeId,
-            'name' => 'snippet-name',
             'value' => 'snippet-value',
         ]);
     }

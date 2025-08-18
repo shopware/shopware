@@ -5,6 +5,8 @@ namespace Shopware\Core\System\CustomEntity;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
@@ -67,6 +69,9 @@ class CustomEntityRegistrar
         }
     }
 
+    /**
+     * @return EntityRepository<EntityCollection<Entity>>
+     */
     public static function createRepository(ContainerInterface $container, EntityDefinition $definition): EntityRepository
     {
         return EntityRepository::createLazyGhost(function (EntityRepository $instance) use ($definition, $container): void {

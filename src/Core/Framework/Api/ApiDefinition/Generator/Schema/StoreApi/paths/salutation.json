@@ -39,29 +39,41 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Entity search result containing salutations.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "allOf": [
-                                        {
-                                            "properties": {
-                                                "elements": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/Salutation"
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/EntitySearchResult"
-                                        }
-                                    ]
-                                }
-                            }
+                        "$ref": "#/components/responses/SalutationListResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "System & Context",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch salutations",
+                "description": "Perform a filtered search for salutations.",
+                "operationId": "readSalutationGet",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
                         }
+                    },
+                    {
+                        "x-parameter-group": "criteria"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/SalutationListResponse"
                     }
                 },
                 "security": [

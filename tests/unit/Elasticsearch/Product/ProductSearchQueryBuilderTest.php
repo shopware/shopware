@@ -551,8 +551,8 @@ class CustomFieldServiceStub extends CustomFieldService
     {
     }
 
-    public function getCustomField(string $attributeName): ?Field
+    public function getCustomField(string $attributeName): Field
     {
-        return $this->config[$attributeName] ?? null;
+        return $this->config[$attributeName];
     }
 }

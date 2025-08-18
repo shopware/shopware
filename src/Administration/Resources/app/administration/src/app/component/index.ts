@@ -277,10 +277,6 @@ export default () => {
         () => import('src/app/component/form/select/entity/sw-entity-multi-id-select/index'),
     );
     Shopware.Component.register(
-        'sw-entity-many-to-many-select',
-        () => import('src/app/component/form/select/entity/sw-entity-many-to-many-select/index'),
-    );
-    Shopware.Component.register(
         'sw-entity-advanced-selection-modal',
         () => import('src/app/component/form/select/entity/sw-entity-advanced-selection-modal/index'),
     );

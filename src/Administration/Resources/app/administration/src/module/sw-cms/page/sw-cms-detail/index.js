@@ -7,6 +7,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 const { debounce } = Shopware.Utils;
 const { cloneDeep, getObjectDiff } = Shopware.Utils.object;
+const { isEmpty } = Shopware.Utils.types;
 const { warn } = Shopware.Utils.debug;
 const { Criteria } = Shopware.Data;
 const debounceTimeout = 800;
@@ -320,11 +321,10 @@ export default {
                 scope: this,
             });
             Shopware.Store.get('adminMenu').collapseSidebar();
+            this.resetRelatedStores();
 
             const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
             this.cmsPageState.setIsSystemDefaultLanguage(isSystemDefaultLanguage);
-
-            this.resetCmsPageState();
 
             if (this.$route.params.id) {
                 this.pageId = this.$route.params.id.toLowerCase();
@@ -351,12 +351,19 @@ export default {
             this.setPageContext();
         },
 
+        beforeDestroyedComponent() {
+            this.resetRelatedStores();
+        },
+
         setPageContext() {
             this.getDefaultFolderId().then((folderId) => {
                 this.cmsPageState.setDefaultMediaFolderId(folderId);
             });
         },
 
+        /**
+         * @deprecated: tag:v6.8.0 - Replaced by "resetRelatedStores" method
+         */
         resetCmsPageState() {
             this.cmsPageState.resetCmsPageState();
         },
@@ -376,78 +383,72 @@ export default {
             });
         },
 
-        beforeDestroyedComponent() {
-            const store = this.cmsPageState;
-            store.removeCurrentPage();
-            store.removeSelectedBlock();
-            store.removeSelectedSection();
-        },
-
-        loadPage(pageId) {
+        async loadPage(pageId) {
             this.isLoading = true;
 
-            return this.pageRepository
-                .get(pageId, Shopware.Context.api, this.loadPageCriteria)
-                .then((page) => {
-                    this.page = { sections: [] };
-                    this.page = page;
+            try {
+                this.page = await this.pageRepository.get(pageId, Shopware.Context.api, this.loadPageCriteria);
+                this.cmsPageState.setCurrentPageType(this.page.type);
 
-                    this.cmsPageState.setCurrentPageType(page.type);
+                if (this.acl.can('system_config:read')) {
+                    await this.setDefaultLayout();
+                }
 
-                    if (this.acl.can('system_config:read')) {
-                        this.setDefaultLayout();
-                    }
-
-                    this.cmsDataResolverService
-                        .resolve(this.page)
-                        .then(() => {
-                            this.updateSectionAndBlockPositions();
-                            this.cmsPageState.setCurrentPage(this.page);
-
-                            this.updateDataMapping();
-                            this.pageOrigin = cloneDeep(this.page);
-
-                            if (this.selectedBlock) {
-                                const blockId = this.selectedBlock.id;
-                                const blockSectionId = this.selectedBlock.sectionId;
-                                this.page.sections.forEach((section) => {
-                                    if (section.id === blockSectionId) {
-                                        section.blocks.forEach((block) => {
-                                            if (block.id === blockId) {
-                                                this.setSelectedBlock(blockSectionId, block);
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-
-                            Shopware.ExtensionAPI.publishData({
-                                id: 'sw-cms-detail__page',
-                                path: 'page',
-                                scope: this,
-                            });
-
-                            this.isLoading = false;
-                        })
-                        .catch((exception) => {
-                            this.isLoading = false;
-                            this.createNotificationError({
-                                title: exception.message,
-                                message: exception.response,
-                            });
-
-                            warn(this._name, exception.message, exception.response);
-                        });
-                })
-                .catch((exception) => {
-                    this.isLoading = false;
-                    this.createNotificationError({
-                        title: exception.message,
-                        message: exception.response.statusText,
-                    });
-
-                    warn(this._name, exception.message, exception.response);
+                await this.hydratePage();
+            } catch (exception) {
+                this.createNotificationError({
+                    title: exception.message,
+                    message: exception.response.statusText,
                 });
+
+                warn(this._name, exception.message, exception.response);
+            } finally {
+                this.cmsPageState.setCurrentPage(this.page);
+                this.pageOrigin = cloneDeep(this.page);
+                this.restoreActiveBlock();
+                this.isLoading = false;
+            }
+        },
+
+        async hydratePage() {
+            try {
+                await this.cmsDataResolverService.resolve(this.page);
+
+                this.updateSectionAndBlockPositions();
+                this.updateDataMapping();
+
+                Shopware.ExtensionAPI.publishData({
+                    id: 'sw-cms-detail__page',
+                    path: 'page',
+                    scope: this,
+                });
+            } catch (exception) {
+                this.createNotificationError({
+                    title: exception.message,
+                    message: exception.response,
+                });
+
+                warn(this._name, exception.message, exception.response);
+            }
+        },
+
+        restoreActiveBlock() {
+            if (!this.selectedBlock) {
+                return;
+            }
+
+            const blockId = this.selectedBlock.id;
+            const blockSectionId = this.selectedBlock.sectionId;
+
+            this.page.sections.forEach((section) => {
+                if (section.id === blockSectionId) {
+                    section.blocks.forEach((block) => {
+                        if (block.id === blockId) {
+                            this.setSelectedBlock(blockSectionId, block);
+                        }
+                    });
+                }
+            });
         },
 
         updateDataMapping() {
@@ -505,7 +506,48 @@ export default {
         },
 
         abortOnLanguageChange() {
-            return Object.keys(getObjectDiff(this.page, this.pageOrigin)).length > 0;
+            return this.hasUnsavedChanges();
+        },
+
+        /**
+         * This check is not perfect, since some components (like sw-cms-section) change values at runtime,
+         * which should not be considered as unsaved changes.
+         *
+         * Further improvement should focus on removing these runtime changes,
+         * so a single "getObjectDiff" on the page is sufficient.
+         */
+        hasUnsavedChanges() {
+            if (this.page._isDirty) {
+                return true;
+            }
+
+            for (let i = 0; i < this.page.sections.length; i += 1) {
+                const section = this.page.sections[i];
+
+                if (section._isDirty) {
+                    return true;
+                }
+
+                for (let j = 0; j < section.blocks.length; j += 1) {
+                    const block = section.blocks[j];
+
+                    if (block._isDirty) {
+                        return true;
+                    }
+
+                    for (let k = 0; k < block.slots.length; k += 1) {
+                        const slot = block.slots[k];
+                        const originSlot = this.pageOrigin.sections.get(section.id).blocks.get(block.id).slots.get(slot.id);
+                        const slotDiff = getObjectDiff(originSlot, slot);
+
+                        if (slot._isDirty || !isEmpty(slotDiff)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
         },
 
         saveOnLanguageChange() {
@@ -904,6 +946,7 @@ export default {
         updateSectionAndBlockPositions() {
             this.page.sections.forEach((section, index) => {
                 section.position = index;
+
                 this.updateBlockPositions(section);
             });
         },
@@ -1163,6 +1206,22 @@ export default {
             } else {
                 await this.$router.push({ name: 'sw.cms.index' });
             }
+        },
+
+        resetRelatedStores() {
+            const stores = [
+                'cmsPage',
+                'swCategoryDetail',
+                'swProductDetail',
+            ];
+
+            stores.forEach((name) => {
+                try {
+                    Shopware.Store.get(name).$reset();
+                } catch {
+                    // Not all stores are always registered. We can safely ignore errors here.
+                }
+            });
         },
     },
 };

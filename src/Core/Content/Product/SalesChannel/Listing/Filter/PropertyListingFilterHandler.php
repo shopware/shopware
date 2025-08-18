@@ -7,7 +7,8 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
@@ -19,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -34,10 +34,14 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
     final public const PROPERTY_GROUP_IDS_REQUEST_PARAM = 'property-whitelist';
 
     /**
+     * @param EntityRepository<PropertyGroupCollection> $groupRepository
+     * @param EntityRepository<PropertyGroupOptionCollection> $optionRepository
+     *
      * @internal
      */
     public function __construct(
-        private readonly EntityRepository $repository,
+        private readonly EntityRepository $groupRepository,
+        private readonly EntityRepository $optionRepository,
         private readonly Connection $connection
     ) {
     }
@@ -66,27 +70,59 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
             return;
         }
 
-        $criteria = new Criteria($ids);
-        $criteria->setLimit(500);
-        $criteria->addAssociation('group');
-        $criteria->addAssociation('media');
-        $criteria->addFilter(new EqualsFilter('group.filterable', true));
-        $criteria->setTitle('product-listing::property-filter');
-        $criteria->addSorting(new FieldSorting('id', FieldSorting::ASCENDING));
+        $chunkIds = array_chunk($ids, 1000);
 
-        $mergedOptions = new PropertyGroupOptionCollection();
+        $optionCriteria = new Criteria();
+        $optionCriteria->addAssociation('media');
+        $optionCriteria->setTitle('product-listing::property-filter');
 
-        $repositoryIterator = new RepositoryIterator($this->repository, $context->getContext(), $criteria);
-        while (($loop = $repositoryIterator->fetch()) !== null) {
-            $entities = $loop->getEntities();
+        $options = [];
+        $groupIds = [];
 
-            $mergedOptions->merge($entities);
+        foreach ($chunkIds as $chunk) {
+            $cloned = clone $optionCriteria;
+            $cloned->setIds($chunk);
+
+            $entities = $this->optionRepository->search($cloned, $context->getContext());
+
+            $options = array_merge($options, $entities->getElements());
+
+            /** @var PropertyGroupOptionEntity $option */
+            foreach ($entities as $option) {
+                if (!isset($groupIds[$option->getGroupId()])) {
+                    $groupIds[$option->getGroupId()] = true;
+                }
+            }
         }
 
-        // group options by their property-group
-        $grouped = $mergedOptions->groupByPropertyGroups();
-        $grouped->sortByPositions();
-        $grouped->sortByConfig();
+        $groupCriteria = new Criteria();
+        $groupCriteria->setTitle('product-listing::property-group-filter');
+        $groupCriteria->addFilter(new EqualsFilter('filterable', true));
+
+        $groups = new PropertyGroupCollection();
+
+        $chunkIds = array_chunk(array_keys($groupIds), 1000);
+
+        foreach ($chunkIds as $chunk) {
+            $cloned = clone $groupCriteria;
+
+            $cloned->setIds($chunk);
+
+            $groupResult = $this->groupRepository->search($cloned, $context->getContext());
+
+            $groups->fill($groupResult->getElements());
+        }
+
+        foreach ($groups as $group) {
+            $group->setOptions(new PropertyGroupOptionCollection());
+        }
+
+        foreach ($options as $option) {
+            $groups->get($option->getGroupId())?->getOptions()?->add($option);
+        }
+
+        $groups->sortByPositions();
+        $groups->sortByConfig();
 
         $aggregations = $result->getAggregations();
 
@@ -95,7 +131,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
         $aggregations->remove('configurators');
         $aggregations->remove('options');
 
-        $aggregations->add(new EntityResult('properties', $grouped));
+        $aggregations->add(new EntityResult('properties', $groups));
     }
 
     /**

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\ApiRequestContextResolver;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\RequestContextResolverInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -52,7 +53,7 @@ class ApiRequestContextResolverTest extends TestCase
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID, $user->getUserId());
-        $request->attributes->set('_routeScope', ['api']);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
         $this->resolver->resolve($request);
 
         static::assertTrue(
@@ -86,7 +87,7 @@ class ApiRequestContextResolverTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'test');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $this->createAccessKey($user->getUserId()));
 
-        $request->attributes->set('_routeScope', ['api']);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
         $this->resolver->resolve($request);
 
         static::assertTrue(
@@ -114,7 +115,7 @@ class ApiRequestContextResolverTest extends TestCase
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'test');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $this->createAccessKey($user->getUserId()));
-        $request->attributes->set('_routeScope', ['api']);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
 
         $this->resolver->resolve($request);
 
@@ -130,7 +131,7 @@ class ApiRequestContextResolverTest extends TestCase
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'test');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $this->createAccessKey($user->getUserId()));
-        $request->attributes->set('_routeScope', ['api']);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
 
         $request->headers->set(PlatformRequest::HEADER_SKIP_TRIGGER_FLOW, 'true');
 
@@ -210,7 +211,7 @@ class ApiRequestContextResolverTest extends TestCase
         $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
         ]);
-        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $browser->getResponse()->getStatusCode());
         static::assertArrayHasKey('data', $response);
@@ -263,7 +264,7 @@ class ApiRequestContextResolverTest extends TestCase
         $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
         ]);
-        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), \json_encode($response, \JSON_THROW_ON_ERROR));
         static::assertArrayHasKey('errors', $response);
@@ -329,7 +330,7 @@ class ApiRequestContextResolverTest extends TestCase
         $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
         ]);
-        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), \json_encode($response, \JSON_THROW_ON_ERROR));
         static::assertArrayHasKey('errors', $response);
@@ -393,7 +394,7 @@ class ApiRequestContextResolverTest extends TestCase
         $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
         ]);
-        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $browser->getResponse()->getStatusCode(), \json_encode($response, \JSON_THROW_ON_ERROR));
         static::assertArrayHasKey('errors', $response);
@@ -421,7 +422,7 @@ class ApiRequestContextResolverTest extends TestCase
 
         static::assertSame(403, $browser->getResponse()->getStatusCode());
 
-        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         $errors = $response['errors'];
@@ -442,7 +443,7 @@ class ApiRequestContextResolverTest extends TestCase
         $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
         ]);
-        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $browser->getResponse()->getStatusCode());
         static::assertArrayHasKey('data', $response);
@@ -466,7 +467,7 @@ class ApiRequestContextResolverTest extends TestCase
                 'id' => $id,
                 'name' => $role,
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
-                'privileges' => json_encode($privs, \JSON_THROW_ON_ERROR),
+                'privileges' => \json_encode($privs, \JSON_THROW_ON_ERROR),
             ]);
 
             $this->connection->insert('acl_user_role', [

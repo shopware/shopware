@@ -18,11 +18,8 @@ class TestFlowBusinessEvent extends Event implements FlowEventAware
 
     protected string $name = self::EVENT_NAME;
 
-    protected Context $context;
-
-    public function __construct(Context $context)
+    public function __construct(protected Context $context)
     {
-        $this->context = $context;
     }
 
     public function getName(): string

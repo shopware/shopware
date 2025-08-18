@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use Shopware\Administration\Events\PreResetExcludedSearchTermEvent;
+use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollectorInterface;
 use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -40,7 +41,7 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['administration']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [AdministrationRouteScope::ID]])]
 #[Package('framework')]
 class AdministrationController extends AbstractController
 {

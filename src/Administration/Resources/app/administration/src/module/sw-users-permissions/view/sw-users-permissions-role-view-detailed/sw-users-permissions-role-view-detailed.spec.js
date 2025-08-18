@@ -36,11 +36,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-users-permissions/view/sw-users-permissions-role-view-detailed', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should disable the detailed permission grid when no aclPrivileges exists', async () => {
         const wrapper = await createWrapper();
 

@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingR
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -468,7 +469,7 @@ class CrossSellingRouteTest extends TestCase
             $this->createMock(SystemConfigService::class),
             $this->createMock(ProductListingLoader::class),
             $this->createMock(AbstractProductCloseoutFilterFactory::class),
-            new EventDispatcher()
+            $this->createMock(CacheTagCollector::class),
         );
 
         $productId = Uuid::randomHex();

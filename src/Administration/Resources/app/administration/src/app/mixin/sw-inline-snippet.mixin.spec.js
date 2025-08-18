@@ -45,10 +45,6 @@ describe('src/app/mixin/sw-inline-snippet.mixin.ts', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should return the inline snippet', () => {
         const result = wrapper.vm.getInlineSnippet('sw.example');
 

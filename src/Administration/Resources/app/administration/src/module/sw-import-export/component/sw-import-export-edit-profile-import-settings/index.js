@@ -17,20 +17,44 @@ export default {
 
     methods: {
         /**
-         * makes sure that either one of the switches is enabled.
+         * Makes sure that either one of the switches is enabled
+         * and that it is possible to enable both fields again.
+         *
          * @param {boolean} newValue
          * @param {string} property
          */
         onChange(newValue, property) {
             if (property === 'createEntities') {
                 this.profile.config.createEntities = newValue;
-                this.profile.config.updateEntities = !newValue;
+                this.handleUpdateEntities(newValue);
             }
 
             if (property === 'updateEntities') {
-                this.profile.config.createEntities = !newValue;
                 this.profile.config.updateEntities = newValue;
+                this.handleCreateEntities(newValue);
             }
+        },
+
+        /**
+         * @param {boolean} newUpdateEntitiesValue
+         */
+        handleCreateEntities(newUpdateEntitiesValue) {
+            if (newUpdateEntitiesValue) {
+                return;
+            }
+
+            this.profile.config.createEntities = true;
+        },
+
+        /**
+         * @param {boolean} newCreateEntitiesValue
+         */
+        handleUpdateEntities(newCreateEntitiesValue) {
+            if (newCreateEntitiesValue) {
+                return;
+            }
+
+            this.profile.config.updateEntities = true;
         },
     },
 };

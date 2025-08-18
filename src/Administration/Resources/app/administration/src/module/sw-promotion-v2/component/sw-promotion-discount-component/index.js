@@ -173,7 +173,11 @@ export default {
         },
 
         showAbsoluteAdvancedPricesSettings() {
-            return this.discount.type === DiscountTypes.ABSOLUTE || this.discount.type === DiscountTypes.FIXED;
+            return (
+                this.discount.type === DiscountTypes.ABSOLUTE ||
+                this.discount.type === DiscountTypes.FIXED ||
+                this.discount.type === DiscountTypes.FIXED_UNIT
+            );
         },
 
         // only show advanced max value settings if

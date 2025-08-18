@@ -15,7 +15,7 @@ use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFact
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -51,7 +51,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         private readonly SystemConfigService $systemConfigService,
         private readonly ProductListingLoader $listingLoader,
         private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly CacheTagCollector $cacheTagCollector,
     ) {
     }
 
@@ -73,7 +73,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
     )]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductCrossSellingRouteResponse
     {
-        $this->dispatcher->dispatch(new AddCacheTagEvent(self::buildName($productId)));
+        $this->cacheTagCollector->addTag(self::buildName($productId));
 
         $crossSellings = $this->loadCrossSellings($productId, $context);
 

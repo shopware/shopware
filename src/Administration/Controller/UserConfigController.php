@@ -53,7 +53,7 @@ class UserConfigController extends AbstractController
         return new JsonResponse(['data' => $data]);
     }
 
-    #[Route(path: '/api/_info/config-me', name: 'api.config_me.update', defaults: ['auth_required' => true], methods: ['POST'])]
+    #[Route(path: '/api/_info/config-me', name: 'api.config_me.update', defaults: ['auth_required' => true], methods: ['POST', 'PATCH'])]
     public function updateConfigMe(Context $context, Request $request): Response
     {
         $postUpdateConfigs = $request->request->all();

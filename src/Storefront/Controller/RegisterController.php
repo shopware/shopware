@@ -287,9 +287,7 @@ class RegisterController extends StorefrontController
         $definition = new DataValidationDefinition('storefront.confirmation');
 
         if ($this->systemConfigService->get('core.loginRegistration.requireEmailConfirmation', $context->getSalesChannelId())) {
-            $definition->add('emailConfirmation', new NotBlank(), new EqualTo([
-                'value' => $data->get('email'),
-            ]));
+            $definition->add('emailConfirmation', new NotBlank(), new EqualTo(value: $data->get('email')));
         }
 
         if ($data->getBoolean('guest')) {
@@ -297,9 +295,7 @@ class RegisterController extends StorefrontController
         }
 
         if ($this->systemConfigService->get('core.loginRegistration.requirePasswordConfirmation', $context->getSalesChannelId())) {
-            $definition->add('passwordConfirmation', new NotBlank(), new EqualTo([
-                'value' => $data->get('password'),
-            ]));
+            $definition->add('passwordConfirmation', new NotBlank(), new EqualTo(value: $data->get('password')));
         }
 
         return $definition;

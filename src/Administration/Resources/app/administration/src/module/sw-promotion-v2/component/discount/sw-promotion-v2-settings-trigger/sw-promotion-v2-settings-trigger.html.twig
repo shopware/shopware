@@ -32,8 +32,8 @@
         {% endblock %}
 
         {% block sw_promotion_v2_settings_trigger_rule_selection_selection %}
-        <sw-promotion-v2-rule-select
-            v-model:collection="discount.discountRules"
+        <sw-select-rule-create
+            v-model:rules="discount.discountRules"
             local-mode
             class="sw-promotion-v2-settings-trigger-settings__rule-selection"
             :criteria="ruleCriteria"

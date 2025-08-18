@@ -378,7 +378,7 @@ WHERE app.active = 1 AND app.base_app_url is not null');
         try {
             return $this->shopIdProvider->getShopId();
         } catch (AppUrlChangeDetectedException $e) {
-            return $e->getShopId();
+            return $e->getShopId()->id;
         }
     }
 }

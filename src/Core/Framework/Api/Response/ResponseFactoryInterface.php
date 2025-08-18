@@ -28,9 +28,7 @@ interface ResponseFactoryInterface
     ): Response;
 
     /**
-     * @template TEntityCollection of EntityCollection
-     *
-     * @param EntitySearchResult<covariant TEntityCollection> $searchResult
+     * @param EntitySearchResult<covariant EntityCollection<covariant Entity>> $searchResult
      */
     public function createListingResponse(
         Criteria $criteria,

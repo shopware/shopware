@@ -17,6 +17,10 @@ test('Registered shop customer buys a product.', { tag: '@Checkout' }, async ({
     SubmitOrder_a11yAssert,
 }) => {
     const product = await TestDataService.createBasicProduct();
+    const paidInAdvance = await TestDataService.getPaymentMethod('Paid in advance');
+    const cashOnDelivery = await TestDataService.getPaymentMethod('Cash on delivery');
+    await TestDataService.assignSalesChannelPaymentMethod(DefaultSalesChannel.salesChannel.id, paidInAdvance.id );
+    await TestDataService.assignSalesChannelPaymentMethod(DefaultSalesChannel.salesChannel.id, cashOnDelivery.id );
 
     await ShopCustomer.attemptsTo(Login_a11yAssert());
 
@@ -27,11 +31,14 @@ test('Registered shop customer buys a product.', { tag: '@Checkout' }, async ({
 
     await ShopCustomer.attemptsTo(AddProductToCart_a11yAssert(product));
     await ShopCustomer.attemptsTo(ProceedFromProductToCheckout_a11yAssert());
-
     await ShopCustomer.attemptsTo(ConfirmTermsAndConditions_a11yAssert());
-    await ShopCustomer.attemptsTo(SelectInvoicePaymentOption_a11yAssert());
-    await ShopCustomer.attemptsTo(SelectStandardShippingOption_a11yAssert());
 
+    //testing radio selection from last to first
+    await StorefrontCheckoutConfirm.paymentPaidInAdvance.check();
+    await ShopCustomer.attemptsTo(SelectInvoicePaymentOption_a11yAssert());
+
+    //desired radio button is selected by default
+    await ShopCustomer.attemptsTo(SelectStandardShippingOption_a11yAssert());
     await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText('€10.00');
 
     await ShopCustomer.attemptsTo(SubmitOrder_a11yAssert());

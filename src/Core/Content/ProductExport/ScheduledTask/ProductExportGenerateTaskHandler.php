@@ -58,7 +58,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 
             $now = new \DateTimeImmutable('now');
 
-            foreach ($productExports->getElements() as $productExport) {
+            foreach ($productExports as $productExport) {
                 if (!$this->shouldBeRun($productExport, $now)) {
                     continue;
                 }

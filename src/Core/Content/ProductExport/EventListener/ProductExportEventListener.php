@@ -56,17 +56,15 @@ class ProductExportEventListener implements EventSubscriberInterface
                 ],
                 $event->getContext()
             );
-            $productExportResult = $this->productExportRepository->search(new Criteria([$primaryKey]), $event->getContext())->getEntities();
-            if ($productExportResult->count() !== 0) {
-                $productExport = $productExportResult->first();
-                if (!$productExport) {
-                    continue;
-                }
 
-                $filePath = $this->productExportFileHandler->getFilePath($productExport);
-                if ($this->fileSystem->fileExists($filePath)) {
-                    $this->fileSystem->delete($filePath);
-                }
+            $productExport = $this->productExportRepository->search(new Criteria([$primaryKey]), $event->getContext())->getEntities()->first();
+            if (!$productExport) {
+                continue;
+            }
+
+            $filePath = $this->productExportFileHandler->getFilePath($productExport);
+            if ($this->fileSystem->fileExists($filePath)) {
+                $this->fileSystem->delete($filePath);
             }
         }
     }

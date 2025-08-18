@@ -276,10 +276,10 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
     private function createPromotionsAndOrder(): void
     {
-        /** @var EntityRepository<PromotionCollection> $promotionRepository */
+        /** @var EntityRepository<PromotionCollection> */
         $promotionRepository = static::getContainer()->get('promotion.repository');
 
-        /** @var EntityRepository<PromotionIndividualCodeCollection> $promotionRepository */
+        /** @var EntityRepository<PromotionIndividualCodeCollection> */
         $promotionIndividualCodeRepository = static::getContainer()->get('promotion_individual_code.repository');
 
         $voucherA = $this->ids->create('voucherA');

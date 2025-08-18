@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class ImageSliderStruct extends Struct
 {
+    /**
+     * @var array<mixed>|null
+     */
     protected ?array $navigation = null;
 
     /**
@@ -48,11 +51,17 @@ class ImageSliderStruct extends Struct
         $this->sliderItems[] = $sliderItem;
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     public function getNavigation(): ?array
     {
         return $this->navigation;
     }
 
+    /**
+     * @param array<mixed>|null $navigation
+     */
     public function setNavigation(?array $navigation): void
     {
         $this->navigation = $navigation;

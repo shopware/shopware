@@ -35,6 +35,16 @@ export default class SwProductCard extends HTMLElement {
     }
 
     /**
+     * Having a static template either here or in the HTML is more memory efficient and is
+     * recommended for larger projects that re-use the same web-component very often.
+     *
+     * What I don't like about this is that we later have to update any dynamic content again.
+     * (For example: The product name) You have to write some custom JS logic to update the content.
+     *
+     * Conditional rendering can also be harder because you have to basically come up with some
+     * custom JS logic to later update the static template with things that should render under
+     * some specific condition.
+     *
      * @return {HTMLTemplateElement}
      */
     static staticTemplate = (() => {
@@ -59,15 +69,10 @@ export default class SwProductCard extends HTMLElement {
 
                     <div class="sw-product-card-price mb-3 card-text">
                         <div class="fw-bold" id="product-price">$49,99</div>
-                        <a 
-                            role="button"
-                            class="" 
-                            type="button" 
-                            data-ajax-modal="true" 
-                            data-url="#">
-                            incl. VAT plus shipping costs
-                        </a>
-                        <sw-ajax-modal data-url="/a-funny/route">Somewhere</sw-ajax-modal>
+
+                        <sw-ajax-modal data-url="/tax/route">
+                            incl. VAT plus shipping costs   
+                        </sw-ajax-modal>
                     </div>
 
                     <div class="sw-product-card-actions d-grid">
@@ -115,7 +120,7 @@ export default class SwProductCard extends HTMLElement {
     renderActions() {
         if (this.displayBuyButton) {
             return `
-                <sw-button variant="primary">Buy</sw-button>
+                <sw-buy-button product-id="">Add to shopping cart</sw-buy-button>
             `;
         }
 

@@ -22,12 +22,20 @@ export default class SwButton extends HTMLElement {
         this.shadowRoot.innerHTML = this.template();
     }
 
+    /**
+     * This is a more "simple" version that creates the template every time directly
+     * when the web-component is created. The downside is that the template is created
+     * from scratch for every component instance. The upside is that I have already
+     * access to the dynamic content and can use it directly in the template via a simple ${someVar}
+     *
+     * @returns string
+     */
     template() {
         return `
             <link href="${window.themeWebComponentsPath}/vendor/bootstrap.min.css" rel="stylesheet">
-            <link rel="stylesheet" href="${window.themeWebComponentsPath}/sw-button/sw-button.css">
 
             <style>
+                /* Fix to make parent grid class work again */
                 :host-context(.d-grid) {
                     display: grid !important; 
                 }

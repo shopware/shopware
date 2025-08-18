@@ -72,6 +72,8 @@ export default class FormCmsHandler extends Plugin {
         const response = JSON.parse(res);
         this.$emitter.publish('onFormResponse', res);
 
+        this.el.dispatchEvent(new CustomEvent('removeLoader'));
+
         if (response.length > 0) {
             let changeContent = true;
             let content = '';

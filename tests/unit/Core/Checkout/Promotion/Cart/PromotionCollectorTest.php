@@ -104,7 +104,7 @@ class PromotionCollectorTest extends TestCase
 
         $cartDataCollection = new CartDataCollection();
 
-        $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior(isRecalculation: true));
+        $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior(OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS));
 
         static::assertEmpty($cart->getErrors()->getElements());
     }

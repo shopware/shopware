@@ -15,6 +15,7 @@ use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
@@ -39,7 +40,8 @@ class SalesChannelCmsPageLoaderTest extends TestCase
         $loader = new SalesChannelCmsPageLoader(
             $cmsPageRepository,
             $this->createMock(CmsSlotsDataResolver::class),
-            $this->createMock(EventDispatcher::class)
+            $this->createMock(EventDispatcher::class),
+            $this->createMock(CacheTagCollector::class),
         );
 
         $result = $loader->load(new Request(), new Criteria(), Generator::generateSalesChannelContext());
@@ -64,7 +66,8 @@ class SalesChannelCmsPageLoaderTest extends TestCase
         $loader = new SalesChannelCmsPageLoader(
             $cmsPageRepository,
             $this->createMock(CmsSlotsDataResolver::class),
-            $this->createMock(EventDispatcher::class)
+            $this->createMock(EventDispatcher::class),
+            $this->createMock(CacheTagCollector::class),
         );
 
         $config = [

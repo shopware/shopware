@@ -42,7 +42,7 @@ class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
     #[Route(path: '/store-api/checkout/cart/line-item', name: 'store-api.checkout.cart.update-lineitem', methods: ['PATCH'])]
     public function change(Request $request, Cart $cart, SalesChannelContext $context): CartResponse
     {
-        return $this->cartLocker->locked($cart->getToken(), function () use ($request, $cart, $context) {
+        return $this->cartLocker->locked($context, function () use ($request, $cart, $context) {
             $itemsToUpdate = $request->request->all('items');
 
             /** @var array<mixed> $item */

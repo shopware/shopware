@@ -22,7 +22,6 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
@@ -65,7 +64,6 @@ class CheckoutController extends StorefrontController
         private readonly OrderService $orderService,
         private readonly PaymentProcessor $paymentProcessor,
         private readonly OffcanvasCartPageLoader $offcanvasCartPageLoader,
-        private readonly SystemConfigService $config,
         private readonly AbstractLogoutRoute $logoutRoute,
         private readonly AbstractCartLoadRoute $cartLoadRoute,
         private readonly HeaderPageletLoaderInterface $headerPageletLoader,
@@ -194,7 +192,7 @@ class CheckoutController extends StorefrontController
             );
         }
 
-        if ($context->getCustomer()->getGuest() && $this->config->get('core.cart.logoutGuestAfterCheckout', $context->getSalesChannelId())) {
+        if ($page->isLogoutCustomer()) {
             $this->logoutRoute->logout($context, $dataBag);
         }
 

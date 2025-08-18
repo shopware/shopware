@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\System\Snippet\Files;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\Filesystem as Flysystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
@@ -12,6 +14,7 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
+use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 
@@ -29,12 +32,15 @@ class AppSnippetFileLoaderTest extends TestCase
 
     protected function setUp(): void
     {
+        $flySystem = new Flysystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
         $this->snippetFileLoader = new SnippetFileLoader(
             $this->createMock(Kernel::class),
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(AppSnippetFileLoader::class),
             static::getContainer()->get(ActiveAppsLoader::class),
             static::getContainer()->get(TranslationConfig::class),
+            static::getContainer()->get(TranslationLoader::class),
+            $flySystem
         );
     }
 

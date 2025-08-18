@@ -192,7 +192,7 @@ class GrantDownloadAccessActionTest extends TestCase
     {
         $sequence = $event->getStorableFlow()->getFlowState()->currentSequence;
 
-        if ($sequence instanceof ActionSequence && $sequence->action !== 'action.grant.download.access') {
+        if ($sequence instanceof ActionSequence && $sequence->action !== 'action.mail.send') {
             return null;
         }
 

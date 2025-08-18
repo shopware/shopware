@@ -79,6 +79,7 @@ class CookieServiceTest extends TestCase
             ]),
         ];
 
+        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $translator = $this->createMock(TranslatorInterface::class);
@@ -132,6 +133,7 @@ class CookieServiceTest extends TestCase
             $cookieGroup,
         ];
 
+        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $translator = $this->createMock(TranslatorInterface::class);
@@ -180,11 +182,11 @@ class CookieServiceTest extends TestCase
             ]),
         ];
 
+        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $translator = $this->createMock(TranslatorInterface::class);
 
-        // @phpstan-ignore-next-line
         $cookieService = new CookieService($systemConfigService, $repository, $translator);
         $result = $cookieService->getCookieGroupCollection($cookieGroups, $salesChannelContext, false);
 
@@ -227,6 +229,7 @@ class CookieServiceTest extends TestCase
             ]),
         ];
 
+        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $translator = $this->createMock(TranslatorInterface::class);

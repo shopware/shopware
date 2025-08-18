@@ -116,7 +116,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             mockLocalStorage.getItem.mockReturnValue('600');
 
             const wrapper = await createWrapper();
-            
+
             expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('600px');
             expect(mockLocalStorage.getItem).toHaveBeenCalledWith('sw-sidebar-width');
         });
@@ -125,7 +125,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             mockLocalStorage.getItem.mockReturnValue('600');
 
             const wrapper = await createWrapper();
-            
+
             await ui.sidebar.add({
                 title: 'Test sidebar',
                 locationId: 'test-sidebar',

@@ -59,7 +59,7 @@ class ConfigValidator extends AbstractManifestValidator
     {
         $configPath = \sprintf('%s/Resources/config/config.xml', $appFolder);
 
-        if (!file_exists($configPath)) {
+        if (!\is_file($configPath)) {
             return [];
         }
 

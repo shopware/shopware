@@ -28,6 +28,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Account\Login\AccountGuestLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
@@ -41,7 +42,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('framework')]
 class AuthController extends StorefrontController
 {
@@ -178,7 +179,7 @@ class AuthController extends StorefrontController
         } catch (CustomerAuthThrottledException $e) {
             $waitTime = $e->getWaitTime();
         } catch (BadCredentialsException|CustomerNotFoundException) {
-        } catch (PasswordPoliciesUpdatedException $e) {
+        } catch (PasswordPoliciesUpdatedException) {
             $this->addFlash(self::WARNING, $this->trans('account.passwordPoliciesUpdated'));
 
             return $this->forwardToRoute('frontend.account.recover.page');
@@ -229,9 +230,9 @@ class AuthController extends StorefrontController
             );
 
             $this->addFlash(self::SUCCESS, $this->trans('account.recoveryMailSend'));
-        } catch (CustomerNotFoundException $e) {
+        } catch (CustomerNotFoundException) {
             $this->addFlash(self::SUCCESS, $this->trans('account.recoveryMailSend'));
-        } catch (InconsistentCriteriaIdsException $e) {
+        } catch (InconsistentCriteriaIdsException) {
             $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         } catch (RateLimitExceededException $e) {
             $this->addFlash(self::INFO, $this->trans('error.rateLimitExceeded', ['%seconds%' => $e->getWaitTime()]));

@@ -79,6 +79,7 @@
             <argument type="service" id="country_state.repository"/>
             <argument type="service" id="currency_country_rounding.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\ContextFactory"/>
+            <argument type="service" id="language.repository"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\ContextFactory">
@@ -94,7 +95,7 @@
 
         <service id="Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory"
                  decorates="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"
-                 decoration-priority="-1000">
+                 decoration-priority="-1000" public="true">
             <argument type="service" id=".inner"/>
             <argument type="service" id="cache.object"/>
         </service>
@@ -105,6 +106,7 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer">

@@ -4,7 +4,7 @@
 
 import template from './sw-property-option-detail.html.twig';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -14,6 +14,11 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
+        'customFieldDataProviderService',
+    ],
+
+    mixins: [
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
@@ -36,6 +41,12 @@ export default {
         'save-option-edit',
     ],
 
+    data() {
+        return {
+            customFieldSets: null,
+        };
+    },
+
     computed: {
         mediaRepository() {
             return this.repositoryFactory.create('media');
@@ -51,10 +62,31 @@ export default {
             },
         },
 
+        modalTitle() {
+            return this.currentOption?.translated?.name || this.$tc('sw-property.detail.textOptionHeadline');
+        },
+
         ...mapPropertyErrors('currentOption', ['name']),
+
+        showCustomFields() {
+            return this.currentOption && this.customFieldSets && this.customFieldSets.length > 0;
+        },
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {
+        createdComponent() {
+            this.loadCustomFieldSets();
+        },
+
+        loadCustomFieldSets() {
+            this.customFieldDataProviderService.getCustomFieldSets('property_group_option').then((sets) => {
+                this.customFieldSets = sets;
+            });
+        },
         onCancel() {
             // Remove all property group options
             Shopware.Store.get('error').removeApiError('property_group_option');

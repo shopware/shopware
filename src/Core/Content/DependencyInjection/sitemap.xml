@@ -31,7 +31,7 @@
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapLister"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapExporter"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
 
         <service id="Shopware\Core\Content\Sitemap\SalesChannel\SitemapFileRoute" public="true">

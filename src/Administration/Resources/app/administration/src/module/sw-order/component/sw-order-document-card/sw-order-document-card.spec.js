@@ -157,6 +157,7 @@ async function createWrapper() {
                 'sw-media-upload-v2': true,
                 'sw-media-modal-v2': true,
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },
+                'sw-time-ago': true,
             },
             provide: {
                 documentService: {
@@ -199,7 +200,11 @@ async function createWrapper() {
                         searchIds: () => Promise.resolve([]),
                     }),
                 },
-                searchRankingService: {},
+                searchRankingService: {
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
             },
             mocks: {
                 $route: {
@@ -246,12 +251,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
 
         setActivePinia(createPinia());
-    });
-
-    it('should be a Vue.js component', async () => {
-        global.activeAclRoles = [];
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have an disabled create new button', async () => {

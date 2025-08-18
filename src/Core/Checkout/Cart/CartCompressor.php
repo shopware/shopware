@@ -19,7 +19,7 @@ class CartCompressor
     /**
      * @internal
      */
-    public function __construct(private bool $compress, string $compressMethod)
+    public function __construct(private readonly bool $compress, string $compressMethod)
     {
         $this->compressMethod = match ($compressMethod) {
             'zstd' => self::COMPRESSION_TYPE_ZSTD,

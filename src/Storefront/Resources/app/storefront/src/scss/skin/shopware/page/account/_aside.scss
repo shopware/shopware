@@ -28,6 +28,15 @@
 .account-aside-btn {
     line-height: normal;
     padding: 3px 0;
+
+    .icon {
+        vertical-align: middle;
+        margin-right: $spacer-xs;
+
+        svg {
+            top: 0;
+        }
+    }
 }
 
 .account-guest-abort {

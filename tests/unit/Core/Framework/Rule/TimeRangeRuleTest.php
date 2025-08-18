@@ -29,6 +29,20 @@ class TimeRangeRuleTest extends TestCase
         static::assertTrue($match);
     }
 
+    public function testIfOnSameDayInTimeRangeWithTimezoneMatches(): void
+    {
+        $rule = new TimeRangeRule();
+
+        $rule->assign(['fromTime' => '00:00', 'toTime' => '12:00', 'timezone' => 'Europe/Berlin']);
+
+        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable('12:00', new \DateTimeZone('Europe/Berlin')));
+
+        $match = $rule->match($ruleScope);
+
+        static::assertTrue($match);
+    }
+
     public function testIfOnSameDayOutOfTimeRangeMatches(): void
     {
         $rule = new TimeRangeRule();
@@ -37,6 +51,60 @@ class TimeRangeRuleTest extends TestCase
 
         $ruleScope = $this->createMock(RuleScope::class);
         $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable('12:01'));
+
+        $match = $rule->match($ruleScope);
+
+        static::assertFalse($match);
+    }
+
+    public function testIfOnSameDayOutOfTimeRangeWithTimezoneMatches(): void
+    {
+        $rule = new TimeRangeRule();
+
+        $rule->assign(['fromTime' => '00:00', 'toTime' => '12:00', 'timezone' => 'Europe/Berlin']);
+
+        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable('12:01', new \DateTimeZone('Europe/Berlin')));
+
+        $match = $rule->match($ruleScope);
+
+        static::assertFalse($match);
+    }
+
+    public function testIfOnSameDayInTimeRangeWithDifferentTimezonesAndCurrentOffsetMatches(): void
+    {
+        $rule = new TimeRangeRule();
+
+        $timezoneEuropeBerlin = new \DateTimeZone('Europe/Berlin');
+        $timezoneUTC = new \DateTimeZone('UTC');
+
+        $offset = $timezoneEuropeBerlin->getOffset(new \DateTimeImmutable('now', $timezoneUTC)) / 3600;
+        $toTime = (12 + $offset) . ':00';
+
+        $rule->assign(['fromTime' => '00:00', 'toTime' => $toTime, 'timezone' => 'Europe/Berlin']);
+
+        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable('12:00', new \DateTimeZone('UTC')));
+
+        $match = $rule->match($ruleScope);
+
+        static::assertTrue($match);
+    }
+
+    public function testIfOnSameDayOutOfTimeRangeWithDifferentTimezonesAndCurrentOffsetMatches(): void
+    {
+        $rule = new TimeRangeRule();
+
+        $timezoneEuropeBerlin = new \DateTimeZone('Europe/Berlin');
+        $timezoneUTC = new \DateTimeZone('UTC');
+
+        $offset = $timezoneEuropeBerlin->getOffset(new \DateTimeImmutable('now', $timezoneUTC)) / 3600;
+        $toTime = (11 + $offset) . ':00';
+
+        $rule->assign(['fromTime' => '00:00', 'toTime' => $toTime, 'timezone' => 'Europe/Berlin']);
+
+        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable('12:00', new \DateTimeZone('UTC')));
 
         $match = $rule->match($ruleScope);
 

@@ -51,9 +51,9 @@
     >
 
         {% block sw_promotion_v2_rule_conditions_rule_select_customer %}
-        <sw-promotion-v2-rule-select
+        <sw-select-rule-create
             v-if="promotion"
-            v-model:collection="promotion.personaRules"
+            v-model:rules="promotion.personaRules"
             class="sw-promotion-v2-conditions__rule-select-customer"
             :local-mode="promotion.isNew()"
             :criteria="personaRuleFilter"
@@ -73,10 +73,11 @@
         {% endblock %}
 
         {% block sw_promotion_v2_rule_conditions_rule_select_order_conditions %}
-        <sw-promotion-v2-rule-select
+        <sw-select-rule-create
             v-if="promotion"
-            v-model:collection="promotion.orderRules"
+            v-model:rules="promotion.orderRules"
             class="sw-promotion-v2-conditions__rule-select-order-conditions"
+            :local-mode="promotion.isNew()"
             :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelOrderConditionSelect')"
             :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderOrderConditionSelect')"
             :criteria="orderConditionsFilter"

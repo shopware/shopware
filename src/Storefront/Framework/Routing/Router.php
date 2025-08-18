@@ -24,10 +24,13 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     /**
      * @internal
+     *
+     * @param list<string> $allowedRoutes
      */
     public function __construct(
         private readonly SymfonyRouter $decorated,
-        private readonly RequestStack $requestStack
+        private readonly RequestStack $requestStack,
+        private readonly array $allowedRoutes = [],
     ) {
     }
 
@@ -168,7 +171,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     private function getSalesChannelBaseUrl(): string
     {
-        $request = $this->requestStack->getMainRequest();
+        $request = $this->requestStack->getCurrentRequest();
         if (!$request) {
             return '';
         }
@@ -184,7 +187,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     private function getBasePath(): string
     {
-        $request = $this->requestStack->getMainRequest();
+        $request = $this->requestStack->getCurrentRequest();
         if (!$request) {
             return '';
         }
@@ -194,8 +197,12 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     private function isStorefrontRoute(string $name): bool
     {
-        $routeScopes = $this->getRouteCollection()->get($name)?->getDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE) ?? [];
+        if (\in_array($name, $this->allowedRoutes, true)) {
+            return true;
+        }
 
-        return \in_array(StorefrontRouteScope::ID, $routeScopes, true);
+        return str_starts_with($name, 'frontend.')
+            || str_starts_with($name, 'widgets.')
+            || str_starts_with($name, 'payment.');
     }
 }

@@ -7,6 +7,29 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
     let wrapper;
 
     beforeEach(async () => {
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
+        }
+
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
+                app: {
+                    config: {
+                        settings: {
+                            enableUrlFeature: false,
+                        },
+                    },
+                },
+                api: {
+                    assetPath: 'http://localhost:8000/bundles/administration/',
+                    authToken: {
+                        token: 'testToken',
+                    },
+                },
+            }),
+        });
+
         wrapper = mount(
             await wrapTestComponent('sw-media-compact-upload-v2', {
                 sync: true,
@@ -28,12 +51,6 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
                     },
                     provide: {
                         repositoryFactory: {},
-                        configService: {
-                            getConfig: () =>
-                                Promise.resolve({
-                                    settings: { enableUrlFeature: false },
-                                }),
-                        },
                         mediaService: {
                             addListener: () => {},
                             removeByTag: () => {},
@@ -47,10 +64,6 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
                 },
             },
         );
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain the default accept value', async () => {

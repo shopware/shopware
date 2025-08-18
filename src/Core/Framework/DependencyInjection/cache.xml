@@ -31,7 +31,7 @@
             <argument type="tagged_locator" tag="shopware.cache.invalidator.storage" index-by="storage" />
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage" lazy="true">
+        <service id="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage">
             <factory service="shopware.cache.invalidator.storage.locator" method="get"/>
 
             <argument>%shopware.cache.invalidation.delay_options.storage%</argument>
@@ -46,7 +46,9 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Psr\Log\LoggerInterface"/>
             <argument type="service" id="request_stack"/>
-            <argument>%kernel.environment%</argument>
+            <argument type="service" id="cache.http"/>
+            <argument>%shopware.http_cache.soft_purge%</argument>
+            <argument>%shopware.cache.invalidation.delay_enabled%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTask">
@@ -73,12 +75,22 @@
             <argument>%kernel.cache_dir%</argument>
             <argument>%kernel.environment%</argument>
             <argument>%shopware.deployment.cluster_setup%</argument>
+            <argument>%shopware.http_cache.reverse_proxy.enabled%</argument>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="lock.factory"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFoldersHandler">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\Message\RefreshHttpCacheMessageHandler">
+            <argument type="service" id="http_kernel.cache.inner"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CacheStore"/>
+            <argument type="service" id="cache.http"/>
 
             <tag name="messenger.message_handler"/>
         </service>
@@ -135,6 +147,7 @@
 
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector">
             <argument type="service" id="request_stack"/>
+            <argument type="service" id="event_dispatcher"/>
             <tag name="kernel.event_listener" />
         </service>
 

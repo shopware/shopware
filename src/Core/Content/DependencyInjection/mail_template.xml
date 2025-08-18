@@ -56,6 +56,7 @@
             <argument type="service" id="shopware.filesystem.private"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument>%shopware.mail.max_body_length%</argument>
+            <argument type="service" id="logger"/>
             <argument type="abstract" id="message bus"/>
         </service>
 

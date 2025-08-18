@@ -16,8 +16,9 @@ test('As a merchant, I would be able to adjust storefront rounding for defined c
     SelectInvoicePaymentOption,
     SelectStandardShippingOption,
     SubmitOrder,
+    HomeProduct,
 }) => {
-    const product = await TestDataService.createBasicProduct();
+    const product = HomeProduct;
     const currency = await TestDataService.createCurrency({ factor: 2.25555 });
     const country = await TestDataService.createCountry();
     const salutation = await TestDataService.getSalutation();
@@ -41,6 +42,7 @@ test('As a merchant, I would be able to adjust storefront rounding for defined c
             salutationId: salutation.id,
         },
     });
+
     await TestDataService.assignCurrencyCountryRounding(currency.id, country.id, 3);
     await TestDataService.assignSalesChannelCurrency(DefaultSalesChannel.salesChannel.id, currency.id);
     await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, country.id);
@@ -49,23 +51,23 @@ test('As a merchant, I would be able to adjust storefront rounding for defined c
     await ShopCustomer.goesTo(StorefrontHome.url());
     await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.isoCode));
     const productListingLocatorsByProductId = await StorefrontHome.getListingItemByProductName(product.name);
-    await ShopCustomer.expects(productListingLocatorsByProductId.productPrice).toContainText(currency.isoCode+' 22.556');
+    await ShopCustomer.expects(productListingLocatorsByProductId.productPrice).toContainText(currency.isoCode + ' 22.556');
 
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-    await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toContainText(currency.isoCode+' 22.556');
+    await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toContainText(currency.isoCode + ' 22.556');
 
     await ShopCustomer.attemptsTo(AddProductToCart(product));
-    await ShopCustomer.expects(StorefrontProductDetail.offCanvasSummaryTotalPrice).toContainText(currency.isoCode+' 22.556');
+    await ShopCustomer.expects(StorefrontProductDetail.offCanvasSummaryTotalPrice).toContainText(currency.isoCode + ' 22.556');
     await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
 
     await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
     await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
     await ShopCustomer.attemptsTo(SelectStandardShippingOption());
 
-    await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText(currency.isoCode+' 22.556');
+    await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText(currency.isoCode + ' 22.556');
 
     await ShopCustomer.attemptsTo(SubmitOrder());
-    await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toContainText(currency.isoCode+' 22.556');
+    await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toContainText(currency.isoCode + ' 22.556');
 
     const orderId = StorefrontCheckoutFinish.getOrderId();
 

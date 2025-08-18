@@ -481,10 +481,10 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const columnVat = header.find('.sw-data-grid__cell--4');
-        const columnPrice = header.find('.sw-data-grid__cell--1');
+        const firstRow = wrapper.find('.sw-data-grid__row--0');
+        const columnVat = firstRow.find('.sw-data-grid__cell--price-taxRules\\[0\\]');
         expect(columnVat.exists()).toBe(true);
-        expect(columnPrice.text()).not.toBe('sw-order.createBase.columnPriceTaxFree');
+        expect(header.text()).not.toContain('sw-order.createBase.columnPriceTaxFree');
     });
 
     it('should not have vat column and price label is tax free when tax status is tax free', async () => {
@@ -499,10 +499,10 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const columnVat = header.find('.sw-data-grid__cell--5');
-        const columnPrice = header.find('.sw-data-grid__cell--3');
+        const firstRow = wrapper.find('.sw-data-grid__row--0');
+        const columnVat = firstRow.find('.sw-data-grid__cell--price-taxRules\\[0\\]');
         expect(columnVat.exists()).toBe(false);
-        expect(columnPrice.text()).toBe('sw-order.detailBase.columnPriceTaxFree');
+        expect(header.text()).toContain('sw-order.detailBase.columnPriceTaxFree');
     });
 
     // eslint-disable-next-line max-len
@@ -534,7 +534,6 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         const wrapper = await createWrapper();
 
         let header;
-        let columnTotal;
 
         await wrapper.setProps({
             order: {
@@ -545,8 +544,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         header = wrapper.find('.sw-data-grid__header');
-        columnTotal = header.find('.sw-data-grid__cell--4');
-        expect(columnTotal.text()).toBe('sw-order.detailBase.columnTotalPriceNet');
+        expect(header.text()).toContain('sw-order.detailBase.columnTotalPriceNet');
 
         await wrapper.setProps({
             order: {
@@ -557,8 +555,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         header = wrapper.find('.sw-data-grid__header');
-        columnTotal = header.find('.sw-data-grid__cell--5');
-        expect(columnTotal.text()).toBe('sw-order.detailBase.columnTotalPriceGross');
+        expect(header.text()).toContain('sw-order.detailBase.columnTotalPriceGross');
 
         await wrapper.setProps({
             order: {
@@ -569,8 +566,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         header = wrapper.find('.sw-data-grid__header');
-        columnTotal = header.find('.sw-data-grid__cell--5');
-        expect(columnTotal.text()).toBe('sw-order.detailBase.columnTotalPriceNet');
+        expect(header.text()).toContain('sw-order.detailBase.columnTotalPriceNet');
     });
 
     it('should able to create new empty line item', async () => {
@@ -875,9 +871,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const columnProductNumber = header.find('.sw-data-grid__cell--2');
-
-        expect(columnProductNumber.text()).toBe('sw-order.detailBase.columnProductNumber');
+        expect(header.text()).toContain('sw-order.detailBase.columnProductNumber');
     });
 
     it('should show items correctly when search by product number', async () => {

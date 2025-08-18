@@ -194,6 +194,19 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         expect(wrapper.vm.element.config.isDecorative.value).toBe(false);
     });
 
+    it('should change the useFetchPriorityOnFirstItem value', async () => {
+        const wrapper = await createWrapper('settings');
+        const useFetchPriorityOnFirstItemSwitch = wrapper.find('.sw-cms-el-config-image-slider__settings-use-fetch-priority-on-first-item input');
+
+        await useFetchPriorityOnFirstItemSwitch.setValue(true);
+
+        expect(wrapper.vm.element.config.useFetchPriorityOnFirstItem.value).toBe(true);
+
+        await useFetchPriorityOnFirstItemSwitch.setValue(false);
+
+        expect(wrapper.vm.element.config.useFetchPriorityOnFirstItem.value).toBe(false);
+    });
+
     /**
      * Re-implement after properly implementing/fixing auto slide.
      * This feature is currently unusable, since it's unstyled and re-enables itself, while creating broken states.

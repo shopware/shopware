@@ -62,6 +62,8 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
             $imageSlider->setNavigation($navigation->getArrayValue());
         }
 
+        $imageSlider->setUseFetchPriorityOnFirstItem((bool) $config->get('useFetchPriorityOnFirstItem'));
+
         $sliderItemsConfig = $config->get('sliderItems');
         if ($sliderItemsConfig === null) {
             return;

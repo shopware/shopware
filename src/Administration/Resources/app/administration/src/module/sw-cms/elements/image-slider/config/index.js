@@ -310,5 +310,11 @@ export default {
 
             this.$emit('element-update', this.element);
         },
+
+        onChangeUseFetchPriorityOnFirstItem(value) {
+            this.element.config.useFetchPriorityOnFirstItem.value = value;
+
+            this.$emit('element-update', this.element);
+        },
     },
 };

@@ -15,6 +15,18 @@ class ImageSliderStruct extends Struct
      */
     protected ?array $sliderItems = [];
 
+    protected ?bool $useFetchPriorityOnFirstItem = null;
+
+    public function getUseFetchPriorityOnFirstItem(): ?bool
+    {
+        return $this->useFetchPriorityOnFirstItem;
+    }
+
+    public function setUseFetchPriorityOnFirstItem(?bool $useFetchPriorityOnFirstItem): void
+    {
+        $this->useFetchPriorityOnFirstItem = $useFetchPriorityOnFirstItem;
+    }
+
     /**
      * @return ImageSliderItemStruct[]|null
      */

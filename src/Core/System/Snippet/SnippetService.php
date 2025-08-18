@@ -19,6 +19,7 @@ use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 use Shopware\Core\System\Snippet\Event\SnippetsThemeResolveEvent;
 use Shopware\Core\System\Snippet\Extension\StorefrontSnippetsExtension;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
+use Shopware\Core\System\Snippet\Files\RemoteSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
 use Symfony\Component\Translation\MessageCatalogueInterface;
@@ -575,10 +576,10 @@ class SnippetService
      */
     private function decodeSnippetFileJson(AbstractSnippetFile $snippetFile): array
     {
-        if ($snippetFile->isLocal()) {
-            $content = (string) file_get_contents($snippetFile->getPath());
-        } else {
+        if ($snippetFile instanceof RemoteSnippetFile) {
             $content = $this->filesystem->read($snippetFile->getPath());
+        } else {
+            $content = (string) file_get_contents($snippetFile->getPath());
         }
 
         try {

@@ -38,9 +38,4 @@ class UnitTest_SnippetFile extends AbstractSnippetFile
     {
         return 'unitFile';
     }
-
-    public function isLocal(): bool
-    {
-        return true;
-    }
 }

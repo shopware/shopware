@@ -50,6 +50,4 @@ abstract class AbstractSnippetFile
      * Returns a technical name of the bundle or app that the file is belonged to
      */
     abstract public function getTechnicalName(): string;
-
-    abstract public function isLocal(): bool;
 }

@@ -19,7 +19,6 @@ class MockSnippetFile extends AbstractSnippetFile
         private readonly string $content = '{}',
         private readonly bool $isBase = true,
         private readonly string $technicalName = 'mock',
-        private readonly bool $isLocal = true,
     ) {
         $this->iso = $iso ?? $name;
     }
@@ -57,10 +56,5 @@ class MockSnippetFile extends AbstractSnippetFile
     public function getContent(): string
     {
         return $this->content;
-    }
-
-    public function isLocal(): bool
-    {
-        return $this->isLocal;
     }
 }

@@ -148,7 +148,6 @@ class SnippetValidator implements SnippetValidatorInterface
                 'Shopware',
                 false,
                 '',
-                true,
             ));
         }
 

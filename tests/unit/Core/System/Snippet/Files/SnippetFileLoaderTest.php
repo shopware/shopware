@@ -27,6 +27,7 @@ use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection as Lan
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
 use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
+use Shopware\Core\System\Snippet\Files\RemoteSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
@@ -145,7 +146,6 @@ class SnippetFileLoaderTest extends TestCase
                 'test Author',
                 true,
                 'ShopwareBundleWithSnippets',
-                true,
             ),
             new GenericSnippetFile(
                 'test',
@@ -154,7 +154,6 @@ class SnippetFileLoaderTest extends TestCase
                 'test Author',
                 true,
                 'ShopwareBundleWithSnippets',
-                true,
             ),
         ]);
 
@@ -260,7 +259,6 @@ class SnippetFileLoaderTest extends TestCase
             'Test Author',
             false,
             'TestApp',
-            true,
         );
 
         $appSnippetFileLoader = $this->createMock(AppSnippetFileLoader::class);
@@ -419,13 +417,13 @@ class SnippetFileLoaderTest extends TestCase
         static::assertCount(6, $collection);
 
         $files = $collection->getElements();
-        static::assertContainsOnlyInstancesOf(GenericSnippetFile::class, $files);
+        static::assertContainsOnlyInstancesOf(RemoteSnippetFile::class, $files);
 
         $platformPath = Path::join($loader->getLocalePath('es-ES'), 'Platform');
         $platformPath = mb_ltrim($platformPath, '/\\');
         $activePluginPath = Path::join($loader->getLocalePath('es-ES'), 'Plugins', 'activePlugin');
         $activePluginPath = mb_ltrim($activePluginPath, '/\\');
-        $actualPaths = array_map(static fn (GenericSnippetFile $file) => $file->getPath(), $files);
+        $actualPaths = array_map(static fn (RemoteSnippetFile $file) => $file->getPath(), $files);
 
         $expectedPaths = [
             Path::join($platformPath, 'storefront.json'),

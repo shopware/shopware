@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\Event\SnippetsThemeResolveEvent;
+use Shopware\Core\System\Snippet\Files\RemoteSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\System\Snippet\SnippetException;
@@ -33,9 +34,12 @@ class SnippetServiceTest extends TestCase
 
     private Connection&MockObject $connection;
 
+    private Filesystem&MockObject $filesystem;
+
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
+        $this->filesystem = $this->createMock(Filesystem::class);
         $this->snippetCollection = new SnippetFileCollection();
         $this->addThemes();
     }
@@ -94,6 +98,34 @@ class SnippetServiceTest extends TestCase
         $snippetSetId = $snippetService->findSnippetSetId(Uuid::randomHex(), Uuid::randomHex(), 'en-GB');
 
         static::assertSame($snippetSetId, $snippetSetIdWithSalesChannelDomain);
+    }
+
+    public function testDecodeRemoteSnippets(): void
+    {
+        $remoteSnippetFile = new RemoteSnippetFile(
+            'test',
+            'path/to/test.json',
+            'de-DE',
+            'Shopware',
+            true,
+            'Storefront'
+        );
+
+        $this->filesystem->expects($this->once())
+            ->method('read')
+            ->with('path/to/test.json')
+            ->willReturn('{"title": "Remote title"}');
+
+        $this->snippetCollection->add($remoteSnippetFile);
+        $this->connection->expects($this->once())
+            ->method('fetchOne')->willReturn('de-DE');
+
+        $snippetService = $this->createSnippetService();
+
+        $catalog = new MessageCatalogue('de-DE', ['messages' => []]);
+
+        $snippets = $snippetService->getStorefrontSnippets($catalog, Uuid::randomHex(), 'en-GB', Uuid::randomHex());
+        static::assertSame(['title' => 'Remote title'], $snippets);
     }
 
     /**
@@ -268,7 +300,7 @@ class SnippetServiceTest extends TestCase
             $this->createMock(SnippetFilterFactory::class),
             new ExtensionDispatcher(new EventDispatcher()),
             $eventDispatcher ?? new EventDispatcher(),
-            $this->createMock(Filesystem::class),
+            $this->filesystem,
         );
     }
 }

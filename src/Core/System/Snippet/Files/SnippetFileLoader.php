@@ -94,14 +94,13 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                 $fileName = 'messages.' . $pathComponents['locale'];
             }
 
-            $snippetFile = new GenericSnippetFile(
+            $snippetFile = new RemoteSnippetFile(
                 $fileName,
                 $fileInfo->getPathname(),
                 $pathComponents['locale'],
                 'Shopware',
                 $isBase,
                 $technicalName,
-                false,
             );
 
             $snippetFileCollection->add($snippetFile);
@@ -206,7 +205,6 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                         $this->getAuthorFromBundle($bundle, $authors),
                         false,
                         $bundle->getName(),
-                        true,
                     );
 
                     break;
@@ -218,7 +216,6 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                         $this->getAuthorFromBundle($bundle, $authors),
                         false,
                         $bundle->getName(),
-                        true,
                     );
 
                     break;
@@ -230,7 +227,6 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                         $this->getAuthorFromBundle($bundle, $authors),
                         $nameParts[2] === 'base',
                         $bundle->getName(),
-                        true,
                     );
 
                     break;

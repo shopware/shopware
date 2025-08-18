@@ -27,7 +27,6 @@ class GenericSnippetFileTest extends TestCase
             $ids->get('author'),
             $isBase,
             $ids->get('technicalName'),
-            true,
         );
 
         static::assertSame($ids->get('name'), $exception->getName());

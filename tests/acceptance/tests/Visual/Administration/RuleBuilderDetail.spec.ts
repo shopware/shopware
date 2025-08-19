@@ -9,7 +9,7 @@ test('Visual: Rule Builder Detail page', { tag: '@Visual' }, async ({
 
     const rule = await TestDataService.createBasicRule({})
     await test.step('Creates a screenshot of the Rule Builder general tab.', async () => {
-        await ShopAdmin.goesTo(AdminRuleDetail.url(rule.id,));
+        await ShopAdmin.goesTo(AdminRuleDetail.url(rule.id));
         await setViewport(AdminRuleDetail.page, {
             waitForSelector: '.sw-condition-or-container',
         });

@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTag\OrderTagDefinition;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Defaults;
@@ -55,7 +56,7 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
 
     public function getIterator(): IterableQuery
     {
-        return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
+        return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize, Defaults::LIVE_VERSION);
     }
 
     public function getUpdatedIds(EntityWrittenContainerEvent $event): array

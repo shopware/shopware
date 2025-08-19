@@ -29,9 +29,7 @@ use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 
 /**
  * @internal
@@ -317,6 +315,7 @@ class AdminSearchRegistryTest extends TestCase
                 'text' => 'c1a28776116d4431a2208eb2960ec340 elasticsearch',
             ],
         ]);
+        $this->indexer->method('getUpdatedIds')->willReturn(['c1a28776116d4431a2208eb2960ec340']);
 
         $client = $this->createMock(Client::class);
 
@@ -335,7 +334,23 @@ class AdminSearchRegistryTest extends TestCase
 
         $searchHelper = new AdminElasticsearchHelper(true, $refreshIndices, 'sw-admin', 'test', true, new NullLogger());
         $queue = $this->createMock(MessageBusInterface::class);
-        $queue->expects($this->once())->method('dispatch')->willReturn(new Envelope(new ReceivedStamp('test')));
+
+        $client
+            ->expects($this->once())
+            ->method('bulk')
+            ->with([
+                'index' => 'sw-admin-promotion-listing_12345',
+                'body' => [
+                    ['index' => ['_id' => 'c1a28776116d4431a2208eb2960ec340']],
+                    [
+                        'entityName' => 'promotion',
+                        'parameters' => [],
+                        'text' => 'c1a28776116d4431a2208eb2960ec340 elasticsearch',
+                        'textBoosted' => '',
+                        'id' => 'c1a28776116d4431a2208eb2960ec340',
+                    ],
+                ],
+            ]);
 
         $index = new AdminSearchRegistry(
             ['promotion' => $this->indexer],

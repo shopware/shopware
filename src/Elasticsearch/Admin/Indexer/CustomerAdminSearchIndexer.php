@@ -5,6 +5,7 @@ namespace Shopware\Elasticsearch\Admin\Indexer;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerTag\CustomerTagDefinition;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Context;

@@ -3,17 +3,20 @@
     maxStars = 5
 %}
 
+{% set starsRounded = stars|round %}
+
 <div class="rating mb-2 text-primary">
     {# Actual rating stars #}
-    {% for star in range(1, stars) %}
+    {% for star in range(1, starsRounded) %}
         <twig:icon:icon name="star" pack="solid" size="xs" />
     {% endfor %}
 
     {# Remaining stars #}
-    {% set delta = maxStars - stars %}
+    {% set delta = maxStars - starsRounded %}
+
     {% if delta > 0 %}
-        {% for star in 1..delta %}
-            <twig:icon:icon name="star"  size="xs" />
+        {% for starEmpty in range(1, delta) %}
+            <twig:icon:icon name="star" size="xs" />
         {% endfor %}
     {% endif %}
 </div>

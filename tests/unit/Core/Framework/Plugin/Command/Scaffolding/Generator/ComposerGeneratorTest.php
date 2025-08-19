@@ -39,6 +39,7 @@ class ComposerGeneratorTest extends TestCase
         /** @var Stub $stub */
         $stub = $stubCollection->get('composer.json');
 
+        static::assertNotNull($stub->getContent());
         static::assertJson($stub->getContent());
         static::assertStringContainsString('"name": "my-namespace/test-plugin"', $stub->getContent());
         static::assertStringContainsString('"shopware-plugin-class": "My\\\\Namespace\\\\TestPlugin"', $stub->getContent());

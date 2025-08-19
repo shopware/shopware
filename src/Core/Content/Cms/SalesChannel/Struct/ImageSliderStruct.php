@@ -8,12 +8,27 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('discovery')]
 class ImageSliderStruct extends Struct
 {
+    /**
+     * @var array<mixed>|null
+     */
     protected ?array $navigation = null;
 
     /**
      * @var ImageSliderItemStruct[]|null
      */
     protected ?array $sliderItems = [];
+
+    protected ?bool $useFetchPriorityOnFirstItem = null;
+
+    public function getUseFetchPriorityOnFirstItem(): ?bool
+    {
+        return $this->useFetchPriorityOnFirstItem;
+    }
+
+    public function setUseFetchPriorityOnFirstItem(?bool $useFetchPriorityOnFirstItem): void
+    {
+        $this->useFetchPriorityOnFirstItem = $useFetchPriorityOnFirstItem;
+    }
 
     /**
      * @return ImageSliderItemStruct[]|null
@@ -36,11 +51,17 @@ class ImageSliderStruct extends Struct
         $this->sliderItems[] = $sliderItem;
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     public function getNavigation(): ?array
     {
         return $this->navigation;
     }
 
+    /**
+     * @param array<mixed>|null $navigation
+     */
     public function setNavigation(?array $navigation): void
     {
         $this->navigation = $navigation;

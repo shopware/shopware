@@ -39,8 +39,8 @@ test('Visual: Flow Builder detail page', { tag: '@Visual' }, async ({
 }) => {
 
     const uniqueId = IdProvider.getIdPair().uuid;
-    const tagName= (`Test tag - ${uniqueId}`);
-    const flowName = (`Test flow - ${uniqueId}`)
+    const tagName = (`Test tag - ${uniqueId}`);
+    const flowName = (`Test flow - ${uniqueId}`);
     await TestDataService.createTag(tagName);
     const testConfig = {
         name: flowName,

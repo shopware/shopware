@@ -25,11 +25,9 @@
             {% for item in children.tree %}
                 {% set hasChildren = item.category.visibleChildCount > 0 %}
 
-                {% if item.category.type == 'folder' and not hasChildren %}
-                    {% continue %}
+                {% if item.category.type != 'folder' or hasChildren %}
+                    {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig' with { item: item, activeId: activeId } %}
                 {% endif %}
-
-                {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig' with { item: item, activeId: activeId } %}
             {% endfor %}
         </ul>
     </div>

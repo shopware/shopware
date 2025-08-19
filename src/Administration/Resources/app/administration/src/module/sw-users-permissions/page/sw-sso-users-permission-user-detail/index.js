@@ -8,11 +8,11 @@ import './sw-sso-users-permissions-user-detail.scss';
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-const MODE = {
+const MODE = Object.freeze({
     VIEW: 'view',
     EDIT: 'edit',
     CREATE: 'create',
-};
+});
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -36,28 +36,18 @@ export default {
     },
 
     created() {
-        this.userId = this.$route.params.id;
-        this.loadRepositories();
-        this.loadUser();
-        this.loadCurrentUser();
-        this.loadLanguages();
-
-        this.timezoneOptions = Shopware.Service('timezoneService').getTimezoneOptions();
+        this.createdComponent();
     },
 
     data() {
         return {
-            loadings: 0,
+            isLoading: false,
             userId: null,
             user: null,
             currentUser: null,
             languages: [],
             timezoneOptions: [],
             integrations: [],
-            userRepository: null,
-            mediaRepository: null,
-            languageRepository: null,
-            keyRepository: null,
             keyIdToDelete: null,
             showAccessKeyDeleteModal: false,
             isCreateAccessKeyModalOpen: false,
@@ -68,10 +58,6 @@ export default {
     },
 
     computed: {
-        isLoading() {
-            return this.loadings > 0;
-        },
-
         fullName() {
             return this.salutation(this.user, this.$tc('sw-users-permissions.users.user-detail.labelNewUser'));
         },
@@ -122,52 +108,46 @@ export default {
 
             return this.userId === this.currentUser.id;
         },
+
+        userRepository() {
+            return this.repositoryFactory.create('user');
+        },
+
+        languageRepository() {
+            return this.repositoryFactory.create('language');
+        },
+
+        keyRepository() {
+            return this.repositoryFactory.create('user_access_key');
+        },
     },
 
     methods: {
-        registerLoading() {
-            this.loadings += 1;
-        },
+        async createdComponent() {
+            this.userId = this.$route.params.id;
 
-        unregisterLoading() {
-            this.loadings -= 1;
+            this.isLoading = true;
+            await Promise.all([
+                this.loadUser(),
+                this.loadCurrentUser(),
+                this.loadLanguages(),
+            ]);
+            this.isLoading = false;
 
-            if (this.loadings < 0) {
-                this.loadings = 0;
-            }
-        },
-
-        loadRepositories() {
-            this.registerLoading();
-
-            this.userRepository = this.repositoryFactory.create('user');
-            this.mediaRepository = this.repositoryFactory.create('media');
-            this.languageRepository = this.repositoryFactory.create('language');
-
-            this.unregisterLoading();
+            this.timezoneOptions = Shopware.Service('timezoneService').getTimezoneOptions();
         },
 
         loadUser() {
-            this.registerLoading();
-
             const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('accessKeys');
             criteria.addAssociation('locale');
             criteria.addAssociation('aclRoles');
+            criteria.addAssociation('avatarMedia');
 
-            this.userRepository.get(this.userId, Shopware.Context.api, criteria).then((user) => {
+            return this.userRepository.get(this.userId, Shopware.Context.api, criteria).then((user) => {
                 this.user = user;
                 this.integrations = this.user.accessKeys;
-
-                // Initialize access key repository
-                this.keyRepository = this.repositoryFactory.create(this.user.accessKeys.entity, this.user.accessKeys.source);
-
-                if (this.user.avatarId) {
-                    this.loadMedia();
-                }
-
-                this.unregisterLoading();
             });
         },
 
@@ -177,25 +157,14 @@ export default {
             });
         },
 
-        loadMedia() {
-            this.registerLoading();
-
-            this.mediaRepository.get(this.user.avatarId).then((media) => {
-                this.user.avatarMedia = media;
-                this.unregisterLoading();
-            });
-        },
-
         loadLanguages() {
-            this.registerLoading();
-
             const languageCriteria = new Criteria(1, 500);
 
             languageCriteria.addAssociation('locale');
             languageCriteria.addSorting(Criteria.sort('locale.name', 'ASC'));
             languageCriteria.addSorting(Criteria.sort('locale.territory', 'ASC'));
 
-            this.languageRepository.search(languageCriteria).then((result) => {
+            return this.languageRepository.search(languageCriteria).then((result) => {
                 this.languages = [];
                 result.forEach((language) => {
                     this.languages.push({
@@ -204,8 +173,6 @@ export default {
                         label: `${language.locale.translated.name} (${language.locale.translated.territory})`,
                     });
                 });
-
-                this.unregisterLoading();
             });
         },
 
@@ -214,16 +181,16 @@ export default {
         },
 
         onSave() {
-            this.registerLoading();
-
-            this.userRepository.save(this.user, { ...Shopware.Context.api }).then(() => {
-                this.unregisterLoading();
+            this.isLoading = true;
+            return this.userRepository.save(this.user, { ...Shopware.Context.api }).catch(() => {
+                this.createNotificationError({ message: this.$t('global.notification.unspecifiedSaveErrorMessage') });
+            }).finally(() => {
+                this.isLoading = false;
             });
         },
 
         setMediaItem({ targetId }) {
             this.user.avatarId = targetId;
-            this.loadMedia(targetId);
         },
 
         onRemoveMedia() {
@@ -242,13 +209,14 @@ export default {
         },
 
         generateKey() {
-            this.registerLoading();
-
-            this.integrationService.generateKey({}, {}, true).then((response) => {
+            this.isLoading = true;
+            return this.integrationService.generateKey({}, {}, true).then((response) => {
                 this.newAccessKey = response.accessKey;
                 this.newSecretAccessKey = response.secretAccessKey;
-
-                this.unregisterLoading();
+            }).catch(() => {
+                this.createNotificationError({ message: this.$t('global.notification.unspecifiedSaveErrorMessage') });
+            }).finally(() => {
+                this.isLoading = false;
             });
         },
 
@@ -259,7 +227,7 @@ export default {
         },
 
         onSaveAccessKey(keyObject) {
-            this.registerLoading();
+            this.isLoading = true;
             this.onAccessKeyCreateCancel();
 
             if (this.editMode === MODE.EDIT) {
@@ -267,24 +235,23 @@ export default {
                 key.accessKey = keyObject.accessKey;
                 key.secretAccessKey = keyObject.secretAccessKey;
 
-                this.unregisterLoading();
-                this.onSave();
-                return;
+                this.isLoading = false;
+                return this.onSave();
             }
 
             const newKey = this.keyRepository.create();
             newKey.quantityStart = 1;
             newKey.accessKey = keyObject.accessKey;
             newKey.secretAccessKey = keyObject.secretAccessKey;
+            newKey.userId = this.userId;
 
             this.user.accessKeys.add(newKey);
 
-            this.unregisterLoading();
-            this.onSave();
+            this.isLoading = false;
+            return this.onSave();
         },
 
         onEditAccessKey(keyId) {
-            this.registerLoading();
             this.editMode = MODE.VIEW;
             this.isCreateAccessKeyModalOpen = true;
 
@@ -294,8 +261,7 @@ export default {
             this.newAccessKey = key.accessKey;
             this.newSecretAccessKey = key.secretAccessKey;
 
-            this.unregisterLoading();
-            this.onSave();
+            return this.onSave();
         },
 
         onGenerateNewKey() {
@@ -316,7 +282,7 @@ export default {
         onConfirmDeleteAccessKey() {
             this.user.accessKeys.remove(this.keyIdToDelete);
             this.onCloseAccessKeyDeleteModal();
-            this.onSave();
+            return this.onSave();
         },
     },
 };

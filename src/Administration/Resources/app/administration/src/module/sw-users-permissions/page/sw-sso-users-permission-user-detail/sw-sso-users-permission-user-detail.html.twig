@@ -27,7 +27,7 @@
             v-tooltip.bottom="tooltipSave"
             class="sw-settings-user-detail__save-action"
             :is-loading="isLoading"
-            :disabled="isLoading || !acl.can('users_and_permissions.editor') || undefined"
+            :disabled="!acl.can('users_and_permissions.editor')"
             variant="primary"
             @click.prevent="onSave"
         >
@@ -109,7 +109,7 @@
                         name="sw-field--user-localeId"
                         class="sw-sso-detail-card__user-interface-language"
                         :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
-                        :disabled="!acl.can('users_and_permissions.editor') || undefined"
+                        :disabled="!acl.can('users_and_permissions.editor')"
                         :options="languages"
                         required
                         :placeholder="$tc('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"
@@ -125,7 +125,7 @@
                         required
                         :label="$tc('sw-users-permissions.users.user-detail.labelTimezone')"
                         :is-loading="isLoading"
-                        :disabled="!acl.can('user.update_profile') || undefined"
+                        :disabled="!acl.can('user.update_profile')"
                     />
                     {% endblock %}
 
@@ -143,7 +143,7 @@
                         :upload-tag="user.id"
                         :allow-multi-select="false"
                         :source-context="user"
-                        :disabled="!acl.can('users_and_permissions.editor') || undefined"
+                        :disabled="!acl.can('users_and_permissions.editor')"
                         default-folder="user"
                         @media-drop="onDropMedia"
                         @media-upload-remove-image="onRemoveMedia"
@@ -172,7 +172,7 @@
                         name="sw-field--user-aclRoles"
                         class="sw-sso-detail-card__roles-and-permission-aclRoles"
                         :label="$tc('sw-users-permissions.users.user-detail.labelRoles')"
-                        :disabled="user.admin || !acl.can('users_and_permissions.editor') || undefined"
+                        :disabled="user.admin || !acl.can('users_and_permissions.editor')"
                         :criteria="aclRoleCriteria"
                         label-property="name"
                     />
@@ -183,7 +183,7 @@
                         v-model="user.title"
                         name="sw-field--user-title"
                         class="sw-sso-detail-card__roles-and-permission-jobTitle"
-                        :disabled="!acl.can('users_and_permissions.editor') || undefined"
+                        :disabled="!acl.can('users_and_permissions.editor')"
                         :label="$tc('sw-users-permissions.users.user-detail.labelJobTitle')"
                     />
                     {% endblock %}
@@ -194,7 +194,7 @@
                         name="sw-field--user-admin"
                         class="sw-sso-detail-card__roles-and-permission-is-admin"
                         :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
-                        :disabled="isCurrentUser || !acl.can('users_and_permissions.editor') || undefined"
+                        :disabled="isCurrentUser || !acl.can('users_and_permissions.editor')"
                     />
                     {% endblock %}
                 </div>
@@ -212,7 +212,8 @@
                         class="sw-sso-detail-card__integrations-create-access-key"
                         variant="primary"
                         size="small"
-                        :disabled="!$route.params.id || !acl.can('users_and_permissions.editor') || undefined"
+                        :is-loading="isLoading"
+                        :disabled="!$route.params.id || !acl.can('users_and_permissions.editor')"
                         @click="onCreateAccessKey()"
                     >
                         {{ $tc('sw-users-permissions.users.user-detail.addAccessKey') }}
@@ -237,7 +238,7 @@
                             {% block sw_settings_sso_user_detail_grid_columns_actions_edit %}
                             <sw-context-menu-item
                                 class="sw-settings-user-detail__grid-context-menu-edit sw-product-list__edit-action"
-                                :disabled="!acl.can('users_and_permissions.editor') || undefined"
+                                :disabled="!acl.can('users_and_permissions.editor')"
                                 @click="onEditAccessKey(item.id)"
                             >
                                 {{ $tc('sw-users-permissions.users.user-detail.contextMenuEdit') }}
@@ -247,7 +248,7 @@
                             {% block sw_settings_sso_user_detail_grid_columns_actions_delete %}
                             <sw-context-menu-item
                                 class="sw-settings-user-detail__grid-context-menu-delete"
-                                :disabled="!acl.can('users_and_permissions.editor') || undefined"
+                                :disabled="!acl.can('users_and_permissions.editor')"
                                 variant="danger"
                                 @click="onDeleteAccessKey(item.id)"
                             >
@@ -275,7 +276,7 @@
         <sw-modal
             v-if="showAccessKeyDeleteModal"
             :title="$tc('global.default.warning')"
-            @modal-close="onCloseAccessKeyDeleteModal()"
+            @modal-close="onCloseAccessKeyDeleteModal"
         >
             {% block sw_settings_sso_user_detail_grid_inner_slot_delete_modal_confirm_text %}
             <p>
@@ -288,14 +289,16 @@
                 <mt-button
                     size="small"
                     variant="secondary"
-                    @click="onCloseAccessKeyDeleteModal()"
+                    :disabled="isLoading"
+                    @click="onCloseAccessKeyDeleteModal"
                 >
                     {{ $tc('global.default.cancel') }}
                 </mt-button>
                 <mt-button
                     size="small"
                     variant="critical"
-                    @click="onConfirmDeleteAccessKey()"
+                    :is-loading="isLoading"
+                    @click="onConfirmDeleteAccessKey"
                 >
                     {{ $tc('sw-users-permissions.users.user-detail.modal.buttonDelete') }}
                 </mt-button>
@@ -310,9 +313,9 @@
             :access-key="newAccessKey"
             :secret-access-key="newSecretAccessKey"
             :mode="editMode"
-            @access-key-modal-create:cancel="onAccessKeyCreateCancel()"
+            @access-key-modal-create:cancel="onAccessKeyCreateCancel"
             @access-key-modal-create:save="onSaveAccessKey"
-            @access-key-modal-create:generate="onGenerateNewKey()"
+            @access-key-modal-create:generate="onGenerateNewKey"
         />
     </template>
     {% endblock %}

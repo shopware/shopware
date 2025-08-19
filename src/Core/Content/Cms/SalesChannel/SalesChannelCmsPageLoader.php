@@ -203,8 +203,8 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
     }
 
     /**
-     * Recursively merges two arrays, with values from the override array taking precedence.
-     * For associative arrays, merges recursively. For indexed arrays, replaces completely.
+     * Recursively overrides the original array with values from the override array.
+     * Merges recursively for associative arrays and replaces completely for index arrays.
      *
      * @param array<string, mixed> $original
      * @param array<string, mixed> $override

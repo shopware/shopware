@@ -3,5 +3,4 @@ title: fix overwrite slot config
 issue: 11800
 ---
 # Core
-* Replaced usage of `array_replace_recursive` with a custom `overrideArray` method in `SalesChannelCmsPageLoader.php`, ensuring that associative arrays are merged recursively and indexed arrays are fully replaced, giving more predictable override behavior.
-* Added the `overrideArray` helper method to `SalesChannelCmsPageLoader.php` to support the new merging logic.
+* Changed the way CMS slot configurations are overwritten to ensure that list-type configurations (like product collections) are completely replaced rather than merged, providing more intuitive behavior when customizing CMS elements in `SalesChannelCmsPageLoader.php`.

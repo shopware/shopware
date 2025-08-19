@@ -32,6 +32,7 @@ class ProductsFixture
                 ->releaseDate('2019-01-01 10:11:00')
                 ->purchasePrice(0)
                 ->stock(2)
+                ->visibility()
                 ->createdAt('2019-01-01 10:11:00')
                 ->category('c1')
                 ->category('c2')
@@ -74,6 +75,7 @@ class ProductsFixture
                 ->releaseDate('2019-06-15 13:00:00')
                 ->purchasePrice(100)
                 ->stock(100)
+                ->visibility()
                 ->category('c1')
                 ->category('c3')
                 ->property('red', 'color')
@@ -84,6 +86,7 @@ class ProductsFixture
                 ->price(100, 100, 'default', 100, 100)
                 ->purchasePrice(100)
                 ->stock(100)
+                ->visibility()
                 ->property('silver', 'color')
                 ->build(),
             (new ProductBuilder($ids, 'product-4'))
@@ -98,6 +101,7 @@ class ProductsFixture
                 ->releaseDate('2020-09-30 15:00:00')
                 ->purchasePrice(100)
                 ->stock(300)
+                ->visibility()
                 ->property('green', 'color')
                 ->build(),
             (new ProductBuilder($ids, 'product-5'))

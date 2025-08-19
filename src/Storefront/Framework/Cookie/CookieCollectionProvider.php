@@ -9,24 +9,38 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
-class CookieCollectionProvider implements CookieProviderInterface
+class CookieCollectionProvider implements CookieProviderInterface, CookieCollectionProviderInterface
 {
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed in 6.8.0, replaced by getCookieGroupCollection method
+     *
+     * @return array<string|int, mixed>
+     */
     public function getCookieGroups(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'Use getCookieGroupCollection() instead')
+        );
         // hint: the store API will only skip NULL values if the CookieGroupCollection is used
         if (Feature::isActive('v6.8.0.0')) {
-            $cookieGroups = new CookieGroupCollection();
-
-            $cookieGroups->add($this->getCookieGroupRequiredEntries());
-            $cookieGroups->add($this->getCookieGroupStatistical());
-            $cookieGroups->add($this->getCookieGroupComfortFeatures());
-            $cookieGroups->add($this->getCookieGroupMarketing());
-
-            return $cookieGroups->getElements();
+            return $this->getCookieGroupCollection()->getElements();
         }
 
         // @deprecated tag:v6.8.0 - Will be removed in 6.8.0, replaced by the CookieCollectionProvider
         return (new CookieProvider())->getCookieGroups();
+    }
+
+    public function getCookieGroupCollection(): CookieGroupCollection
+    {
+        $cookieGroups = new CookieGroupCollection();
+
+        $cookieGroups->add($this->getCookieGroupRequiredEntries());
+        $cookieGroups->add($this->getCookieGroupStatistical());
+        $cookieGroups->add($this->getCookieGroupComfortFeatures());
+        $cookieGroups->add($this->getCookieGroupMarketing());
+
+        return $cookieGroups;
     }
 
     private function getCookieGroupRequiredEntries(): CookieGroup

@@ -4,9 +4,11 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Cookie;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cookie\Service\CookieService;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Storefront\Framework\Cookie\AppCookieProvider;
+use Shopware\Storefront\Framework\Cookie\CookieCollectionProviderInterface;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 
 /**
@@ -26,7 +28,8 @@ class AppCookieProviderTest extends TestCase
         $this->baseProvider = $this->createMock(CookieProviderInterface::class);
         $this->appCookieProvider = new AppCookieProvider(
             $this->baseProvider,
-            static::getContainer()->get('app.repository')
+            static::getContainer()->get('app.repository'),
+            static::getContainer()->get(CookieService::class)
         );
     }
 
@@ -57,6 +60,35 @@ class AppCookieProviderTest extends TestCase
             'value' => '',
             'expiration' => '30',
         ], $result[0]);
+    }
+
+    public function testTypedInnerProviderIsUsed(): void
+    {
+        $typedInner = $this->createMock(CookieCollectionProviderInterface::class);
+        $typedCollection = (new CookieService(
+            static::getContainer()->get('Shopware\\Core\\System\\SystemConfig\\SystemConfigService'),
+            static::getContainer()->get('sales_channel_analytics.repository'),
+            static::getContainer()->get('translator')
+        ))->getCookieGroupCollection([
+            [
+                'snippet_name' => 'cookie.groupRequired',
+                'entries' => [
+                    ['snippet_name' => 'cookie.groupRequiredSession', 'cookie' => 'session-'],
+                ],
+            ],
+        ], null, translate: false);
+
+        $typedInner->method('getCookieGroupCollection')->willReturn($typedCollection);
+
+        $provider = new AppCookieProvider(
+            $typedInner,
+            static::getContainer()->get('app.repository'),
+            static::getContainer()->get(CookieService::class)
+        );
+
+        $result = $provider->getCookieGroupCollection();
+        static::assertCount(1, $result);
+        static::assertSame('cookie.groupRequired', $result->getAt(0)?->snippetName);
     }
 
     public function testItAddsCookieGroupFromApp(): void

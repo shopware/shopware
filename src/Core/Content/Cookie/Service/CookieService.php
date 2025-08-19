@@ -40,10 +40,12 @@ readonly class CookieService
      *
      * @param array<string|int, mixed> $cookieGroups
      */
-    public function getCookieGroupCollection(array $cookieGroups, SalesChannelContext $salesChannelContext, bool $translate = true): CookieGroupCollection
+    public function getCookieGroupCollection(array $cookieGroups, ?SalesChannelContext $salesChannelContext, bool $translate = true): CookieGroupCollection
     {
         $cookieGroups = $this->normalizeCookieGroups($cookieGroups);
-        $cookieGroups = $this->filterCookieGroups($salesChannelContext, $cookieGroups);
+        if ($salesChannelContext !== null) {
+            $cookieGroups = $this->filterCookieGroups($salesChannelContext, $cookieGroups);
+        }
 
         if ($translate) {
             $cookieGroups = $this->translateCookieGroups($cookieGroups);

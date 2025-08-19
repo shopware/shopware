@@ -7,6 +7,7 @@ use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Cookie\CookieCollectionProviderInterface;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -34,7 +35,10 @@ class CookieRoute extends AbstractCookieRoute
     {
         $translate = $request->query->getBoolean('translate', true); // Default to true for Store API consumers
 
-        $cookieGroups = $this->cookieProvider->getCookieGroups();
+        $cookieGroups = $this->cookieProvider instanceof CookieCollectionProviderInterface
+            ? $this->cookieProvider->getCookieGroupCollection()->getElements() :
+            $this->cookieProvider->getCookieGroups();
+
         if (empty($cookieGroups)) {
             return new CookieRouteResponse(new CookieGroupCollection());
         }

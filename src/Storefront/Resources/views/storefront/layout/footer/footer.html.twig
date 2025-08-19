@@ -58,7 +58,6 @@
                                     {% for serviceMenuItem in footer.serviceMenu %}
                                         {% if serviceMenuItem.cmsPageId == contactCmsPageId and serviceMenuItem.seoUrl %}
                                             {% set contactUrl = serviceMenuItem.seoUrl %}
-                                            {% break %}
                                         {% endif %}
                                     {% endfor %}
 
@@ -240,7 +239,6 @@
                         {% for serviceMenuItem in footer.serviceMenu %}
                             {% if serviceMenuItem.cmsPageId == shippingCmsPageId and serviceMenuItem.seoUrl %}
                                 {% set shippingUrl = serviceMenuItem.seoUrl %}
-                                {% break %}
                             {% endif %}
                         {% endfor %}
 

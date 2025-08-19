@@ -51,9 +51,19 @@
 
                                 <div class="footer-contact-form">
                                     {% set contactSnippetKey = 'footer.serviceContactTextPage' %}
+                                    {% set contactCmsPageId = config('core.basicInformation.contactPage') %}
+                                    {% set contactUrl = contactCmsPageId ? path(cmsPath, { id: contactCmsPageId }) : '#' %}
+
+                                    {# Check for seoUrl and use it if present #}
+                                    {% for serviceMenuItem in footer.serviceMenu %}
+                                        {% if serviceMenuItem.cmsPageId == contactCmsPageId and serviceMenuItem.seoUrl %}
+                                            {% set contactUrl = serviceMenuItem.seoUrl %}
+                                            {% break %}
+                                        {% endif %}
+                                    {% endfor %}
 
                                     {{ contactSnippetKey|trans({
-                                        '%url%': path(cmsPath, { id: config('core.basicInformation.contactPage') })
+                                        '%url%': contactUrl
                                     })|raw }}
                                 </div>
                             </div>
@@ -223,9 +233,20 @@
                     <div class="footer-vat">
                         {% set shippingSnippetKey = context.taxState == 'gross' ? 'footer.includeVatTextPage' : 'footer.excludeVatTextPage' %}
 
+                        {% set shippingCmsPageId = config('core.basicInformation.shippingPaymentInfoPage') %}
+                        {% set shippingUrl = shippingCmsPageId ? path(cmsPath, { id: shippingCmsPageId }) : '#' %}
+
+                        {# Check for seoUrl and use it if present #}
+                        {% for serviceMenuItem in footer.serviceMenu %}
+                            {% if serviceMenuItem.cmsPageId == shippingCmsPageId and serviceMenuItem.seoUrl %}
+                                {% set shippingUrl = serviceMenuItem.seoUrl %}
+                                {% break %}
+                            {% endif %}
+                        {% endfor %}
+
                         <p>
                             {{ shippingSnippetKey|trans({
-                                '%url%': path(cmsPath, { id: config('core.basicInformation.shippingPaymentInfoPage') }),
+                                '%url%': shippingUrl,
                                 '%star%': ''
                             })|raw }}
                         </p>

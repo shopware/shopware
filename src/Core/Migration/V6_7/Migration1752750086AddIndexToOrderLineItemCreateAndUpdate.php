@@ -19,9 +19,7 @@ class Migration1752750086AddIndexToOrderLineItemCreateAndUpdate extends Migratio
 
     public function update(Connection $connection): void
     {
-        $existingIndexes = $connection->createSchemaManager()->listTableIndexes('order_line_item');
-
-        if (!isset($existingIndexes['idx.order_line_item_created_updated'])) {
+        if (!$this->indexExists($connection, 'order_line_item', 'idx.order_line_item_created_updated')) {
             $connection->executeStatement('CREATE INDEX `idx.order_line_item_created_updated` ON `order_line_item` (`created_at`, `updated_at`)');
         }
     }

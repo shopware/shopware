@@ -19,9 +19,7 @@ class Migration1752750234AddIndexToOrderTransactionCreateAndUpdate extends Migra
 
     public function update(Connection $connection): void
     {
-        $existingIndexes = $connection->createSchemaManager()->listTableIndexes('order_transaction');
-
-        if (!isset($existingIndexes['idx.order_transaction_created_updated'])) {
+        if (!$this->indexExists($connection, 'order_transaction', 'idx.order_transaction_created_updated')) {
             $connection->executeStatement('CREATE INDEX `idx.order_transaction_created_updated` ON `order_transaction` (`created_at`, `updated_at`)');
         }
     }

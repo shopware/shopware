@@ -19,9 +19,7 @@ class Migration1752750171AddIndexToOrderAddressCreateAndUpdate extends Migration
 
     public function update(Connection $connection): void
     {
-        $existingIndexes = $connection->createSchemaManager()->listTableIndexes('order_address');
-
-        if (!isset($existingIndexes['idx.order_address_created_updated'])) {
+        if (!$this->indexExists($connection, 'order_address', 'idx.order_address_created_updated')) {
             $connection->executeStatement('CREATE INDEX `idx.order_address_created_updated` ON `order_address` (`created_at`, `updated_at`)');
         }
     }

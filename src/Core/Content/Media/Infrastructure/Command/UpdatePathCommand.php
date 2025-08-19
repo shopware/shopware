@@ -33,8 +33,7 @@ class UpdatePathCommand extends Command
 
     protected function configure(): void
     {
-        $this->setDescription('Update media paths')
-            ->addOption('force', 'f', null, 'Force update of all media paths');
+        $this->addOption('force', 'f', null, 'Force update of all media paths');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

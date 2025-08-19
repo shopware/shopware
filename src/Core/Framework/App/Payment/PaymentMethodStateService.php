@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Payment;
 
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -14,6 +15,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class PaymentMethodStateService
 {
+    /**
+     * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
+     */
     public function __construct(private readonly EntityRepository $paymentMethodRepository)
     {
     }

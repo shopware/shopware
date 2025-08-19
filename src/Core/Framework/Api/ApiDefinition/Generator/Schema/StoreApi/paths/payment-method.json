@@ -47,30 +47,40 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "total": {
-                                            "description": "Total amount",
-                                            "type": "integer"
-                                        },
-                                        "aggregations": {
-                                            "description": "aggregation result",
-                                            "type": "object"
-                                        },
-                                        "elements": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/PaymentMethod"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
+                        "$ref": "#/components/responses/PaymentMethodListResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "Payment Method",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Loads all available payment methods",
+                "operationId": "readPaymentMethodGet",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
                         }
+                    },
+                    {
+                        "x-parameter-group": "criteria"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/PaymentMethodListResponse"
                     }
                 },
                 "security": [

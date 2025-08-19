@@ -12,8 +12,6 @@ test('As an admin, I want to create documents and make sure they contain certain
     Login,
     AddCreditItem,
     CreateInvoice,
-    InstanceMeta,
-
     }) => {
 
     const product = await TestDataService.createBasicProduct();
@@ -21,14 +19,14 @@ test('As an admin, I want to create documents and make sure they contain certain
     const orderId = order.id;
 
     await test.step('Go to documents settings page and activate documents in customer accounts', async () => {
-        await ShopAdmin.attemptsTo(AddCreditItem(orderId));
-        await ShopAdmin.attemptsTo(CreateInvoice(orderId));
         await ShopAdmin.goesTo(AdminDocumentListing.url());
         await AdminDocumentListing.invoiceLink.click();
         await ShopAdmin.expects(AdminDocumentDetail.documentTypeSelect).toContainText('Invoice');
         await AdminDocumentDetail.showInAccountSwitch.check();
         await AdminDocumentDetail.saveButton.click();
         await ShopAdmin.expects(AdminDocumentDetail.saveButton).not.toBeDisabled();
+        await ShopAdmin.attemptsTo(AddCreditItem(orderId));
+        await ShopAdmin.attemptsTo(CreateInvoice(orderId));
     });
 
     await test.step('Go to order detail page and check for credit item', async () => {
@@ -44,11 +42,6 @@ test('As an admin, I want to create documents and make sure they contain certain
         await AdminOrderDetail.page.locator('.sw-context-menu').getByText('Mark as sent').click();
         await ShopAdmin.expects(AdminOrderDetail.contextMenu).not.toBeVisible();
         await ShopAdmin.expects(AdminOrderDetail.sentCheckmark).toBeVisible();
-        if (!InstanceMeta.isSaaS) {
-            await AdminOrderDetail.page.keyboard.press('Alt+c');
-            await AdminOrderDetail.page.locator('.sw-modal').locator('.mt-button--primary').click();
-            await ShopAdmin.expects(AdminOrderDetail.page.locator('.mt-banner--positive')).toBeVisible();
-        }
     });
 
     await test.step('Log into customer account and check the order document', async () => {

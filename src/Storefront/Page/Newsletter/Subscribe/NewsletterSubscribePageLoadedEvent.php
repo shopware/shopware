@@ -10,14 +10,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('checkout')]
 class NewsletterSubscribePageLoadedEvent extends PageLoadedEvent
 {
-    protected NewsletterSubscribePage $page;
-
     public function __construct(
-        NewsletterSubscribePage $page,
+        protected NewsletterSubscribePage $page,
         SalesChannelContext $salesChannelContext,
-        Request $request
+        Request $request,
     ) {
-        $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }
 

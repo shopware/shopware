@@ -3,15 +3,27 @@
 namespace Shopware\Tests\Integration\Administration\Snippet;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\Filesystem as Flysystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\SnippetFinder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\System\Snippet\DataTransfer\SnippetPath\SnippetPath;
+use Shopware\Core\System\Snippet\DataTransfer\SnippetPath\SnippetPathCollection;
+use Shopware\Core\System\Snippet\Service\TranslationLoader;
+use Shopware\Tests\Unit\Core\System\Snippet\Service\TestableTranslationConfigLoader;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * @internal
  */
+#[Package('discovery')]
+#[CoversClass(SnippetFinder::class)]
 class SnippetFinderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -20,9 +32,16 @@ class SnippetFinderTest extends TestCase
 
     protected function setUp(): void
     {
+        $flySystem = new Flysystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
+        $configLoader = new TestableTranslationConfigLoader(new Filesystem());
+        $configLoader->setRelativeConfigurationPath(__DIR__ . '/fixtures/translationConfig');
+
         $this->snippetFinder = new SnippetFinder(
             self::getKernel(),
-            static::getContainer()->get(Connection::class)
+            static::getContainer()->get(Connection::class),
+            $flySystem,
+            $configLoader->load(),
+            $this->createMock(TranslationLoader::class),
         );
     }
 
@@ -120,10 +139,7 @@ class SnippetFinderTest extends TestCase
         static::assertEquals($expectedEn, $actualEn);
     }
 
-    /**
-     * @return array<string>
-     */
-    private function getSnippetFilePathsOfFixtures(string $folder, string $namePattern): array
+    private function getSnippetFilePathsOfFixtures(string $folder, string $namePattern): SnippetPathCollection
     {
         $finder = (new Finder())
             ->files()
@@ -131,11 +147,12 @@ class SnippetFinderTest extends TestCase
             ->ignoreUnreadableDirs()
             ->name($namePattern);
 
-        $iterator = $finder->getIterator();
+        $fileArray = array_map(fn (SplFileInfo $file) => $file->getRealPath(), \iterator_to_array($finder->getIterator()));
+        $fileArray = $this->ensureFileOrder(\array_values($fileArray));
 
-        $files = [];
-        foreach ($iterator as $file) {
-            $files[] = $file->getRealPath();
+        $files = new SnippetPathCollection();
+        foreach ($fileArray as $file) {
+            $files->add(new SnippetPath($file, true));
         }
 
         return $files;
@@ -147,7 +164,6 @@ class SnippetFinderTest extends TestCase
     private function getResultSnippetsByCase(string $folder, string $locale): array
     {
         $files = $this->getSnippetFilePathsOfFixtures($folder, '/' . $locale . '.json/');
-        $files = $this->ensureFileOrder($files);
 
         $reflectionClass = new \ReflectionClass(SnippetFinder::class);
         $reflectionMethod = $reflectionClass->getMethod('parseFiles');

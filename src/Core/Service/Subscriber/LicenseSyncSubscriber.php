@@ -4,6 +4,7 @@ namespace Shopware\Core\Service\Subscriber;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
@@ -28,6 +29,9 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
 
     public const CONFIG_STORE_LICENSE_HOST = 'core.store.licenseHost';
 
+    /**
+     * @param EntityRepository<AppCollection> $appRepository
+     */
     public function __construct(
         private readonly SystemConfigService $config,
         private readonly Client $serviceRegistryClient,
@@ -73,7 +77,6 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
         $licenseKey = $key === self::CONFIG_STORE_LICENSE_KEY ? $value : $this->config->getString(self::CONFIG_STORE_LICENSE_KEY);
         $licenseHost = $key === self::CONFIG_STORE_LICENSE_HOST ? $value : $this->config->getString(self::CONFIG_STORE_LICENSE_HOST);
 
-        /** @var AppEntity $app */
         foreach ($apps as $app) {
             if (!$app->getAppSecret() || !$app->isSelfManaged()) {
                 continue;

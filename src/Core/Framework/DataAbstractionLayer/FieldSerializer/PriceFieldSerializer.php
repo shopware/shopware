@@ -178,18 +178,18 @@ class PriceFieldSerializer extends AbstractFieldSerializer
                 'allowMissingFields' => false,
                 'fields' => [
                     'currencyId' => [new NotBlank(), new Uuid()],
-                    'gross' => [new NotBlank(), new Type(['numeric'])],
-                    'net' => [new NotBlank(), new Type(['numeric'])],
-                    'linked' => [new Type('boolean')],
+                    'gross' => [new NotBlank(), new Type(type: 'numeric')],
+                    'net' => [new NotBlank(), new Type(type: 'numeric')],
+                    'linked' => [new Type(type: 'boolean')],
                     'listPrice' => [
                         new Optional(
                             new Collection([
                                 'allowExtraFields' => true,
                                 'allowMissingFields' => false,
                                 'fields' => [
-                                    'gross' => [new NotBlank(), new Type(['numeric'])],
+                                    'gross' => [new NotBlank(), new Type(type: 'numeric')],
                                     'net' => [new NotBlank(), new Type('numeric')],
-                                    'linked' => [new Type('boolean')],
+                                    'linked' => [new Type(type: 'boolean')],
                                 ],
                             ])
                         ),
@@ -200,9 +200,9 @@ class PriceFieldSerializer extends AbstractFieldSerializer
                                 'allowExtraFields' => true,
                                 'allowMissingFields' => false,
                                 'fields' => [
-                                    'gross' => [new NotBlank(), new Type(['numeric'])],
+                                    'gross' => [new NotBlank(), new Type(type: 'numeric')],
                                     'net' => [new NotBlank(), new Type('numeric')],
-                                    'linked' => [new Type('boolean')],
+                                    'linked' => [new Type(type: 'boolean')],
                                 ],
                             ])
                         ),

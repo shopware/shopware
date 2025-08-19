@@ -100,10 +100,7 @@ final readonly class DispatchEntityMessageHandler
         return $encoded;
     }
 
-    /**
-     * @return never-return
-     */
-    private function throwUnrecoverableMessageHandlingException(DispatchEntityMessage $message, string $errorMessage): void
+    private function throwUnrecoverableMessageHandlingException(DispatchEntityMessage $message, string $errorMessage): never
     {
         throw new UnrecoverableMessageHandlingException(\sprintf(
             '%s. Skipping dispatching of entity sync message. Entity: %s, Operation: %s',

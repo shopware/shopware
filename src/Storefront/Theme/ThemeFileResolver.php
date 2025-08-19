@@ -55,6 +55,7 @@ class ThemeFileResolver
         bool $onlySourceFiles
     ): FileCollection {
         return $this->resolve(
+            self::SCRIPT_FILES,
             $themeConfig,
             $configurationCollection,
             $onlySourceFiles,
@@ -68,6 +69,7 @@ class ThemeFileResolver
         bool $onlySourceFiles
     ): FileCollection {
         return $this->resolve(
+            self::STYLE_FILES,
             $themeConfig,
             $configurationCollection,
             $onlySourceFiles,

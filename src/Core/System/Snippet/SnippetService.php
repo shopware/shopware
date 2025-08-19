@@ -22,6 +22,7 @@ use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 use Shopware\Core\System\Snippet\Files\RemoteSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
 /**
@@ -47,7 +48,8 @@ class SnippetService
         private readonly SnippetFilterFactory $snippetFilterFactory,
         private readonly ExtensionDispatcher $extensionDispatcher,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly FilesystemOperator $filesystem,
+        private readonly FilesystemOperator $privateFileSystem,
+        private readonly Filesystem $localFileSystem,
     ) {
     }
 
@@ -577,9 +579,9 @@ class SnippetService
     private function decodeSnippetFileJson(AbstractSnippetFile $snippetFile): array
     {
         if ($snippetFile instanceof RemoteSnippetFile) {
-            $content = $this->filesystem->read($snippetFile->getPath());
+            $content = $this->privateFileSystem->read($snippetFile->getPath());
         } else {
-            $content = (string) file_get_contents($snippetFile->getPath());
+            $content = $this->localFileSystem->readFile($snippetFile->getPath());
         }
 
         try {

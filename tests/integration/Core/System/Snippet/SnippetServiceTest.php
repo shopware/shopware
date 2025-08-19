@@ -1120,6 +1120,7 @@ json
             static::getContainer()->get(ExtensionDispatcher::class),
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get('shopware.filesystem.private'),
+            static::getContainer()->get('filesystem'),
         );
     }
 

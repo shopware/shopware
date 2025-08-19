@@ -34,10 +34,6 @@ describe('src/module/sw-login/view/sw-login-recovery-recovery', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should update password successful', async () => {
         wrapper.vm.$router.push = jest.fn();
         wrapper.vm.userRecoveryService.updateUserPassword = jest.fn(() => Promise.resolve());

@@ -2,7 +2,7 @@ name: Add the "external-contribution" label to PRs created by community members
 
 on:
   pull_request_target:
-    types: [ opened, reopened ]
+    types: [opened, reopened]
 
 jobs:
   add-label:
@@ -18,20 +18,20 @@ jobs:
           script: |
             const pullRequestNumber = context.payload.pull_request.number;
             const contribLabel = process.env.CONTRIBUTOR_LABEL;
-            
+
             let hasWriteAccess = false;
-            
+
             const permissionLevel = await github.rest.repos.getCollaboratorPermissionLevel({
               ...context.repo,
               username: context.actor,
             });
-            
+
             if (permissionLevel.status !== 200) {
               core.info(`Failed to get permission level for "${context.actor}", assuming no write access.`);
             } else {
-              hasWriteAccess = ['admin', 'write'].includes(permissionLevel?.data?.permission);
+              hasWriteAccess = ['admin', 'write'].includes(permissionLevel?.data?.permission) || permissionLevel?.data?.user.node_id == "BOT_kgDOCV3tAw";
             }
-            
+
             if (hasWriteAccess) {
               core.info(`User "${context.actor}" has write access, skipping label addition.`);
             } else {

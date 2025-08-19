@@ -48,6 +48,7 @@ export default {
             emptyIcon: this.$route.meta.$module.icon,
             skeletonItemAmount: 25,
             filterSettings: null,
+            modalDeleteAll: false,
         };
     },
 
@@ -322,7 +323,7 @@ export default {
                 const content = items.reduce((acc, item) => {
                     item.resetTo = item.value;
                     acc[item.setId] = item;
-                    acc.isCustomSnippet = item.author.includes('user/');
+                    acc.isCustomSnippet = item.author.includes('user/') || item.author.length < 1;
                     return acc;
                 }, {});
                 content.id = items[0].translationKey;
@@ -384,12 +385,10 @@ export default {
             });
 
             Promise.all(responses)
-                .then(() => {
-                    this.inlineSaveSuccessMessage(key);
-                    this.getList();
-                })
                 .catch(() => {
                     this.inlineSaveErrorMessage(key);
+                })
+                .finally(() => {
                     this.getList();
                 });
         },
@@ -433,28 +432,28 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         inlineSaveSuccessMessage(key) {
-            const titleSaveSuccess = this.$tc('global.default.success');
             const messageSaveSuccess = this.$tc('sw-settings-snippet.list.messageSaveSuccess', { key }, this.queryIdCount);
 
             this.createNotificationSuccess({
-                title: titleSaveSuccess,
                 message: messageSaveSuccess,
             });
         },
 
         inlineSaveErrorMessage(key) {
-            const titleSaveError = this.$tc('global.default.error');
             const messageSaveError = this.$tc('sw-settings-snippet.list.messageSaveError', { key }, this.queryIdCount);
 
             this.createNotificationError({
-                title: titleSaveError,
                 message: messageSaveError,
             });
         },
 
         onReset(item) {
             this.isLoading = true;
+            this.hasResetableItems = false;
 
             this.snippetSetRepository
                 .search(this.snippetSetCriteria)
@@ -499,82 +498,84 @@ export default {
 
         onSelectionChanged(selection) {
             this.snippetSelection = selection;
-            this.hasResetableItems = Object.keys(selection).length === 0;
+            this.hasResetableItems = selection && Object.keys(selection).length !== 0;
+        },
+
+        onCloseDeleteModal() {
+            this.showDeleteModal = false;
+            this.modalDeleteAll = false;
+            this.hasResetableItems = false;
+            this.resetItems = [];
         },
 
         onConfirmReset(fullSelection) {
             let items;
             const promises = [];
 
-            if (this.showOnlyEdited) {
-                items = Object.values(fullSelection).filter((item) => typeof item !== 'string');
+            if (this.showOnlyEdited || this.modalDeleteAll) {
+                items = Object.values(fullSelection).filter((item) => typeof item === 'object');
             } else if (this.snippetSelection !== undefined) {
                 items = Object.values(this.snippetSelection);
             } else {
-                items = Object.values(this.resetItems);
+                this.onCloseDeleteModal();
+
+                return;
             }
 
-            this.showDeleteModal = false;
+            this.onCloseDeleteModal();
 
-            this.$nextTick(() => {
-                items.forEach((item) => {
-                    if (item.hasOwnProperty('isFileSnippet') || item.id === null) {
-                        return;
-                    }
-                    item.isCustomSnippet = fullSelection.isCustomSnippet;
-                    this.isLoading = true;
+            items.forEach((item) => {
+                if (item.hasOwnProperty('isFileSnippet') || item.id === null) {
+                    return;
+                }
 
-                    promises.push(
-                        this.snippetRepository
-                            .delete(item.id)
-                            .then(() => {
-                                this.createSuccessMessage(item);
-                            })
-                            .catch(() => {
-                                this.createResetErrorNote(item);
-                            }),
-                    );
+                if (item.translationKey && typeof item.translationKey !== 'string') {
+                    item.translationKey = `${item.translationKey}`;
+                }
+
+                item.isCustomSnippet = fullSelection.isCustomSnippet;
+                this.isLoading = true;
+
+                promises.push(
+                    this.snippetRepository.delete(item.id).catch(() => {
+                        this.createResetErrorNote(item);
+                    }),
+                );
+
+                Promise.all(promises).finally(() => {
+                    this.isLoading = false;
+                    this.getList();
                 });
-                Promise.all(promises)
-                    .then(() => {
-                        this.isLoading = false;
-                        this.getList();
-                    })
-                    .catch(() => {
-                        this.isLoading = false;
-                        this.getList();
-                    });
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         createSuccessMessage(item) {
-            const title = this.$tc('global.default.success');
-            const message = this.$tc(
+            const message = this.$t(
                 'sw-settings-snippet.list.resetSuccessMessage',
                 {
                     key: item.value,
                 },
-                !item.isCustomSnippet,
+                item.isCustomSnippet ? 0 : 1,
             );
 
             this.createNotificationSuccess({
-                title,
                 message,
             });
         },
 
         createResetErrorNote(item) {
-            const title = this.$tc('global.default.error');
-            const message = this.$tc(
+            const message = this.$t(
                 'sw-settings-snippet.list.resetErrorMessage',
                 {
                     key: item.value,
                 },
-                item.isCustomSnippet ? 2 : 0,
+                item.isCustomSnippet ? 0 : 1,
             );
 
             this.createNotificationError({
-                title,
                 message,
             });
         },

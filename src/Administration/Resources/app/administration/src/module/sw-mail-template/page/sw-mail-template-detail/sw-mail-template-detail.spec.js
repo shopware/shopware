@@ -151,6 +151,8 @@ async function createWrapper(privileges = []) {
                 'mt-card': {
                     template: '<div><slot></slot></div>',
                 },
+                'mt-icon': true,
+                'sw-vnode-renderer': await wrapTestComponent('sw-vnode-renderer', { sync: true }),
                 'sw-container': {
                     template: '<div><slot></slot></div>',
                 },
@@ -162,7 +164,6 @@ async function createWrapper(privileges = []) {
                 'sw-modal': true,
                 'sw-text-field': true,
                 'sw-context-menu-item': true,
-
                 'sw-code-editor': {
                     props: [
                         'disabled',
@@ -179,7 +180,6 @@ async function createWrapper(privileges = []) {
                 'sw-tree-input-field': await wrapTestComponent('sw-tree-input-field'),
                 'sw-confirm-field': true,
                 'sw-loader': true,
-                'sw-vnode-renderer': true,
                 'sw-data-grid': {
                     props: ['dataSource'],
                     template: `
@@ -210,14 +210,12 @@ async function createWrapper(privileges = []) {
 }
 
 describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
-    let wrapper;
-
     afterEach(() => {
         jest.clearAllMocks();
     });
 
     it('should be able to add an item to the attachment', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({ mailTemplateMedia: [] });
         wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
 
@@ -225,7 +223,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should be unable to add an item to the attachment exist this item', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
         wrapper.vm.createNotificationInfo = jest.fn();
         wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
 
@@ -237,12 +235,12 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should be success to get media columns', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm.getMediaColumns()).toHaveLength(1);
     });
 
     it('should be success to upload an attachment', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             mailTemplate: {
                 media: new EntityCollection(
@@ -262,7 +260,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should be return if the user upload duplicated the attachment', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({ mailTemplate: mailTemplateMock });
         const mediaLengthBeforeTest = wrapper.vm.mailTemplate.media.length;
 
@@ -275,7 +273,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should be able to delete media', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             mailTemplateMedia: [mailTemplateMediaMock],
             mailTemplate: {
@@ -312,7 +310,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('all fields should be disabled without edit permission', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             isLoading: false,
             mailTemplateMedia: [mailTemplateMediaMock],
@@ -381,7 +379,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('all fields should be enabled with edit permission', async () => {
-        wrapper = await createWrapper(['mail_templates.editor']);
+        const wrapper = await createWrapper(['mail_templates.editor']);
         await wrapper.setData({
             mailTemplateMedia: [mailTemplateMediaMock],
             isLoading: false,
@@ -450,7 +448,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should not be able to show preview if html content is empty', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({ mailTemplate: mailTemplateTypeMock });
 
@@ -460,7 +458,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should not be able to send test mails when values are missing', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             mailTemplate: {
@@ -476,7 +474,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should be able to send test mails when values are filled', async () => {
-        wrapper = await createWrapper(['api_send_email']);
+        const wrapper = await createWrapper(['api_send_email']);
 
         await wrapper.setData({
             mailTemplate: {
@@ -510,7 +508,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should be able to send test mails when only inherited values are filled', async () => {
-        wrapper = await createWrapper(['api_send_email']);
+        const wrapper = await createWrapper(['api_send_email']);
 
         await wrapper.setData({
             mailTemplate: {
@@ -559,7 +557,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         const clipboardSpy = jest.spyOn(navigator.clipboard, 'writeText');
 
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
 
         const spyOnCopyVariable = jest.spyOn(wrapper.vm, 'onCopyVariable');
 
@@ -583,11 +581,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         wrapper.vm.mailTemplateType = {
             availableEntities: true,
             templateData: {
-                order: {
-                    deleveries: {
-                        trackingCodes: {},
-                    },
-                },
+                test: 'test',
             },
         };
 
@@ -603,7 +597,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should have schema in variables', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
 
         const spyIsToManyAssociationVariable = jest.spyOn(wrapper.vm, 'isToManyAssociationVariable');
 
@@ -630,14 +624,14 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         };
 
         await flushPromises();
-        const icon = await wrapper.find('.icon--regular-chevron-right-xxs');
+        const icon = await wrapper.find('.sw-tree-item__toggle');
         await icon.trigger('click');
 
         expect(spyIsToManyAssociationVariable).toHaveBeenCalled();
     });
 
     it('should replace variables in html content when send mail test', async () => {
-        wrapper = await createWrapper(['api_send_email']);
+        const wrapper = await createWrapper(['api_send_email']);
 
         const spyMailPreviewContent = jest.spyOn(wrapper.vm, 'mailPreviewContent');
 
@@ -676,7 +670,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should get specific error notification if using preview function with invalid template', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             mailTemplate: {
@@ -713,7 +707,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should get general error notification if using preview function with invalid template', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             mailTemplate: {
@@ -751,7 +745,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should get error notification if using test mail function with invalid template', async () => {
-        wrapper = await createWrapper(['api_send_email']);
+        const wrapper = await createWrapper(['api_send_email']);
 
         await wrapper.setData({
             mailTemplate: {
@@ -797,7 +791,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should render mail template type name as language info description', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({ $refs: refsMock });
         await flushPromises();
 
@@ -806,7 +800,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should disable send test mail button when acl permission not set', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             mailTemplate: {
@@ -836,7 +830,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should display an error notification when the mail template type is missing', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.createNotificationError = jest.fn();
         const notificationMock = wrapper.vm.createNotificationError;
@@ -857,7 +851,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should display an notification if content language is not assigned to selected sales channel', async () => {
-        wrapper = await createWrapper(['api_send_email']);
+        const wrapper = await createWrapper(['api_send_email']);
 
         await wrapper.setData({
             mailTemplate: {
@@ -888,5 +882,40 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         await flushPromises();
 
         expect(wrapper.vm.showLanguageNotAssignedToSalesChannelWarning).toBeTruthy();
+    });
+
+    it('should not render copy icon if variable has children', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            mailTemplateType: {
+                availableEntities: true,
+                templateData: {
+                    order: {
+                        orderNumber: 'test',
+                        price: {
+                            totalPrice: 100,
+                        },
+                    },
+                },
+            },
+        });
+        await flushPromises();
+
+        await wrapper.find('[aria-label="order"] .sw-tree-item__toggle').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('[aria-label="price"] .sw-tree-item__toggle').trigger('click');
+        await flushPromises();
+
+        const labels = wrapper.findAll('.sw-tree-item__label');
+        expect(labels).toHaveLength(4);
+
+        expect(labels.at(0).text()).toBe('order');
+        expect(labels.at(1).text()).toBe('orderNumber');
+        expect(labels.at(2).text()).toBe('price');
+        expect(labels.at(3).text()).toBe('totalPrice');
+
+        const copyIcons = wrapper.findAll('.sw-mail-template-detail__copy_icon');
+        expect(copyIcons).toHaveLength(2);
     });
 });

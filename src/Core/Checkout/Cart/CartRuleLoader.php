@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
+use Shopware\Core\Checkout\Cart\Extension\CheckoutCartRuleLoaderExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\AbstractTaxDetector;
@@ -12,6 +13,7 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
@@ -47,6 +49,7 @@ class CartRuleLoader implements ResetInterface
         private readonly AbstractTaxDetector $taxDetector,
         private readonly Connection $connection,
         private readonly CartFactory $cartFactory,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -90,89 +93,95 @@ class CartRuleLoader implements ResetInterface
                 $hasDeferredErrors = false;
             }
 
-            $rules = $this->loadRules($context->getContext());
+            $timestamps = $cart->getLineItems()->fmap(static fn (LineItem $lineItem) => $lineItem->getDataTimestamp()?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+            $dataHashes = $cart->getLineItems()->fmap(static fn (LineItem $lineItem) => $lineItem->getDataContextHash());
 
-            // save all rules for later usage
-            $all = $rules;
-
-            // For existing carts filter rules to only contain the rules from the current cart
-            if ($new === false) {
-                $rules = $rules->filter(
-                    fn (RuleEntity $rule) => \in_array($rule->getId(), $cart->getRuleIds(), true)
-                );
-            }
-
-            // update rules in current context
-            $context->setRuleIds($rules->getIds());
-            $context->setAreaRuleIds($rules->getIdsByArea());
-
-            $timestamps = $cart->getLineItems()->fmap(function (LineItem $lineItem) {
-                return $lineItem->getDataTimestamp()?->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-            });
-
-            $dataHashes = $cart->getLineItems()->fmap(function (LineItem $lineItem) {
-                return $lineItem->getDataContextHash();
-            });
-
-            // start first cart calculation to have all objects enriched
-            $cart = $this->processor->process($cart, $context, $behaviorContext);
-
-            $iteration = 1;
-            do {
-                $compare = $cart;
-
-                if ($iteration > self::MAX_ITERATION) {
-                    break;
-                }
-
-                // filter rules which matches to current scope
-                $rules = $rules->filterMatchingRules($cart, $context);
-
-                // update matching rules in context
-                $context->setRuleIds($rules->getIds());
-                $context->setAreaRuleIds($rules->getIdsByArea());
-
-                // calculate cart again
-                $cart = $this->processor->process($cart, $context, $behaviorContext);
-
-                // check if the cart changed, in this case we have to recalculate the cart again
-                $recalculate = $this->cartChanged($cart, $compare);
-
-                // check if rules changed for the last calculated cart, in this case we have to recalculate
-                $ruleCompare = $all->filterMatchingRules($cart, $context);
-
-                if (!$rules->equals($ruleCompare)) {
-                    $recalculate = true;
-                    $rules = $ruleCompare;
-                }
-
-                ++$iteration;
-            } while ($recalculate);
-
-            $cart = $this->validateTaxFree($context, $cart, $behaviorContext);
-
-            $index = 0;
-            foreach ($rules as $rule) {
-                ++$index;
-                $this->logger->info(
-                    \sprintf('#%d Rule detection: %s with priority %d (id: %s)', $index, $rule->getName(), $rule->getPriority(), $rule->getId())
-                );
-            }
-
-            $context->setRuleIds($rules->getIds());
-            $context->setAreaRuleIds($rules->getIdsByArea());
+            $result = $this->extensions->publish(
+                name: CheckoutCartRuleLoaderExtension::NAME,
+                extension: new CheckoutCartRuleLoaderExtension($context, $cart, $behaviorContext, $new),
+                function: $this->_load(...),
+            );
 
             // save the cart if errors exist, so the errors get persisted
-            if ($this->updated($cart, $timestamps, $dataHashes)
-                || $cart->getErrorHash() !== $cart->getErrors()->getUniqueHash()
+            if ($this->updated($result->getCart(), $timestamps, $dataHashes)
+                || $result->getCart()->getErrorHash() !== $result->getCart()->getErrors()->getUniqueHash()
                 || $hasDeferredErrors
             ) {
-                $cart->setErrorHash($cart->getErrors()->getUniqueHash());
-                $this->cartPersister->save($cart, $context);
+                $result->getCart()->setErrorHash($result->getCart()->getErrors()->getUniqueHash());
+                $this->cartPersister->save($result->getCart(), $context);
             }
 
-            return new RuleLoaderResult($cart, $rules);
+            return $result;
         });
+    }
+
+    private function _load(SalesChannelContext $salesChannelContext, Cart $originalCart, CartBehavior $cartBehavior, bool $new): RuleLoaderResult
+    {
+        $rules = $this->loadRules($salesChannelContext->getContext());
+
+        // save all rules for later usage
+        $all = $rules;
+
+        // For existing carts filter rules to only contain the rules from the current cart
+        if ($new === false) {
+            $rules = $rules->filter(
+                fn (RuleEntity $rule) => \in_array($rule->getId(), $originalCart->getRuleIds(), true)
+            );
+        }
+
+        // update rules in current context
+        $salesChannelContext->setRuleIds($rules->getIds());
+        $salesChannelContext->setAreaRuleIds($rules->getIdsByArea());
+
+        // start first cart calculation to have all objects enriched
+        $cart = $this->processor->process($originalCart, $salesChannelContext, $cartBehavior);
+
+        $iteration = 1;
+        do {
+            $compare = $cart;
+
+            if ($iteration > self::MAX_ITERATION) {
+                break;
+            }
+
+            // filter rules which matches to current scope
+            $rules = $rules->filterMatchingRules($cart, $salesChannelContext);
+
+            // update matching rules in context
+            $salesChannelContext->setRuleIds($rules->getIds());
+            $salesChannelContext->setAreaRuleIds($rules->getIdsByArea());
+
+            // calculate cart again
+            $cart = $this->processor->process($cart, $salesChannelContext, $cartBehavior);
+
+            // check if the cart changed, in this case we have to recalculate the cart again
+            $recalculate = $this->cartChanged($cart, $compare);
+
+            // check if rules changed for the last calculated cart, in this case we have to recalculate
+            $ruleCompare = $all->filterMatchingRules($cart, $salesChannelContext);
+
+            if (!$rules->equals($ruleCompare)) {
+                $recalculate = true;
+                $rules = $ruleCompare;
+            }
+
+            ++$iteration;
+        } while ($recalculate);
+
+        $cart = $this->validateTaxFree($salesChannelContext, $cart, $cartBehavior);
+
+        $index = 0;
+        foreach ($rules as $rule) {
+            ++$index;
+            $this->logger->info(
+                \sprintf('#%d Rule detection: %s with priority %d (id: %s)', $index, $rule->getName(), $rule->getPriority(), $rule->getId())
+            );
+        }
+
+        $salesChannelContext->setRuleIds($rules->getIds());
+        $salesChannelContext->setAreaRuleIds($rules->getIdsByArea());
+
+        return new RuleLoaderResult($cart, $rules);
     }
 
     private function loadRules(Context $context): RuleCollection

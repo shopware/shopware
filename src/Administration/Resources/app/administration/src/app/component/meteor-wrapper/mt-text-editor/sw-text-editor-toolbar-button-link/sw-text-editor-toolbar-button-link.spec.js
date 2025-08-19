@@ -89,11 +89,6 @@ async function createWrapper(
 }
 
 describe('src/app/component/meteor-wrapper/mt-text-editor/mt-text-editor-toolbar-button-link', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render the button', async () => {
         const wrapper = await createWrapper();
 

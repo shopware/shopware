@@ -63,7 +63,7 @@ class RuleConstraintsTest extends TestCase
         static::assertInstanceOf(NotBlank::class, $operators[0]);
         static::assertInstanceOf(Choice::class, $operators[1]);
         static::assertEquals(
-            new Choice([...$this->defaultOperators, Rule::OPERATOR_EMPTY]),
+            new Choice(choices: [...$this->defaultOperators, Rule::OPERATOR_EMPTY]),
             $operators[1],
         );
     }
@@ -83,7 +83,7 @@ class RuleConstraintsTest extends TestCase
         static::assertInstanceOf(NotBlank::class, $operators[0]);
         static::assertInstanceOf(Choice::class, $operators[1]);
         static::assertEquals(
-            new Choice([...$this->defaultOperators, Rule::OPERATOR_EMPTY]),
+            new Choice(choices: [...$this->defaultOperators, Rule::OPERATOR_EMPTY]),
             $operators[1],
         );
     }

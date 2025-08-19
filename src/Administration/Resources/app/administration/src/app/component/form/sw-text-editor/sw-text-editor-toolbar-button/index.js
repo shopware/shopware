@@ -100,7 +100,7 @@ export default {
                 return;
             }
 
-            if (button.type === 'foreColor' && event.target.closest('.sw-colorpicker__colorpicker')) {
+            if (button.type === 'foreColor' && event.target.closest('.mt-colorpicker__colorpicker')) {
                 return;
             }
 
@@ -134,7 +134,7 @@ export default {
             }
 
             const flyoutMenuRightBound = flyoutMenu.getBoundingClientRect().right;
-            const windowRightBound = this.$root.$el.getBoundingClientRect().right;
+            const windowRightBound = this.$root.$el.parentElement.getBoundingClientRect().right;
 
             const isOutOfRightBound = flyoutMenuRightBound - windowRightBound > 0;
             this.flyoutClasses = isOutOfRightBound ? ['is--left'] : ['is--right'];

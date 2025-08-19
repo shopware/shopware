@@ -87,13 +87,6 @@ async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
 }
 
 describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to save the tax', async () => {
         const wrapper = await createWrapper([
             'tax.editor',

@@ -7,14 +7,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
+use Shopware\Core\System\Language\LanguageCollection;
 use SwagTestPlugin\SwagTestPlugin;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait PluginTestsHelper
 {
+    /**
+     * @param EntityRepository<PluginCollection> $pluginRepo
+     * @param EntityRepository<LanguageCollection> $languageRepo
+     */
     protected function createPluginService(
         string $pluginDir,
         string $projectDir,
@@ -32,6 +38,9 @@ trait PluginTestsHelper
         );
     }
 
+    /**
+     * @param EntityRepository<PluginCollection> $pluginRepo
+     */
     protected function createPlugin(
         EntityRepository $pluginRepo,
         Context $context,

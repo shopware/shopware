@@ -29,7 +29,7 @@ export default {
             selectedProfile: null,
             profiles: null,
             searchTerm: null,
-            sortBy: 'label',
+            sortBy: 'technicalName',
             sortDirection: 'ASC',
             showProfileEditModal: false,
             showNewProfileWizard: false,
@@ -48,28 +48,20 @@ export default {
         },
 
         profileCriteria() {
-            const criteria = new Criteria(1, 25);
-            criteria.setTerm(this.searchTerm);
-            criteria.addAssociation('importExportLogs');
-            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
-
-            return criteria;
+            return new Criteria(1, 25)
+                .setTerm(this.searchTerm)
+                .addAssociation('importExportLogs')
+                .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
         },
 
         profilesColumns() {
             return [
                 {
-                    property: 'label',
-                    dataIndex: 'label',
-                    label: 'sw-import-export.profile.nameColumn',
-                    allowResize: true,
-                    primary: true,
-                },
-                {
                     property: 'technicalName',
                     dataIndex: 'technicalName',
                     label: 'sw-import-export.profile.technicalNameColumn',
                     allowResize: true,
+                    primary: true,
                 },
                 {
                     property: 'systemDefault',
@@ -119,16 +111,19 @@ export default {
         },
 
         onAddNewProfile() {
-            const profile = this.profileRepository.create();
-            profile.fileType = 'text/csv';
-            profile.mapping = [];
-            profile.config = {};
-            profile.config.createEntities = true;
-            profile.config.updateEntities = true;
-            profile.type = 'import-export';
-            profile.translated = {};
-            profile.delimiter = ';';
-            profile.enclosure = '"';
+            const profile = {
+                ...this.profileRepository.create(),
+                fileType: 'text/csv',
+                mapping: [],
+                config: {
+                    createEntities: true,
+                    updateEntities: true,
+                },
+                type: 'import-export',
+                translated: {},
+                delimiter: ';',
+                enclosure: '"',
+            };
 
             this.selectedProfile = null;
             this.selectedProfile = profile;
@@ -145,6 +140,7 @@ export default {
             if (profile.config?.createEntities === undefined) {
                 profile.config.createEntities = true;
             }
+
             if (profile.config?.updateEntities === undefined) {
                 profile.config.updateEntities = true;
             }
@@ -157,7 +153,6 @@ export default {
             const behavior = {
                 cloneChildren: false,
                 overwrites: {
-                    label: `${this.$tc('sw-import-export.profile.copyOfLabel')} ${item.label || item.translated.label}`,
                     technicalName: `${item.technicalName}-copy-${Date.now()}`,
                     systemDefault: false,
                 },
@@ -166,23 +161,27 @@ export default {
             return this.profileRepository
                 .clone(item.id, behavior, Shopware.Context.api)
                 .then((clone) => {
-                    const criteria = new Criteria(1, 25);
-                    criteria.setIds([clone.id]);
+                    const criteria = new Criteria(1, 25).setIds([clone.id]);
+
                     return this.profileRepository.search(criteria);
                 })
                 .then((profiles) => {
                     const profile = profiles[0];
+
                     if (profile.config?.createEntities === undefined) {
                         profile.config.createEntities = true;
                     }
+
                     if (profile.config?.updateEntities === undefined) {
                         profile.config.updateEntities = true;
                     }
 
                     this.selectedProfile = profile;
                     this.showProfileEditModal = true;
-                    return this.loadProfiles(); // refresh the list in any case (even if the modal is canceled)
+
+                    // refresh the list in any case (even if the modal is canceled)
                     // because the duplicate already exists.
+                    return this.loadProfiles();
                 })
                 .catch(() => {
                     this.createNotificationError({
@@ -206,6 +205,7 @@ export default {
 
         saveSelectedProfile() {
             this.isLoading = true;
+
             return this.profileRepository
                 .save(this.selectedProfile, Shopware.Context.api)
                 .then(() => {
@@ -215,6 +215,7 @@ export default {
                     this.createNotificationSuccess({
                         message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0),
                     });
+
                     return this.loadProfiles();
                 })
                 .catch((exception) => {

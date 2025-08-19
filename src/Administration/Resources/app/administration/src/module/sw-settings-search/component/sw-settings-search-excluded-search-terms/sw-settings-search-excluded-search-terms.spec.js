@@ -106,13 +106,6 @@ async function createWrapper(privileges = [], resetError = false) {
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-excluded-search-terms', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be show element no excluded search', async () => {
         const wrapper = await createWrapper([
             'product_search_config.viewer',

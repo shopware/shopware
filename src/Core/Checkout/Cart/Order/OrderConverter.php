@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
@@ -19,6 +18,7 @@ use Shopware\Core\Checkout\Cart\Order\Transformer\CustomerTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\DeliveryTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\LineItemTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\TransactionTransformer;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
@@ -28,8 +28,6 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\OrderStates;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
-use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -67,14 +65,17 @@ class OrderConverter
     final public const ORIGINAL_PRIMARY_ORDER_TRANSACTION = 'originalPrimaryOrderTransaction';
 
     final public const ADMIN_EDIT_ORDER_PERMISSIONS = [
-        ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
-        ProductCartProcessor::SKIP_PRODUCT_RECALCULATION => true,
-        DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION => true,
-        DeliveryProcessor::SKIP_DELIVERY_TAX_RECALCULATION => true,
-        ProductCartProcessor::SKIP_PRODUCT_STOCK_VALIDATION => true,
-        ProductCartProcessor::KEEP_INACTIVE_PRODUCT => true,
-        PromotionCollector::PIN_MANUAL_PROMOTIONS => true,
-        PromotionCollector::PIN_AUTOMATIC_PROMOTIONS => true,
+        CheckoutPermissions::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
+        CheckoutPermissions::SKIP_PRODUCT_RECALCULATION => true,
+        CheckoutPermissions::SKIP_DELIVERY_PRICE_RECALCULATION => true,
+        CheckoutPermissions::SKIP_DELIVERY_TAX_RECALCULATION => true,
+        CheckoutPermissions::SKIP_PRODUCT_STOCK_VALIDATION => true,
+        CheckoutPermissions::KEEP_INACTIVE_PRODUCT => true,
+        CheckoutPermissions::PIN_MANUAL_PROMOTIONS => true,
+        CheckoutPermissions::PIN_AUTOMATIC_PROMOTIONS => true,
+        CheckoutPermissions::SKIP_CART_PERSISTENCE => true,
+        CheckoutPermissions::SKIP_PRIMARY_ORDER_IDS => true,
+        CheckoutPermissions::AUTOMATIC_PROMOTION_DELETION_NOTICES => true,
     ];
 
     /**
@@ -103,6 +104,9 @@ class OrderConverter
      */
     public function convertToOrder(Cart $cart, SalesChannelContext $context, OrderConversionContext $conversionContext): array
     {
+        /** @deprecated tag:v6.8.0 - `$isRecalculation` will be removed without replacement */
+        $isRecalculation = !Feature::isActive('v6.8.0.0') && ($cart->getBehavior()?->isRecalculation() ?? false);
+
         if ($conversionContext->shouldIncludeDeliveries()) {
             foreach ($cart->getDeliveries() as $delivery) {
                 if ($delivery->hasExtensionOfType(self::ORIGINAL_ADDRESS_ID, IdStruct::class) || $delivery->getLocation()->getAddress() !== null || $delivery->hasExtensionOfType(self::ORIGINAL_ID, IdStruct::class)) {
@@ -151,7 +155,8 @@ class OrderConverter
 
             // In order to reference the primary order delivery we need to set ids. The primary order delivery is the
             // order delivery with the highest shipping costs (i.e. _not_ a shipping discount).
-            if (!$cart->getBehavior()?->isRecalculation() && $cart->getDeliveries()->count() > 0) {
+            /** @deprecated tag:v6.8.0 - `$isRecalculation` will be removed from condition without replacement */
+            if ((!$isRecalculation || !$cart->getBehavior()?->hasPermission(CheckoutPermissions::SKIP_PRIMARY_ORDER_IDS)) && $cart->getDeliveries()->count() > 0) {
                 usort(
                     $data['deliveries'],
                     function (array $deliveryA, array $deliveryB) {
@@ -192,7 +197,8 @@ class OrderConverter
                 $context->getContext()
             );
 
-            if (!$cart->getBehavior()?->isRecalculation() && $cart->getTransactions()->count() > 0) {
+            /** @deprecated tag:v6.8.0 - `$isRecalculation` will be removed from condition without replacement */
+            if ((!$isRecalculation || !$cart->getBehavior()?->hasPermission(CheckoutPermissions::SKIP_PRIMARY_ORDER_IDS)) && $cart->getTransactions()->count() > 0) {
                 $data['transactions'][0]['id'] ??= Uuid::randomHex();
                 $data['primaryOrderTransactionId'] = $data['transactions'][0]['id'];
             }

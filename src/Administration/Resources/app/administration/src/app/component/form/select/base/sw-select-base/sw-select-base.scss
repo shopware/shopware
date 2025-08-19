@@ -1,13 +1,10 @@
 @import "~scss/variables";
 
-$sw-select-focus-transition: all ease-in-out 0.2s;
-
 .sw-select {
     position: relative;
 
     .sw-block-field__block {
-        transition: $sw-select-focus-transition;
-        background-color: $color-white;
+        background-color: var(--color-elevation-surface-raised);
         position: relative;
         overflow: visible;
     }
@@ -15,11 +12,11 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
     .sw-select__selection {
         position: relative;
         height: 100%;
-        padding: 0 8px;
+        padding: 0 var(--scale-size-8);
         border: none;
-        font-size: $font-size-xs;
-        line-height: 22px;
-        color: $color-darkgray-200;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        color: var(--color-text-primary-default);
         outline: none;
         -webkit-appearance: none;
         -moz-appearance: none;
@@ -29,17 +26,17 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
         position: absolute;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: var(--scale-size-8);
         top: 50%;
-        right: 16px;
+        right: var(--scale-size-16);
         transform: translate(0, -50%);
         z-index: 1;
     }
 
     .sw-select__selection-indicators .sw-loader {
         position: static;
-        width: 16px;
-        height: 16px;
+        width: var(--scale-size-16);
+        height: var(--scale-size-16);
         margin: 0;
 
         .sw-loader__container {
@@ -52,9 +49,14 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
     .sw-select__select-indicator-hitbox {
         background-color: transparent;
         border: 0 solid transparent;
-        color: $color-darkgray-200;
-        padding: 0 4px;
+        padding: 0 var(--scale-size-4);
         cursor: pointer;
+        border-radius: var(--border-radius-xs);
+
+        &:focus-visible {
+            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline-offset: var(--scale-size-2);
+        }
 
         .sw-select__select-indicator {
             display: block;
@@ -84,8 +86,8 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
     }
 
     .sw-select__select-indicator-clear {
-        width: 16px;
-        height: 16px;
+        width: var(--scale-size-16);
+        height: var(--scale-size-16);
         padding: 3px;
         transition: 0.1s opacity ease;
         opacity: 0;
@@ -100,7 +102,7 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
     }
 
     &.sw-field--medium .sw-select__selection {
-        padding: 4px 6px 0;
+        padding: 4px var(--scale-size-16) 0;
     }
 
     &.sw-field--small .sw-block-field__block {
@@ -109,15 +111,22 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
 
     &.is--disabled {
         .sw-block-field__block {
-            background-color: $color-gray-100;
+            background-color: var(--color-background-primary-disabled);
         }
 
-        .sw-label {
-            background-color: $color-gray-100;
+        .sw-label,
+        .sw-label--dismissable:hover {
+            background-color: var(--color-interaction-secondary-disabled);
+            color: var(--color-text-primary-disabled);
+            border-color: var(--color-border-primary-default);
+
+            .sw-label__dismiss {
+                color: var(--color-icon-primary-disabled);
+            }
         }
 
         input {
-            background-color: $color-gray-100;
+            background-color: var(--color-background-primary-disabled);
         }
     }
 }
@@ -125,7 +134,6 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
 // Vue.js transitions
 .sw-select-result-list-fade-down-enter-active,
 .sw-select-result-list-fade-down-leave-active {
-    transition: $sw-select-focus-transition;
     transform: translateY(0);
 }
 

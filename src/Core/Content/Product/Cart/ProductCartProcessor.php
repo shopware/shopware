@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -38,15 +39,30 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 {
     final public const CUSTOM_PRICE = 'customPrice';
 
-    final public const ALLOW_PRODUCT_PRICE_OVERWRITES = 'allowProductPriceOverwrites';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::ALLOW_PRODUCT_PRICE_OVERWRITES}
+     */
+    final public const ALLOW_PRODUCT_PRICE_OVERWRITES = CheckoutPermissions::ALLOW_PRODUCT_PRICE_OVERWRITES;
 
-    final public const ALLOW_PRODUCT_LABEL_OVERWRITES = 'allowProductLabelOverwrites';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::ALLOW_PRODUCT_PRICE_OVERWRITES}
+     */
+    final public const ALLOW_PRODUCT_LABEL_OVERWRITES = CheckoutPermissions::ALLOW_PRODUCT_LABEL_OVERWRITES;
 
-    final public const SKIP_PRODUCT_RECALCULATION = 'skipProductRecalculation';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::SKIP_PRODUCT_RECALCULATION}
+     */
+    final public const SKIP_PRODUCT_RECALCULATION = CheckoutPermissions::SKIP_PRODUCT_RECALCULATION;
 
-    final public const SKIP_PRODUCT_STOCK_VALIDATION = 'skipProductStockValidation';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::SKIP_PRODUCT_STOCK_VALIDATION}
+     */
+    final public const SKIP_PRODUCT_STOCK_VALIDATION = CheckoutPermissions::SKIP_PRODUCT_STOCK_VALIDATION;
 
-    final public const KEEP_INACTIVE_PRODUCT = 'keepInactiveProduct';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::KEEP_INACTIVE_PRODUCT}
+     */
+    final public const KEEP_INACTIVE_PRODUCT = CheckoutPermissions::KEEP_INACTIVE_PRODUCT;
 
     /**
      * @internal

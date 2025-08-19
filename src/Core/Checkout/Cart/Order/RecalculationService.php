@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -16,6 +15,7 @@ use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
@@ -26,8 +26,6 @@ use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionDeliveryCalculator;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -198,7 +196,7 @@ class RecalculationService
     {
         $options[SalesChannelContextService::PERMISSIONS] = [
             ...OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
-            PromotionCollector::PIN_AUTOMATIC_PROMOTIONS => false,
+            CheckoutPermissions::PIN_AUTOMATIC_PROMOTIONS => false,
         ];
 
         return $this->recalculate($orderId, $context, $options);
@@ -218,9 +216,9 @@ class RecalculationService
 
         $options[SalesChannelContextService::PERMISSIONS] = [
             ...OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
-            PromotionCollector::PIN_AUTOMATIC_PROMOTIONS => false,
-            PromotionCollector::PIN_MANUAL_PROMOTIONS => false,
-            PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS => $skipAutomaticPromotions,
+            CheckoutPermissions::PIN_AUTOMATIC_PROMOTIONS => false,
+            CheckoutPermissions::PIN_MANUAL_PROMOTIONS => false,
+            CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS => $skipAutomaticPromotions,
         ];
 
         $salesChannelContext = $this->orderConverter->assembleSalesChannelContext(
@@ -437,7 +435,8 @@ class RecalculationService
     {
         // we switch to the live version that we don't have to consider live version fallbacks inside the calculation
         return $context->live(function ($live) use ($cart): Cart {
-            $behavior = new CartBehavior($live->getPermissions(), true, true);
+            /** @deprecated tag:v6.8.0 - `$isRecalculation` will be removed */
+            $behavior = new CartBehavior($live->getPermissions(), true, isRecalculation: !Feature::isActive('v6.8.0.0'));
 
             // all prices are now prepared for calculation - starts the cart calculation
             $cart = $this->processor->process($cart, $live, $behavior);

@@ -123,13 +123,6 @@ async function createWrapper(props = {}) {
 }
 
 describe('src/app/component/entity/sw-category-tree-field', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should close the dropdown when selecting in the single select mode', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

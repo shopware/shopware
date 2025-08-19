@@ -73,7 +73,13 @@ class SalesChannelCmsPageLoaderTest extends TestCase
         $config = [
             'page-1' => [
                 'slot-1' => [
-                    'translated' => 'expected-config',
+                    'key' => [
+                        'value' => [
+                            'value-4',
+                        ],
+                    ],
+                    'key-2' => ['overridden value'],
+                    'additional-key' => 'additional value',
                 ],
             ],
         ];
@@ -99,7 +105,17 @@ class SalesChannelCmsPageLoaderTest extends TestCase
 
         $config = $slot->getConfig();
         static::assertIsArray($config);
-        static::assertSame('expected-config', $config['translated']);
+        static::assertSame([
+            'translated' => 'original value',
+            'key' => [
+                'value' => [
+                    'value-4',
+                ],
+                'source' => 'static',
+            ],
+            'key-2' => ['overridden value'],
+            'additional-key' => 'additional value',
+        ], $config);
     }
 
     private function assertCmsPage1(CmsPageEntity $cmsPage): void
@@ -190,7 +206,18 @@ class SalesChannelCmsPageLoaderTest extends TestCase
                                     'id' => 'slot-1',
                                     'slot' => 'content',
                                     'type' => 'foo',
-                                    'config' => ['translated' => '0'],
+                                    'config' => [
+                                        'translated' => 'original value',
+                                        'key' => [
+                                            'value' => [
+                                                'value-1',
+                                                'value-2',
+                                                'value-3',
+                                            ],
+                                            'source' => 'static',
+                                        ],
+                                        'key-2' => [],
+                                    ],
                                 ]),
                             ]),
                         ]),

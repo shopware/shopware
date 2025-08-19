@@ -30,10 +30,6 @@ describe('components/base/sw-empty-state', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render a title', async () => {
         expect(wrapper.find('.sw-empty-state__title').text()).toBe('Oh no, nothing was found.');
     });

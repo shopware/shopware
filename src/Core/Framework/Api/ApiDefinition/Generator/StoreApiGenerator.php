@@ -45,7 +45,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         private readonly OpenApiSchemaBuilder $openApiBuilder,
         private readonly OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
         array $bundles,
-        private readonly BundleSchemaPathCollection $bundleSchemaPathCollection
+        private readonly BundleSchemaPathCollection $bundleSchemaPathCollection,
     ) {
         $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/StoreApi';
     }
@@ -101,6 +101,8 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $preFinalSpecs = $this->mergeComponentsSchemaRequiredFieldsRecursive($data, $loader->loadOpenapiSpecification());
         /** @var OpenApiSpec $finalSpecs */
         $finalSpecs = array_replace_recursive($data, $preFinalSpecs);
+
+        $this->resolveParameterGroups($finalSpecs);
 
         return $finalSpecs;
     }
@@ -229,5 +231,96 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         }
 
         return $specsFromStaticJsonDefinition;
+    }
+
+    /**
+     * [WARNING] Please refrain from using this functionality in new code. It is a workaround to reduce duplication of
+     * the criteria parameter groups and may be removed in the future.
+     *
+     * OpenAPI specification does not support groups of parameters as reusable components.
+     * As in Shopware has a number of GET routes that support passing criteria as a set of parameters,
+     * describing them in the OpenAPI spec leads to a lot of duplication.
+     *
+     * This methods adds support for a custom extension that allows describing parameter groups in the components
+     * and referencing them in the separate paths as a group. Those groups will be resolved and replaced with the actual parameters.
+     *
+     * Example:
+     *
+     * ```json
+     * {
+     *   "components": {
+     *     "x-parameter-groups": {
+     *       "pagination": [
+     *         {
+     *           "name": "limit",
+     *           "in": "query",
+     *           "required": false,
+     *            ... usual parameter properties
+     *         },
+     *         {
+     *           "name": "page",
+     *           ... usual parameter properties
+     *         }
+     *       ]
+     *     }
+     *   },
+     *   "paths": {
+     *     "/product": {
+     *       "get": {
+     *         "parameters": [
+     *           {
+     *             "x-parameter-group": "pagination"
+     *           },
+     *           ... other parameters
+     *         ]
+     *         ... usual operation properties
+     *       }
+     *     }
+     *   }
+     * }
+     * ```
+     *
+     * @param OpenApiSpec $specs
+     */
+    private function resolveParameterGroups(array &$specs): void
+    {
+        if (!isset($specs['paths']) || !\is_array($specs['paths'])) {
+            return;
+        }
+
+        // this is a custom extension that is not supported by the OpenAPI spec
+        // it has to be processed and removed before the final output
+        $parameterGroups = $specs['components']['x-parameter-groups'] ?? [];
+        unset($specs['components']['x-parameter-groups']);
+
+        foreach ($specs['paths'] as &$pathDefinition) {
+            foreach ($pathDefinition as &$operation) {
+                if (!isset($operation['parameters']) || !\is_array($operation['parameters'])) {
+                    continue;
+                }
+
+                $newParams = [];
+                $hasGroup = false;
+
+                foreach ($operation['parameters'] as $parameter) {
+                    if (isset($parameter['x-parameter-group'])) {
+                        $hasGroup = true;
+                        $groupNames = (array) $parameter['x-parameter-group'];
+
+                        foreach ($groupNames as $groupName) {
+                            if (isset($parameterGroups[$groupName])) {
+                                array_push($newParams, ...$parameterGroups[$groupName]);
+                            }
+                        }
+                    } else {
+                        $newParams[] = $parameter;
+                    }
+                }
+
+                if ($hasGroup) {
+                    $operation['parameters'] = $newParams;
+                }
+            }
+        }
     }
 }

@@ -19,7 +19,7 @@
         "forum": "https://forum.shopware.com",
         "wiki": "https://developer.shopware.com",
         "docs": "https://developer.shopware.com",
-        "chat": "https://slack.shopware.com"
+        "chat": "https://chat.shopware.com/"
     },
     "extra": {
         "branch-alias": {
@@ -41,6 +41,6 @@
         "symfony/messenger": "~7.3.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^11.5.17"
+        "phpunit/phpunit": "^11.5.19"
     }
 }

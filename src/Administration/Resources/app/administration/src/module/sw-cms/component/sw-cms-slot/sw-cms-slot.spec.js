@@ -138,12 +138,6 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain the slot name as class', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({

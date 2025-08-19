@@ -130,7 +130,7 @@ class OrderTrackingCodeRuleTest extends TestCase
 
         static::assertArrayHasKey('isSet', $constraints);
         static::assertEquals([
-            'isSet' => [new NotNull(), new Type(['type' => 'bool'])],
+            'isSet' => [new NotNull(), new Type(type: 'bool')],
         ], $constraints);
     }
 

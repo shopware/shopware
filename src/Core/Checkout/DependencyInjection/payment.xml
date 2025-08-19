@@ -131,7 +131,7 @@
         <!-- Sales Channel API -->
         <service id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute" public="true">
             <argument type="service" id="sales_channel.payment_method.repository"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
             <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
             <argument type="service" id="Shopware\Core\Framework\Rule\RuleIdMatcher"/>
         </service>

@@ -420,7 +420,22 @@ class SystemConfigService implements ResetInterface
             return;
         }
 
-        $this->setMultiple(array_fill_keys($configKeys, null));
+        // Get all sales channels that have the config keys
+        $salesChannelIds = $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT sales_channel_id FROM system_config WHERE configuration_key IN (:keys) AND sales_channel_id IS NOT NULL',
+            ['keys' => $configKeys],
+            ['keys' => ArrayParameterType::STRING]
+        );
+
+        $keysForDelete = array_fill_keys($configKeys, null);
+
+        // Delete config keys for global scope
+        $this->setMultiple($keysForDelete, null);
+
+        // Delete overriden config keys for each sales channel
+        foreach ($salesChannelIds as $salesChannelId) {
+            $this->setMultiple($keysForDelete, Uuid::fromBytesToHex($salesChannelId));
+        }
     }
 
     /**

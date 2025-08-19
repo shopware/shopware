@@ -219,16 +219,16 @@ class CustomerProfileValidationFactoryTest extends TestCase
             ->add('firstName', new NotBlank())
             ->add('lastName', new NotBlank())
             ->add('accountType', new Choice($this->accountTypes))
-            ->add('title', new Length(['max' => CustomerDefinition::MAX_LENGTH_TITLE]))
-            ->add('firstName', new Length(['max' => CustomerDefinition::MAX_LENGTH_FIRST_NAME]))
-            ->add('lastName', new Length(['max' => CustomerDefinition::MAX_LENGTH_LAST_NAME]));
+            ->add('title', new Length(max: CustomerDefinition::MAX_LENGTH_TITLE))
+            ->add('firstName', new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME))
+            ->add('lastName', new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME));
     }
 
     private function addConstraintsBirthday(DataValidationDefinition $definition): void
     {
         $definition
-            ->add('birthdayDay', new GreaterThanOrEqual(['value' => 1]), new LessThanOrEqual(['value' => 31]))
-            ->add('birthdayMonth', new GreaterThanOrEqual(['value' => 1]), new LessThanOrEqual(['value' => 12]))
-            ->add('birthdayYear', new GreaterThanOrEqual(['value' => 1900]), new LessThanOrEqual(['value' => date('Y')]));
+            ->add('birthdayDay', new GreaterThanOrEqual(value: 1), new LessThanOrEqual(value: 31))
+            ->add('birthdayMonth', new GreaterThanOrEqual(value: 1), new LessThanOrEqual(value: 12))
+            ->add('birthdayYear', new GreaterThanOrEqual(value: 1900), new LessThanOrEqual(value: date('Y')));
     }
 }

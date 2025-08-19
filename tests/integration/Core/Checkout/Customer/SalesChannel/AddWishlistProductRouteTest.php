@@ -10,7 +10,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -27,11 +26,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 class AddWishlistProductRouteTest extends TestCase
 {
     use CustomerTestTrait;
-    use IntegrationTestBehaviour;
 
     private KernelBrowser $browser;
-
-    private IdsCollection $ids;
 
     private Context $context;
 
@@ -42,10 +38,10 @@ class AddWishlistProductRouteTest extends TestCase
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
-        $this->ids = new IdsCollection();
+        $ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
-            'id' => $this->ids->create('sales-channel'),
+            'id' => $ids->create('sales-channel'),
         ]);
         $this->assignSalesChannelContext($this->browser);
 
@@ -166,7 +162,7 @@ class AddWishlistProductRouteTest extends TestCase
         static::assertSame(404, $this->browser->getResponse()->getStatusCode());
         static::assertSame('CONTENT__PRODUCT_NOT_FOUND', $errors['code']);
         static::assertSame('Not Found', $errors['title']);
-        static::assertSame('Product for id ' . $productId . ' not found.', $errors['detail']);
+        static::assertSame(\sprintf('Could not find product with id "%s"', $productId), $errors['detail']);
     }
 
     /**

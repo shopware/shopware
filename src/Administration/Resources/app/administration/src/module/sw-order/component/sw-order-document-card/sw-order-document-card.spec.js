@@ -253,12 +253,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         setActivePinia(createPinia());
     });
 
-    it('should be a Vue.js component', async () => {
-        global.activeAclRoles = [];
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have an disabled create new button', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();

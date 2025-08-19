@@ -1,0 +1,66 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/category": {
+            "get": {
+                "tags": [
+                    "Category",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch a list of categories",
+                "description": "Perform a filtered search for categories.",
+                "operationId": "readCategoryList",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "x-parameter-group": "test-parameter-group",
+                        "x-help": "This parameter will be replaced by the `x-parameter-groups` component content."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Entity search result containing categories.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": { "type": "string" },
+                                                    "name": { "type": "string" },
+                                                    "description": { "type": "string" }
+                                                },
+                                                "required": ["id", "name"]
+                                            }
+                                        },
+                                        "total": { "type": "integer" }
+                                    },
+                                    "required": ["data", "total"]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

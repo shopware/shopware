@@ -28,7 +28,9 @@ class JsonEntityEncoder
     }
 
     /**
-     * @param EntityCollection<Entity>|Entity|null $data
+     * @template TEntityCollection of EntityCollection
+     *
+     * @param TEntityCollection|Entity|null $data
      *
      * @return ($data is Entity ? array<string, mixed> : list<array<string, mixed>>)
      */
@@ -46,7 +48,9 @@ class JsonEntityEncoder
     }
 
     /**
-     * @param EntityCollection<Entity> $collection
+     * @template TEntityCollection of EntityCollection
+     *
+     * @param TEntityCollection $collection
      *
      * @return list<array<string, mixed>>
      */

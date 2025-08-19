@@ -27,6 +27,7 @@ return [
 
         // Incorrectly deprecated
         'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentException.* changed from self',
+        preg_quote('The return type of Shopware\Core\Content\Product\ProductException::productNotFound() changed from self|Shopware\Core\Content\Product\Exception\ProductNotFoundException to Shopware\Core\Content\Product\Exception\ProductNotFoundException', '/'),
 
         // Expected to be appended when new event is added
         preg_quote('Value of constant Shopware\Core\Framework\Webhook\Hookable', '/'),
@@ -38,9 +39,13 @@ return [
         preg_quote('ADDED: Parameter response was added to Method __construct() of class Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherSearchedEvent', '/'),
         preg_quote('ADDED: Parameter clock was added to Method __construct() of class Shopware\Core\Checkout\Promotion\Gateway\Template\ActiveDateRange', '/'),
         preg_quote('ADDED: Parameter visibility was added to Method __construct() of class Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput', '/'),
+        preg_quote('ADDED: Parameter useForSorting was added to Method __construct() of class Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField', '/'),
 
         // Fix to make promotions work with order recalculation
         'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*skipPromotion.*(\n.*)*to array \((\n.*)*pinAutomaticPromotions',
+
+        // Only new additions
+        'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*to array \((\n.*)*skipCartPersistence(.*\n.*)*skipPrimaryOrderIds(.*\n.*)*automaticPromotionDeletionNotices',
 
         // No break as mixed is the top type and every other type is a subtype of mixed
         preg_quote('The parameter $value of Shopware\Storefront\Event\StorefrontRenderEvent#setParameter() changed from no type to mixed', '/'),
@@ -60,7 +65,28 @@ return [
         preg_quote('CHANGED: Type of property Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#$url changed from string to string|null', '/'),
         preg_quote('CHANGED: Type of property Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#$mediaId changed from string to string|null', '/'),
 
+        // The media thumbnail size id changes have not been released
+        preg_quote('CHANGED: Type of property Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#$mediaThumbnailSizeId changed from string to string|null', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#getMediaThumbnailSizeId() changed from string to the non-covariant string|null', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity#getMediaThumbnailSizeId() changed from string to string|null', '/'),
+
         // The class has not been released
         'REMOVED: Class Shopware\\\\Elasticsearch\\\\Product\\\\CachedSearchConfigLoader has been deleted',
+
+        // Removing empty constructor methods should not be a BC break
+        preg_quote('REMOVED: Method Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowEmptyString#__construct() was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\DataAbstractionLayer\Attribute\Required#__construct() was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey#__construct() was removed', '/'),
+
+        // The rule class is declared @final, and its constructor is marked as @internal.
+        preg_quote('REMOVED: Property Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule#$type was removed', '/'),
+
+        // The classes were never properly released and are not use.
+        preg_quote('REMOVED: Class Shopware\Core\System\Snippet\Struct\Language has been deleted', '/'),
+        preg_quote('REMOVED: Class Shopware\Core\System\Snippet\Struct\SnippetPaths has been deleted', '/'),
+        preg_quote('CHANGED: Type of property Shopware\Core\System\Snippet\Struct\TranslationConfig#$repositoryUrl changed from string to GuzzleHttp\Psr7\Uri', '/'),
+        preg_quote('CHANGED: Type of property Shopware\Core\System\Snippet\Struct\TranslationConfig#$languages changed from Shopware\Core\System\Snippet\Struct\LanguageCollection to Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection', '/'),
+        preg_quote('CHANGED: Type of property Shopware\Core\System\Snippet\Struct\TranslationConfig#$pluginMapping changed from array to Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection', '/'),
+        preg_quote('ADDED: Parameter previous was added to Method translationConfigurationFileDoesNotExist() of class Shopware\Core\System\Snippet\SnippetException', '/'),
     ],
 ];

@@ -87,10 +87,6 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('Should not allow create without permission', async () => {
         const addButton = wrapper.find('.sw-number-range-list__add-number-range');
 

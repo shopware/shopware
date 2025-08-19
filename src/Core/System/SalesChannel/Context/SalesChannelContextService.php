@@ -49,6 +49,16 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
     final public const IMITATING_USER_ID = 'imitatingUserId';
 
     /**
+     * @internal do not rely on this externally, use the rules from the context instead
+     */
+    final public const RULE_IDS = 'sw-rule-ids';
+
+    /**
+     * @internal do not rely on this externally, use the rules from the context instead
+     */
+    final public const AREA_RULE_IDS = 'sw-rule-area-ids';
+
+    /**
      * @internal
      */
     public function __construct(
@@ -104,8 +114,11 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
             $this->eventDispatcher->dispatch(new SalesChannelContextCreatedEvent($context, $token, $session));
 
+            $currentRequest = $this->requestStack->getCurrentRequest();
+            $requestSession = $currentRequest?->hasSession() ? $currentRequest->getSession() : null;
+
             // skip cart calculation on ESI sub-requests if it has already been done.
-            $esiRequest = $this->requestStack->getCurrentRequest()?->attributes->has('_sw_esi') ?? false;
+            $esiRequest = $currentRequest?->attributes->has('_sw_esi') ?? false;
             if (!$this->cartService->hasCart($token) || !$esiRequest) {
                 // @deprecated tag:v6.8.0 - Permission will always be true
                 $result = $context->withPermissions(
@@ -114,6 +127,13 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
                 );
 
                 $this->cartService->setCart($result->getCart());
+
+                // the rule loader updates the rules in the context, save them to the session for later reuse
+                $requestSession?->set(self::RULE_IDS, $context->getRuleIds());
+                $requestSession?->set(self::AREA_RULE_IDS, $context->getAreaRuleIds());
+            } else {
+                $context->setRuleIds($requestSession?->get(self::RULE_IDS) ?? []);
+                $context->setAreaRuleIds($requestSession?->get(self::AREA_RULE_IDS) ?? []);
             }
 
             return $context;

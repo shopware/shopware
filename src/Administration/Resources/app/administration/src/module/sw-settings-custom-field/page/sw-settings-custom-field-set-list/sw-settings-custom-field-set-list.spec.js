@@ -125,13 +125,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to create a new custom-field set', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

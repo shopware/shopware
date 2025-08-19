@@ -19,7 +19,7 @@
         "forum": "https://forum.shopware.com",
         "wiki": "https://developer.shopware.com",
         "docs": "https://developer.shopware.com",
-        "chat": "https://slack.shopware.com"
+        "chat": "https://chat.shopware.com/"
     },
     "extra": {
         "branch-alias": {
@@ -34,6 +34,7 @@
         "meyfa/php-svg": "^0.16.1",
         "scssphp/scssphp": "v1.12.0",
         "shopware/core": "*",
+        "symfony/asset": "~7.3.0",
         "symfony/cache": "~7.3.0",
         "symfony/cache-contracts": "~3.6.0",
         "symfony/console": "~7.3.0",
@@ -56,6 +57,6 @@
     },
     "require-dev": {
         "symfony/css-selector": "~7.3.0",
-        "phpunit/phpunit": "^11.5.17"
+        "phpunit/phpunit": "^11.5.19"
     }
 }

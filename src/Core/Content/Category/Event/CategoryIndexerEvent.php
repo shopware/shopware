@@ -10,24 +10,15 @@ use Shopware\Core\Framework\Log\Package;
 class CategoryIndexerEvent extends NestedEvent
 {
     /**
-     * @var list<string>
-     */
-    protected array $ids;
-
-    protected Context $context;
-
-    /**
      * @param list<string> $ids
      * @param array<string> $skip
      */
     public function __construct(
-        array $ids,
-        Context $context,
+        protected array $ids,
+        protected Context $context,
         private readonly array $skip = [],
-        public bool $isFullIndexing = false
+        public bool $isFullIndexing = false,
     ) {
-        $this->ids = $ids;
-        $this->context = $context;
     }
 
     /**

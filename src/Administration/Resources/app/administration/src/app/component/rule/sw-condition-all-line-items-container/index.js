@@ -82,13 +82,19 @@ export default {
 
         setConditionValue() {
             this.condition.value = [];
+
             if (this.children.first().type === 'promotionLineItem') {
-                this.condition.value = { type: 'promotion' };
+                this.condition.value = { types: ['promotion'] };
                 return;
             }
 
             if (this.children.first().type !== 'cartLineItemOfType') {
-                this.condition.value = { type: 'product' };
+                this.condition.value = {
+                    types: [
+                        'product',
+                        'custom',
+                    ],
+                };
             }
         },
 

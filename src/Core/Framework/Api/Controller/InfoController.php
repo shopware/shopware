@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
@@ -37,12 +38,10 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
 class InfoController extends AbstractController
 {
-    private const API_SCOPE_ADMIN = 'api';
-
     /**
      * @internal
      */
@@ -224,7 +223,7 @@ class InfoController extends AbstractController
     {
         $endpoints = array_map(
             static fn (RouteInfo $endpoint) => ['path' => $endpoint->path, 'methods' => $endpoint->methods],
-            $this->apiRouteInfoResolver->getApiRoutes(self::API_SCOPE_ADMIN)
+            $this->apiRouteInfoResolver->getApiRoutes(ApiRouteScope::ID)
         );
 
         return new JsonResponse(['endpoints' => $endpoints]);
@@ -296,10 +295,6 @@ class InfoController extends AbstractController
 
     private function getBaseUrl(Bundle $bundle): ?string
     {
-        if (!$bundle instanceof Plugin) {
-            return null;
-        }
-
         if ($bundle->getAdminBaseUrl()) {
             return $bundle->getAdminBaseUrl();
         }
@@ -313,7 +308,13 @@ class InfoController extends AbstractController
             return $this->router->generate(
                 'administration.plugin.index',
                 [
-                    'pluginName' => \mb_strtolower($bundle->getName()),
+                    /**
+                     * Adopted from symfony, as they also strip the bundle suffix:
+                     * https://github.com/symfony/symfony/blob/7.2/src/Symfony/Bundle/FrameworkBundle/Command/AssetsInstallCommand.php#L128
+                     *
+                     * @see Plugin\Util\AssetService::getTargetDirectory
+                     */
+                    'pluginName' => preg_replace('/bundle$/', '', mb_strtolower($bundle->getName())),
                 ],
                 UrlGeneratorInterface::ABSOLUTE_URL
             );
@@ -379,7 +380,7 @@ WHERE app.active = 1 AND app.base_app_url is not null');
         try {
             return $this->shopIdProvider->getShopId();
         } catch (AppUrlChangeDetectedException $e) {
-            return $e->getShopId();
+            return $e->getShopId()->id;
         }
     }
 }

@@ -7,6 +7,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
+use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -45,19 +47,16 @@ class QuerySignerTest extends TestCase
         $signedUri = $this->querySigner->signUri('http://app.url/?foo=bar', $this->app, Context::createDefaultContext());
         parse_str($signedUri->getQuery(), $signedQuery);
 
+        $shopIdConfig = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
+        static::assertIsArray($shopIdConfig);
+
+        $shopId = ShopId::fromSystemConfig($shopIdConfig);
+
         static::assertArrayHasKey('shop-id', $signedQuery);
-        $shopConfig = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
-        static::assertIsArray($shopConfig);
-        static::assertArrayHasKey('value', $shopConfig);
-        $shopId = $shopConfig['value'];
-        static::assertIsString($shopId);
-        static::assertSame($shopId, $signedQuery['shop-id']);
+        static::assertSame($shopId->id, $signedQuery['shop-id']);
 
         static::assertArrayHasKey('shop-url', $signedQuery);
-        static::assertArrayHasKey('app_url', $shopConfig);
-        $shopUrl = $shopConfig['app_url'];
-        static::assertIsString($shopUrl);
-        static::assertSame($shopUrl, $signedQuery['shop-url']);
+        static::assertSame($shopId->getFingerprint(AppUrl::IDENTIFIER), $signedQuery['shop-url']);
 
         static::assertArrayHasKey('timestamp', $signedQuery);
 

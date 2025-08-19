@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\Util;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('framework')]
-class HtmlSanitizer
+class HtmlSanitizer implements ResetInterface
 {
     /**
      * @var \HTMLPurifier[]
@@ -15,11 +16,6 @@ class HtmlSanitizer
     private array $purifiers = [];
 
     private readonly string $cacheDir;
-
-    /**
-     * @var array<string, string>
-     */
-    private array $cache = [];
 
     /**
      * @internal
@@ -57,19 +53,17 @@ class HtmlSanitizer
             $hash .= '-override';
         }
 
-        $textKey = $hash . Hasher::hash($text);
-        if (isset($this->cache[$textKey])) {
-            return $this->cache[$textKey];
-        }
-
         if (!isset($this->purifiers[$hash])) {
             $config = $this->getConfig($options, $override, $field);
             $this->purifiers[$hash] = new \HTMLPurifier($config);
         }
 
-        $this->cache[$textKey] = $this->purifiers[$hash]->purify($text);
+        return $this->purifiers[$hash]->purify($text);
+    }
 
-        return $this->cache[$textKey];
+    public function reset(): void
+    {
+        $this->purifiers = [];
     }
 
     private function getBaseConfig(): \HTMLPurifier_Config

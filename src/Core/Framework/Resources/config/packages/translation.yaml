@@ -4,7 +4,4 @@ framework:
         fallbacks:
             - 'en_GB'
             - 'en'
-        paths:
-            - "%kernel.shopware_core_dir%/System/Resources/translation"
-            - "%kernel.shopware_core_dir%/Framework/Resources/snippet"
         default_path: "%kernel.shopware_core_dir%/Framework/Resources/snippet"

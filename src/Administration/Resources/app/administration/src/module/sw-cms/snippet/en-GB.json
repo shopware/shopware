@@ -249,6 +249,8 @@
             "minHeightHelpText": "Enter the minimum height with your desired unit. For example: 200px",
             "isDecorative": "Mark images as decorative",
             "isDecorativeHelpText": "When this option is enabled, the image information will not be read out by screen readers.",
+            "useFetchPriorityOnFirstItem": "Load first image with higher priority",
+            "useFetchPriorityOnFirstItemHelpText": "When this option is enabled, the first image is loaded with a higher priority. This can improve the speed at which the page is rendered in the browser.",
             "linkNewTab": "Open link in new tab",
             "linkTo": "Link target"
           },

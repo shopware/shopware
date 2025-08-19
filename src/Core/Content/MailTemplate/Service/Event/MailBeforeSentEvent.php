@@ -41,6 +41,11 @@ class MailBeforeSentEvent extends Event implements LogAware, MessageAware, Scala
         return [FlowMailVariables::DATA => $this->data];
     }
 
+    public static function getScalarKeys(): array
+    {
+        // TODO: Implement getScalarKeys() method.
+    }
+
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())

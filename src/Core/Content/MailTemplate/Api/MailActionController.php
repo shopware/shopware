@@ -6,9 +6,12 @@ use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
+use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -28,7 +31,8 @@ class MailActionController extends AbstractController
      */
     public function __construct(
         private readonly AbstractMailService $mailService,
-        private readonly StringTemplateRenderer $templateRenderer
+        private readonly StringTemplateRenderer $templateRenderer,
+        private readonly MailTemplateService $mailTemplateService,
     ) {
     }
 
@@ -70,9 +74,30 @@ class MailActionController extends AbstractController
     )]
     public function validate(RequestDataBag $post, Context $context): JsonResponse
     {
-        $this->templateRenderer->initialize();
-        $this->templateRenderer->render($post->get('contentHtml', ''), [], $context);
-        $this->templateRenderer->render($post->get('contentPlain', ''), [], $context);
+        /*
+         * Example call for version 1
+         */
+        $availableVariables = $this->mailTemplateService->getMailTemplateAvailableVariablesV1(
+            $this->mailTemplateService->getFlowEventClass($post->get('mailTemplateType'))
+        );
+
+        $this->mailTemplateService->validateMailTemplateV1($post->get('subject', ''), $availableVariables);
+        $this->mailTemplateService->validateMailTemplateV1($post->get('senderName', ''), $availableVariables);
+        $this->mailTemplateService->validateMailTemplateV1($post->get('contentPlain', ''), $availableVariables);
+        $this->mailTemplateService->validateMailTemplateV1($post->get('contentHtml', ''), $availableVariables);
+
+
+        /*
+         * Example call for version 2
+         */
+        $availableVariables = $this->mailTemplateService->getMailTemplateAvailableVariablesV2(
+            $this->mailTemplateService->getFlowEventClass($post->get('mailTemplateType'))
+        );
+
+        $this->mailTemplateService->validateMailTemplateV2($post->get('subject', ''), $availableVariables);
+        $this->mailTemplateService->validateMailTemplateV2($post->get('senderName', ''), $availableVariables);
+        $this->mailTemplateService->validateMailTemplateV2($post->get('contentPlain', ''), $availableVariables);
+        $this->mailTemplateService->validateMailTemplateV2($post->get('contentHtml', ''), $availableVariables);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }

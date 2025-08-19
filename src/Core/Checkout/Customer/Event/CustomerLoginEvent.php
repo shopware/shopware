@@ -42,6 +42,11 @@ class CustomerLoginEvent extends Event implements SalesChannelAware, ShopwareSal
         ];
     }
 
+    public static function getScalarKeys(): array
+    {
+        // TODO: Implement getScalarKeys() method.
+    }
+
     public function getName(): string
     {
         return self::EVENT_NAME;

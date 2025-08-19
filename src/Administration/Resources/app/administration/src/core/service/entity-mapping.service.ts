@@ -78,6 +78,7 @@ function getEntityMapping(entityName?: string, entityNameMapping?: EntityNameMap
         // Handle entity mapping
         if (property?.entity) {
             const entityDef = Shopware.EntityDefinition.getDefinitionRegistry().get(property.entity) as EntitySchema;
+            console.log(entityDef);
             schema = entityDef;
             lastEntityName = dubbedVal;
 

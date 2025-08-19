@@ -307,11 +307,25 @@ export default {
         },
 
         onSave() {
-            const updatePromises = [];
-            const mailTemplateSubject = this.mailTemplate.subject || this.placeholder(this.mailTemplate, 'subject');
-
             this.isSaveSuccessful = false;
             this.isLoading = true;
+
+            console.log(this.mailTemplate);
+            this.mailService.validateMailTemplate(
+                this.mailTemplate.subject,
+                this.mailTemplate.senderName,
+                this.mailTemplate.contentHtml,
+                this.mailTemplate.contentPlain,
+                this.mailTemplateType.technicalName,
+            ).then((response) => {
+                console.log(response);
+            }).catch((error) => {
+                console.log(error);
+                this.isLoading = false;
+            });
+
+            const updatePromises = [];
+            const mailTemplateSubject = this.mailTemplate.subject || this.placeholder(this.mailTemplate, 'subject');
 
             updatePromises.push(
                 this.mailTemplateRepository

@@ -95,6 +95,31 @@ class MailApiService extends ApiService {
         );
     }
 
+    validateMailTemplate(
+        subject,
+        senderName,
+        contentHtml,
+        contentPlain,
+        mailTemplateType
+    ) {
+        const apiRoute = `/_action/${this.getApiBasePath()}/validate`;
+
+        return this.httpClient
+            .post(
+                apiRoute,
+                {
+                    subject: subject,
+                    senderName: senderName,
+                    contentHtml: contentHtml,
+                    contentPlain: contentPlain,
+                    mailTemplateType: mailTemplateType,
+                },
+                { headers: this.getBasicHeaders() },
+            ).then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
     buildRenderPreview(mailTemplateType, mailTemplate) {
         const apiRoute = `/_action/${this.getApiBasePath()}/build`;
 

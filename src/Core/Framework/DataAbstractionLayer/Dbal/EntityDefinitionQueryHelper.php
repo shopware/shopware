@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Validator\Constraints\Json;
 
 /**
  * This class acts only as helper/common class for all dbal operations for entity definitions.
@@ -228,13 +230,39 @@ class EntityDefinitionQueryHelper
         }
 
         if ($field instanceof TranslatedField && $resolveTranslated) {
+            if ($isAssociation) {
+                return null;
+            }
             return self::getTranslatedField($definition, $field);
         }
+        // This logic handles the fields behind the 'translated' property
+        if ($field instanceof JsonField && $field->getPropertyName() === EntityDefinition::TRANSLATED_FIELD && $resolveTranslated) {
+            if (!$isAssociation) {
+                return $field;
+            }
+
+            $fieldNameParts = \explode('.', $fieldName);
+
+            unset($fieldNameParts[0]);
+            $test = \implode('.', $fieldNameParts);
+            $translationDefinition = $definition->getTranslationDefinition();
+            return self::getField($test, $translationDefinition, $translationDefinition::ENTITY_NAME ?? '');
+        }
         if ($field instanceof TranslatedField) {
+            if ($isAssociation) {
+                return null;
+            }
             return $field;
         }
 
         if (!$field instanceof AssociationField) {
+            /*
+             * I added these if statements because fields like product.translated.foobar (doesn't exist)  were handled incorrectly.
+             * In this case the JsonField value of 'translated' was returned.
+             */
+            if ($isAssociation) {
+                return null;
+            }
             return $field;
         }
 

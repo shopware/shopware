@@ -55,6 +55,27 @@ final class ReviewFormEvent extends Event implements SalesChannelAware, MailAwar
         return [FlowMailVariables::REVIEW_FORM_DATA => $this->reviewFormData];
     }
 
+    /**
+     * @return array<string>
+     */
+    public static function getScalarKeys(): array
+    {
+        return [
+            FlowMailVariables::REVIEW_FORM_DATA . '.forwardTo' => '',
+            FlowMailVariables::REVIEW_FORM_DATA . '.parentId' => '',
+            FlowMailVariables::REVIEW_FORM_DATA . '.forwardParameters' => '',
+            FlowMailVariables::REVIEW_FORM_DATA . '.id' => '',
+            FlowMailVariables::REVIEW_FORM_DATA . '.points' => '',
+            FlowMailVariables::REVIEW_FORM_DATA . '.title' => '',
+            FlowMailVariables::REVIEW_FORM_DATA . '.content' => '',
+            FlowMailVariables::REVIEW_FORM_DATA . '.name' => '',
+            FlowMailVariables::REVIEW_FORM_DATA . '.lastName' => '',
+            FlowMailVariables::REVIEW_FORM_DATA . '.email' => '',
+            FlowMailVariables::REVIEW_FORM_DATA . '.customerId' => '',
+            FlowMailVariables::REVIEW_FORM_DATA . '.productId' => '',
+        ];
+    }
+
     public function getName(): string
     {
         return self::EVENT_NAME;

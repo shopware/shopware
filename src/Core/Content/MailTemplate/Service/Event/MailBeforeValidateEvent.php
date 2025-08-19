@@ -53,6 +53,11 @@ class MailBeforeValidateEvent extends Event implements LogAware, ScalarValuesAwa
         ];
     }
 
+    public static function getScalarKeys(): array
+    {
+        // TODO: Implement getScalarKeys() method.
+    }
+
     /**
      * @return array<string, mixed>
      */

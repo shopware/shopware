@@ -26,6 +26,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
+use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleHandler;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Storefront\Theme\ThemeSalesChannel;
@@ -130,10 +131,12 @@ class ThemeLifecycleHandlerTest extends TestCase
         $themeRepository = static::getContainer()->get('theme.repository');
         $context = Context::createDefaultContext();
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', 'ThemeWithMultiInheritance'));
+        $criteria->addFilter(new EqualsFilter('technicalName', $installConfig->getTechnicalName()));
         $criteria->addAssociation('parentThemes');
 
-        $themeRepository->search($criteria, $context)->first();
+        $themeEntity = $themeRepository->search($criteria, $context)->getEntities()->first();
+        static::assertInstanceOf(ThemeEntity::class, $themeEntity);
+        static::assertSame($installConfig->getTechnicalName(), $themeEntity->getTechnicalName());
     }
 
     public function testHandleThemeInstallOrUpdateWillRecompileOnlyTouchedTheme(): void

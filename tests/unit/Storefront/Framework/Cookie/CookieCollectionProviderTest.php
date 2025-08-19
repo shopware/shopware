@@ -23,7 +23,7 @@ class CookieCollectionProviderTest extends TestCase
 
     public function testGetCookieGroups(): void
     {
-        $cookieGroups = $this->cookieCollectionProvider->getCookieGroups();
+        $cookieGroups = $this->cookieCollectionProvider->getCookieGroupCollection()->getElements();
 
         static::assertCount(4, $cookieGroups);
 

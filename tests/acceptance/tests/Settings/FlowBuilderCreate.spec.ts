@@ -11,8 +11,8 @@ test('As an admin user, I want to create a new flow', { tag: '@Flow' }, async ({
 }) => {
 
     const uniqueId = IdProvider.getIdPair().uuid;
-    const tagName= (`Test tag - ${uniqueId}`);
-    const flowName = (`Test flow - ${uniqueId}`)
+    const tagName = (`Test tag - ${uniqueId}`);
+    const flowName = (`Test flow - ${uniqueId}`);
     await TestDataService.createTag(tagName);
     const testConfig = {
         name: flowName,
@@ -44,7 +44,7 @@ test('As an admin user, I want to create a new flow', { tag: '@Flow' }, async ({
         await ShopAdmin.expects(AdminFlowBuilderDetail.priorityField).toHaveValue(testConfig.priority);
         await AdminFlowBuilderDetail.flowTab.click();
         const trigger = await AdminFlowBuilderDetail.getTooltipText(AdminFlowBuilderDetail.triggerSelectField);
-        ShopAdmin.expects(trigger).toEqual(`${testConfig.triggerLabel}`);
+        await ShopAdmin.expects(trigger).toEqual(`${testConfig.triggerLabel}`);
         await ShopAdmin.expects(AdminFlowBuilderDetail.conditionRule).toHaveText(testConfig.condition);
         await ShopAdmin.expects(AdminFlowBuilderDetail.sequenceSeparator).toBeVisible();
         await ShopAdmin.expects(AdminFlowBuilderDetail.trueBlockActionDescription).toContainText(testConfig.trueActionIdentifier);

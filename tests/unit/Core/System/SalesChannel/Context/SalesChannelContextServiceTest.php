@@ -14,6 +14,7 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -78,6 +79,8 @@ class SalesChannelContextServiceTest extends TestCase
         $expiredToken = Uuid::randomHex();
 
         $context = Generator::generateSalesChannelContext();
+        $context->setRuleIds(['rule-1', 'rule-2']);
+        $context->setAreaRuleIds([RuleAreas::PRODUCT_AREA => ['rule-1'], RuleAreas::PROMOTION_AREA => ['rule-2']]);
 
         $this->factory->expects($this->once())
             ->method('create')
@@ -106,9 +109,14 @@ class SalesChannelContextServiceTest extends TestCase
             ->method('setCart')
             ->with($result->getCart());
 
-        $this->setupSessionAndRequest();
+        $request = $this->setupSessionAndRequest();
 
         $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $expiredToken, Defaults::LANGUAGE_SYSTEM));
+
+        $session = $request->getSession();
+
+        static::assertSame($context->getRuleIds(), $session->get(SalesChannelContextService::RULE_IDS));
+        static::assertSame($context->getAreaRuleIds(), $session->get(SalesChannelContextService::AREA_RULE_IDS));
     }
 
     public function testTokenNotExpired(): void
@@ -218,10 +226,17 @@ class SalesChannelContextServiceTest extends TestCase
                 ->method('setCart');
         }
 
-        $request->setSession(new Session(new MockArraySessionStorage()));
+        $session = new Session(new MockArraySessionStorage());
+        $session->set(SalesChannelContextService::RULE_IDS, ['rule-1', 'rule-2']);
+        $session->set(SalesChannelContextService::AREA_RULE_IDS, [RuleAreas::PRODUCT_AREA => ['rule-1'], RuleAreas::PROMOTION_AREA => ['rule-2']]);
+
+        $request->setSession($session);
         $this->requestStack->push($request);
 
-        $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token, Defaults::LANGUAGE_SYSTEM));
+        $context = $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token, Defaults::LANGUAGE_SYSTEM));
+
+        static::assertSame($session->get(SalesChannelContextService::RULE_IDS), $context->getRuleIds());
+        static::assertSame($session->get(SalesChannelContextService::AREA_RULE_IDS), $context->getAreaRuleIds());
     }
 
     public static function skipCartCalculationIfAlreadyDoneAndESISubrequestProvider(): \Generator

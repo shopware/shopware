@@ -979,9 +979,7 @@ class CriteriaParser
             $accessor = \explode('.', $filter->getField());
             $last = \array_pop($accessor);
 
-            $temp = $this->customFieldService->getCustomField($last);
-
-            $field = $temp ?? $field;
+            $field = $this->customFieldService->getCustomField($last);
         }
 
         if ($field instanceof BoolField) {

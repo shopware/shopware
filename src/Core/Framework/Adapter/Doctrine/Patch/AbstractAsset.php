@@ -283,12 +283,16 @@ abstract class AbstractAsset
             try {
                 $parsedName = $this->getNameParser()->parse($input);
             } catch (\Throwable $e) {
+                // Mute as this will always happen with SHOPWARE current foreign keys, as they are not compatible
+                // with this parser, since they are not strict (e.g. `fk.shopware.order_address`).
+                /*
                 Deprecation::trigger(
                     'doctrine/dbal',
                     'https://github.com/doctrine/dbal/pull/6592',
                     'Unable to parse object name: %s.',
                     $e->getMessage(),
                 );
+                */
 
                 return;
             }
@@ -349,6 +353,9 @@ abstract class AbstractAsset
         $this->identifiers = $identifiers;
         $this->validateFuture = true;
 
+        // Mute as it's the format expected in 5.0, not really a deprecation then,
+        // as stated in https://github.com/doctrine/dbal/issues/7030
+        /*
         $futureName = $name->getValue();
         $futureNamespace = $namespace?->getValue();
 
@@ -365,7 +372,6 @@ abstract class AbstractAsset
         if ($this->_namespace === $futureNamespace) {
             return;
         }
-
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/6592',
@@ -373,6 +379,7 @@ abstract class AbstractAsset
             $this->_namespace !== null ? \sprintf('"%s"', $this->_namespace) : 'null',
             $futureNamespace !== null ? \sprintf('"%s"', $futureNamespace) : 'null',
         );
+        */
     }
 
     /**

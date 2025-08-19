@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 #[CoversClass(ExtensionDispatcher::class)]
 class ExtensionDispatcherTest extends TestCase
 {
@@ -16,6 +19,8 @@ class ExtensionDispatcherTest extends TestCase
     {
         $dispatcher = new CollectingEventDispatcher();
         $extension = new class extends Extension {
+            public const NAME = 'test.extension';
+
             public function getParams(): array
             {
                 return ['param1' => 'value1', 'param2' => 2];
@@ -39,6 +44,8 @@ class ExtensionDispatcherTest extends TestCase
     {
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $extension = new class extends Extension {
+            public const NAME = 'test.extension';
+
             public function getParams(): array
             {
                 return [];
@@ -68,6 +75,8 @@ class ExtensionDispatcherTest extends TestCase
     {
         $dispatcher = new CollectingEventDispatcher();
         $extension = new class extends Extension {
+            public const NAME = 'test.extension';
+
             public function getParams(): array
             {
                 return [];

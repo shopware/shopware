@@ -16,6 +16,9 @@ use Shopware\Core\Test\Generator;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\SharedLockInterface;
 
+/**
+ * @internal
+ */
 #[CoversClass(PromotionRedemptionLocker::class)]
 class PromotionRedemptionLockerTest extends TestCase
 {

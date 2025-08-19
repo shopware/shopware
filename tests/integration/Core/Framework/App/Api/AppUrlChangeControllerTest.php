@@ -5,6 +5,8 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Api;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppUrlChangeResolver\Resolver;
 use Shopware\Core\Framework\App\AppUrlChangeResolver\UninstallAppsStrategy;
+use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -107,17 +109,16 @@ class AppUrlChangeControllerTest extends TestCase
         $systemConfigService = static::getContainer()->get(SystemConfigService::class);
 
         $oldUrl = 'http://old.com';
-        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
-            'app_url' => $oldUrl,
-            'value' => Uuid::randomHex(),
-        ]);
+        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, (array) ShopId::v2('1234567890', [
+            AppUrl::IDENTIFIER => $oldUrl,
+        ]));
 
         $url = '/api/app-system/app-url-change/url-difference';
         $this->getBrowser()->request('GET', $url);
 
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
 
-        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true, flags: \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertSame(['oldUrl' => $oldUrl, 'newUrl' => $_SERVER['APP_URL']], $response);

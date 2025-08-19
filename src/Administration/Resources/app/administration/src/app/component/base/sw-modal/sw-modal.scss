@@ -3,9 +3,9 @@
 @import "~scss/variables";
 
 $sw-modal-color-backdrop: rgba(0, 0, 0, 40%);
-$sw-modal-gap: 64px;
+$sw-modal-gap: var(--scale-size-64);
 $sw-modal-loader-z-index: $z-index-modal + 1;
-$sw-modal-title-font-size: $font-size-m;
+$sw-modal-title-font-size: var(--font-size-m);
 $sw-modal-transition-duration: 0.4s;
 $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
 
@@ -31,9 +31,9 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
     .sw-modal__dialog {
         @include drop-shadow-default;
 
-        background-color: $color-white;
-        border-radius: $border-radius-lg;
-        color: $color-darkgray-200;
+        background-color: var(--color-elevation-surface-raised);
+        border-radius: var(--border-radius-card);
+        color: var(--color-text-primary-default);
         max-height: calc(100vh - #{$sw-modal-gap});
         min-height: 200px;
         width: 100%;
@@ -90,14 +90,14 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
     }
 
     .sw-modal__header {
-        border-bottom: 1px solid $color-gray-300;
+        border-bottom: 1px solid var(--color-border-primary-default);
         display: flex;
         flex-shrink: 0;
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
         position: relative;
-        padding: 24px 16px 24px 32px;
+        padding: var(--scale-size-24) var(--scale-size-16) var(--scale-size-24) var(--scale-size-32);
         min-height: 65px;
     }
 
@@ -107,9 +107,9 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
 
     .sw-modal__title {
         margin: 0;
-        color: $color-darkgray-300;
-        font-size: $font-size-m;
-        font-weight: $font-weight-semi-bold;
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-m);
+        font-weight: var(--font-weight-semibold);
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
@@ -117,10 +117,10 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
 
     .sw-modal__subtitle {
         margin: 0;
-        color: $color-darkgray-50;
-        font-size: $font-size-xs;
-        font-weight: $font-weight-regular;
-        line-height: $line-height-xs;
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-size-regular);
+        line-height: var(--line-height-xs);
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
@@ -130,29 +130,25 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
         position: absolute;
         right: 24px;
         background: 0 none;
-        color: $color-darkgray-100;
+        color: var(--color-icon-primary-default);
         cursor: pointer;
         outline: none;
         flex-shrink: 0;
         border: 0 none;
-        border-radius: 50%;
+        border-radius: var(--border-radius-button);
         margin-left: auto;
         height: 40px;
         width: 40px;
+        display: grid;
+        place-items: center;
 
         &:hover {
-            color: $color-darkgray-200;
+            background-color: var(--color-interaction-secondary-hover);
         }
 
-        &:focus {
-            background-color: $color-gray-200;
-            color: $color-darkgray-200;
-        }
-
-        .mt-icon {
-            width: 16px;
-            height: 16px;
-            padding: 3px;
+        &:focus-visible {
+            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline-offset: var(--scale-size-2);
         }
     }
 
@@ -174,12 +170,13 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
     }
 
     .sw-modal__footer {
-        border-radius: 0 0 $border-radius-lg $border-radius-lg;
-        background-color: $color-gray-100;
+        border-radius: 0 0 var(--border-radius-card) var(--border-radius-card);
+        background-color: var(--color-elevation-surface-raised);
+        border-top: 1px solid var(--color-border-primary-default);
         display: grid;
         grid-auto-columns: min-content;
         grid-auto-flow: column;
-        grid-column-gap: 8px;
+        grid-column-gap: var(--scale-size-8);
         justify-content: end;
         align-items: center;
         flex-shrink: 0;

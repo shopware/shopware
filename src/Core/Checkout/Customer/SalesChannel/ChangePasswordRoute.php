@@ -78,10 +78,12 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
     {
         $definition = new DataValidationDefinition('customer.password.update');
 
-        $minPasswordLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
-
+        $minPasswordLength = $this->systemConfigService->getInt('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
+        if ($minPasswordLength < 0) {
+            $minPasswordLength = null;
+        }
         $definition
-            ->add('newPassword', new NotBlank(), new Length(['min' => $minPasswordLength]), new EqualTo(['propertyPath' => 'newPasswordConfirm']))
+            ->add('newPassword', new NotBlank(), new Length(min: $minPasswordLength), new EqualTo(propertyPath: 'newPasswordConfirm'))
             ->add('password', new CustomerPasswordMatches(['salesChannelContext' => $context]));
 
         $this->dispatchValidationEvent($definition, $data, $context->getContext());

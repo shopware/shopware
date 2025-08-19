@@ -280,6 +280,9 @@ async function createWrapper() {
                         buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                             return criteria;
                         },
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
                     },
                     filterFactory: {
                         create: () => [],
@@ -353,6 +356,7 @@ async function createWrapper() {
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
                     'sw-provide': { template: '<slot/>', inheritAttrs: false },
+                    'sw-time-ago': true,
                 },
             },
         }),
@@ -368,19 +372,10 @@ Shopware.Service().register('filterService', () => {
 
 describe('module/sw-product/page/sw-product-list', () => {
     let wrapper;
-    let router;
 
     beforeEach(async () => {
         const data = await createWrapper();
         wrapper = data.wrapper;
-        router = data.router;
-    });
-
-    it('should be a Vue.JS component', async () => {
-        await router.push({
-            name: 'sw.product.list',
-        });
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should sort grid when sorting for price', async () => {
@@ -695,7 +690,10 @@ describe('module/sw-product/page/sw-product-list', () => {
     it('should return filters from filter registry', async () => {
         expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
         expect(wrapper.vm.currencyFilter).toEqual(expect.any(Function));
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        }
         expect(wrapper.vm.stockColorVariantFilter).toEqual(expect.any(Function));
     });
 

@@ -354,7 +354,7 @@ export default Shopware.Mixin.register(
             },
 
             isValidTerm(term: string) {
-                return term && term.trim().length > 1;
+                return this.searchRankingService.isValidTerm(term);
             },
 
             async addQueryScores(term: string, originalCriteria: Criteria) {

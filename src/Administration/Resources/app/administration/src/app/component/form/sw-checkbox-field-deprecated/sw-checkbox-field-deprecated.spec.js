@@ -49,13 +49,6 @@ const createWrapper = async (data = defaultData) => {
 };
 
 describe('app/component/form/sw-checkbox-field', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render three checkbox fields', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

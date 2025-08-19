@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventCollection;
 use Shopware\Core\Framework\App\Flow\Event\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -15,6 +16,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('framework')]
 class FlowEventPersister
 {
+    /**
+     * @param EntityRepository<AppFlowEventCollection> $flowEventsRepository
+     */
     public function __construct(
         private readonly EntityRepository $flowEventsRepository,
         private readonly Connection $connection

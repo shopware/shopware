@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,7 +37,8 @@ class CheckoutFinishPageLoader
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly AbstractOrderRoute $orderRoute,
-        private readonly AbstractTranslator $translator
+        private readonly AbstractTranslator $translator,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -61,6 +63,8 @@ class CheckoutFinishPageLoader
         $page->setChangedPayment((bool) $request->get('changedPayment', false));
 
         $page->setPaymentFailed((bool) $request->get('paymentFailed', false));
+
+        $page->setLogoutCustomer($salesChannelContext->getCustomer()?->getGuest() && $this->systemConfigService->get('core.cart.logoutGuestAfterCheckout', $salesChannelContext->getSalesChannelId()));
 
         $this->eventDispatcher->dispatch(
             new CheckoutFinishPageLoadedEvent($page, $salesChannelContext, $request)

@@ -30,11 +30,56 @@ New blocks have been added in `sw-settings-index.html.twig`:
 * `sw_settings_content_card_view`
 * `sw_settings_content_card_view_header`
 
+## Removed translation of import/export profile label
+
+The translation of the import/export profile label has been removed.  
+Profiles are now identified and displayed only by their technical name.
+
+### Core
+- The `$label` property and the following methods in `Shopware\Core\Content\ImportExport\ImportExportProfileEntity` have been removed:
+    - `getLabel()`
+    - `setLabel()`
+    - `getTranslations()`
+    - `setTranslations()`
+- The following classes have been removed:
+    - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationCollection`
+    - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition`
+    - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationEntity`
+- `createLog()` and `getConfig()` in `Shopware\Core\Content\ImportExport\Service\ImportExportService` now use `$technicalName` instead of `$label` when generating filenames.
+- `generateFilename()` in `Shopware\Core\Content\ImportExport\Service\FileService` now uses `$technicalName` instead of `$label` as profile name.
+
+### Administration
+- The following Twig blocks have been removed:
+    - `sw_import_export_edit_profile_general_container_name` (`sw-import-export-edit-profile-general.html.twig`)
+    - `sw_import_export_view_profile_profiles_listing_column_label` (`sw-import-export-view-profiles.html.twig`)
+    - `sw_import_export_language_switch` (`sw-import-export.html.twig`)
+
 ## ApiClient confidential flag
 
 * You must explicitly pass a boolean value to the `confidential` parameter  of `\Shopware\Core\Framework\Api\OAuth\Client\ApiClient`.
 * You must pass the `confidential` parameter as the third parameter of the constructor.
 * You must pass the `name` parameter as the fourth parameter of the constructor.
+
+## Removed configuration of Filesystem visibility in config array
+
+The visibility of filesystems cannot be configured in the config array anymore. Instead, it should be set on the same level as `type`. For example, instead of:
+
+```yaml
+filesystems:
+  my_filesystem:
+    type: local
+    config:
+      visibility: public
+```
+
+You should now use:
+
+```yaml
+filesystems:
+  my_filesystem:
+    type: local
+    visibility: public
+```
 
 ## Storefront
 
@@ -182,6 +227,10 @@ Get the first order delivery with `primaryOrderDelivery` so you should replace m
 
 Get the latest order transaction with `primaryOrderTransaction` so you should replace methods like `transaction.last()`
 
+## Changed URL generation of `MediaUrlGenerator` to properly encode the file path to produce valid URLs
+* For example media files with spaces in their name now should be properly URL-encoded with `%20` by default, without doing URL-encoding only with the return value of the `MediaUrlGenerator`. Make sure to remove extra URL-encoding (e.g. usage of twig filter `encodeUrl`) on media entities to not accidentally double encode the URLs.
+* Changed twig filter `encodeMediaUrl` in `Storefront/Framework/Twig/Extension/UrlEncodingTwigFilter.php` will now return the URL in its already encoded form and is basically the same as `$media->getUrl()` with some extra checks.
+
 ## Improved fetching of language information for SalesChannelContext
 
 The `\Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory` now uses the language repository directly to fetch language information.
@@ -234,7 +283,7 @@ We removed properties `label` and `helpText` properties of `theme.json`, which w
 A constructed snippet key was introduced in Shopware 6.7 and will now be required.
 This affects `label` and `helpText` properties in the `theme.json`, which are used in the theme manager.
 The snippet keys to be used are constructed as follows.
-The mentioned `themeName` implies the `technicalName` property of the theme in kebab case.
+The mentioned `themeName` implies the `technicalName` property of the theme, or its respective parent theme name, since snippets are inherited from the parent theme as well.
 Also, please notice that unnamed tabs, blocks or sections will be accessible via `default`.
 
 Examples:

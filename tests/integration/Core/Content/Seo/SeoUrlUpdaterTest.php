@@ -61,6 +61,7 @@ class SeoUrlUpdaterTest extends TestCase
                 'id' => $this->ids->get(self::CHILD),
                 'name' => self::CHILD,
                 'parentId' => $this->ids->get(self::PARENT),
+                'active' => true,
                 // Create locale for child language
                 'locale' => [
                     'id' => $this->ids->create('childLocale'),

@@ -94,7 +94,7 @@
                             "placeholderSuffix": "Enter a suffix...",
                             "labelCustomPattern": "Custom pattern",
                             "placeholderCustomPattern": "Enter a custom pattern...",
-                            "helpTextCustomPattern": "Note, that there can only be one consecutive string of variables, which will be converted.<br><br>Possible variables to use:<br>- %d - Digits (0-9)<br>- %s - Letters (A-Z)",
+                            "helpTextCustomPattern": "Note, that there can only be one consecutive string of variables, which will be converted. <strong>Possible variables to use:</strong><ul><li>%d - Digits (0-9)</li><li>%s - Letters (A-Z)</li></ul>",
                             "labelUseCustomPattern": "Use custom pattern",
                             "labelPreview": "Promotion code preview",
                             "labelCodeAmount": "Number of promotion codes",

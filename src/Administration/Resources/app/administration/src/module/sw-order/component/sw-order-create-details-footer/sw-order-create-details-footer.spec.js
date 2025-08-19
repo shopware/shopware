@@ -38,10 +38,6 @@ describe('src/module/sw-order/component/sw-order-create-details-footer', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('paymentMethodCriteria should filter for afterOrderEnabled payment methods', async () => {
         const paymentMethodCriteria = wrapper.vm.paymentMethodCriteria;
         expect(paymentMethodCriteria).toBeInstanceOf(Criteria);

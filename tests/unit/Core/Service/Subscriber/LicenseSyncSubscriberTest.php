@@ -21,8 +21,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\AuthenticatedServiceClient;
 use Shopware\Core\Service\ServiceClientFactory;
 use Shopware\Core\Service\ServiceException;
-use Shopware\Core\Service\ServiceRegistryClient;
-use Shopware\Core\Service\ServiceRegistryEntry;
+use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Shopware\Core\Service\Subscriber\LicenseSyncSubscriber;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -102,7 +102,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $app3->setUniqueIdentifier('app_id_3');
         $app3->setSelfManaged(false);
 
-        $serviceEntry = new ServiceRegistryEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
+        $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
 
         $this->appRepository = new StaticEntityRepository([
             new EntityCollection([$app, $app2, $app3]),
@@ -158,7 +158,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $app3->setUniqueIdentifier('app_id_3');
         $app3->setSelfManaged(false);
 
-        $serviceEntry = new ServiceRegistryEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
+        $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
 
         $this->appRepository = new StaticEntityRepository([
             new EntityCollection([$app, $app2, $app3]),
@@ -214,7 +214,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $app3->setUniqueIdentifier('app_id_3');
         $app3->setSelfManaged(false);
 
-        $serviceEntry = new ServiceRegistryEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
+        $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
 
         $this->appRepository = new StaticEntityRepository([
             new EntityCollection([$app, $app2, $app3]),
@@ -257,7 +257,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $app->setName('app_name');
         $app->setSelfManaged(true);
 
-        $serviceEntry = new ServiceRegistryEntry('serviceA', 'description', 'host', 'appEndpoint', true);
+        $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true);
 
         $this->appRepository = new StaticEntityRepository([
             new EntitySearchResult(
@@ -302,7 +302,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $app->setSelfManaged(false);
         $app->setAppSecret('app_secret');
 
-        $serviceEntry = new ServiceRegistryEntry('serviceA', 'description', 'host', 'appEndpoint', true);
+        $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true);
 
         $this->appRepository = new StaticEntityRepository([
             new EntitySearchResult(
@@ -374,7 +374,7 @@ class LicenseSyncSubscriberTest extends TestCase
             )),
         );
 
-        $serviceEntry = new ServiceRegistryEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
+        $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
         $this->serviceRegistryClient->expects($this->once())->method('get')->willReturn($serviceEntry);
 
         $this->clientFactory->expects($this->once())
@@ -400,7 +400,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $app->setName('app_name');
         $app->setSelfManaged(true);
 
-        $serviceEntry = new ServiceRegistryEntry('serviceA', 'description', 'host', 'appEndpoint', true);
+        $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true);
 
         $this->appRepository = new StaticEntityRepository([
             new EntitySearchResult(
@@ -445,7 +445,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $app->setName('app_name');
         $app->setSelfManaged(true);
 
-        $serviceEntry = new ServiceRegistryEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
+        $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
 
         $this->appRepository = new StaticEntityRepository([
             new EntitySearchResult(
@@ -536,7 +536,7 @@ class LicenseSyncSubscriberTest extends TestCase
             $this->clientFactory,
         );
 
-        $serviceEntry = new ServiceRegistryEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
+        $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
 
         $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
 
@@ -574,7 +574,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $app->setSelfManaged(true);
         $app->setAppSecret('app_secret');
 
-        $serviceEntry = new ServiceRegistryEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
+        $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
 
         $this->appRepository = new StaticEntityRepository([
             new EntitySearchResult(

@@ -86,6 +86,7 @@ async function createWrapper(defaultValues = {}) {
                 'sw-media-modal-move': true,
                 'mt-url-field': MtUrlField,
                 'sw-app-action-button': true,
+                'sw-time-ago': true,
             },
             provide: {
                 systemConfigApiService: {
@@ -703,11 +704,6 @@ function createEntityCollection(entities = []) {
 }
 
 describe('src/module/sw-settings/component/sw-system-config/sw-system-config', () => {
-    it('should be a Vue.JS component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show a select field for the sales channels', async () => {
         wrapper = await createWrapper();
         await flushPromises();

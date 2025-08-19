@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
-use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
@@ -143,7 +142,7 @@ class DocumentGenerator
                 $deepLinkCode = Random::getAlphanumericString(32);
                 $id = $operation->getDocumentId() ?? Uuid::randomHex();
 
-                $mediaId = $this->resolveMediaId($operation, $context, $document, $documentType, $rendered);
+                $mediaId = $this->resolveMediaId($operation, $context, $document);
                 $mediaIdForHtmlA11y = $this->resolveMediaIdForA11y($operation, $context, $document);
 
                 $records[] = [
@@ -311,7 +310,7 @@ class DocumentGenerator
         return $document;
     }
 
-    private function resolveMediaId(DocumentGenerateOperation $operation, Context $context, RenderedDocument $document, ?string $documentType = null, ?RendererResult $result = null): ?string
+    private function resolveMediaId(DocumentGenerateOperation $operation, Context $context, RenderedDocument $document): ?string
     {
         if ($operation->isStatic()) {
             return null;
@@ -366,11 +365,23 @@ class DocumentGenerator
 
     private function loadMediaByFileType(?DocumentEntity $document, string $fileType): ?MediaEntity
     {
-        $medias = array_filter([
-            $document?->getDocumentMediaFile(),
-            $document?->getDocumentA11yMediaFile(),
-        ], fn (?MediaEntity $media) => $media?->getFileExtension() === strtolower($fileType));
+        if ($document === null) {
+            return null;
+        }
 
-        return array_shift($medias) ?? null;
+        foreach ([
+            $document->getDocumentMediaFile(),
+            $document->getDocumentA11yMediaFile(),
+        ] as $media) {
+            if (
+                $media !== null
+                && $media->getFileExtension() !== null
+                && strcasecmp($media->getFileExtension(), $fileType) === 0
+            ) {
+                return $media;
+            }
+        }
+
+        return null;
     }
 }

@@ -2464,7 +2464,7 @@ class ElasticsearchProductTest extends TestCase
                     ],
                     'test_date' => [
                         'type' => 'date',
-                        'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
+                        'format' => 'yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time||epoch_millis',
                         'ignore_malformed' => true,
                     ],
                     'test_float' => [
@@ -3001,6 +3001,7 @@ class ElasticsearchProductTest extends TestCase
                     'name' => \sprintf('name-%s', $id),
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'parentId' => $parentId,
+                    'active' => true,
                     'translationCode' => [
                         'code' => Uuid::randomHex(),
                         'name' => 'Test locale',

@@ -327,7 +327,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
 
         foreach ($method->getParameters() as $parameter) {
             try {
-                $paramDoc = $this->findDocForParam($paramDocs, $parameter->getName(), $method, $docBlock);
+                $paramDoc = $this->findDocForParam($paramDocs, $parameter->getName(), $method);
 
                 $typeInformation = $this->getTypeInformation($parameter->getType(), $paramDoc, $scriptServices);
 
@@ -363,7 +363,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
     /**
      * @param Param[] $paramDocs
      */
-    private function findDocForParam(array $paramDocs, string $name, \ReflectionMethod $method, DocBlock $docBlock): Param
+    private function findDocForParam(array $paramDocs, string $name, \ReflectionMethod $method): Param
     {
         foreach ($paramDocs as $param) {
             if ($param->getVariableName() === $name) {

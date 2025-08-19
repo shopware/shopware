@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Maintenance\System\Command\SystemInstallCommand;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
@@ -183,7 +184,12 @@ class SystemInstallCommandTest extends TestCase
         $application = new Application();
         $application->setAutoExit(false);
         $application->add(
-            new SystemInstallCommand(__DIR__, $setupDatabaseAdapterMock, $connectionFactory)
+            new SystemInstallCommand(
+                __DIR__,
+                $setupDatabaseAdapterMock,
+                $connectionFactory,
+                $this->createMock(CacheClearer::class)
+            )
         );
         $application->setDispatcher($dispatcher);
 
@@ -205,7 +211,12 @@ class SystemInstallCommandTest extends TestCase
         $connectionFactory->method('getConnection')->willReturn($connection);
 
         $setupDatabaseAdapterMock = $this->createMock(SetupDatabaseAdapter::class);
-        $systemInstallCmd = new SystemInstallCommand(__DIR__, $setupDatabaseAdapterMock, $connectionFactory);
+        $systemInstallCmd = new SystemInstallCommand(
+            __DIR__,
+            $setupDatabaseAdapterMock,
+            $connectionFactory,
+            $this->createMock(CacheClearer::class)
+        );
 
         $application = $this->createMock(Application::class);
         $application->method('has')

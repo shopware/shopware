@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
@@ -35,6 +36,9 @@ use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\ContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -144,12 +148,30 @@ class BaseSalesChannelContextFactoryTest extends TestCase
         $countryId = Uuid::randomHex();
         $anotherLanguageId = Uuid::randomHex();
 
+        $locale = new LocaleEntity();
+        $locale->setCode('en-GB');
+
+        $language = new PartialEntity();
+        $language->assign([
+            'id' => Defaults::LANGUAGE_SYSTEM,
+            'name' => 'English',
+            'locale' => $locale,
+            'translationCode' => $locale,
+        ]);
+
         $salesChannelEntity = new SalesChannelEntity();
         $salesChannelEntity->setUniqueIdentifier(TestDefaults::SALES_CHANNEL);
         $salesChannelEntity->setCustomerGroupId($customerGroupId);
         $salesChannelEntity->setPaymentMethodId($paymentMethodId);
         $salesChannelEntity->setShippingMethodId($shippingMethodId);
         $salesChannelEntity->setCurrencyId(Defaults::CURRENCY);
+        $salesChannelEntity->setMeasurementUnits(MeasurementUnits::createDefaultUnits());
+        $domains = new SalesChannelDomainCollection();
+        $domain = new SalesChannelDomainEntity();
+        $domain->setId('domain-id');
+        $domain->setMeasurementUnits(MeasurementUnits::createDefaultUnits());
+        $domains->add($domain);
+        $salesChannelEntity->setDomains($domains);
 
         $currency = new CurrencyEntity();
         $rounding = new CashRoundingConfig(1, 1, true);
@@ -176,16 +198,6 @@ class BaseSalesChannelContextFactoryTest extends TestCase
 
         $customerGroup = new CustomerGroupEntity();
         $customerGroup->setUniqueIdentifier($customerGroupId);
-
-        $language = new PartialEntity([
-            'id' => Defaults::LANGUAGE_SYSTEM,
-            'uniqueIdentifier' => Defaults::LANGUAGE_SYSTEM,
-            'name' => 'English',
-            'translationCode' => new PartialEntity([
-                'id' => Uuid::randomHex(),
-                'code' => 'en-GB',
-            ]),
-        ]);
 
         yield 'no context data' => [
             'options' => [],
@@ -562,6 +574,46 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                 SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
                 SalesChannelContextService::CURRENCY_ID => $currencyId,
                 SalesChannelContextService::COUNTRY_ID => $countryId,
+            ],
+            'fetchDataResult' => [
+                'sales_channel_default_language_id' => Uuid::randomBytes(),
+                'sales_channel_currency_factor' => 1,
+                'sales_channel_currency_id' => Uuid::randomBytes(),
+                'sales_channel_language_ids' => Defaults::LANGUAGE_SYSTEM,
+            ],
+            'fetchParentLanguageResult' => false,
+            'entitySearchResult' => [
+                SalesChannelDefinition::ENTITY_NAME => [
+                    TestDefaults::SALES_CHANNEL => $salesChannelEntity,
+                ],
+                CurrencyDefinition::ENTITY_NAME => [
+                    $currencyId => $currency,
+                ],
+                CountryDefinition::ENTITY_NAME => [
+                    $countryId => $country,
+                ],
+                PaymentMethodDefinition::ENTITY_NAME => [
+                    $paymentMethodId => $paymentMethod,
+                ],
+                ShippingMethodDefinition::ENTITY_NAME => [
+                    $shippingMethodId => $shippingMethod,
+                ],
+                CustomerGroupDefinition::ENTITY_NAME => [
+                    $customerGroupId => $customerGroup,
+                ],
+                LanguageDefinition::ENTITY_NAME => [
+                    Defaults::LANGUAGE_SYSTEM => $language,
+                ],
+            ],
+            'exceptionMessage' => null,
+        ];
+
+        yield 'create base context successfully with domain' => [
+            'options' => [
+                SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
+                SalesChannelContextService::CURRENCY_ID => $currencyId,
+                SalesChannelContextService::COUNTRY_ID => $countryId,
+                SalesChannelContextService::DOMAIN_ID => 'domain-id',
             ],
             'fetchDataResult' => [
                 'sales_channel_default_language_id' => Uuid::randomBytes(),

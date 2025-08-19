@@ -38,7 +38,6 @@ class ThemeCompiler implements ThemeCompilerInterface
      *
      * @param array<string, AssetPackage> $packages
      * @param array<int, string> $customAllowedRegex
-     * @param array{visibility?: string} $themeFilesystemConfig
      */
     public function __construct(
         private readonly FilesystemOperator $filesystem,
@@ -56,7 +55,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly AbstractScssCompiler $scssCompiler,
         private readonly array $customAllowedRegex = [],
         private readonly bool $validate = false,
-        private readonly array $themeFilesystemConfig = [],
+        private readonly string $visibility = Visibility::PUBLIC,
     ) {
     }
 
@@ -69,9 +68,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         Context $context
     ): void {
         try {
-            $resolvedFiles = $this->themeFileResolver->resolveFiles($themeConfig, $configurationCollection, false);
-
-            $styleFiles = $resolvedFiles[ThemeFileResolver::STYLE_FILES];
+            $styleFiles = $this->themeFileResolver->resolveStyleFiles($themeConfig, $configurationCollection, false);
         } catch (\Throwable $e) {
             throw ThemeException::themeCompileException(
                 $themeConfig->getName() ?? '',
@@ -174,7 +171,11 @@ class ThemeCompiler implements ThemeCompilerInterface
         StorefrontPluginConfigurationCollection $configurationCollection,
         string $themePrefix
     ): array {
-        $scriptsDist = $this->getScriptDistFolders($configurationCollection);
+        // The "getScriptDistFolders" method can remove script files from the scriptFiles property in the configurationCollection.
+        // This can result in plugin script files being missing from later methods. Cloning the collection prevents this.
+        // As structs are overriding the object cloning with the "CloneTrait" and implement a deep copy mechanism,
+        // cloning the collection will prevent the mutation of the configurations and file collections inside as well.
+        $scriptsDist = $this->getScriptDistFolders(clone $configurationCollection);
         $themePath = 'theme/' . $themePrefix;
         $distRelativePath = 'Resources/app/storefront/dist/storefront';
 
@@ -203,7 +204,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             foreach ($files as $file) {
                 $filePath = $file->getRealPath();
                 if ($filePath) {
-                    $copyFiles[] = new CopyBatchInput($filePath, [$targetPath . '/' . $file->getFilename()], $this->themeFilesystemConfig['visibility'] ?? Visibility::PUBLIC);
+                    $copyFiles[] = new CopyBatchInput($filePath, [$targetPath . '/' . $file->getFilename()], $this->visibility);
                 }
             }
         }
@@ -299,7 +300,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 $asset = $fs->path('Resources', $asset);
             }
 
-            $collected = [...$collected, ...$this->copyBatchInputFactory->fromDirectory($asset, $outputPath, $this->themeFilesystemConfig['visibility'] ?? Visibility::PUBLIC)];
+            $collected = [...$collected, ...$this->copyBatchInputFactory->fromDirectory($asset, $outputPath, $this->visibility)];
         }
 
         return array_values($collected);
@@ -521,7 +522,7 @@ PHP_EOL;
                 [
                     $compileLocation . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css',
                 ],
-                $this->themeFilesystemConfig['visibility'] ?? Visibility::PUBLIC
+                $this->visibility
             ),
         ];
 

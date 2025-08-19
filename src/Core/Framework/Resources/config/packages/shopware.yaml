@@ -7,6 +7,7 @@ parameters:
 shopware:
     http_cache:
         cookies: []
+        soft_purge: false
         reverse_proxy:
             enabled: false
             ban_method: "BAN" # This can defer from used reverse proxy
@@ -69,12 +70,15 @@ shopware:
             - 'utm_marketing_tactic'
             - '_gl'
             - 'gclsrc'
+            - 'gPromoCode' # Google Merchant Center
+            - 'gQT' # Google Merchant Center
             - 'gclid'
             - 'srsltid'
             - 'dclid'
             - 'gbraid'
             - 'wbraid'
             - 'gad_source'
+            - 'gad_campaignid'
             - 'fbclid' # Facebook
             - 'fb_action_ids'
             - 'fb_action_types'
@@ -127,16 +131,21 @@ shopware:
             - 'ScCid' # Snapchat
             - 'rtid' # Rokt
             - 'irclickid' # Impact
+            - 'klar_source'
+            - 'klar_cpid'
+            - 'klar_adid'
 
     profiler:
         integrations: []
     filesystem:
         private:
             type: "local"
+            visibility: "private"
             config:
                 root: "%kernel.project_dir%/files"
         public:
             type: "local"
+            visibility: "public"
             config:
                 root: "%kernel.project_dir%/public"
         temp:
@@ -509,6 +518,7 @@ shopware:
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'
         invalidation:
+            delay_enabled: true
             delay_options:
                 storage: mysql
             http_cache: ['logged-in', 'cart-filled']

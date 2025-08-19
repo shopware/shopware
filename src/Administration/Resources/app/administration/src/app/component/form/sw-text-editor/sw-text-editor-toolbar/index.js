@@ -198,6 +198,10 @@ export default {
                 return;
             }
 
+            if (path.some((element) => element.classList?.contains('mt-select-result-list-popover-wrapper'))) {
+                return;
+            }
+
             if (!path.includes(this.$el)) {
                 if (!this.isInlineEdit && this.selection) {
                     this.setActiveTags();

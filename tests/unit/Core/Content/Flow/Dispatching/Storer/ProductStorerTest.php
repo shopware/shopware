@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ProductStorer;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Framework\Context;
@@ -79,8 +80,9 @@ class ProductStorerTest extends TestCase
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['productId' => 'id'], []);
         $this->storer->restore($storable);
         $entity = new ProductEntity();
+        $entity->setId('id');
         $result = $this->createMock(EntitySearchResult::class);
-        $result->expects($this->once())->method('get')->willReturn($entity);
+        $result->expects($this->once())->method('getEntities')->willReturn(new ProductCollection([$entity]));
 
         $this->repository->expects($this->once())->method('search')->willReturn($result);
         $res = $storable->getData('product');
@@ -92,14 +94,13 @@ class ProductStorerTest extends TestCase
     {
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['productId' => 'id'], []);
         $this->storer->restore($storable);
-        $entity = null;
         $result = $this->createMock(EntitySearchResult::class);
-        $result->expects($this->once())->method('get')->willReturn($entity);
+        $result->expects($this->once())->method('getEntities')->willReturn(new ProductCollection());
 
         $this->repository->expects($this->once())->method('search')->willReturn($result);
         $res = $storable->getData('product');
 
-        static::assertSame($res, $entity);
+        static::assertNull($res);
     }
 
     public function testLazyLoadNullId(): void

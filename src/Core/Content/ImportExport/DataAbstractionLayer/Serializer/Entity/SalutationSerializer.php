@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -22,6 +23,8 @@ class SalutationSerializer extends EntitySerializer implements ResetInterface
 
     /**
      * @internal
+     *
+     * @param EntityRepository<SalutationCollection> $salutationRepository
      */
     public function __construct(private readonly EntityRepository $salutationRepository)
     {

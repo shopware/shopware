@@ -35,6 +35,28 @@ export default {
             return this.mailerSettings['core.mailerSettings.emailAgent'] === 'smtp+oauth';
         },
 
+        isClientCredentials() {
+            return this.mailerSettings['core.mailerSettings.oauthGrantType'] === 'client_credentials' || 
+                   !this.mailerSettings['core.mailerSettings.oauthGrantType'];
+        },
+
+        isROPC() {
+            return this.mailerSettings['core.mailerSettings.oauthGrantType'] === 'password';
+        },
+
+        oauthGrantTypeOptions() {
+            return [
+                {
+                    value: 'client_credentials',
+                    label: this.$tc('sw-settings-mailer.oauth-grant-type.client-credentials'),
+                },
+                {
+                    value: 'password',
+                    label: this.$tc('sw-settings-mailer.oauth-grant-type.password'),
+                },
+            ];
+        },
+
         encryptionOptions() {
             return [
                 {

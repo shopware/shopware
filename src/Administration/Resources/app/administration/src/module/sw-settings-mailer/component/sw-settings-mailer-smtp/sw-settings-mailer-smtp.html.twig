@@ -43,6 +43,17 @@
     />
     {% endblock %}
 
+    {% block sw_settings_mailer_smtp_oauth_grant_type %}
+    <sw-single-select
+        v-if="isOauth"
+        v-model:value="mailerSettings['core.mailerSettings.oauthGrantType']"
+        :label="$tc('sw-settings-mailer.card-smtp.oauth-grant-type')"
+        :placeholder="$tc('sw-settings-mailer.card-smtp.oauth-grant-type-placeholder')"
+        :options="oauthGrantTypeOptions"
+        required
+    />
+    {% endblock %}
+
     {% block sw_settings_mailer_smtp_oauth_url %}
 
     <mt-text-field
@@ -57,7 +68,7 @@
     {% block sw_settings_mailer_smtp_oauth_scope %}
 
     <mt-text-field
-        v-if="isOauth"
+        v-if="isOauth && isClientCredentials"
         v-model="mailerSettings['core.mailerSettings.oauthScope']"
         :label="$tc('sw-settings-mailer.card-smtp.oauth-scope')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.oauth-scope-placeholder')"
@@ -68,7 +79,7 @@
     {% block sw_settings_mailer_smtp_client_id %}
 
     <mt-text-field
-        v-if="isOauth"
+        v-if="isOauth && isClientCredentials"
         v-model="mailerSettings['core.mailerSettings.clientId']"
         :label="$tc('sw-settings-mailer.card-smtp.oauth-client-id')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.oauth-client-id-placeholder')"
@@ -78,10 +89,31 @@
 
     {% block sw_settings_mailer_smtp_client_secret %}
     <mt-password-field
-        v-if="isOauth"
+        v-if="isOauth && isClientCredentials"
         v-model="mailerSettings['core.mailerSettings.clientSecret']"
         :label="$tc('sw-settings-mailer.card-smtp.oauth-client-secret')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.oauth-client-secret-placeholder')"
+        required
+    />
+    {% endblock %}
+
+    {% block sw_settings_mailer_smtp_oauth_username %}
+
+    <mt-text-field
+        v-if="isOauth && isROPC"
+        v-model="mailerSettings['core.mailerSettings.oauthUsername']"
+        :label="$tc('sw-settings-mailer.card-smtp.oauth-username')"
+        :placeholder="$tc('sw-settings-mailer.card-smtp.oauth-username-placeholder')"
+        required
+    />
+    {% endblock %}
+
+    {% block sw_settings_mailer_smtp_oauth_password %}
+    <mt-password-field
+        v-if="isOauth && isROPC"
+        v-model="mailerSettings['core.mailerSettings.oauthPassword']"
+        :label="$tc('sw-settings-mailer.card-smtp.oauth-password')"
+        :placeholder="$tc('sw-settings-mailer.card-smtp.oauth-password-placeholder')"
         required
     />
     {% endblock %}

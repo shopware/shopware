@@ -55,6 +55,7 @@ class SmtpOauthTokenProviderTest extends TestCase
         $configService
             ->method('getString')
             ->willReturnMap([
+                ['core.mailerSettings.oauthGrantType', 'client_credentials', 'client_credentials'],
                 ['core.mailerSettings.clientId', null, 'test-client-id'],
                 ['core.mailerSettings.clientSecret', null, 'test-client-secret'],
                 ['core.mailerSettings.oauthScope', null, 'test-scope'],
@@ -69,10 +70,10 @@ class SmtpOauthTokenProviderTest extends TestCase
                 [
                     'headers' => ['Content-Type' => 'application/x-www-form-urlencoded'],
                     'body' => http_build_query([
+                        'grant_type' => 'client_credentials',
                         'client_id' => 'test-client-id',
                         'client_secret' => 'test-client-secret',
                         'scope' => 'test-scope',
-                        'grant_type' => 'client_credentials',
                     ]),
                 ]
             )
@@ -115,6 +116,7 @@ class SmtpOauthTokenProviderTest extends TestCase
         $configService
             ->method('getString')
             ->willReturnMap([
+                ['core.mailerSettings.oauthGrantType', 'client_credentials', 'client_credentials'],
                 ['core.mailerSettings.clientId', null, 'test-client-id'],
                 ['core.mailerSettings.clientSecret', null, 'test-client-secret'],
                 ['core.mailerSettings.oauthScope', null, 'test-scope'],
@@ -139,5 +141,125 @@ class SmtpOauthTokenProviderTest extends TestCase
         $this->expectExceptionMessage('Failed to fetch oauth token: Error details');
 
         $provider->getToken();
+    }
+
+    public function testGetTokenFetchesFromApiWithROPCGrant(): void
+    {
+        $cache = $this->createMock(CacheInterface::class);
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $configService = $this->createMock(SystemConfigService::class);
+        $cacheItem = $this->createMock(ItemInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+
+        $cache->expects($this->once())
+            ->method('get')
+            ->with('email-token')
+            ->willReturnCallback(function ($_, callable $callback) use ($cacheItem) {
+                return $callback($cacheItem);
+            });
+
+        $configService
+            ->method('getString')
+            ->willReturnMap([
+                ['core.mailerSettings.oauthGrantType', 'client_credentials', 'password'],
+                ['core.mailerSettings.oauthUsername', null, 'test-user@example.com'],
+                ['core.mailerSettings.oauthPassword', null, 'test-password'],
+                ['core.mailerSettings.oauthUrl', null, 'https://oauth.example.com/token'],
+            ]);
+
+        $httpClient->expects($this->once())
+            ->method('request')
+            ->with(
+                'POST',
+                'https://oauth.example.com/token',
+                [
+                    'headers' => ['Content-Type' => 'application/x-www-form-urlencoded'],
+                    'body' => http_build_query([
+                        'grant_type' => 'password',
+                        'username' => 'test-user@example.com',
+                        'password' => 'test-password',
+                    ]),
+                ]
+            )
+            ->willReturn($response);
+
+        $response->expects($this->once())
+            ->method('getStatusCode')
+            ->willReturn(Response::HTTP_OK);
+
+        $response->expects($this->once())
+            ->method('toArray')
+            ->willReturn(['access_token' => 'ropc-token', 'expires_in' => 3600]);
+
+        $cacheItem->expects($this->once())
+            ->method('expiresAfter')
+            ->with(3540); // 3600 - 60 seconds
+
+        $provider = new SmtpOauthTokenProvider($httpClient, $cache, $configService);
+
+        $token = $provider->getToken();
+
+        static::assertSame('ropc-token', $token);
+    }
+
+    public function testGetTokenDefaultsToClientCredentialsWhenGrantTypeNotSet(): void
+    {
+        $cache = $this->createMock(CacheInterface::class);
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $configService = $this->createMock(SystemConfigService::class);
+        $cacheItem = $this->createMock(ItemInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+
+        $cache->expects($this->once())
+            ->method('get')
+            ->with('email-token')
+            ->willReturnCallback(function ($_, callable $callback) use ($cacheItem) {
+                return $callback($cacheItem);
+            });
+
+        $configService
+            ->method('getString')
+            ->willReturnMap([
+                ['core.mailerSettings.oauthGrantType', 'client_credentials', 'client_credentials'], // defaults to client_credentials
+                ['core.mailerSettings.clientId', null, 'test-client-id'],
+                ['core.mailerSettings.clientSecret', null, 'test-client-secret'],
+                ['core.mailerSettings.oauthScope', null, 'test-scope'],
+                ['core.mailerSettings.oauthUrl', null, 'https://oauth.example.com/token'],
+            ]);
+
+        $httpClient->expects($this->once())
+            ->method('request')
+            ->with(
+                'POST',
+                'https://oauth.example.com/token',
+                [
+                    'headers' => ['Content-Type' => 'application/x-www-form-urlencoded'],
+                    'body' => http_build_query([
+                        'grant_type' => 'client_credentials',
+                        'client_id' => 'test-client-id',
+                        'client_secret' => 'test-client-secret',
+                        'scope' => 'test-scope',
+                    ]),
+                ]
+            )
+            ->willReturn($response);
+
+        $response->expects($this->once())
+            ->method('getStatusCode')
+            ->willReturn(Response::HTTP_OK);
+
+        $response->expects($this->once())
+            ->method('toArray')
+            ->willReturn(['access_token' => 'default-token', 'expires_in' => 3600]);
+
+        $cacheItem->expects($this->once())
+            ->method('expiresAfter')
+            ->with(3540);
+
+        $provider = new SmtpOauthTokenProvider($httpClient, $cache, $configService);
+
+        $token = $provider->getToken();
+
+        static::assertSame('default-token', $token);
     }
 }

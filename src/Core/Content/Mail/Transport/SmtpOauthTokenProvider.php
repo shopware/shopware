@@ -16,7 +16,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 #[Package('after-sales')]
 class SmtpOauthTokenProvider
 {
-    private const GRANT_TYPE = 'client_credentials';
+    private const GRANT_TYPE_CLIENT_CREDENTIALS = 'client_credentials';
+    private const GRANT_TYPE_ROPC = 'password';
     private const CACHE_KEY = 'email-token';
 
     public function __construct(
@@ -35,12 +36,18 @@ class SmtpOauthTokenProvider
 
     private function fetchToken(ItemInterface $cacheItem): string
     {
-        $body = [
-            'client_id' => $this->configService->getString('core.mailerSettings.clientId'),
-            'client_secret' => $this->configService->getString('core.mailerSettings.clientSecret'),
-            'scope' => $this->configService->getString('core.mailerSettings.oauthScope'),
-            'grant_type' => self::GRANT_TYPE,
-        ];
+        $grantType = $this->configService->getString('core.mailerSettings.oauthGrantType', self::GRANT_TYPE_CLIENT_CREDENTIALS);
+
+        $body = ['grant_type' => $grantType];
+
+        if ($grantType === self::GRANT_TYPE_CLIENT_CREDENTIALS) {
+            $body['client_id'] = $this->configService->getString('core.mailerSettings.clientId');
+            $body['client_secret'] = $this->configService->getString('core.mailerSettings.clientSecret');
+            $body['scope'] = $this->configService->getString('core.mailerSettings.oauthScope');
+        } elseif ($grantType === self::GRANT_TYPE_ROPC) {
+            $body['username'] = $this->configService->getString('core.mailerSettings.oauthUsername');
+            $body['password'] = $this->configService->getString('core.mailerSettings.oauthPassword');
+        }
 
         $response = $this->httpClient->request('POST', $this->configService->getString('core.mailerSettings.oauthUrl'), [
             'headers' => [

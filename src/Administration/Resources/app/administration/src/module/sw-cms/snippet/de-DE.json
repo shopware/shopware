@@ -245,6 +245,8 @@
         "label": "Bild",
         "config": {
           "label": {
+            "ariaLabel": "Link-Beschreibung",
+            "ariaLabelHelpText": "Dieser Text wird beim Auslesen des Links von Screenreadern vorgelesen.",
             "minHeight": "Minimale Höhe",
             "minHeightHelpText": "Gib die Mindesthöhe in der gewünschten Einheit an. Zum Beispiel: 200px",
             "isDecorative": "Bilder als ausschließlich dekorativ kennzeichen",

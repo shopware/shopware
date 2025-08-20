@@ -192,6 +192,7 @@ export default {
             sliderItems.value.push({
                 mediaUrl: mediaItem.url,
                 mediaId: mediaItem.id,
+                ariaLabel: null,
                 url: null,
                 newTab: false,
             });
@@ -233,6 +234,7 @@ export default {
                 this.element.config.sliderItems.value.push({
                     mediaUrl: item.url,
                     mediaId: item.id,
+                    ariaLabel: null,
                     url: null,
                     newTab: false,
                 });

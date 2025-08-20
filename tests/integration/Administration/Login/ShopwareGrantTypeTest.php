@@ -145,6 +145,6 @@ class ShopwareGrantTypeTest extends TestCase
 
     private function createUserService(): UserService
     {
-        return (new ValidUserServiceCreator())->create();
+        return (new ValidUserServiceCreator(static::class))->create();
     }
 }

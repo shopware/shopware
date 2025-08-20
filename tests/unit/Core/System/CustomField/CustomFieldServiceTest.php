@@ -61,10 +61,10 @@ class CustomFieldServiceTest extends TestCase
     }
 
     /**
-     * @param class-string<object>|null $expected
+     * @param class-string<object> $expected
      */
     #[DataProvider('getCustomFieldValues')]
-    public function testGetCustomField(?string $type, ?string $expected): void
+    public function testGetCustomField(?string $type, string $expected): void
     {
         $attributeName = 'test';
         $this->connection->method('fetchAllKeyValue')->willReturn([
@@ -72,12 +72,6 @@ class CustomFieldServiceTest extends TestCase
         ]);
 
         $result = $this->customFieldService->getCustomField($attributeName);
-
-        if (!$expected) {
-            static::assertNull($result);
-
-            return;
-        }
 
         static::assertInstanceOf($expected, $result);
         static::assertInstanceOf(ApiAware::class, $result->getFlags()[0]);
@@ -88,7 +82,6 @@ class CustomFieldServiceTest extends TestCase
      */
     public static function getCustomFieldValues(): iterable
     {
-        yield 'null' => ['type' => null, 'expected' => null];
         yield 'int' => ['type' => CustomFieldTypes::INT, 'expected' => IntField::class];
         yield 'float' => ['type' => CustomFieldTypes::FLOAT, 'expected' => FloatField::class];
         yield 'bool' => ['type' => CustomFieldTypes::BOOL, 'expected' => BoolField::class];
@@ -136,12 +129,12 @@ class CustomFieldServiceTest extends TestCase
         yield 'invalid: contains new line' => ['name' => 'invalid\nName', 'error' => true];
     }
 
-    public function testGetCustomFieldNameNotExisting(): void
+    public function testGetCustomFieldNameNotExistingWillFallbackToJson(): void
     {
         $this->connection->method('fetchAllKeyValue')->willReturn([]);
 
         $result = $this->customFieldService->getCustomField('test');
-        static::assertNull($result);
+        static::assertInstanceOf(JsonField::class, $result);
     }
 
     public function testGetCustomFieldShouldNotRefetch(): void
@@ -175,9 +168,9 @@ class CustomFieldServiceTest extends TestCase
                 ['test' => CustomFieldTypes::TEXT],
             );
 
-        static::assertNull($this->customFieldService->getCustomField('test'));
+        static::assertInstanceOf(JsonField::class, $this->customFieldService->getCustomField('test'));
         $this->customFieldService->reset();
-        static::assertNotNull($this->customFieldService->getCustomField('test'));
+        static::assertInstanceOf(LongTextField::class, $this->customFieldService->getCustomField('test'));
     }
 
     public function testSubscribedEvents(): void

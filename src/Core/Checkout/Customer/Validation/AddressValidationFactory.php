@@ -55,10 +55,10 @@ class AddressValidationFactory implements DataValidationFactoryInterface
             ->add('street', new NotBlank(null, 'VIOLATION::STREET_IS_BLANK_ERROR'))
             ->add('city', new NotBlank(null, 'VIOLATION::CITY_IS_BLANK_ERROR'))
             ->add('countryId', new NotBlank(null, 'VIOLATION::COUNTRY_IS_BLANK_ERROR'), new EntityExists(['entity' => 'country', 'context' => $frameworkContext]))
-            ->add('firstName', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_FIRST_NAME], null, null, null, null, null, 'VIOLATION::FIRST_NAME_IS_TOO_LONG'))
-            ->add('lastName', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_LAST_NAME], null, null, null, null, null, 'VIOLATION::LAST_NAME_IS_TOO_LONG'))
-            ->add('title', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_TITLE], null, null, null, null, null, 'VIOLATION::TITLE_IS_TOO_LONG'))
-            ->add('zipcode', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_ZIPCODE], null, null, null, null, null, 'VIOLATION::ZIPCODE_IS_TOO_LONG'));
+            ->add('firstName', new Length(max: CustomerAddressDefinition::MAX_LENGTH_FIRST_NAME, exactMessage: 'VIOLATION::FIRST_NAME_IS_TOO_LONG'))
+            ->add('lastName', new Length(max: CustomerAddressDefinition::MAX_LENGTH_LAST_NAME, exactMessage: 'VIOLATION::LAST_NAME_IS_TOO_LONG'))
+            ->add('title', new Length(max: CustomerAddressDefinition::MAX_LENGTH_TITLE, exactMessage: 'VIOLATION::TITLE_IS_TOO_LONG'))
+            ->add('zipcode', new Length(max: CustomerAddressDefinition::MAX_LENGTH_ZIPCODE, exactMessage: 'VIOLATION::ZIPCODE_IS_TOO_LONG'));
 
         if ($this->systemConfigService->get('core.loginRegistration.showAdditionalAddressField1', $salesChannelId)
             && $this->systemConfigService->get('core.loginRegistration.additionalAddressField1Required', $salesChannelId)) {

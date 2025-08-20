@@ -3,6 +3,10 @@
 namespace Shopware\Tests\Unit\Core\System\Snippet;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Psr7\Uri;
+use League\Flysystem\Filesystem as Flysystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -12,14 +16,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Locale\LocaleCollection;
+use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
+use Shopware\Core\System\Snippet\DataTransfer\Language\Language as LanguageDto;
+use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection as LanguageDtoCollection;
+use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
 use Shopware\Core\System\Snippet\Event\SnippetsThemeResolveEvent;
+use Shopware\Core\System\Snippet\Files\RemoteSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
+use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\SnippetService;
+use Shopware\Core\System\Snippet\Struct\TranslationConfig;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Tests\Unit\Administration\Snippet\SnippetFileTrait;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Translation\MessageCatalogue;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -28,13 +45,21 @@ use Symfony\Component\Translation\MessageCatalogue;
 #[CoversClass(SnippetService::class)]
 class SnippetServiceTest extends TestCase
 {
+    use SnippetFileTrait;
+
     private SnippetFileCollection $snippetCollection;
 
     private Connection&MockObject $connection;
 
+    private Flysystem $flysystem;
+
+    private Filesystem $filesystem;
+
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
+        $this->flysystem = new Flysystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
+        $this->filesystem = new Filesystem();
         $this->snippetCollection = new SnippetFileCollection();
         $this->addThemes();
     }
@@ -93,6 +118,41 @@ class SnippetServiceTest extends TestCase
         $snippetSetId = $snippetService->findSnippetSetId(Uuid::randomHex(), Uuid::randomHex(), 'en-GB');
 
         static::assertSame($snippetSetId, $snippetSetIdWithSalesChannelDomain);
+    }
+
+    public function testDecodeRemoteSnippets(): void
+    {
+        $remoteSnippetFile = new RemoteSnippetFile(
+            'test',
+            '/translation/locale/es-ES/Platform/storefront.json',
+            'es-ES',
+            'Shopware',
+            false,
+            'Storefront'
+        );
+
+        $this->snippetCollection->add($remoteSnippetFile);
+
+        $config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['es-ES'],
+            [],
+            new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
+            new PluginMappingCollection(),
+        );
+
+        $loader = $this->getTranslationLoader($config);
+        $this->createSnippetFixtures($this->flysystem, $loader);
+
+        $this->connection->expects($this->once())
+            ->method('fetchOne')->willReturn('es-ES');
+
+        $snippetService = $this->createSnippetService();
+
+        $catalog = new MessageCatalogue('es-ES', ['messages' => []]);
+        $snippets = $snippetService->getStorefrontSnippets($catalog, Uuid::randomHex(), 'es-ES', Uuid::randomHex());
+
+        static::assertSame(['shop_storefront' => 'Platform storefront'], $snippets);
     }
 
     /**
@@ -267,6 +327,30 @@ class SnippetServiceTest extends TestCase
             $this->createMock(SnippetFilterFactory::class),
             new ExtensionDispatcher(new EventDispatcher()),
             $eventDispatcher ?? new EventDispatcher(),
+            $this->flysystem,
+            $this->filesystem,
+        );
+    }
+
+    private function getTranslationLoader(TranslationConfig $config): TranslationLoader
+    {
+        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
+        $languageRepository = new StaticEntityRepository([]);
+
+        /** @var StaticEntityRepository<LocaleCollection> $localeRepository */
+        $localeRepository = new StaticEntityRepository([]);
+
+        /** @var StaticEntityRepository<SnippetSetCollection> $snippetSetRepository */
+        $snippetSetRepository = new StaticEntityRepository([]);
+
+        return new TranslationLoader(
+            translationWriter: $this->flysystem,
+            languageRepository: $languageRepository,
+            localeRepository: $localeRepository,
+            snippetSetRepository: $snippetSetRepository,
+            client: $this->createMock(ClientInterface::class),
+            config: $config,
+            validator: Validation::createValidator(),
         );
     }
 }

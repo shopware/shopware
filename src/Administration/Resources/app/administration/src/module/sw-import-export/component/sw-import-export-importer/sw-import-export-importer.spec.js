@@ -9,22 +9,22 @@ const repositoryMockFactory = () => {
         search: (criteria) => {
             const profiles = [
                 {
-                    label: 'Default product',
+                    technicalName: 'default_product',
                     sourceEntity: 'product',
                     config: [],
                 },
                 {
-                    label: 'Default configurator settings',
+                    technicalName: 'default_configurator_settings',
                     sourceEntity: 'product_configurator_setting',
                     config: [],
                 },
                 {
-                    label: 'Default category',
+                    technicalName: 'default_category',
                     sourceEntity: 'category',
                     config: [],
                 },
                 {
-                    label: 'Default media',
+                    technicalName: 'default_media',
                     sourceEntity: 'media',
                     config: [],
                 },
@@ -137,11 +137,11 @@ describe('components/sw-import-export-importer', () => {
         await flushPromises();
 
         const defaultProduct = document.body.querySelector('.sw-select-option--0');
-        expect(defaultProduct.querySelector('.sw-highlight-text').textContent).toBe('Default product');
+        expect(defaultProduct.querySelector('.sw-highlight-text').textContent).toBe('default_product');
 
         await defaultProduct.click();
 
-        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('Default product');
+        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('default_product');
         expect(wrapper.find('.sw-import-export-importer__variants-warning').exists()).toBeFalsy();
     });
 
@@ -150,11 +150,11 @@ describe('components/sw-import-export-importer', () => {
         await flushPromises();
 
         const defaultProduct = document.body.querySelector('.sw-select-option--0');
-        expect(defaultProduct.querySelector('.sw-highlight-text').textContent).toBe('Default product');
+        expect(defaultProduct.querySelector('.sw-highlight-text').textContent).toBe('default_product');
 
         await defaultProduct.click();
 
-        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('Default product');
+        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('default_product');
 
         const variantsWarning = wrapper.find('.sw-import-export-importer__variants-warning');
 
@@ -166,11 +166,11 @@ describe('components/sw-import-export-importer', () => {
         await flushPromises();
 
         const defaultProduct = document.body.querySelector('.sw-select-option--0');
-        expect(defaultProduct.querySelector('.sw-highlight-text').textContent).toBe('Default product');
+        expect(defaultProduct.querySelector('.sw-highlight-text').textContent).toBe('default_product');
 
         await defaultProduct.click();
 
-        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('Default product');
+        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('default_product');
 
         await wrapper.setData({
             config: {
@@ -264,10 +264,10 @@ describe('components/sw-import-export-importer', () => {
 
         const results = document.body.querySelectorAll('.sw-select-result');
 
-        expect(results.item(0).textContent).toContain('Default product');
-        expect(results.item(1).textContent).toContain('Default configurator settings');
-        expect(results.item(2).textContent).toContain('Default category');
-        expect(results.item(3).textContent).toContain('Default media');
+        expect(results.item(0).textContent).toContain('default_product');
+        expect(results.item(1).textContent).toContain('default_configurator_settings');
+        expect(results.item(2).textContent).toContain('default_category');
+        expect(results.item(3).textContent).toContain('default_media');
     });
 
     it('should show only matching profiles when sourceEntity property has been set', async () => {
@@ -280,7 +280,7 @@ describe('components/sw-import-export-importer', () => {
 
         const results = document.body.querySelectorAll('.sw-select-result');
 
-        expect(results.item(0).textContent).toContain('Default configurator settings');
+        expect(results.item(0).textContent).toContain('default_configurator_settings');
         expect(results).toHaveLength(1);
     });
 

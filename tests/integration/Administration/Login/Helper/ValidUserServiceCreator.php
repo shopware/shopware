@@ -4,8 +4,7 @@ namespace Shopware\Tests\Integration\Administration\Login\Helper;
 
 use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\Validator as ValidatorInterface;
-use PHPUnit\Framework\MockObject\Generator\Generator as MockGenerator;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Administration\Login\TokenService\IdTokenParser;
 use Shopware\Administration\Login\TokenService\PublicKeyLoader;
@@ -22,7 +21,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * @internal
  */
 #[Package('framework')]
-class ValidUserServiceCreator
+class ValidUserServiceCreator extends TestCase
 {
     use KernelTestBehaviour;
 
@@ -89,29 +88,5 @@ class ValidUserServiceCreator
         ];
 
         return new LoginConfigService($rawConfig, 'local.host', '/admin');
-    }
-
-    private function createMock(string $originalClassName): MockObject
-    {
-        $mock = (new MockGenerator())->testDouble(
-            $originalClassName,
-            true,
-            true,
-            [],
-            [],
-            '',
-            false,
-            false,
-            true,
-            false,
-            false,
-            null,
-            false
-        );
-
-        \assert($mock instanceof $originalClassName);
-        \assert($mock instanceof MockObject);
-
-        return $mock;
     }
 }

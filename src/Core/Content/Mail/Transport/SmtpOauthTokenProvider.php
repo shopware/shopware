@@ -38,12 +38,14 @@ class SmtpOauthTokenProvider
     {
         $grantType = $this->configService->getString('core.mailerSettings.oauthGrantType', self::GRANT_TYPE_CLIENT_CREDENTIALS);
 
-        $body = ['grant_type' => $grantType];
+        $body = [
+            'grant_type' => $grantType,
+            'client_id' => $this->configService->getString('core.mailerSettings.clientId'),
+            'scope' => $this->configService->getString('core.mailerSettings.oauthScope'),
+        ];
 
         if ($grantType === self::GRANT_TYPE_CLIENT_CREDENTIALS) {
-            $body['client_id'] = $this->configService->getString('core.mailerSettings.clientId');
             $body['client_secret'] = $this->configService->getString('core.mailerSettings.clientSecret');
-            $body['scope'] = $this->configService->getString('core.mailerSettings.oauthScope');
         } elseif ($grantType === self::GRANT_TYPE_ROPC) {
             $body['username'] = $this->configService->getString('core.mailerSettings.oauthUsername');
             $body['password'] = $this->configService->getString('core.mailerSettings.oauthPassword');

@@ -72,8 +72,8 @@ class SmtpOauthTokenProviderTest extends TestCase
                     'body' => http_build_query([
                         'grant_type' => 'client_credentials',
                         'client_id' => 'test-client-id',
-                        'client_secret' => 'test-client-secret',
                         'scope' => 'test-scope',
+                        'client_secret' => 'test-client-secret',
                     ]),
                 ]
             )
@@ -165,6 +165,8 @@ class SmtpOauthTokenProviderTest extends TestCase
                 ['core.mailerSettings.oauthUsername', null, 'test-user@example.com'],
                 ['core.mailerSettings.oauthPassword', null, 'test-password'],
                 ['core.mailerSettings.oauthUrl', null, 'https://oauth.example.com/token'],
+                ['core.mailerSettings.clientId', null, 'test-client-id'],
+                ['core.mailerSettings.oauthScope', null, 'test-scope'],
             ]);
 
         $httpClient->expects($this->once())
@@ -176,6 +178,8 @@ class SmtpOauthTokenProviderTest extends TestCase
                     'headers' => ['Content-Type' => 'application/x-www-form-urlencoded'],
                     'body' => http_build_query([
                         'grant_type' => 'password',
+                        'client_id' => 'test-client-id',
+                        'scope' => 'test-scope',
                         'username' => 'test-user@example.com',
                         'password' => 'test-password',
                     ]),
@@ -237,8 +241,8 @@ class SmtpOauthTokenProviderTest extends TestCase
                     'body' => http_build_query([
                         'grant_type' => 'client_credentials',
                         'client_id' => 'test-client-id',
-                        'client_secret' => 'test-client-secret',
                         'scope' => 'test-scope',
+                        'client_secret' => 'test-client-secret',
                     ]),
                 ]
             )

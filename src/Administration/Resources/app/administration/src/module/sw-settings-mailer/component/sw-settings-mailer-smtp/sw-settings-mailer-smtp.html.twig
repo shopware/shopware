@@ -68,7 +68,7 @@
     {% block sw_settings_mailer_smtp_oauth_scope %}
 
     <mt-text-field
-        v-if="isOauth && isClientCredentials"
+        v-if="isOauth"
         v-model="mailerSettings['core.mailerSettings.oauthScope']"
         :label="$tc('sw-settings-mailer.card-smtp.oauth-scope')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.oauth-scope-placeholder')"
@@ -79,7 +79,7 @@
     {% block sw_settings_mailer_smtp_client_id %}
 
     <mt-text-field
-        v-if="isOauth && isClientCredentials"
+        v-if="isOauth"
         v-model="mailerSettings['core.mailerSettings.clientId']"
         :label="$tc('sw-settings-mailer.card-smtp.oauth-client-id')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.oauth-client-id-placeholder')"

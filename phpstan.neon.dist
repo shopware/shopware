@@ -176,7 +176,6 @@ parameters:
             paths:
                 - tests/integration/Core/Content/**
                 - tests/integration/Core/Framework/**
-                - tests/unit/Core/**
 
         - # Needs a proper class-string annotation in `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getCollectionClass` and all child classes
             message: '#PHPDoc tag @var with type .*Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection.* is not subtype of native type string#'

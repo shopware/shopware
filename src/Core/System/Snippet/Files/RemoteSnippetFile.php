@@ -5,7 +5,7 @@ namespace Shopware\Core\System\Snippet\Files;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
-class GenericSnippetFile extends AbstractSnippetFile
+class RemoteSnippetFile extends AbstractSnippetFile
 {
     public function __construct(
         private readonly string $name,
@@ -13,7 +13,7 @@ class GenericSnippetFile extends AbstractSnippetFile
         private readonly string $iso,
         private readonly string $author,
         private readonly bool $isBase,
-        private string $technicalName,
+        private readonly string $technicalName,
     ) {
     }
 
@@ -45,10 +45,5 @@ class GenericSnippetFile extends AbstractSnippetFile
     public function getTechnicalName(): string
     {
         return $this->technicalName;
-    }
-
-    public function setTechnicalName(string $technicalName): void
-    {
-        $this->technicalName = $technicalName;
     }
 }

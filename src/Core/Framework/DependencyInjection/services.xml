@@ -269,6 +269,8 @@ frame-ancestors 'none';
             <argument type="service" id="Shopware\Core\System\Snippet\Filter\SnippetFilterFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="shopware.filesystem.private"/>
+            <argument type="service" id="filesystem"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Api\SnippetController" public="true">

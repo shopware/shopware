@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @phpstan-type ComposerPackage = array{name: string, version: string, path: string, pretty_version: string}
  */
 #[Package('framework')]
 class ComposerInfoProvider
@@ -33,12 +31,12 @@ class ComposerInfoProvider
 
         foreach ($rawPackages as $rootPackage) {
             if (($rootPackage['root']['type'] ?? '') === $type) {
-                $packages[$rootPackage['root']['name']] = [
-                    'name' => $rootPackage['root']['name'],
-                    'version' => $rootPackage['root']['version'] ?? '1.0.0',
-                    'pretty_version' => $rootPackage['root']['pretty_version'] ?? $rootPackage['root']['version'] ?? '1.0.0.0',
-                    'path' => $rootPackage['root']['install_path'] ?? '',
-                ];
+                $packages[$rootPackage['root']['name']] = new ComposerPackage(
+                    name: $rootPackage['root']['name'],
+                    version: $rootPackage['root']['version'] ?? '1.0.0',
+                    prettyVersion: $rootPackage['root']['pretty_version'] ?? $rootPackage['root']['version'] ?? '1.0.0.0',
+                    path: $rootPackage['root']['install_path'] ?? '',
+                );
             }
 
             foreach ($rootPackage['versions'] ?? [] as $packageName => $packageData) {
@@ -46,12 +44,12 @@ class ComposerInfoProvider
                     continue;
                 }
 
-                $packages[$packageName] = [
-                    'name' => $packageName,
-                    'version' => $packageData['version'] ?? '1.0.0',
-                    'pretty_version' => $packageData['pretty_version'] ?? $packageData['version'] ?? '1.0.0.0',
-                    'path' => $packageData['install_path'] ?? '',
-                ];
+                $packages[$packageName] = new ComposerPackage(
+                    name: $packageName,
+                    version: $packageData['version'] ?? '1.0.0',
+                    prettyVersion: $packageData['pretty_version'] ?? $packageData['version'] ?? '1.0.0.0',
+                    path: $packageData['install_path'] ?? '',
+                );
             }
         }
 

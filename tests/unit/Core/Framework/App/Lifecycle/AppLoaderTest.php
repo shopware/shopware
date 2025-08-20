@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Adapter\Composer\ComposerInfoProvider;
+use Shopware\Core\Framework\Adapter\Composer\ComposerPackage;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Xml\Setup\Setup;
@@ -27,13 +28,12 @@ class AppLoaderTest extends TestCase
     public function testLoadAppByComposer(): void
     {
         ComposerInfoProvider::fake([
-            [
-                'name' => 'swag/app',
-                'type' => AppLoader::COMPOSER_TYPE,
-                'version' => '1.0.0',
-                'pretty_version' => '1.0.0.0',
-                'path' => __DIR__ . '/../_fixtures/',
-            ],
+            new ComposerPackage(
+                name: 'swag/app',
+                version: '1.0.0',
+                prettyVersion: '1.0.0.0',
+                path: __DIR__ . '/../_fixtures/',
+            ),
         ]);
 
         $appLoader = $this->getAppLoader();
@@ -57,13 +57,12 @@ class AppLoaderTest extends TestCase
     public function testLoadAppByComposerWithInvalidAppManifest(): void
     {
         ComposerInfoProvider::fake([
-            [
-                'name' => 'swag/invalidManifestApp',
-                'type' => AppLoader::COMPOSER_TYPE,
-                'version' => '1.0.0',
-                'pretty_version' => '1.0.0.0',
-                'path' => __DIR__ . '/_fixtures/invalidManifestApp',
-            ],
+            new ComposerPackage(
+                name: 'swag/invalidManifestApp',
+                version: '1.0.0',
+                prettyVersion: '1.0.0.0',
+                path: __DIR__ . '/_fixtures/invalidManifestApp',
+            ),
         ]);
 
         $loggerMock = $this->createMock(LoggerInterface::class);

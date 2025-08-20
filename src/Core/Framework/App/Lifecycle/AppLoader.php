@@ -106,7 +106,7 @@ class AppLoader
 
         foreach (ComposerInfoProvider::getComposerPackages(self::COMPOSER_TYPE) as $package) {
             try {
-                $manifest = Manifest::createFromXmlFile($package['path'] . '/manifest.xml');
+                $manifest = Manifest::createFromXmlFile($package->path . '/manifest.xml');
                 $manifest->setManagedByComposer(true);
 
                 $manifests[$manifest->getMetadata()->getName()] = $manifest;

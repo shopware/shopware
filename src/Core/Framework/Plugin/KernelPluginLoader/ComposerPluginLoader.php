@@ -28,7 +28,7 @@ class ComposerPluginLoader extends KernelPluginLoader
         $this->pluginInfos = [];
 
         foreach (ComposerInfoProvider::getComposerPackages(PluginFinder::COMPOSER_TYPE) as $composerPackage) {
-            $composerJsonPath = $composerPackage['path'] . '/composer.json';
+            $composerJsonPath = $composerPackage->path . '/composer.json';
 
             if (!\is_file($composerJsonPath)) {
                 continue;
@@ -42,7 +42,7 @@ class ComposerPluginLoader extends KernelPluginLoader
             $pluginClass = $composerJson['extra']['shopware-plugin-class'] ?? '';
 
             if (\defined('\STDERR') && ($pluginClass === '' || !\class_exists($pluginClass))) {
-                \fwrite(\STDERR, \sprintf('Skipped package %s due invalid "shopware-plugin-class" config', $composerPackage['name']) . \PHP_EOL);
+                \fwrite(\STDERR, \sprintf('Skipped package %s due invalid "shopware-plugin-class" config', $composerPackage->name) . \PHP_EOL);
 
                 continue;
             }
@@ -53,11 +53,11 @@ class ComposerPluginLoader extends KernelPluginLoader
                 'name' => \end($nameParts),
                 'baseClass' => $pluginClass,
                 'active' => true,
-                'path' => $composerPackage['path'],
-                'version' => $composerPackage['pretty_version'],
+                'path' => $composerPackage->path,
+                'version' => $composerPackage->prettyVersion,
                 'autoload' => $composerJson['autoload'] ?? [],
                 'managedByComposer' => true,
-                'composerName' => $composerPackage['name'],
+                'composerName' => $composerPackage->name,
             ];
         }
     }

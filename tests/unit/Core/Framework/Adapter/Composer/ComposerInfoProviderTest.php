@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Composer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Composer\ComposerInfoProvider;
+use Shopware\Core\Framework\Adapter\Composer\ComposerPackage;
 
 /**
  * @internal
@@ -15,12 +16,12 @@ class ComposerInfoProviderTest extends TestCase
     public function testFakeAndReset(): void
     {
         $packages = [
-            [
-                'name' => 'shopware/core',
-                'version' => '6.4.0.0',
-                'pretty_version' => '6.4.0.0',
-                'path' => '/sw/core',
-            ],
+            new ComposerPackage(
+                name: 'shopware/core',
+                version: '6.4.0.0',
+                prettyVersion: '6.4.0.0',
+                path: '/sw/core',
+            ),
         ];
 
         ComposerInfoProvider::fake($packages);

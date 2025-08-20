@@ -12,12 +12,12 @@ use Shopware\Core\Framework\Log\Package;
 class ComposerInfoProvider
 {
     /**
-     * @var ComposerPackage[]|null
+     * @var list<ComposerPackage>|null
      */
     private static ?array $fakedPackages = null;
 
     /**
-     * @return ComposerPackage[]
+     * @return list<ComposerPackage>
      */
     public static function getComposerPackages(string $type): array
     {
@@ -57,7 +57,7 @@ class ComposerInfoProvider
     }
 
     /**
-     * @param ComposerPackage[] $packages
+     * @param list<ComposerPackage> $packages
      */
     public static function fake(array $packages): void
     {

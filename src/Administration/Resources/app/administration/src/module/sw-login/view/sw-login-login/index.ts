@@ -85,7 +85,7 @@ export default Component.wrapComponentConfig({
                 this.licenseViolationService.removeTimeFromLocalStorage(this.licenseViolationService.key.showViolationsKey);
             }
 
-            return animationPromise.then(async() => {
+            return animationPromise.then(async () => {
                 // @ts-expect-error
                 this.$parent.isLoginSuccess = false;
                 await this.forwardLogin();
@@ -115,18 +115,18 @@ export default Component.wrapComponentConfig({
                 !this.$router?.currentRoute?.value?.name?.startsWith('sw.first.run.wizard') &&
                 this.$router.hasRoute('sw.first.run.wizard.index')
             ) {
-                void await this.$router.push({ name: 'sw.first.run.wizard.index' });
+                void (await this.$router.push({ name: 'sw.first.run.wizard.index' }));
                 return;
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (previousRoute?.fullPath) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                void await this.$router.push(previousRoute.fullPath);
+                void (await this.$router.push(previousRoute.fullPath));
                 return;
             }
 
-            void await this.$router.push({ name: 'core' });
+            void (await this.$router.push({ name: 'core' }));
         },
 
         handleLoginError(response: unknown) {

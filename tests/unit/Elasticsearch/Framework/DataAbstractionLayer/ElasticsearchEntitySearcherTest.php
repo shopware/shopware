@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\System\CustomField\CustomFieldService;
+use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
@@ -336,7 +337,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
             $client,
             $this->createMock(EntitySearcherInterface::class),
             $helper,
-            new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)),
+            new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class), new ArrayKeyValueStorage([])),
             $this->createMock(AbstractElasticsearchSearchHydrator::class),
             new EventDispatcher(),
             '5s',

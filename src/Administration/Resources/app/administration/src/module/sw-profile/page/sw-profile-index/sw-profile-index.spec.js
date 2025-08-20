@@ -221,4 +221,24 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         expect(wrapper.vm.user.avatarId).toBe(mediaId);
         expect(wrapper.vm.avatarMediaItem.id).toBe(mediaId);
     });
+
+    it('should save minSearchTermLength and userSearchPreferences', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.$route = {
+            name: 'sw.profile.index.searchPreferences',
+        };
+
+        wrapper.vm.saveMinSearchTermLength = jest.fn(() => Promise.resolve());
+        wrapper.vm.saveUserSearchPreferences = jest.fn(() => Promise.resolve());
+
+        wrapper.vm.onSave();
+
+        expect(wrapper.vm.saveMinSearchTermLength).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.saveUserSearchPreferences).toHaveBeenCalledTimes(1);
+
+        wrapper.vm.saveMinSearchTermLength.mockRestore();
+        wrapper.vm.saveUserSearchPreferences.mockRestore();
+    });
 });

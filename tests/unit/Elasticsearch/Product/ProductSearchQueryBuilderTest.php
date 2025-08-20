@@ -33,8 +33,10 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
+use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
 use Shopware\Elasticsearch\TokenQueryBuilder;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -58,7 +60,10 @@ class ProductSearchQueryBuilderTest extends TestCase
                 'evolvesInt' => new IntField('evolvesInt', 'evolvesInt'),
                 'evolvesFloat' => new FloatField('evolvesFloat', 'evolvesFloat'),
                 'evolvesText' => new StringField('evolvesText', 'evolvesText'),
-            ])
+            ]),
+            new ArrayKeyValueStorage([
+                ElasticsearchOptimizeSwitch::FLAG => true,
+            ]),
         );
     }
 
@@ -247,10 +252,7 @@ class ProductSearchQueryBuilderTest extends TestCase
             ],
             'term' => 'foo',
             'expected' => self::bool([
-                self::disMax([
-                    self::textMatch('name', 'foo', 1000, Defaults::LANGUAGE_SYSTEM, andSearch: false),
-                    self::textMatch('name', 'foo', 800, self::SECOND_LANGUAGE_ID, andSearch: false),
-                ]),
+                self::textMatch('name', 'foo', 1000, Defaults::LANGUAGE_SYSTEM, andSearch: false),
                 self::nested('tags', self::textMatch('tags.name', 'foo', 500, andSearch: false)),
                 self::nested('categories', self::disMax([
                     self::textMatch('categories.name', 'foo', 200, Defaults::LANGUAGE_SYSTEM, andSearch: false),
@@ -270,28 +272,19 @@ class ProductSearchQueryBuilderTest extends TestCase
             'expected' => self::disMax([
                 self::bool([
                     self::bool([
-                        self::disMax([
-                            self::textMatch('name', 'foo', 1000, Defaults::LANGUAGE_SYSTEM, false),
-                            self::textMatch('name', 'foo', 800, self::SECOND_LANGUAGE_ID, false),
-                        ]),
+                        self::textMatch('name', 'foo', 1000, Defaults::LANGUAGE_SYSTEM, false),
                         self::textMatch('ean', 'foo', 2000, null, false),
                         self::nested('tags', self::textMatch('tags.name', 'foo', 500, null, false)),
                     ]),
                     self::bool([
-                        self::disMax([
-                            self::textMatch('name', '2023', 1000, Defaults::LANGUAGE_SYSTEM, false),
-                            self::textMatch('name', '2023', 800, self::SECOND_LANGUAGE_ID, false),
-                        ]),
+                        self::textMatch('name', '2023', 1000, Defaults::LANGUAGE_SYSTEM, false),
                         self::textMatch('ean', '2023', 2000, null, false),
                         self::term('restockTime', 2023, 1500),
                         self::nested('tags', self::textMatch('tags.name', '2023', 500, null, false)),
                     ]),
                 ], BoolQuery::MUST),
                 self::bool([
-                    self::disMax([
-                        self::textMatch('name', 'foo 2023', 1000, Defaults::LANGUAGE_SYSTEM, false),
-                        self::textMatch('name', 'foo 2023', 800, self::SECOND_LANGUAGE_ID, false),
-                    ]),
+                    self::textMatch('name', 'foo 2023', 1000, Defaults::LANGUAGE_SYSTEM, false),
                     self::textMatch('ean', 'foo 2023', 2000, null, false),
                     self::nested('tags', self::textMatch('tags.name', 'foo 2023', 500, null, false)),
                 ]),

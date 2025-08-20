@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,62 +20,81 @@ use Symfony\Component\HttpFoundation\Request;
 class CriteriaQueryBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    private const VALID_TEST_SET = [
-        's1' => '0198bd43b1c37964a5c1ecbd2d89fd6e',
-        'p1' => '0198bd4417f471a69742ca2390243653',
-        'p1.1' => '0198bd446e0973448206e3197b2d24ea',
-        'p1.2' => '0198bd446e077084984f95175b2bea27',
-    ];
-
-    private const INVALID_TEST_SET = [
-        's1' => '00000000000000000000000000000001',
-        'p1' => '00000000000000000000000000000002',
-        'p1.1' => '00000000000000000000000000000003',
-        'p1.2' => '00000000000000000000000000000004',
-    ];
 
     public IdsCollection $ids;
 
+    /**
+     * This test checks listing sorting behavior affected by MySQL's GROUP BY handling.
+     *
+     * Shopware disables ONLY_FULL_GROUP_BY, allowing queries that may return non-deterministic
+     * results when selecting columns not functionally dependent on the GROUP BY clause.
+     * See: https://dev.mysql.com/doc/refman/8.4/en/group-by-handling.html
+     *
+     * The CriteriaQueryBuilder generates such a query. Without the fix, results may vary between
+     * runs; with the fix, the outcome is deterministic and the test should always pass.
+     *
+     * A specific ID set is used to reproduce the issue. For reference, the following ID set
+     * does NOT trigger the problem and is noted here for completeness:
+     * ['s1' => '00000000000000000000000000000001',
+     *  's1.1' => '00000000000000000000000000000002',
+     *  's1.2' => '00000000000000000000000000000003',
+     *  'p1' => '00000000000000000000000000000004',
+     *  'p1.1' => '00000000000000000000000000000005',
+     *  'p1.2' => '00000000000000000000000000000006']
+     *
+     * Changing the data may prevent the issue from appearing, so edit with caution.
+     */
     public function testSortingByCheapestPrice(): void
     {
-        $idSet = self::VALID_TEST_SET;
-
         $this->ids = new IdsCollection();
-        $this->createExampleProducts($idSet);
+        $this->createExampleProducts();
 
         $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             'anytokenstring',
             TestDefaults::SALES_CHANNEL
         );
 
-        $result = static::getContainer()->get(ResolveCriteriaProductListingRoute::class)->load(
-            $this->ids->get('test-category'),
-            new Request(query: ['order' => 'price-asc']),
-            $context,
-            new Criteria()
-        );
-
-        $actualIds = $result->getResult()->getEntities()->getIds();
         static::assertSame(
             [
-                $idSet['p1'],
-                $idSet['s1'],
+                $this->ids->get('p1'),
+                $this->ids->get('s1'),
             ],
-            array_values($actualIds)
+            array_values($this->orderListing('price-asc', $context))
+        );
+
+        static::assertSame(
+            [
+                $this->ids->get('s1'),
+                $this->ids->get('p1'),
+            ],
+            array_values($this->orderListing('price-desc', $context))
         );
     }
 
-    private function createExampleProducts(array $idSet): void
+    private function createExampleProducts(): void
     {
-        $this->ids->set('s1', $idSet['s1']);
-        $this->ids->set('p1', $idSet['p1']);
-        $this->ids->set('p1.1', $idSet['p1.1']);
-        $this->ids->set('p1.2', $idSet['p1.2']);
+        $this->ids->set('s1', '0198bd43b1c37964a5c1ecbd2d89fd6e');
+        $this->ids->set('s1.1', '0198c286060673308abe19bf59ccb004');
+        $this->ids->set('s1.2', '0198c286209972e68646a54bf8211144');
+        $this->ids->set('p1', '0198bd4417f471a69742ca2390243653');
+        $this->ids->set('p1.1', '0198bd446e0973448206e3197b2d24ea');
+        $this->ids->set('p1.2', '0198bd446e077084984f95175b2bea27');
 
         $s1 = (new ProductBuilder($this->ids, 's1'))
             ->price(100)
             ->category('test-category')
+            ->variantListingConfig(['displayParent' => true])
             ->visibility()
+            ->variant(
+                (new ProductBuilder($this->ids, 's1.1'))
+                    ->price(110)
+                    ->build()
+            )
+            ->variant(
+                (new ProductBuilder($this->ids, 's1.2'))
+                    ->price(120)
+                    ->build()
+            )
             ->build();
         $p1 = (new ProductBuilder($this->ids, 'p1'))
             ->price(100)
@@ -94,5 +114,20 @@ class CriteriaQueryBuilderTest extends TestCase
             ->build();
 
         static::getContainer()->get('product.repository')->create([$s1, $p1], Context::createDefaultContext());
+    }
+
+    /**
+     * @return string[]
+     */
+    private function orderListing(string $dir, SalesChannelContext $context): array
+    {
+        $result = static::getContainer()->get(ResolveCriteriaProductListingRoute::class)->load(
+            $this->ids->get('test-category'),
+            new Request(query: ['order' => $dir]),
+            $context,
+            new Criteria()
+        );
+
+        return $result->getResult()->getEntities()->getIds();
     }
 }

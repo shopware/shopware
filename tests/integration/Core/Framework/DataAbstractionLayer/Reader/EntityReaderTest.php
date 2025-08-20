@@ -1253,8 +1253,6 @@ class EntityReaderTest extends TestCase
         $addressId5 = Uuid::randomHex();
         $addressId6 = Uuid::randomHex();
 
-        $repository = $this->customerRepository;
-
         $address = [
             'street' => 'A',
             'zipcode' => 'A',

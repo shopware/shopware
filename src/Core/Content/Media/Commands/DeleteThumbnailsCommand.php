@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Media\Commands;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -21,6 +22,8 @@ class DeleteThumbnailsCommand extends Command
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaThumbnailCollection> $thumbnailRepository
      */
     public function __construct(
         private readonly Connection $connection,

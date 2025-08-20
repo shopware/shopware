@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
 use Shopware\Core\Content\Flow\Dispatching\Aware\OrderTransactionAware;
@@ -77,8 +78,9 @@ class OrderTransactionStorerTest extends TestCase
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['orderTransactionId' => 'id'], []);
         $this->storer->restore($storable);
         $entity = new OrderTransactionEntity();
+        $entity->setId('id');
         $result = $this->createMock(EntitySearchResult::class);
-        $result->expects($this->once())->method('get')->willReturn($entity);
+        $result->expects($this->once())->method('getEntities')->willReturn(new OrderTransactionCollection([$entity]));
 
         $this->repository->expects($this->once())->method('search')->willReturn($result);
         $res = $storable->getData('orderTransaction');
@@ -90,14 +92,13 @@ class OrderTransactionStorerTest extends TestCase
     {
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['orderTransactionId' => 'id'], []);
         $this->storer->restore($storable);
-        $entity = null;
         $result = $this->createMock(EntitySearchResult::class);
-        $result->expects($this->once())->method('get')->willReturn($entity);
+        $result->expects($this->once())->method('getEntities')->willReturn(new OrderTransactionCollection());
 
         $this->repository->expects($this->once())->method('search')->willReturn($result);
         $res = $storable->getData('orderTransaction');
 
-        static::assertSame($res, $entity);
+        static::assertNull($res);
     }
 
     public function testLazyLoadNullId(): void

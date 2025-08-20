@@ -7,6 +7,8 @@ use Doctrine\DBAL\Connection;
 use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\FullText\SimpleQueryStringQuery;
 use OpenSearchDSL\Search;
+use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -14,6 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -43,6 +46,32 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
     public function getEntity(): string
     {
         return ProductDefinition::ENTITY_NAME;
+    }
+
+    public function getUpdatedIds(EntityWrittenContainerEvent $event): array
+    {
+        $productIds = $event->getPrimaryKeysWithPropertyChange($this->getEntity(), [
+            'productNumber',
+            'ean',
+            'manufacturerNumber',
+        ]);
+
+        $translations = $event->getPrimaryKeysWithPropertyChange(ProductTranslationDefinition::ENTITY_NAME, [
+            'name',
+            'customSearchKeywords',
+        ]);
+
+        $tags = $event->getPrimaryKeysWithPropertyChange(ProductTagDefinition::ENTITY_NAME, [
+            'tagId',
+        ]);
+
+        foreach (array_merge($translations, $tags) as $pks) {
+            if (isset($pks['productId'])) {
+                $productIds[] = $pks['productId'];
+            }
+        }
+
+        return array_unique($productIds);
     }
 
     public function getName(): string

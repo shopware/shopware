@@ -819,19 +819,31 @@ class EntityWriterTest extends TestCase
         );
 
         // Test fetch
-        $fetchedEntityOne = $testEntityOneRepository->search(
+        $fetchOne = $testEntityOneRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', 'Some-Technical-Name')),
             $context,
         );
+        static::assertCount(1, $fetchOne->getEntities());
 
         // Test deletion
         $testEntityOneRepository->delete([['technicalName' => 'Some-Technical-Name']], $context);
         $testEntityTwoRepository->delete([['id' => $testEntityTwoId]], $context);
 
+        $fetchOneDeleted = $testEntityOneRepository->search(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', 'Some-Technical-Name')),
+            $context,
+        );
+        $fetchTwoDeleted = $testEntityTwoRepository->search(
+            (new Criteria())->addFilter(new EqualsFilter('id', $testEntityTwoId)),
+            $context,
+        );
+        static::assertCount(0, $fetchOneDeleted->getEntities());
+        static::assertCount(0, $fetchTwoDeleted->getEntities());
+
         // Clean up
         $this->connection->executeStatement(
-            'DROP TABLE `test_entity_two`;
-            DROP TABLE `test_entity_one`;',
+            'DROP TABLE IF EXISTS `test_entity_two`;
+            DROP TABLE IF EXISTS `test_entity_one`;',
         );
         $this->connection->beginTransaction();
     }

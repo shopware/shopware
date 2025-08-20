@@ -704,7 +704,5 @@ class ThumbnailServiceTest extends TestCase
         \assert($resource !== false);
 
         $this->getFilesystem('shopware.filesystem.public')->writeStream($media->getPath(), $resource);
-
-        $service = static::getContainer()->get(ThumbnailService::class);
     }
 }

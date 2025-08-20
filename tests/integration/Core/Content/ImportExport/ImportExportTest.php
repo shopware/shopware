@@ -1752,6 +1752,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         $readerFactory = static::getContainer()->get(CsvReaderFactory::class);
         $writerFactory = static::getContainer()->get(CsvFileWriterFactory::class);
 
+        /** @var MockRepository<CustomerCollection> */
         $mockRepository = new MockRepository(static::getContainer()->get(CustomerDefinition::class));
 
         $importExport = new ImportExport(

@@ -15,9 +15,6 @@ const defaultMailerSettings = {
     'core.mailerSettings.deliveryAddress': null,
     'core.mailerSettings.disableDelivery': false,
     'core.mailerSettings.sendMailOptions': null,
-    'core.mailerSettings.oauthGrantType': 'client_credentials',
-    'core.mailerSettings.oauthUsername': null,
-    'core.mailerSettings.oauthPassword': null,
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -40,6 +40,11 @@
       "oauth-client-id-placeholder": "Enter the client ID...",
       "oauth-client-secret": "Client Secret",
       "oauth-client-secret-placeholder": "Enter the client secret...",
+      "oauth-grant-type": "OAuth Grant Type",
+      "oauth-username": "Username",
+      "oauth-username-placeholder": "Enter username...",
+      "oauth-password": "Password",
+      "oauth-password-placeholder": "Enter password...",
       "encryption": "Encryption",
       "encryption-placeholder": "Select encryption method...",
       "sender-address": "Sender address",
@@ -56,6 +61,10 @@
       "no-encryption": "No encryption",
       "ssl": "SSL",
       "tls": "TLS"
+    },
+    "oauth-grant-type": {
+      "client-credentials": "Client Credentials",
+      "password": "Username and password"
     },
     "helpText": "For more information please check out the <a target=\"_blank\", href=\"https://docs.shopware.com/en/shopware-6-en\">documentation.</a>"
   }

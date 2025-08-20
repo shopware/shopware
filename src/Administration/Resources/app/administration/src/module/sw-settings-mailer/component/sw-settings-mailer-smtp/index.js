@@ -36,8 +36,7 @@ export default {
         },
 
         isClientCredentials() {
-            return this.mailerSettings['core.mailerSettings.oauthGrantType'] === 'client_credentials' || 
-                   !this.mailerSettings['core.mailerSettings.oauthGrantType'];
+            return this.mailerSettings['core.mailerSettings.oauthGrantType'] === 'client_credentials';
         },
 
         isROPC() {
@@ -72,6 +71,18 @@ export default {
                     label: this.$tc('sw-settings-mailer.encryption.tls'),
                 },
             ];
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            if (this.isOauth && !this.mailerSettings['core.mailerSettings.oauthGrantType']) {
+                this.mailerSettings['core.mailerSettings.oauthGrantType'] = 'client_credentials';
+            }
         },
     },
 };

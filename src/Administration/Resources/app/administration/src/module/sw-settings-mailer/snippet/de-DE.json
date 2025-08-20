@@ -12,7 +12,7 @@
       "local-agent": "Lokaler E-Mail-Agent",
       "local-helptext": "Es wird der Standard-Mailer (Sendmail) Deines Systems verwendet. Stelle sicher, dass Sendmail in Deiner Host-Umgebung verfügbar ist und funktioniert.",
       "smtp-server": "SMTP-Server",
-      "smtp-server-oauth": "SMTP server mit OAuth 2",
+      "smtp-server-oauth": "SMTP Server mit OAuth 2",
       "env-file": "Umgebungs-Konfiguration benutzen"
     },
     "first-configuration": {
@@ -40,6 +40,11 @@
       "oauth-client-id-placeholder": "Client ID eingeben ...",
       "oauth-client-secret": "Client Secret",
       "oauth-client-secret-placeholder": "Client Secret eingeben ...",
+      "oauth-grant-type": "OAuth Grant Type",
+      "oauth-username": "Benutzername",
+      "oauth-username-placeholder": "Benutzernamen eingeben ...",
+      "oauth-password": "Passwort",
+      "oauth-password-placeholder": "Passwort eingeben ...",
       "encryption": "Verschlüsselungsmethode",
       "encryption-placeholder": "Verschlüsselungsmethode auswählen ...",
       "sender-address": "Absender-Adresse",
@@ -56,6 +61,10 @@
       "no-encryption": "Keine Verschlüsselung",
       "ssl": "SSL",
       "tls": "TLS"
+    },
+    "oauth-grant-type": {
+      "client-credentials": "Client Credentials",
+      "password": "Benutzername und Passwort"
     },
     "helpText": "Für weitere Informationen schaue bitte in die <a target=\"_blank\" href=\"https://docs.shopware.com/de/shopware-6-de\">Dokumentation</a>"
   }

@@ -178,9 +178,6 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
             'core.mailerSettings.deliveryAddress': null,
             'core.mailerSettings.disableDelivery': false,
             'core.mailerSettings.sendMailOptions': '-t -i',
-            'core.mailerSettings.oauthGrantType': 'client_credentials',
-            'core.mailerSettings.oauthUsername': null,
-            'core.mailerSettings.oauthPassword': null,
         });
     });
 
@@ -210,9 +207,6 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
             'core.mailerSettings.deliveryAddress': null,
             'core.mailerSettings.disableDelivery': true,
             'core.mailerSettings.sendMailOptions': '-bs',
-            'core.mailerSettings.oauthGrantType': 'client_credentials',
-            'core.mailerSettings.oauthUsername': null,
-            'core.mailerSettings.oauthPassword': null,
         });
     });
 
@@ -367,7 +361,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
         expect(spySaveValues).toHaveBeenCalledWith(oauthClientCredentialsSettings);
     });
 
-    it('should include OAuth fields in default mailer settings when set to local', async () => {
+    it('should not include OAuth fields in default mailer settings when set to local', async () => {
         const wrapper = await new CreateSettingsMailer();
         const spySaveValues = jest.spyOn(wrapper.vm.systemConfigApiService, 'saveValues');
 
@@ -402,9 +396,6 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
             'core.mailerSettings.deliveryAddress': null,
             'core.mailerSettings.disableDelivery': true,
             'core.mailerSettings.sendMailOptions': '-bs',
-            'core.mailerSettings.oauthGrantType': 'client_credentials',
-            'core.mailerSettings.oauthUsername': null,
-            'core.mailerSettings.oauthPassword': null,
         });
     });
 });

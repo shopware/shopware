@@ -53,7 +53,7 @@ class ComposerInfoProvider
             }
         }
 
-        return $packages;
+        return array_values($packages);
     }
 
     /**

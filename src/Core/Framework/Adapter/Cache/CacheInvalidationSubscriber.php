@@ -250,6 +250,7 @@ class CacheInvalidationSubscriber
         if (!empty($changedSalesChannelSettings)) {
             // if the sales channel settings changed, we invalidate the complete navigation route
             $this->cacheInvalidator->invalidate([NavigationRoute::ALL_TAG]);
+
             return;
         }
 
@@ -260,6 +261,7 @@ class CacheInvalidationSubscriber
         if (!empty($changedCategoryData)) {
             // if category data that has impact on navigation changes, we invalidate the complete navigation route
             $this->cacheInvalidator->invalidate([NavigationRoute::ALL_TAG]);
+
             return;
         }
 
@@ -267,6 +269,7 @@ class CacheInvalidationSubscriber
         if (!empty($deletedCategories)) {
             // if the category is deleted, we invalidate the complete navigation route
             $this->cacheInvalidator->invalidate([NavigationRoute::ALL_TAG]);
+
             return;
         }
 

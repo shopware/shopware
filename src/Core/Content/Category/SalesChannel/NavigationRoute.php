@@ -89,7 +89,7 @@ class NavigationRoute extends AbstractNavigationRoute
         // Navigation route will be tagged & invalidated globally only in 6.8
         Feature::callSilentIfInactive(
             'v6.8.0.0',
-            static function () use ($context, $activeId, &$tags) {
+            static function () use ($context, $activeId, &$tags): void {
                 $tags[] = self::buildName($context->getSalesChannelId());
                 $tags[] = self::buildName($activeId);
             }

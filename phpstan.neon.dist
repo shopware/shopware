@@ -175,7 +175,6 @@ parameters:
             message: '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.*not specify its types: TEntityCollection#'
             paths:
                 - tests/integration/Core/Content/**
-                - tests/integration/Core/Framework/**
                 - tests/unit/Core/**
 
         - # Needs a proper class-string annotation in `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getCollectionClass` and all child classes

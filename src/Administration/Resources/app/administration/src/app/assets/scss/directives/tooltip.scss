@@ -12,9 +12,9 @@ $sw-tooltip-border-color-light: $color-gray-300;
     z-index: $sw-tooltip-z-index;
 
     &.sw-tooltip--dark {
-        background-color: $sw-tooltip-color-background;
-        border-radius: $sw-tooltip-border-radius;
-        color: $sw-tooltip-color;
+        background-color: var(--color-elevation-surface-floating);
+        border-radius: var(--border-radius-xs);
+        color: var(--color-text-inverse-default);
         padding: var(--scale-size-12);
         font-size: var(--font-size-2xs);
         word-wrap: break-word;
@@ -54,18 +54,16 @@ $sw-tooltip-border-color-light: $color-gray-300;
     }
 
     &.sw-tooltip--light {
-        color: $sw-tooltip-color-light;
-        font-size: $font-size-xxs;
-        font-weight: $font-weight-regular;
-        letter-spacing: 0;
-        line-height: $line-height-xs;
+        color: var(--color-text-inverse-default);
+        font-size: var(--font-size-2xs);
+        font-weight: var(--font-weight-regular);
+        line-height: var(--font-line-height-2xs);
         width: auto !important;
         height: auto !important;
         padding: 5px 10px;
-        background: $sw-tooltip-color;
-        border: 1px solid $sw-tooltip-border-color-light;
-        box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 50%);
-        border-radius: 4px;
+        background: var(--color-elevation-surface-floating);
+        box-shadow: 0 3px 6px 0 var(--color-elevation-shadow-default);
+        border-radius: var(--border-radius-xs);
 
         &.sw-tooltip--top {
             margin-top: 6px;

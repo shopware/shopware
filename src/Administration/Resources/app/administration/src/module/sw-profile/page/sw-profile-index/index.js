@@ -57,7 +57,13 @@ export default {
     },
 
     computed: {
-        searchPreferences: () => Shopware.Store.get('swProfile').searchPreferences,
+        minSearchTermLength() {
+            return Store.get('swProfile').minSearchTermLength;
+        },
+
+        searchPreferences() {
+            return Store.get('swProfile').searchPreferences;
+        },
 
         ...mapPropertyErrors('user', [
             'email',
@@ -237,7 +243,10 @@ export default {
 
         onSave() {
             if (this.$route.name === 'sw.profile.index.searchPreferences') {
-                this.saveUserSearchPreferences();
+                Promise.all([
+                    this.saveMinSearchTermLength(),
+                    this.saveUserSearchPreferences(),
+                ]);
 
                 return;
             }
@@ -420,6 +429,10 @@ export default {
 
         getMediaDefaultFolderId() {
             return this.mediaDefaultFolderService.getDefaultFolderId('user');
+        },
+
+        saveMinSearchTermLength() {
+            return this.searchRankingService.saveMinSearchTermLength(this.minSearchTermLength);
         },
 
         saveUserSearchPreferences() {

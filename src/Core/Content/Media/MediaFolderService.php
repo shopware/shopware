@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -16,6 +17,10 @@ class MediaFolderService
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaCollection> $mediaRepo
+     * @param EntityRepository<MediaFolderCollection> $mediaFolderRepo
+     * @param EntityRepository<MediaFolderConfigurationCollection> $mediaFolderConfigRepo
      */
     public function __construct(
         private readonly EntityRepository $mediaRepo,
@@ -67,7 +72,6 @@ class MediaFolderService
 
         $payload = [];
 
-        /** @var MediaFolderEntity $subFolder */
         foreach ($subFolders->getEntities() as $subFolder) {
             $payload[$subFolder->getId()] = [
                 'id' => $subFolder->getId(),
@@ -82,7 +86,6 @@ class MediaFolderService
         }
 
         if ((!$folder->getUseParentConfiguration()) && \count($subFolders) > 1) {
-            /** @var MediaFolderCollection $collection */
             $collection = $subFolders->getEntities();
             $payload = $this->duplicateFolderConfig($collection, $payload, $context);
         }
@@ -101,8 +104,8 @@ class MediaFolderService
         Context $context
     ): array {
         $subFolders = $subFolders->getElements();
-        /** @var MediaFolderEntity $folder */
         $folder = array_shift($subFolders);
+        \assert($folder !== null);
 
         $config = $folder->getConfiguration();
 
@@ -135,10 +138,9 @@ class MediaFolderService
 
     private function fetchFolder(string $folderId, Context $context): MediaFolderEntity
     {
-        /** @var MediaFolderEntity|null $folder */
         $folder = $this->mediaFolderRepo->search(new Criteria([$folderId]), $context)->get($folderId);
 
-        if ($folder === null) {
+        if (!$folder) {
             throw MediaException::mediaFolderIdNotFound($folderId);
         }
 

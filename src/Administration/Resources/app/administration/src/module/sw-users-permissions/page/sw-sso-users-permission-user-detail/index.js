@@ -182,11 +182,14 @@ export default {
 
         onSave() {
             this.isLoading = true;
-            return this.userRepository.save(this.user, { ...Shopware.Context.api }).catch(() => {
-                this.createNotificationError({ message: this.$t('global.notification.unspecifiedSaveErrorMessage') });
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            return this.userRepository
+                .save(this.user, { ...Shopware.Context.api })
+                .catch(() => {
+                    this.createNotificationError({ message: this.$t('global.notification.unspecifiedSaveErrorMessage') });
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         setMediaItem({ targetId }) {
@@ -210,14 +213,18 @@ export default {
 
         generateKey() {
             this.isLoading = true;
-            return this.integrationService.generateKey({}, {}, true).then((response) => {
-                this.newAccessKey = response.accessKey;
-                this.newSecretAccessKey = response.secretAccessKey;
-            }).catch(() => {
-                this.createNotificationError({ message: this.$t('global.notification.unspecifiedSaveErrorMessage') });
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            return this.integrationService
+                .generateKey({}, {}, true)
+                .then((response) => {
+                    this.newAccessKey = response.accessKey;
+                    this.newSecretAccessKey = response.secretAccessKey;
+                })
+                .catch(() => {
+                    this.createNotificationError({ message: this.$t('global.notification.unspecifiedSaveErrorMessage') });
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         onAccessKeyCreateCancel() {

@@ -8,7 +8,7 @@ issue: #11675
     * `core.mailerSettings.oauthGrantType` - OAuth grant type selection (client_credentials or password)
     * `core.mailerSettings.oauthUsername` - OAuth username for ROPC grant
     * `core.mailerSettings.oauthPassword` - OAuth password for ROPC grant
-* Extended `SmtpOauthTokenProvider::fetchToken()` to support multiple grant types
+* Changed `SmtpOauthTokenProvider::fetchToken()` to support multiple grant types
 * Added constants `GRANT_TYPE_CLIENT_CREDENTIALS` and `GRANT_TYPE_ROPC` in `SmtpOauthTokenProvider`
 ___
 # Administration
@@ -20,7 +20,7 @@ ___
     * `isClientCredentials` - detects client credentials grant type
     * `isROPC` - detects ROPC grant type  
     * `oauthGrantTypeOptions` - provides grant type selection options
-* Updated default mailer settings to include OAuth grant type configuration
+* Changed default mailer settings to include OAuth grant type configuration
 * Added new template blocks:
     * `sw_settings_mailer_smtp_oauth_grant_type`
     * `sw_settings_mailer_smtp_oauth_username` 

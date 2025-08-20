@@ -62,7 +62,7 @@ class AppContextCreatorTest extends TestCase
 
         $appContext = $appContextCreator->getAppContext(
             new TestHook('test-hook', Context::createDefaultContext()),
-            new DummyScript('dummy-script', $appId = Uuid::randomHex()),
+            new DummyScript('dummy-script', Uuid::randomHex()),
         );
 
         $source = $appContext->getSource();
@@ -86,7 +86,7 @@ class AppContextCreatorTest extends TestCase
 
         $appContext = $appContextCreator->getAppContext(
             new TestHook('test-hook', Context::createDefaultContext()),
-            new DummyScript('dummy-script', $appId = Uuid::randomHex()),
+            new DummyScript('dummy-script', Uuid::randomHex()),
         );
 
         $source = $appContext->getSource();

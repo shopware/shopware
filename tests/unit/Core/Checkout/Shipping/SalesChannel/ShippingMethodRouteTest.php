@@ -108,7 +108,7 @@ class ShippingMethodRouteTest extends TestCase
         $result = new EntitySearchResult(
             'shipping_method',
             2,
-            $entities = new ShippingMethodCollection([$shippingMethod1, $shippingMethod2]),
+            new ShippingMethodCollection([$shippingMethod1, $shippingMethod2]),
             null,
             $expectedCriteria,
             $context->getContext()

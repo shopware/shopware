@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Flow\Api;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowAction;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Events\FlowActionCollectorEvent;
-use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
+use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -19,6 +19,7 @@ class FlowActionCollector
      * @internal
      *
      * @param iterable<FlowAction> $actions
+     * @param EntityRepository<AppFlowActionCollection> $appFlowActionRepo
      */
     public function __construct(
         protected iterable $actions,
@@ -55,7 +56,6 @@ class FlowActionCollector
         $criteria = new Criteria();
         $appActions = $this->appFlowActionRepo->search($criteria, $context)->getEntities();
 
-        /** @var AppFlowActionEntity $action */
         foreach ($appActions as $action) {
             $definition = new FlowActionDefinition(
                 $action->getName(),

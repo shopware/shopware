@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\EventListener;
 
 use League\Flysystem\FilesystemOperator;
-use Shopware\Core\Content\ProductExport\ProductExportEntity;
+use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -20,6 +20,8 @@ class ProductExportEventListener implements EventSubscriberInterface
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductExportCollection> $productExportRepository
      */
     public function __construct(
         private readonly EntityRepository $productExportRepository,
@@ -54,15 +56,15 @@ class ProductExportEventListener implements EventSubscriberInterface
                 ],
                 $event->getContext()
             );
-            $productExportResult = $this->productExportRepository->search(new Criteria([$primaryKey]), $event->getContext());
-            if ($productExportResult->getTotal() !== 0) {
-                /** @var ProductExportEntity $productExport */
-                $productExport = $productExportResult->first();
 
-                $filePath = $this->productExportFileHandler->getFilePath($productExport);
-                if ($this->fileSystem->fileExists($filePath)) {
-                    $this->fileSystem->delete($filePath);
-                }
+            $productExport = $this->productExportRepository->search(new Criteria([$primaryKey]), $event->getContext())->getEntities()->first();
+            if (!$productExport) {
+                continue;
+            }
+
+            $filePath = $this->productExportFileHandler->getFilePath($productExport);
+            if ($this->fileSystem->fileExists($filePath)) {
+                $this->fileSystem->delete($filePath);
             }
         }
     }

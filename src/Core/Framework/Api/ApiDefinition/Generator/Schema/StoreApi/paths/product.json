@@ -103,7 +103,7 @@
                             "schema": {
                                 "allOf": [
                                     {
-                                        "$ref": "#/components/schemas/NoneFieldsCriteria"
+                                        "$ref": "#/components/schemas/Criteria"
                                     }
                                 ]
                             }

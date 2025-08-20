@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
+use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
@@ -11,6 +12,7 @@ use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -34,10 +36,10 @@ class ProductConfiguratorLoader
      * @throws InconsistentCriteriaIdsException
      */
     public function load(
-        SalesChannelProductEntity $product,
+        SalesChannelProductEntity|PartialEntity $product,
         SalesChannelContext $context
     ): PropertyGroupCollection {
-        $parentId = $product->getParentId();
+        $parentId = $product->get('parentId');
         if (!$parentId) {
             return new PropertyGroupCollection();
         }
@@ -134,7 +136,7 @@ class ProductConfiguratorLoader
     /**
      * @param array<string, PropertyGroupEntity>|null $groups
      */
-    private function sortSettings(?array $groups, SalesChannelProductEntity $product): PropertyGroupCollection
+    private function sortSettings(?array $groups, SalesChannelProductEntity|PartialEntity $product): PropertyGroupCollection
     {
         if (!$groups) {
             return new PropertyGroupCollection();
@@ -180,7 +182,11 @@ class ProductConfiguratorLoader
         $collection = new PropertyGroupCollection($sorted);
 
         // check if product has an individual sorting configuration for property groups
-        $config = $product->getVariantListingConfig()?->getConfiguratorGroupConfig();
+        $variantListingConfig = $product->get('variantListingConfig');
+        $config = null;
+        if ($variantListingConfig instanceof VariantListingConfig) {
+            $config = $variantListingConfig->getConfiguratorGroupConfig();
+        }
 
         if (!$config) {
             $collection->sortByPositions();
@@ -225,9 +231,9 @@ class ProductConfiguratorLoader
     /**
      * @return array<int|string, string>
      */
-    private function buildCurrentOptions(SalesChannelProductEntity $product, PropertyGroupCollection $groups): array
+    private function buildCurrentOptions(SalesChannelProductEntity|PartialEntity $product, PropertyGroupCollection $groups): array
     {
-        if (empty($product->getOptionIds())) {
+        if (empty($product->get('optionIds'))) {
             return [];
         }
 
@@ -235,7 +241,7 @@ class ProductConfiguratorLoader
 
         $current = [];
 
-        foreach ($product->getOptionIds() as $optionId) {
+        foreach ($product->get('optionIds') as $optionId) {
             $groupId = $keyMap[$optionId] ?? null;
             if ($groupId === null) {
                 continue;

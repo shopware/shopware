@@ -22,6 +22,8 @@ use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -115,8 +117,41 @@ class ProductDetailRouteTest extends TestCase
 
         $result = $this->route->load('1', new Request(), $this->context, new Criteria());
 
+        static::assertInstanceOf(SalesChannelProductEntity::class, $result->getProduct());
         static::assertSame('4', $result->getProduct()->getCmsPageId());
         static::assertSame('mainVariant', $result->getProduct()->getUniqueIdentifier());
+    }
+
+    public function testLoadWithFields(): void
+    {
+        $productEntity = new PartialEntity();
+        $productEntity->assign([
+            'id' => Uuid::randomHex(),
+            'cmsPageId' => '4',
+            'uniqueIdentifier' => 'mainVariant',
+        ]);
+
+        $criteria = new Criteria()
+            ->addFields(['cmsPageId']);
+
+        $this->productRepository->expects($this->exactly(1))
+            ->method('search')
+            ->willReturn(
+                new EntitySearchResult(
+                    'product',
+                    1,
+                    new EntityCollection([$productEntity]),
+                    null,
+                    $criteria,
+                    $this->context->getContext()
+                )
+            );
+
+        $result = $this->route->load('1', new Request(), $this->context, $criteria);
+
+        static::assertInstanceOf(PartialEntity::class, $result->getProduct());
+        static::assertSame('4', $result->getProduct()->get('cmsPageId'));
+        static::assertSame('mainVariant', $result->getProduct()->get('uniqueIdentifier'));
     }
 
     public function testLoadBestVariant(): void
@@ -150,6 +185,7 @@ class ProductDetailRouteTest extends TestCase
 
         $result = $this->route->load($this->idsCollection->get('product1'), new Request(), $this->context, new Criteria());
 
+        static::assertInstanceOf(SalesChannelProductEntity::class, $result->getProduct());
         static::assertSame('4', $result->getProduct()->getCmsPageId());
         static::assertSame('BestVariant', $result->getProduct()->getUniqueIdentifier());
         static::assertTrue($result->getProduct()->getAvailable());
@@ -188,6 +224,7 @@ class ProductDetailRouteTest extends TestCase
 
         $result = $this->route->load($this->idsCollection->get('product1'), $request, $this->context, new Criteria());
 
+        static::assertInstanceOf(SalesChannelProductEntity::class, $result->getProduct());
         static::assertSame('term', $result->getProduct()->getCmsPageId());
         static::assertSame('term', $result->getProduct()->getUniqueIdentifier());
     }
@@ -228,6 +265,7 @@ class ProductDetailRouteTest extends TestCase
 
         $result = $this->route->load($productId, new Request(), $this->context, new Criteria());
 
+        static::assertInstanceOf(SalesChannelProductEntity::class, $result->getProduct());
         static::assertSame('2', $result->getProduct()->getUniqueIdentifier());
         static::assertTrue($result->getProduct()->getAvailable());
     }
@@ -273,6 +311,7 @@ class ProductDetailRouteTest extends TestCase
 
         $result = $this->route->load(Uuid::randomHex(), new Request(), $this->context, new Criteria());
 
+        static::assertInstanceOf(SalesChannelProductEntity::class, $result->getProduct());
         static::assertSame($variantId, $result->getProduct()->getUniqueIdentifier());
         static::assertTrue($result->getProduct()->getAvailable());
     }
@@ -314,6 +353,7 @@ class ProductDetailRouteTest extends TestCase
 
         $result = $this->route->load($productId, new Request(), $this->context, new Criteria());
 
+        static::assertInstanceOf(SalesChannelProductEntity::class, $result->getProduct());
         static::assertSame('2', $result->getProduct()->getUniqueIdentifier());
         static::assertTrue($result->getProduct()->getAvailable());
     }
@@ -346,6 +386,7 @@ class ProductDetailRouteTest extends TestCase
 
         $result = $this->route->load($this->idsCollection->get('product2'), new Request(), $this->context, new Criteria());
 
+        static::assertInstanceOf(SalesChannelProductEntity::class, $result->getProduct());
         static::assertSame('4', $result->getProduct()->getCmsPageId());
         static::assertSame('BestVariant', $result->getProduct()->getUniqueIdentifier());
     }

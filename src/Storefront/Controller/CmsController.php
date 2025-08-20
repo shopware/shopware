@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -178,6 +179,7 @@ class CmsController extends StorefrontController
 
         $result = $this->productRoute->load($newProductId, $request, $context, new Criteria());
         $product = $result->getProduct();
+        \assert($product instanceof SalesChannelProductEntity);
         $configurator = $result->getConfigurator();
 
         $reviewTotal = 0;

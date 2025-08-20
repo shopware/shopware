@@ -16,6 +16,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -77,15 +78,15 @@ class CategoryBreadcrumbBuilder
         return $category;
     }
 
-    public function getProductSeoCategory(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
+    public function getProductSeoCategory(ProductEntity|PartialEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
         $category = $this->getMainCategory($product, $context);
         if ($category !== null) {
             return $category;
         }
 
-        $categoryIds = $product->getCategoryIds() ?? [];
-        $productStreamIds = $product->getStreamIds() ?? [];
+        $categoryIds = $product->get('categoryIds') ?? [];
+        $productStreamIds = $product->get('streamIds') ?? [];
 
         if (empty($productStreamIds) && empty($categoryIds)) {
             return null;
@@ -198,14 +199,14 @@ class CategoryBreadcrumbBuilder
         return $this->getProductSeoCategory($product, $salesChannelContext);
     }
 
-    private function getMainCategory(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
+    private function getMainCategory(ProductEntity|PartialEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
         $criteria = new Criteria();
         $criteria->setLimit(1);
         $criteria->setTitle('breadcrumb-builder::main-category');
 
-        if (($product->getMainCategories() === null || $product->getMainCategories()->count() <= 0) && $product->getParentId() !== null) {
-            $criteria->addFilter($this->getMainCategoryFilter($product->getParentId(), $context));
+        if (($product->get('mainCategories') === null || \count($product->get('mainCategories')) <= 0) && $product->get('parentId') !== null) {
+            $criteria->addFilter($this->getMainCategoryFilter($product->get('parentId'), $context));
         } else {
             $criteria->addFilter($this->getMainCategoryFilter($product->getId(), $context));
         }
@@ -219,7 +220,7 @@ class CategoryBreadcrumbBuilder
 
         $entity = $firstCategory instanceof MainCategoryEntity ? $firstCategory->getCategory() : $firstCategory;
 
-        return $product->getCategoryIds() !== null && $entity !== null && \in_array($entity->getId(), $product->getCategoryIds(), true) ? $entity : null;
+        return $product->get('categoryIds') !== null && $entity !== null && \in_array($entity->getId(), $product->get('categoryIds'), true) ? $entity : null;
     }
 
     private function getMainCategoryFilter(string $productId, SalesChannelContext $context): AndFilter

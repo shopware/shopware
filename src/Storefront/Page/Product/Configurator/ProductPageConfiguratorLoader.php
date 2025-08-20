@@ -6,6 +6,7 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -22,7 +23,7 @@ class ProductPageConfiguratorLoader extends ProductConfiguratorLoader
     /**
      * @throws InconsistentCriteriaIdsException
      */
-    public function load(SalesChannelProductEntity $product, SalesChannelContext $context): PropertyGroupCollection
+    public function load(SalesChannelProductEntity|PartialEntity $product, SalesChannelContext $context): PropertyGroupCollection
     {
         return $this->loader->load($product, $context);
     }

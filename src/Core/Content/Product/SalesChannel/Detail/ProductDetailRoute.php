@@ -17,6 +17,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -38,6 +39,9 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('inventory')]
 class ProductDetailRoute extends AbstractProductDetailRoute
 {
+    private const SKIP_CONFIGURATOR = 'skipConfigurator';
+    private const SKIP_CMS_PAGE = 'skipCmsPage';
+
     /**
      * @internal
      *
@@ -94,24 +98,24 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $criteria->setIds([$productId]);
             $criteria->setTitle('product-detail-route');
 
+            /** @var SalesChannelProductEntity|PartialEntity|null $product */
             $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
-            if (!($product instanceof SalesChannelProductEntity)) {
+            if (!$product) {
                 throw ProductException::productNotFound($productId);
             }
 
-            $parent = $product->getParentId() ?? $product->getId();
+            $parent = $product->get('parentId') ?? $product->getId();
 
             $this->cacheTagCollector->addTag(EntityCacheKeyGenerator::buildProductTag($parent));
 
-            $product->setSeoCategory(
-                $this->breadcrumbBuilder->getProductSeoCategory($product, $context)
-            );
+            $product->assign(['seoCategory' => $this->breadcrumbBuilder->getProductSeoCategory($product, $context)]);
 
-            $configurator = $this->configuratorLoader->load($product, $context);
+            $skipConfigurator = $request->query->getBoolean(self::SKIP_CONFIGURATOR);
+            $configurator = !$skipConfigurator ? $this->configuratorLoader->load($product, $context) : null;
 
-            $pageId = $product->getCmsPageId();
-
-            if ($pageId) {
+            $skipCmsPage = $request->query->getBoolean(self::SKIP_CMS_PAGE);
+            $pageId = $product->get('cmsPageId');
+            if (!$skipCmsPage && $pageId) {
                 // clone product to prevent recursion encoding (see NEXT-17603)
                 $resolverContext = new EntityResolverContext($context, $request, $this->productDefinition, clone $product);
 
@@ -119,13 +123,13 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                     $request,
                     $this->createCriteria($pageId, $request),
                     $context,
-                    $product->getTranslation('slotConfig'),
+                    $product->get('slotConfig') ?? ($product->get('translated') ?? [])['slotConfig'] ?? null,
                     $resolverContext
                 );
 
-                $cmsPage = $pages->first();
+                $cmsPage = $pages->getEntities()->first();
                 if ($cmsPage !== null) {
-                    $product->setCmsPage($cmsPage);
+                    $product->assign(['cmsPage' => $cmsPage]);
                 }
             }
 

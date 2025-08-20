@@ -4,18 +4,19 @@ namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
- * @extends StoreApiResponse<ArrayStruct<array{product: SalesChannelProductEntity, configurator: PropertyGroupCollection|null}>>
+ * @extends StoreApiResponse<ArrayStruct<array{product: SalesChannelProductEntity|PartialEntity, configurator: PropertyGroupCollection|null}>>
  */
 #[Package('inventory')]
 class ProductDetailRouteResponse extends StoreApiResponse
 {
     public function __construct(
-        SalesChannelProductEntity $product,
+        SalesChannelProductEntity|PartialEntity $product,
         ?PropertyGroupCollection $configurator,
     ) {
         parent::__construct(new ArrayStruct([
@@ -29,7 +30,7 @@ class ProductDetailRouteResponse extends StoreApiResponse
         return $this->object;
     }
 
-    public function getProduct(): SalesChannelProductEntity
+    public function getProduct(): SalesChannelProductEntity|PartialEntity
     {
         return $this->object->get('product');
     }

@@ -9,8 +9,7 @@ class CookieGroup extends CookieStruct
 {
     public function __construct(
         public bool $isRequired,
-        /** @var list<CookieEntry> */
-        public array $entries = [],
+        public CookieEntryCollection $entries = new CookieEntryCollection(),
     ) {
     }
 

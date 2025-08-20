@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Cookie;
 
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
+use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\Feature;
@@ -47,12 +48,12 @@ class CookieCollectionProvider implements CookieProviderInterface, CookieCollect
     {
         $cookieGroupRequired = new CookieGroup(
             true,
-            [
+            new CookieEntryCollection([
                 $this->getRequiredSessionEntry(),
                 $this->getRequiredTimezoneEntry(),
                 $this->getRequiredAcceptedEntry(),
                 $this->getRequiredCaptchaEntry(),
-            ]
+            ]),
         );
         $cookieGroupRequired->snippetName = 'cookie.groupRequired';
         $cookieGroupRequired->snippetDescription = 'cookie.groupRequiredDescription';
@@ -104,9 +105,9 @@ class CookieCollectionProvider implements CookieProviderInterface, CookieCollect
     {
         $cookieGroupStatistical = new CookieGroup(
             false,
-            [
+            new CookieEntryCollection([
                 $this->getGoogleAnalyticsEntry(),
-            ]
+            ]),
         );
         $cookieGroupStatistical->snippetName = 'cookie.groupStatistical';
         $cookieGroupStatistical->snippetDescription = 'cookie.groupStatisticalDescription';
@@ -129,10 +130,10 @@ class CookieCollectionProvider implements CookieProviderInterface, CookieCollect
     {
         $cookieGroupComfortFeatures = new CookieGroup(
             false,
-            [
+            new CookieEntryCollection([
                 $this->getWishlistEntry(),
                 $this->getYoutubeVideoEntry(),
-            ]
+            ]),
         );
         $cookieGroupComfortFeatures->snippetName = 'cookie.groupComfortFeatures';
 
@@ -165,9 +166,9 @@ class CookieCollectionProvider implements CookieProviderInterface, CookieCollect
     {
         $cookieGroupMarketing = new CookieGroup(
             false,
-            [
+            new CookieEntryCollection([
                 $this->getGoogleAdsEntry(),
-            ]
+            ]),
         );
         $cookieGroupMarketing->snippetName = 'cookie.groupMarketing';
         $cookieGroupMarketing->snippetDescription = 'cookie.groupMarketingDescription';

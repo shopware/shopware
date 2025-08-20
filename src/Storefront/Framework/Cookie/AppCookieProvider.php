@@ -96,18 +96,12 @@ class AppCookieProvider implements CookieProviderInterface, CookieCollectionProv
      * merges cookie groups by the snippet name of the group
      * and only iterates once over every cookie
      *
-     * @deprecated tag:v6.8.0 - Will be removed in 6.8.0. Use mergeTypedCollections() instead.
-     *
      * @param array<string|int, mixed> $cookies
      *
      * @return array<string|int, mixed>
      */
     private function mergeCookies(array $cookies, AppCollection $apps): array
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'Use mergeTypedCollections() instead')
-        );
         $cookieGroups = [];
         // build an array with the snippetName of a cookie group and the index in the cookies array
         // this way we need to iterate only once over the cookies
@@ -164,7 +158,7 @@ class AppCookieProvider implements CookieProviderInterface, CookieCollectionProv
             if ($snippet !== null && $hasEntries && isset($indexBySnippet[$snippet])) {
                 $baseGroup = $base->get($indexBySnippet[$snippet]);
                 if ($baseGroup !== null) {
-                    $baseGroup->entries = array_merge($baseGroup->entries, $appGroup->entries);
+                    $baseGroup->entries = $baseGroup->entries->merge($appGroup->entries);
                 }
                 continue;
             }
@@ -185,10 +179,6 @@ class AppCookieProvider implements CookieProviderInterface, CookieCollectionProv
      */
     private function groupCollectionToLegacyArray(CookieGroupCollection $collection): array
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'Use getCookieGroupCollection() instead')
-        );
         $out = [];
         foreach ($collection as $group) {
             $entryArrays = [];

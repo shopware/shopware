@@ -3,12 +3,12 @@
 namespace Shopware\Core\Content\Cookie\Service;
 
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
+use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -73,8 +73,6 @@ readonly class CookieService
      * @param array<string|int, mixed|CookieGroup> $cookieGroups // legacy arrays OR CookieGroup[]
      *
      * @return array<string|int, mixed|CookieGroup>
-     *
-     * @deprecated tag:v6.8.0 - Will be removed in 6.8.0. Use CookieGroupCollection instead
      */
     private function normalizeCookieGroups(array $cookieGroups): array
     {
@@ -88,12 +86,12 @@ readonly class CookieService
         foreach ($cookieGroups as $group) {
             $cookieGroup = new CookieGroup(
                 (bool) ($group['isRequired'] ?? false),
-                array_values(array_map(function (array $cookieEntry): CookieEntry {
+                new CookieEntryCollection(array_values(array_map(function (array $cookieEntry): CookieEntry {
                     $entry = new CookieEntry((bool) ($cookieEntry['hidden'] ?? false));
                     $this->hydrateCookieStructFromArray($entry, data: $cookieEntry);
 
                     return $entry;
-                }, (array) ($group['entries'] ?? []))),
+                }, (array) ($group['entries'] ?? [])))),
             );
 
             $this->hydrateCookieStructFromArray($cookieGroup, $group);
@@ -101,18 +99,11 @@ readonly class CookieService
             $normalized[] = $cookieGroup;
         }
 
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'Use CookieGroupCollection instead')
-        );
-
         return $normalized;
     }
 
     /**
      * @param array<string, mixed> $data
-     *
-     * @deprecated tag:v6.8.0 - Will be removed in 6.8.0. Use CookieStruct instead
      */
     private function hydrateCookieStructFromArray(CookieStruct $struct, array $data): void
     {
@@ -222,9 +213,9 @@ readonly class CookieService
             return null;
         }
 
-        $cookieGroup->entries = array_values(array_filter($cookieGroup->entries, function ($item) use ($cookieSnippetName) {
+        $cookieGroup->entries = $cookieGroup->entries->filter(function (CookieEntry $item) use ($cookieSnippetName) {
             return $item->snippetName !== $cookieSnippetName;
-        }));
+        });
 
         if (\count($cookieGroup->entries) === 0) {
             return null;

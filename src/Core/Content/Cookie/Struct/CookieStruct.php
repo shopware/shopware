@@ -17,9 +17,4 @@ abstract class CookieStruct extends Struct
     public ?string $value;
 
     public ?string $expiration;
-
-    public function getApiAlias(): string
-    {
-        return 'cookie_struct';
-    }
 }

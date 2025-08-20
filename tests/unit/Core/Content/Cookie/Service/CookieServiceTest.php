@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\Service\CookieService;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
+use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -26,7 +27,7 @@ class CookieServiceTest extends TestCase
         $cookieGroups = [
             (new CookieGroup(
                 isRequired: false,
-                entries: [
+                entries: new CookieEntryCollection([
                     (new CookieEntry(
                         hidden: false,
                     ))->assign([
@@ -36,14 +37,14 @@ class CookieServiceTest extends TestCase
                         'value' => '1',
                         'expiration' => '30',
                     ]),
-                ],
+                ]),
             ))->assign([
                 'snippetName' => 'cookie.groupStatistical',
                 'snippetDescription' => 'Statistical cookies',
             ]),
             (new CookieGroup(
                 isRequired: false,
-                entries: [
+                entries: new CookieEntryCollection([
                     (new CookieEntry(
                         hidden: false,
                     ))->assign([
@@ -53,14 +54,14 @@ class CookieServiceTest extends TestCase
                         'value' => '1',
                         'expiration' => '30',
                     ]),
-                ],
+                ]),
             ))->assign([
                 'snippetName' => 'cookie.groupMarketing',
                 'snippetDescription' => 'Marketing cookies',
             ]),
             (new CookieGroup(
                 isRequired: false,
-                entries: [
+                entries: new CookieEntryCollection([
                     (new CookieEntry(
                         hidden: false,
                     ))->assign([
@@ -70,7 +71,7 @@ class CookieServiceTest extends TestCase
                         'value' => '1',
                         'expiration' => '30',
                     ]),
-                ],
+                ]),
             ))->assign([
                 'snippetName' => 'cookie.groupOther',
                 'snippetDescription' => 'Other cookies',
@@ -96,11 +97,11 @@ class CookieServiceTest extends TestCase
         static::assertSame('cookie.groupOther', $group->snippetName);
         static::assertSame('Other cookies', $group->snippetDescription);
         static::assertCount(1, $group->entries);
-        static::assertSame('other.cookie', $group->entries[0]->snippetName);
-        static::assertSame('Other cookie description', $group->entries[0]->snippetDescription);
-        static::assertSame('other-cookie', $group->entries[0]->cookie);
-        static::assertSame('1', $group->entries[0]->value);
-        static::assertSame('30', $group->entries[0]->expiration);
+        static::assertSame('other.cookie', $group->entries->first()?->snippetName);
+        static::assertSame('Other cookie description', $group->entries->first()->snippetDescription);
+        static::assertSame('other-cookie', $group->entries->first()->cookie);
+        static::assertSame('1', $group->entries->first()->value);
+        static::assertSame('30', $group->entries->first()->expiration);
     }
 
     public function testGetCookieGroupCollectionWithTranslation(): void
@@ -119,9 +120,9 @@ class CookieServiceTest extends TestCase
 
         $cookieGroup = (new CookieGroup(
             isRequired: false,
-            entries: [
+            entries: new CookieEntryCollection([
                 $cookieGroupEntry,
-            ]
+            ]),
         ))->assign([
             'snippetName' => 'cookie.group.test',
             'snippetDescription' => 'cookie.group.test.description',
@@ -149,11 +150,11 @@ class CookieServiceTest extends TestCase
         static::assertSame('Translated: cookie.group.test', $group->snippetName);
         static::assertSame('Translated: cookie.group.test.description', $group->snippetDescription);
         static::assertCount(1, $group->entries);
-        static::assertSame('Translated: cookie.entry.test', $group->entries[0]->snippetName);
-        static::assertSame('Translated: cookie.entry.test.description', $group->entries[0]->snippetDescription);
-        static::assertSame('test-cookie', $group->entries[0]->cookie);
-        static::assertSame('1', $group->entries[0]->value);
-        static::assertSame('30', $group->entries[0]->expiration);
+        static::assertSame('Translated: cookie.entry.test', $group->entries->first()?->snippetName);
+        static::assertSame('Translated: cookie.entry.test.description', $group->entries->first()->snippetDescription);
+        static::assertSame('test-cookie', $group->entries->first()->cookie);
+        static::assertSame('1', $group->entries->first()->value);
+        static::assertSame('30', $group->entries->first()->expiration);
     }
 
     public function testGetCookieGroupCollectionWithoutTranslation(): void
@@ -163,7 +164,7 @@ class CookieServiceTest extends TestCase
         $cookieGroups = [
             (new CookieGroup(
                 isRequired: true,
-                entries: [
+                entries: new CookieEntryCollection([
                     (new CookieEntry(
                         hidden: false,
                     ))->assign([
@@ -173,7 +174,7 @@ class CookieServiceTest extends TestCase
                         'value' => '1',
                         'expiration' => '30',
                     ]),
-                ],
+                ]),
             ))->assign([
                 'snippetName' => 'test.group',
                 'snippetDescription' => 'Test Group Description',
@@ -195,12 +196,12 @@ class CookieServiceTest extends TestCase
         static::assertCount(1, $group->entries);
         static::assertSame('test.group', $group->snippetName);
         static::assertSame('Test Group Description', $group->snippetDescription);
-        static::assertSame('test.cookie', $group->entries[0]->snippetName);
-        static::assertSame('Test Cookie Description', $group->entries[0]->snippetDescription);
-        static::assertSame('test-cookie', $group->entries[0]->cookie);
-        static::assertSame('1', $group->entries[0]->value);
-        static::assertSame('30', $group->entries[0]->expiration);
-        static::assertFalse($group->entries[0]->hidden);
+        static::assertSame('test.cookie', $group->entries->first()?->snippetName);
+        static::assertSame('Test Cookie Description', $group->entries->first()->snippetDescription);
+        static::assertSame('test-cookie', $group->entries->first()->cookie);
+        static::assertSame('1', $group->entries->first()->value);
+        static::assertSame('30', $group->entries->first()->expiration);
+        static::assertFalse($group->entries->first()->hidden);
     }
 
     public function testJsonSerialization(): void
@@ -210,7 +211,7 @@ class CookieServiceTest extends TestCase
         $cookieGroups = [
             (new CookieGroup(
                 isRequired: true,
-                entries: [
+                entries: new CookieEntryCollection([
                     (new CookieEntry(
                         hidden: false,
                     ))->assign([
@@ -220,7 +221,7 @@ class CookieServiceTest extends TestCase
                         'value' => null,
                         'expiration' => null,
                     ]),
-                ],
+                ]),
             ))->assign([
                 'snippetName' => 'test.group',
                 'snippetDescription' => 'Test Group Description',
@@ -245,7 +246,8 @@ class CookieServiceTest extends TestCase
 
         // Test JSON serialization
         $groupJson = $group->jsonSerialize();
-        $entryJson = $group->entries[0]->jsonSerialize();
+        $entryJson = $group->entries->first()?->jsonSerialize();
+        static::assertNotNull($entryJson);
 
         static::assertArrayHasKey('snippetName', $groupJson);
         static::assertArrayHasKey('snippetDescription', $groupJson);

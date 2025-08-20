@@ -23,7 +23,7 @@ class CookieControllerTest extends TestCase
         $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $cookieGroup = new CookieGroup(false, []);
+        $cookieGroup = new CookieGroup(false);
         $cookieGroup->snippetName = 'test.group';
         $cookieGroup->snippetDescription = 'Test Group';
 
@@ -55,7 +55,7 @@ class CookieControllerTest extends TestCase
         $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $cookieGroup = new CookieGroup(false, []);
+        $cookieGroup = new CookieGroup(false);
         $cookieGroup->snippetName = 'test.group';
         $cookieGroup->snippetDescription = 'Test Group';
 
@@ -112,7 +112,7 @@ class CookieControllerTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         // Create a cookie group without setting snippet values to test default handling
-        $cookieGroup = new CookieGroup(false, []);
+        $cookieGroup = new CookieGroup(false);
         $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 
         $cookieRoute = $this->createMock(AbstractCookieRoute::class);

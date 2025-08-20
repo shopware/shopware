@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Cookie\Struct;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
+use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Framework\Log\Package;
 
@@ -38,7 +39,7 @@ class CookieGroupTest extends TestCase
     {
         $entry1 = new CookieEntry();
         $entry2 = new CookieEntry();
-        $entries = [$entry1, $entry2];
+        $entries = new CookieEntryCollection([$entry1, $entry2]);
 
         $group = new CookieGroup(isRequired: false, entries: $entries);
         static::assertSame($entries, $group->entries); // Test public property
@@ -63,13 +64,13 @@ class CookieGroupTest extends TestCase
 
         $entry1 = new CookieEntry();
         $entry2 = new CookieEntry();
-        $entries = [$entry1, $entry2];
+        $entries = new CookieEntryCollection([$entry1, $entry2]);
 
         // Set entries through the public property
         $group->entries = $entries;
         static::assertSame($entries, $group->entries); // Test public property
 
-        $group->entries = [];
+        $group->entries = new CookieEntryCollection();
         static::assertEmpty($group->entries); // Test public property
     }
 
@@ -77,12 +78,12 @@ class CookieGroupTest extends TestCase
     {
         $entry1 = new CookieEntry();
         $entry2 = new CookieEntry();
-        $entries = [$entry1, $entry2];
+        $entries = new CookieEntryCollection([$entry1, $entry2]);
 
         $group = new CookieGroup(isRequired: false, entries: $entries);
         static::assertSame($entries, $group->entries);
 
-        $group = new CookieGroup(isRequired: false, entries: []);
+        $group = new CookieGroup(isRequired: false);
         static::assertEmpty($group->entries);
     }
 

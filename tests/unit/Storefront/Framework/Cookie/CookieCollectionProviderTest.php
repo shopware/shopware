@@ -28,20 +28,20 @@ class CookieCollectionProviderTest extends TestCase
         static::assertCount(4, $cookieGroups);
 
         $requiredGroup = $this->getGroup($cookieGroups, 'cookie.groupRequired', true, 4);
-        $this->assertEntry($requiredGroup->entries[0], 'cookie.groupRequiredSession', 'session-', false);
-        $this->assertEntry($requiredGroup->entries[1], 'cookie.groupRequiredTimezone', 'timezone', false);
-        $this->assertEntry($requiredGroup->entries[2], 'cookie.groupRequiredAccepted', 'cookie-preference', true);
-        $this->assertEntry($requiredGroup->entries[3], 'cookie.groupRequiredCaptcha', '_GRECAPTCHA', false);
+        $this->assertEntry($requiredGroup->entries->first(), 'cookie.groupRequiredSession', 'session-', false);
+        $this->assertEntry($requiredGroup->entries->getAt(1), 'cookie.groupRequiredTimezone', 'timezone', false);
+        $this->assertEntry($requiredGroup->entries->getAt(2), 'cookie.groupRequiredAccepted', 'cookie-preference', true);
+        $this->assertEntry($requiredGroup->entries->getAt(3), 'cookie.groupRequiredCaptcha', '_GRECAPTCHA', false);
 
         $statisticalGroup = $this->getGroup($cookieGroups, 'cookie.groupStatistical', false, 1);
-        $this->assertEntry($statisticalGroup->entries[0], 'cookie.groupStatisticalGoogleAnalytics', 'google-analytics-enabled', false);
+        $this->assertEntry($statisticalGroup->entries->first(), 'cookie.groupStatisticalGoogleAnalytics', 'google-analytics-enabled', false);
 
         $comfortGroup = $this->getGroup($cookieGroups, 'cookie.groupComfortFeatures', false, 2);
-        $this->assertEntry($comfortGroup->entries[0], 'cookie.groupComfortFeaturesWishlist', 'wishlist-enabled', false);
-        $this->assertEntry($comfortGroup->entries[1], 'cookie.groupComfortFeaturesYoutubeVideo', 'youtube-video', false);
+        $this->assertEntry($comfortGroup->entries->first(), 'cookie.groupComfortFeaturesWishlist', 'wishlist-enabled', false);
+        $this->assertEntry($comfortGroup->entries->getAt(1), 'cookie.groupComfortFeaturesYoutubeVideo', 'youtube-video', false);
 
         $marketingGroup = $this->getGroup($cookieGroups, 'cookie.groupMarketing', false, 1);
-        $this->assertEntry($marketingGroup->entries[0], 'cookie.groupMarketingAdConsent', 'google-ads-enabled', false);
+        $this->assertEntry($marketingGroup->entries->first(), 'cookie.groupMarketingAdConsent', 'google-ads-enabled', false);
     }
 
     /**
@@ -67,8 +67,9 @@ class CookieCollectionProviderTest extends TestCase
         return $foundGroup;
     }
 
-    private function assertEntry(CookieEntry $cookieEntry, string $snippetName, string $cookie, bool $hidden): void
+    private function assertEntry(?CookieEntry $cookieEntry, string $snippetName, string $cookie, bool $hidden): void
     {
+        static::assertNotNull($cookieEntry);
         static::assertSame($snippetName, $cookieEntry->snippetName);
         static::assertSame($cookie, $cookieEntry->cookie);
         static::assertSame($hidden, $cookieEntry->hidden);

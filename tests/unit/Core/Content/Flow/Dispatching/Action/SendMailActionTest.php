@@ -194,8 +194,8 @@ class SendMailActionTest extends TestCase
         $flow->setConfig($config);
 
         $this->entitySearchResult->expects($this->once())
-            ->method('first')
-            ->willReturn($this->mailTemplate);
+            ->method('getEntities')
+            ->willReturn(new MailTemplateCollection([$this->mailTemplate]));
 
         $this->mailTemplateRepository->expects($this->once())
             ->method('search')
@@ -325,8 +325,8 @@ class SendMailActionTest extends TestCase
         $flow->setConfig($config);
 
         $this->entitySearchResult->expects($this->once())
-            ->method('first')
-            ->willReturn($this->mailTemplate);
+            ->method('getEntities')
+            ->willReturn(new MailTemplateCollection([$this->mailTemplate]));
 
         $this->mailTemplateRepository->expects($this->once())
             ->method('search')
@@ -501,8 +501,8 @@ class SendMailActionTest extends TestCase
         $flow->setConfig($config);
 
         $this->entitySearchResult->expects($this->once())
-            ->method('first')
-            ->willReturn($this->mailTemplate);
+            ->method('getEntities')
+            ->willReturn(new MailTemplateCollection([$this->mailTemplate]));
 
         $this->mailTemplateRepository->expects($this->once())
             ->method('search')

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
@@ -76,8 +77,9 @@ class CustomerGroupStorerTest extends TestCase
 
         $this->storer->restore($storable);
         $entity = new CustomerGroupEntity();
+        $entity->setId('id');
         $result = $this->createMock(EntitySearchResult::class);
-        $result->expects($this->once())->method('get')->willReturn($entity);
+        $result->expects($this->once())->method('getEntities')->willReturn(new CustomerGroupCollection([$entity]));
 
         $this->repository->expects($this->once())->method('search')->willReturn($result);
         $customerGroup = $storable->getData('customerGroup');
@@ -89,14 +91,13 @@ class CustomerGroupStorerTest extends TestCase
     {
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerGroupId' => 'id'], []);
         $this->storer->restore($storable);
-        $entity = null;
         $result = $this->createMock(EntitySearchResult::class);
-        $result->expects($this->once())->method('get')->willReturn($entity);
+        $result->expects($this->once())->method('getEntities')->willReturn(new CustomerGroupCollection());
 
         $this->repository->expects($this->once())->method('search')->willReturn($result);
         $customerGroup = $storable->getData('customerGroup');
 
-        static::assertSame($customerGroup, $entity);
+        static::assertNull($customerGroup);
     }
 
     public function testLazyLoadNullId(): void

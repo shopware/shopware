@@ -27,6 +27,7 @@ use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection as Lan
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
 use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
+use Shopware\Core\System\Snippet\Files\RemoteSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
@@ -144,7 +145,7 @@ class SnippetFileLoaderTest extends TestCase
                 'xx-XX',
                 'test Author',
                 true,
-                'ShopwareBundleWithSnippets'
+                'ShopwareBundleWithSnippets',
             ),
             new GenericSnippetFile(
                 'test',
@@ -152,7 +153,7 @@ class SnippetFileLoaderTest extends TestCase
                 'yy-YY',
                 'test Author',
                 true,
-                'ShopwareBundleWithSnippets'
+                'ShopwareBundleWithSnippets',
             ),
         ]);
 
@@ -257,7 +258,7 @@ class SnippetFileLoaderTest extends TestCase
             'es-ES',
             'Test Author',
             false,
-            'TestApp'
+            'TestApp',
         );
 
         $appSnippetFileLoader = $this->createMock(AppSnippetFileLoader::class);
@@ -405,7 +406,7 @@ class SnippetFileLoaderTest extends TestCase
             new ActiveAppsLoader(
                 $this->createMock(Connection::class),
                 $this->createMock(AppLoader::class),
-                '/'
+                '/',
             ),
             $this->config,
             $loader,
@@ -416,13 +417,13 @@ class SnippetFileLoaderTest extends TestCase
         static::assertCount(6, $collection);
 
         $files = $collection->getElements();
-        static::assertContainsOnlyInstancesOf(GenericSnippetFile::class, $files);
+        static::assertContainsOnlyInstancesOf(RemoteSnippetFile::class, $files);
 
         $platformPath = Path::join($loader->getLocalePath('es-ES'), 'Platform');
         $platformPath = mb_ltrim($platformPath, '/\\');
         $activePluginPath = Path::join($loader->getLocalePath('es-ES'), 'Plugins', 'activePlugin');
         $activePluginPath = mb_ltrim($activePluginPath, '/\\');
-        $actualPaths = array_map(static fn (GenericSnippetFile $file) => $file->getPath(), $files);
+        $actualPaths = array_map(static fn (RemoteSnippetFile $file) => $file->getPath(), $files);
 
         $expectedPaths = [
             Path::join($platformPath, 'storefront.json'),

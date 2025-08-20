@@ -17,7 +17,6 @@ use Twig\Environment;
 #[Package('framework')]
 class UxComponentHelper
 {
-    private string $componentsDir;
     private const MAIN_NAMESPACE = 'Storefront';
 
     public function __construct(
@@ -91,13 +90,13 @@ class UxComponentHelper
             }
 
             $path = $this->bundlesMetadata[$namespace]['path'];
-            $componentsDir = Path::join($path, $this->componentDirectory);
+            $componentDir = Path::join($path, $this->componentDirectory);
 
-            if (!is_dir($componentsDir)) {
+            if (!is_dir($componentDir)) {
                 continue;
             }
 
-            $dirs[$componentsDir] = $namespace;
+            $dirs[$componentDir] = $namespace;
         }
 
         return $dirs;

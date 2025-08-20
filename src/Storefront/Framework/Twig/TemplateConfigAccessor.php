@@ -7,6 +7,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
+use Shopware\Storefront\Framework\Twig\Components\UxComponentRenderEventListener;
 
 #[Package('framework')]
 class TemplateConfigAccessor
@@ -17,7 +18,8 @@ class TemplateConfigAccessor
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly ThemeConfigValueAccessor $themeConfigAccessor,
-        private readonly ThemeScripts $themeScripts
+        private readonly ThemeScripts $themeScripts,
+        private readonly UxComponentRenderEventListener $uxComponentRenderEventListener
     ) {
     }
 
@@ -48,7 +50,47 @@ class TemplateConfigAccessor
      */
     public function scripts(): array
     {
-        return $this->themeScripts->getThemeScripts();
+        $scripts = [];
+
+        foreach($this->themeScripts->getThemeScripts() as $script) {
+            if (!str_starts_with($script, 'js/components/')) {
+                $scripts[] = $script;
+            }
+        }
+
+        return $scripts;
+    }
+
+    public function componentScripts(): array
+    {
+        $scripts = [];
+
+        foreach($this->themeScripts->getThemeScripts() as $script) {
+            if (str_starts_with($script, 'js/components/')) {
+                $scripts[] = $script;
+            }
+        }
+
+        return $scripts;
+    }
+
+    public function mountedComponentScripts(): array
+    {
+        $scripts = [];
+        $mountedScripts = [];
+        $mountedComponents = $this->uxComponentRenderEventListener->getMountedComponents();
+
+        foreach($mountedComponents as $component) {
+            $mountedScripts[] = 'js/components/'.str_replace(':', '/', $component).'.js';
+        }
+
+        foreach($this->themeScripts->getThemeScripts() as $script) {
+            if (str_starts_with($script, 'js/components/') && in_array($script, $mountedScripts)) {
+                $scripts[] = $script;
+            }
+        }
+
+        return $scripts;
     }
 
     /**

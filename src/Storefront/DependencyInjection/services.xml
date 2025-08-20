@@ -98,6 +98,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigValueAccessor"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeScripts" />
+            <argument type="service" id="Shopware\Storefront\Framework\Twig\Components\UxComponentRenderEventListener" />
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeConfigValueAccessor">
@@ -580,6 +581,10 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
             <argument type="service" id="ux.twig_component.component_factory"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Twig\Components\UxComponentRenderEventListener">
+            <tag name="kernel.event_listener" />
         </service>
 
         <service id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider">

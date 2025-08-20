@@ -25,6 +25,10 @@ class UxComponentLibraryController extends StorefrontController
     {
         $components = $this->uxComponentHelper->getComponents(true, true);
 
+        dump($components);
+        die();
+
+
         $componentsByNamespace = $this->buildNamespaceTreeFromComponents($components);
 
         return $this->renderStorefront('@Storefront/storefront/page/component-library/index.html.twig', [

@@ -1,1 +1,1 @@
-console.log('I am a component JS file from Storefront.');
+console.log('I am a component JS file for the Slider component.');

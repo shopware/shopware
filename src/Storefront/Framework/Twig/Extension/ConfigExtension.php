@@ -26,6 +26,8 @@ class ConfigExtension extends AbstractExtension
             new TwigFunction('config', $this->config(...), ['needs_context' => true]),
             new TwigFunction('theme_config', $this->theme(...), ['needs_context' => true]),
             new TwigFunction('theme_scripts', $this->scripts(...), ['needs_context' => true]),
+            new TwigFunction('component_scripts', $this->componentScripts(...), ['needs_context' => true]),
+            new TwigFunction('mounted_component_scripts', $this->mountedComponentScripts(...), ['needs_context' => true]),
         ];
     }
 
@@ -50,11 +52,33 @@ class ConfigExtension extends AbstractExtension
     }
 
     /**
+     * Returns all scripts, except components.
+     * 
      * @return array<int, string> $items
      */
     public function scripts(): array
     {
         return $this->config->scripts();
+    }
+
+    /**
+     * Returns all scripts that belong to a component.
+     * 
+     * @return array
+     */
+    public function componentScripts(): array
+    {
+        return $this->config->componentScripts();
+    }
+
+    /**
+     * Returns all scripts of components that have been mounted in the template.
+     * 
+     * @return array
+     */
+    public function mountedComponentScripts(): array
+    {
+        return $this->config->mountedComponentScripts();
     }
 
     /**

@@ -57,6 +57,10 @@
                                             {% set attributes = attributes|merge({ 'data-object-fit': element.config.displayMode.value }) %}
                                         {% endif %}
 
+                                        {% if loop.first and sliderConfig.useFetchPriorityOnFirstItem.value is true %}
+                                            {% set attributes = attributes|merge({ fetchpriority: 'high' }) %}
+                                        {% endif %}
+
                                         {% sw_thumbnails 'cms-image-slider-thumbnails' with {
                                             media: image.media
                                         } %}
@@ -67,6 +71,7 @@
                                     <div class="image-slider-item-container">
                                         {% if image.url %}
                                             <a href="{{ image.url }}"
+                                               {% if image.ariaLabel %}aria-label="{{ image.ariaLabel }}"{% endif %}
                                                class="image-slider-link"
                                                {% if image.newTab %}target="_blank" rel="noopener"{% endif %}
                                             >

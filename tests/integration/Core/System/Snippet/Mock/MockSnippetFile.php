@@ -18,7 +18,7 @@ class MockSnippetFile extends AbstractSnippetFile
         ?string $iso = null,
         string $content = '{}',
         private readonly bool $isBase = true,
-        private readonly string $technicalName = 'mock'
+        private readonly string $technicalName = 'mock',
     ) {
         $this->iso = $iso ?? $name;
         file_put_contents($this->getPath(), $content);

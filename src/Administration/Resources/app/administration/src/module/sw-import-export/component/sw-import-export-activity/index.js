@@ -115,7 +115,7 @@ export default {
                 },
                 {
                     property: 'profileName',
-                    dataIndex: 'profile.label',
+                    dataIndex: 'profile.technicalName',
                     label: 'sw-import-export.activity.columns.profile',
                     allowResize: true,
                     primary: false,

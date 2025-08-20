@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Service\Api;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ShopApiSource;
 use Shopware\Core\Framework\App\AppCollection;
@@ -283,5 +284,80 @@ class ServiceControllerTest extends TestCase
 
         $this->manager->expects($this->once())->method('enable');
         $controller->enableServices();
+    }
+
+    public function testReturnsCategorizedPermissions(): void
+    {
+        $aclRole = new AclRoleEntity();
+        $aclRole->setId('acl-role-id');
+        $aclRole->setUniqueIdentifier('acl-role-id');
+        $aclRole->setPrivileges([
+            'user:read',
+            'order:read',
+            'api_service_toggle',
+        ]);
+
+        $app = new AppEntity();
+        $app->setId('app-id');
+        $app->setUniqueIdentifier('app-id');
+        $app->setAclRole($aclRole);
+        $app->setRequestedPrivileges([
+            'product:read',
+        ]);
+
+        /** @var StaticEntityRepository<AppCollection> $appRepo */
+        $appRepo = new StaticEntityRepository([[$app]]);
+
+        $controller = new ServiceController($appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
+
+        $response = $controller->categorizedPermissions('MyCoolService', Context::createDefaultContext());
+        $content = $response->getContent();
+
+        static::assertIsString($content);
+        $categorizedPermissions = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertEquals([
+            'permissions' => [
+                'admin_user' => [
+                    [
+                        'extensions' => [],
+                        'entity' => 'user',
+                        'operation' => 'read',
+                    ],
+                ],
+                'order' => [
+                    [
+                        'extensions' => [],
+                        'entity' => 'order',
+                        'operation' => 'read',
+                    ],
+                ],
+                'product' => [
+                    [
+                        'extensions' => [],
+                        'entity' => 'product',
+                        'operation' => 'read',
+                    ],
+                ],
+                'additional_privileges' => [
+                    [
+                        'extensions' => [],
+                        'entity' => 'additional_privileges',
+                        'operation' => 'api_service_toggle',
+                    ],
+                ],
+            ],
+        ], $categorizedPermissions);
+    }
+
+    public function testCategorizedPermissionsThrowsIfServiceIsNotFound(): void
+    {
+        /** @var StaticEntityRepository<AppCollection> $appRepo */
+        $appRepo = new StaticEntityRepository([[]]);
+
+        $controller = new ServiceController($appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
+
+        static::expectExceptionObject(ServiceException::notFound('name', 'MyCoolService'));
+        $controller->categorizedPermissions('MyCoolService', Context::createDefaultContext());
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
 use Shopware\Core\Content\Newsletter\NewsletterException;
@@ -28,6 +29,8 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<NewsletterRecipientCollection> $newsletterRecipientRepository
      */
     public function __construct(
         private readonly EntityRepository $newsletterRecipientRepository,
@@ -81,7 +84,7 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
             $context->getContext()
         )->getEntities()->first();
 
-        if (!$newsletterRecipient instanceof NewsletterRecipientEntity) {
+        if (!$newsletterRecipient) {
             throw NewsletterException::recipientNotFound('email', $email);
         }
 

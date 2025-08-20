@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -20,6 +21,8 @@ class OrderStorer extends FlowStorer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(
         private readonly EntityRepository $orderRepository,
@@ -97,10 +100,9 @@ class OrderStorer extends FlowStorer
 
         $this->dispatcher->dispatch($event, $event->getName());
 
-        $order = $this->orderRepository->search($criteria, $context)->get($orderId);
+        $order = $this->orderRepository->search($criteria, $context)->getEntities()->get($orderId);
 
         if ($order) {
-            /** @var OrderEntity $order */
             return $order;
         }
 

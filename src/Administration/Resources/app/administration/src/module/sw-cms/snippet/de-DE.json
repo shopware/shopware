@@ -249,6 +249,8 @@
             "minHeightHelpText": "Gib die Mindesthöhe in der gewünschten Einheit an. Zum Beispiel: 200px",
             "isDecorative": "Bilder als ausschließlich dekorativ kennzeichen",
             "isDecorativeHelpText": "Wenn diese Option eingeschaltet wird, werden die Bildinformationen nicht von Screenreadern vorgelesen.",
+            "useFetchPriorityOnFirstItem": "Erstes Bild priorisiert laden",
+            "useFetchPriorityOnFirstItemHelpText": "Wenn diese Option eingeschaltet wird, wird das erste Bild mit einer höheren Priorität geladen. Dies kann die Geschwindigkeit des Aufbaus der Seite im Browser verbessern.",
             "linkNewTab": "Link in neuem Tab öffnen",
             "linkTo": "Linkziel"
           },

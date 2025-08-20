@@ -449,6 +449,189 @@ class ApiRequestContextResolverTest extends TestCase
         static::assertArrayHasKey('data', $response);
     }
 
+    public function testAppUserIdHeaderWithIntersectedPermissions(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $ids = new IdsCollection();
+
+        $user = $this->createUser([
+            'user-role' => ['product:read', 'product:write', 'category:read', 'app.TestApp'],
+        ], false);
+
+        $integrationId = $ids->create('integration');
+        $integrationAccessKey = AccessKeyHelper::generateAccessKey('integration');
+        $connection->insert('integration', [
+            'id' => Uuid::fromHexToBytes($integrationId),
+            'access_key' => $integrationAccessKey,
+            'secret_access_key' => TestDefaults::HASHED_PASSWORD,
+            'label' => 'test integration',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'admin' => 0,
+        ]);
+
+        $connection->insert('acl_role', [
+            'id' => Uuid::fromHexToBytes($ids->create('app_acl_role')),
+            'name' => 'app role',
+            'privileges' => '["product:read", "media:read", "category:read"]',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $connection->insert('app', [
+            'id' => Uuid::fromHexToBytes($ids->create('app')),
+            'name' => 'TestApp',
+            'path' => 'test',
+            'active' => 1,
+            'configurable' => 0,
+            'version' => '1.0.0',
+            'integration_id' => Uuid::fromHexToBytes($integrationId),
+            'acl_role_id' => Uuid::fromHexToBytes($ids->get('app_acl_role')),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'test');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $integrationAccessKey);
+        $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, $user->getUserId());
+        $request->attributes->set('_routeScope', ['api']);
+
+        $this->resolver->resolve($request);
+
+        static::assertTrue($request->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT));
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
+        static::assertInstanceOf(AdminApiSource::class, $context->getSource());
+
+        $source = $context->getSource();
+
+        static::assertFalse($source->isAdmin());
+
+        static::assertTrue($source->isAllowed('product:read'));
+        static::assertTrue($source->isAllowed('category:read'));
+        static::assertFalse($source->isAllowed('product:write'));
+        static::assertFalse($source->isAllowed('media:read'));
+        static::assertFalse($source->isAllowed('order:read'));
+    }
+
+    public function testAppUserIdHeaderWithoutApp(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $ids = new IdsCollection();
+
+        $user = $this->createUser([
+            'user-role' => ['product:read', 'product:write', 'category:read', 'app.TestApp'],
+        ], false);
+
+        $integrationId = $ids->create('integration');
+        $integrationAccessKey = AccessKeyHelper::generateAccessKey('integration');
+        $connection->insert('integration', [
+            'id' => Uuid::fromHexToBytes($integrationId),
+            'access_key' => $integrationAccessKey,
+            'secret_access_key' => TestDefaults::HASHED_PASSWORD,
+            'label' => 'test integration',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'admin' => 0,
+        ]);
+
+        $connection->insert('acl_role', [
+            'id' => Uuid::fromHexToBytes($ids->create('app_acl_role')),
+            'name' => 'app role without overlap',
+            'privileges' => '["media:read", "order:read"]',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $connection->insert('app', [
+            'id' => Uuid::fromHexToBytes($ids->create('app')),
+            'name' => 'TestApp',
+            'path' => 'test',
+            'active' => 1,
+            'configurable' => 0,
+            'version' => '1.0.0',
+            'integration_id' => Uuid::fromHexToBytes($integrationId),
+            'acl_role_id' => Uuid::fromHexToBytes($ids->get('app_acl_role')),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'test');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $integrationAccessKey);
+        $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, $user->getUserId());
+        $request->attributes->set('_routeScope', ['api']);
+
+        $this->resolver->resolve($request);
+
+        static::assertTrue($request->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT));
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
+        static::assertInstanceOf(AdminApiSource::class, $context->getSource());
+
+        $source = $context->getSource();
+
+        static::assertFalse($source->isAdmin());
+
+        static::assertFalse($source->isAllowed('product:read'));
+        static::assertFalse($source->isAllowed('product:write'));
+        static::assertFalse($source->isAllowed('category:read'));
+        static::assertFalse($source->isAllowed('media:read'));
+        static::assertFalse($source->isAllowed('order:read'));
+    }
+
+    public function testAppWithoutUserIdHeader(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $ids = new IdsCollection();
+
+        $integrationId = $ids->create('integration');
+        $connection->insert('integration', [
+            'id' => Uuid::fromHexToBytes($integrationId),
+            'access_key' => AccessKeyHelper::generateAccessKey('integration'),
+            'secret_access_key' => TestDefaults::HASHED_PASSWORD,
+            'label' => 'test integration',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'admin' => 0,
+        ]);
+
+        $connection->insert('acl_role', [
+            'id' => Uuid::fromHexToBytes($ids->create('app_acl_role')),
+            'name' => 'app role',
+            'privileges' => '["product:read", "media:read"]',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $connection->insert('app', [
+            'id' => Uuid::fromHexToBytes($ids->create('app')),
+            'name' => 'TestApp',
+            'path' => 'test',
+            'active' => 1,
+            'configurable' => 0,
+            'version' => '1.0.0',
+            'integration_id' => Uuid::fromHexToBytes($integrationId),
+            'acl_role_id' => Uuid::fromHexToBytes($ids->get('app_acl_role')),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'test');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $this->createIntegrationAccessKey($integrationId));
+        $request->attributes->set('_routeScope', ['api']);
+
+        $this->resolver->resolve($request);
+
+        static::assertTrue($request->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT));
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
+        static::assertInstanceOf(AdminApiSource::class, $context->getSource());
+
+        $source = $context->getSource();
+
+        static::assertFalse($source->isAdmin());
+        static::assertTrue($source->isAllowed('product:read'));
+        static::assertTrue($source->isAllowed('media:read'));
+        static::assertFalse($source->isAllowed('category:read'));
+    }
+
     /**
      * @param array<string, list<string>> $roles
      */
@@ -512,5 +695,15 @@ class ApiRequestContextResolverTest extends TestCase
                 'acl_role_id' => Uuid::fromHexToBytes($id),
                 'integration_id' => Uuid::fromHexToBytes($integrationId),
             ]);
+    }
+
+    private function createIntegrationAccessKey(string $integrationId): string
+    {
+        $accessKey = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT access_key FROM integration WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($integrationId)]
+        );
+
+        return $accessKey;
     }
 }

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ProductStream\Service;
 
 use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
+use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -18,6 +19,8 @@ class ProductStreamBuilder implements ProductStreamBuilderInterface
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductStreamCollection> $repository
      */
     public function __construct(
         private readonly EntityRepository $repository,

@@ -251,6 +251,18 @@
                         bordered
                         @update:model-value="onChangeIsDecorative"
                     />
+
+                    {% block sw_cms_element_image_slider_config_settings_use_fetch_priority_on_first_item %}
+
+                    <mt-switch
+                        class="sw-cms-el-config-image-slider__settings-use-fetch-priority-on-first-item"
+                        :model-value="element.config.useFetchPriorityOnFirstItem.value"
+                        :label="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItem')"
+                        :help-text="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItemHelpText')"
+                        bordered
+                        @update:model-value="onChangeUseFetchPriorityOnFirstItem"
+                    />
+                    {% endblock %}
                 </div>
             </sw-container>
             {% endblock %}

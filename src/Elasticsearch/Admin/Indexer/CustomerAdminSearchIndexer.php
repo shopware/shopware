@@ -4,12 +4,15 @@ namespace Shopware\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerTag\CustomerTagDefinition;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -49,6 +52,48 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
     public function getIterator(): IterableQuery
     {
         return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
+    }
+
+    public function getUpdatedIds(EntityWrittenContainerEvent $event): array
+    {
+        $ids = [];
+
+        $customerIds = $event->getPrimaryKeysWithPropertyChange($this->getEntity(), [
+            'firstName',
+            'lastName',
+            'email',
+            'company',
+            'customerNumber',
+        ]);
+
+        $addresses = $event->getPrimaryKeysWithPropertyChange(CustomerAddressDefinition::ENTITY_NAME, [
+            'firstName',
+            'lastName',
+            'company',
+            'city',
+            'street',
+            'zipcode',
+            'phoneNumber',
+            'additionalAddressLine1',
+            'additionalAddressLine2',
+            'countryId',
+        ]);
+
+        if (!empty($addresses)) {
+            $ids = array_merge($customerIds, $event->getPrimaryKeys($this->getEntity()));
+        }
+
+        $tags = $event->getPrimaryKeysWithPropertyChange(CustomerTagDefinition::ENTITY_NAME, [
+            'tagId',
+        ]);
+
+        foreach ($tags as $pks) {
+            if (isset($pks['customerId'])) {
+                $ids[] = $pks['customerId'];
+            }
+        }
+
+        return \array_values(\array_unique($ids));
     }
 
     public function globalData(array $result, Context $context): array

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Framework\Context;
@@ -37,6 +38,8 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductReviewCollection> $repository
      */
     public function __construct(
         private readonly EntityRepository $repository,

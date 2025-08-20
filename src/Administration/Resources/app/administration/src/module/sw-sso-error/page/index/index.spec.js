@@ -38,6 +38,11 @@ async function createWrapper(useDefaultLogin, setCookie = true) {
 }
 
 describe('src/module/sw-sso-error/page/index', () => {
+    afterEach(async () => {
+        const storage = new CookieStorage();
+        storage.clear(); // important because of side effects (otherwise cookie items are persisted between tests)
+    });
+
     it('should be available', async () => {
         await createWrapper(false);
         await flushPromises();

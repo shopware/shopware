@@ -59,19 +59,19 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
     public function beforeDelete(EntityDeleteEvent $event): void
     {
         /** @var array<string> $affected */
-        $affected = array_values($event->getIds(MediaThumbnailDefinition::ENTITY_NAME));
+        $affected = $event->getIds(MediaThumbnailDefinition::ENTITY_NAME);
         if (!empty($affected)) {
             $this->handleThumbnailDeletion($event, $affected, $event->getContext());
         }
 
         /** @var array<string> $affected */
-        $affected = array_values($event->getIds(MediaFolderDefinition::ENTITY_NAME));
+        $affected = $event->getIds(MediaFolderDefinition::ENTITY_NAME);
         if (!empty($affected)) {
             $this->handleFolderDeletion($affected, $event->getContext());
         }
 
         /** @var array<string> $affected */
-        $affected = array_values($event->getIds(MediaDefinition::ENTITY_NAME));
+        $affected = $event->getIds(MediaDefinition::ENTITY_NAME);
         if (!empty($affected)) {
             $this->handleMediaDeletion($affected, $event->getContext());
         }

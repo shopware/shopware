@@ -109,7 +109,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             ->addFilter(new EqualsFilter('routeName', self::ROUTE_NAME));
 
         /** @var array<string> $ids */
-        $ids = array_values($this->seoUrlRepository->searchIds($criteria, $event->getContext())->getIds());
+        $ids = $this->seoUrlRepository->searchIds($criteria, $event->getContext())->getIds();
 
         if (\count($ids) === 0) {
             return;

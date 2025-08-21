@@ -73,7 +73,7 @@ class SearchConfigLoaderTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{configKeyedByLanguageId: array<string, array<array{and_logic: string, field: string, tokenize: int, ranking: int}>>, expectedResult: array<array{and_logic: string, field: string, tokenize: int, ranking: int}>}>
+     * @return iterable<string, array{configKeyedByLanguageId: array<string, array<array{and_logic: string, field: string, tokenize: int, ranking: float}>>, expectedResult: array<array{and_logic: string, field: string, tokenize: int, ranking: float}>}>
      */
     public static function loadDataProvider(): iterable
     {

@@ -11,6 +11,7 @@ parameters:
     reportUnmatchedIgnoredErrors: true
     checkFunctionNameCase: true
     checkInternalClassCaseSensitivity: true
+    reportAnyTypeWideningInVarTag: true
 
     # Would otherwise flag usage of internal classes from different namespaces
     featureToggles:

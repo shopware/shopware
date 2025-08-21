@@ -1269,7 +1269,7 @@ class CheapestPriceTest extends TestCase
         }
 
         /** @var string[] $actual */
-        $actual = array_values($result->getIds());
+        $actual = $result->getIds();
 
         $actualArray = [];
         foreach ($actual as $id) {

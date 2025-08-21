@@ -27,7 +27,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 class TaskRegistryTest extends TestCase
 {
     /**
-     * @var EntityRepository&MockObject
+     * @var EntityRepository<ScheduledTaskCollection>&MockObject
      */
     private EntityRepository $scheduleTaskRepository;
 

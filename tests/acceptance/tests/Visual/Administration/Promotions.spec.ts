@@ -7,7 +7,7 @@ test('Visual: Promotions Listing Page', { tag: '@Visual' }, async ({
     TestDataService, 
     AdminPromotionsListing,
  }) => {
-    await test.step('Creates a screenshot of the promotions listing page in its empty state .', async () => { 
+    await test.step('Creates a screenshot of the promotions listing page in its empty state.', async () => { 
         await ShopAdmin.goesTo(AdminPromotionsListing.url());
         await setViewport(AdminPromotionsListing.page, {
             width: 1440,
@@ -46,7 +46,7 @@ test('Visual: Promotion Detail Page', { tag: '@Visual' }, async ({
         await expect(AdminPromotionCreate.page.locator('.sw-desktop__content')).toHaveScreenshot('Create.png');
     });
 
-    const testPromo = await TestDataService.createPromotionWithCode( { name: 'TestPromo', code: '123'} );
+    const testPromo = await TestDataService.createPromotionWithCode( { name: 'TestPromo', code: '123' } );
     await test.step('Creates a screenshot of the promotions detail page: General Tab.', async () => {
         await ShopAdmin.goesTo(AdminPromotionDetail.url(testPromo.id));
         await setViewport(AdminPromotionDetail.page, {

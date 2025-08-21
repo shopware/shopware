@@ -28,7 +28,7 @@ class TestKernel extends Kernel
 
     protected function build(ContainerBuilder $container): void
     {
-        foreach ($container->getDefinitions() as $id => $definition) {
+        foreach ($container->getDefinitions() as $definition) {
             if ($definition->isAbstract()) {
                 continue;
             }

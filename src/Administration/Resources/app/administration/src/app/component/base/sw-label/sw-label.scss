@@ -3,23 +3,23 @@
 @import "~scss/mixins";
 @import "sw-label-variant";
 
-$sw-label-border-radius: math.div($border-radius-default, 2);
+$sw-label-border-radius: var(--border-radius-xs);
 $sw-label-pill-border-radius: 50px;
 
 .sw-label {
     display: inline-block;
     position: relative;
     max-width: 100%;
-    min-width: 56px;
-    margin: 0 6px 6px 0;
-    padding: 8px 12px;
+    min-width: var(--scale-size-56);
+    margin: 0 var(--scale-size-6) var(--scale-size-6) 0;
+    padding: var(--scale-size-8) var(--scale-size-12);
     line-height: 14px;
-    font-size: $font-size-xxs;
-    height: 32px;
-    border: 1px solid $color-gray-300;
-    background: $color-gray-50;
+    font-size: var(--font-size-2xs);
+    height: var(--scale-size-32);
+    border: 1px solid var(--color-border-primary-default);
+    background: var(--color-background-secondary-default);
     border-radius: $sw-label-border-radius;
-    color: $color-darkgray-200;
+    color: var(--color-text-primary-default);
     cursor: default;
 
     .sw-label__caption {
@@ -30,7 +30,8 @@ $sw-label-pill-border-radius: 50px;
     }
 
     &.sw-label--dismissable:hover {
-        border-color: $color-shopware-brand-500;
+        border-color: var(--color-border-brand-selected);
+        background: var(--color-background-brand-default);
 
         .sw-label__caption {
             width: calc(100% - 15px);
@@ -38,19 +39,19 @@ $sw-label-pill-border-radius: 50px;
 
         .sw-label__dismiss {
             display: inline-block;
-            color: $color-shopware-brand-500;
+            color: var(--color-icon-brand-default);
             background: transparent;
         }
     }
 
     &.sw-label--size-medium {
-        height: 24px;
-        padding: 4px 12px;
+        height: var(--scale-size-24);
+        padding: var(--scale-size-4) var(--scale-size-12);
     }
 
     &.sw-label--size-small {
-        height: 16px;
-        padding: 0 8px;
+        height: var(--scale-size-16);
+        padding: 0 var(--scale-size-8);
     }
 
     .sw-label__dismiss {

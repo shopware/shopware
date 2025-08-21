@@ -30,6 +30,30 @@ New blocks have been added in `sw-settings-index.html.twig`:
 * `sw_settings_content_card_view`
 * `sw_settings_content_card_view_header`
 
+## Removed translation of import/export profile label
+
+The translation of the import/export profile label has been removed.  
+Profiles are now identified and displayed only by their technical name.
+
+### Core
+- The `$label` property and the following methods in `Shopware\Core\Content\ImportExport\ImportExportProfileEntity` have been removed:
+    - `getLabel()`
+    - `setLabel()`
+    - `getTranslations()`
+    - `setTranslations()`
+- The following classes have been removed:
+    - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationCollection`
+    - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition`
+    - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationEntity`
+- `createLog()` and `getConfig()` in `Shopware\Core\Content\ImportExport\Service\ImportExportService` now use `$technicalName` instead of `$label` when generating filenames.
+- `generateFilename()` in `Shopware\Core\Content\ImportExport\Service\FileService` now uses `$technicalName` instead of `$label` as profile name.
+
+### Administration
+- The following Twig blocks have been removed:
+    - `sw_import_export_edit_profile_general_container_name` (`sw-import-export-edit-profile-general.html.twig`)
+    - `sw_import_export_view_profile_profiles_listing_column_label` (`sw-import-export-view-profiles.html.twig`)
+    - `sw_import_export_language_switch` (`sw-import-export.html.twig`)
+
 ## ApiClient confidential flag
 
 * You must explicitly pass a boolean value to the `confidential` parameter  of `\Shopware\Core\Framework\Api\OAuth\Client\ApiClient`.

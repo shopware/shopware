@@ -23,16 +23,6 @@ class UserConfigEntity extends Entity
 
     protected ?UserEntity $user = null;
 
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    public function setId(string $id): void
-    {
-        $this->id = $id;
-    }
-
     public function getKey(): string
     {
         return $this->key;

@@ -161,7 +161,6 @@ class MediaUploadServiceTest extends TestCase
     {
         $url = 'https://example.com/image.jpg';
         $params = new MediaUploadParameters();
-        $mediaId = Uuid::randomHex();
 
         $mediaFile = new MediaFile(
             'test.jpg',
@@ -206,7 +205,6 @@ class MediaUploadServiceTest extends TestCase
             fileName: 'test.jpg',
             mimeType: 'image/jpeg'
         );
-        $mediaId = Uuid::randomHex();
 
         $response = $this->createMock(ResponseInterface::class);
         $response->method('getHeaders')->willReturn([

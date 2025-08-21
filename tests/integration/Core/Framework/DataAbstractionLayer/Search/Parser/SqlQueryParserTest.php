@@ -5,6 +5,8 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search\
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -31,8 +33,14 @@ class SqlQueryParserTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $repository;
 
+    /**
+     * @var EntityRepository<ProductManufacturerCollection>
+     */
     private EntityRepository $manufacturerRepository;
 
     private Context $context;

@@ -1,6 +1,4 @@
-import { test, expect } from '@fixtures/AcceptanceTest';
-import { setViewport, replaceElements } from '@fixtures/AcceptanceTest';
-
+import { test, expect, setViewport, replaceElements } from '@fixtures/AcceptanceTest';
 
 test('Visual: Promotions Listing Page', { tag: '@Visual' }, async ({ 
     ShopAdmin, 
@@ -17,11 +15,11 @@ test('Visual: Promotions Listing Page', { tag: '@Visual' }, async ({
     });
 
     await test.step('Creates a screenshot of the promotions listing page with an active and an inactive promotion.', async () => {
-        await TestDataService.createPromotionWithCode( { active: true } );
-        await TestDataService.createPromotionWithCode( { active: false } );
+        await TestDataService.createPromotionWithCode({ active: true });
+        await TestDataService.createPromotionWithCode({ active: false });
         
         await ShopAdmin.goesTo(AdminPromotionsListing.url());
-        await replaceElements(AdminPromotionsListing.page, [ '.sw-data-grid__cell--name', ]);
+        await replaceElements(AdminPromotionsListing.page, [ '.sw-data-grid__cell--name' ]);
         await setViewport(AdminPromotionsListing.page, {
             width: 1440,
             contentHeight: 1200,
@@ -46,7 +44,7 @@ test('Visual: Promotion Detail Page', { tag: '@Visual' }, async ({
         await expect(AdminPromotionCreate.page.locator('.sw-desktop__content')).toHaveScreenshot('Create.png');
     });
 
-    const testPromo = await TestDataService.createPromotionWithCode( { name: 'TestPromo', code: '123' } );
+    const testPromo = await TestDataService.createPromotionWithCode({ name: 'TestPromo', code: '123' });
     await test.step('Creates a screenshot of the promotions detail page: General Tab.', async () => {
         await ShopAdmin.goesTo(AdminPromotionDetail.url(testPromo.id));
         await setViewport(AdminPromotionDetail.page, {

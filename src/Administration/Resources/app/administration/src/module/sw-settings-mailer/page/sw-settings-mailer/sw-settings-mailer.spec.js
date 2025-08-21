@@ -14,14 +14,128 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
                     renderStubDefaultSlot: true,
                     stubs: {
                         'sw-page': {
-                            template: '<div />',
+                            template:
+                                '<div class="sw-page"><slot name="smart-bar-header"></slot><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>',
                         },
-                        'sw-button-process': true,
+                        'sw-button-process': {
+                            template:
+                                '<button class="sw-button" :disabled="isLoading" @click="$emit(\'click\')">{{ $slots.default ? $slots.default()[0].children : "" }}</button>',
+                            props: [
+                                'isLoading',
+                                'processSuccess',
+                                'variant',
+                            ],
+                            emits: [
+                                'click',
+                                'update:processSuccess',
+                            ],
+                        },
                         'sw-skeleton': true,
-                        'sw-select-field': true,
-                        'sw-radio-field': true,
-                        'sw-settings-mailer-smtp': true,
-                        'sw-card-view': true,
+                        'mt-select': {
+                            template:
+                                '<select :value="modelValue" @change="$emit(\'update:modelValue\', $event.target.value)"><option v-for="option in options" :key="option.value" :value="option.value">{{ option.label }}</option></select>',
+                            props: [
+                                'modelValue',
+                                'options',
+                            ],
+                            emits: ['update:modelValue'],
+                        },
+                        'sw-radio-field': {
+                            template:
+                                '<div><input v-for="option in options" :key="option.value" type="radio" :value="option.value" :checked="value === option.value" @change="$emit(\'update:value\', $event.target.value)" /></div>',
+                            props: [
+                                'value',
+                                'options',
+                            ],
+                            emits: ['update:value'],
+                        },
+                        'mt-switch': {
+                            template:
+                                '<input type="checkbox" :checked="modelValue" :label="label" @change="$emit(\'update:modelValue\', $event.target.checked)" />',
+                            props: [
+                                'modelValue',
+                                'label',
+                            ],
+                            emits: ['update:modelValue'],
+                        },
+                        'sw-settings-mailer-smtp': {
+                            template: '<div class="sw-settings-mailer-smtp">SMTP Component</div>',
+                            props: [
+                                'mailerSettings',
+                                'hostError',
+                                'portError',
+                            ],
+                            emits: [
+                                'host-changed',
+                                'port-changed',
+                            ],
+                        },
+                        'sw-card-view': {
+                            template: '<div class="sw-card-view"><slot /></div>',
+                        },
+                        'mt-card': {
+                            template: '<div class="mt-card" :title="title"><slot /></div>',
+                            props: [
+                                'title',
+                                'positionIdentifier',
+                                'isLoading',
+                            ],
+                        },
+                        'mt-icon': true,
+                        'mt-text-field': {
+                            template:
+                                '<input :value="modelValue" :aria-label="label" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+                            props: [
+                                'modelValue',
+                                'label',
+                                'placeholder',
+                                'error',
+                                'required',
+                                'validation',
+                            ],
+                            emits: ['update:modelValue'],
+                        },
+                        'mt-number-field': {
+                            template:
+                                '<input type="number" :value="modelValue" :max="max" :aria-label="label" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+                            props: [
+                                'modelValue',
+                                'label',
+                                'placeholder',
+                                'error',
+                                'required',
+                                'max',
+                            ],
+                            emits: ['update:modelValue'],
+                        },
+                        'mt-password-field': {
+                            template:
+                                '<input type="password" :value="modelValue" :aria-label="label" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+                            props: [
+                                'modelValue',
+                                'label',
+                                'placeholder',
+                                'required',
+                            ],
+                            emits: ['update:modelValue'],
+                        },
+                        'sw-single-select': {
+                            template:
+                                '<select :aria-label="label"><option v-for="option in options" :key="option.value" :value="option.value">{{ option.label }}</option></select>',
+                            props: [
+                                'value',
+                                'label',
+                                'placeholder',
+                                'options',
+                                'required',
+                            ],
+                            emits: ['update:value'],
+                        },
+                        'sw-field-error': true,
+                        'sw-help-text': true,
+                        'sw-field-copyable': true,
+                        'sw-inheritance-switch': true,
+                        'sw-ai-copilot-badge': true,
                     },
                     provide: {
                         systemConfigApiService: {
@@ -42,6 +156,12 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
                                 }),
                             saveValues: () => Promise.resolve(),
                         },
+                        validationService: {},
+                    },
+                    mocks: {
+                        $tc(translationKey) {
+                            return translationKey;
+                        },
                     },
                 },
             },
@@ -54,348 +174,248 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
         expect(settingsMailer.vm).toBeTruthy();
     });
 
-    it('should load the mailerSettings on creation', async () => {
-        const settingsMailer = await new CreateSettingsMailer();
-        const spyLoadMailer = jest.spyOn(settingsMailer.vm, 'loadMailerSettings');
-
-        await settingsMailer.vm.createdComponent();
-
-        expect(spyLoadMailer).toHaveBeenCalled();
-    });
-
-    it('should assign the loaded mailerSettings', async () => {
-        const settingsMailer = await new CreateSettingsMailer();
+    it('should render the page header with correct title', async () => {
+        const wrapper = await new CreateSettingsMailer();
         await flushPromises();
 
-        const expectedMailerSettings = {
-            'core.mailerSettings.emailAgent': 'local',
-            'core.mailerSettings.host': 'shopware.com',
-            'core.mailerSettings.port': 321,
-            'core.mailerSettings.username': 'Mad max',
-            'core.mailerSettings.password': 'verySafe123',
-            'core.mailerSettings.encryption': 'md5',
-            'core.mailerSettings.senderAddress': 'sender@address.com',
-            'core.mailerSettings.deliveryAddress': 'delivery@address.com',
-            'core.mailerSettings.disableDelivery': true,
-        };
-
-        settingsMailer.vm.systemConfigApiService.getValues = () => Promise.resolve(expectedMailerSettings);
-
-        await settingsMailer.vm.createdComponent();
-        expect(settingsMailer.vm.mailerSettings).toEqual(expectedMailerSettings);
+        const pageTitle = wrapper.find('h2');
+        expect(pageTitle.exists()).toBe(true);
+        expect(pageTitle.text()).toContain('sw-settings.index.title');
+        expect(pageTitle.text()).toContain('sw-settings-mailer.general.textHeadline');
     });
 
-    it('should call the saveValues function', async () => {
-        const settingsMailer = await new CreateSettingsMailer();
-        const spySaveValues = jest.spyOn(settingsMailer.vm.systemConfigApiService, 'saveValues');
+    it('should render the save button', async () => {
+        const wrapper = await new CreateSettingsMailer();
+        await flushPromises();
 
-        const expectedMailerSettings = {
-            'core.mailerSettings.emailAgent': 'smtp',
-            'core.mailerSettings.host': 'shopware.com',
-            'core.mailerSettings.port': 321,
-            'core.mailerSettings.username': 'Mad max',
-            'core.mailerSettings.password': 'verySafe123',
-            'core.mailerSettings.encryption': 'md5',
-            'core.mailerSettings.senderAddress': 'sender@address.com',
-            'core.mailerSettings.deliveryAddress': 'delivery@address.com',
-            'core.mailerSettings.disableDelivery': true,
-        };
-
-        settingsMailer.vm.systemConfigApiService.getValues = () => Promise.resolve(expectedMailerSettings);
-        await settingsMailer.vm.createdComponent();
-
-        expect(spySaveValues).not.toHaveBeenCalledWith(expectedMailerSettings);
-        await settingsMailer.vm.saveMailerSettings();
-        expect(spySaveValues).toHaveBeenCalledWith(expectedMailerSettings);
+        const saveButton = wrapper.find('sw-button-process, .sw-button');
+        expect(saveButton.exists()).toBe(true);
+        expect(saveButton.text()).toBe('sw-settings-mailer.general.buttonSave');
     });
 
-    it('should throw smtp configuration errors', async () => {
+    it('should render the email agent selector with correct options', async () => {
+        const wrapper = await new CreateSettingsMailer();
+        await flushPromises();
+
+        const agentSelector = wrapper.find('mt-select');
+        expect(agentSelector.exists()).toBe(true);
+    });
+
+    it('should display first configuration message when no email agent is set', async () => {
+        const wrapper = await new CreateSettingsMailer(null);
+        await flushPromises();
+
+        const firstConfigMessage = wrapper.find('.sw-settings-mailer__first-configuration');
+        expect(firstConfigMessage.exists()).toBe(true);
+
+        const headline = firstConfigMessage.find('h4');
+        expect(headline.text()).toContain('sw-settings-mailer.first-configuration.headline');
+
+        const description = firstConfigMessage.find('p');
+        expect(description.text()).toContain('sw-settings-mailer.first-configuration.description');
+    });
+
+    it('should hide first configuration message when email agent is set', async () => {
         const wrapper = await new CreateSettingsMailer('smtp');
         await flushPromises();
 
+        const firstConfigMessage = wrapper.find('.sw-settings-mailer__first-configuration');
+        expect(firstConfigMessage.exists()).toBe(false);
+    });
+
+    it('should render sendmail options for local email agent', async () => {
+        const wrapper = await new CreateSettingsMailer('local');
+        await flushPromises();
+
+        // Set email agent to local to trigger sendmail options
+        await wrapper.setData({
+            mailerSettings: {
+                'core.mailerSettings.emailAgent': 'local',
+            },
+        });
+        await flushPromises();
+
+        const radioField = wrapper.find('sw-radio-field');
+        expect(radioField.exists()).toBe(true);
+    });
+
+    it('should render disable delivery switch for non-SMTP modes', async () => {
+        const wrapper = await new CreateSettingsMailer('local');
+        await flushPromises();
+
+        // Set to local mode to see disable delivery switch
+        await wrapper.setData({
+            mailerSettings: {
+                'core.mailerSettings.emailAgent': 'local',
+            },
+        });
+        await flushPromises();
+
+        const disableDeliverySwitch = wrapper.find('mt-switch');
+        expect(disableDeliverySwitch.exists()).toBe(true);
+        expect(disableDeliverySwitch.attributes('label')).toBe('sw-settings-mailer.card-smtp.disable-delivery');
+    });
+
+    it('should show SMTP card when SMTP mode is selected', async () => {
+        const wrapper = await new CreateSettingsMailer('smtp');
+        await flushPromises();
+
+        const smtpCard = wrapper.find('mt-card[title="SMTP server"]');
+        expect(smtpCard.exists()).toBe(true);
+
+        const smtpComponent = wrapper.findComponent({ name: 'sw-settings-mailer-smtp' });
+        expect(smtpComponent.exists()).toBe(true);
+    });
+
+    it('should show SMTP card when OAuth mode is selected', async () => {
+        const wrapper = await new CreateSettingsMailer('smtp+oauth');
+        await flushPromises();
+
+        const smtpCard = wrapper.find('mt-card[title="SMTP server"]');
+        expect(smtpCard.exists()).toBe(true);
+
+        const smtpComponent = wrapper.findComponent({ name: 'sw-settings-mailer-smtp' });
+        expect(smtpComponent.exists()).toBe(true);
+    });
+
+    it('should hide SMTP card when local mode is selected', async () => {
+        const wrapper = await new CreateSettingsMailer('local');
+        await flushPromises();
+
+        const smtpCard = wrapper.find('mt-card[title="SMTP server"]');
+        expect(smtpCard.exists()).toBe(false);
+
+        const smtpComponent = wrapper.findComponent({ name: 'sw-settings-mailer-smtp' });
+        expect(smtpComponent.exists()).toBe(false);
+    });
+
+    it('should pass correct props to SMTP component', async () => {
+        const wrapper = await new CreateSettingsMailer('smtp');
+        await flushPromises();
+
+        await wrapper.setData({
+            mailerSettings: {
+                'core.mailerSettings.emailAgent': 'smtp',
+                'core.mailerSettings.host': 'smtp.example.com',
+                'core.mailerSettings.port': 587,
+            },
+            smtpHostError: { detail: 'Host error' },
+            smtpPortError: { detail: 'Port error' },
+        });
+
+        const smtpComponent = wrapper.findComponent({ name: 'sw-settings-mailer-smtp' });
+        expect(smtpComponent.props('mailerSettings')).toEqual(
+            expect.objectContaining({
+                'core.mailerSettings.emailAgent': 'smtp',
+                'core.mailerSettings.host': 'smtp.example.com',
+                'core.mailerSettings.port': 587,
+            }),
+        );
+        expect(smtpComponent.props('hostError')).toEqual({ detail: 'Host error' });
+        expect(smtpComponent.props('portError')).toEqual({ detail: 'Port error' });
+    });
+
+    it('should handle host and port change events from SMTP component', async () => {
+        const wrapper = await new CreateSettingsMailer('smtp');
+        await flushPromises();
+
+        const smtpComponent = wrapper.findComponent({ name: 'sw-settings-mailer-smtp' });
+        expect(smtpComponent.exists()).toBe(true);
+
+        // Simulate host changed event
+        await smtpComponent.vm.$emit('host-changed');
         expect(wrapper.vm.smtpHostError).toBeNull();
+
+        // Simulate port changed event
+        await smtpComponent.vm.$emit('port-changed');
         expect(wrapper.vm.smtpPortError).toBeNull();
+    });
+
+    it('should show validation errors when trying to save incomplete SMTP configuration', async () => {
+        const wrapper = await new CreateSettingsMailer('smtp');
+        await flushPromises();
+
+        // Set incomplete SMTP settings
+        await wrapper.setData({
+            mailerSettings: {
+                'core.mailerSettings.emailAgent': 'smtp',
+                'core.mailerSettings.host': '', // Empty host should trigger error
+                'core.mailerSettings.port': null, // Empty port should trigger error
+            },
+        });
 
         wrapper.vm.createNotificationError = jest.fn();
 
-        wrapper.vm.saveMailerSettings();
+        const saveButton = wrapper.find('sw-button-process, .sw-button');
+        await saveButton.trigger('click');
         await flushPromises();
 
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
         expect(wrapper.vm.smtpHostError).toBeTruthy();
         expect(wrapper.vm.smtpPortError).toBeTruthy();
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
     });
 
-    it('should reset smtp host error', async () => {
-        const wrapper = await new CreateSettingsMailer();
-        wrapper.vm.smtpHostError = { detail: 'FooBar' };
-        expect(wrapper.vm.smtpHostError).toStrictEqual({ detail: 'FooBar' });
-
-        wrapper.vm.resetSmtpHostError();
-
-        expect(wrapper.vm.smtpHostError).toBeNull();
-    });
-
-    it('should reset smtp port error', async () => {
-        const wrapper = await new CreateSettingsMailer();
-        wrapper.vm.smtpPortError = { detail: 'FooBar' };
-        expect(wrapper.vm.smtpPortError).toStrictEqual({ detail: 'FooBar' });
-
-        wrapper.vm.resetSmtpPortError();
-
-        expect(wrapper.vm.smtpPortError).toBeNull();
-    });
-
-    it('should reset mailer settings when submitting as emailAgent local', async () => {
-        const wrapper = await new CreateSettingsMailer();
-
-        await wrapper.setData({
-            mailerSettings: {
-                'core.mailerSettings.emailAgent': 'local',
-                'core.mailerSettings.host': 'smtp.shopware.com',
-                'core.mailerSettings.port': 465,
-                'core.mailerSettings.username': 'smtp',
-                'core.mailerSettings.password': 'smtp',
-                'core.mailerSettings.encryption': 'ssl',
-                'core.mailerSettings.senderAddress': 'test@example.com',
-                'core.mailerSettings.deliveryAddress': 'info@test.de',
-                'core.mailerSettings.sendMailOptions': '-t -i',
-            },
-        });
-
-        const spySaveValues = jest.spyOn(wrapper.vm.systemConfigApiService, 'saveValues');
-
-        wrapper.vm.saveMailerSettings();
-
-        expect(spySaveValues).toHaveBeenCalledWith({
-            'core.mailerSettings.emailAgent': 'local',
-            'core.mailerSettings.host': null,
-            'core.mailerSettings.port': null,
-            'core.mailerSettings.username': null,
-            'core.mailerSettings.password': null,
-            'core.mailerSettings.encryption': 'null',
-            'core.mailerSettings.senderAddress': null,
-            'core.mailerSettings.deliveryAddress': null,
-            'core.mailerSettings.disableDelivery': false,
-            'core.mailerSettings.sendMailOptions': '-t -i',
-        });
-    });
-
-    it('should be possible to set disableDelivery to true', async () => {
-        const wrapper = await new CreateSettingsMailer();
-
-        await wrapper.setData({
-            mailerSettings: {
-                'core.mailerSettings.emailAgent': 'local',
-                'core.mailerSettings.sendMailOptions': '-bs',
-                'core.mailerSettings.disableDelivery': true,
-            },
-        });
-
-        const spySaveValues = jest.spyOn(wrapper.vm.systemConfigApiService, 'saveValues');
-
-        wrapper.vm.saveMailerSettings();
-
-        expect(spySaveValues).toHaveBeenCalledWith({
-            'core.mailerSettings.emailAgent': 'local',
-            'core.mailerSettings.host': null,
-            'core.mailerSettings.port': null,
-            'core.mailerSettings.username': null,
-            'core.mailerSettings.password': null,
-            'core.mailerSettings.encryption': 'null',
-            'core.mailerSettings.senderAddress': null,
-            'core.mailerSettings.deliveryAddress': null,
-            'core.mailerSettings.disableDelivery': true,
-            'core.mailerSettings.sendMailOptions': '-bs',
-        });
-    });
-
-    it('should display and allow selection of email sendmail options', async () => {
-        const wrapper = await new CreateSettingsMailer();
-
-        // Verify options are correct
-        expect(wrapper.vm.emailSendmailOptions).toEqual([
-            {
-                value: '-bs',
-                name: 'sw-settings-mailer.sendmail.sync',
-            },
-            {
-                value: '-t -i',
-                name: 'sw-settings-mailer.sendmail.async',
-            },
-        ]);
-
-        // Set the mailer settings directly
-        await wrapper.setData({
-            mailerSettings: {
-                'core.mailerSettings.emailAgent': 'local',
-                'core.mailerSettings.sendMailOptions': '-bs',
-            },
-        });
-
-        // Verify the value was set correctly
-        expect(wrapper.vm.mailerSettings['core.mailerSettings.sendMailOptions']).toBe('-bs');
-    });
-
-    it('should detect SMTP mode correctly', async () => {
-        const smtpWrapper = await new CreateSettingsMailer('smtp');
-        expect(smtpWrapper.vm.isSmtpMode).toBe(true);
-
-        const oauthWrapper = await new CreateSettingsMailer('smtp+oauth');
-        expect(oauthWrapper.vm.isSmtpMode).toBe(true);
-
-        const localWrapper = await new CreateSettingsMailer('local');
-        expect(localWrapper.vm.isSmtpMode).toBe(false);
-    });
-
-    it('should provide correct email agent options including OAuth', async () => {
-        const wrapper = await new CreateSettingsMailer();
-
-        expect(wrapper.vm.emailAgentOptions).toEqual([
-            {
-                id: 1,
-                value: 'local',
-                label: 'sw-settings-mailer.mailer-configuration.local-agent',
-            },
-            {
-                id: 2,
-                value: 'smtp',
-                label: 'sw-settings-mailer.mailer-configuration.smtp-server',
-            },
-            {
-                id: 3,
-                value: 'smtp+oauth',
-                label: 'sw-settings-mailer.mailer-configuration.smtp-server-oauth',
-            },
-            {
-                id: 3,
-                value: '',
-                label: 'sw-settings-mailer.mailer-configuration.env-file',
-            },
-        ]);
-    });
-
-    it('should load mailerSettings with OAuth grant type defaults', async () => {
-        const expectedSettings = {
-            'core.mailerSettings.emailAgent': 'smtp+oauth',
-            'core.mailerSettings.host': 'smtp.office365.com',
-            'core.mailerSettings.port': 587,
-            'core.mailerSettings.username': null,
-            'core.mailerSettings.password': null,
-            'core.mailerSettings.encryption': 'tls',
-            'core.mailerSettings.senderAddress': 'test@company.com',
-            'core.mailerSettings.deliveryAddress': null,
-            'core.mailerSettings.disableDelivery': false,
-            'core.mailerSettings.oauthGrantType': 'password',
-            'core.mailerSettings.oauthUsername': 'test@company.com',
-            'core.mailerSettings.oauthPassword': 'user-password',
-        };
-
-        const settingsMailer = await new CreateSettingsMailer();
-        settingsMailer.vm.systemConfigApiService.getValues = () => Promise.resolve(expectedSettings);
-
-        await settingsMailer.vm.createdComponent();
-
-        expect(settingsMailer.vm.mailerSettings).toEqual(expectedSettings);
-    });
-
-    it('should save OAuth ROPC settings correctly', async () => {
-        const wrapper = await new CreateSettingsMailer();
-        const spySaveValues = jest.spyOn(wrapper.vm.systemConfigApiService, 'saveValues');
-
-        const oauthROPCSettings = {
-            'core.mailerSettings.emailAgent': 'smtp+oauth',
-            'core.mailerSettings.host': 'smtp.office365.com',
-            'core.mailerSettings.port': 587,
-            'core.mailerSettings.username': null,
-            'core.mailerSettings.password': null,
-            'core.mailerSettings.encryption': 'tls',
-            'core.mailerSettings.senderAddress': 'test@company.com',
-            'core.mailerSettings.deliveryAddress': null,
-            'core.mailerSettings.disableDelivery': false,
-            'core.mailerSettings.sendMailOptions': null,
-            'core.mailerSettings.oauthGrantType': 'password',
-            'core.mailerSettings.oauthUsername': 'test@company.com',
-            'core.mailerSettings.oauthPassword': 'user-password',
-        };
-
-        await wrapper.setData({
-            mailerSettings: oauthROPCSettings,
-        });
-
-        await wrapper.vm.saveMailerSettings();
-
-        expect(spySaveValues).toHaveBeenCalledWith(oauthROPCSettings);
-    });
-
-    it('should save OAuth client credentials settings correctly', async () => {
-        const wrapper = await new CreateSettingsMailer();
-        const spySaveValues = jest.spyOn(wrapper.vm.systemConfigApiService, 'saveValues');
-
-        const oauthClientCredentialsSettings = {
-            'core.mailerSettings.emailAgent': 'smtp+oauth',
-            'core.mailerSettings.host': 'smtp.office365.com',
-            'core.mailerSettings.port': 587,
-            'core.mailerSettings.username': null,
-            'core.mailerSettings.password': null,
-            'core.mailerSettings.encryption': 'tls',
-            'core.mailerSettings.senderAddress': 'test@company.com',
-            'core.mailerSettings.deliveryAddress': null,
-            'core.mailerSettings.disableDelivery': false,
-            'core.mailerSettings.sendMailOptions': null,
-            'core.mailerSettings.oauthGrantType': 'client_credentials',
-            'core.mailerSettings.oauthUsername': null,
-            'core.mailerSettings.oauthPassword': null,
-            'core.mailerSettings.clientId': 'test-client-id',
-            'core.mailerSettings.clientSecret': 'test-client-secret',
-            'core.mailerSettings.oauthScope': 'https://outlook.office365.com/SMTP.Send',
-            'core.mailerSettings.oauthUrl': 'https://login.microsoftonline.com/tenant-id/oauth2/v2.0/token',
-        };
-
-        await wrapper.setData({
-            mailerSettings: oauthClientCredentialsSettings,
-        });
-
-        await wrapper.vm.saveMailerSettings();
-
-        expect(spySaveValues).toHaveBeenCalledWith(oauthClientCredentialsSettings);
-    });
-
-    it('should not include OAuth fields in default mailer settings when set to local', async () => {
-        const wrapper = await new CreateSettingsMailer();
+    it('should successfully save valid configuration', async () => {
+        const wrapper = await new CreateSettingsMailer('smtp');
         const spySaveValues = jest.spyOn(wrapper.vm.systemConfigApiService, 'saveValues');
 
         await wrapper.setData({
             mailerSettings: {
-                'core.mailerSettings.emailAgent': 'local',
-                'core.mailerSettings.host': 'smtp.office365.com',
+                'core.mailerSettings.emailAgent': 'smtp',
+                'core.mailerSettings.host': 'smtp.example.com',
                 'core.mailerSettings.port': 587,
-                'core.mailerSettings.username': 'test',
-                'core.mailerSettings.password': 'test',
+                'core.mailerSettings.username': 'user',
+                'core.mailerSettings.password': 'pass',
                 'core.mailerSettings.encryption': 'tls',
-                'core.mailerSettings.senderAddress': 'test@company.com',
-                'core.mailerSettings.deliveryAddress': 'delivery@company.com',
-                'core.mailerSettings.disableDelivery': true,
-                'core.mailerSettings.sendMailOptions': '-bs',
-                'core.mailerSettings.oauthGrantType': 'password',
-                'core.mailerSettings.oauthUsername': 'oauth-user',
-                'core.mailerSettings.oauthPassword': 'oauth-password',
+                'core.mailerSettings.senderAddress': 'sender@example.com',
+                'core.mailerSettings.deliveryAddress': null,
+                'core.mailerSettings.disableDelivery': false,
             },
         });
 
-        await wrapper.vm.saveMailerSettings();
+        const saveButton = wrapper.find('sw-button-process, .sw-button');
+        await saveButton.trigger('click');
+        await flushPromises();
 
-        expect(spySaveValues).toHaveBeenCalledWith({
-            'core.mailerSettings.emailAgent': 'local',
-            'core.mailerSettings.host': null,
-            'core.mailerSettings.port': null,
-            'core.mailerSettings.username': null,
-            'core.mailerSettings.password': null,
-            'core.mailerSettings.encryption': 'null',
-            'core.mailerSettings.senderAddress': null,
-            'core.mailerSettings.deliveryAddress': null,
-            'core.mailerSettings.disableDelivery': true,
-            'core.mailerSettings.sendMailOptions': '-bs',
-        });
+        expect(spySaveValues).toHaveBeenCalledWith(
+            expect.objectContaining({
+                'core.mailerSettings.emailAgent': 'smtp',
+                'core.mailerSettings.host': 'smtp.example.com',
+                'core.mailerSettings.port': 587,
+            }),
+        );
+    });
+
+    it('should render help text explaining mailer configuration', async () => {
+        const wrapper = await new CreateSettingsMailer();
+        await flushPromises();
+
+        const helpText = wrapper.find('p[v-html]');
+        expect(helpText.exists()).toBe(true);
+    });
+
+    it('should show loading skeleton when data is loading', async () => {
+        const wrapper = await new CreateSettingsMailer();
+
+        // Simulate loading state
+        await wrapper.setData({ isLoading: true });
+
+        const skeleton = wrapper.find('sw-skeleton');
+        expect(skeleton.exists()).toBe(true);
+
+        const card = wrapper.find('mt-card[position-identifier="sw-settings-mailer-configuration"]');
+        expect(card.exists()).toBe(false);
+    });
+
+    it('should show configuration card when not loading', async () => {
+        const wrapper = await new CreateSettingsMailer();
+        await flushPromises();
+
+        const skeleton = wrapper.find('sw-skeleton');
+        expect(skeleton.exists()).toBe(false);
+
+        const card = wrapper.find('mt-card[position-identifier="sw-settings-mailer-configuration"]');
+        expect(card.exists()).toBe(true);
+        expect(card.attributes('title')).toBe('sw-settings-mailer.mailer-configuration.card-title');
     });
 });

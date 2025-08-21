@@ -7,7 +7,7 @@ test('Visual: Promotions Listing Page', { tag: '@Visual' }, async ({
     TestDataService, 
     AdminPromotionsListing,
  }) => {
-    await test.step('Creates a screenshot of the promotions listing page in its empty state .', async () => { 
+    await test.step('Creates a screenshot of the promotions listing page in its empty state.', async () => { 
         await ShopAdmin.goesTo(AdminPromotionsListing.url());
         await setViewport(AdminPromotionsListing.page, {
             width: 1440,

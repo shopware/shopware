@@ -57,7 +57,7 @@ class CookieGroupCollectListener
             $cookieGroup = $cookieGroupCollection->get($cookie['snippet_name']) ?? new CookieGroup($cookie['snippet_name']);
 
             if (\array_key_exists('snippet_description', $cookie)) {
-                $cookieGroup->snippetDescription = $cookie['snippet_description'];
+                $cookieGroup->snippetKeyDescription = $cookie['snippet_description'];
             }
 
             if (\array_key_exists('cookie', $cookie)) {
@@ -78,11 +78,11 @@ class CookieGroupCollectListener
                     $cookieEntry = new CookieEntry($entry['cookie']);
 
                     if (\array_key_exists('snippet_name', $entry)) {
-                        $cookieEntry->snippetName = $entry['snippet_name'];
+                        $cookieEntry->snippetKeyName = $entry['snippet_name'];
                     }
 
                     if (\array_key_exists('snippet_description', $entry)) {
-                        $cookieEntry->snippetDescription = $entry['snippet_description'];
+                        $cookieEntry->snippetKeyDescription = $entry['snippet_description'];
                     }
 
                     if (\array_key_exists('value', $entry)) {

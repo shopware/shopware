@@ -47,7 +47,7 @@ class CookieGroupCollectListenerTest extends TestCase
         static::assertCount(1, $groups);
         $firstGroup = $groups->first();
         static::assertNotNull($firstGroup);
-        static::assertSame('swag.analytics.name', $firstGroup->snippetName);
+        static::assertSame('swag.analytics.name', $firstGroup->snippetKeyName);
         static::assertSame('swag-analytics', $firstGroup->getCookie());
         static::assertSame('', $firstGroup->value);
         static::assertSame(30, $firstGroup->expiration);
@@ -69,8 +69,8 @@ class CookieGroupCollectListenerTest extends TestCase
 
         $firstGroup = $groups->first();
         static::assertNotNull($firstGroup);
-        static::assertSame('app.cookies.group', $firstGroup->snippetName);
-        static::assertSame('app.cookies.group.description', $firstGroup->snippetDescription);
+        static::assertSame('app.cookies.group', $firstGroup->snippetKeyName);
+        static::assertSame('app.cookies.group.description', $firstGroup->snippetKeyDescription);
 
         $entries = $firstGroup->getEntries();
         static::assertNotNull($entries);
@@ -79,12 +79,12 @@ class CookieGroupCollectListenerTest extends TestCase
         $firstCookie = $entries->get('swag-app-something');
         static::assertNotNull($firstCookie);
         static::assertSame('swag-app-something', $firstCookie->cookie);
-        static::assertSame('first.cookie', $firstCookie->snippetName);
+        static::assertSame('first.cookie', $firstCookie->snippetKeyName);
 
         $secondCookie = $entries->get('swag-app-lorem-ipsum');
         static::assertNotNull($secondCookie);
         static::assertSame('swag-app-lorem-ipsum', $secondCookie->cookie);
-        static::assertSame('second.cookie', $secondCookie->snippetName);
+        static::assertSame('second.cookie', $secondCookie->snippetKeyName);
     }
 
     public function testMergeCookiesWithCoreGroup(): void
@@ -92,7 +92,7 @@ class CookieGroupCollectListenerTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/_fixtures/coreGroup');
 
         $coreCookieEntry = new CookieEntry('core.something');
-        $coreCookieEntry->snippetName = 'cookie.core';
+        $coreCookieEntry->snippetKeyName = 'cookie.core';
 
         $coreCookieGroup = new CookieGroup('cookie.groupRequired');
         $coreCookieGroup->setEntries(new CookieEntryCollection([$coreCookieEntry]));
@@ -109,7 +109,7 @@ class CookieGroupCollectListenerTest extends TestCase
 
         $firstGroup = $groups->first();
         static::assertNotNull($firstGroup);
-        static::assertSame('cookie.groupRequired', $firstGroup->snippetName);
+        static::assertSame('cookie.groupRequired', $firstGroup->snippetKeyName);
         $entries = $firstGroup->getEntries();
         static::assertNotNull($entries);
         static::assertCount(3, $entries);
@@ -117,17 +117,17 @@ class CookieGroupCollectListenerTest extends TestCase
         $coreCookieEntry = $entries->get('core.something');
         static::assertNotNull($coreCookieEntry);
         static::assertSame('core.something', $coreCookieEntry->cookie);
-        static::assertSame('cookie.core', $coreCookieEntry->snippetName);
+        static::assertSame('cookie.core', $coreCookieEntry->snippetKeyName);
 
         $firstCookie = $entries->get('swag-app-something');
         static::assertNotNull($firstCookie);
         static::assertSame('swag-app-something', $firstCookie->cookie);
-        static::assertSame('first.something', $firstCookie->snippetName);
+        static::assertSame('first.something', $firstCookie->snippetKeyName);
 
         $secondCookie = $entries->get('swag-app-lorem-ipsum');
         static::assertNotNull($secondCookie);
         static::assertSame('swag-app-lorem-ipsum', $secondCookie->cookie);
-        static::assertSame('second.lorem.ipsum', $secondCookie->snippetName);
+        static::assertSame('second.lorem.ipsum', $secondCookie->snippetKeyName);
     }
 
     public function testMergeCookiesFromMultipleApps(): void
@@ -146,7 +146,7 @@ class CookieGroupCollectListenerTest extends TestCase
 
         $firstGroup = $groups->first();
         static::assertNotNull($firstGroup);
-        static::assertSame('app.cookie.group.name', $firstGroup->snippetName);
+        static::assertSame('app.cookie.group.name', $firstGroup->snippetKeyName);
         $entries = $firstGroup->getEntries();
         static::assertNotNull($entries);
         static::assertCount(3, $entries);
@@ -154,17 +154,17 @@ class CookieGroupCollectListenerTest extends TestCase
         $firstAppFirstCookie = $entries->get('swag-app-something');
         static::assertNotNull($firstAppFirstCookie);
         static::assertSame('swag-app-something', $firstAppFirstCookie->cookie);
-        static::assertSame('first.something', $firstAppFirstCookie->snippetName);
+        static::assertSame('first.something', $firstAppFirstCookie->snippetKeyName);
 
         $firstAppSecondCookie = $entries->get('swag-app-lorem-ipsum');
         static::assertNotNull($firstAppSecondCookie);
         static::assertSame('swag-app-lorem-ipsum', $firstAppSecondCookie->cookie);
-        static::assertSame('second.lorem.ipsum', $firstAppSecondCookie->snippetName);
+        static::assertSame('second.lorem.ipsum', $firstAppSecondCookie->snippetKeyName);
 
         $secondAppCookie = $entries->get('swag-app-foobar');
         static::assertNotNull($secondAppCookie);
         static::assertSame('swag-app-foobar', $secondAppCookie->cookie);
-        static::assertSame('other.app.foobar', $secondAppCookie->snippetName);
+        static::assertSame('other.app.foobar', $secondAppCookie->snippetKeyName);
     }
 
     public function testItIgnoresDeactivatedApps(): void

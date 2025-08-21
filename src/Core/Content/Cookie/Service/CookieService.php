@@ -105,8 +105,8 @@ readonly class CookieService
     //     */
     //    private function hydrateCookieStructFromArray(CookieStruct $struct, array $data): void
     //    {
-    //        $struct->snippetName = $data['snippet_name'] ?? null;
-    //        $struct->snippetDescription = $data['snippet_description'] ?? null;
+    //        $struct->snippetKeyName = $data['snippet_name'] ?? null;
+    //        $struct->snippetKeyDescription = $data['snippet_description'] ?? null;
     //        $struct->cookie = $data['cookie'] ?? null;
     //        $struct->value = $data['value'] ?? null;
     //        $struct->expiration = $data['expiration'] ?? null;
@@ -126,21 +126,21 @@ readonly class CookieService
     public function translateCookieGroups(CookieGroupCollection $cookieGroups): void
     {
         foreach ($cookieGroups as $group) {
-            $group->snippetName = $this->translator->trans($group->snippetName);
+            $group->snippetKeyName = $this->translator->trans($group->snippetKeyName);
 
-            if (isset($group->snippetDescription)) {
-                $group->snippetDescription = $this->translator->trans($group->snippetDescription);
+            if (isset($group->snippetKeyDescription)) {
+                $group->snippetKeyDescription = $this->translator->trans($group->snippetKeyDescription);
             }
 
             $entries = $group->getEntries();
             if ($entries !== null) {
                 foreach ($entries as $entry) {
-                    if (isset($entry->snippetName)) {
-                        $entry->snippetName = $this->translator->trans($entry->snippetName);
+                    if (isset($entry->snippetKeyName)) {
+                        $entry->snippetKeyName = $this->translator->trans($entry->snippetKeyName);
                     }
 
-                    if (isset($entry->snippetDescription)) {
-                        $entry->snippetDescription = $this->translator->trans($entry->snippetDescription);
+                    if (isset($entry->snippetKeyDescription)) {
+                        $entry->snippetKeyDescription = $this->translator->trans($entry->snippetKeyDescription);
                     }
                 }
             }
@@ -166,7 +166,7 @@ readonly class CookieService
 
         $filteredGroups = [];
         foreach ($cookieGroups as $cookieGroup) {
-            if ($cookieGroup->snippetName === 'cookie.groupStatistical') {
+            if ($cookieGroup->snippetKeyName === 'cookie.groupStatistical') {
                 $cookieGroup = $this->filterCookieGroup('google-analytics-enabled', $cookieGroup);
                 if ($cookieGroup !== null) {
                     $filteredGroups[] = $cookieGroup;
@@ -175,7 +175,7 @@ readonly class CookieService
                 continue;
             }
 
-            if ($cookieGroup->snippetName === 'cookie.groupMarketing') {
+            if ($cookieGroup->snippetKeyName === 'cookie.groupMarketing') {
                 $cookieGroup = $this->filterCookieGroup('google-ads-enabled', $cookieGroup);
                 if ($cookieGroup !== null) {
                     $filteredGroups[] = $cookieGroup;
@@ -198,7 +198,7 @@ readonly class CookieService
 
         $filteredGroups = [];
         foreach ($cookieGroups as $cookieGroup) {
-            if ($cookieGroup->snippetName === 'cookie.groupComfortFeatures') {
+            if ($cookieGroup->snippetKeyName === 'cookie.groupComfortFeatures') {
                 $cookieGroup = $this->filterCookieGroup('wishlist-enabled', $cookieGroup);
                 if ($cookieGroup !== null) {
                     $filteredGroups[] = $cookieGroup;
@@ -229,7 +229,7 @@ readonly class CookieService
 
         $filteredGroups = [];
         foreach ($cookieGroups as $cookieGroup) {
-            if ($cookieGroup->snippetName === 'cookie.groupRequired') {
+            if ($cookieGroup->snippetKeyName === 'cookie.groupRequired') {
                 $cookieGroup = $this->filterCookieGroup('_GRECAPTCHA', $cookieGroup);
                 if ($cookieGroup !== null) {
                     $filteredGroups[] = $cookieGroup;

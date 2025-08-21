@@ -18,7 +18,7 @@ class CookieGroup extends Struct
 {
     public bool $isRequired = false;
 
-    public ?string $snippetDescription;
+    public ?string $snippetKeyDescription;
 
     public ?string $value;
 
@@ -29,7 +29,7 @@ class CookieGroup extends Struct
     protected ?CookieEntryCollection $entries;
 
     public function __construct(
-        public string $snippetName,
+        public string $snippetKeyName,
     ) {
     }
 

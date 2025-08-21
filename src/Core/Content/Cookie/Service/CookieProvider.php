@@ -44,7 +44,7 @@ class CookieProvider
     private function getCookieGroupRequiredEntries(): CookieGroup
     {
         $cookieGroupRequired = new CookieGroup('cookie.groupRequired');
-        $cookieGroupRequired->snippetDescription = 'cookie.groupRequiredDescription';
+        $cookieGroupRequired->snippetKeyDescription = 'cookie.groupRequiredDescription';
         $cookieGroupRequired->setEntries(new CookieEntryCollection([
             $this->getRequiredSessionEntry(),
             $this->getRequiredTimezoneEntry(),
@@ -59,7 +59,7 @@ class CookieProvider
     private function getRequiredSessionEntry(): CookieEntry
     {
         $entryRequiredSession = new CookieEntry($this->sessionName);
-        $entryRequiredSession->snippetName = 'cookie.groupRequiredSession';
+        $entryRequiredSession->snippetKeyName = 'cookie.groupRequiredSession';
 
         return $entryRequiredSession;
     }
@@ -67,7 +67,7 @@ class CookieProvider
     private function getRequiredTimezoneEntry(): CookieEntry
     {
         $entryRequiredTimezone = new CookieEntry('timezone');
-        $entryRequiredTimezone->snippetName = 'cookie.groupRequiredTimezone';
+        $entryRequiredTimezone->snippetKeyName = 'cookie.groupRequiredTimezone';
 
         return $entryRequiredTimezone;
     }
@@ -75,7 +75,7 @@ class CookieProvider
     private function getRequiredAcceptedEntry(): CookieEntry
     {
         $entryRequiredAccepted = new CookieEntry('cookie-preference');
-        $entryRequiredAccepted->snippetName = 'cookie.groupRequiredAccepted';
+        $entryRequiredAccepted->snippetKeyName = 'cookie.groupRequiredAccepted';
         $entryRequiredAccepted->value = '1';
         $entryRequiredAccepted->expiration = 30;
         $entryRequiredAccepted->hidden = true;
@@ -86,7 +86,7 @@ class CookieProvider
     private function getRequiredCaptchaEntry(): CookieEntry
     {
         $entryRequiredCaptcha = new CookieEntry('_GRECAPTCHA');
-        $entryRequiredCaptcha->snippetName = 'cookie.groupRequiredCaptcha';
+        $entryRequiredCaptcha->snippetKeyName = 'cookie.groupRequiredCaptcha';
         $entryRequiredCaptcha->value = '1';
 
         return $entryRequiredCaptcha;
@@ -98,7 +98,7 @@ class CookieProvider
         $cookieGroupStatistical->setEntries(new CookieEntryCollection([
             $this->getGoogleAnalyticsEntry(),
         ]));
-        $cookieGroupStatistical->snippetDescription = 'cookie.groupStatisticalDescription';
+        $cookieGroupStatistical->snippetKeyDescription = 'cookie.groupStatisticalDescription';
 
         return $cookieGroupStatistical;
     }
@@ -106,7 +106,7 @@ class CookieProvider
     private function getGoogleAnalyticsEntry(): CookieEntry
     {
         $entryGoogleAnalytics = new CookieEntry('google-analytics-enabled');
-        $entryGoogleAnalytics->snippetName = 'cookie.groupStatisticalGoogleAnalytics';
+        $entryGoogleAnalytics->snippetKeyName = 'cookie.groupStatisticalGoogleAnalytics';
         $entryGoogleAnalytics->value = '1';
         $entryGoogleAnalytics->expiration = 30;
 
@@ -127,7 +127,7 @@ class CookieProvider
     private function getWishlistEntry(): CookieEntry
     {
         $entryWishlist = new CookieEntry('wishlist-enabled');
-        $entryWishlist->snippetName = 'cookie.groupComfortFeaturesWishlist';
+        $entryWishlist->snippetKeyName = 'cookie.groupComfortFeaturesWishlist';
         $entryWishlist->value = '1';
         $entryWishlist->expiration = 30;
 
@@ -137,7 +137,7 @@ class CookieProvider
     private function getYoutubeVideoEntry(): CookieEntry
     {
         $entryYoutubeVideo = new CookieEntry('youtube-video');
-        $entryYoutubeVideo->snippetName = 'cookie.groupComfortFeaturesYoutubeVideo';
+        $entryYoutubeVideo->snippetKeyName = 'cookie.groupComfortFeaturesYoutubeVideo';
         $entryYoutubeVideo->value = '1';
         $entryYoutubeVideo->expiration = 30;
 
@@ -147,7 +147,7 @@ class CookieProvider
     private function getCookieGroupMarketing(): CookieGroup
     {
         $cookieGroupMarketing = new CookieGroup('cookie.groupMarketing');
-        $cookieGroupMarketing->snippetDescription = 'cookie.groupMarketingDescription';
+        $cookieGroupMarketing->snippetKeyDescription = 'cookie.groupMarketingDescription';
         $cookieGroupMarketing->setEntries(new CookieEntryCollection([
             $this->getGoogleAdsEntry(),
         ]));
@@ -158,7 +158,7 @@ class CookieProvider
     private function getGoogleAdsEntry(): CookieEntry
     {
         $entryGoogleAds = new CookieEntry('google-ads-enabled');
-        $entryGoogleAds->snippetName = 'cookie.groupMarketingAdConsent';
+        $entryGoogleAds->snippetKeyName = 'cookie.groupMarketingAdConsent';
         $entryGoogleAds->value = '1';
         $entryGoogleAds->expiration = 30;
 

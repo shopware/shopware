@@ -10,10 +10,10 @@
           "isRequired": {
             "type": "boolean"
           },
-          "snippetName": {
+          "snippetKeyName": {
             "type": "string"
           },
-          "snippetDescription": {
+          "snippetKeyDescription": {
             "type": "string"
           },
           "cookie": {
@@ -50,7 +50,7 @@
           ]
         },
         "required": [
-          "snippetName",
+          "snippetKeyName",
           "isRequired",
           "apiAlias"
         ]

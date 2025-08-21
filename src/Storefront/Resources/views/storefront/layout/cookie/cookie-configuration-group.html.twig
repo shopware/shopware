@@ -8,14 +8,14 @@
                 parent: cookieGroup
             } only %}
 
-            {# @deprecated tag:v6.8.0 - Use `cookieGroup.snippetDescription` instead of `cookieGroup.snippet_description`. Support for `cookieGroup.snippet_description` will be removed. #}
-            {% set snippetDescription = cookieGroup.snippet_description ?? cookieGroup.snippetDescription %}
-            {# @deprecated tag:v6.8.0 - Use `cookieGroup.snippetName` instead of `cookieGroup.snippet_name`. Support for `cookieGroup.snippet_name` will be removed. #}
-            {% set snippetName = cookieGroup.snippet_name ?? cookieGroup.snippetName %}
+            {# @deprecated tag:v6.8.0 - Use `cookieGroup.snippetKeyDescription` instead of `cookieGroup.snippet_description`. Support for `cookieGroup.snippet_description` will be removed. #}
+            {% set snippetKeyDescription = cookieGroup.snippet_description ?? cookieGroup.snippetKeyDescription %}
+            {# @deprecated tag:v6.8.0 - Use `cookieGroup.snippetKeyName` instead of `cookieGroup.snippet_name`. Support for `cookieGroup.snippet_name` will be removed. #}
+            {% set snippetKeyName = cookieGroup.snippet_name ?? cookieGroup.snippetKeyName %}
 
-            {% if cookieGroup.entries is not empty or snippetDescription %}
+            {% if cookieGroup.entries is not empty or snippetKeyDescription %}
 
-                {% set cookieGroupName = (snippetName|default(''))|replace({'cookie.': ''}) %}
+                {% set cookieGroupName = (snippetKeyName|default(''))|replace({'cookie.': ''}) %}
                 {% set cookieGroupId = 'offcanvas-cookie-entries-' ~ cookieGroupName %}
 
                 {% block cookie_configuration_group_collapse_button %}
@@ -34,8 +34,8 @@
 
                 <div id="{{ cookieGroupId }}" class="offcanvas-cookie-entries collapse">
 
-                    {% if snippetDescription %}
-                        <p>{{ snippetDescription|trans|sw_sanitize }}</p>
+                    {% if snippetKeyDescription %}
+                        <p>{{ snippetKeyDescription|trans|sw_sanitize }}</p>
                     {% endif %}
 
                     {% for entry in cookieGroup.entries %}

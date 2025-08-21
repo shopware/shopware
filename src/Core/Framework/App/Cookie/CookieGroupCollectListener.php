@@ -53,7 +53,6 @@ class CookieGroupCollectListener
      */
     private function addCookies(CookieGroupCollection $cookieGroupCollection, array $appCookies): void
     {
-        dump($cookieGroupCollection);
         foreach ($appCookies as $cookie) {
             $cookieGroup = $cookieGroupCollection->get($cookie['snippet_name']) ?? new CookieGroup($cookie['snippet_name']);
 

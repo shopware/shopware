@@ -7,6 +7,9 @@
       "CookieGroup": {
         "type": "object",
         "properties": {
+          "isRequired": {
+            "type": "boolean"
+          },
           "snippetName": {
             "type": "string"
           },
@@ -20,23 +23,37 @@
             "type": "string"
           },
           "expiration": {
-            "type": "string"
-          },
-          "isRequired": {
-            "type": "boolean"
+            "type": "integer"
           },
           "entries": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CookieEntry"
-            }
+            "$ref": "#/components/schemas/CookieEntryCollection"
           },
           "apiAlias": {
             "type": "string",
-            "enum": ["cookie_group"]
+            "enum": [
+              "cookie_group"
+            ]
           }
         },
-        "required": ["isRequired", "entries", "apiAlias"]
+        "not": {
+          "allOf": [
+            {
+              "required": [
+                "cookie"
+              ]
+            },
+            {
+              "required": [
+                "entries"
+              ]
+            }
+          ]
+        },
+        "required": [
+          "snippetName",
+          "isRequired",
+          "apiAlias"
+        ]
       }
     }
   }

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Document\Event\InvoiceOrdersEvent;
@@ -17,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -39,6 +39,7 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
         private readonly Connection $connection,
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
         private readonly ValidatorInterface $validator,
+        private readonly FilesystemOperator $privateFilesystem,
     ) {
     }
 
@@ -144,8 +145,19 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
                     $doc->setOrder($order);
                     $doc->setContext($context);
 
-                    $filesystem = new Filesystem();
-                    $filesystem->dumpFile(__DIR__ . '/../document_debug/' . (new \DateTime())->format('Ymd-His') . '.log', var_export($doc, true));
+                    $debugDirectory = 'document_debug';
+
+                    if (!$this->privateFilesystem->directoryExists($debugDirectory)) {
+                        $this->privateFilesystem->createDirectory($debugDirectory);
+                    }
+
+                    $filename = \sprintf(
+                        '%s/%s.log',
+                        $debugDirectory,
+                        (new \DateTime())->format('Ymd-His-u')
+                    );
+
+                    $this->privateFilesystem->write($filename, var_export($doc, true));
 
                     $doc->setContent($this->fileRendererRegistry->render($doc));
 

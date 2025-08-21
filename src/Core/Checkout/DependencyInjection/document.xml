@@ -65,6 +65,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry" />
             <argument type="service" id="validator" />
+            <argument type="service" id="shopware.filesystem.private"/>
 
             <tag name="document.renderer"/>
         </service>

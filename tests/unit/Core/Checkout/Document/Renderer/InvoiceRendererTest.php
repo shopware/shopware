@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\Filesystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -124,6 +126,7 @@ class InvoiceRendererTest extends TestCase
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
             $validator,
+            $filesystem = new Filesystem(new InMemoryFilesystemAdapter()),
         );
 
         $operations = [
@@ -212,6 +215,7 @@ class InvoiceRendererTest extends TestCase
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
             $this->createMock(ValidatorInterface::class),
+            $filesystem = new Filesystem(new InMemoryFilesystemAdapter()),
         );
 
         $operations = [
@@ -265,6 +269,7 @@ class InvoiceRendererTest extends TestCase
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
             $this->createMock(ValidatorInterface::class),
+            $filesystem = new Filesystem(new InMemoryFilesystemAdapter()),
         );
 
         $operations = [

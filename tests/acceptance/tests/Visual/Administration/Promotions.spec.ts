@@ -17,8 +17,8 @@ test('Visual: Promotions Listing Page', { tag: '@Visual' }, async ({
     });
 
     await test.step('Creates a screenshot of the promotions listing page with an active and an inactive promotion.', async () => {
-        await TestDataService.createPromotionWithCode( { active: true} );
-        await TestDataService.createPromotionWithCode( { active: false} );
+        await TestDataService.createPromotionWithCode( { active: true } );
+        await TestDataService.createPromotionWithCode( { active: false } );
         
         await ShopAdmin.goesTo(AdminPromotionsListing.url());
         await replaceElements(AdminPromotionsListing.page, [ '.sw-data-grid__cell--name', ]);

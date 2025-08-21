@@ -45,12 +45,12 @@ class CookieProvider
     {
         $cookieGroupRequired = new CookieGroup('cookie.groupRequired');
         $cookieGroupRequired->snippetDescription = 'cookie.groupRequiredDescription';
-        $cookieGroupRequired->entries = new CookieEntryCollection([
+        $cookieGroupRequired->setEntries(new CookieEntryCollection([
             $this->getRequiredSessionEntry(),
             $this->getRequiredTimezoneEntry(),
             $this->getRequiredAcceptedEntry(),
             $this->getRequiredCaptchaEntry(),
-        ]);
+        ]));
         $cookieGroupRequired->isRequired = true;
 
         return $cookieGroupRequired;
@@ -95,9 +95,9 @@ class CookieProvider
     private function getCookieGroupStatistical(): CookieGroup
     {
         $cookieGroupStatistical = new CookieGroup('cookie.groupStatistical');
-        $cookieGroupStatistical->entries = new CookieEntryCollection([
+        $cookieGroupStatistical->setEntries(new CookieEntryCollection([
             $this->getGoogleAnalyticsEntry(),
-        ]);
+        ]));
         $cookieGroupStatistical->snippetDescription = 'cookie.groupStatisticalDescription';
 
         return $cookieGroupStatistical;
@@ -116,10 +116,10 @@ class CookieProvider
     private function getCookieGroupComfortFeatures(): CookieGroup
     {
         $cookieGroupComfortFeatures = new CookieGroup('cookie.groupComfortFeatures');
-        $cookieGroupComfortFeatures->entries = new CookieEntryCollection([
+        $cookieGroupComfortFeatures->setEntries(new CookieEntryCollection([
             $this->getWishlistEntry(),
             $this->getYoutubeVideoEntry(),
-        ]);
+        ]));
 
         return $cookieGroupComfortFeatures;
     }
@@ -148,9 +148,9 @@ class CookieProvider
     {
         $cookieGroupMarketing = new CookieGroup('cookie.groupMarketing');
         $cookieGroupMarketing->snippetDescription = 'cookie.groupMarketingDescription';
-        $cookieGroupMarketing->entries = new CookieEntryCollection([
+        $cookieGroupMarketing->setEntries(new CookieEntryCollection([
             $this->getGoogleAdsEntry(),
-        ]);
+        ]));
 
         return $cookieGroupMarketing;
     }

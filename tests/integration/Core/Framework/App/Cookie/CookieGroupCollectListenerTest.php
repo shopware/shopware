@@ -48,7 +48,7 @@ class CookieGroupCollectListenerTest extends TestCase
         $firstGroup = $groups->first();
         static::assertNotNull($firstGroup);
         static::assertSame('swag.analytics.name', $firstGroup->snippetName);
-        static::assertSame('swag-analytics', $firstGroup->cookie);
+        static::assertSame('swag-analytics', $firstGroup->getCookie());
         static::assertSame('', $firstGroup->value);
         static::assertSame(30, $firstGroup->expiration);
     }
@@ -72,7 +72,7 @@ class CookieGroupCollectListenerTest extends TestCase
         static::assertSame('app.cookies.group', $firstGroup->snippetName);
         static::assertSame('app.cookies.group.description', $firstGroup->snippetDescription);
 
-        $entries = $firstGroup->entries;
+        $entries = $firstGroup->getEntries();
         static::assertNotNull($entries);
         static::assertCount(2, $entries);
 
@@ -95,7 +95,7 @@ class CookieGroupCollectListenerTest extends TestCase
         $coreCookieEntry->snippetName = 'cookie.core';
 
         $coreCookieGroup = new CookieGroup('cookie.groupRequired');
-        $coreCookieGroup->entries = new CookieEntryCollection([$coreCookieEntry]);
+        $coreCookieGroup->setEntries(new CookieEntryCollection([$coreCookieEntry]));
 
         $event = new CookieGroupCollectEvent(
             new CookieGroupCollection([$coreCookieGroup]),
@@ -110,7 +110,7 @@ class CookieGroupCollectListenerTest extends TestCase
         $firstGroup = $groups->first();
         static::assertNotNull($firstGroup);
         static::assertSame('cookie.groupRequired', $firstGroup->snippetName);
-        $entries = $firstGroup->entries;
+        $entries = $firstGroup->getEntries();
         static::assertNotNull($entries);
         static::assertCount(3, $entries);
 
@@ -147,7 +147,7 @@ class CookieGroupCollectListenerTest extends TestCase
         $firstGroup = $groups->first();
         static::assertNotNull($firstGroup);
         static::assertSame('app.cookie.group.name', $firstGroup->snippetName);
-        $entries = $firstGroup->entries;
+        $entries = $firstGroup->getEntries();
         static::assertNotNull($entries);
         static::assertCount(3, $entries);
 

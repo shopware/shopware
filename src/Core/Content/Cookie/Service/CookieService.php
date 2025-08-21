@@ -132,8 +132,9 @@ readonly class CookieService
                 $group->snippetDescription = $this->translator->trans($group->snippetDescription);
             }
 
-            if (isset($group->entries)) {
-                foreach ($group->entries as $entry) {
+            $entries = $group->getEntries();
+            if ($entries !== null) {
+                foreach ($entries as $entry) {
                     if (isset($entry->snippetName)) {
                         $entry->snippetName = $this->translator->trans($entry->snippetName);
                     }
@@ -245,15 +246,16 @@ readonly class CookieService
 
     private function filterCookieGroup(string $cookieName, CookieGroup $cookieGroup): ?CookieGroup
     {
-        if (!isset($cookieGroup->entries)) {
+        $entries = $cookieGroup->getEntries();
+        if (!$entries) {
             return null;
         }
 
-        $cookieGroup->entries = $cookieGroup->entries->filter(function (CookieEntry $item) use ($cookieName) {
+        $cookieGroup->setEntries($entries->filter(function (CookieEntry $item) use ($cookieName) {
             return $item->cookie !== $cookieName;
-        });
+        }));
 
-        if (\count($cookieGroup->entries) === 0) {
+        if (!$cookieGroup->getEntries() || \count($cookieGroup->getEntries()) === 0) {
             return null;
         }
 

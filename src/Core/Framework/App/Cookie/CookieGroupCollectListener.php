@@ -61,7 +61,7 @@ class CookieGroupCollectListener
             }
 
             if (\array_key_exists('cookie', $cookie)) {
-                $cookieGroup->cookie = $cookie['cookie'];
+                $cookieGroup->setCookie($cookie['cookie']);
             }
 
             if (\array_key_exists('value', $cookie)) {
@@ -73,7 +73,7 @@ class CookieGroupCollectListener
             }
 
             if (\array_key_exists('entries', $cookie)) {
-                $cookieEntries = $cookieGroup->entries ?? new CookieEntryCollection();
+                $cookieEntries = $cookieGroup->getEntries() ?? new CookieEntryCollection();
                 foreach ($cookie['entries'] as $entry) {
                     $cookieEntry = new CookieEntry($entry['cookie']);
 
@@ -95,7 +95,7 @@ class CookieGroupCollectListener
 
                     $cookieEntries->add($cookieEntry);
                 }
-                $cookieGroup->entries = $cookieEntries;
+                $cookieGroup->setEntries($cookieEntries);
             }
 
             $cookieGroupCollection->add($cookieGroup);

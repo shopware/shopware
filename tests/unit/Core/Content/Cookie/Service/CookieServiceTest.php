@@ -24,13 +24,13 @@ class CookieServiceTest extends TestCase
     public function testGetCookieGroupCollectionWithNoAnalytics(): void
     {
         $statisticalGroup = new CookieGroup('cookie.groupStatistical');
-        $statisticalGroup->entries = new CookieEntryCollection([new CookieEntry('google-analytics-enabled')]);
+        $statisticalGroup->setEntries(new CookieEntryCollection([new CookieEntry('google-analytics-enabled')]));
 
         $marketingGroup = new CookieGroup('cookie.groupMarketing');
-        $marketingGroup->entries = new CookieEntryCollection([new CookieEntry('google-ads-enabled')]);
+        $marketingGroup->setEntries(new CookieEntryCollection([new CookieEntry('google-ads-enabled')]));
 
         $otherGroup = new CookieGroup('cookie.groupOther');
-        $otherGroup->entries = new CookieEntryCollection([new CookieEntry('other-cookie')]);
+        $otherGroup->setEntries(new CookieEntryCollection([new CookieEntry('other-cookie')]));
 
         $cookieGroups = new CookieGroupCollection([$statisticalGroup, $marketingGroup, $otherGroup]);
 
@@ -51,7 +51,7 @@ class CookieServiceTest extends TestCase
         $group = $result->get('cookie.groupOther');
         static::assertInstanceOf(CookieGroup::class, $group);
         static::assertSame('cookie.groupOther', $group->snippetName);
-        $entries = $group->entries;
+        $entries = $group->getEntries();
         static::assertNotNull($entries);
         static::assertCount(1, $entries);
         static::assertSame('other-cookie', $entries->get('other-cookie')?->cookie);
@@ -65,7 +65,7 @@ class CookieServiceTest extends TestCase
 
         $cookieGroup = new CookieGroup('cookie.group.test');
         $cookieGroup->snippetDescription = 'cookie.group.test.description';
-        $cookieGroup->entries = new CookieEntryCollection([$cookieGroupEntry]);
+        $cookieGroup->setEntries(new CookieEntryCollection([$cookieGroupEntry]));
 
         /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
         $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
@@ -85,7 +85,7 @@ class CookieServiceTest extends TestCase
         static::assertInstanceOf(CookieGroup::class, $group);
         static::assertSame('Translated: cookie.group.test', $group->snippetName);
         static::assertSame('Translated: cookie.group.test.description', $group->snippetDescription);
-        $entries = $group->entries;
+        $entries = $group->getEntries();
         static::assertNotNull($entries);
         static::assertCount(1, $entries);
         $entry = $entries->get('test-cookie');

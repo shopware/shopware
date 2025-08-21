@@ -25,7 +25,7 @@ class CookieRouteTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $cookieGroup = new CookieGroup('test.group');
-        $cookieGroup->entries = new CookieEntryCollection([new CookieEntry('test-cookie')]);
+        $cookieGroup->setEntries(new CookieEntryCollection([new CookieEntry('test-cookie')]));
         $expectedCookieGroups = new CookieGroupCollection([$cookieGroup]);
 
         $cookieProvider = $this->createMock(CookieProvider::class);
@@ -50,7 +50,7 @@ class CookieRouteTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $cookieGroup = new CookieGroup('test.group');
-        $cookieGroup->entries = new CookieEntryCollection([new CookieEntry('test-cookie')]);
+        $cookieGroup->setEntries(new CookieEntryCollection([new CookieEntry('test-cookie')]));
         $expectedCookieGroups = new CookieGroupCollection([$cookieGroup]);
 
         $cookieProvider = $this->createMock(CookieProvider::class);
@@ -72,7 +72,7 @@ class CookieRouteTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $cookieGroup = new CookieGroup('test.group');
-        $cookieGroup->entries = new CookieEntryCollection([new CookieEntry('test-cookie')]);
+        $cookieGroup->setEntries(new CookieEntryCollection([new CookieEntry('test-cookie')]));
         $expectedCookieGroups = new CookieGroupCollection([$cookieGroup]);
 
         $cookieProvider = $this->createMock(CookieProvider::class);

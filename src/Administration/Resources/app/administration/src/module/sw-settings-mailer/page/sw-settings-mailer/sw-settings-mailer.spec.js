@@ -197,7 +197,6 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
         const wrapper = await new CreateSettingsMailer();
         await flushPromises();
 
-
         const agentSelector = wrapper.find('select');
         expect(agentSelector.exists()).toBe(true);
     });
@@ -260,7 +259,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
 
     it('should show SMTP card when SMTP mode is selected', async () => {
         const wrapper = await new CreateSettingsMailer('smtp');
-        
+
         // Set SMTP mode explicitly
         await wrapper.setData({
             mailerSettings: {
@@ -278,7 +277,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
 
     it('should show SMTP card when OAuth mode is selected', async () => {
         const wrapper = await new CreateSettingsMailer('smtp+oauth');
-        
+
         // Set OAuth mode explicitly
         await wrapper.setData({
             mailerSettings: {
@@ -296,7 +295,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
 
     it('should hide SMTP card when local mode is selected', async () => {
         const wrapper = await new CreateSettingsMailer('local');
-        
+
         // Set local mode explicitly
         await wrapper.setData({
             mailerSettings: {
@@ -314,7 +313,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
 
     it('should render SMTP component with proper configuration', async () => {
         const wrapper = await new CreateSettingsMailer('smtp');
-        
+
         await wrapper.setData({
             mailerSettings: {
                 'core.mailerSettings.emailAgent': 'smtp',
@@ -336,7 +335,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
         // Test that error reset methods exist and work
         expect(typeof wrapper.vm.resetSmtpHostError).toBe('function');
         expect(typeof wrapper.vm.resetSmtpPortError).toBe('function');
-        
+
         // Call methods to ensure they don't throw
         wrapper.vm.resetSmtpHostError();
         wrapper.vm.resetSmtpPortError();
@@ -396,7 +395,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
         await flushPromises();
 
         // Find all p elements and look for the one with helpText
-        const helpText = wrapper.findAll('p').filter(p => p.text().includes('sw-settings-mailer.helpText'));
+        const helpText = wrapper.findAll('p').filter((p) => p.text().includes('sw-settings-mailer.helpText'));
         expect(helpText.length).toBeGreaterThan(0);
     });
 

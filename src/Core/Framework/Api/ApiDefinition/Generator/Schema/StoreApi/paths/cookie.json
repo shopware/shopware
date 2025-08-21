@@ -1,16 +1,6 @@
 {
   "openapi": "3.1.0",
   "info": [],
-  "components": {
-    "schemas": {
-      "CookieGroupCollection": {
-        "type": "array",
-        "items": {
-          "$ref": "#/components/schemas/CookieGroup"
-        }
-      }
-    }
-  },
   "paths": {
     "/cookie-groups": {
       "get": {

@@ -377,7 +377,6 @@ class CheapestPriceTest extends TestCase
 
                 $assertions = $case['assertions'];
 
-                /** @var string[] $keys */
                 $keys = array_keys($assertions);
 
                 $criteria = new Criteria($ids->getList($keys));
@@ -459,7 +458,6 @@ class CheapestPriceTest extends TestCase
 
                 $assertions = $case['assertions'];
 
-                /** @var string[] $keys */
                 $keys = array_keys($assertions);
 
                 $criteria = new Criteria($ids->getList($keys));

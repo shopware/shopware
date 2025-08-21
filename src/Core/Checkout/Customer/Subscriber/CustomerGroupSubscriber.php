@@ -147,7 +147,6 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                     continue;
                 }
 
-                /** @var array<string> $languageIds */
                 $languageIds = $registrationSalesChannel->getLanguages()->getIds();
                 $languageCriteria = new Criteria($languageIds);
                 $languageCriteria->addFilter(new EqualsFilter('active', true));

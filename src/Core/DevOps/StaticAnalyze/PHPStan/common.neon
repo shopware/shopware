@@ -25,7 +25,6 @@ parameters:
         disallowedLooseComparison: false
         booleansInConditions: false
         booleansInLoopConditions: false
-        uselessCast: false
         requireParentConstructorCall: false
         disallowedBacktick: false
         disallowedEmpty: false

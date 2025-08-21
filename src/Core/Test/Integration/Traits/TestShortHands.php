@@ -165,7 +165,7 @@ trait TestShortHands
 
     private function assertStock(string $productId, int $stock, int $available): void
     {
-        /** @var array{stock: int, available_stock:int} $stocks */
+        /** @var array{stock: int, available_stock: string} $stocks */
         $stocks = static::getContainer()->get(Connection::class)->fetchAssociative(
             'SELECT stock, available_stock FROM product WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($productId)]
@@ -173,7 +173,7 @@ trait TestShortHands
 
         static::assertNotEmpty($stocks, \sprintf('Product with id %s not found', $productId));
 
-        static::assertSame($stock, (int) $stocks['stock'], \sprintf('Product with id %s has wrong stock', $productId));
+        static::assertSame($stock, $stocks['stock'], \sprintf('Product with id %s has wrong stock', $productId));
 
         static::assertSame($available, (int) $stocks['available_stock'], \sprintf('Product with id %s has wrong available stock', $productId));
     }

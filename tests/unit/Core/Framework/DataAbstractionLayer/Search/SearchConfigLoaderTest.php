@@ -85,7 +85,7 @@ class SearchConfigLoaderTest extends TestCase
                     'min_search_length' => 5,
                     'field' => 'name',
                     'tokenize' => 1,
-                    'ranking' => 2,
+                    'ranking' => 2.0,
                 ]],
             ],
             'expectedResult' => [
@@ -95,7 +95,7 @@ class SearchConfigLoaderTest extends TestCase
                     'min_search_length' => 5,
                     'field' => 'name',
                     'tokenize' => 1,
-                    'ranking' => 2,
+                    'ranking' => 2.0,
                 ],
             ],
         ];
@@ -106,7 +106,7 @@ class SearchConfigLoaderTest extends TestCase
                     'and_logic' => 'and',
                     'field' => 'name',
                     'tokenize' => 1,
-                    'ranking' => 100,
+                    'ranking' => 100.0,
                     'excluded_terms' => json_encode(['term1', 'term2']),
                     'min_search_length' => 5,
                 ]],
@@ -116,7 +116,7 @@ class SearchConfigLoaderTest extends TestCase
                     'min_search_length' => 15,
                     'field' => 'name',
                     'tokenize' => 0,
-                    'ranking' => 50,
+                    'ranking' => 50.0,
                 ]],
             ],
             'expectedResult' => [
@@ -126,7 +126,7 @@ class SearchConfigLoaderTest extends TestCase
                     'min_search_length' => 5,
                     'field' => 'name',
                     'tokenize' => 1,
-                    'ranking' => 100,
+                    'ranking' => 100.0,
                 ],
             ],
         ];

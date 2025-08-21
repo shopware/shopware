@@ -55,7 +55,7 @@ class AwsS3v3Factory implements AdapterFactoryInterface
         $client = new S3Client($s3Opts);
 
         $adapter = new AsyncAwsS3WriteBatchAdapter($client, $options['bucket'], $options['root'], new PortableVisibilityConverter());
-        $adapter->setBatchSize($this->batchWriteSize);
+        $adapter->batchSize = $this->batchWriteSize;
 
         return $adapter;
     }

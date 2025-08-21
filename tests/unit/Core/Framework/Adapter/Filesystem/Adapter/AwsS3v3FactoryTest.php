@@ -97,7 +97,7 @@ class AwsS3v3FactoryTest extends TestCase
         ]);
 
         $adapter = new AsyncAwsS3WriteBatchAdapter($client, 'private', 'foobar', new PortableVisibilityConverter());
-        $adapter->setBatchSize($customBatchSize);
+        $adapter->batchSize = $customBatchSize;
 
         static::assertEquals(
             $adapter,

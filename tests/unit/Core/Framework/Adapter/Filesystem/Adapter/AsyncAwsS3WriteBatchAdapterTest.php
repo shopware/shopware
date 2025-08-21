@@ -92,7 +92,7 @@ class AsyncAwsS3WriteBatchAdapterTest extends TestCase
         $result = ResultMockFactory::create(PutObjectOutput::class);
 
         $adapter = new AsyncAwsS3WriteBatchAdapter($s3Client, 'test', '', new PortableVisibilityConverter());
-        $adapter->setBatchSize(2);
+        $adapter->batchSize = 2;
 
         $files = [];
         for ($i = 0; $i < 5; ++$i) {

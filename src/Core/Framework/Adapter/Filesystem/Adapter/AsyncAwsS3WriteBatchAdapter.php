@@ -16,12 +16,7 @@ class AsyncAwsS3WriteBatchAdapter extends AsyncAwsS3Adapter implements WriteBatc
     /**
      * @var int<1, max>
      */
-    private int $batchSize = 250;
-
-    public function setBatchSize(int $batchSize): void
-    {
-        $this->batchSize = $batchSize;
-    }
+    public int $batchSize = 250;
 
     public function writeBatch(CopyBatchInput ...$files): void
     {

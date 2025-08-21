@@ -21,6 +21,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(AppListCommand::class)]
 class AppListCommandTest extends TestCase
 {
+    /** @var MockObject&EntityRepository<AppCollection> */
     private MockObject&EntityRepository $appRepoMock;
 
     private AppListCommand $command;

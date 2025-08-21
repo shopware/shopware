@@ -85,10 +85,10 @@ export default Component.wrapComponentConfig({
                 this.licenseViolationService.removeTimeFromLocalStorage(this.licenseViolationService.key.showViolationsKey);
             }
 
-            return animationPromise.then(() => {
+            return animationPromise.then(async () => {
                 // @ts-expect-error
                 this.$parent.isLoginSuccess = false;
-                this.forwardLogin();
+                await this.forwardLogin();
 
                 const shouldReload = sessionStorage.getItem('sw-login-should-reload');
 
@@ -101,7 +101,7 @@ export default Component.wrapComponentConfig({
             });
         },
 
-        forwardLogin() {
+        async forwardLogin() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const previousRoute = JSON.parse(sessionStorage.getItem('sw-admin-previous-route') as string);
             sessionStorage.removeItem('sw-admin-previous-route');
@@ -115,18 +115,18 @@ export default Component.wrapComponentConfig({
                 !this.$router?.currentRoute?.value?.name?.startsWith('sw.first.run.wizard') &&
                 this.$router.hasRoute('sw.first.run.wizard.index')
             ) {
-                void this.$router.push({ name: 'sw.first.run.wizard.index' });
+                void (await this.$router.push({ name: 'sw.first.run.wizard.index' }));
                 return;
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (previousRoute?.fullPath) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                void this.$router.push(previousRoute.fullPath);
+                void (await this.$router.push(previousRoute.fullPath));
                 return;
             }
 
-            void this.$router.push({ name: 'core' });
+            void (await this.$router.push({ name: 'core' }));
         },
 
         handleLoginError(response: unknown) {

@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Routing;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -95,7 +96,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
     public function testCanWriteWithPermissionsSet(): void
     {
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
         $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
@@ -123,7 +124,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
     public function testItCanUpdateAnExistingProduct(): void
     {
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
         $productId = Uuid::randomHex();
         $newName = 'i got a new name';
@@ -149,7 +150,6 @@ class ApiRequestContextResolverAppTest extends TestCase
 
         static::assertSame(204, $browser->getResponse()->getStatusCode());
 
-        /** @var ProductEntity $product */
         $product = $productRepository->search(new Criteria(), $context)->getEntities()->get($productId);
 
         static::assertNotNull($product);
@@ -231,7 +231,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
     private function setAccessTokenForIntegration(string $integrationId, string $accessKey, string $secret): void
     {
-        /** @var EntityRepository $integrationRepository */
+        /** @var EntityRepository<IntegrationCollection> $integrationRepository */
         $integrationRepository = static::getContainer()->get('integration.repository');
 
         $integrationRepository->update([

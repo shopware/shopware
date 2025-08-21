@@ -22,6 +22,8 @@ class A11yRenderedDocumentStorer extends FlowStorer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<DocumentCollection> $documentRepository
      */
     public function __construct(
         private readonly EntityRepository $documentRepository,
@@ -84,7 +86,6 @@ class A11yRenderedDocumentStorer extends FlowStorer
 
         $this->dispatcher->dispatch($event, $event->getName());
 
-        /** @var DocumentCollection $documents */
         $documents = $this->documentRepository
             ->search($criteria, $context)
             ->getEntities();

@@ -11,8 +11,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\CategoryAdminSearchIndexer;
@@ -107,6 +111,30 @@ class CategoryAdminSearchIndexerTest extends TestCase
 
         static::assertSame($id, $document['id']);
         static::assertSame('809c1844f4734243b6aa04aba860cd45 category tag', $document['text']);
+    }
+
+    public function testGetUpdatedIds(): void
+    {
+        $indexer = new CategoryAdminSearchIndexer(
+            $this->createMock(Connection::class),
+            $this->createMock(IteratorFactory::class),
+            $this->createMock(EntityRepository::class),
+            100
+        );
+
+        $categoryId = Uuid::randomHex();
+
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('category_translation', [
+                    new EntityWriteResult(['categoryId' => $categoryId], ['name' => 'New name'], 'category_translation', EntityWriteResult::OPERATION_UPDATE),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        static::assertSame([$categoryId], $indexer->getUpdatedIds($event));
     }
 
     private function getConnection(): Connection

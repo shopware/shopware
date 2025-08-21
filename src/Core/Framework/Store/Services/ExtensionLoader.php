@@ -257,6 +257,8 @@ class ExtensionLoader
                 'privacyPolicyExtension' => isset($appArray['privacyPolicyExtensions']) ? $this->getTranslationFromArray($appArray['privacyPolicyExtensions'], $language, 'en-GB') : '',
                 'privacyPolicyLink' => $app->getMetadata()->getPrivacy(),
                 'inAppPurchases' => $this->inAppPurchase->getByExtension($app->getMetadata()->getName()),
+                'permissions' => Utils::makePermissions($app->getPermissions()?->asParsedPrivileges() ?? []),
+                'requestedPermissions' => [],
             ];
 
             $collection->set($name, $this->loadFromArray($context, $row, $language));

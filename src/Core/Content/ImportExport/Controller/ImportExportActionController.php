@@ -14,6 +14,7 @@ use Shopware\Core\Content\ImportExport\Service\SupportedFeaturesService;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
@@ -40,6 +41,8 @@ class ImportExportActionController extends AbstractController
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<EntityCollection<ImportExportProfileEntity>> $profileRepository
      */
     public function __construct(
         private readonly SupportedFeaturesService $supportedFeaturesService,
@@ -202,7 +205,7 @@ class ImportExportActionController extends AbstractController
             ->getEntities()
             ->get($profileId);
 
-        if ($profile instanceof ImportExportProfileEntity) {
+        if ($profile) {
             return $profile;
         }
 

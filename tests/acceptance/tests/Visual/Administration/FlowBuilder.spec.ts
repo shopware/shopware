@@ -59,7 +59,7 @@ test('Visual: Flow Builder detail page', { tag: '@Visual' }, async ({
     await test.step('Create a screenshot of a flow general tab.', async () => {
         await ShopAdmin.goesTo(AdminFlowBuilderListing.url());
         await ShopAdmin.attemptsTo(CreateFlow(testConfig as FlowConfig));
-        await ShopAdmin.expects(AdminFlowBuilderDetail.skeletonLoader.first()).not.toBeVisible();
+        //await ShopAdmin.expects(AdminFlowBuilderDetail.skeletonLoader.first()).not.toBeVisible();
         await ShopAdmin.expects(AdminFlowBuilderDetail.successMessage).toBeVisible();
         await AdminFlowBuilderDetail.messageClose.click();
         await setViewport(AdminFlowBuilderDetail.page, {

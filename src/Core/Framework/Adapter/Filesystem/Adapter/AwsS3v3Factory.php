@@ -17,11 +17,14 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class AwsS3v3Factory implements AdapterFactoryInterface
 {
     /**
+     * @internal
+     *
      * @param int<1, max> $batchWriteSize
      */
     public function __construct(
         private readonly int $batchWriteSize = 250
-    ) {}
+    ) {
+    }
 
     /**
      * @param array<string, mixed> $config
@@ -51,7 +54,10 @@ class AwsS3v3Factory implements AdapterFactoryInterface
 
         $client = new S3Client($s3Opts);
 
-        return new AsyncAwsS3WriteBatchAdapter($client, $options['bucket'], $options['root'], new PortableVisibilityConverter(), $this->batchWriteSize);
+        $adapter = new AsyncAwsS3WriteBatchAdapter($client, $options['bucket'], $options['root'], new PortableVisibilityConverter());
+        $adapter->setBatchSize($this->batchWriteSize);
+
+        return $adapter;
     }
 
     public function getType(): string

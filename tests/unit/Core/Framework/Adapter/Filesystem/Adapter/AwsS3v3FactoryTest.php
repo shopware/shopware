@@ -46,7 +46,7 @@ class AwsS3v3FactoryTest extends TestCase
         ]);
 
         static::assertEquals(
-            new AsyncAwsS3WriteBatchAdapter($client, 'private', 'foobar', new PortableVisibilityConverter(), 250),
+            new AsyncAwsS3WriteBatchAdapter($client, 'private', 'foobar', new PortableVisibilityConverter()),
             (new AwsS3v3Factory())->create($config)
         );
     }
@@ -76,7 +76,7 @@ class AwsS3v3FactoryTest extends TestCase
         ]);
 
         static::assertEquals(
-            new AsyncAwsS3WriteBatchAdapter($client, 'private', 'foobar', new PortableVisibilityConverter(), 250),
+            new AsyncAwsS3WriteBatchAdapter($client, 'private', 'foobar', new PortableVisibilityConverter()),
             (new AwsS3v3Factory())->create($config)
         );
     }
@@ -96,8 +96,11 @@ class AwsS3v3FactoryTest extends TestCase
             'region' => 'local',
         ]);
 
+        $adapter = new AsyncAwsS3WriteBatchAdapter($client, 'private', 'foobar', new PortableVisibilityConverter());
+        $adapter->setBatchSize($customBatchSize);
+
         static::assertEquals(
-            new AsyncAwsS3WriteBatchAdapter($client, 'private', 'foobar', new PortableVisibilityConverter(), $customBatchSize),
+            $adapter,
             $factory->create($config)
         );
     }

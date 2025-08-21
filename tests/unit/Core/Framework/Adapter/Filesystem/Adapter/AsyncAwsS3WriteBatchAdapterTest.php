@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AsyncAwsS3WriteBatchAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -19,8 +20,9 @@ class AsyncAwsS3WriteBatchAdapterTest extends TestCase
 {
     public function testS3(): void
     {
-        $tmpFile = sys_get_temp_dir() . '/' . uniqid('test', true);
-        file_put_contents($tmpFile, 'test');
+        $fs = new Filesystem();
+        $tmpFile = $fs->tempnam(sys_get_temp_dir(), 'test');
+        $fs->dumpFile($tmpFile, 'test');
 
         $sourceFile = fopen($tmpFile, 'rb');
         static::assertIsResource($sourceFile);
@@ -45,8 +47,9 @@ class AsyncAwsS3WriteBatchAdapterTest extends TestCase
 
     public function testS3UsingPath(): void
     {
-        $tmpFile = sys_get_temp_dir() . '/' . uniqid('test', true);
-        file_put_contents($tmpFile, 'test');
+        $fs = new Filesystem();
+        $tmpFile = $fs->tempnam(sys_get_temp_dir(), 'test');
+        $fs->dumpFile($tmpFile, 'test');
 
         $s3Client = $this->createMock(S3Client::class);
 
@@ -81,14 +84,15 @@ class AsyncAwsS3WriteBatchAdapterTest extends TestCase
 
     public function testConfigurableBatchSize(): void
     {
-        $tmpFile = sys_get_temp_dir() . '/' . uniqid('test', true);
-        file_put_contents($tmpFile, 'test');
+        $fs = new Filesystem();
+        $tmpFile = $fs->tempnam(sys_get_temp_dir(), 'test');
+        $fs->dumpFile($tmpFile, 'test');
 
         $s3Client = $this->createMock(S3Client::class);
         $result = ResultMockFactory::create(PutObjectOutput::class);
 
-        $batchSize = 2;
-        $adapter = new AsyncAwsS3WriteBatchAdapter($s3Client, 'test', '', new PortableVisibilityConverter(), $batchSize);
+        $adapter = new AsyncAwsS3WriteBatchAdapter($s3Client, 'test', '', new PortableVisibilityConverter());
+        $adapter->setBatchSize(2);
 
         $files = [];
         for ($i = 0; $i < 5; ++$i) {

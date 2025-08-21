@@ -14,17 +14,13 @@ use Shopware\Core\Framework\Log\Package;
 class AsyncAwsS3WriteBatchAdapter extends AsyncAwsS3Adapter implements WriteBatchInterface
 {
     /**
-     * @param S3Client $client // needs to be defined, because parent constructor also allows unknown type
-     * @param int<1, max> $batchSize
+     * @var int<1, max>
      */
-    public function __construct(
-        S3Client $client,
-        string $bucket,
-        string $prefix = '',
-        ?PortableVisibilityConverter $visibility = null,
-        private readonly int $batchSize = 250
-    ) {
-        parent::__construct($client, $bucket, $prefix, $visibility);
+    private int $batchSize = 250;
+
+    public function setBatchSize(int $batchSize): void
+    {
+        $this->batchSize = $batchSize;
     }
 
     public function writeBatch(CopyBatchInput ...$files): void

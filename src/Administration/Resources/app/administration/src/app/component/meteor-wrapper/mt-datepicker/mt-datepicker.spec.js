@@ -23,7 +23,7 @@ describe('src/app/component/meteor-wrapper/mt-datepicker', () => {
     it('should use the user timeZone', async () => {
         const wrapper = mount(await wrapTestComponent('mt-datepicker', { sync: true }));
 
-        expect(wrapper.find('[data-test="time-zone-hint"]').text()).toBe('Europe/Berlin');
+        expect(wrapper.find('[data-testid="time-zone-hint"]').text()).toBe('Europe/Berlin');
     });
 
     it('should use the user locale (de)', async () => {

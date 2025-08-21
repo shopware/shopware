@@ -146,7 +146,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                 continue;
             }
 
-            $snippetDir = $bundle->getPath() . '/Resources';
+            $snippetDir = $bundle->getPath() . '/Resources/snippet';
 
             if (!is_dir($snippetDir)) {
                 continue;
@@ -182,13 +182,8 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
     {
         $finder = new Finder();
         $finder->in($snippetDir)
-            ->exclude('node_modules')
             ->files()
-            ->path('/snippet/')
-            ->name('*.json')
-            ->ignoreDotFiles(true)
-            ->ignoreVCS(true)
-            ->ignoreUnreadableDirs();
+            ->name('*.json');
 
         $snippetFiles = [];
 
@@ -197,17 +192,6 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
 
             $snippetFile = null;
             switch (\count($nameParts)) {
-                case 1:
-                    $snippetFile = new GenericSnippetFile(
-                        $nameParts[0],
-                        $fileInfo->getPathname(),
-                        $nameParts[0],
-                        $this->getAuthorFromBundle($bundle, $authors),
-                        false,
-                        $bundle->getName(),
-                    );
-
-                    break;
                 case 2:
                     $snippetFile = new GenericSnippetFile(
                         implode('.', $nameParts),

@@ -21,6 +21,10 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
             deactivateExtension: jest.fn(),
         }));
 
+        Shopware.Service().register('shopwareServicesService', () => ({
+            getCategorizedPermissions: jest.fn(),
+        }));
+
         originalWindowLocation = window.location;
 
         Object.defineProperty(window, 'location', {
@@ -92,6 +96,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
                     MtModal,
                     MtModalRoot,
                     MtModalTrigger,
+                    SwExtensionPermissionsModal: true,
                 },
             },
         });
@@ -142,6 +147,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
                     MtModal,
                     MtModalRoot,
                     MtModalTrigger,
+                    SwExtensionPermissionsModal: true,
                 },
             },
         });
@@ -188,6 +194,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
                     MtPopover,
                     MtPopoverItem,
                     MtButton,
+                    SwExtensionPermissionsModal: true,
                 },
             },
         });
@@ -259,6 +266,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
                     MtPopover,
                     MtPopoverItem,
                     MtButton,
+                    SwExtensionPermissionsModal: true,
                 },
             },
         });
@@ -272,14 +280,117 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
 
         await popoverButton.trigger('click');
 
-        const popoverItem = card.findComponent(MtPopoverItem);
-        expect(popoverItem.exists()).toBeTruthy();
-        expect(popoverItem.isVisible()).toBeTruthy();
-        expect(popoverItem.text()).toBe('sw-settings-services.general.activate');
+        const popoverItem = card
+            .findAllComponents(MtPopoverItem)
+            .find((pi) => pi.text() === 'sw-settings-services.general.activate');
+        expect(popoverItem).toBeDefined();
 
         await popoverItem.trigger('click');
 
         expect(Shopware.Service('shopwareExtensionService').activateExtension).toHaveBeenCalledWith('service-name', 'app');
         expect(window.location.reload).toHaveBeenCalled();
+    });
+
+    it('shows permissions modal for a service', async () => {
+        Shopware.Service('shopwareServicesService').getCategorizedPermissions.mockImplementationOnce(async () => ({
+            permissions: {
+                order: [
+                    {
+                        extensions: [],
+                        entity: 'order',
+                        operation: 'read',
+                    },
+                    {
+                        extensions: [],
+                        entity: 'order_line_item',
+                        operation: 'read',
+                    },
+                ],
+            },
+        }));
+
+        const card = mount(SwSettingsServicesServiceCard, {
+            props: {
+                service: {
+                    id: 'service-id',
+                    active: false,
+                    name: 'service-name',
+                    label: 'service-label',
+                    icon: 'service-icon',
+                    description: 'service-description',
+                    updated_at: '2025-07-08 11:21:44.819',
+                    version: '1.0.0-b63f0ad27d1ee5a22871637a2ffcdc80',
+                    requested_privileges: [],
+                    privileges: [],
+                    domains: ['url-to-app-server'],
+                },
+            },
+            global: {
+                stubs: {
+                    SwColorBadge,
+                    SwExtensionIcon: {
+                        template: '<div><img :src="src" :alt="alt" /></div>',
+                        props: [
+                            'src',
+                            'alt',
+                        ],
+                    },
+                    SwStatus,
+                    MtModalAction,
+                    MtModal,
+                    MtModalRoot,
+                    MtModalTrigger,
+                    MtPopover,
+                    MtPopoverItem,
+                    MtButton,
+                    SwExtensionPermissionsModal: {
+                        name: 'sw-extension-permissions-modal',
+                        template: '<div>permissions modal stub</div>',
+                        props: [
+                            'extension-label',
+                            'permissions',
+                            'domains',
+                        ],
+                    },
+                },
+            },
+        });
+
+        expect(card.find('sw-extension-permissions-modal').exists()).toBe(false);
+
+        const popover = card.findComponent(MtPopover);
+        expect(popover.exists()).toBeTruthy();
+
+        const popoverButton = popover.findComponent(MtButton);
+        expect(popoverButton.exists()).toBeTruthy();
+        expect(popoverButton.isVisible()).toBeTruthy();
+
+        await popoverButton.trigger('click');
+
+        const popoverItem = card
+            .findAllComponents(MtPopoverItem)
+            .find((pi) => pi.text() === 'sw-settings-services.service-card.permissions');
+        expect(popoverItem).toBeDefined();
+
+        await popoverItem.trigger('click');
+
+        const permissionsModal = card.getComponent({ name: 'sw-extension-permissions-modal' });
+
+        expect(permissionsModal.props('extensionLabel')).toBe('service-label');
+        expect(permissionsModal.props('domains')).toEqual(['url-to-app-server']);
+        expect(permissionsModal.props('permissions')).toEqual({
+            order: [
+                {
+                    extensions: [],
+                    entity: 'order',
+                    operation: 'read',
+                },
+                {
+                    extensions: [],
+                    entity: 'order_line_item',
+                    operation: 'read',
+                },
+            ],
+        });
     });
 });

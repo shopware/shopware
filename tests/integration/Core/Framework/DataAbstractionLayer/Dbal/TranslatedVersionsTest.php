@@ -229,6 +229,9 @@ class TranslatedVersionsTest extends TestCase
         static::assertSame('THIS_SHOULD_BE_RETURNED', $result);
     }
 
+    /**
+     * @param EntityRepository<ProductManufacturerCollection> $productManufacturerRepository
+     */
     private function createManufacturer(EntityRepository $productManufacturerRepository, string $productManufacturerId, Context $context): void
     {
         $translations = $this->getTestTranslations();

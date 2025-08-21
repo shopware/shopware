@@ -12,7 +12,7 @@ use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @implements Rule<Node\Stmt\ClassMethod>
+ * @implements Rule<ClassMethod>
  *
  * @internal
  */

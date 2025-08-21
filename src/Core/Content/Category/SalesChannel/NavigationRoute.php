@@ -11,6 +11,10 @@ use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -44,8 +48,16 @@ class NavigationRoute extends AbstractNavigationRoute
     ) {
     }
 
+    /**
+     * @deprecated - tag:v6.8.0 - will be removed, navigation route will only be tagged globally, use NavigationRoute::ALL_TAG instead
+     */
     public static function buildName(string $id): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', ' NavigationRoute::ALL_TAG')
+        );
+
         return 'navigation-route-' . $id;
     }
 
@@ -68,10 +80,16 @@ class NavigationRoute extends AbstractNavigationRoute
 
         $active = $this->getMetaInfoById($activeId, $metaInfo);
 
-        $tags = [
-            self::buildName($context->getSalesChannelId()),
-            self::buildName($activeId),
-        ];
+        $tags = [self::ALL_TAG];
+
+        // Navigation route will be tagged & invalidated globally only in 6.8
+        Feature::callSilentIfInactive(
+            'v6.8.0.0',
+            static function () use ($context, $activeId, &$tags): void {
+                $tags[] = self::buildName($context->getSalesChannelId());
+                $tags[] = self::buildName($activeId);
+            }
+        );
 
         $this->cacheTagCollector->addTag(...$tags);
 

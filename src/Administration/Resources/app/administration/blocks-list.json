@@ -733,6 +733,7 @@
  "sw_cms_element_image_slider_config_settings_autoplay_timeout",
  "sw_cms_element_image_slider_config_settings_display_mode",
  "sw_cms_element_image_slider_config_settings_display_mode_select",
+ "sw_cms_element_image_slider_config_settings_link_aria_label",
  "sw_cms_element_image_slider_config_settings_link_target",
  "sw_cms_element_image_slider_config_settings_link_url",
  "sw_cms_element_image_slider_config_settings_links",

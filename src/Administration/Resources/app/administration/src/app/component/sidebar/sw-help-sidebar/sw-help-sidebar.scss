@@ -17,8 +17,8 @@
         max-width: 100%;
         height: 100%;
         margin-left: auto;
-        background: $color-white;
-        border-left: 1px solid $color-gray-300;
+        background: var(--color-elevation-surface-raised);
+        border-left: 1px solid var(--color-border-primary-defaul);
 
         &:focus {
             outline: none;
@@ -30,32 +30,47 @@
 
         justify-content: space-between;
         height: 81px;
-        padding: 0 24px;
-        border-bottom: 1px solid $color-gray-300;
+        padding: 0 var(--scale-size-24);
+        border-bottom: 1px solid var(--color-border-primary-default);
     }
 
     &__body {
-        padding: 24px;
+        padding: var(--scale-size-24);
     }
 
     &__footer {
         @include flex-centering-vertical;
 
-        height: 64px;
+        height: var(--scale-size-64);
         margin-top: auto;
-        padding: 0 24px;
-        background: $color-gray-100;
+        padding: 0 var(--scale-size-24);
+        border-top: 1px solid var(--color-border-primary-default);
+        background: var(--color-background-primary-disabled);
     }
 
     &__headline {
         margin: 0;
-        color: $color-darkgray-200;
-        font-size: $font-size-m;
-        font-weight: $font-weight-semi-bold;
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-m);
+        line-height: var(--font-line-height-m);
+        font-weight: var(--font-weight-semibold);
     }
 
     &__button-close {
-        @include reset-button;
+        border-radius: var(--border-radius-button);
+        height: var(--scale-size-32);
+        width: var(--scale-size-32);
+        display: grid;
+        place-items: center;
+
+        &:hover {
+            background: var(--color-interaction-secondary-hover);
+        }
+
+        &:focus-visible {
+            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline-offset: var(--scale-size-2);
+        }
     }
 
     &__navigation .sw-card {
@@ -69,10 +84,10 @@
     }
 
     &__support-title {
-        margin: 0 0 10px;
-        color: $color-darkgray-700;
-        font-size: $font-size-s;
-        font-weight: $font-weight-bold;
+        margin: 0 0 var(--scale-size-10);
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-s);
+        font-weight: var(--font-size-semibold);
     }
 
     &__support-content {
@@ -81,18 +96,16 @@
 
     &__support-item {
         @include flex-centering-vertical;
-        @include transition;
+
+        --_sw-help-sidebar__padding: var(--scale-size-10);
 
         flex-wrap: wrap;
-        padding: 10px;
-        border-radius: $border-radius-default;
+        padding: var(--_sw-help-sidebar__padding);
+        border-radius: var(--border-radius-xs);
+        margin-inline-start: calc(var(--_sw-help-sidebar__padding) * -1);
 
         &:hover {
-            background: $color-gray-100;
-        }
-
-        .mt-icon {
-            color: $color-darkgray-200;
+            background: var(--color-interaction-secondary-hover);
         }
     }
 
@@ -100,10 +113,10 @@
         display: grid;
         grid-auto-flow: column;
         align-items: center;
-        grid-gap: 0 8px;
-        color: $color-darkgray-700;
-        font-size: $font-size-xs;
-        font-weight: $font-weight-medium;
+        grid-gap: 0 var(--scale-size-8);
+        color: var(--color-icon-primary-default);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-medium);
         text-decoration: none;
 
         .sw-external-link__icon {
@@ -111,43 +124,12 @@
         }
     }
 
-    &__support-item-button.mt-button {
-        @include reset-button;
-
-        color: $color-darkgray-700;
-        font-size: $font-size-xs;
-        font-weight: $font-weight-medium;
-        text-decoration: none;
-    }
-
-    &__shortcut {
-        @include transition;
-
-        width: 100%;
-        padding: 10px;
-        border-radius: $border-radius-default;
-
-        &:hover {
-            background: $color-gray-200;
-        }
-
-        .mt-icon {
-            color: $color-darkgray-200;
-        }
-    }
-
-    &__shortcut-button {
-        @include reset-button;
-
-        color: $color-darkgray-700;
-    }
-
     /**
     * @description Vue transition classes
     * @see https://vuejs.org/guide/built-ins/transition.html#Transition-Classes
     */
     &__fade-enter-active {
-        @include transition(all, 0.3s, ease-out);
+        @include transition(all, 0.3s, cubic-bezier(0.165, 0.84, 0.44, 1));
     }
 
     &__fade-leave-active {

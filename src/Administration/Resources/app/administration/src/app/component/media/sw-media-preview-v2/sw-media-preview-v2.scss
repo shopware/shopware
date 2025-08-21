@@ -21,7 +21,7 @@ $sw-media-preview-v2-locked-icon-z-index: 5;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: $color-gray-300;
+        color: var(--color-icon-primary-default);
     }
 
     .sw-media-preview-v2__item {

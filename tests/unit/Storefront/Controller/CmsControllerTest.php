@@ -13,6 +13,7 @@ use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\SalesChannel\CmsRoute;
 use Shopware\Core\Content\Cms\SalesChannel\CmsRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
@@ -45,6 +46,8 @@ class CmsControllerTest extends TestCase
 
     private MockObject&ProductListingRoute $productListingRouteMock;
 
+    private MockObject&ProductDetailRoute $productDetailRouteMock;
+
     private CmsControllerTestClass $controller;
 
     protected function setUp(): void
@@ -53,12 +56,13 @@ class CmsControllerTest extends TestCase
         $this->cmsRouteMock = $this->createMock(CmsRoute::class);
         $this->categoryRouteMock = $this->createMock(CategoryRoute::class);
         $this->productListingRouteMock = $this->createMock(ProductListingRoute::class);
+        $this->productDetailRouteMock = $this->createMock(ProductDetailRoute::class);
 
         $this->controller = new CmsControllerTestClass(
             $this->cmsRouteMock,
             $this->categoryRouteMock,
             $this->productListingRouteMock,
-            $this->createMock(ProductDetailRoute::class),
+            $this->productDetailRouteMock,
             $this->createMock(ProductReviewLoader::class),
             $this->createMock(FindProductVariantRoute::class),
             $eventDispatcherMock,
@@ -180,6 +184,13 @@ class CmsControllerTest extends TestCase
             ]
         );
 
+        $salesChannelProduct = new SalesChannelProductEntity();
+        $salesChannelProduct->setId($ids->get('product'));
+
+        $this->productDetailRouteMock->expects($this->once())
+            ->method('load')
+            ->willReturn(new ProductDetailRouteResponse($salesChannelProduct, null));
+
         $this->controller->switchBuyBoxVariant($ids->get('product'), $request, $this->createMock(SalesChannelContext::class));
 
         static::assertInstanceOf(SalesChannelProductEntity::class, $this->controller->renderStorefrontParameters['product']);
@@ -205,6 +216,13 @@ class CmsControllerTest extends TestCase
                 'options' => 'invalidJsonString',
             ]
         );
+
+        $salesChannelProduct = new SalesChannelProductEntity();
+        $salesChannelProduct->setId($ids->get('product'));
+
+        $this->productDetailRouteMock->expects($this->once())
+            ->method('load')
+            ->willReturn(new ProductDetailRouteResponse($salesChannelProduct, null));
 
         $response = $this->controller->switchBuyBoxVariant(
             $ids->get('product'),
